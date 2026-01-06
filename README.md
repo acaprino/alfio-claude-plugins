@@ -363,12 +363,12 @@ AI-powered systematic codebase analysis combining structure extraction with sema
 
 ### ⚡ Commands
 
-#### `/code-review`
+#### `/senior-code-review`
 
 Perform systematic code review with security, performance, and architecture analysis.
 
 ```
-/code-review src/api/users.py
+/senior-code-review src/api/users.py
 ```
 
 **Analysis phases:**
@@ -591,7 +591,7 @@ Analyze and optimize prompts for better results, reduced token usage, and improv
 
 ### 🔍 Code Review Workflow
 ```
-1️⃣ /code-review src/features/auth/
+1️⃣ /senior-code-review src/features/auth/
 2️⃣ Address CRITICAL and HIGH issues first
 3️⃣ /python-refactor on flagged modules
 4️⃣ Use react-performance-optimizer for React-specific issues
@@ -642,7 +642,7 @@ alfio-claude-plugins/
 │   │   ├── skills/
 │   │   │   └── deep-dive-analysis/
 │   │   └── commands/
-│   │       └── code-review.md
+│   │       └── senior-code-review.md
 │   ├── tauri-development/
 │   │   ├── agents/
 │   │   │   ├── tauri-optimizer.md
