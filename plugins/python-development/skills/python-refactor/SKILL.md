@@ -1329,27 +1329,37 @@ Structure refactoring output consistently using the template from `assets/templa
 - [N/A]
 ```
 
-## Integration with Other Skills
+## Integration with Same-Package Skills
 
-This skill composes well with complementary skills:
+This skill works in synergy with other skills in `python-development`:
 
-### Testing Skills
-- **Before refactoring:** Use testing skills to ensure comprehensive test coverage
-- **During refactoring:** Run tests after each change
+### python-testing-patterns
+- **Before refactoring:** Use `python-testing-patterns` to set up comprehensive pytest fixtures, mocking, and coverage
+- **During refactoring:** Reference test patterns for writing validation tests
 - **After refactoring:** Validate test coverage hasn't decreased
+- **Invoke:** For detailed pytest patterns, fixtures, parameterization → use `python-testing-patterns` skill
 
-### Performance Profiling
-- **Before refactoring:** Profile performance-critical paths to establish baseline
-- **After refactoring:** Re-profile to confirm no significant regression
-- **Decision point:** If performance-critical, balance readability with performance
+### python-performance-optimization
+- **Before refactoring:** Use `python-performance-optimization` for deep profiling with cProfile, py-spy, memory_profiler
+- **After refactoring:** Run benchmark validation using profiling patterns
+- **Note:** This skill's `benchmark_changes.py` script is for quick regression checks; use the performance skill for deep analysis
+- **Invoke:** For runtime profiling, memory analysis, optimization → use `python-performance-optimization` skill
 
-### Security Auditing
-- **After refactoring:** Run security audit to ensure no new vulnerabilities introduced
-- **Focus areas:** Input validation, error handling, data sanitization
+### python-packaging
+- **After refactoring:** If refactoring a library, use `python-packaging` for proper pyproject.toml and distribution setup
+- **Invoke:** For packaging, publishing to PyPI → use `python-packaging` skill
 
-### Documentation Generation
-- **After refactoring:** Generate updated API documentation from improved docstrings
-- **Benefit:** Refactored code with better docs improves generated documentation
+### uv-package-manager
+- Use `uv` commands referenced in this skill (`uv run ruff`, `uv run complexipy`)
+- **Invoke:** For dependency management, virtual environments → use `uv-package-manager` skill
+
+### async-python-patterns
+- When refactoring async code, reference async patterns for proper async/await structure
+- **Invoke:** For asyncio patterns, concurrent programming → use `async-python-patterns` skill
+
+### External Integration
+- **Security Auditing:** After refactoring, run security audit to ensure no new vulnerabilities introduced
+- **Documentation Generation:** Refactored code with better docstrings improves generated documentation
 
 ## Edge Cases and Limitations
 
