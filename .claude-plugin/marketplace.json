@@ -1,0 +1,111 @@
+{
+  "name": "alfio-dev-workflows",
+  "owner": {
+    "name": "Alfio",
+    "email": ""
+  },
+  "metadata": {
+    "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, and AI tooling",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "code-quality",
+      "source": "./plugins/code-quality",
+      "description": "Code review, deep-dive analysis, and Python refactoring tools for systematic code quality improvement",
+      "version": "1.0.0",
+      "author": {
+        "name": "Alfio"
+      },
+      "license": "MIT",
+      "keywords": [
+        "code-review",
+        "refactoring",
+        "python",
+        "analysis",
+        "quality"
+      ],
+      "category": "quality",
+      "strict": false,
+      "agents": [
+        "./agents/senior-code-reviewer.md"
+      ],
+      "skills": [
+        "./skills/deep-dive-analysis",
+        "./skills/python-refactor-skill"
+      ]
+    },
+    {
+      "name": "tauri-development",
+      "source": "./plugins/tauri-development",
+      "description": "Tauri 2 mobile development, Rust engineering, and cross-platform app optimization",
+      "version": "1.0.0",
+      "author": {
+        "name": "Alfio"
+      },
+      "license": "MIT",
+      "keywords": [
+        "tauri",
+        "rust",
+        "mobile",
+        "cross-platform",
+        "desktop"
+      ],
+      "category": "development",
+      "strict": false,
+      "agents": [
+        "./agents/tauri-optimizer.md",
+        "./agents/rust-engineer.md"
+      ],
+      "skills": [
+        "./skills/tauri2-mobile"
+      ]
+    },
+    {
+      "name": "frontend-optimization",
+      "source": "./plugins/frontend-optimization",
+      "description": "React performance optimization, UI polishing, and UX design for frontend applications",
+      "version": "1.0.0",
+      "author": {
+        "name": "Alfio"
+      },
+      "license": "MIT",
+      "keywords": [
+        "react",
+        "performance",
+        "ui",
+        "ux",
+        "frontend",
+        "optimization"
+      ],
+      "category": "frontend",
+      "strict": false,
+      "agents": [
+        "./agents/react-performance-optimizer.md",
+        "./agents/ui-polisher.md",
+        "./agents/ui-ux-designer.md"
+      ]
+    },
+    {
+      "name": "ai-tooling",
+      "source": "./plugins/ai-tooling",
+      "description": "Prompt engineering and LLM optimization for AI-powered applications",
+      "version": "1.0.0",
+      "author": {
+        "name": "Alfio"
+      },
+      "license": "MIT",
+      "keywords": [
+        "prompt-engineering",
+        "llm",
+        "ai",
+        "optimization"
+      ],
+      "category": "ai-ml",
+      "strict": false,
+      "agents": [
+        "./agents/prompt-engineer.md"
+      ]
+    }
+  ]
+}
