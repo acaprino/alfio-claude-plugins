@@ -1,6 +1,33 @@
 # Alfio Claude Plugins
 
-Custom Claude Code plugin marketplace with development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, and AI tooling.
+Custom Claude Code plugin marketplace with development workflow agents, skills, and commands for Python development, code quality, Tauri/Rust, frontend optimization, and AI tooling.
+
+---
+
+## Table of Contents
+
+- [Installation](#-installation)
+- [Plugins Overview](#-plugins-overview)
+- [Python Development](#-python-development-plugin)
+  - [Agents](#agents)
+  - [Skills](#skills)
+  - [Commands](#commands)
+- [Code Quality](#-code-quality-plugin)
+  - [Agents](#agents-1)
+  - [Skills](#skills-1)
+- [Tauri Development](#-tauri-development-plugin)
+  - [Agents](#agents-2)
+  - [Skills](#skills-2)
+- [Frontend Optimization](#-frontend-optimization-plugin)
+  - [Agents](#agents-3)
+- [AI Tooling](#-ai-tooling-plugin)
+  - [Agents](#agents-4)
+- [Usage Examples](#-usage-examples)
+- [Project Structure](#-project-structure)
+- [Contributing](#-contributing)
+- [License](#-license)
+
+---
 
 ## Installation
 
@@ -22,35 +49,269 @@ claude plugins:add C:\Users\alfio\Desktop\agents
 claude plugins:list
 ```
 
+---
+
 ## Plugins Overview
 
-| Plugin | Description | Agents | Skills |
-|--------|-------------|--------|--------|
-| **code-quality** | Code review, analysis, and Python refactoring | 1 | 2 |
-| **tauri-development** | Tauri 2 mobile/desktop and Rust engineering | 2 | 1 |
-| **frontend-optimization** | React performance, UI polish, and UX design | 3 | - |
-| **ai-tooling** | Prompt engineering and LLM optimization | 1 | - |
+| Plugin | Description | Agents | Skills | Commands |
+|--------|-------------|:------:|:------:|:--------:|
+| [**python-development**](#-python-development-plugin) | Modern Python, Django, FastAPI, testing, packaging | 3 | 6 | 2 |
+| [**code-quality**](#-code-quality-plugin) | Code review and deep analysis | 1 | 1 | - |
+| [**tauri-development**](#-tauri-development-plugin) | Tauri 2 mobile/desktop and Rust engineering | 2 | 1 | - |
+| [**frontend-optimization**](#-frontend-optimization-plugin) | React performance, UI polish, and UX design | 3 | - | - |
+| [**ai-tooling**](#-ai-tooling-plugin) | Prompt engineering and LLM optimization | 1 | - | - |
+
+---
+
+## Python Development Plugin
+
+> Modern Python development ecosystem with frameworks, testing, packaging, and code refactoring.
+
+### Agents
+
+#### `python-pro`
+
+Expert Python developer mastering Python 3.12+ features, modern tooling (uv, ruff), and production-ready practices.
+
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Use for** | Modern Python patterns, async programming, performance optimization, type hints |
+
+**Invocation:**
+```
+Use the python-pro agent to [implement/optimize/review] [feature]
+```
+
+**Expertise:**
+- Python 3.12+ features (pattern matching, type hints, dataclasses)
+- Modern tooling: uv, ruff, mypy, pytest
+- Async/await patterns with asyncio
+- Performance profiling and optimization
+- FastAPI, Django, Pydantic integration
+
+---
+
+#### `django-pro`
+
+Expert Django developer specializing in Django 5.x, DRF, async views, and scalable architectures.
+
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Use for** | Django apps, DRF APIs, ORM optimization, Celery tasks, Django Channels |
+
+**Invocation:**
+```
+Use the django-pro agent to [design/implement/optimize] [feature]
+```
+
+**Expertise:**
+- Django 5.x async views and middleware
+- Django REST Framework patterns
+- ORM optimization (select_related, prefetch_related)
+- Celery background tasks
+- Django Channels WebSockets
+
+---
+
+#### `fastapi-pro`
+
+Expert FastAPI developer for high-performance async APIs with modern Python patterns.
+
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Use for** | FastAPI microservices, async SQLAlchemy, Pydantic V2, WebSockets |
+
+**Invocation:**
+```
+Use the fastapi-pro agent to [build/optimize] [API/service]
+```
+
+**Expertise:**
+- FastAPI 0.100+ with Annotated types
+- SQLAlchemy 2.0+ async patterns
+- Pydantic V2 validation
+- OAuth2/JWT authentication
+- OpenTelemetry observability
+
+---
+
+### Skills
+
+#### `python-refactor`
+
+Systematic 4-phase refactoring workflow transforming complex code into clean, maintainable code.
+
+| | |
+|---|---|
+| **Invoke** | `/python-refactor` or skill reference |
+| **Use for** | Legacy modernization, complexity reduction, OOP transformation |
+
+**4-Phase Workflow:**
+1. **Analysis** - Measure complexity metrics, identify issues
+2. **Planning** - Prioritize issues, select refactoring patterns
+3. **Execution** - Apply patterns incrementally with test validation
+4. **Validation** - Verify tests pass, metrics improved, no regression
+
+**Key Features:**
+- 7 executable Python scripts for metrics
+- Cognitive complexity calculation
+- flake8 integration with 16 curated plugins
+- OOP transformation patterns
+- Regression prevention checklists
+
+**Synergy:** Works with `python-testing-patterns` and `python-performance-optimization`
+
+---
+
+#### `python-testing-patterns`
+
+Comprehensive testing strategies with pytest, fixtures, mocking, and TDD.
+
+| | |
+|---|---|
+| **Invoke** | Skill reference |
+| **Use for** | Unit tests, integration tests, fixtures, mocking, coverage |
+
+**Patterns included:**
+- pytest fixtures (function, module, session scoped)
+- Parameterized tests
+- Mocking with unittest.mock
+- Async testing with pytest-asyncio
+- Property-based testing with Hypothesis
+- Database testing patterns
+
+---
+
+#### `python-performance-optimization`
+
+Profiling and optimization techniques for Python applications.
+
+| | |
+|---|---|
+| **Invoke** | Skill reference |
+| **Use for** | Profiling, bottleneck identification, memory optimization |
+
+**Tools covered:**
+- cProfile and py-spy for CPU profiling
+- memory_profiler for memory analysis
+- pytest-benchmark for benchmarking
+- Line profiling and flame graphs
+
+---
+
+#### `async-python-patterns`
+
+Async/await patterns for high-performance concurrent applications.
+
+| | |
+|---|---|
+| **Invoke** | Skill reference |
+| **Use for** | asyncio, concurrent I/O, WebSockets, background tasks |
+
+**Patterns included:**
+- Event loop fundamentals
+- gather(), create_task(), wait_for()
+- Producer-consumer with asyncio.Queue
+- Semaphores for rate limiting
+- Async context managers and iterators
+
+---
+
+#### `python-packaging`
+
+Creating and distributing Python packages with modern standards.
+
+| | |
+|---|---|
+| **Invoke** | Skill reference |
+| **Use for** | Library creation, PyPI publishing, CLI tools |
+
+**Topics covered:**
+- pyproject.toml configuration
+- Source layout (src/) best practices
+- Entry points and CLI tools
+- Publishing to PyPI/TestPyPI
+- Dynamic versioning with setuptools-scm
+
+---
+
+#### `uv-package-manager`
+
+Fast Python dependency management with uv (10-100x faster than pip).
+
+| | |
+|---|---|
+| **Invoke** | Skill reference |
+| **Use for** | Dependency management, virtual environments, lockfiles |
+
+**Key commands:**
+| Task | Command |
+|------|---------|
+| Create project | `uv init my-project` |
+| Add dependency | `uv add requests` |
+| Sync from lock | `uv sync --frozen` |
+| Run script | `uv run python app.py` |
+
+---
+
+### Commands
+
+#### `/python-scaffold`
+
+Generate production-ready Python project structures.
+
+```
+/python-scaffold FastAPI REST API for user management
+```
+
+**Project types:**
+- FastAPI (APIs, microservices)
+- Django (full-stack web apps)
+- Library (reusable packages)
+- CLI (command-line tools)
+
+**Generates:**
+- Complete directory structure
+- pyproject.toml with dependencies
+- pytest configuration
+- Makefile with common tasks
+- .env.example and .gitignore
+
+---
+
+#### `/python-refactor`
+
+Execute 4-phase refactoring workflow on target code.
+
+```
+/python-refactor src/legacy_module.py
+```
+
+**Outputs:**
+- Pre-refactoring analysis report
+- Prioritized issue list
+- Refactoring plan with risk assessment
+- Post-refactoring metrics comparison
 
 ---
 
 ## Code Quality Plugin
 
-Tools for systematic code review, deep analysis, and Python refactoring.
+> Tools for systematic code review and deep codebase analysis.
 
 ### Agents
 
 #### `senior-code-reviewer`
-Expert code review agent providing systematic analysis of code quality, security, performance, and architecture.
 
-**Model:** `claude-opus-4-5-20251101`
+Expert code review agent providing systematic analysis of quality, security, and performance.
 
-**Use for:**
-- Comprehensive feature reviews
-- Pre-deployment validation
-- Security audits
-- Performance optimization
-- Architectural assessments
-- Critical code path reviews
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Use for** | Pre-deployment reviews, security audits, architecture assessment |
 
 **Invocation:**
 ```
@@ -58,78 +319,47 @@ Use the senior-code-reviewer agent to review [file/feature]
 ```
 
 **Output includes:**
-- Executive summary with deploy/fix-first/redesign recommendation
+- Executive summary (DEPLOY / FIX-FIRST / REDESIGN)
 - Findings by severity (CRITICAL, HIGH, MEDIUM, LOW)
-- Code quality scores (Security, Performance, Maintainability, Testing)
-- Prioritized action plan with time estimates
+- Quality scores (Security, Performance, Maintainability)
+- Prioritized action plan
+
+---
 
 ### Skills
 
 #### `deep-dive-analysis`
-AI-powered systematic codebase analysis combining mechanical structure extraction with semantic understanding.
 
-**Use for:**
-- Codebase analysis and documentation
-- Architecture understanding
-- Pattern recognition and red flag detection
-- Code review with semantic understanding
-- Onboarding to new projects
+AI-powered systematic codebase analysis combining structure extraction with semantic understanding.
 
-**Invocation:**
-```
-/deep-dive-analysis
-```
+| | |
+|---|---|
+| **Invoke** | `/deep-dive-analysis` |
+| **Use for** | Codebase understanding, architecture mapping, onboarding |
 
 **Capabilities:**
 - Extract code structure (classes, functions, imports)
-- Map dependencies (internal/external)
+- Map internal/external dependencies
 - Recognize architectural patterns
 - Identify anti-patterns and red flags
 - Trace data and control flows
-- Assess quality and maintainability
-
-#### `python-refactor-skill`
-Systematic code refactoring that transforms complex code into clean, maintainable code.
-
-**Use for:**
-- Legacy code modernization
-- Spaghetti code cleanup
-- Complexity reduction
-- OOP transformation
-- Code review improvements
-
-**Invocation:**
-```
-/python-refactor
-```
-
-**Key principles:**
-- Class-based architecture (mandatory)
-- Flake8 compliance
-- Cognitive complexity reduction
-- Proper dependency injection
-- Clear module organization
 
 ---
 
 ## Tauri Development Plugin
 
-Specialized tools for Tauri 2 cross-platform development and Rust engineering.
+> Specialized tools for Tauri 2 cross-platform development and Rust engineering.
 
 ### Agents
 
 #### `tauri-optimizer`
-Expert in Tauri v2 + React desktop application optimization for trading and high-frequency data scenarios.
 
-**Model:** `claude-opus-4-5-20251101`
+Expert in Tauri v2 + React optimization for trading and high-frequency data scenarios.
 
-**Use for:**
-- Performance reviews
-- IPC architecture optimization
-- State management patterns
-- Memory leak detection
-- Rust backend optimization
-- WebView tuning
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Use for** | IPC optimization, state management, memory leaks, WebView tuning |
 
 **Invocation:**
 ```
@@ -144,18 +374,16 @@ Use the tauri-optimizer agent to analyze [project/file]
 | IPC latency | < 0.5ms | < 1ms |
 | Frame rate | 60 FPS | > 30 FPS |
 
+---
+
 #### `rust-engineer`
-Expert Rust developer specializing in systems programming, memory safety, and zero-cost abstractions.
 
-**Model:** `claude-opus-4-5-20251101`
+Expert Rust developer specializing in systems programming and memory safety.
 
-**Use for:**
-- Ownership pattern design
-- Async programming (tokio)
-- Performance optimization
-- FFI and unsafe code
-- Memory management
-- Embedded development
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Use for** | Ownership patterns, async tokio, FFI, performance optimization |
 
 **Invocation:**
 ```
@@ -167,24 +395,19 @@ Use the rust-engineer agent to implement [feature]
 - clippy::pedantic compliance
 - Complete documentation with examples
 - MIRI verification for unsafe blocks
-- Benchmark performance-critical code
+
+---
 
 ### Skills
 
 #### `tauri2-mobile`
-Expert guidance for developing, testing, and deploying mobile applications with Tauri 2.
 
-**Use for:**
-- Android/iOS project setup
-- Rust backend patterns
-- Plugin integration (biometric, geolocation, notifications, IAP)
-- Emulator/ADB testing
-- Code signing and store deployment
+Expert guidance for Tauri 2 mobile app development (Android/iOS).
 
-**Invocation:**
-```
-/tauri2-mobile
-```
+| | |
+|---|---|
+| **Invoke** | `/tauri2-mobile` |
+| **Use for** | Mobile setup, plugins, testing, store deployment |
 
 **Quick commands:**
 | Task | Command |
@@ -198,33 +421,23 @@ Expert guidance for developing, testing, and deploying mobile applications with 
 
 ## Frontend Optimization Plugin
 
-React performance optimization, UI polish, and UX design tools.
+> React performance optimization, UI polish, and UX design tools.
 
 ### Agents
 
 #### `react-performance-optimizer`
-Expert in React 19 performance optimization including React Compiler, Server Components, and bundle optimization.
 
-**Model:** `claude-opus-4-5-20251101`
+Expert in React 19 performance including React Compiler and Server Components.
 
-**Use for:**
-- React performance reviews
-- Bundle analysis and reduction
-- State management decisions
-- Re-render optimization
-- Virtualization setup
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Use for** | Bundle analysis, re-render optimization, virtualization |
 
 **Invocation:**
 ```
 Use the react-performance-optimizer agent to analyze [component/app]
 ```
-
-**Key optimizations:**
-- React Compiler (Babel plugin) configuration
-- Zustand/Jotai atomic selectors
-- useDeferredValue for non-critical updates
-- TanStack Virtual for large datasets
-- Code splitting and lazy loading
 
 **Performance targets:**
 | Metric | Web | Desktop |
@@ -233,72 +446,54 @@ Use the react-performance-optimizer agent to analyze [component/app]
 | Frame rate | 60 FPS | 60 FPS |
 | Render time | < 16ms | < 16ms |
 
+---
+
 #### `ui-polisher`
-Senior UI polish specialist and motion designer for creating premium interfaces.
 
-**Model:** `sonnet`
+Senior UI polish specialist and motion designer for premium interfaces.
 
-**Use for:**
-- Micro-interactions and animations
-- Page transitions
-- Button/input states
-- Loading states and skeletons
-- Premium feel and polish
+| | |
+|---|---|
+| **Model** | `sonnet` |
+| **Use for** | Micro-interactions, animations, transitions, loading states |
 
 **Invocation:**
 ```
 Use the ui-polisher agent to improve [component/page]
 ```
 
-**Focus areas:**
-- Hover/press states with transitions
-- Spring physics for toggles
-- Coordinated enter/exit animations
-- 60fps smooth animations
+---
 
 #### `ui-ux-designer`
+
 Elite UI/UX designer for beautiful, accessible interfaces and design systems.
 
-**Model:** `claude-opus-4-5-20251101`
-
-**Use for:**
-- Design systems creation
-- User flow optimization
-- Wireframes and prototypes
-- Accessibility compliance
-- Component architecture
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Use for** | Design systems, user flows, wireframes, accessibility |
 
 **Invocation:**
 ```
 Use the ui-ux-designer agent to design [feature/system]
 ```
 
-**Expertise:**
-- Visual design and interaction patterns
-- User-centered research
-- Design tokenization
-- Cross-platform consistency
-- WCAG accessibility
-
 ---
 
 ## AI Tooling Plugin
 
-Prompt engineering and LLM optimization tools.
+> Prompt engineering and LLM optimization tools.
 
 ### Agents
 
 #### `prompt-engineer`
-Expert prompt engineer specializing in designing, optimizing, and managing prompts for LLMs.
 
-**Model:** `claude-opus-4-5-20251101`
+Expert prompt engineer for designing and optimizing LLM prompts.
 
-**Use for:**
-- Prompt design and optimization
-- Token usage reduction
-- A/B testing prompts
-- Production prompt systems
-- Multi-model strategies
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Use for** | Prompt design, token optimization, A/B testing, production systems |
 
 **Invocation:**
 ```
@@ -312,21 +507,23 @@ Use the prompt-engineer agent to optimize [prompt/system]
 - Constitutional AI
 - Role-based prompting
 
-**Targets:**
-- Accuracy > 90%
-- Latency < 2s
-- Token usage optimized
-- Cost per query tracked
-
 ---
 
 ## Usage Examples
 
+### Python Development Workflow
+```
+1. /python-scaffold FastAPI microservice
+2. Implement features with python-pro agent
+3. /python-refactor on complex modules
+4. Use python-testing-patterns for test coverage
+```
+
 ### Code Review Workflow
 ```
-1. Use the senior-code-reviewer agent to review src/features/trading
+1. Use senior-code-reviewer to review src/features/
 2. Address CRITICAL issues first
-3. Use react-performance-optimizer for React-specific optimizations
+3. Use react-performance-optimizer for React-specific issues
 ```
 
 ### Tauri App Optimization
@@ -336,18 +533,12 @@ Use the prompt-engineer agent to optimize [prompt/system]
 3. Use ui-polisher for animations and polish
 ```
 
-### New Feature Development
+### Legacy Code Modernization
 ```
-1. Use ui-ux-designer to design the feature
-2. Use rust-engineer for backend implementation
-3. Use senior-code-reviewer before merge
-```
-
-### Prompt System Development
-```
-1. Use prompt-engineer to design prompts
-2. Test variations and measure accuracy
-3. Optimize token usage and costs
+1. /deep-dive-analysis to understand codebase
+2. /python-refactor on legacy modules
+3. Use python-testing-patterns to add test coverage
+4. Use senior-code-reviewer before merge
 ```
 
 ---
@@ -359,12 +550,26 @@ alfio-claude-plugins/
 ├── .claude-plugin/
 │   └── marketplace.json
 ├── plugins/
+│   ├── python-development/
+│   │   ├── agents/
+│   │   │   ├── python-pro.md
+│   │   │   ├── django-pro.md
+│   │   │   └── fastapi-pro.md
+│   │   ├── skills/
+│   │   │   ├── python-refactor/
+│   │   │   ├── python-testing-patterns/
+│   │   │   ├── python-performance-optimization/
+│   │   │   ├── async-python-patterns/
+│   │   │   ├── python-packaging/
+│   │   │   └── uv-package-manager/
+│   │   └── commands/
+│   │       ├── python-scaffold.md
+│   │       └── python-refactor.md
 │   ├── code-quality/
 │   │   ├── agents/
 │   │   │   └── senior-code-reviewer.md
 │   │   └── skills/
-│   │       ├── deep-dive-analysis/
-│   │       └── python-refactor-skill/
+│   │       └── deep-dive-analysis/
 │   ├── tauri-development/
 │   │   ├── agents/
 │   │   │   ├── tauri-optimizer.md
@@ -380,8 +585,7 @@ alfio-claude-plugins/
 │       └── agents/
 │           └── prompt-engineer.md
 ├── LICENSE
-├── README.md
-└── .gitignore
+└── README.md
 ```
 
 ---
@@ -400,7 +604,7 @@ alfio-claude-plugins/
 ---
 name: agent-name
 description: Brief description of the agent's purpose
-model: claude-opus-4-5-20251101
+model: opus
 tools: Read, Write, Edit, Bash, Glob, Grep
 ---
 
@@ -432,3 +636,7 @@ description: Brief description of the skill's purpose
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
+
+---
+
+**Total:** 10 Agents | 8 Skills | 2 Commands
