@@ -71,10 +71,10 @@ claude plugin list
 | Plugin | Description | 🤖 Agents | 🛠️ Skills | ⚡ Commands |
 |--------|-------------|:------:|:------:|:--------:|
 | [🐍 **python-development**](#-python-development-plugin) | Modern Python, Django, FastAPI, testing, packaging | 3 | 6 | 2 |
-| [🔍 **code-quality**](#-code-quality-plugin) | Code review and deep analysis | 1 | 1 | - |
+| [🔍 **code-quality**](#-code-quality-plugin) | Code review and deep analysis | 1 | 1 | 1 |
 | [🦀 **tauri-development**](#-tauri-development-plugin) | Tauri 2 mobile/desktop and Rust engineering | 2 | 1 | - |
 | [⚛️ **frontend-optimization**](#-frontend-optimization-plugin) | React performance, UI polish, and UX design | 3 | - | - |
-| [🧠 **ai-tooling**](#-ai-tooling-plugin) | Prompt engineering and LLM optimization | 1 | - | - |
+| [🧠 **ai-tooling**](#-ai-tooling-plugin) | Prompt engineering and LLM optimization | 1 | - | 1 |
 
 ---
 
@@ -361,6 +361,31 @@ AI-powered systematic codebase analysis combining structure extraction with sema
 
 ---
 
+### ⚡ Commands
+
+#### `/code-review`
+
+Perform systematic code review with security, performance, and architecture analysis.
+
+```
+/code-review src/api/users.py
+```
+
+**Analysis phases:**
+1. 🚨 **Fast-fail scan** - Critical security/data issues
+2. 🔒 **Security audit** - OWASP Top 10, auth, input validation
+3. ⚡ **Performance** - Algorithm complexity, N+1 queries
+4. 🧹 **Code quality** - DRY, SOLID, error handling
+5. 🏗️ **Architecture** - Design patterns, scalability
+
+**Outputs:**
+- Executive summary with DEPLOY/FIX-FIRST/REDESIGN recommendation
+- Findings by severity (CRITICAL, HIGH, MEDIUM, LOW)
+- Quality scores (Security, Performance, Maintainability, Testing)
+- Prioritized action plan with effort estimates
+
+---
+
 ## 🦀 Tauri Development Plugin
 
 > Specialized tools for Tauri 2 cross-platform development and Rust engineering.
@@ -524,6 +549,36 @@ Use the prompt-engineer agent to optimize [prompt/system]
 
 ---
 
+### ⚡ Commands
+
+#### `/prompt-optimize`
+
+Analyze and optimize prompts for better results, reduced token usage, and improved reliability.
+
+```
+/prompt-optimize "You are a helpful assistant that..."
+```
+
+**Optimization phases:**
+1. 📊 **Analysis** - Parse structure, count tokens, detect patterns
+2. 🔍 **Issue detection** - Redundancy, ambiguity, missing constraints
+3. ✨ **Optimization** - Apply clarity, token reduction, structure patterns
+4. ✅ **Validation** - Compare metrics, test scenarios
+
+**Outputs:**
+- Current prompt analysis with scores (Clarity, Specificity, Token efficiency)
+- Optimized prompt with all improvements applied
+- Metrics comparison (before/after tokens, scores)
+- Recommendations for further improvement
+
+**Optimization patterns applied:**
+- 🎯 Clarity optimization (vague → specific)
+- ⚡ Token reduction (remove filler, compress)
+- 🔧 Structure improvement (Role, Task, Constraints, Format)
+- 🛡️ Reliability patterns (constraints, verification, fallbacks)
+
+---
+
 ## 💡 Usage Examples
 
 ### 🐍 Python Development Workflow
@@ -536,9 +591,10 @@ Use the prompt-engineer agent to optimize [prompt/system]
 
 ### 🔍 Code Review Workflow
 ```
-1️⃣ Use senior-code-reviewer to review src/features/
-2️⃣ Address CRITICAL issues first
-3️⃣ Use react-performance-optimizer for React-specific issues
+1️⃣ /code-review src/features/auth/
+2️⃣ Address CRITICAL and HIGH issues first
+3️⃣ /python-refactor on flagged modules
+4️⃣ Use react-performance-optimizer for React-specific issues
 ```
 
 ### 🦀 Tauri App Optimization
@@ -583,8 +639,10 @@ alfio-claude-plugins/
 │   ├── code-quality/
 │   │   ├── agents/
 │   │   │   └── senior-code-reviewer.md
-│   │   └── skills/
-│   │       └── deep-dive-analysis/
+│   │   ├── skills/
+│   │   │   └── deep-dive-analysis/
+│   │   └── commands/
+│   │       └── code-review.md
 │   ├── tauri-development/
 │   │   ├── agents/
 │   │   │   ├── tauri-optimizer.md
@@ -597,8 +655,10 @@ alfio-claude-plugins/
 │   │       ├── ui-polisher.md
 │   │       └── ui-ux-designer.md
 │   └── ai-tooling/
-│       └── agents/
-│           └── prompt-engineer.md
+│       ├── agents/
+│       │   └── prompt-engineer.md
+│       └── commands/
+│           └── prompt-optimize.md
 ├── LICENSE
 └── README.md
 ```
@@ -654,4 +714,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-**📊 Total:** 🤖 10 Agents | 🛠️ 8 Skills | ⚡ 2 Commands
+**📊 Total:** 🤖 10 Agents | 🛠️ 8 Skills | ⚡ 4 Commands
