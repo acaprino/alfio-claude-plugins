@@ -33,25 +33,35 @@ Custom Claude Code plugin marketplace with development workflow agents, skills, 
 
 ### 🌐 From GitHub (Recommended)
 
+**Step 1:** Add the marketplace
 ```bash
-claude mcp add-from-claude-plugin --url https://github.com/acaprino/alfio-claude-plugins
+claude plugin marketplace add acaprino/alfio-claude-plugins
 ```
 
-Or using short syntax:
+**Step 2:** Install the plugins you need
 ```bash
-claude plugins:add github:acaprino/alfio-claude-plugins
+claude plugin install python-development@alfio-claude-plugins
+claude plugin install code-quality@alfio-claude-plugins
+claude plugin install tauri-development@alfio-claude-plugins
+claude plugin install frontend-optimization@alfio-claude-plugins
+claude plugin install ai-tooling@alfio-claude-plugins
 ```
 
-### 💻 From Local Path
+### 💻 From Local Path (Development)
 
+Use `--plugin-dir` to load plugins for current session:
 ```bash
-claude plugins:add /path/to/alfio-claude-plugins
+claude --plugin-dir /path/to/alfio-claude-plugins
 ```
 
 ### ✅ Verify Installation
 
 ```bash
-claude plugins:list
+# List marketplaces
+claude plugin marketplace list
+
+# List installed plugins
+claude plugin list
 ```
 
 ---
