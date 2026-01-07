@@ -22,6 +22,8 @@ Custom Claude Code plugin marketplace with development workflow agents, skills, 
   - [Agents](#-agents-3)
 - [AI Tooling](#-ai-tooling-plugin)
   - [Agents](#-agents-4)
+- [Stripe](#-stripe-plugin)
+  - [Skills](#-skills-3)
 - [Usage Examples](#-usage-examples)
 - [Project Structure](#-project-structure)
 - [Contributing](#-contributing)
@@ -45,6 +47,7 @@ claude plugin install code-quality@alfio-claude-plugins
 claude plugin install tauri-development@alfio-claude-plugins
 claude plugin install frontend-optimization@alfio-claude-plugins
 claude plugin install ai-tooling@alfio-claude-plugins
+claude plugin install stripe@alfio-claude-plugins
 ```
 
 ### 💻 From Local Path (Development)
@@ -75,6 +78,7 @@ claude plugin list
 | [🦀 **tauri-development**](#-tauri-development-plugin) | Tauri 2 mobile/desktop and Rust engineering | 2 | 1 | - |
 | [⚛️ **frontend-optimization**](#-frontend-optimization-plugin) | React performance, UI polish, and UX design | 3 | - | - |
 | [🧠 **ai-tooling**](#-ai-tooling-plugin) | Prompt engineering and LLM optimization | 1 | - | 1 |
+| [💳 **stripe**](#-stripe-plugin) | Payments, subscriptions, Connect, billing | - | 1 | - |
 
 ---
 
@@ -579,6 +583,54 @@ Analyze and optimize prompts for better results, reduced token usage, and improv
 
 ---
 
+## 💳 Stripe Plugin
+
+> Comprehensive Stripe integration for payments, subscriptions, marketplaces, and billing.
+
+### 🛠️ Skills
+
+#### `stripe-agent`
+
+Complete Stripe API integration covering payments, subscriptions, Connect marketplaces, and compliance.
+
+| | |
+|---|---|
+| **Invoke** | Skill reference |
+| **Use for** | Payment processing, subscriptions, marketplaces, billing, webhooks |
+
+**Core capabilities:**
+- 💳 **Payments** - Payment intents, checkout sessions, payment links
+- 🔄 **Subscriptions** - Recurring billing, metered usage, tiered pricing
+- 🏪 **Connect** - Marketplace payments, platform fees, seller onboarding
+- 🧾 **Billing** - Invoices, customer portal, tax calculation
+- 🔔 **Webhooks** - Event handling, subscription lifecycle
+- 🔒 **Security** - 3D Secure, SCA compliance, fraud prevention (Radar)
+- ⚖️ **Disputes** - Chargeback handling, evidence submission
+
+**Quick reference:**
+| Task | Method |
+|------|--------|
+| Create customer | `stripe.Customer.create()` |
+| Checkout session | `stripe.checkout.Session.create()` |
+| Subscription | `stripe.Subscription.create()` |
+| Payment link | `stripe.PaymentLink.create()` |
+| Report usage | `stripe.SubscriptionItem.create_usage_record()` |
+| Connect account | `stripe.Account.create(type="express")` |
+
+**Includes:**
+- 📜 Python utility scripts (customer management, webhooks, sync)
+- 🔥 Firebase integration reference
+- 📋 API cheatsheet
+
+**Prerequisites:**
+```bash
+export STRIPE_SECRET_KEY="sk_test_..."
+export STRIPE_WEBHOOK_SECRET="whsec_..."
+pip install stripe
+```
+
+---
+
 ## 💡 Usage Examples
 
 ### 🐍 Python Development Workflow
@@ -654,11 +706,23 @@ alfio-claude-plugins/
 │   │       ├── react-performance-optimizer.md
 │   │       ├── ui-polisher.md
 │   │       └── ui-ux-designer.md
-│   └── ai-tooling/
-│       ├── agents/
-│       │   └── prompt-engineer.md
-│       └── commands/
-│           └── prompt-optimize.md
+│   ├── ai-tooling/
+│   │   ├── agents/
+│   │   │   └── prompt-engineer.md
+│   │   └── commands/
+│   │       └── prompt-optimize.md
+│   └── stripe/
+│       └── skills/
+│           └── stripe-agent/
+│               ├── SKILL.md
+│               ├── scripts/
+│               │   ├── stripe_utils.py
+│               │   ├── webhook_handler.py
+│               │   ├── sync_subscriptions.py
+│               │   └── setup_products.py
+│               └── references/
+│                   ├── firebase-integration.md
+│                   └── api-cheatsheet.md
 ├── LICENSE
 └── README.md
 ```
@@ -714,4 +778,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-**📊 Total:** 🤖 10 Agents | 🛠️ 8 Skills | ⚡ 4 Commands
+**📊 Total:** 🤖 10 Agents | 🛠️ 9 Skills | ⚡ 4 Commands
