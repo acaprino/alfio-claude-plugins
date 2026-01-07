@@ -106,6 +106,64 @@
       "agents": [
         "./agents/prompt-engineer.md"
       ]
+    },
+    {
+      "name": "python-development",
+      "source": "./plugins/python-development",
+      "description": "Modern Python development ecosystem with Django, FastAPI, testing, packaging, and code refactoring tools",
+      "version": "1.0.0",
+      "author": {
+        "name": "Alfio"
+      },
+      "license": "MIT",
+      "keywords": [
+        "python",
+        "django",
+        "fastapi",
+        "testing",
+        "packaging",
+        "async"
+      ],
+      "category": "development",
+      "strict": false,
+      "agents": [
+        "./agents/python-pro.md",
+        "./agents/django-pro.md",
+        "./agents/fastapi-pro.md"
+      ],
+      "skills": [
+        "./skills/python-refactor",
+        "./skills/python-testing-patterns",
+        "./skills/python-performance-optimization",
+        "./skills/async-python-patterns",
+        "./skills/python-packaging",
+        "./skills/uv-package-manager"
+      ]
+    },
+    {
+      "name": "stripe",
+      "source": "./plugins/stripe",
+      "description": "Stripe payments, subscriptions, Connect marketplaces, and revenue optimization for SaaS monetization",
+      "version": "1.0.0",
+      "author": {
+        "name": "Alfio"
+      },
+      "license": "MIT",
+      "keywords": [
+        "stripe",
+        "payments",
+        "subscriptions",
+        "monetization",
+        "pricing",
+        "revenue",
+        "saas"
+      ],
+      "category": "payments",
+      "strict": false,
+      "skills": [
+        "./skills/stripe-agent",
+        "./skills/revenue-optimizer"
+      ]
     }
   ]
 }

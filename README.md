@@ -78,7 +78,7 @@ claude plugin list
 | [🦀 **tauri-development**](#-tauri-development-plugin) | Tauri 2 mobile/desktop and Rust engineering | 2 | 1 | - |
 | [⚛️ **frontend-optimization**](#-frontend-optimization-plugin) | React performance, UI polish, and UX design | 3 | - | - |
 | [🧠 **ai-tooling**](#-ai-tooling-plugin) | Prompt engineering and LLM optimization | 1 | - | 1 |
-| [💳 **stripe**](#-stripe-plugin) | Payments, subscriptions, Connect, billing | - | 1 | - |
+| [💳 **stripe**](#-stripe-plugin) | Payments, subscriptions, Connect, billing, revenue optimization | - | 2 | - |
 
 ---
 
@@ -631,6 +631,58 @@ pip install stripe
 
 ---
 
+#### `revenue-optimizer`
+
+Monetization expert that analyzes codebases to discover features, calculate service costs, model usage patterns, and create data-driven pricing strategies with revenue projections.
+
+| | |
+|---|---|
+| **Invoke** | Skill reference |
+| **Use for** | Feature cost analysis, pricing strategy, usage modeling, revenue projections, tier design |
+
+**5-Phase Workflow:**
+1. **Discover** - Scan codebase for features, services, and integrations
+2. **Cost Analysis** - Calculate per-user and per-feature costs
+3. **Design** - Create pricing tiers based on value + cost data
+4. **Implement** - Build payment integration and checkout flows
+5. **Optimize** - Add conversion optimization and revenue tracking
+
+**Capabilities:**
+- 📊 **Feature Discovery** - Scan routes, components, services to build feature inventory
+- 💰 **Cost Mapping** - Calculate fixed, variable, and per-use costs from service integrations
+- 📈 **Usage Analysis** - Model user consumption patterns and set optimal tier limits
+- 🏷️ **Tier Design** - Create Free/Pro/Enterprise tiers with healthy margins
+- 📉 **Revenue Modeling** - Calculate ARPU, LTV, break-even, and 12-month projections
+
+**Output Example:**
+```
+═══════════════════════════════════════════════════════════
+                    PRICING STRATEGY REPORT
+═══════════════════════════════════════════════════════════
+📁 CODEBASE ANALYSIS - Services & Features discovered
+💰 COST BREAKDOWN - Fixed + Variable + Feature costs
+📊 USAGE PATTERN ANALYSIS - Distribution & tier limits
+📈 REVENUE MODEL - ARPU, LTV, break-even, projections
+🏷️ RECOMMENDED TIERS - Free, Pro, Business, Enterprise
+═══════════════════════════════════════════════════════════
+```
+
+**Key Metrics Calculated:**
+| Metric | Formula |
+|--------|---------|
+| ARPU | (Free×$0 + Pro×$X + Biz×$Y) / Total Users |
+| LTV | (ARPU × Margin) / Monthly Churn |
+| Break-even | Fixed Costs / (ARPU - Variable Cost) |
+| Optimal Price | (Cost Floor × 0.3) + (Value Ceiling × 0.7) |
+
+**Includes:**
+- 📜 Reference docs for pricing patterns, subscriptions, usage modeling
+- 🔥 Stripe integration patterns
+- ✅ Checkout optimization best practices
+- 📋 Implementation checklist
+
+---
+
 ## 💡 Usage Examples
 
 ### 🐍 Python Development Workflow
@@ -713,16 +765,25 @@ alfio-claude-plugins/
 │   │       └── prompt-optimize.md
 │   └── stripe/
 │       └── skills/
-│           └── stripe-agent/
+│           ├── stripe-agent/
+│           │   ├── SKILL.md
+│           │   ├── scripts/
+│           │   │   ├── stripe_utils.py
+│           │   │   ├── webhook_handler.py
+│           │   │   ├── sync_subscriptions.py
+│           │   │   └── setup_products.py
+│           │   └── references/
+│           │       ├── firebase-integration.md
+│           │       └── api-cheatsheet.md
+│           └── revenue-optimizer/
 │               ├── SKILL.md
-│               ├── scripts/
-│               │   ├── stripe_utils.py
-│               │   ├── webhook_handler.py
-│               │   ├── sync_subscriptions.py
-│               │   └── setup_products.py
 │               └── references/
-│                   ├── firebase-integration.md
-│                   └── api-cheatsheet.md
+│                   ├── pricing-patterns.md
+│                   ├── stripe.md
+│                   ├── cost-analysis.md
+│                   ├── subscription-patterns.md
+│                   ├── usage-revenue-modeling.md
+│                   └── checkout-optimization.md
 ├── LICENSE
 └── README.md
 ```
@@ -778,4 +839,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-**📊 Total:** 🤖 10 Agents | 🛠️ 9 Skills | ⚡ 4 Commands
+**📊 Total:** 🤖 10 Agents | 🛠️ 10 Skills | ⚡ 4 Commands
