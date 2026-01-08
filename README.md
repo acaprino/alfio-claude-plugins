@@ -1,6 +1,6 @@
 # 🔌 Alfio Claude Plugins
 
-Custom Claude Code plugin marketplace with development workflow agents, skills, and commands for Python development, code quality, Tauri/Rust, frontend optimization, and AI tooling.
+Custom Claude Code plugin marketplace with development workflow agents, skills, and commands for Python development, code review, Tauri/Rust, frontend optimization, and AI tooling.
 
 ---
 
@@ -12,7 +12,7 @@ Custom Claude Code plugin marketplace with development workflow agents, skills, 
   - [Agents](#-agents)
   - [Skills](#-skills)
   - [Commands](#-commands)
-- [Code Quality](#-code-quality-plugin)
+- [Code Review](#-code-review-plugin)
   - [Agents](#-agents-1)
   - [Skills](#-skills-1)
 - [Tauri Development](#-tauri-development-plugin)
@@ -43,7 +43,7 @@ claude plugin marketplace add acaprino/alfio-claude-plugins
 **Step 2:** Install the plugins you need
 ```bash
 claude plugin install python-development@alfio-claude-plugins
-claude plugin install code-quality@alfio-claude-plugins
+claude plugin install code-review@alfio-claude-plugins
 claude plugin install tauri-development@alfio-claude-plugins
 claude plugin install frontend-optimization@alfio-claude-plugins
 claude plugin install ai-tooling@alfio-claude-plugins
@@ -74,7 +74,7 @@ claude plugin list
 | Plugin | Description | 🤖 Agents | 🛠️ Skills | ⚡ Commands |
 |--------|-------------|:------:|:------:|:--------:|
 | [🐍 **python-development**](#-python-development-plugin) | Modern Python, Django, FastAPI, testing, packaging | 3 | 6 | 2 |
-| [🔍 **code-quality**](#-code-quality-plugin) | Code review and deep analysis | 1 | 1 | 1 |
+| [🔍 **code-review**](#-code-review-plugin) | Code review and deep analysis | 1 | 1 | 1 |
 | [🦀 **tauri-development**](#-tauri-development-plugin) | Tauri 2 mobile/desktop and Rust engineering | 2 | 1 | - |
 | [⚛️ **frontend-optimization**](#-frontend-optimization-plugin) | React performance, UI polish, and UX design | 3 | - | - |
 | [🧠 **ai-tooling**](#-ai-tooling-plugin) | Prompt engineering and LLM optimization | 1 | - | 1 |
@@ -317,7 +317,7 @@ Execute 4-phase refactoring workflow on target code.
 
 ---
 
-## 🔍 Code Quality Plugin
+## 🔍 Code Review Plugin
 
 > Tools for systematic code review and deep codebase analysis.
 
@@ -740,7 +740,7 @@ alfio-claude-plugins/
 │   │   └── commands/
 │   │       ├── python-scaffold.md
 │   │       └── python-refactor.md
-│   ├── code-quality/
+│   ├── code-review/
 │   │   ├── agents/
 │   │   │   └── senior-code-reviewer.md
 │   │   ├── skills/

@@ -10,9 +10,9 @@
   },
   "plugins": [
     {
-      "name": "code-quality",
-      "source": "./plugins/code-quality",
-      "description": "Code review, deep-dive analysis, and Python refactoring tools for systematic code quality improvement",
+      "name": "code-review",
+      "source": "./plugins/code-review",
+      "description": "Senior code review and deep-dive codebase analysis for cross-language code inspection",
       "version": "1.0.0",
       "author": {
         "name": "Alfio"
@@ -20,19 +20,17 @@
       "license": "MIT",
       "keywords": [
         "code-review",
-        "refactoring",
-        "python",
         "analysis",
-        "quality"
+        "audit",
+        "inspection"
       ],
-      "category": "quality",
+      "category": "review",
       "strict": false,
       "agents": [
         "./agents/senior-code-reviewer.md"
       ],
       "skills": [
-        "./skills/deep-dive-analysis",
-        "./skills/python-refactor-skill"
+        "./skills/deep-dive-analysis"
       ]
     },
     {
