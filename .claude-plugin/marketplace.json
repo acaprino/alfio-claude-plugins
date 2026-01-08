@@ -162,6 +162,29 @@
         "./skills/stripe-agent",
         "./skills/revenue-optimizer"
       ]
+    },
+    {
+      "name": "utilities",
+      "source": "./plugins/utilities",
+      "description": "General utility skills for file organization, cleanup, and system maintenance",
+      "version": "1.0.0",
+      "author": {
+        "name": "ComposioHQ"
+      },
+      "license": "MIT",
+      "keywords": [
+        "files",
+        "organization",
+        "cleanup",
+        "duplicates",
+        "folders",
+        "downloads"
+      ],
+      "category": "utilities",
+      "strict": false,
+      "skills": [
+        "./skills/file-organizer"
+      ]
     }
   ]
 }
