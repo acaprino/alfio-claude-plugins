@@ -24,6 +24,9 @@ Custom Claude Code plugin marketplace with development workflow agents, skills, 
   - [Agents](#-agents-4)
 - [Stripe](#-stripe-plugin)
   - [Skills](#-skills-3)
+- [Utilities](#-utilities-plugin)
+  - [Skills](#-skills-4)
+  - [Commands](#-commands-2)
 - [Usage Examples](#-usage-examples)
 - [Project Structure](#-project-structure)
 - [Contributing](#-contributing)
@@ -79,6 +82,7 @@ claude plugin list
 | [⚛️ **frontend-optimization**](#-frontend-optimization-plugin) | React performance, UI polish, and UX design | 3 | - | - |
 | [🧠 **ai-tooling**](#-ai-tooling-plugin) | Prompt engineering and LLM optimization | 1 | - | 1 |
 | [💳 **stripe**](#-stripe-plugin) | Payments, subscriptions, Connect, billing, revenue optimization | - | 2 | - |
+| [🗂️ **utilities**](#-utilities-plugin) | File organization, cleanup, and directory management | - | 1 | 1 |
 
 ---
 
@@ -683,6 +687,55 @@ Monetization expert that analyzes codebases to discover features, calculate serv
 
 ---
 
+## 🗂️ Utilities Plugin
+
+> File organization, cleanup, duplicate detection, and directory management.
+
+### 🛠️ Skills
+
+#### `file-organizer`
+
+Personal organization assistant for maintaining clean, logical file structures.
+
+| | |
+|---|---|
+| **Invoke** | Skill reference or `/organize-files` |
+| **Use for** | Messy folders, duplicates, old files, project restructuring |
+
+**Capabilities:**
+- 📊 **Analyze** - Review folder structure and file types
+- 🔍 **Find Duplicates** - Identify duplicate files by hash
+- 📁 **Suggest Structure** - Propose logical folder organization
+- 🤖 **Automate** - Move, rename, organize with approval
+- 🗑️ **Cleanup** - Identify old/unused files for archiving
+
+**Organization patterns:**
+- By type: Documents, Images, Videos, Archives, Code
+- By purpose: Work vs Personal, Active vs Archive
+- By date: Current year, Previous years, Old files
+
+---
+
+### ⚡ Commands
+
+#### `/organize-files`
+
+Quick command to organize files and directories.
+
+```
+/organize-files Downloads
+```
+
+**Examples:**
+| Command | Action |
+|---------|--------|
+| `/organize-files Downloads` | Organize Downloads by type |
+| `/organize-files ~/Documents find duplicates` | Find duplicate files |
+| `/organize-files ~/Projects archive old` | Archive inactive projects |
+| `/organize-files . cleanup` | Clean up current directory |
+
+---
+
 ## 💡 Usage Examples
 
 ### 🐍 Python Development Workflow
@@ -763,27 +816,33 @@ alfio-claude-plugins/
 │   │   │   └── prompt-engineer.md
 │   │   └── commands/
 │   │       └── prompt-optimize.md
-│   └── stripe/
-│       └── skills/
-│           ├── stripe-agent/
-│           │   ├── SKILL.md
-│           │   ├── scripts/
-│           │   │   ├── stripe_utils.py
-│           │   │   ├── webhook_handler.py
-│           │   │   ├── sync_subscriptions.py
-│           │   │   └── setup_products.py
-│           │   └── references/
-│           │       ├── firebase-integration.md
-│           │       └── api-cheatsheet.md
-│           └── revenue-optimizer/
-│               ├── SKILL.md
-│               └── references/
-│                   ├── pricing-patterns.md
-│                   ├── stripe.md
-│                   ├── cost-analysis.md
-│                   ├── subscription-patterns.md
-│                   ├── usage-revenue-modeling.md
-│                   └── checkout-optimization.md
+│   ├── stripe/
+│   │   └── skills/
+│   │       ├── stripe-agent/
+│   │       │   ├── SKILL.md
+│   │       │   ├── scripts/
+│   │       │   │   ├── stripe_utils.py
+│   │       │   │   ├── webhook_handler.py
+│   │       │   │   ├── sync_subscriptions.py
+│   │       │   │   └── setup_products.py
+│   │       │   └── references/
+│   │       │       ├── firebase-integration.md
+│   │       │       └── api-cheatsheet.md
+│   │       └── revenue-optimizer/
+│   │           ├── SKILL.md
+│   │           └── references/
+│   │               ├── pricing-patterns.md
+│   │               ├── stripe.md
+│   │               ├── cost-analysis.md
+│   │               ├── subscription-patterns.md
+│   │               ├── usage-revenue-modeling.md
+│   │               └── checkout-optimization.md
+│   └── utilities/
+│       ├── skills/
+│       │   └── file-organizer/
+│       │       └── SKILL.md
+│       └── commands/
+│           └── organize-files.md
 ├── LICENSE
 └── README.md
 ```
@@ -839,4 +898,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-**📊 Total:** 🤖 10 Agents | 🛠️ 10 Skills | ⚡ 4 Commands
+**📊 Total:** 🤖 10 Agents | 🛠️ 11 Skills | ⚡ 5 Commands
