@@ -31,6 +31,9 @@
       ],
       "skills": [
         "./skills/deep-dive-analysis"
+      ],
+      "commands": [
+        "./commands/senior-code-review.md"
       ]
     },
     {
@@ -103,6 +106,9 @@
       "strict": false,
       "agents": [
         "./agents/prompt-engineer.md"
+      ],
+      "commands": [
+        "./commands/prompt-optimize.md"
       ]
     },
     {
@@ -136,6 +142,10 @@
         "./skills/async-python-patterns",
         "./skills/python-packaging",
         "./skills/uv-package-manager"
+      ],
+      "commands": [
+        "./commands/python-scaffold.md",
+        "./commands/python-refactor.md"
       ]
     },
     {
@@ -184,6 +194,9 @@
       "strict": false,
       "skills": [
         "./skills/file-organizer"
+      ],
+      "commands": [
+        "./commands/organize-files.md"
       ]
     }
   ]
