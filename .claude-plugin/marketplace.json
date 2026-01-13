@@ -33,7 +33,8 @@
         "./skills/deep-dive-analysis"
       ],
       "commands": [
-        "./commands/senior-code-review.md"
+        "./commands/senior-code-review.md",
+        "./commands/deep-dive-analysis.md"
       ]
     },
     {
