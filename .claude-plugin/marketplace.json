@@ -198,6 +198,29 @@
       "commands": [
         "./commands/organize-files.md"
       ]
+    },
+    {
+      "name": "messaging",
+      "source": "./plugins/messaging",
+      "description": "Message broker expertise for RabbitMQ configuration, optimization, and high availability",
+      "version": "1.0.0",
+      "author": {
+        "name": "Alfio"
+      },
+      "license": "MIT",
+      "keywords": [
+        "rabbitmq",
+        "messaging",
+        "amqp",
+        "queues",
+        "pub-sub",
+        "message-broker"
+      ],
+      "category": "infrastructure",
+      "strict": false,
+      "agents": [
+        "./agents/rabbitmq-expert.md"
+      ]
     }
   ]
 }
