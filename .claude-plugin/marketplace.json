@@ -222,6 +222,29 @@
       "agents": [
         "./agents/rabbitmq-expert.md"
       ]
+    },
+    {
+      "name": "research",
+      "source": "./plugins/research",
+      "description": "Advanced search and information retrieval specialist for precise knowledge discovery across codebases and web sources",
+      "version": "1.0.0",
+      "author": {
+        "name": "Alfio"
+      },
+      "license": "MIT",
+      "keywords": [
+        "search",
+        "research",
+        "information-retrieval",
+        "query-optimization",
+        "knowledge-discovery",
+        "web-search"
+      ],
+      "category": "research",
+      "strict": false,
+      "agents": [
+        "./agents/search-specialist.md"
+      ]
     }
   ]
 }
