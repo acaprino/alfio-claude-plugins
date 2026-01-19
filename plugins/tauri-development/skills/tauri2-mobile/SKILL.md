@@ -30,6 +30,7 @@ Build cross-platform mobile apps with Tauri 2 using web technologies (HTML/CSS/J
 - **Native functionality**: Read [references/plugins.md](references/plugins.md)
 - **Rust commands/state**: Read [references/rust-patterns.md](references/rust-patterns.md)
 - **Frontend integration**: Read [references/frontend-patterns.md](references/frontend-patterns.md)
+- **Authentication/OAuth**: Read [references/authentication.md](references/authentication.md)
 - **In-app purchases**: Read [references/iap.md](references/iap.md)
 
 ### Testing
@@ -87,7 +88,8 @@ my-app/
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_deep_link::init())
         .invoke_handler(tauri::generate_handler![greet])
         .run(tauri::generate_context!())
         .expect("error");
@@ -108,6 +110,9 @@ fn greet(name: &str) -> String {
 | INSTALL_FAILED_ALREADY_EXISTS | `adb uninstall com.your.app` |
 | Emulator not detected | Verify `adb devices`, restart ADB |
 | HMR not working | Configure `vite.config.ts` with `TAURI_DEV_HOST` |
+| Shell plugin URL error | Use `opener` plugin instead (`openUrl()`) |
+| Google OAuth fails | Google blocks WebView; use system browser flow |
+| Deep link not received | Check scheme in tauri.conf.json, init plugin |
 
 See [references/testing.md](references/testing.md) for detailed troubleshooting.
 

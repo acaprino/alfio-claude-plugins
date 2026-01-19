@@ -20,7 +20,8 @@ This automatically:
 | `notification` | ✅ | Push/local notifications |
 | `clipboard-manager` | ✅ | Clipboard access |
 | `dialog` | ✅ | Native dialogs |
-| `shell` | ⚠️ | Limited on mobile |
+| `shell` | ❌ | **Does not work on Android** for URLs |
+| `opener` | ✅ | Open URLs in system browser |
 | `store` | ✅ | Key-value storage |
 | `sql` | ✅ | SQLite database |
 | `biometric` | 📱 | Fingerprint/Face ID |
@@ -41,7 +42,8 @@ This automatically:
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_deep_link::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_notification::init())
@@ -63,6 +65,8 @@ pub fn run() {
 {
   "permissions": [
     "core:default",
+    "opener:default",
+    "deep-link:default",
     "fs:default",
     "http:default",
     "notification:default",
@@ -117,6 +121,46 @@ Add to Xcode: Signing & Capabilities → Associated Domains:
 ```
 applinks:app.example.com
 ```
+
+## Opener Plugin (External URLs)
+
+**Use this instead of shell plugin for opening URLs on mobile.**
+
+The `shell` plugin's `open` command fails on Android with:
+```
+Scoped shell IO error: No such file or directory (os error 2)
+```
+
+### Setup
+```bash
+npm run tauri add opener
+```
+
+### Usage
+```typescript
+import { openUrl } from '@tauri-apps/plugin-opener';
+
+// Open URL in system browser (Chrome Custom Tabs on Android)
+await openUrl('https://example.com');
+
+// Open email client
+await openUrl('mailto:hello@example.com');
+
+// Open phone dialer
+await openUrl('tel:+1234567890');
+```
+
+### Permissions
+```json
+{
+  "permissions": [
+    "opener:default"
+  ]
+}
+```
+
+### OAuth Use Case
+Critical for OAuth flows where Google blocks WebView sign-in. See [authentication.md](authentication.md) for complete OAuth implementation guide.
 
 ## Logging Plugin
 
