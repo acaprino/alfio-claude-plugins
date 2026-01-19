@@ -27,6 +27,8 @@ Custom Claude Code plugin marketplace with development workflow agents, skills, 
 - [Utilities](#-utilities-plugin)
   - [Skills](#-skills-4)
   - [Commands](#-commands-2)
+- [Business](#-business-plugin)
+  - [Skills](#-skills-5)
 - [Usage Examples](#-usage-examples)
 - [Project Structure](#-project-structure)
 - [Contributing](#-contributing)
@@ -51,6 +53,7 @@ claude plugin install tauri-development@alfio-claude-plugins
 claude plugin install frontend-optimization@alfio-claude-plugins
 claude plugin install ai-tooling@alfio-claude-plugins
 claude plugin install stripe@alfio-claude-plugins
+claude plugin install business@alfio-claude-plugins
 ```
 
 ### 💻 From Local Path (Development)
@@ -83,6 +86,7 @@ claude plugin list
 | [🧠 **ai-tooling**](#-ai-tooling-plugin) | Prompt engineering and LLM optimization | 1 | - | 1 |
 | [💳 **stripe**](#-stripe-plugin) | Payments, subscriptions, Connect, billing, revenue optimization | - | 2 | - |
 | [🗂️ **utilities**](#-utilities-plugin) | File organization, cleanup, and directory management | - | 1 | 1 |
+| [⚖️ **business**](#-business-plugin) | Legal advisory, compliance, contracts, and risk management | - | 1 | - |
 
 ---
 
@@ -736,6 +740,50 @@ Quick command to organize files and directories.
 
 ---
 
+## ⚖️ Business Plugin
+
+> Business operations support for legal advisory, compliance, contracts, and risk management.
+
+### 🛠️ Skills
+
+#### `legal-advisor`
+
+Expert legal advisor specializing in technology law, compliance, and risk mitigation.
+
+| | |
+|---|---|
+| **Invoke** | Skill reference |
+| **Use for** | Contract review, compliance, IP protection, privacy policies, risk assessment |
+
+**Core capabilities:**
+- 📜 **Contract Management** - Review, negotiate, draft, and manage contracts
+- 🔒 **Privacy & Data Protection** - GDPR, CCPA, data processing agreements
+- 💡 **Intellectual Property** - Patents, trademarks, copyrights, trade secrets
+- ✅ **Compliance** - Regulatory mapping, policy development, audit preparation
+- ⚖️ **Risk Management** - Legal risk assessment, mitigation strategies, insurance
+
+**Legal domains covered:**
+| Domain | Topics |
+|--------|--------|
+| Software | Licensing, SaaS agreements, open source |
+| Privacy | GDPR, CCPA, data transfers, consent |
+| IP | Patents, trademarks, copyrights, trade secrets |
+| Employment | Agreements, NDAs, non-competes, IP assignments |
+| Corporate | Formation, governance, equity, M&A |
+
+**Workflow phases:**
+1. **Assessment** - Review business model, identify risks, audit compliance
+2. **Implementation** - Draft documents, implement policies, train stakeholders
+3. **Excellence** - Achieve comprehensive protection, continuous monitoring
+
+**Integration with other agents:**
+- Works with security-auditor on compliance
+- Guides HR on employment law
+- Assists data-engineer on privacy
+- Partners with executives on strategy
+
+---
+
 ## 💡 Usage Examples
 
 ### 🐍 Python Development Workflow
@@ -837,12 +885,16 @@ alfio-claude-plugins/
 │   │               ├── subscription-patterns.md
 │   │               ├── usage-revenue-modeling.md
 │   │               └── checkout-optimization.md
-│   └── utilities/
-│       ├── skills/
-│       │   └── file-organizer/
-│       │       └── SKILL.md
-│       └── commands/
-│           └── organize-files.md
+│   ├── utilities/
+│   │   ├── skills/
+│   │   │   └── file-organizer/
+│   │   │       └── SKILL.md
+│   │   └── commands/
+│   │       └── organize-files.md
+│   └── business/
+│       └── skills/
+│           └── legal-advisor/
+│               └── SKILL.md
 ├── LICENSE
 └── README.md
 ```
@@ -898,4 +950,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-**📊 Total:** 🤖 10 Agents | 🛠️ 11 Skills | ⚡ 5 Commands
+**📊 Total:** 🤖 10 Agents | 🛠️ 12 Skills | ⚡ 5 Commands

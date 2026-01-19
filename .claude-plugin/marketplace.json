@@ -245,6 +245,30 @@
       "agents": [
         "./agents/search-specialist.md"
       ]
+    },
+    {
+      "name": "business",
+      "source": "./plugins/business",
+      "description": "Business operations support including legal advisory for technology law, compliance, contracts, and risk mitigation",
+      "version": "1.0.0",
+      "author": {
+        "name": "Alfio"
+      },
+      "license": "MIT",
+      "keywords": [
+        "legal",
+        "compliance",
+        "contracts",
+        "privacy",
+        "gdpr",
+        "intellectual-property",
+        "risk-management"
+      ],
+      "category": "business",
+      "strict": false,
+      "skills": [
+        "./skills/legal-advisor"
+      ]
     }
   ]
 }
