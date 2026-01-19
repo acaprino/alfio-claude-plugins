@@ -196,3 +196,72 @@ cargo tauri icon ./app-icon.png
 ```
 
 Requires 1024x1024 PNG. Generates icons in `src-tauri/icons/`.
+
+## Windows Build Issues
+
+Building Android APKs on Windows has specific gotchas.
+
+### APK Flag Syntax
+
+Use `--apk true` (not just `--apk`):
+```bash
+# Correct on Windows
+cargo tauri android build --apk true
+
+# May fail on Windows
+cargo tauri android build --apk
+```
+
+### Symlink Error Without Developer Mode
+
+**Problem**: When building without Windows Developer Mode enabled, you may get errors about symlinks failing. This happens because Tauri/Gradle creates symlinks to `.so` native library files, which requires elevated privileges on Windows.
+
+**Error example**:
+```
+FAILURE: Build failed with an exception.
+* What went wrong:
+A problem occurred configuring project ':app'.
+> java.nio.file.FileSystemException: ...\libtauri_app.so: A required privilege is not held by the client
+```
+
+**Solutions**:
+
+1. **Enable Developer Mode** (recommended):
+   - Settings → For developers → Developer Mode → On
+   - Restart the build
+
+2. **Manual copy workaround** (if Developer Mode not available):
+
+   Copy the `.so` files manually to the `jniLibs` directory:
+
+   ```powershell
+   # Create jniLibs directories
+   $jniLibs = "src-tauri\gen\android\app\src\main\jniLibs"
+   New-Item -ItemType Directory -Force -Path "$jniLibs\arm64-v8a"
+   New-Item -ItemType Directory -Force -Path "$jniLibs\armeabi-v7a"
+   New-Item -ItemType Directory -Force -Path "$jniLibs\x86"
+   New-Item -ItemType Directory -Force -Path "$jniLibs\x86_64"
+
+   # Copy .so files from build output
+   $buildOut = "src-tauri\gen\android\app\build\intermediates\tauri"
+
+   Copy-Item "$buildOut\arm64-v8a\release\libtauri_app.so" "$jniLibs\arm64-v8a\"
+   Copy-Item "$buildOut\armeabi-v7a\release\libtauri_app.so" "$jniLibs\armeabi-v7a\"
+   Copy-Item "$buildOut\x86\release\libtauri_app.so" "$jniLibs\x86\"
+   Copy-Item "$buildOut\x86_64\release\libtauri_app.so" "$jniLibs\x86_64\"
+   ```
+
+   Then rebuild with Gradle directly:
+   ```powershell
+   cd src-tauri\gen\android
+   .\gradlew assembleRelease
+   ```
+
+### Path Lengths
+
+Windows has a 260 character path limit by default. Tauri Android builds can exceed this.
+
+**Solutions**:
+- Keep project in a short path (e.g., `C:\dev\myapp`)
+- Enable long paths: `git config --system core.longpaths true`
+- Enable LongPathsEnabled in registry (requires admin)

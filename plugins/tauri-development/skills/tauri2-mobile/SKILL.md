@@ -113,6 +113,8 @@ fn greet(name: &str) -> String {
 | Shell plugin URL error | Use `opener` plugin instead (`openUrl()`) |
 | Google OAuth fails | Google blocks WebView; use system browser flow |
 | Deep link not received | Check scheme in tauri.conf.json, init plugin |
+| Safe area CSS fails on Android | `env()` not supported in WebView; use JS fallback |
+| Windows APK build symlink error | Enable Developer Mode or copy .so files manually |
 
 See [references/testing.md](references/testing.md) for detailed troubleshooting.
 
