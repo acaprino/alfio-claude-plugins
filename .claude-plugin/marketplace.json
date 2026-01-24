@@ -269,6 +269,34 @@
       "skills": [
         "./skills/legal-advisor"
       ]
+    },
+    {
+      "name": "code-documentation",
+      "source": "./plugins/code-documentation",
+      "description": "Technical documentation engineering with AI-powered codebase analysis, documentation auditing, and refactoring",
+      "version": "1.0.0",
+      "author": {
+        "name": "Alfio"
+      },
+      "license": "MIT",
+      "keywords": [
+        "documentation",
+        "technical-writing",
+        "code-analysis",
+        "api-docs",
+        "architecture",
+        "tutorials"
+      ],
+      "category": "documentation",
+      "strict": false,
+      "agents": [
+        "./agents/documentation-engineer.md"
+      ],
+      "commands": [
+        "./commands/document.md",
+        "./commands/audit-docs.md",
+        "./commands/refactor-docs.md"
+      ]
     }
   ]
 }
