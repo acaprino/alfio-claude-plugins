@@ -29,6 +29,9 @@ Custom Claude Code plugin marketplace with development workflow agents, skills, 
   - [Commands](#-commands-2)
 - [Business](#-business-plugin)
   - [Skills](#-skills-5)
+- [Project Setup](#-project-setup-plugin)
+  - [Agents](#-agents-5)
+  - [Commands](#-commands-3)
 - [Usage Examples](#-usage-examples)
 - [Project Structure](#-project-structure)
 - [Contributing](#-contributing)
@@ -54,6 +57,7 @@ claude plugin install frontend-optimization@alfio-claude-plugins
 claude plugin install ai-tooling@alfio-claude-plugins
 claude plugin install stripe@alfio-claude-plugins
 claude plugin install business@alfio-claude-plugins
+claude plugin install project-setup@alfio-claude-plugins
 ```
 
 ### 💻 From Local Path (Development)
@@ -87,6 +91,7 @@ claude plugin list
 | [💳 **stripe**](#-stripe-plugin) | Payments, subscriptions, Connect, billing, revenue optimization | - | 2 | - |
 | [🗂️ **utilities**](#-utilities-plugin) | File organization, cleanup, and directory management | - | 1 | 1 |
 | [⚖️ **business**](#-business-plugin) | Legal advisory, compliance, contracts, and risk management | - | 1 | - |
+| [⚙️ **project-setup**](#-project-setup-plugin) | .claude.md auditing, verification, and creation with ground truth validation | 1 | - | 3 |
 
 ---
 
@@ -784,6 +789,91 @@ Expert legal advisor specializing in technology law, compliance, and risk mitiga
 
 ---
 
+## ⚙️ Project Setup Plugin
+
+> Tools for auditing, creating, and improving `.claude.md` files with ground truth verification.
+
+### 🤖 Agents
+
+#### `claude-md-auditor`
+
+Expert auditor for `.claude.md` files that verifies ground truth, detects obsolete information, and ensures alignment with best practices.
+
+| | |
+|---|---|
+| **Invoke** | Agent reference |
+| **Use for** | .claude.md auditing, creation, verification, improvement |
+
+**Core capabilities:**
+- ✅ **Ground Truth Verification** - Validates every claim against actual codebase
+- 🔍 **Obsolescence Detection** - Finds outdated file paths, dependencies, commands
+- 📏 **Best Practices Compliance** - Checks instruction economy, conciseness, progressive disclosure
+- 💬 **Interactive Workflow** - Asks questions when encountering ambiguities
+- ✏️ **Tailored Creation** - Generates .claude.md based on your preferences
+- 🔧 **Guided Improvement** - Helps prioritize and apply fixes incrementally
+
+**Verification categories:**
+| Category | What It Checks |
+|----------|---------------|
+| Tech Stack | Dependencies, versions, frameworks |
+| File Structure | Paths, directories, organization |
+| Workflows | Build, test, deployment commands |
+| Tools | Linters, formatters, CI/CD |
+| Architecture | Patterns, conventions, design |
+
+**Best practices enforced:**
+- Conciseness (<300 lines, ideally <100)
+- Instruction economy (~150-200 instruction budget)
+- Progressive disclosure (reference docs, don't embed)
+- Pointers over copies (reference files, not code)
+- No style policing (delegate to linters)
+- Universal applicability (only always-relevant guidance)
+
+**Anti-patterns detected:**
+- Factually incorrect information
+- Non-existent file references
+- Commands that don't work
+- Obsolete dependencies
+- Code duplication
+- Over-instruction
+- Vague guidance
+
+### ⚡ Commands
+
+#### `/audit-claude-md`
+
+Audits your existing `.claude.md` file for accuracy and best practices.
+
+**Output:** Comprehensive audit report with verified vs incorrect claims, obsolete information, best practices assessment, and prioritized recommendations.
+
+#### `/create-claude-md`
+
+Creates a new `.claude.md` file through interactive questionnaire about your workflow and preferences.
+
+**Output:** Tailored .claude.md file (<300 lines) with all claims verified against codebase.
+
+#### `/improve-claude-md`
+
+Guided improvement of existing `.claude.md` with user feedback and prioritization.
+
+**Output:** Updated .claude.md with user-approved improvements, diff showing changes, and verification commands.
+
+**Interactive workflow:**
+```
+Agent: I've audited .claude.md. Found 3 critical issues...
+       Should I fix all critical issues?
+You:   Yes
+
+Agent: High priority issues found. Which should I prioritize?
+You:   Reduce length and remove code duplication
+
+Agent: Here's the improved version (185 lines, was 450)
+       [Shows diff] Apply these changes?
+You:   Yes
+```
+
+---
+
 ## 💡 Usage Examples
 
 ### 🐍 Python Development Workflow
@@ -815,6 +905,14 @@ Expert legal advisor specializing in technology law, compliance, and risk mitiga
 2️⃣ /python-refactor on legacy modules
 3️⃣ Use python-testing-patterns to add test coverage
 4️⃣ Use senior-code-reviewer before merge
+```
+
+### ⚙️ .claude.md Maintenance
+```
+1️⃣ /audit-claude-md for quarterly maintenance
+2️⃣ Review findings and prioritize fixes
+3️⃣ /improve-claude-md to apply improvements
+4️⃣ Or /create-claude-md to start fresh
 ```
 
 ---
