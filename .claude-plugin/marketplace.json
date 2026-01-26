@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, and AI tooling",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "plugins": [
     {
