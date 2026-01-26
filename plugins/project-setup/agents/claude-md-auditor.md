@@ -2,7 +2,7 @@
 name: claude-md-auditor
 description: Expert auditor for .claude.md files that verifies ground truth, detects obsolete information, and ensures alignment with best practices. Validates all claims against the actual codebase and provides actionable improvements.
 tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch
-model: sonnet
+model: sonnet[1m]
 color: cyan
 ---
 
