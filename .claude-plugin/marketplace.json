@@ -326,6 +326,29 @@
         "./commands/create-claude-md.md",
         "./commands/improve-claude-md.md"
       ]
+    },
+    {
+      "name": "mobile-development",
+      "source": "./plugins/mobile-development",
+      "description": "Automated competitive analysis of Android mobile apps via ADB with screenshot capture, UX/UI documentation, and report generation",
+      "version": "1.0.0",
+      "author": {
+        "name": "Alfio"
+      },
+      "license": "MIT",
+      "keywords": [
+        "mobile",
+        "android",
+        "adb",
+        "competitive-analysis",
+        "ux",
+        "screenshots"
+      ],
+      "category": "mobile",
+      "strict": false,
+      "skills": [
+        "./skills/analyze-mobile-app"
+      ]
     }
   ]
 }
