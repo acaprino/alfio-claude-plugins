@@ -349,6 +349,28 @@
       "skills": [
         "./skills/analyze-mobile-app"
       ]
+    },
+    {
+      "name": "typescript-development",
+      "source": "./plugins/typescript-development",
+      "description": "TypeScript and JavaScript development with Metabase coding standards and best practices",
+      "version": "1.0.0",
+      "author": {
+        "name": "Metabase"
+      },
+      "license": "MIT",
+      "keywords": [
+        "typescript",
+        "javascript",
+        "metabase",
+        "coding-standards",
+        "frontend"
+      ],
+      "category": "development",
+      "strict": false,
+      "skills": [
+        "./skills/typescript-write"
+      ]
     }
   ]
 }
