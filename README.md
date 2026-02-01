@@ -951,6 +951,13 @@ if status == cp_model.OPTIMAL:
 | python-constraint | Production-grade performance, optimization, parallelism |
 | MiniZinc | Direct Python integration, no intermediate language |
 
+**Prerequisites:**
+```bash
+pip install ortools
+# or with uv
+uv add ortools
+```
+
 **Resources:**
 - [OR-Tools Documentation](https://developers.google.com/optimization/cp)
 - [CP-SAT Primer](https://d-krupke.github.io/cpsat-primer/) - comprehensive guide
@@ -1150,4 +1157,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-**📊 Total:** 🤖 10 Agents | 🛠️ 12 Skills | ⚡ 5 Commands
+**📊 Total:** 🤖 15 Agents | 🛠️ 14 Skills | ⚡ 12 Commands
