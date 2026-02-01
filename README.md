@@ -1,6 +1,6 @@
 # 🔌 Alfio Claude Plugins
 
-Custom Claude Code plugin marketplace with development workflow agents, skills, and commands for Python development, code review, Tauri/Rust, frontend optimization, and AI tooling.
+Custom Claude Code plugin marketplace with development workflow agents, skills, and commands for Python development, code review, Tauri/Rust, frontend optimization, AI tooling, and constraint programming optimization.
 
 ---
 
@@ -32,6 +32,8 @@ Custom Claude Code plugin marketplace with development workflow agents, skills, 
 - [Project Setup](#-project-setup-plugin)
   - [Agents](#-agents-5)
   - [Commands](#-commands-3)
+- [CSP](#-csp-plugin)
+  - [Agents](#-agents-6)
 - [Usage Examples](#-usage-examples)
 - [Project Structure](#-project-structure)
 - [Contributing](#-contributing)
@@ -58,6 +60,7 @@ claude plugin install ai-tooling@alfio-claude-plugins
 claude plugin install stripe@alfio-claude-plugins
 claude plugin install business@alfio-claude-plugins
 claude plugin install project-setup@alfio-claude-plugins
+claude plugin install csp@alfio-claude-plugins
 ```
 
 ### 💻 From Local Path (Development)
@@ -92,6 +95,7 @@ claude plugin list
 | [🗂️ **utilities**](#-utilities-plugin) | File organization, cleanup, and directory management | - | 1 | 1 |
 | [⚖️ **business**](#-business-plugin) | Legal advisory, compliance, contracts, and risk management | - | 1 | - |
 | [⚙️ **project-setup**](#-project-setup-plugin) | .claude.md auditing, verification, and creation with ground truth validation | 1 | - | 3 |
+| [🧩 **csp**](#-csp-plugin) | Constraint satisfaction problems and optimization with OR-Tools CP-SAT | 1 | - | - |
 
 ---
 
@@ -874,6 +878,86 @@ You:   Yes
 
 ---
 
+## 🧩 CSP Plugin
+
+> Constraint Satisfaction Problems and combinatorial optimization with Google OR-Tools CP-SAT solver.
+
+### 🤖 Agents
+
+#### `or-tools-expert`
+
+Master constraint programmer specializing in modeling and solving complex optimization problems using Google OR-Tools CP-SAT, the state-of-the-art open-source solver for CSP and combinatorial optimization.
+
+| | |
+|---|---|
+| **Invoke** | Agent reference |
+| **Use for** | Constraint programming, scheduling, optimization, routing, assignment problems |
+
+**Core capabilities:**
+- 🧩 **CSP Modeling** - Variables, domains, linear and global constraints
+- 📅 **Scheduling** - Job shop, flow shop, nurse scheduling, resource allocation
+- 🎯 **Optimization** - Minimize/maximize objectives, multi-objective problems
+- 🚀 **Performance** - Parallel solving, hints, domain tightening, symmetry breaking
+- 🔍 **Debugging** - Infeasibility analysis, assumptions, solution enumeration
+
+**Problem types:**
+| Problem Type | Examples |
+|--------------|----------|
+| Scheduling | Job shop, nurse shifts, project scheduling (RCPSP) |
+| Assignment | Task allocation, load balancing, bin packing |
+| Routing | TSP, VRP, circuit problems |
+| Classic CSP | N-Queens, Sudoku, graph coloring |
+| Planning | Production planning, workforce optimization |
+
+**Key techniques:**
+- **Global Constraints**: `add_all_different`, `add_circuit`, `add_no_overlap`, `add_cumulative`
+- **Interval Variables**: For scheduling with start, duration, end
+- **Reification**: Conditional constraints with `only_enforce_if`
+- **Performance**: Tight domains, parallelism (`num_workers=0`), hints
+- **Advanced**: Solution enumeration, assumptions for debugging
+
+**Example workflow:**
+```python
+from ortools.sat.python import cp_model
+
+# Build model
+model = cp_model.CpModel()
+x = model.new_int_var(0, 100, 'x')
+y = model.new_int_var(0, 100, 'y')
+model.add(x + 2*y <= 100)
+model.maximize(x + y)
+
+# Solve with parallelism
+solver = cp_model.CpSolver()
+solver.parameters.num_workers = 0  # Use all cores
+status = solver.solve(model)
+
+if status == cp_model.OPTIMAL:
+    print(f'x={solver.value(x)}, y={solver.value(y)}')
+```
+
+**Best practices:**
+- ✅ Use tight variable domains (smallest realistic bounds)
+- ✅ Prefer global constraints over decomposed equivalents
+- ✅ Enable parallelism by default (`num_workers=0`)
+- ✅ Provide hints from heuristics to warm-start search
+- ✅ Break symmetries for interchangeable elements
+- ✅ Scale floats to integers (e.g., cents for money)
+
+**Comparison:**
+| vs | Advantage |
+|----|-----------|
+| MIP solvers | Better at scheduling, disjunctive logic, global constraints |
+| python-constraint | Production-grade performance, optimization, parallelism |
+| MiniZinc | Direct Python integration, no intermediate language |
+
+**Resources:**
+- [OR-Tools Documentation](https://developers.google.com/optimization/cp)
+- [CP-SAT Primer](https://d-krupke.github.io/cpsat-primer/) - comprehensive guide
+- [CP-SAT Log Analyzer](https://cpsat-log-analyzer.streamlit.app/)
+
+---
+
 ## 💡 Usage Examples
 
 ### 🐍 Python Development Workflow
@@ -914,6 +998,21 @@ You:   Yes
 3️⃣ /improve-claude-md to apply improvements
 4️⃣ Or /create-claude-md to start fresh
 ```
+
+### 🧩 Optimization & Scheduling with CSP
+```
+1️⃣ Use or-tools-expert agent for constraint programming
+2️⃣ Model problem with variables, domains, and constraints
+3️⃣ Enable parallelism and performance optimizations
+4️⃣ Test on small instances before scaling up
+```
+
+**Example problems:**
+- 📅 Employee shift scheduling with fairness constraints
+- 🏭 Job shop scheduling to minimize makespan
+- 📦 Bin packing and resource allocation
+- 🚚 Vehicle routing and delivery optimization
+- 🎯 Assignment problems with cost minimization
 
 ---
 
@@ -989,10 +1088,13 @@ alfio-claude-plugins/
 │   │   │       └── SKILL.md
 │   │   └── commands/
 │   │       └── organize-files.md
-│   └── business/
-│       └── skills/
-│           └── legal-advisor/
-│               └── SKILL.md
+│   ├── business/
+│   │   └── skills/
+│   │       └── legal-advisor/
+│   │           └── SKILL.md
+│   └── csp/
+│       └── agents/
+│           └── or-tools-expert.md
 ├── LICENSE
 └── README.md
 ```

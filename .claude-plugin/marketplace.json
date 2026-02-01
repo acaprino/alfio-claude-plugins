@@ -5,8 +5,8 @@
     "email": ""
   },
   "metadata": {
-    "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, and AI tooling",
-    "version": "1.1.0"
+    "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
+    "version": "1.2.0"
   },
   "plugins": [
     {
@@ -370,6 +370,31 @@
       "strict": false,
       "skills": [
         "./skills/typescript-write"
+      ]
+    },
+    {
+      "name": "csp",
+      "source": "./plugins/csp",
+      "description": "Constraint Satisfaction Problems and combinatorial optimization with Google OR-Tools CP-SAT solver",
+      "version": "1.0.0",
+      "author": {
+        "name": "Alfio"
+      },
+      "license": "MIT",
+      "keywords": [
+        "constraint-programming",
+        "optimization",
+        "or-tools",
+        "cp-sat",
+        "scheduling",
+        "routing",
+        "csp",
+        "combinatorial-optimization"
+      ],
+      "category": "optimization",
+      "strict": false,
+      "agents": [
+        "./agents/or-tools-expert.md"
       ]
     }
   ]
