@@ -273,8 +273,8 @@
     {
       "name": "code-documentation",
       "source": "./plugins/code-documentation",
-      "description": "Technical documentation engineering with AI-powered codebase analysis, documentation auditing, and refactoring",
-      "version": "1.0.0",
+      "description": "Technical documentation engineering with AI-powered codebase analysis, documentation creation, and management",
+      "version": "1.1.0",
       "author": {
         "name": "Alfio"
       },
@@ -285,7 +285,8 @@
         "code-analysis",
         "api-docs",
         "architecture",
-        "tutorials"
+        "tutorials",
+        "documentation-management"
       ],
       "category": "documentation",
       "strict": false,
@@ -293,16 +294,15 @@
         "./agents/documentation-engineer.md"
       ],
       "commands": [
-        "./commands/document.md",
-        "./commands/audit-docs.md",
-        "./commands/refactor-docs.md"
+        "./commands/docs-create.md",
+        "./commands/docs-maintain.md"
       ]
     },
     {
       "name": "project-setup",
       "source": "./plugins/project-setup",
-      "description": "Project configuration and setup tools including .claude.md auditing, verification, and creation with ground truth validation",
-      "version": "1.0.0",
+      "description": "Project configuration and setup tools including CLAUDE.md creation and maintenance with ground truth validation",
+      "version": "1.1.0",
       "author": {
         "name": "Alfio"
       },
@@ -311,7 +311,7 @@
         "claude-md",
         "configuration",
         "project-setup",
-        "audit",
+        "maintenance",
         "verification",
         "ground-truth",
         "best-practices"
@@ -322,9 +322,8 @@
         "./agents/claude-md-auditor.md"
       ],
       "commands": [
-        "./commands/audit-claude-md.md",
         "./commands/create-claude-md.md",
-        "./commands/improve-claude-md.md"
+        "./commands/maintain-claude-md.md"
       ]
     },
     {
