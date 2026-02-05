@@ -395,6 +395,35 @@
       "agents": [
         "./agents/or-tools-expert.md"
       ]
+    },
+    {
+      "name": "digital-marketing",
+      "source": "./plugins/digital-marketing",
+      "description": "SEO optimization and content marketing with technical audits, keyword research, content strategy, and engagement-driven campaigns",
+      "version": "1.0.0",
+      "author": {
+        "name": "Alfio"
+      },
+      "license": "MIT",
+      "keywords": [
+        "seo",
+        "content-marketing",
+        "digital-marketing",
+        "keyword-research",
+        "content-strategy",
+        "organic-traffic",
+        "search-optimization"
+      ],
+      "category": "marketing",
+      "strict": false,
+      "agents": [
+        "./agents/seo-specialist.md",
+        "./agents/content-marketer.md"
+      ],
+      "commands": [
+        "./commands/seo-audit.md",
+        "./commands/content-strategy.md"
+      ]
     }
   ]
 }

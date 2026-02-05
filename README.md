@@ -34,6 +34,9 @@ Custom Claude Code plugin marketplace with development workflow agents, skills, 
   - [Commands](#-commands-3)
 - [CSP](#-csp-plugin)
   - [Agents](#-agents-6)
+- [Digital Marketing](#-digital-marketing-plugin)
+  - [Agents](#-agents-7)
+  - [Commands](#-commands-4)
 - [Usage Examples](#-usage-examples)
 - [Project Structure](#-project-structure)
 - [Contributing](#-contributing)
@@ -61,6 +64,7 @@ claude plugin install stripe@alfio-claude-plugins
 claude plugin install business@alfio-claude-plugins
 claude plugin install project-setup@alfio-claude-plugins
 claude plugin install csp@alfio-claude-plugins
+claude plugin install digital-marketing@alfio-claude-plugins
 ```
 
 ### 💻 From Local Path (Development)
@@ -94,8 +98,9 @@ claude plugin list
 | [💳 **stripe**](#-stripe-plugin) | Payments, subscriptions, Connect, billing, revenue optimization | - | 2 | - |
 | [🗂️ **utilities**](#-utilities-plugin) | File organization, cleanup, and directory management | - | 1 | 1 |
 | [⚖️ **business**](#-business-plugin) | Legal advisory, compliance, contracts, and risk management | - | 1 | - |
-| [⚙️ **project-setup**](#-project-setup-plugin) | .claude.md auditing, verification, and creation with ground truth validation | 1 | - | 3 |
+| [⚙️ **project-setup**](#-project-setup-plugin) | .claude.md auditing, verification, and creation with ground truth validation | 1 | - | 2 |
 | [🧩 **csp**](#-csp-plugin) | Constraint satisfaction problems and optimization with OR-Tools CP-SAT | 1 | - | - |
+| [📢 **digital-marketing**](#-digital-marketing-plugin) | SEO optimization, content marketing, and engagement-driven campaigns | 2 | - | 2 |
 
 ---
 
@@ -844,28 +849,31 @@ Expert auditor for `.claude.md` files that verifies ground truth, detects obsole
 
 ### ⚡ Commands
 
-#### `/audit-claude-md`
-
-Audits your existing `.claude.md` file for accuracy and best practices.
-
-**Output:** Comprehensive audit report with verified vs incorrect claims, obsolete information, best practices assessment, and prioritized recommendations.
-
 #### `/create-claude-md`
 
 Creates a new `.claude.md` file through interactive questionnaire about your workflow and preferences.
 
 **Output:** Tailored .claude.md file (<300 lines) with all claims verified against codebase.
 
-#### `/improve-claude-md`
+#### `/maintain-claude-md`
 
-Guided improvement of existing `.claude.md` with user feedback and prioritization.
+Audits and optionally improves your existing `.claude.md` file with ground truth verification.
 
-**Output:** Updated .claude.md with user-approved improvements, diff showing changes, and verification commands.
+**Two workflows:**
+1. **Audit-only**: Review findings, no changes applied
+2. **Audit + improvements**: Fix issues with guided prioritization
+
+**Output:**
+- Audit-only: Comprehensive report with verified vs incorrect claims, obsolete information, and prioritized recommendations
+- With improvements: Updated .claude.md with user-approved changes, diff showing what changed, and verification commands
 
 **Interactive workflow:**
 ```
-Agent: I've audited .claude.md. Found 3 critical issues...
-       Should I fix all critical issues?
+Agent: I've audited .claude.md. Found 3 critical issues, 5 high priority...
+       Would you like me to fix these issues?
+You:   Yes
+
+Agent: Should I fix all critical issues?
 You:   Yes
 
 Agent: High priority issues found. Which should I prioritize?
@@ -965,6 +973,98 @@ uv add ortools
 
 ---
 
+## 📢 Digital Marketing Plugin
+
+> SEO optimization, content marketing, keyword research, and engagement-driven campaigns.
+
+### 🤖 Agents
+
+#### `seo-specialist`
+
+Expert SEO strategist specializing in technical SEO, content optimization, and search engine rankings.
+
+| | |
+|---|---|
+| **Model** | `default` |
+| **Use for** | Technical SEO audits, keyword research, on-page optimization, structured data |
+
+**Invocation:**
+```
+Use the seo-specialist agent to [audit/optimize/research] [target]
+```
+
+**Expertise:**
+- Technical SEO audits (crawl errors, broken links, redirect chains)
+- Keyword research and competition analysis
+- On-page optimization and content structure
+- Structured data / schema markup implementation
+- Core Web Vitals and performance optimization
+- E-E-A-T factors and algorithm update recovery
+
+---
+
+#### `content-marketer`
+
+Expert content marketer specializing in content strategy, SEO optimization, and engagement-driven marketing.
+
+| | |
+|---|---|
+| **Model** | `default` |
+| **Use for** | Content strategy, editorial calendars, campaign management, lead generation |
+
+**Invocation:**
+```
+Use the content-marketer agent to [plan/create/optimize] [content/campaign]
+```
+
+**Expertise:**
+- Content strategy and editorial planning
+- Multi-channel content creation (blog, email, social, video)
+- SEO-optimized content production
+- Lead generation and conversion optimization
+- Analytics, A/B testing, and ROI measurement
+- Brand voice consistency and thought leadership
+
+---
+
+### ⚡ Commands
+
+#### `/seo-audit`
+
+Perform a comprehensive SEO audit and optimization analysis.
+
+```
+/seo-audit https://example.com
+```
+
+**Examples:**
+| Command | Action |
+|---------|--------|
+| `/seo-audit https://example.com` | Full technical SEO audit |
+| `/seo-audit src/pages` | Audit page structure for SEO |
+| `/seo-audit --keywords "react tutorial"` | Keyword research and analysis |
+| `/seo-audit --schema` | Structured data recommendations |
+
+---
+
+#### `/content-strategy`
+
+Develop a content strategy and marketing plan.
+
+```
+/content-strategy "B2B SaaS product launch"
+```
+
+**Examples:**
+| Command | Action |
+|---------|--------|
+| `/content-strategy "product launch"` | Full content strategy |
+| `/content-strategy --audit src/blog` | Audit existing content |
+| `/content-strategy --calendar Q1 2026` | Generate editorial calendar |
+| `/content-strategy --competitor "site.com"` | Competitive content analysis |
+
+---
+
 ## 💡 Usage Examples
 
 ### 🐍 Python Development Workflow
@@ -1000,9 +1100,9 @@ uv add ortools
 
 ### ⚙️ .claude.md Maintenance
 ```
-1️⃣ /audit-claude-md for quarterly maintenance
-2️⃣ Review findings and prioritize fixes
-3️⃣ /improve-claude-md to apply improvements
+1️⃣ /maintain-claude-md for quarterly maintenance
+2️⃣ Review audit findings
+3️⃣ Choose: audit-only or apply improvements
 4️⃣ Or /create-claude-md to start fresh
 ```
 
@@ -1099,9 +1199,16 @@ alfio-claude-plugins/
 │   │   └── skills/
 │   │       └── legal-advisor/
 │   │           └── SKILL.md
-│   └── csp/
-│       └── agents/
-│           └── or-tools-expert.md
+│   ├── csp/
+│   │   └── agents/
+│   │       └── or-tools-expert.md
+│   └── digital-marketing/
+│       ├── agents/
+│       │   ├── seo-specialist.md
+│       │   └── content-marketer.md
+│       └── commands/
+│           ├── seo-audit.md
+│           └── content-strategy.md
 ├── LICENSE
 └── README.md
 ```
@@ -1157,4 +1264,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-**📊 Total:** 🤖 15 Agents | 🛠️ 14 Skills | ⚡ 12 Commands
+**📊 Total:** 🤖 17 Agents | 🛠️ 14 Skills | ⚡ 14 Commands
