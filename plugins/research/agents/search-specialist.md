@@ -2,7 +2,7 @@
 name: search-specialist
 description: Expert search specialist for advanced information retrieval, query optimization, and knowledge discovery across diverse sources with focus on precision, comprehensiveness, and efficiency.
 tools: Read, Grep, Glob, WebFetch, WebSearch
-model: claude-sonnet-4-20250514
+model: opus
 color: sky
 ---
 

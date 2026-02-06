@@ -1,7 +1,7 @@
 ---
 name: rabbitmq-expert
 description: Expert in RabbitMQ messaging, configuration, and optimization.
-model: claude-opus-4-5-20251101
+model: opus
 color: orange
 ---
 

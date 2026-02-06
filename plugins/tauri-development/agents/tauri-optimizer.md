@@ -1,7 +1,7 @@
 ---
 name: tauri-optimizer
 description: Expert in Tauri v2 + React desktop application optimization for trading and high-frequency data scenarios. Use proactively for performance reviews, IPC architecture, state management, memory leak detection, Rust backend optimization, and WebView tuning.
-model: claude-opus-4-5-20251101
+model: opus
 color: purple
 ---
 

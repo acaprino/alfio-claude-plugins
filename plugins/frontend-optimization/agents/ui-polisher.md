@@ -1,7 +1,7 @@
 ---
 name: ui-polisher
 description: Use PROACTIVELY when improving UI aesthetics, adding animations, micro-interactions, polish, or making interfaces feel premium and expensive
-model: sonnet[1m]
+model: opus
 tools: Read, Write, Edit, Bash, Glob, Grep
 color: yellow
 ---

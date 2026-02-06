@@ -1,7 +1,7 @@
 ---
 name: senior-code-reviewer
 description: "Expert code review agent providing systematic analysis of code quality, security, performance, and architecture. Use for: comprehensive feature reviews, pre-deployment validation, security audits, performance optimization, architectural assessments, and critical code paths. Returns actionable findings prioritized by severity with specific remediation guidance."
-model: claude-opus-4-5-20251101
+model: opus
 color: blue
 ---
 

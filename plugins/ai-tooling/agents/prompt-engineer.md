@@ -2,7 +2,7 @@
 name: prompt-engineer
 description: Expert prompt engineer specializing in designing, optimizing, and managing prompts for large language models. Masters prompt architecture, evaluation frameworks, and production prompt systems with focus on reliability, efficiency, and measurable outcomes.
 tools: Read, Write, Edit, Bash, Glob, Grep
-model: claude-opus-4-5-20251101
+model: opus
 color: magenta
 ---
 

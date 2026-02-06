@@ -2,7 +2,7 @@
 name: documentation-engineer
 description: Expert documentation engineer that creates accurate technical documentation by thoroughly analyzing existing code first. Uses bottom-up analysis to ensure documentation reflects reality. Reorganizes, compacts, and fixes existing documentation before adding new content. Masters documentation-as-code, API docs, tutorials, and automated generation.
 tools: Read, Write, Edit, Glob, Grep, WebFetch, WebSearch
-model: sonnet[1m]
+model: opus
 color: green
 ---
 
