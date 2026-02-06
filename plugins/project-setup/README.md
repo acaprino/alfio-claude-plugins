@@ -1,10 +1,10 @@
 # Project Setup Plugin
 
-Expert tools for auditing, creating, and improving `.claude.md` files with ground truth verification and best practices compliance.
+Expert tools for creating and maintaining `CLAUDE.md` files with ground truth verification and best practices compliance.
 
 ## Overview
 
-This plugin provides the `claude-md-auditor` agent that helps you maintain accurate, concise, and effective `.claude.md` files based on research from [humanlayer.dev's guide on writing effective CLAUDE.md files](https://www.humanlayer.dev/blog/writing-a-good-claude-md).
+This plugin provides the `claude-md-auditor` agent that helps you maintain accurate, concise, and effective `CLAUDE.md` files based on research from [humanlayer.dev's guide on writing effective CLAUDE.md files](https://www.humanlayer.dev/blog/writing-a-good-claude-md).
 
 ## Key Features
 
@@ -12,81 +12,77 @@ This plugin provides the `claude-md-auditor` agent that helps you maintain accur
 - **Obsolescence Detection**: Finds outdated file paths, dependencies, commands
 - **Best Practices Compliance**: Checks instruction economy, conciseness, progressive disclosure
 - **Interactive Workflow**: Asks questions when encountering ambiguities
-- **Tailored Creation**: Generates .claude.md based on your preferences
-- **Guided Improvement**: Helps prioritize and apply fixes incrementally
+- **Tailored Creation**: Generates CLAUDE.md based on your preferences
+- **Guided Maintenance**: Audit-only or full improvement workflow with prioritization
 
 ## Agents
 
 ### claude-md-auditor
 
-Expert auditor for `.claude.md` files that verifies ground truth, detects obsolete information, and ensures alignment with best practices.
+Expert auditor for `CLAUDE.md` files that verifies ground truth, detects obsolete information, and ensures alignment with best practices.
 
 **Capabilities:**
 - Systematically verifies all technical claims
 - Detects stale file references and obsolete dependencies
 - Evaluates against best practices (conciseness, instruction economy)
-- Interactive questionnaire for creating tailored .claude.md
+- Interactive questionnaire for creating tailored CLAUDE.md
 - Asks clarifying questions when encountering ambiguities
 - Generates comprehensive audit reports
 - Applies improvements with user approval
 
 ## Commands
 
-### /audit-claude-md
+### /create-claude-md
 
-Audits your existing `.claude.md` file for accuracy and best practices.
+Creates a new `CLAUDE.md` file through interactive questionnaire.
+
+**What it does:**
+- Analyzes project structure
+- Asks about workflow preferences
+- Clarifies ambiguous patterns
+- Generates tailored CLAUDE.md
+- Verifies all claims
+
+**When to use:**
+- New project without CLAUDE.md
+- Starting fresh is easier than fixing existing
+- Want to establish new conventions
+
+**Example questions:**
+- "I found both Redux and Zustand. Which should Claude prioritize?"
+- "Should CLAUDE.md emphasize testing or deployment workflows?"
+- "Prefer minimal (<100 lines) or detailed (<300 lines)?"
+
+**Related commands:**
+- `/maintain-claude-md` - Audit and improve existing CLAUDE.md
+
+### /maintain-claude-md
+
+Audits and optionally improves your existing `CLAUDE.md` file with ground truth verification.
 
 **What it does:**
 - Verifies all claims against codebase
 - Detects obsolete information
 - Checks best practices compliance
-- Asks questions about ambiguities
-- Generates prioritized recommendations
+- Presents prioritized findings
+- Asks if you want to apply improvements
+- If yes: Guided improvement workflow
+- If no: Audit report only
 
 **When to use:**
 - After major refactoring
 - Quarterly maintenance
 - Before onboarding new team members
 - When Claude seems to have wrong assumptions
-
-### /create-claude-md
-
-Creates a new `.claude.md` file through interactive questionnaire.
-
-**What it does:**
-- Analyzes project structure
-- Asks about workflow preferences
-- Clarifies ambiguous patterns
-- Generates tailored .claude.md
-- Verifies all claims
-
-**When to use:**
-- New project without .claude.md
-- Starting fresh is easier than fixing existing
-- Want to establish new conventions
-
-**Example questions:**
-- "I found both Redux and Zustand. Which should Claude prioritize?"
-- "Should .claude.md emphasize testing or deployment workflows?"
-- "Prefer minimal (<100 lines) or detailed (<300 lines)?"
-
-### /improve-claude-md
-
-Guided improvement of existing `.claude.md` with your priorities.
-
-**What it does:**
-- Audits current file
-- Presents findings by priority
-- Asks which improvements to prioritize
-- Requests guidance on decisions
-- Applies improvements iteratively
-- Final review before changes
-
-**When to use:**
-- Current .claude.md needs updating
 - Modernize based on best practices
-- Periodic maintenance
 - After learning what works with Claude
+
+**Example flows:**
+1. **Audit-only**: Review findings, no changes applied
+2. **Audit + improvements**: Fix critical issues, prioritize improvements, apply changes with approval
+
+**Related commands:**
+- `/create-claude-md` - Start fresh instead of improving
 
 ## Best Practices Enforced
 
@@ -116,24 +112,7 @@ The agent flags these issues:
 
 ## Example Workflow
 
-### Audit Existing .claude.md
-
-```bash
-# Run audit
-/audit-claude-md
-
-# Agent analyzes and asks:
-# "I found both npm and yarn lock files. Which should .claude.md reference?"
-> npm
-
-# Receives comprehensive audit report with:
-# - ✅ 12 verified claims
-# - ❌ 3 incorrect/obsolete claims
-# - ⚠️ 2 unverifiable claims
-# - Prioritized recommendations
-```
-
-### Create New .claude.md
+### Create New CLAUDE.md
 
 ```bash
 # Start creation
@@ -149,19 +128,43 @@ The agent flags these issues:
 # "Prefer minimal or detailed guidance?"
 > Minimal with doc references
 
-# Generates tailored .claude.md (87 lines, all verified)
+# Generates tailored CLAUDE.md (87 lines, all verified)
 ```
 
-### Improve Existing .claude.md
+### Maintain Existing CLAUDE.md (Audit Only)
 
 ```bash
-# Start improvement
-/improve-claude-md
+# Run maintenance
+/maintain-claude-md
+
+# Agent analyzes and asks:
+# "I found both npm and yarn lock files. Which should CLAUDE.md reference?"
+> npm
+
+# Agent presents findings and asks:
+# "Would you like me to fix these issues?"
+> No
+
+# Receives comprehensive audit report with:
+# - ✅ 12 verified claims
+# - ❌ 3 incorrect/obsolete claims
+# - ⚠️ 2 unverifiable claims
+# - Prioritized recommendations
+```
+
+### Maintain Existing CLAUDE.md (With Improvements)
+
+```bash
+# Start maintenance
+/maintain-claude-md
 
 # Agent presents findings:
 # Critical: 2 issues
 # High Priority: 5 issues
 # Medium: 3 issues
+
+# "Would you like me to fix these issues?"
+> Yes
 
 # "Should I fix all critical issues?"
 > Yes
@@ -177,7 +180,7 @@ The agent flags these issues:
 ### Audit Report Format
 
 ```markdown
-# .claude.md Audit Report
+# CLAUDE.md Audit Report
 
 **Status:** 🟡 NEEDS IMPROVEMENT
 **Lines:** 450 (over recommended 300)
@@ -233,7 +236,7 @@ cat biome.json
 ## Integration
 
 Works well with other agents:
-- **documentation-engineer**: Validates doc references in .claude.md
+- **documentation-engineer**: Validates doc references in CLAUDE.md
 - **code-reviewer**: Gets architecture insights for WHY section
 - **explore agent**: Comprehensive codebase understanding
 
@@ -252,10 +255,10 @@ Works well with other agents:
 
 ### Progressive Disclosure Pattern
 
-Instead of embedding everything in .claude.md:
+Instead of embedding everything in CLAUDE.md:
 
 ```markdown
-# .claude.md (concise)
+# CLAUDE.md (concise)
 For detailed development workflows, see docs/development.md
 For API conventions, see docs/api-patterns.md
 For testing guidelines, see docs/testing.md

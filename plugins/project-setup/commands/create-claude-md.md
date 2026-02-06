@@ -1,12 +1,12 @@
 ---
 name: create-claude-md
-description: Create a new .claude.md file tailored to your project through interactive questionnaire
+description: Create a new CLAUDE.md file tailored to your project through interactive questionnaire
 subagent: project-setup:claude-md-auditor
 ---
 
-# Create .claude.md File
+# Create CLAUDE.md File
 
-This command launches an interactive session to create a new `.claude.md` file perfectly tailored to your project and preferences.
+This command launches an interactive session to create a new `CLAUDE.md` file perfectly tailored to your project and preferences.
 
 ## What This Does
 
@@ -14,15 +14,15 @@ The agent will:
 1. Analyze your project structure and tech stack
 2. Ask you questions about your workflow and preferences
 3. Clarify any ambiguous patterns found in the codebase
-4. Generate a concise, accurate `.claude.md` following best practices
+4. Generate a concise, accurate `CLAUDE.md` following best practices
 5. Verify all claims against your actual codebase
 6. Review the draft with you before finalizing
 
 ## When to Use
 
 - Starting a new project
-- Existing project without .claude.md
-- Current .claude.md is severely outdated (easier to start fresh)
+- Existing project without CLAUDE.md
+- Current CLAUDE.md is severely outdated (easier to start fresh)
 - Want to establish new team conventions
 
 ## Example Questions You'll Be Asked
@@ -42,7 +42,7 @@ Agent: I've analyzed the codebase. I found both Redux and Zustand for state mana
        Which should Claude prioritize?
 You:   Zustand - we're migrating away from Redux
 
-Agent: Should .claude.md mention the migration?
+Agent: Should CLAUDE.md mention the migration?
 You:   Yes, note that Redux is legacy
 
 Agent: I see custom hooks in src/hooks/. Should Claude:
@@ -51,18 +51,18 @@ Agent: I see custom hooks in src/hooks/. Should Claude:
        C) Create new hooks as needed
 You:   A
 
-Agent: Perfect! Generating your .claude.md...
+Agent: Perfect! Generating your CLAUDE.md...
        [Shows draft]
        Should I add anything about API conventions?
 You:   Yes, we always use React Query for data fetching
 
-Agent: Done! Created .claude.md (87 lines, all claims verified)
+Agent: Done! Created CLAUDE.md (87 lines, all claims verified)
 ```
 
 ## Output
 
 You'll receive:
-- New `.claude.md` file (<300 lines, typically <100)
+- New `CLAUDE.md` file (<300 lines, typically <100)
 - Tailored to your specific project and preferences
 - All claims verified against codebase
 - Verification commands to confirm accuracy
@@ -71,7 +71,7 @@ You'll receive:
 
 ## Best Practices Built In
 
-Your new .claude.md will:
+Your new CLAUDE.md will:
 - ✅ Be concise and focused
 - ✅ Reference files instead of duplicating code
 - ✅ Delegate style enforcement to linters
@@ -81,5 +81,4 @@ Your new .claude.md will:
 
 ## Related Commands
 
-- `/audit-claude-md` - Audit existing .claude.md
-- `/improve-claude-md` - Improve existing .claude.md
+- `/maintain-claude-md` - Audit and improve existing CLAUDE.md

@@ -1,6 +1,6 @@
-# Example: Good .claude.md File
+# Example: Good CLAUDE.md File
 
-This is an example of a well-structured `.claude.md` file following best practices.
+This is an example of a well-structured `CLAUDE.md` file following best practices.
 
 ## Key Characteristics
 
@@ -155,7 +155,7 @@ See `docs/deployment.md` for environment variables and configuration.
 
 5. **Delegates to Tools**
    - "DO NOT suggest code style changes - Biome handles this"
-   - Doesn't embed linting rules in .claude.md
+   - Doesn't embed linting rules in CLAUDE.md
    - Lets pre-commit hooks enforce standards
 
 6. **Universal Applicability**
@@ -188,7 +188,7 @@ See `docs/deployment.md` for environment variables and configuration.
 - **Progressive disclosure:** 5 doc references ✅
 - **Code duplication:** None ✅
 
-## Contrast: Bad .claude.md Example
+## Contrast: Bad CLAUDE.md Example
 
 Here's what NOT to do:
 
@@ -249,7 +249,7 @@ We plan to use Jest for testing
 
 ## Verification Checklist
 
-Before accepting a .claude.md, verify:
+Before accepting a CLAUDE.md, verify:
 
 - [ ] Under 300 lines (ideally <100)
 - [ ] All file paths exist
