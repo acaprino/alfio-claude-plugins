@@ -4,7 +4,7 @@ A comprehensive Agent Skill for systematic code refactoring that prioritizes hum
 
 ## Purpose
 
-Transform complex, hard-to-understand code into clear, well-documented, maintainable code through systematic application of proven refactoring patterns.
+Transform complex, hard-to-understand Python code into clear, well-documented, maintainable code through systematic application of proven refactoring patterns.
 
 ## When to Use
 
@@ -25,96 +25,74 @@ Transform complex, hard-to-understand code into clear, well-documented, maintain
 
 ### Refactoring Patterns
 
-- **Complexity Reduction**: Guard clauses, method extraction, conditional simplification
+- **Complexity Reduction**: Guard clauses, method extraction, conditional simplification, dictionary dispatch
 - **Naming Improvements**: Meaningful variables, boolean conventions, named constants
 - **Documentation**: Comprehensive docstrings, module documentation, type hints
 - **Structure**: Separation of concerns, consistent abstraction levels, layered architecture
+- **OOP Transformation**: Global state encapsulation, dependency injection, domain models
 
 ### Anti-Pattern Detection
 
-Automatically identifies 16 common anti-patterns across three priority levels:
+Automatically identifies 16+ common anti-patterns across three priority levels:
+- **Critical**: Script-like procedural code, God Objects/Classes
 - **High Priority**: Complex nesting, god functions, magic numbers, cryptic names
-- **Medium Priority**: Code duplication, god classes, primitive obsession
-- **Low Priority**: Inconsistent naming, redundant comments, unused code
+- **Medium Priority**: Code duplication, primitive obsession, long parameter lists
 
-### Validation Framework
+### Tooling
 
-Includes executable Python scripts for objective metrics:
-- `measure_complexity.py` - Cyclomatic complexity, function length, nesting depth
+**Primary Stack (recommended):** Ruff + Complexipy (both Rust-based, very fast)
+- Ruff: 800+ lint rules, replaces flake8 + plugins
+- Complexipy: Dedicated cognitive complexity analysis
+
+**Alternative:** Flake8 with curated plugin set (for projects already using it). See `references/flake8_plugins_guide.md`.
+
+### Validation Scripts
+
+- `measure_complexity.py` - AST-based cyclomatic complexity, function length, nesting depth
 - `check_documentation.py` - Docstring and type hint coverage
-- `compare_metrics.py` - Before/after comparison with percentage improvements
-- `benchmark_changes.py` - Performance regression detection
-- **`analyze_with_flake8.py`** - Comprehensive code quality analysis with plugin support
-- **`compare_flake8_reports.py`** - Before/after flake8 comparison with detailed improvements
-
-### Flake8 Integration
-
-Three-tier system with **16 curated plugins** optimized for human-readable code:
-
-**ESSENTIAL (5 plugins - Highest Impact):**
-- **flake8-bugbear** - Finds likely bugs and design problems
-- **flake8-simplify** - Suggests simpler, clearer code
-- **flake8-cognitive-complexity** - Measures true cognitive load
-- **pep8-naming** - Enforces clear naming conventions
-- **flake8-docstrings** - Ensures documentation
-
-**RECOMMENDED (5 plugins - Strong Impact):**
-- **flake8-comprehensions** - Cleaner comprehensions
-- **flake8-expression-complexity** - Prevents complex expressions
-- **flake8-functions** - Simpler function signatures
-- **flake8-variables-names** - Better variable naming
-- **tryceratops** - Clean exception handling
-
-**OPTIONAL (6 plugins - Nice to Have):**
-- **flake8-builtins** - Prevents shadowing built-ins
-- **flake8-eradicate** - Finds commented-out code
-- **flake8-unused-arguments** - Flags unused parameters
-- **flake8-annotations** - Validates type hints
-- **pydoclint** - Complete docstrings
-- **flake8-spellcheck** - Catches typos
-
-**Features:**
-- Generates HTML/JSON reports for tracking progress
-- Compares before/after to quantify improvements
-- Categorizes issues by severity (high/medium/low)
-- Provides installation guidance by priority
+- `compare_metrics.py` - Before/after metrics comparison
+- `benchmark_changes.py` - Performance regression testing
+- `analyze_with_flake8.py` - Comprehensive flake8 analysis with plugin support
+- `compare_flake8_reports.py` - Flake8 before/after comparison
+- `analyze_multi_metrics.py` - Combined cognitive + cyclomatic + maintainability report
 
 ## Skill Contents
 
 ```
 python-refactor/
-├── SKILL.md                     # Main skill instructions and workflow
-├── README.md                    # This file
-├── scripts/                     # Executable validation tools
-│   ├── measure_complexity.py          # AST-based complexity analysis
-│   ├── check_documentation.py         # Docstring and type hint coverage
-│   ├── compare_metrics.py             # Before/after metrics comparison
-│   ├── benchmark_changes.py           # Performance regression testing
-│   ├── analyze_with_flake8.py         # Comprehensive flake8 analysis
-│   └── compare_flake8_reports.py      # Flake8 before/after comparison
-├── references/                  # Reference documentation
-│   ├── patterns.md              # Detailed refactoring patterns with examples
-│   ├── anti-patterns.md         # Anti-pattern catalog with detection criteria
-│   └── examples/                # Complete before/after examples
+├── SKILL.md                              # Main skill instructions and workflow
+├── README.md                             # This file
+├── scripts/                              # Executable validation tools
+│   ├── measure_complexity.py             # AST-based complexity analysis
+│   ├── check_documentation.py            # Docstring and type hint coverage
+│   ├── compare_metrics.py               # Before/after metrics comparison
+│   ├── benchmark_changes.py             # Performance regression testing
+│   ├── analyze_with_flake8.py           # Comprehensive flake8 analysis
+│   ├── compare_flake8_reports.py        # Flake8 before/after comparison
+│   └── analyze_multi_metrics.py         # Combined multi-metric analysis
+├── references/                           # Reference documentation
+│   ├── patterns.md                       # Refactoring patterns with examples
+│   ├── anti-patterns.md                 # Anti-pattern catalog
+│   ├── oop_principles.md               # SOLID principles and OOP guide
+│   ├── cognitive_complexity_guide.md    # Cognitive complexity rules and tools
+│   ├── REGRESSION_PREVENTION.md         # Mandatory regression prevention guide
+│   ├── flake8_plugins_guide.md          # Flake8 plugin ecosystem
+│   └── examples/                         # Complete before/after examples
 │       ├── python_complexity_reduction.md
-│       └── typescript_naming_improvements.md
-└── assets/                      # Output templates and configurations
-    ├── .flake8                  # Flake8 configuration template
+│       ├── typescript_naming_improvements.md
+│       └── script_to_oop_transformation.md
+└── assets/                               # Output templates and configurations
+    ├── .flake8                           # Flake8 configuration template
+    ├── pyproject.toml                    # Ruff + Complexipy configuration template
     └── templates/
-        ├── analysis_template.md      # Pre-refactoring analysis format
-        ├── summary_template.md       # Post-refactoring summary format
-        └── flake8_report_template.md # Flake8 analysis report format
+        ├── analysis_template.md          # Pre-refactoring analysis format
+        ├── summary_template.md           # Post-refactoring summary format
+        └── flake8_report_template.md     # Flake8 analysis report format
 ```
 
-## Language Support
+## Cross-Language Patterns
 
-### Primary Support
-- **Python**: Full support with complexity analysis, type hints, docstrings
-- **TypeScript/JavaScript**: Full support with type safety, modern patterns
-
-### Guidelines Included
-- **Java**: Interfaces, streams, optional handling
-- **Go**: Error handling, defer patterns, naming conventions
+While all tooling and scripts are Python-specific, the refactoring patterns (guard clauses, naming conventions, extract method, etc.) apply to any language. The `typescript_naming_improvements.md` example demonstrates naming patterns in a TypeScript context.
 
 ## Key Features
 
@@ -122,8 +100,9 @@ python-refactor/
 
 All improvements measured with concrete metrics:
 - Cyclomatic complexity targets (<10 per function)
+- Cognitive complexity targets (<15 per function)
 - Function length guidelines (<30 lines)
-- Nesting depth limits (≤3 levels)
+- Nesting depth limits (<=3 levels)
 - Documentation coverage (>80% for public APIs)
 - Type hint coverage (>90% for public functions)
 
@@ -131,114 +110,44 @@ All improvements measured with concrete metrics:
 
 - Three-level risk assessment (Low/Medium/High)
 - Performance regression thresholds (10% default)
+- Safety-by-design migration protocol for destructive changes
 - Test validation at each step
 - Clear indication when human review is needed
 
 ### Composability
 
 Integrates with other skills:
-- **Testing skills**: Ensure test coverage before/after
-- **Performance profiling**: Validate no degradation
-- **Security auditing**: Check for new vulnerabilities
-
-## Example Usage
-
-### Basic Refactoring
-
-```python
-# User request: "Refactor this function for readability"
-# Skill applies:
-# 1. Analyzes current complexity (e.g., complexity: 18, nesting: 5)
-# 2. Plans incremental improvements (guard clauses, method extraction)
-# 3. Executes changes with test validation
-# 4. Produces summary showing 78% complexity reduction
-```
-
-### Metrics-Driven Refactoring
-
-```bash
-# Analyze before refactoring
-python scripts/measure_complexity.py legacy_code.py
-
-# Skill performs refactoring following patterns.md
-
-# Compare improvements
-python scripts/compare_metrics.py legacy_code.py refactored_code.py
-
-# Verify no performance regression
-python scripts/benchmark_changes.py legacy_code.py refactored_code.py tests.py
-```
+- **python-testing-patterns**: Ensure test coverage before/after
+- **python-performance-optimization**: Deep profiling validation
+- **async-python-patterns**: Async code restructuring
+- **uv-package-manager**: Tool execution via `uv run`
 
 ## Success Criteria
 
 Refactoring is successful when:
-- ✓ All existing tests pass
-- ✓ Complexity metrics improved (documented)
-- ✓ No performance regression >10%
-- ✓ Documentation coverage improved
-- ✓ Code is easier for humans to understand
-- ✓ No new security vulnerabilities
-- ✓ Changes are atomic and well-documented
-
-## Output Format
-
-Produces structured, consistent output:
-
-### Analysis Phase
-- Current metrics vs targets
-- Prioritized issue list with risk assessment
-- Recommended refactoring plan with time estimates
-
-### Summary Phase
-- Detailed change descriptions with rationale
-- Before/after metrics comparison table
-- Test and performance validation results
-- Risk assessment and review recommendations
+- All existing tests pass (zero regressions)
+- Complexity metrics improved (documented)
+- No performance regression >10%
+- Documentation coverage improved
+- Code is easier for humans to understand
+- No new security vulnerabilities
+- Changes are atomic and well-documented
 
 ## Limitations
 
-**When NOT to Use:**
-- Performance-critical code needing optimization (profile first)
-- Code scheduled for deletion
-- External dependencies (contribute upstream instead)
-- Already-optimal algorithms where clarity hurts performance
-
-**Cannot Do:**
-- Change algorithmic complexity (O(n²) → O(n log n))
-- Add domain knowledge not in existing code
-- Guarantee correctness without comprehensive tests
-
-## Installation
-
-This skill is ready to use with Claude Code, Claude.ai, or Claude API. Simply load the skill and it will be available when refactoring tasks are requested.
-
-## Contributing
-
-To improve this skill:
-1. Test on real codebases
-2. Identify patterns that need refinement
-3. Add language-specific guidelines
-4. Expand example library
-5. Enhance validation scripts
-
-## License
-
-This skill is provided as-is for use with Claude AI systems.
+- Cannot change algorithmic complexity (O(n^2) to O(n log n))
+- Cannot add domain knowledge not in existing code
+- Cannot guarantee correctness without comprehensive tests
+- Performance-critical code should be profiled first
 
 ## Version
 
-**Version:** 1.1.0
-**Last Updated:** 2024
+**Version:** 1.3.0
+**Last Updated:** 2026
 **Compatibility:** Claude Code, Claude.ai, Claude API
 
 **Changelog:**
+- **v1.3.0**: Major trim of SKILL.md (1440 -> ~330 lines), translated Italian to English, established ruff+complexipy as primary tooling, softened OOP mandate, added analyze_multi_metrics.py reference, updated file tree
+- **v1.2.0**: Added OOP transformation patterns, regression prevention guide, cognitive complexity guide, complexipy integration, SOLID principles reference
 - **v1.1.0**: Added comprehensive flake8 integration with plugin support, before/after comparison, and HTML/JSON reports
 - **v1.0.0**: Initial release with complexity analysis, documentation checking, and refactoring patterns
-
-## Support
-
-For issues or questions about this skill, refer to:
-- `SKILL.md` for detailed instructions
-- `references/patterns.md` for refactoring patterns
-- `references/anti-patterns.md` for issue identification
-- `references/examples/` for complete worked examples

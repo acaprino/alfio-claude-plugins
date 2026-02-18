@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "1.4.0"
+    "version": "1.6.0"
   },
   "plugins": [
     {
@@ -117,7 +117,7 @@
       "name": "python-development",
       "source": "./plugins/python-development",
       "description": "Modern Python development ecosystem with Django, FastAPI, testing, packaging, and code refactoring tools",
-      "version": "1.0.0",
+      "version": "1.2.0",
       "author": {
         "name": "Alfio"
       },
@@ -147,7 +147,8 @@
       ],
       "commands": [
         "./commands/python-scaffold.md",
-        "./commands/python-refactor.md"
+        "./commands/python-full-refactor.md",
+        "./commands/humanize-python-code.md"
       ]
     },
     {

@@ -1,54 +1,54 @@
-# ⛔ REGRESSION PREVENTION GUIDE
+# REGRESSION PREVENTION GUIDE
 
-> **PRINCIPIO FONDAMENTALE:** Il refactoring trasforma la STRUTTURA del codice, MAI il suo COMPORTAMENTO.
-> Qualsiasi regressione tecnica, logica o funzionale è un FALLIMENTO TOTALE del refactoring.
+> **FUNDAMENTAL PRINCIPLE:** Refactoring transforms the STRUCTURE of code, NEVER its BEHAVIOR.
+> Any technical, logical, or functional regression is a TOTAL FAILURE of the refactoring.
 
 ---
 
-## 🚨 MANDATORY PRE-REFACTORING CHECKLIST
+## MANDATORY PRE-REFACTORING CHECKLIST
 
-**NON iniziare NESSUN refactoring finché TUTTI questi punti sono verificati:**
+**Do NOT start ANY refactoring until ALL of these are verified:**
 
 ### 1. Test Coverage Assessment
 
 ```bash
-# Verifica coverage attuale
+# Check current coverage
 pytest --cov=<module> --cov-report=term-missing
 
-# Coverage minimo richiesto per procedere
-# - >= 80%: Procedi con cautela normale
-# - 60-80%: Procedi ma aggiungi test PRIMA di ogni modifica
-# - < 60%: STOP! Scrivi test PRIMA di refactorare
+# Minimum coverage required to proceed
+# - >= 80%: Proceed with normal caution
+# - 60-80%: Proceed but add tests BEFORE each modification
+# - < 60%: STOP! Write tests BEFORE refactoring
 ```
 
-- [ ] Coverage >= 80% sulle funzioni da modificare?
-- [ ] Se NO → **PRIMA scrivi test, POI refactora**
-- [ ] Test suite esistente passa al 100%?
-- [ ] Esistono test per TUTTI gli edge cases critici?
+- [ ] Coverage >= 80% on target functions?
+- [ ] If NO -> **Write tests FIRST, THEN refactor**
+- [ ] Existing test suite passes at 100%?
+- [ ] Tests exist for ALL critical edge cases?
 
 ### 2. Behavioral Baseline Capture
 
-**PRIMA di toccare il codice, cattura il comportamento attuale:**
+**BEFORE touching the code, capture current behavior:**
 
 ```python
-# Salva output di riferimento per casi critici
+# Save reference output for critical cases
 import json
 
 def capture_golden_outputs():
-    """Esegui PRIMA del refactoring e salva i risultati."""
+    """Run BEFORE refactoring and save the results."""
     test_cases = [
-        # Casi normali
+        # Normal cases
         {"input": normal_input_1, "description": "normal case 1"},
         {"input": normal_input_2, "description": "normal case 2"},
-        # Edge cases CRITICI
+        # CRITICAL edge cases
         {"input": None, "description": "null input"},
         {"input": [], "description": "empty list"},
         {"input": "", "description": "empty string"},
         {"input": boundary_value, "description": "boundary condition"},
-        # Casi di errore
+        # Error cases
         {"input": invalid_input, "description": "should raise ValueError"},
     ]
-    
+
     results = []
     for case in test_cases:
         try:
@@ -66,99 +66,99 @@ def capture_golden_outputs():
                 "exception": {"type": type(e).__name__, "message": str(e)},
                 "description": case["description"]
             })
-    
+
     with open("golden_outputs_BEFORE_REFACTOR.json", "w") as f:
         json.dump(results, f, indent=2, default=str)
-    
+
     return results
 ```
 
-- [ ] Golden outputs salvati per funzioni critiche?
-- [ ] Edge cases documentati e catturati?
-- [ ] Comportamento con input invalidi documentato?
+- [ ] Golden outputs saved for critical functions?
+- [ ] Edge cases documented and captured?
+- [ ] Behavior with invalid inputs documented?
 
 ### 3. Edge Case Identification
 
-**Per OGNI funzione da refactorare, identifica:**
+**For EVERY function to be refactored, identify:**
 
 ```markdown
-## Edge Cases per: function_name()
+## Edge Cases for: function_name()
 
 ### Input Boundaries
 - [ ] Input None/null
-- [ ] Input vuoto ([], {}, "", 0)
-- [ ] Input al limite (MAX_INT, stringa lunghissima)
-- [ ] Input negativo (se applicabile)
+- [ ] Empty input ([], {}, "", 0)
+- [ ] Boundary input (MAX_INT, very long strings)
+- [ ] Negative input (if applicable)
 
-### State Conditions  
-- [ ] Prima chiamata (stato iniziale)
-- [ ] Chiamate ripetute (stato accumulato)
-- [ ] Stato corrotto/inconsistente
+### State Conditions
+- [ ] First call (initial state)
+- [ ] Repeated calls (accumulated state)
+- [ ] Corrupted/inconsistent state
 
 ### Error Conditions
-- [ ] Eccezioni attese (quali? quando?)
-- [ ] Timeout/interruzioni
-- [ ] Risorse non disponibili
+- [ ] Expected exceptions (which? when?)
+- [ ] Timeout/interruptions
+- [ ] Unavailable resources
 
-### Concurrency (se applicabile)
-- [ ] Race conditions note
-- [ ] Deadlock potenziali
+### Concurrency (if applicable)
+- [ ] Known race conditions
+- [ ] Potential deadlocks
 ```
 
-- [ ] Edge cases identificati per OGNI funzione?
-- [ ] Comportamento attuale su edge cases DOCUMENTATO?
+- [ ] Edge cases identified for EVERY function?
+- [ ] Current behavior on edge cases DOCUMENTED?
 
 ### 4. Static Analysis Baseline
 
 ```bash
-# Cattura baseline PRIMA del refactoring
+# Capture baseline BEFORE refactoring
 flake8 <file> --output-file=flake8_BEFORE.txt
 python scripts/measure_complexity.py <file> --json > complexity_BEFORE.json
 python scripts/check_documentation.py <file> --json > docs_BEFORE.json
 
-# Per tracking storico (se disponibile)
+# For historical tracking (if available)
 wily build <src_dir>
 wily report <file> > wily_BEFORE.txt
 ```
 
-- [ ] Baseline flake8 catturata?
-- [ ] Metriche di complessità salvate?
-- [ ] Nessun errore critico pre-esistente nascosto?
+- [ ] flake8 baseline captured?
+- [ ] Complexity metrics saved?
+- [ ] No hidden pre-existing critical errors?
 
 ---
 
-## 🔄 MANDATORY POST-CHANGE CHECKLIST
+## MANDATORY POST-CHANGE CHECKLIST
 
-**Dopo OGNI micro-cambiamento (non alla fine, OGNI SINGOLO!):**
+**After EVERY micro-change (not at the end, EVERY SINGLE ONE):**
 
-### Immediate Verification (< 30 secondi)
+### Immediate Verification (< 30 seconds)
 
 ```bash
-# 1. Static analysis PRIMA dei test (cattura NameError immediati)
+# 1. Static analysis BEFORE tests (catches NameErrors immediately)
 flake8 <file> --select=F821,F841,E999,E0602
 
-# F821: undefined name (CRITICO - NameError garantito)
-# F841: local variable assigned but never used (possibile bug)
-# E999: syntax error (CRITICO - codice non eseguibile)
-# E0602: undefined variable (CRITICO)
+# F821: undefined name (CRITICAL - guaranteed NameError)
+# F841: local variable assigned but never used (possible bug)
+# E999: syntax error (CRITICAL - code won't execute)
+# E0602: undefined variable (CRITICAL)
 
-# 2. Se ZERO errori critici, esegui test
+# 2. If ZERO critical errors, run tests
 pytest <test_file> -x --tb=short
 
-# -x = fail fast (stop al primo errore)
-# --tb=short = traceback compatto
+# -x = fail fast (stop at first error)
+# --tb=short = compact traceback
 ```
 
-- [ ] `flake8 --select=F821,F841,E999` → ZERO errori?
-- [ ] `pytest -x` → tutti i test passano?
-- [ ] Se QUALSIASI fallimento → **REVERT IMMEDIATO**
+- [ ] `flake8 --select=F821,F841,E999` -> ZERO errors?
+- [ ] `pytest -x` -> all tests passing?
+- [ ] If ANY failure -> **REVERT IMMEDIATELY**
 
-### Per Ogni Guard Clause Aggiunta
+### For Each Guard Clause Added
 
-Le guard clauses sono il pattern più comune ma anche il più insidioso per bug sottili:
+Guard clauses are the most common pattern but also the most insidious for subtle bugs:
 
 ```python
-# PRIMA (nested)
+# BEFORE (nested)
 def process(user):
     if user:
         if user.active:
@@ -166,52 +166,52 @@ def process(user):
                 return do_work(user)
     return None
 
-# DOPO (guard clauses) - VERIFICA EQUIVALENZA!
+# AFTER (guard clauses) - VERIFY EQUIVALENCE!
 def process(user):
-    if not user:           # Verifica: user=None → return None ✓
+    if not user:           # Verify: user=None -> return None [ok]
         return None
-    if not user.active:    # Verifica: user.active=False → return None ✓
+    if not user.active:    # Verify: user.active=False -> return None [ok]
         return None
-    if not user.verified:  # Verifica: user.verified=False → return None ✓
+    if not user.verified:  # Verify: user.verified=False -> return None [ok]
         return None
-    return do_work(user)   # Verifica: tutti True → do_work() ✓
+    return do_work(user)   # Verify: all True -> do_work() [ok]
 ```
 
-**Checklist per OGNI guard clause:**
-- [ ] Input `None` → stesso comportamento di prima?
-- [ ] Input con attributo `False` → stesso comportamento?
-- [ ] Input valido → stesso risultato finale?
-- [ ] Ordine delle condizioni preservato? (short-circuit evaluation!)
+**Checklist for EACH guard clause:**
+- [ ] Input `None` -> same behavior as before?
+- [ ] Input with attribute `False` -> same behavior?
+- [ ] Valid input -> same final result?
+- [ ] Order of conditions preserved? (short-circuit evaluation!)
 
-### Per Ogni Extract Method
+### For Each Extract Method
 
 ```python
-# PRIMA
+# BEFORE
 def big_function(data):
-    # ... 50 righe ...
+    # ... 50 lines ...
     result = complex_calculation(x, y, z)
-    # ... altre 30 righe ...
+    # ... 30 more lines ...
 
-# DOPO
+# AFTER
 def big_function(data):
-    # ... 
-    result = _calculate_result(x, y, z)  # Estratto
+    # ...
+    result = _calculate_result(x, y, z)  # Extracted
     # ...
 
-def _calculate_result(x, y, z):  # Nuova funzione
+def _calculate_result(x, y, z):  # New function
     return complex_calculation(x, y, z)
 ```
 
-**Checklist per OGNI extract method:**
-- [ ] TUTTI i parametri necessari passati?
-- [ ] Variabili locali non più accessibili gestite?
-- [ ] Return value correttamente propagato?
-- [ ] Side effects preservati (se intenzionali)?
-- [ ] Test specifico per la funzione estratta aggiunto?
+**Checklist for EACH extract method:**
+- [ ] ALL necessary parameters passed?
+- [ ] Local variables no longer accessible handled?
+- [ ] Return value correctly propagated?
+- [ ] Side effects preserved (if intentional)?
+- [ ] Specific test for the extracted function added?
 
 ---
 
-## 🧪 EQUIVALENCE TESTING PATTERNS
+## EQUIVALENCE TESTING PATTERNS
 
 ### Pattern 1: Golden Master Testing
 
@@ -220,22 +220,22 @@ import json
 import pytest
 
 class TestRefactoringEquivalence:
-    """Verifica che il refactoring non cambi il comportamento."""
-    
+    """Verify that refactoring does not change behavior."""
+
     @pytest.fixture
     def golden_outputs(self):
         with open("golden_outputs_BEFORE_REFACTOR.json") as f:
             return json.load(f)
-    
+
     def test_all_golden_cases(self, golden_outputs):
-        """Ogni output deve essere IDENTICO al golden master."""
+        """Every output must be IDENTICAL to the golden master."""
         for case in golden_outputs:
             if case["exception"]:
-                # Deve sollevare la STESSA eccezione
+                # Must raise the SAME exception
                 with pytest.raises(eval(case["exception"]["type"])):
                     refactored_function(case["input"])
             else:
-                # Deve produrre lo STESSO output
+                # Must produce the SAME output
                 result = refactored_function(case["input"])
                 assert result == case["output"], \
                     f"Regression on {case['description']}: " \
@@ -247,48 +247,48 @@ class TestRefactoringEquivalence:
 ```python
 from hypothesis import given, strategies as st, settings
 
-# Per funzioni pure: output deve essere IDENTICO
+# For pure functions: output must be IDENTICAL
 @given(st.integers(), st.booleans(), st.text())
 @settings(max_examples=1000)
 def test_refactored_equals_original(x, flag, text):
-    """Il refactoring NON deve cambiare il comportamento."""
-    # Mantieni la vecchia implementazione commentata o in file separato
+    """Refactoring MUST NOT change behavior."""
+    # Keep old implementation commented or in separate file
     expected = original_function(x, flag, text)
     actual = refactored_function(x, flag, text)
     assert actual == expected
 
-# Per funzioni con side effects: verifica stato finale
+# For functions with side effects: verify final state
 @given(st.lists(st.integers()))
 def test_state_equivalence(items):
-    """Lo stato finale deve essere identico."""
-    # Setup identico
+    """Final state must be identical."""
+    # Identical setup
     state_original = OriginalClass()
     state_refactored = RefactoredClass()
-    
-    # Stesse operazioni
+
+    # Same operations
     for item in items:
         state_original.process(item)
         state_refactored.process(item)
-    
-    # Stato finale identico
+
+    # Identical final state
     assert state_original.get_state() == state_refactored.get_state()
 ```
 
-### Pattern 3: Parallel Execution (per refactoring ad alto rischio)
+### Pattern 3: Parallel Execution (for high-risk refactoring)
 
 ```python
 import functools
 
 def verify_equivalence(original_func):
-    """Decorator che esegue ENTRAMBE le versioni e confronta."""
+    """Decorator that runs BOTH versions and compares."""
     def decorator(refactored_func):
         @functools.wraps(refactored_func)
         def wrapper(*args, **kwargs):
-            # Esegui originale
+            # Run original
             original_result = original_func(*args, **kwargs)
-            # Esegui refactored
+            # Run refactored
             refactored_result = refactored_func(*args, **kwargs)
-            # Confronta
+            # Compare
             assert original_result == refactored_result, \
                 f"REGRESSION DETECTED!\n" \
                 f"Input: {args}, {kwargs}\n" \
@@ -298,41 +298,41 @@ def verify_equivalence(original_func):
         return wrapper
     return decorator
 
-# Uso durante sviluppo (rimuovere in produzione)
+# Use during development (remove in production)
 @verify_equivalence(original_calculate_discount)
 def calculate_discount(price, tier):
-    # Nuova implementazione refactored
+    # New refactored implementation
     ...
 ```
 
 ---
 
-## 📊 METRICS THAT MUST NOT REGRESS
+## METRICS THAT MUST NOT REGRESS
 
-### Hard Limits (violazione = rollback immediato)
+### Hard Limits (violation = immediate rollback)
 
-| Metrica | Limite | Azione se violato |
-|---------|--------|-------------------|
+| Metric | Limit | Action if Violated |
+|--------|-------|-------------------|
 | Test pass rate | 100% | REVERT |
 | F821 errors (undefined name) | 0 | REVERT |
 | E999 errors (syntax) | 0 | REVERT |
-| Performance degradation | < 10% | REVERT o approval esplicita |
-| Coverage decrease | 0% | Aggiungi test prima di merge |
+| Performance degradation | < 10% | REVERT or explicit approval |
+| Coverage decrease | 0% | Add tests before merge |
 
-### Soft Limits (violazione = review richiesta)
+### Soft Limits (violation = review required)
 
-| Metrica | Target | Azione se violato |
-|---------|--------|-------------------|
-| Cognitive complexity | ≤ 15 per funzione | Refactor further |
-| Cyclomatic complexity | ≤ 10 per funzione | Refactor further |
-| Function length | ≤ 30 righe | Extract methods |
-| Nesting depth | ≤ 3 livelli | Guard clauses |
+| Metric | Target | Action if Violated |
+|--------|--------|-------------------|
+| Cognitive complexity | <= 15 per function | Refactor further |
+| Cyclomatic complexity | <= 10 per function | Refactor further |
+| Function length | <= 30 lines | Extract methods |
+| Nesting depth | <= 3 levels | Guard clauses |
 
 ### Metrics Comparison Script
 
 ```bash
 #!/bin/bash
-# compare_regression.sh - Esegui PRIMA e DOPO refactoring
+# compare_regression.sh - Run BEFORE and AFTER refactoring
 
 echo "=== REGRESSION CHECK ==="
 
@@ -340,20 +340,20 @@ echo "=== REGRESSION CHECK ==="
 echo "Running tests..."
 pytest --tb=no -q
 if [ $? -ne 0 ]; then
-    echo "❌ REGRESSION: Tests failing!"
+    echo "REGRESSION: Tests failing!"
     exit 1
 fi
-echo "✅ Tests passing"
+echo "Tests passing"
 
 # 2. Static analysis
 echo "Running static analysis..."
 ERRORS=$(flake8 $1 --select=F821,E999 --count 2>/dev/null | tail -1)
 if [ "$ERRORS" != "0" ] && [ -n "$ERRORS" ]; then
-    echo "❌ REGRESSION: Critical static analysis errors!"
+    echo "REGRESSION: Critical static analysis errors!"
     flake8 $1 --select=F821,E999
     exit 1
 fi
-echo "✅ No critical errors"
+echo "No critical errors"
 
 # 3. Compare complexity
 echo "Comparing complexity..."
@@ -364,7 +364,7 @@ echo "=== REGRESSION CHECK COMPLETE ==="
 
 ---
 
-## 🔙 ROLLBACK PROTOCOL
+## ROLLBACK PROTOCOL
 
 ### When to Rollback Immediately
 
@@ -376,13 +376,13 @@ echo "=== REGRESSION CHECK COMPLETE ==="
 ### How to Rollback
 
 ```bash
-# Se usando git (raccomandato: commit atomici per ogni micro-change)
+# If using git (recommended: atomic commits for each micro-change)
 git checkout -- <file>           # Discard uncommitted changes
 git revert HEAD                   # Revert last commit
 git reset --hard HEAD~1           # Nuclear option: discard last commit entirely
 
-# Se non usando git: mantieni SEMPRE backup
-cp <file> <file>.backup_YYYYMMDD_HHMM  # Prima di ogni sessione
+# If not using git: ALWAYS keep backups
+cp <file> <file>.backup_YYYYMMDD_HHMM  # Before each session
 ```
 
 ### Post-Rollback Analysis
@@ -407,104 +407,104 @@ cp <file> <file>.backup_YYYYMMDD_HHMM  # Prima di ogni sessione
 
 ---
 
-## 📋 QUICK REFERENCE CARD
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                 REFACTORING SAFETY CHECKLIST                │
-├─────────────────────────────────────────────────────────────┤
-│ BEFORE ANY CHANGE:                                          │
-│ □ Tests passing 100%?                                       │
-│ □ Coverage >= 80% on target code?                           │
-│ □ Golden outputs captured?                                  │
-│ □ Edge cases identified?                                    │
-├─────────────────────────────────────────────────────────────┤
-│ AFTER EACH MICRO-CHANGE:                                    │
-│ □ flake8 --select=F821,E999 → 0 errors?                    │
-│ □ pytest -x → all passing?                                  │
-│ □ Behavior unchanged? (spot check 1 edge case)             │
-├─────────────────────────────────────────────────────────────┤
-│ BEFORE COMMIT:                                              │
-│ □ All tests passing?                                        │
-│ □ Golden master comparison passed?                          │
-│ □ No performance regression?                                │
-│ □ Metrics improved or unchanged?                            │
-├─────────────────────────────────────────────────────────────┤
-│ IF ANY CHECK FAILS:                                         │
-│ → STOP → REVERT → ANALYZE → FIX APPROACH → RETRY           │
-└─────────────────────────────────────────────────────────────┘
-```
-
----
-
-## ⚠️ COMMON REGRESSION TRAPS
+## COMMON REGRESSION TRAPS
 
 ### Trap 1: Short-Circuit Evaluation Changes
 
 ```python
-# PRIMA: second_check() MAI chiamata se first_check() è False
+# BEFORE: second_check() NEVER called if first_check() is False
 if first_check() and second_check():
     ...
 
-# DOPO (SBAGLIATO!): second_check() SEMPRE chiamata
-if all([first_check(), second_check()]):  # ❌ Cambia comportamento!
+# AFTER (WRONG!): second_check() ALWAYS called
+if all([first_check(), second_check()]):  # Changes behavior!
     ...
 
-# DOPO (CORRETTO): preserva short-circuit
-if first_check() and second_check():  # ✓ Identico
+# AFTER (CORRECT): preserves short-circuit
+if first_check() and second_check():  # Identical
     ...
 ```
 
 ### Trap 2: Exception Handling Scope
 
 ```python
-# PRIMA: gestisce SOLO ValueError
+# BEFORE: handles ONLY ValueError
 try:
     risky_operation()
 except ValueError:
     handle_error()
 
-# DOPO (SBAGLIATO!): gestisce TUTTE le eccezioni
+# AFTER (WRONG!): handles ALL exceptions
 try:
     risky_operation()
-except Exception:  # ❌ Troppo ampio!
+except Exception:  # Too broad!
     handle_error()
 ```
 
 ### Trap 3: Mutable Default Arguments
 
 ```python
-# PRIMA (bug, ma comportamento "atteso" dal sistema)
+# BEFORE (bug, but "expected" behavior by the system)
 def append_to(item, lst=[]):
     lst.append(item)
     return lst
 
-# DOPO (corretto, ma CAMBIA COMPORTAMENTO!)
+# AFTER (correct, but CHANGES BEHAVIOR!)
 def append_to(item, lst=None):
     if lst is None:
         lst = []
     lst.append(item)
     return lst
 
-# ⚠️ Se il sistema DIPENDEVA dal bug, questo è breaking change!
+# If the system DEPENDED on the bug, this is a breaking change!
 ```
 
 ### Trap 4: Return Value Changes
 
 ```python
-# PRIMA: ritorna None implicitamente se condizione falsa
+# BEFORE: returns None implicitly if condition is false
 def get_user(user_id):
     if user_id in cache:
         return cache[user_id]
     # Implicit return None
 
-# DOPO (SBAGLIATO se caller controlla "if result:")
+# AFTER (WRONG if caller checks "if result:")
 def get_user(user_id):
     if user_id not in cache:
-        return User.empty()  # ❌ Ora ritorna oggetto truthy!
+        return User.empty()  # Now returns truthy object!
     return cache[user_id]
 ```
 
 ---
 
-**REMEMBER:** Un refactoring che introduce regressioni non è un refactoring. È un bug.
+## QUICK REFERENCE CARD
+
+```
++-------------------------------------------------------------+
+|                 REFACTORING SAFETY CHECKLIST                  |
++-------------------------------------------------------------+
+| BEFORE ANY CHANGE:                                            |
+| [ ] Tests passing 100%?                                       |
+| [ ] Coverage >= 80% on target code?                           |
+| [ ] Golden outputs captured?                                  |
+| [ ] Edge cases identified?                                    |
++-------------------------------------------------------------+
+| AFTER EACH MICRO-CHANGE:                                      |
+| [ ] flake8 --select=F821,E999 -> 0 errors?                   |
+| [ ] pytest -x -> all passing?                                 |
+| [ ] Behavior unchanged? (spot check 1 edge case)             |
++-------------------------------------------------------------+
+| BEFORE COMMIT:                                                |
+| [ ] All tests passing?                                        |
+| [ ] Golden master comparison passed?                          |
+| [ ] No performance regression?                                |
+| [ ] Metrics improved or unchanged?                            |
++-------------------------------------------------------------+
+| IF ANY CHECK FAILS:                                           |
+| -> STOP -> REVERT -> ANALYZE -> FIX APPROACH -> RETRY         |
++-------------------------------------------------------------+
+```
+
+---
+
+**REMEMBER:** A refactoring that introduces regressions is not a refactoring. It is a bug.

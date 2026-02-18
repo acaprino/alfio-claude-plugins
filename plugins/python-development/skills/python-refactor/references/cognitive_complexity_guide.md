@@ -1,14 +1,14 @@
-# Cognitive Complexity: Guida Completa
+# Cognitive Complexity: Complete Guide
 
-> La cognitive complexity misura quanto è **difficile capire** il codice, non quanti path di esecuzione esistono.
+> Cognitive complexity measures how **difficult code is to understand**, not how many execution paths exist.
 
 ---
 
-## 📐 Regole di Calcolo
+## Calculation Rules
 
-### Regola 1: Incrementi Base (+1)
+### Rule 1: Base Increments (+1)
 
-Ogni **break nel flusso lineare** del codice aggiunge +1:
+Every **break in linear flow** adds +1:
 
 ```python
 def example():
@@ -18,32 +18,32 @@ def example():
         pass
     while running:       # +1
         pass
-    try:                 # +0 (try non incrementa)
+    try:                 # +0 (try does not increment)
         pass
     except Error:        # +1
         pass
-    condition and do()   # +1 (operatore logico come branch)
+    condition and do()   # +1 (logical operator as branch)
 ```
 
-**Strutture che incrementano:**
+**Structures that increment:**
 - `if`, `elif`, `else`
 - `for`, `while`
 - `except`, `with`
-- `and`, `or` (quando cambiano il flusso)
-- Ricorsione (+1 per chiamata ricorsiva)
-- `break`, `continue` con label
+- `and`, `or` (when they change flow)
+- Recursion (+1 per recursive call)
+- `break`, `continue` with label
 
-**Strutture che NON incrementano:**
-- `try` (solo `except` incrementa)
+**Structures that do NOT increment:**
+- `try` (only `except` increments)
 - `finally`
-- Lambda semplici
-- Ternary operator a top-level
+- Simple lambdas
+- Top-level ternary operator
 
 ---
 
-### Regola 2: Nesting Penalty (ESPONENZIALE!)
+### Rule 2: Nesting Penalty (EXPONENTIAL)
 
-Ogni struttura annidata aggiunge **+1 per ogni livello di nesting**:
+Each nested structure adds **+1 per nesting level**:
 
 ```python
 def nested_example():
@@ -52,48 +52,48 @@ def nested_example():
             if c:            # +3 (1 base + 2 nesting)
                 if d:        # +4 (1 base + 3 nesting)
                     pass
-# Totale: 1+2+3+4 = 10 per soli 4 if!
+# Total: 1+2+3+4 = 10 for just 4 ifs!
 ```
 
-**Impatto devastante del nesting:**
+**Impact of nesting:**
 
-| Livelli | Formula | Complessità Totale |
-|---------|---------|-------------------|
+| Levels | Formula | Total Complexity |
+|--------|---------|-----------------|
 | 1 if | 1 | 1 |
-| 2 if annidati | 1+2 | 3 |
-| 3 if annidati | 1+2+3 | 6 |
-| 4 if annidati | 1+2+3+4 | 10 |
-| 5 if annidati | 1+2+3+4+5 | 15 |
+| 2 nested ifs | 1+2 | 3 |
+| 3 nested ifs | 1+2+3 | 6 |
+| 4 nested ifs | 1+2+3+4 | 10 |
+| 5 nested ifs | 1+2+3+4+5 | 15 |
 
-**→ Il nesting è il NEMICO PRINCIPALE della leggibilità!**
+**Nesting is the PRIMARY ENEMY of readability.**
 
 ---
 
-### Regola 3: Boolean Sequences
+### Rule 3: Boolean Sequences
 
-**Stesso operatore in sequenza = GRATIS:**
+**Same operator in sequence = FREE:**
 ```python
-# Complessità +1 (conta come singolo break)
+# Complexity +1 (counts as a single break)
 if a and b and c and d:
     pass
 ```
 
-**Cambio di operatore = +1 per ogni cambio:**
+**Operator change = +1 per change:**
 ```python
-# Complessità +3 (ogni cambio and→or o or→and = +1)
+# Complexity +3 (each and->or or or->and change = +1)
 if a and b or c and d:
-    #       ↑       ↑
-    #      +1      +1 (più il +1 base = 3)
+    #       ^       ^
+    #      +1      +1 (plus the +1 base = 3)
     pass
 ```
 
-**Best practice:** Estrai condizioni complesse in variabili named:
+**Best practice:** Extract complex conditions into named variables:
 ```python
-# PRIMA: Complessità +3
+# BEFORE: Complexity +3
 if user.active and user.verified or user.is_admin and not user.banned:
     ...
 
-# DOPO: Complessità +1 (singola condizione)
+# AFTER: Complexity +1 (single condition)
 is_regular_authorized = user.active and user.verified
 is_admin_authorized = user.is_admin and not user.banned
 if is_regular_authorized or is_admin_authorized:
@@ -102,11 +102,11 @@ if is_regular_authorized or is_admin_authorized:
 
 ---
 
-### Regola 4: Switch/Match conta UNA VOLTA
+### Rule 4: Switch/Match Counts ONCE
 
-**if-elif chain = +1 per ogni branch:**
+**if-elif chain = +1 per branch:**
 ```python
-# Complessità = 4
+# Complexity = 4
 def get_word(n):
     if n == 1:           # +1
         return "one"
@@ -118,64 +118,64 @@ def get_word(n):
         return "lots"
 ```
 
-**match/switch = +1 TOTALE:**
+**match/switch = +1 TOTAL:**
 ```python
-# Complessità = 1 (!)
+# Complexity = 1 (!)
 def get_word(n):
-    match n:             # +1 per l'intero switch
+    match n:             # +1 for the entire switch
         case 1: return "one"
         case 2: return "couple"
         case 3: return "few"
         case _: return "lots"
 ```
 
-**→ Usa `match` (Python 3.10+) per ridurre drasticamente la complessità!**
+**Use `match` (Python 3.10+) to drastically reduce complexity.**
 
 ---
 
-### Regola 5: Extract Method RESETTA il Nesting
+### Rule 5: Extract Method RESETS Nesting
 
-**Il pattern più potente per ridurre la complessità:**
+**The most powerful pattern for reducing complexity:**
 
 ```python
-# PRIMA: Complessità = 6
+# BEFORE: Complexity = 6
 def process_items(items):
     for item in items:           # +1, nesting +1
         if item.valid:           # +2 (1 + nesting 1)
             if item.ready:       # +3 (1 + nesting 2)
                 handle(item)
-# Totale: 1+2+3 = 6
+# Total: 1+2+3 = 6
 
-# DOPO: Complessità = 3 (divisa tra 2 funzioni)
+# AFTER: Complexity = 3 (split across 2 functions)
 def process_items(items):
     for item in items:           # +1
         process_single_item(item)
-# Complessità funzione 1: 1
+# Function 1 complexity: 1
 
-def process_single_item(item):   # NESTING RESETTATO A 0!
+def process_single_item(item):   # NESTING RESET TO 0!
     if not item.valid:           # +1 (nesting 0)
         return
     if not item.ready:           # +1 (nesting 0)
         return
     handle(item)
-# Complessità funzione 2: 2
+# Function 2 complexity: 2
 
-# Totale: 1 + 2 = 3 (riduzione del 50%!)
+# Total: 1 + 2 = 3 (50% reduction!)
 ```
 
 ---
 
-## 🛠️ Tool: Ruff + Complexipy
+## Tools: Ruff + Complexipy
 
-### Stack Raccomandato
+### Recommended Stack
 
-| Tool | Cyclomatic (CC) | Cognitive (CoC) | Velocità |
-|------|-----------------|-----------------|----------|
-| **Ruff** | ✅ C901 | ❌ | Rust, velocissimo |
-| **Complexipy** | ❌ | ✅ | Rust, velocissimo |
-| flake8 + plugin | ✅ | ✅ (inattivo) | Python, lento |
+| Tool | Cyclomatic (CC) | Cognitive (CoC) | Speed |
+|------|-----------------|-----------------|-------|
+| **Ruff** | C901 | - | Rust, very fast |
+| **Complexipy** | - | Yes | Rust, very fast |
+| flake8 + plugin | Yes | Yes (inactive) | Python, slow |
 
-**Ruff + Complexipy** è lo stack consigliato: entrambi scritti in Rust, attivamente mantenuti, ecosistema moderno.
+**Ruff + Complexipy** is the recommended stack: both written in Rust, actively maintained, modern ecosystem.
 
 ### Setup
 
@@ -183,16 +183,16 @@ def process_single_item(item):   # NESTING RESETTATO A 0!
 pip install ruff complexipy radon wily
 ```
 
-### Complexipy: Tool Dedicato per Cognitive Complexity
+### Complexipy: Dedicated Cognitive Complexity Tool
 
-**Caratteristiche:**
-- 🦀 Scritto in Rust (velocissimo)
-- 📦 Attivamente mantenuto (v5.1.0, dicembre 2025)
-- 🔧 Configurazione via pyproject.toml
-- 📸 Snapshot per legacy code (adozione graduale)
-- 🔌 Pre-commit hook, GitHub Action, VSCode extension
+Features:
+- Written in Rust (very fast)
+- Actively maintained (v5.1.0, December 2025)
+- Configuration via pyproject.toml
+- Snapshot for legacy code (gradual adoption)
+- Pre-commit hook, GitHub Action, VSCode extension
 
-#### Installazione
+#### Installation
 
 ```bash
 pip install complexipy
@@ -201,23 +201,23 @@ pip install complexipy
 #### CLI
 
 ```bash
-# Analisi base
+# Basic analysis
 complexipy src/
 
-# Custom threshold (default: 15, come SonarQube)
+# Custom threshold (default: 15, same as SonarQube)
 complexipy src/ --max-complexity-allowed 15
 
-# Output JSON per CI
+# JSON output for CI
 complexipy src/ --output-json
 
-# Mostra tutte le funzioni (ignora threshold)
+# Show all functions (ignore threshold)
 complexipy src/ --ignore-complexity
 
-# Ordina per complessità
+# Sort by complexity
 complexipy src/ --sort desc
 ```
 
-#### Configurazione (pyproject.toml)
+#### Configuration (pyproject.toml)
 
 ```toml
 [tool.complexipy]
@@ -228,21 +228,21 @@ quiet = false
 output-json = false
 ```
 
-#### API Python
+#### Python API
 
 ```python
 from complexipy import file_complexity, code_complexity
 
-# Analizza file
+# Analyze file
 result = file_complexity("src/user_service.py")
 print(f"File: {result.path}")
 print(f"Total complexity: {result.complexity}")
 
 for func in result.functions:
-    status = "⚠️" if func.complexity > 15 else "✓"
+    status = "WARNING" if func.complexity > 15 else "OK"
     print(f"  {status} {func.name}: {func.complexity} (lines {func.line_start}-{func.line_end})")
 
-# Analizza stringa di codice
+# Analyze code string
 code = """
 def example(x):
     if x > 0:
@@ -254,22 +254,22 @@ result = code_complexity(code)
 print(f"Complexity: {result.complexity}")
 ```
 
-#### Snapshot per Legacy Code
+#### Snapshot for Legacy Code
 
-Feature killer per adozione graduale su codebase esistenti:
+Key feature for gradual adoption on existing codebases:
 
 ```bash
-# 1. Crea snapshot dello stato attuale
+# 1. Create snapshot of current state
 complexipy src/ --snapshot-create --max-complexity-allowed 15
-# Crea: complexipy-snapshot.json
+# Creates: complexipy-snapshot.json
 
-# 2. In CI: blocca solo REGRESSIONI (nuove funzioni complesse)
+# 2. In CI: block only REGRESSIONS (new complex functions)
 complexipy src/ --max-complexity-allowed 15
-# ✅ Passa se non ci sono nuove funzioni sopra threshold
-# ❌ Fallisce se NUOVE funzioni superano threshold
-# ✅ Funzioni già nello snapshot sono "grandfathered"
+# Passes if no new functions exceed threshold
+# Fails if NEW functions exceed threshold
+# Existing functions in snapshot are "grandfathered"
 
-# 3. Quando sistemi una funzione, viene rimossa dallo snapshot automaticamente
+# 3. When you fix a function, it is automatically removed from the snapshot
 ```
 
 #### Pre-commit Hook
@@ -296,9 +296,9 @@ repos:
 
 #### VSCode Extension
 
-Installa "Complexipy" dal marketplace per analisi real-time con indicatori visuali.
+Install "Complexipy" from the marketplace for real-time analysis with visual indicators.
 
-### Configurazione Ruff (per cyclomatic + linting)
+### Ruff Configuration (for cyclomatic + linting)
 
 ```toml
 # pyproject.toml
@@ -309,7 +309,7 @@ target-version = "py311"
 [tool.ruff.lint]
 select = [
     "E", "W",     # pycodestyle
-    "F",          # Pyflakes  
+    "F",          # Pyflakes
     "C90",        # McCabe cyclomatic complexity
     "B",          # flake8-bugbear
     "SIM",        # flake8-simplify
@@ -322,10 +322,10 @@ select = [
 max-complexity = 10  # Cyclomatic complexity
 ```
 
-### Workflow Completo
+### Complete Workflow
 
 ```bash
-# 1. Linting veloce
+# 1. Fast linting
 ruff check src/ --fix
 
 # 2. Cognitive complexity
@@ -334,123 +334,123 @@ complexipy src/ --max-complexity-allowed 15
 # 3. Maintainability Index
 radon mi src/ -s
 
-# 4. Trend storico (opzionale)
+# 4. Historical trend (optional)
 wily build src/ && wily report src/
 ```
 
 ---
 
-## 📊 Combinare Metriche
+## Combining Metrics
 
-**Non affidarti a una sola metrica!**
+**Do not rely on a single metric.**
 
-| Metrica | Misura | Uso Ottimale |
-|---------|--------|--------------|
-| **Cognitive Complexity** | Difficoltà di comprensione | Code review, manutenibilità |
-| **Cyclomatic Complexity** | Path di esecuzione | Test planning (min test cases) |
-| **Maintainability Index** | Salute generale | Dashboard, trend |
+| Metric | Measures | Best Use |
+|--------|----------|----------|
+| **Cognitive Complexity** | Difficulty of understanding | Code review, maintainability |
+| **Cyclomatic Complexity** | Execution paths | Test planning (min test cases) |
+| **Maintainability Index** | Overall health | Dashboard, trends |
 
-### Setup Combinato
+### Combined Setup
 
 ```bash
-# Installa tutti i tool
+# Install all tools
 pip install flake8 flake8-cognitive-complexity radon wily
 
-# Analisi combinata
+# Combined analysis
 flake8 src/ --max-cognitive-complexity=15 --max-complexity=10
 radon cc src/ -a -s  # Cyclomatic + Average
 radon mi src/ -s     # Maintainability Index
 ```
 
-### Target Raccomandati
+### Recommended Targets
 
-| Metrica | Conservativo | Moderato | Permissivo |
-|---------|--------------|----------|------------|
-| Cognitive | ≤ 10 | ≤ 15 | ≤ 25 |
-| Cyclomatic | ≤ 5 | ≤ 10 | ≤ 20 |
-| MI (Maintainability) | ≥ 80 | ≥ 65 | ≥ 50 |
+| Metric | Conservative | Moderate | Permissive |
+|--------|-------------|----------|------------|
+| Cognitive | <= 10 | <= 15 | <= 25 |
+| Cyclomatic | <= 5 | <= 10 | <= 20 |
+| MI (Maintainability) | >= 80 | >= 65 | >= 50 |
 
 ---
 
-## 📈 Threshold Progressivi per Legacy Code
+## Progressive Thresholds for Legacy Code
 
-**Non applicare threshold stretti su legacy code!**
+**Do not apply strict thresholds to legacy code immediately.**
 
-### Strategia "Ratcheting"
+### Ratcheting Strategy
 
 ```yaml
 # .github/workflows/quality.yml
 - name: Quality Gate (Ratcheting)
   run: |
-    # Salva baseline se non esiste
+    # Save baseline if it doesn't exist
     if [ ! -f .quality-baseline.json ]; then
       python scripts/measure_all_metrics.py > .quality-baseline.json
     fi
-    
-    # Confronta con baseline
+
+    # Compare against baseline
     python scripts/compare_to_baseline.py .quality-baseline.json
-    
-    # Fail se PEGGIORA, passa se uguale o migliore
+
+    # Fail if WORSE, pass if equal or better
 ```
 
-### Strategia "Changed Files Only"
+### Changed Files Only Strategy
 
 ```bash
-# Applica threshold stretti SOLO ai file modificati nel PR
+# Apply strict thresholds ONLY to files modified in the PR
 CHANGED_FILES=$(git diff --name-only origin/main...HEAD -- '*.py')
 
 for file in $CHANGED_FILES; do
-    flake8 "$file" --max-cognitive-complexity=10  # Strict per nuovo codice
+    flake8 "$file" --max-cognitive-complexity=10  # Strict for new code
 done
 
-# Threshold permissivo per tutto il resto
-flake8 src/ --max-cognitive-complexity=25  # Lenient per legacy
+# Permissive threshold for everything else
+flake8 src/ --max-cognitive-complexity=25  # Lenient for legacy
 ```
 
-### Fasi di Adozione
+### Adoption Phases
 
 ```ini
-# Fase 1: Baseline (mese 1-2)
-max-cognitive-complexity = 30  # Permissivo, blocca solo casi estremi
+# Phase 1: Baseline (month 1-2)
+max-cognitive-complexity = 30  # Permissive, block only extreme cases
 
-# Fase 2: Riduzione (mese 3-6)
-max-cognitive-complexity = 20  # Moderato
+# Phase 2: Reduction (month 3-6)
+max-cognitive-complexity = 20  # Moderate
 
-# Fase 3: Target (mese 6+)
-max-cognitive-complexity = 15  # Standard SonarQube
+# Phase 3: Target (month 6+)
+max-cognitive-complexity = 15  # SonarQube standard
 
-# Fase 4: Strict (solo nuovo codice)
-max-cognitive-complexity = 10  # Per codice greenfield
+# Phase 4: Strict (new code only)
+max-cognitive-complexity = 10  # For greenfield code
 ```
 
 ---
 
-## 📉 Tracking Storico con Wily
+## Historical Tracking with Wily
 
-**Monitora i trend nel tempo, non solo i threshold:**
+**Monitor trends over time, not just thresholds.**
 
 ### Setup
 
 ```bash
 pip install wily
 
-# Build cache (una volta)
-wily build src/ -n 100  # Ultimi 100 commit
+# Build cache (once)
+wily build src/ -n 100  # Last 100 commits
 
 # Report per file
 wily report src/module.py
 
-# Diff tra commit
+# Diff between commits
 wily diff src/ -r HEAD~10..HEAD
 
-# Grafico trend
-wily graph src/module.py complexity  # Apre browser
+# Trend graph
+wily graph src/module.py complexity  # Opens browser
 
-# Rank dei file più complessi
+# Rank most complex files
 wily rank src/ complexity
 ```
 
-### Integrazione CI
+### CI Integration
 
 ```yaml
 # .github/workflows/wily.yml
@@ -466,20 +466,20 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 50  # Serve storia per wily
-      
+          fetch-depth: 50  # Wily needs history
+
       - name: Setup
         run: pip install wily
-      
+
       - name: Build Wily Cache
         run: wily build src/ -n 50
-      
+
       - name: Check for Regression
         run: |
-          # Fail se complessità AUMENTATA rispetto a commit precedente
+          # Fail if complexity INCREASED compared to previous commit
           wily diff src/ -r HEAD~1..HEAD --exit-zero
           if wily diff src/ -r HEAD~1..HEAD | grep -q "increased"; then
-            echo "❌ Complexity increased!"
+            echo "Complexity increased!"
             exit 1
           fi
 ```
@@ -487,30 +487,30 @@ jobs:
 ### Dashboard Output
 
 ```
-┌──────────────────────────────────────────────────────────────┐
-│                    COMPLEXITY TREND                          │
-├──────────────────────────────────────────────────────────────┤
-│ File: src/services/user_service.py                          │
-│                                                              │
-│ Commit    Date       CC    MI    CoC                        │
-│ ─────────────────────────────────────────                   │
-│ abc123    2024-01-01  12    75    18   ████████████████░░   │
-│ def456    2024-01-15  10    78    15   █████████████░░░░░   │
-│ ghi789    2024-02-01   8    82    12   ██████████░░░░░░░░   │
-│ jkl012    2024-02-15   6    85     9   ███████░░░░░░░░░░░   │
-│                                                              │
-│ TREND: ↓ Improving (-50% complexity in 6 weeks)             │
-└──────────────────────────────────────────────────────────────┘
++--------------------------------------------------------------+
+|                    COMPLEXITY TREND                            |
++--------------------------------------------------------------+
+| File: src/services/user_service.py                            |
+|                                                                |
+| Commit    Date       CC    MI    CoC                          |
+| -------------------------------------------                   |
+| abc123    2024-01-01  12    75    18                           |
+| def456    2024-01-15  10    78    15                           |
+| ghi789    2024-02-01   8    82    12                           |
+| jkl012    2024-02-15   6    85     9                           |
+|                                                                |
+| TREND: Improving (-50% complexity in 6 weeks)                 |
++--------------------------------------------------------------+
 ```
 
 ---
 
-## 🎯 Pattern di Refactoring ad Alto Impatto
+## High-Impact Refactoring Patterns
 
-### Pattern 1: Dictionary Dispatch (elimina if-elif chains)
+### Pattern 1: Dictionary Dispatch (eliminates if-elif chains)
 
 ```python
-# PRIMA: Cognitive Complexity = 8
+# BEFORE: Cognitive Complexity = 8
 def process_action(action, data):
     if action == "create":           # +1
         return create_item(data)
@@ -529,7 +529,7 @@ def process_action(action, data):
     else:                            # +1
         raise ValueError(f"Unknown action: {action}")
 
-# DOPO: Cognitive Complexity = 1
+# AFTER: Cognitive Complexity = 1
 ACTION_HANDLERS = {
     "create": create_item,
     "read": read_item,
@@ -542,17 +542,17 @@ ACTION_HANDLERS = {
 
 def process_action(action, data):
     handler = ACTION_HANDLERS.get(action)
-    if handler is None:              # +1 (unico branch)
+    if handler is None:              # +1 (single branch)
         raise ValueError(f"Unknown action: {action}")
     return handler(data)
 
-# Riduzione: 87.5%!
+# Reduction: 87.5%!
 ```
 
-### Pattern 2: Guard Clauses (elimina nesting)
+### Pattern 2: Guard Clauses (eliminates nesting)
 
 ```python
-# PRIMA: Cognitive Complexity = 10
+# BEFORE: Cognitive Complexity = 10
 def process_order(order):
     if order:                           # +1
         if order.is_valid():            # +2 (nesting)
@@ -561,7 +561,7 @@ def process_order(order):
                     return fulfill(order)
     return OrderResult.failed()
 
-# DOPO: Cognitive Complexity = 4
+# AFTER: Cognitive Complexity = 4
 def process_order(order):
     if not order:                   # +1
         return OrderResult.failed()
@@ -573,22 +573,22 @@ def process_order(order):
         return OrderResult.failed()
     return fulfill(order)
 
-# Riduzione: 60%!
+# Reduction: 60%!
 ```
 
-### Pattern 3: Extract + Compose (spezza funzioni monster)
+### Pattern 3: Extract + Compose (breaks apart monster functions)
 
 ```python
-# PRIMA: Una funzione con Cognitive Complexity = 25
+# BEFORE: Single function with Cognitive Complexity = 25
 def process_user_registration(data):
-    # 20 righe di validazione
-    # 15 righe di normalizzazione
-    # 10 righe di salvataggio
-    # 10 righe di notifica
-    # 15 righe di logging
-    pass  # 70+ righe, CC=25
+    # 20 lines of validation
+    # 15 lines of normalization
+    # 10 lines of saving
+    # 10 lines of notification
+    # 15 lines of logging
+    pass  # 70+ lines, CC=25
 
-# DOPO: Composizione di funzioni semplici
+# AFTER: Composition of simple functions
 def process_user_registration(data):
     validated = validate_registration(data)      # CC=4
     normalized = normalize_user_data(validated)  # CC=2
@@ -596,41 +596,41 @@ def process_user_registration(data):
     send_welcome_email(user)                     # CC=2
     log_registration(user)                       # CC=1
     return user
-# Funzione principale: CC=0 (nessun branch!)
-# Totale distribuito: 4+2+3+2+1 = 12 (ma mai >4 in una singola funzione)
+# Main function: CC=0 (no branches!)
+# Total distributed: 4+2+3+2+1 = 12 (but never >4 in a single function)
 ```
 
 ---
 
-## 📋 Quick Reference
+## Quick Reference
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│              COGNITIVE COMPLEXITY CHEAT SHEET               │
-├─────────────────────────────────────────────────────────────┤
-│ INCREMENTA (+1):                                            │
-│   if, elif, else, for, while, except, and, or, recursion   │
-│                                                             │
-│ NESTING PENALTY (+1 per livello):                          │
-│   Ogni struttura dentro un'altra aggiunge livello          │
-│   4 if annidati = 1+2+3+4 = 10 (non 4!)                   │
-│                                                             │
-│ NON INCREMENTA:                                             │
-│   try (solo except), finally, lambda semplici, switch/case │
-│                                                             │
-│ BOOLEAN SEQUENCES:                                          │
-│   a and b and c = +1 (stesso operatore)                    │
-│   a and b or c  = +2 (cambio operatore)                    │
-├─────────────────────────────────────────────────────────────┤
-│ PATTERN AD ALTO IMPATTO:                                    │
-│   1. Guard clauses      → elimina nesting penalty          │
-│   2. Extract method     → resetta nesting a 0              │
-│   3. Dictionary dispatch → if-elif chain → lookup O(1)     │
-│   4. match/switch       → n branch = +1 totale             │
-├─────────────────────────────────────────────────────────────┤
-│ THRESHOLD RACCOMANDATI:                                     │
-│   Strict (nuovo codice):  ≤ 10                             │
-│   Standard (SonarQube):   ≤ 15                             │
-│   Legacy (iniziale):      ≤ 25                             │
-└─────────────────────────────────────────────────────────────┘
++-------------------------------------------------------------+
+|              COGNITIVE COMPLEXITY CHEAT SHEET                 |
++-------------------------------------------------------------+
+| INCREMENTS (+1):                                              |
+|   if, elif, else, for, while, except, and, or, recursion    |
+|                                                               |
+| NESTING PENALTY (+1 per level):                              |
+|   Each structure inside another adds a level                 |
+|   4 nested ifs = 1+2+3+4 = 10 (not 4!)                      |
+|                                                               |
+| DOES NOT INCREMENT:                                           |
+|   try (only except), finally, simple lambdas, switch/case    |
+|                                                               |
+| BOOLEAN SEQUENCES:                                            |
+|   a and b and c = +1 (same operator)                         |
+|   a and b or c  = +2 (operator change)                       |
++-------------------------------------------------------------+
+| HIGH-IMPACT PATTERNS:                                         |
+|   1. Guard clauses      - eliminates nesting penalty         |
+|   2. Extract method     - resets nesting to 0                |
+|   3. Dictionary dispatch - if-elif chain to O(1) lookup      |
+|   4. match/switch       - n branches = +1 total              |
++-------------------------------------------------------------+
+| RECOMMENDED THRESHOLDS:                                       |
+|   Strict (new code):  <= 10                                  |
+|   Standard (SonarQube): <= 15                                |
+|   Legacy (initial):   <= 25                                  |
++-------------------------------------------------------------+
 ```
