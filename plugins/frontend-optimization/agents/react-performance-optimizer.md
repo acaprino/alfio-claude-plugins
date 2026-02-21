@@ -47,6 +47,125 @@ export default defineConfig({
 - External libraries may not be compatible
 - Cannot optimize patterns that violate React rules
 
+**CRITICAL: React Compiler Cannot Fix External Store Subscription Re-renders**
+
+React Compiler operates *within* React's rendering cycle — it optimizes "given this component is re-rendering, skip recalculating unchanged values." But external store libraries (Zustand, Jotai, Redux, any `useSyncExternalStore`-based hook) trigger re-renders *before* React Compiler gets involved:
+
+1. Store update → new object reference created
+2. `useSyncExternalStore` / `useStore` runs `Object.is(oldSelector, newSelector)` → `false`
+3. Store tells React: "this component needs to re-render"
+4. React Compiler kicks in (too late — render already committed)
+
+**The fix must happen at the selector level, not the memoization level.**
+
+When reviewing code, always check: "Is this re-render caused by React state/props (Compiler can help) or by an external subscription (Compiler cannot help)?"
+
+### External Store Selector Optimization (CRITICAL)
+
+This is the #1 source of unnecessary re-renders in apps using Zustand/Redux/Jotai. The React Compiler **cannot** fix these — they require manual selector optimization.
+
+#### The Problem: Object Reference Identity
+
+```javascript
+// PROBLEM: Store normalizes data into objects on every update cycle
+// Even if agent X hasn't changed, the `agents` object is a NEW reference
+const agents = useStore((state) => state.agents);
+// Object.is(oldAgents, newAgents) → false EVERY time, even if content is identical
+```
+
+#### Fix 1: Narrow Selectors — Select Primitives
+
+```javascript
+// Select primitive values that survive Object.is across reference changes
+const isOnline = useStore((state) => state.agents[agentId]?.isOnline);  // boolean
+const agentName = useStore((state) => state.agents[agentId]?.name);      // string
+const lastSeen = useStore((state) => state.agents[agentId]?.lastSeen);   // number
+
+// Derived booleans are especially effective
+const hasActiveAgents = useStore((state) =>
+  Object.values(state.agents).some((a) => a.isOnline)
+);
+```
+
+#### Fix 2: useShallow — Shallow Compare Objects/Arrays
+
+```javascript
+import { useShallow } from 'zustand/react/shallow';
+
+// Shallow-compares each key of the returned object
+const { bid, ask, spread } = useStore(
+  useShallow((state) => ({
+    bid: state.orderbook.bestBid,
+    ask: state.orderbook.bestAsk,
+    spread: state.orderbook.spread,
+  }))
+);
+
+// Shallow-compares array elements
+const agentIds = useStore(
+  useShallow((state) => Object.keys(state.agents))
+);
+```
+
+> **Note:** `useShallow` (from `zustand/react/shallow`) is the modern API. The older `shallow` comparator passed as second arg to `useStore` still works but `useShallow` is preferred.
+
+#### Fix 3: createSelector — Memoized Derived State
+
+```javascript
+import { createSelector } from 'reselect';
+
+// Memoized: only recalculates when agents object actually changes content
+const selectOnlineCount = createSelector(
+  [(state) => state.agents],
+  (agents) => Object.values(agents).filter((a) => a.isOnline).length
+);
+
+// Memoized: stable array reference when agent IDs don't change
+const selectAgentIds = createSelector(
+  [(state) => state.agents],
+  (agents) => Object.keys(agents).sort()
+);
+```
+
+#### Fix 4: Zustand subscribeWithSelector — Skip React Entirely
+
+```javascript
+import { subscribeWithSelector } from 'zustand/middleware';
+
+const useStore = create(
+  subscribeWithSelector((set) => ({
+    agents: {},
+    // ...
+  }))
+);
+
+// Subscribe outside React — update only when selector output changes
+useStore.subscribe(
+  (state) => state.agents[agentId]?.isOnline,
+  (isOnline) => {
+    // Only fires when isOnline actually changes, not on every store update
+    updateStatusIndicator(isOnline);
+  }
+);
+```
+
+#### Diagnostic Checklist: External Store Re-renders
+
+When investigating unnecessary re-renders:
+
+1. **Enable React DevTools "Highlight updates"** — flickering components on store updates?
+2. **Check selector return type** — returning object/array? → needs `useShallow` or primitive extraction
+3. **Check update frequency** — does the store update on heartbeat/tick/WebSocket? → high-frequency = high impact
+4. **Check selector scope** — selecting parent object when only child property is needed?
+5. **Verify with `why-did-you-render`** — confirms "props/state unchanged but reference changed"
+
+**Anti-patterns to detect (external stores):**
+- `useStore((state) => state.someObject)` without `useShallow` in frequently-updated stores
+- `useStore((state) => ({ ...state.nested }))` — creates new object every call
+- `useStore()` with no selector (subscribes to entire store)
+- Selector returning `.filter()` / `.map()` / `.reduce()` result (new array/object every time)
+- Component receiving store-derived object as prop without memoization at selector level
+
 ### React 19 Performance APIs
 
 **use() - Flexible Resource Reading:**
@@ -559,6 +678,8 @@ When invoked:
 
 2. **Scan for React Anti-Patterns:**
    - Zustand store destructuring (CRITICAL)
+   - External store selectors returning objects/arrays without useShallow (CRITICAL)
+   - Selectors with .filter()/.map()/.reduce() creating new references (CRITICAL)
    - Missing useEffect cleanup (CRITICAL)
    - Index as key in virtualized lists (CRITICAL)
    - Full library imports instead of tree-shakeable
@@ -569,11 +690,15 @@ When invoked:
 3. **Check React Compiler Setup**
    - Verify babel config
    - Identify patterns requiring manual optimization
+   - **Explicitly flag issues React Compiler CANNOT fix** (external store subscriptions)
 
 4. **Analyze State Management**
    - Verify atomic selectors
+   - Check selector return types (primitives vs objects) in high-frequency stores
+   - Check for useShallow usage on object/array selectors
    - Check for createSelector usage on derived state
    - Verify Jotai atomFamily for granular data
+   - Check subscribeWithSelector for non-React consumers
 
 5. **Review Bundle**
    - Recommend analyzer if not present
