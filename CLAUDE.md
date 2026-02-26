@@ -14,7 +14,7 @@ plugins/
     commands/               # slash-command .md files
 ```
 
-16 plugins: code-review, tauri-development, frontend-optimization, ai-tooling, python-development, stripe, utilities, messaging, research, business, code-documentation, project-setup, mobile-development, typescript-development, csp, digital-marketing.
+17 plugins: code-review, tauri-development, frontend-optimization, ai-tooling, python-development, stripe, utilities, messaging, research, business, code-documentation, project-setup, mobile-development, typescript-development, csp, digital-marketing, frontend-design.
 
 ## Plugin anatomy
 
@@ -69,3 +69,21 @@ Key fields in `.claude-plugin/marketplace.json`:
 ## Build / CI
 
 None. No tests, no build step, no CI pipeline. All content is static markdown.
+
+## Upstream-synced plugins
+
+Some plugins are ported from external repositories and should be kept in sync with their upstream source. When asked to update one of these plugins, fetch the latest content from the upstream URL using `gh api` and apply any changes, then follow the standard marketplace update workflow.
+
+| Plugin | Upstream source | Files to sync |
+|--------|----------------|---------------|
+| `frontend-design` | `anthropics/claude-code` — `plugins/frontend-design/skills/frontend-design/SKILL.md` | `plugins/frontend-design/skills/frontend-design/SKILL.md` |
+
+### How to sync a plugin
+
+```bash
+# Fetch latest SKILL.md from upstream
+gh api repos/anthropics/claude-code/contents/plugins/frontend-design/skills/frontend-design/SKILL.md \
+  --jq '.content' | base64 -d
+```
+
+Then compare with the local file, apply upstream changes while preserving local additions (source attribution line, Typography Reference section, Isolated Prompting section), bump the plugin version, bump `metadata.version`, and commit + push.
