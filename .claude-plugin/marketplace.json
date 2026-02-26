@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "2.0.0"
+    "version": "1.10.0"
   },
   "plugins": [
     {
@@ -405,7 +405,7 @@
       "description": "Create distinctive, production-grade frontend interfaces with high design quality, avoiding generic AI aesthetics",
       "version": "1.0.0",
       "author": {
-        "name": "Alfio"
+        "name": "Anthropic"
       },
       "license": "MIT",
       "keywords": [
