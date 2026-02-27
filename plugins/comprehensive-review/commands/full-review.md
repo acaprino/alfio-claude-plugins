@@ -170,7 +170,7 @@ Task:
 
 ```
 Task:
-  subagent_type: "senior-code-reviewer"
+  subagent_type: "pattern-quality-scorer"
   description: "Pattern analysis and quality scoring for $ARGUMENTS"
   prompt: |
     Perform a pattern consistency analysis and quantitative code quality scoring.
@@ -580,7 +580,7 @@ Read all `.full-review/*.md` files. Generate the final consolidated report.
 
 ## Code Quality Score
 
-[From Phase 1C senior-code-reviewer analysis]
+[From Phase 1C pattern-quality-scorer analysis]
 
 | Category        | Score |
 |-----------------|-------|

@@ -49,7 +49,7 @@ When changes modify plugins (agents, skills, commands), update the marketplace *
 4. **Push to remote** — `git push` to `master`
 
 Key fields in `.claude-plugin/marketplace.json`:
-- `metadata.version`: overall marketplace version (currently `1.12.0`)
+- `metadata.version`: overall marketplace version (currently `1.13.0`)
 - `plugins[].version`: per-plugin version
 - Install command: `claude plugin marketplace add acaprino/alfio-claude-plugins`
 
