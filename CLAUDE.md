@@ -49,7 +49,7 @@ When changes modify plugins (agents, skills, commands), update the marketplace *
 4. **Push to remote** — `git push` to `master`
 
 Key fields in `.claude-plugin/marketplace.json`:
-- `metadata.version`: overall marketplace version (currently `1.3.0`)
+- `metadata.version`: overall marketplace version (currently `1.11.0`)
 - `plugins[].version`: per-plugin version
 - Install command: `claude plugin marketplace add acaprino/alfio-claude-plugins`
 
@@ -77,13 +77,20 @@ Some plugins are ported from external repositories and should be kept in sync wi
 | Plugin | Upstream source | Files to sync |
 |--------|----------------|---------------|
 | `frontend-design` | `anthropics/claude-code` — `plugins/frontend-design/skills/frontend-design/SKILL.md` | `plugins/frontend-design/skills/frontend-design/SKILL.md` |
+| `ai-tooling` (brainstorming) | `obra/superpowers` — `skills/brainstorming/SKILL.md` | `plugins/ai-tooling/skills/brainstorming/SKILL.md` |
+| `ai-tooling` (writing-plans) | `obra/superpowers` — `skills/writing-plans/SKILL.md` | `plugins/ai-tooling/skills/writing-plans/SKILL.md` |
+| `ai-tooling` (executing-plans) | `obra/superpowers` — `skills/executing-plans/SKILL.md` | `plugins/ai-tooling/skills/executing-plans/SKILL.md` |
 
 ### How to sync a plugin
 
 ```bash
-# Fetch latest SKILL.md from upstream
+# Fetch latest SKILL.md from upstream (anthropics/claude-code example)
 gh api repos/anthropics/claude-code/contents/plugins/frontend-design/skills/frontend-design/SKILL.md \
+  --jq '.content' | base64 -d
+
+# Fetch latest SKILL.md from upstream (obra/superpowers example)
+gh api repos/obra/superpowers/contents/skills/brainstorming/SKILL.md \
   --jq '.content' | base64 -d
 ```
 
-Then compare with the local file, apply upstream changes while preserving local additions (source attribution line, Typography Reference section, Isolated Prompting section), bump the plugin version, bump `metadata.version`, and commit + push.
+Then compare with the local file, apply upstream changes while preserving local additions (source attribution line at top of each file, plus any plugin-specific sections like Typography Reference or Isolated Prompting for frontend-design), bump the plugin version, bump `metadata.version`, and commit + push.

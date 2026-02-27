@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "1.10.0"
+    "version": "1.11.0"
   },
   "plugins": [
     {
@@ -92,8 +92,8 @@
     {
       "name": "ai-tooling",
       "source": "./plugins/ai-tooling",
-      "description": "Prompt engineering and LLM optimization for AI-powered applications",
-      "version": "1.1.0",
+      "description": "Prompt engineering, brainstorming, and LLM optimization for AI-powered applications",
+      "version": "1.2.0",
       "author": {
         "name": "Alfio"
       },
@@ -102,12 +102,19 @@
         "prompt-engineering",
         "llm",
         "ai",
-        "optimization"
+        "optimization",
+        "planning",
+        "brainstorming"
       ],
       "category": "ai-ml",
       "strict": false,
       "agents": [
         "./agents/prompt-engineer.md"
+      ],
+      "skills": [
+        "./skills/brainstorming",
+        "./skills/writing-plans",
+        "./skills/executing-plans"
       ],
       "commands": [
         "./commands/prompt-optimize.md"
