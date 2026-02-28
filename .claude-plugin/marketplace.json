@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "1.15.0"
+    "version": "1.16.0"
   },
   "plugins": [
     {
       "name": "humanize",
       "source": "./plugins/humanize",
-      "description": "Rewrites source code to be more readable and human-friendly without changing behavior — improves naming, removes boilerplate, and restructures for clarity",
-      "version": "1.0.0",
+      "description": "Rewrites source code to be more readable and human-friendly without changing behavior — improves naming and comments only, with mandatory test validation",
+      "version": "2.0.0",
       "author": {
         "name": "Alfio"
       },
