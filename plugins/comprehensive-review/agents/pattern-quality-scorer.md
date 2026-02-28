@@ -98,6 +98,12 @@ Identify the dominant patterns in each file, then flag deviations:
 
 **Key question:** "Is there an established pattern in this file that this code should follow but doesn't?"
 
+**2.7 CONFIGURATION & INFRASTRUCTURE** (when applicable)
+- Container/Kubernetes manifests: resource limits, health checks, security context, RBAC
+- Infrastructure as Code: idempotency, state management, secret handling in Terraform/Pulumi
+- CI/CD pipelines: security gates, secret scanning, deployment safety, rollback strategy
+- Environment config: dev/prod parity, no hardcoded values, secrets management
+
 ## ANTI-PATTERNS & RED FLAGS
 
 **Immediately call out:**
@@ -129,6 +135,16 @@ Identify the dominant patterns in each file, then flag deviations:
 - **A Systems Architect**: How does this fail? How does it scale? What's the blast radius?
 - **An SRE**: What breaks at 3 AM? What makes debugging impossible?
 - **A Pattern Detective**: Identify the dominant patterns per file, then scan for violations
+
+## LANGUAGE-SPECIFIC PATTERN DETECTION
+
+Apply language idiom knowledge when reviewing:
+- **JavaScript/TypeScript**: Modern ES2022+ patterns, React hooks rules, async/await vs promises, TypeScript strict mode, no implicit any, proper generic usage
+- **Python**: PEP 8 compliance, f-strings vs format, dataclasses vs namedtuples, type hints, generator patterns, context managers
+- **Java**: Spring bean lifecycle, checked vs unchecked exceptions, proper use of Optional, Stream API usage, generics bounds
+- **Go**: Error handling idioms, goroutine leak prevention, interface satisfaction, defer patterns
+- **Rust**: Ownership correctness, lifetime elision, trait implementations, error propagation with ?
+- **C#**: LINQ best practices, async/await deadlock prevention, nullable reference types
 
 ## OUTPUT FORMAT
 

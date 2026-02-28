@@ -92,52 +92,21 @@ Determine what code to review from `$ARGUMENTS`:
 
 ## Review Phases
 
-1. Code Quality, Architecture & Pattern Analysis
+1. Architecture Review
 2. Security & Performance
 3. Testing & Documentation
 4. Best Practices & Standards
-5. Consolidated Report
+5. Code Quality, Pattern Analysis & Scoring
+6. Consolidated Report
 ```
 
 Update `state.json`: add `"00-scope.md"` to `files_created`, add step 0 to `completed_steps`.
 
 ---
 
-## Phase 1: Code Quality, Architecture & Pattern Analysis (Steps 1A-1C)
+## Phase 1: Architecture Review (Step 1A)
 
-Run all three agents in parallel using multiple Task tool calls in a single response.
-
-### Step 1A: Code Quality Analysis
-
-```
-Task:
-  subagent_type: "code-reviewer"
-  description: "Code quality analysis for $ARGUMENTS"
-  prompt: |
-    Perform a comprehensive code quality review.
-
-    ## Review Scope
-    [Insert contents of .full-review/00-scope.md]
-
-    ## Instructions
-    Analyze the target code for:
-    1. **Code complexity**: Cyclomatic complexity, cognitive complexity, deeply nested logic
-    2. **Maintainability**: Naming conventions, function/method length, class cohesion
-    3. **Code duplication**: Copy-pasted logic, missed abstraction opportunities
-    4. **Clean Code principles**: SOLID violations, code smells, anti-patterns
-    5. **Technical debt**: Areas that will become increasingly costly to change
-    6. **Error handling**: Missing error handling, swallowed exceptions, unclear error messages
-
-    For each finding, provide:
-    - Severity (Critical / High / Medium / Low)
-    - File and line location
-    - Description of the issue
-    - Specific fix recommendation with code example
-
-    Write your findings as a structured markdown document.
-```
-
-### Step 1B: Architecture & Design Review
+### Step 1A: Architecture & Design Review
 
 ```
 Task:
@@ -166,103 +135,27 @@ Task:
     Write your findings as a structured markdown document.
 ```
 
-### Step 1C: Pattern Consistency & Code Quality Scoring
-
-```
-Task:
-  subagent_type: "pattern-quality-scorer"
-  description: "Pattern analysis and quality scoring for $ARGUMENTS"
-  prompt: |
-    Perform a pattern consistency analysis and quantitative code quality scoring.
-
-    ## Review Scope
-    [Insert contents of .full-review/00-scope.md]
-
-    ## Instructions
-    Focus your review on these specific areas:
-
-    ### Context Assessment
-    Determine the code's scope, maturity stage (prototype/production/legacy), and calibrate your review depth accordingly.
-
-    ### Critical Scan Triage
-    Quickly triage for showstoppers: auth bypass, injection vectors, hardcoded secrets, unvalidated input, race conditions, data loss scenarios, unbounded resources, missing error handling on I/O.
-
-    ### Pattern Consistency Detection
-    For each file, identify the dominant patterns and flag deviations:
-    - Error handling style (try/catch, Result types, error checks)
-    - Resource management (using, defer, finally, context managers)
-    - Import conventions (grouping, ordering)
-    - Null/optional handling (defensive checks, optional chaining)
-    - Async patterns (async/await vs callbacks vs blocking)
-
-    Key question: "Is there an established pattern in this file that this code should follow but doesn't?"
-
-    ### Anti-Pattern Checklist
-    Flag any occurrences of: god objects, premature optimization, callback hell, mutable global state, swallowed exceptions, tight third-party coupling, missing validation on external data, sync I/O blocking event loops, DB queries in loops, missing transaction boundaries, no rollback on partial failures, TODO/FIXME in critical paths.
-
-    Also flag consistency anti-patterns: inline constructs bypassing established patterns, mixed error handling strategies, conditional paths with different safety guarantees, inconsistent null handling.
-
-    ### Mental Models
-    Apply all six perspectives:
-    - **Security Engineer**: Assume all input is malicious
-    - **Performance Engineer**: What's the Big-O? What's the I/O pattern?
-    - **Team Lead**: Maintainable in 6 months? Can juniors understand it?
-    - **Systems Architect**: How does this fail? Blast radius?
-    - **SRE**: What breaks at 3 AM?
-    - **Pattern Detective**: Dominant patterns per file, then scan for violations
-
-    ### Quantitative Code Quality Score
-    Rate each category on a 1-10 scale:
-    - **9-10**: Excellent — production-ready, exemplary patterns
-    - **7-8**: Good — minor issues, safe to deploy
-    - **5-6**: Adequate — notable issues need attention before deploy
-    - **3-4**: Poor — significant issues, needs rework
-    - **1-2**: Critical — fundamental problems, unsafe
-
-    Provide scores for: Security, Performance, Maintainability, Testing, and an Overall score.
-
-    Write your findings as a structured markdown document with an Executive Summary, Findings by Severity, Pattern Consistency Findings, What's Done Well, and the Code Quality Score table.
-```
-
-After all three complete, consolidate into `.full-review/01-quality-architecture.md`:
+After completing, write to `.full-review/01-architecture.md`:
 
 ```markdown
-# Phase 1: Code Quality, Architecture & Pattern Analysis
-
-## Code Quality Findings
-
-[Summary from 1A, organized by severity]
+# Phase 1: Architecture Review
 
 ## Architecture Findings
 
-[Summary from 1B, organized by severity]
-
-## Pattern Consistency & Anti-Pattern Findings
-
-[Summary from 1C — pattern deviations, anti-patterns detected, consistency issues]
-
-## Code Quality Score
-
-| Category        | Score |
-|-----------------|-------|
-| Security        | X/10  |
-| Performance     | X/10  |
-| Maintainability | X/10  |
-| Testing         | X/10  |
-| **Overall**     | **X/10** |
+[Summary from 1A, organized by severity]
 
 ## Critical Issues for Phase 2 Context
 
 [List any findings that should inform security or performance review]
 ```
 
-Update `state.json`: set `current_step` to 2, `current_phase` to 2, add steps 1A, 1B, and 1C to `completed_steps`.
+Update `state.json`: set `current_step` to 2, `current_phase` to 2, add step 1A to `completed_steps`.
 
 ---
 
 ## Phase 2: Security & Performance Review (Steps 2A-2B)
 
-Read `.full-review/01-quality-architecture.md` for context from Phase 1.
+Read `.full-review/01-architecture.md` for context from Phase 1.
 
 Run both agents in parallel using multiple Task tool calls in a single response.
 
@@ -279,7 +172,7 @@ Task:
     [Insert contents of .full-review/00-scope.md]
 
     ## Phase 1 Context
-    [Insert contents of .full-review/01-quality-architecture.md -- focus on the "Critical Issues for Phase 2 Context" section]
+    [Insert contents of .full-review/01-architecture.md -- focus on the "Critical Issues for Phase 2 Context" section]
 
     ## Instructions
     Analyze for:
@@ -313,7 +206,7 @@ Task:
     [Insert contents of .full-review/00-scope.md]
 
     ## Phase 1 Context
-    [Insert contents of .full-review/01-quality-architecture.md -- focus on the "Critical Issues for Phase 2 Context" section]
+    [Insert contents of .full-review/01-architecture.md -- focus on the "Critical Issues for Phase 2 Context" section]
 
     ## Instructions
     Analyze for:
@@ -360,17 +253,15 @@ Update `state.json`: set `current_step` to "checkpoint-1", add steps 2A and 2B t
 Display a summary of findings from Phase 1 and Phase 2 and ask:
 
 ```
-Phases 1-2 complete: Code Quality, Architecture, Pattern Analysis, Security, and Performance reviews done.
+Phases 1-2 complete: Architecture, Security, and Performance reviews done.
 
 Summary:
-- Code Quality: [X critical, Y high, Z medium findings]
 - Architecture: [X critical, Y high, Z medium findings]
-- Pattern Analysis: [X critical, Y high, Z medium findings] — Code Quality Score: [X/10]
 - Security: [X critical, Y high, Z medium findings]
 - Performance: [X critical, Y high, Z medium findings]
 
 Please review:
-- .full-review/01-quality-architecture.md
+- .full-review/01-architecture.md
 - .full-review/02-security-performance.md
 
 1. Continue -- proceed to Testing & Documentation review
@@ -386,7 +277,7 @@ Do NOT proceed to Phase 3 until the user approves.
 
 ## Phase 3: Testing & Documentation Review (Steps 3A-3B)
 
-Read `.full-review/01-quality-architecture.md` and `.full-review/02-security-performance.md` for context.
+Read `.full-review/01-architecture.md` and `.full-review/02-security-performance.md` for context.
 
 Run both agents in parallel using multiple Task tool calls in a single response.
 
@@ -436,7 +327,7 @@ Task:
     [Insert contents of .full-review/00-scope.md]
 
     ## Prior Phase Context
-    [Insert key findings from .full-review/01-quality-architecture.md and .full-review/02-security-performance.md]
+    [Insert key findings from .full-review/01-architecture.md and .full-review/02-security-performance.md]
 
     ## Instructions
     Evaluate:
@@ -561,11 +452,122 @@ Update `state.json`: set `current_step` to 5, `current_phase` to 5, add steps 4A
 
 ---
 
-## Phase 5: Consolidated Report (Step 5)
+## Phase 5: Code Quality, Pattern Analysis & Scoring (Step 5)
 
-Read all `.full-review/*.md` files. Generate the final consolidated report.
+Read all `.full-review/*.md` files (01 through 04) for full context before analyzing.
 
-**Output file:** `.full-review/05-final-report.md`
+### Step 5: Code Quality, Pattern Consistency & Scoring
+
+```
+Task:
+  subagent_type: "pattern-quality-scorer"
+  description: "Code quality, pattern analysis and scoring for $ARGUMENTS"
+  prompt: |
+    Perform a comprehensive code quality review, pattern consistency analysis, and quantitative scoring.
+    You have access to all prior phase findings — use them as context for calibrated, holistic scoring.
+
+    ## Review Scope
+    [Insert contents of .full-review/00-scope.md]
+
+    ## Prior Phase Context
+    [Insert summaries from .full-review/01-architecture.md, .full-review/02-security-performance.md,
+     .full-review/03-testing-documentation.md, .full-review/04-best-practices.md]
+
+    ## Instructions
+
+    ### Context Assessment
+    Determine the code's scope, maturity stage (prototype/production/legacy). Use prior phase findings
+    to calibrate focus areas — don't duplicate what's already been covered in detail.
+
+    ### Code Quality Analysis
+    Analyze the target code for:
+    1. **Code complexity**: Cyclomatic complexity, cognitive complexity, deeply nested logic
+    2. **Maintainability**: Naming conventions, function/method length, class cohesion
+    3. **Code duplication**: Copy-pasted logic, missed abstraction opportunities
+    4. **Clean Code principles**: SOLID violations, code smells, anti-patterns
+    5. **Technical debt**: Areas that will become increasingly costly to change
+    6. **Error handling**: Missing error handling, swallowed exceptions, unclear error messages
+
+    ### Pattern Consistency Detection
+    For each file, identify the dominant patterns and flag deviations:
+    - Error handling style (try/catch, Result types, error checks)
+    - Resource management (using, defer, finally, context managers)
+    - Import conventions (grouping, ordering)
+    - Null/optional handling (defensive checks, optional chaining)
+    - Async patterns (async/await vs callbacks vs blocking)
+
+    Key question: "Is there an established pattern in this file that this code should follow but doesn't?"
+
+    ### Anti-Pattern Checklist
+    Flag any occurrences of: god objects, premature optimization, callback hell, mutable global state,
+    swallowed exceptions, tight third-party coupling, missing validation on external data, sync I/O
+    blocking event loops, DB queries in loops, missing transaction boundaries, no rollback on partial
+    failures, TODO/FIXME in critical paths. Also flag consistency anti-patterns.
+
+    ### Mental Models
+    Apply all six perspectives:
+    - **Security Engineer**: Assume all input is malicious
+    - **Performance Engineer**: What's the Big-O? What's the I/O pattern?
+    - **Team Lead**: Maintainable in 6 months? Can juniors understand it?
+    - **Systems Architect**: How does this fail? Blast radius?
+    - **SRE**: What breaks at 3 AM?
+    - **Pattern Detective**: Dominant patterns per file, then scan for violations
+
+    ### Quantitative Code Quality Score
+    Rate each category using ALL findings from all phases combined:
+    - **9-10**: Excellent — production-ready, exemplary patterns
+    - **7-8**: Good — minor issues, safe to deploy
+    - **5-6**: Adequate — notable issues need attention before deploy
+    - **3-4**: Poor — significant issues, needs rework
+    - **1-2**: Critical — fundamental problems, unsafe
+
+    Provide scores for: Security, Performance, Maintainability, Testing, and an Overall score.
+
+    Write your findings as a structured markdown document with an Executive Summary, Code Quality Findings,
+    Pattern Consistency Findings, What's Done Well, and the Code Quality Score table.
+```
+
+Write output to `.full-review/05-quality-scoring.md`:
+
+```markdown
+# Phase 5: Code Quality, Pattern Analysis & Scoring
+
+## Executive Summary
+
+[2-3 sentence overview of code quality]
+
+## Code Quality Findings
+
+[Organized by severity]
+
+## Pattern Consistency Findings
+
+[Pattern deviations, anti-patterns detected]
+
+## What's Done Well
+
+[Positive observations]
+
+## Code Quality Score
+
+| Category        | Score |
+|-----------------|-------|
+| Security        | X/10  |
+| Performance     | X/10  |
+| Maintainability | X/10  |
+| Testing         | X/10  |
+| **Overall**     | **X/10** |
+```
+
+Update `state.json`: set `current_step` to 6, `current_phase` to 6, add step 5 to `completed_steps`.
+
+---
+
+## Phase 6: Consolidated Report (Step 6)
+
+Read all `.full-review/*.md` files (01 through 05). Generate the final consolidated report.
+
+**Output file:** `.full-review/06-final-report.md`
 
 ```markdown
 # Comprehensive Code Review Report
@@ -580,7 +582,7 @@ Read all `.full-review/*.md` files. Generate the final consolidated report.
 
 ## Code Quality Score
 
-[From Phase 1C pattern-quality-scorer analysis]
+[From Phase 5 pattern-quality-scorer analysis]
 
 | Category        | Score |
 |-----------------|-------|
@@ -652,7 +654,7 @@ Read all `.full-review/*.md` files. Generate the final consolidated report.
 - Flags applied: [list active flags]
 ```
 
-Update `state.json`: set `status` to `"complete"`, `last_updated` to current timestamp.
+Update `state.json`: set `current_step` to 7, add step 6 to `completed_steps`, set `status` to `"complete"`, `last_updated` to current timestamp.
 
 ---
 
@@ -665,11 +667,12 @@ Comprehensive code review complete for: $ARGUMENTS
 
 ## Review Output Files
 - Scope: .full-review/00-scope.md
-- Quality, Architecture & Patterns: .full-review/01-quality-architecture.md
+- Architecture: .full-review/01-architecture.md
 - Security & Performance: .full-review/02-security-performance.md
 - Testing & Documentation: .full-review/03-testing-documentation.md
 - Best Practices: .full-review/04-best-practices.md
-- Final Report: .full-review/05-final-report.md
+- Quality Scoring: .full-review/05-quality-scoring.md
+- Final Report: .full-review/06-final-report.md
 
 ## Summary
 - Total findings: [count]
@@ -677,7 +680,7 @@ Comprehensive code review complete for: $ARGUMENTS
 - Code Quality Score: [X/10]
 
 ## Next Steps
-1. Review the full report at .full-review/05-final-report.md
+1. Review the full report at .full-review/06-final-report.md
 2. Address Critical (P0) issues immediately
 3. Plan High (P1) fixes for current sprint
 4. Add Medium (P2) and Low (P3) items to backlog
