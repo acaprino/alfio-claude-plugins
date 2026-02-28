@@ -282,6 +282,75 @@ Complete delivery with comprehensive specifications:
 - **Tesler's Law**: complexity is conserved — simplify the UI surface, not the underlying function
 - Apply these at wireframe stage as design constraints, not post-design rationalizations
 
+### Senior-Level Production Details
+
+Specific, mechanical rules that separate professional work from "looks fine":
+
+**1. The 5-Second Glance Test**
+- Look at the design for exactly 5 seconds — what did you remember?
+- If not the primary action, hierarchy is broken
+- Primary CTA must be 3× more obvious than anything else (not 20% — three times)
+- Button sizing by hierarchy: Primary 48px, Secondary 40px, Tertiary 36px
+- One clear focal point per screen; making everything important means nothing is important
+
+**2. Letter Spacing on Large Headlines**
+- Text under 40px: tracking 0
+- Text 40–70px: tracking -1%
+- Text over 70px: tracking -2% to -4%
+- Default tracking is optimized for body text (16–18px); headlines need tighter spacing
+- Max 2 fonts: one for headlines (bold), one for body (readable)
+- Safe pairings: Inter+Inter, Playfair Display+Lato, Montserrat+Open Sans
+
+**3. Nested Rounded Corner Formula**
+- Inner radius = Outer radius − Gap between edges
+- Example: card 24px radius, image 12px from edge → image gets 12px radius (24−12=12)
+- Mismatched nesting makes inner corners bulge visually
+- iOS-style squircles (superellipse) over true circles — use Figma "Superellipse" plugin
+
+**4. 8-Point Spacing System**
+- All spacing must be multiples of 8: 8 / 16 / 24 / 32 / 48 / 64px
+- 8px: tight (icon-to-text), 16px: default between elements, 24px: section, 32px: large section, 48px: hero padding, 64px+: major layout
+- Divides evenly on all screen sizes; prevents half-pixels on high-DPI screens
+- Figma: use Auto Layout with 8px increments; never manually position elements
+
+**5. HSB Color Tinting System**
+- Build palette from a base color using HSB (never random vibes):
+  - Darker shade: same Hue, +10–20% Saturation, −20–30% Brightness
+  - Lighter shade: same Hue, −10–20% Saturation, +20–30% Brightness
+- Never use pure black (#000000) or pure white (#FFFFFF) — they're harsh
+- Dark mode bg: #0A0E27 (dark blue-tinted) — Light mode bg: #FAFBFC (gray-blue tinted)
+- Tools: Coolors.co, Realtime Colors, Tailwind CSS color palette
+
+**6. Card Design Without Labels**
+- Visual grouping over labels: show "$99" large + "per month" small — no "Price:" label needed
+- Group related info on one line: "Check-in / Check-out" not two separate rows
+- Depth without drop shadows: card color = background color with +4–6 brightness, −10–20 saturation
+- Result: card lifts visually without any shadow — modern and clean
+
+**7. Kill Lines, Use Space**
+- Every line you add makes the interface busier; most are unnecessary
+- Replace lines with: spacing (most effective), background color changes, subtle shadows, or nothing
+- Exception: tables need lines, but use subtle (#E0E0E0), not black borders
+- Default action: remove 50% of lines in any design — it will immediately look cleaner
+
+**8. Action-Benefit Button Copy**
+- Never: "Submit", "Click Here", "Continue", "OK"
+- Always: Action + Benefit — "Get Started Free", "Save My Spot", "Try 14 Days Free"
+- "Submit" tells users nothing; "Create My Account" tells them everything
+- Add microcopy below CTA to reduce anxiety: "No credit card required. Cancel anytime."
+
+**9. Authentic Photos Over Stock**
+- Stock photos signal "this isn't real" — use actual product screenshots, real team/customer photos
+- If stock is unavoidable, make it feel real: add grain/noise, desaturate 10–20%, crop off-center, use candid not posed shots
+- Social proof hierarchy: client logos → testimonials with real names/photos → press mentions → usage stats ("Join 10,000+ developers")
+
+**10. Test, Iterate, Ship**
+- No design is done on the first try; professional work involves 10+ iterations on the same screen
+- Quick A/B test: duplicate design, change ONE thing, compare, pick winner
+- Quick wins to test: CTA color, headline copy, +24px spacing, remove a section, swap hero image
+- Most improvement comes from removing things, not adding: every element must justify its existence
+- Mantra: design for clarity, not cleverness
+
 ### Wow Factor Architecture
 
 The difference between "good UI" and "that's incredible" is intentional craft stacked at every layer.
@@ -331,9 +400,22 @@ The difference between "good UI" and "that's incredible" is intentional craft st
 
 ## Quality Assurance Checklist
 
+**Senior-level production checks (before calling any design "done"):**
+- [ ] Can someone understand the page in 5 seconds?
+- [ ] Are headlines over 60px using negative tracking (-1% to -4%)?
+- [ ] Do nested rounded corners follow the formula (inner = outer − gap)?
+- [ ] Is all spacing a multiple of 8?
+- [ ] Are backgrounds tinted — not pure black (#000) or pure white (#FFF)?
+- [ ] Do cards use visual grouping instead of labels?
+- [ ] Can I remove 50% of the dividing lines?
+- [ ] Do buttons explain what happens when clicked (Action + Benefit)?
+- [ ] Are photos authentic, not generic stock imagery?
+- [ ] Have I tested at least 2 variations of the key screen?
+
+**Process checks:**
 - [ ] Design review complete
 - [ ] Consistency check passed
-- [ ] Accessibility audit validated
+- [ ] Accessibility audit validated (WCAG AA minimum)
 - [ ] Performance impact assessed
 - [ ] Browser/device testing done
 - [ ] User feedback integrated
