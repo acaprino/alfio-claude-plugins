@@ -6,35 +6,56 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "1.13.0"
+    "version": "1.14.0"
   },
   "plugins": [
     {
-      "name": "code-review",
-      "source": "./plugins/code-review",
-      "description": "Senior code review, deep-dive codebase analysis, and code humanization for cross-language code inspection",
-      "version": "1.1.0",
+      "name": "humanize",
+      "source": "./plugins/humanize",
+      "description": "Rewrites source code to be more readable and human-friendly without changing behavior — improves naming, removes boilerplate, and restructures for clarity",
+      "version": "1.0.0",
       "author": {
         "name": "Alfio"
       },
       "license": "MIT",
       "keywords": [
-        "code-review",
-        "analysis",
-        "audit",
-        "inspection"
+        "humanize",
+        "readability",
+        "naming",
+        "refactor",
+        "cleanup"
       ],
       "category": "review",
       "strict": false,
       "agents": [
-        "./agents/senior-code-reviewer.md",
         "./agents/humanize.md"
       ],
+      "commands": [
+        "./commands/humanize.md"
+      ]
+    },
+    {
+      "name": "deep-dive-analysis",
+      "source": "./plugins/deep-dive-analysis",
+      "description": "AI-powered systematic codebase analysis combining mechanical structure extraction with semantic understanding to document WHAT, WHY, HOW, and CONSEQUENCES of code",
+      "version": "1.0.0",
+      "author": {
+        "name": "Alfio"
+      },
+      "license": "MIT",
+      "keywords": [
+        "analysis",
+        "codebase",
+        "documentation",
+        "semantic",
+        "deep-dive"
+      ],
+      "category": "review",
+      "strict": false,
       "skills": [
         "./skills/deep-dive-analysis"
       ],
       "commands": [
-        "./commands/senior-code-review.md",
         "./commands/deep-dive-analysis.md"
       ]
     },

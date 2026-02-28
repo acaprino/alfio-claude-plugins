@@ -92,7 +92,7 @@ python .claude/skills/deep-dive-analysis/scripts/rewrite_comments.py analyze \
 
 ## References
 
-See `plugins/code-review/skills/deep-dive-analysis/references/` for:
+See `plugins/deep-dive-analysis/skills/deep-dive-analysis/references/` for:
 - `DEEP_DIVE_PLAN.md` - Master analysis plan
 - `AI_ANALYSIS_METHODOLOGY.md` - Semantic analysis methodology
 - `SEMANTIC_PATTERNS.md` - Pattern recognition guide
