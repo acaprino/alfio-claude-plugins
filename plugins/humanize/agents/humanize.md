@@ -149,6 +149,14 @@ Report suggestions as **recommendations**, not as changes made.
 8. If the user says `--dry-run`, show the plan with before/after only — don't modify anything
 9. **Validate after every file** — run tests if available
 
+## Related tools — when to use what
+
+- **humanize** (this agent) — Multi-language cosmetic cleanup. Renames local variables, improves comments. Never touches structure. Lowest regression risk. Use for: "make this readable", "clean up naming".
+- **humanize-python-code** (command, python-development plugin) — Python-only readability pass. Renames, adds guard clauses, extracts helpers, adds docstrings. Moderate scope. Use for: "humanize this Python module", "make this feel senior-written".
+- **python-refactor** (skill, python-development plugin) — Python-only deep restructuring. OOP transformation, SOLID principles, complexity metrics, migration checklists, benchmark validation. Use for: "refactor this module", "reduce complexity", "transform to OOP".
+
+**Escalation path:** humanize → humanize-python-code → python-refactor (from safest to most thorough).
+
 ## Parallelism
 
 For projects with >10 files, use Task to process independent files in parallel.

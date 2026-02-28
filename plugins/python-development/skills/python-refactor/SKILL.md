@@ -296,6 +296,14 @@ Structure refactoring output using the template from `assets/templates/summary_t
 - Test results and performance impact
 - Risk assessment and human review recommendation
 
+## Related tools — when to use what
+
+- **humanize** (agent, humanize plugin) — Multi-language cosmetic cleanup. Renames local variables, improves comments. Never touches structure. Lowest regression risk. Use for: "make this readable", "clean up naming".
+- **humanize-python-code** (command, python-development plugin) — Python-only readability pass. Renames, adds guard clauses, extracts helpers, adds docstrings. Moderate scope. Use for: "humanize this Python module", "make this feel senior-written".
+- **python-refactor** (this skill) — Python-only deep restructuring. OOP transformation, SOLID principles, complexity metrics, migration checklists, benchmark validation. Use for: "refactor this module", "reduce complexity", "transform to OOP".
+
+**Escalation path:** humanize → humanize-python-code → python-refactor (from safest to most thorough).
+
 ## Integration with Same-Package Skills
 
 - **python-testing-patterns** - Set up tests before refactoring, validate coverage after

@@ -10,13 +10,18 @@ Use the `humanize` agent to rewrite source code to be more readable and human-fr
 - `src/api/ --dry-run` — preview changes without modifying files
 
 **What it does:**
-- Renames vague variables and functions to domain-meaningful names
-- Removes AI-generated boilerplate and paraphrase comments
-- Restructures for narrative reading flow
-- Extracts deeply nested logic into named sub-functions
-- Removes dead code and useless error handlers
+- Renames vague variables and parameters to domain-meaningful names
+- Removes paraphrase comments and empty boilerplate docstrings
+- Adds brief why-comments for non-obvious business logic
 
-**Constraints:** Never changes behavior, never renames public exports without warning.
+**What it does NOT do (by default):**
+- Does not reorder code, extract functions, or change control flow
+- Does not remove error handling, validations, or imports
+- Does not modify test files (unless renaming symbols it renamed in source)
+
+These constraints prevent regressions. If you need deeper restructuring, use `python-refactor` (Python) for full metrics-driven refactoring with OOP transformation and migration checklists.
+
+**Constraints:** Never changes behavior. Validates with tests after each file. Reverts on test failure.
 
 Humanize the following:
 

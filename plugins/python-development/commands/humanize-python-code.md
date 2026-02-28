@@ -43,10 +43,14 @@ Read every file in scope and flag readability problems:
 - Magic numbers or strings without explanation
 
 **Clutter**
-- Dead code (unreachable branches, unused imports, commented-out code)
+- Commented-out code blocks
 - Redundant type conversions or unnecessary intermediate variables
 - Over-engineered abstractions for simple operations
-- Defensive checks that can never trigger
+
+**Do NOT flag as clutter (preserve these):**
+- Error handling (try/except, try/catch) — even empty handlers may exist for a reason
+- Defensive checks and input validation — these prevent bugs at boundaries
+- Imports that appear unused — they may have side effects (polyfills, type augmentation)
 
 ### Phase 3: Plan and Confirm
 
@@ -97,10 +101,12 @@ Apply changes following these principles:
 - Explain non-obvious business logic or constraints
 
 **Cleanup rules**
-- Remove unused imports, dead branches, commented-out code
+- Remove commented-out code blocks
 - Replace magic numbers with named constants
 - Simplify unnecessarily complex expressions
 - Remove redundant `else` after `return`/`raise`/`continue`
+- Do NOT remove imports (flag unused ones in the report instead)
+- Do NOT remove error handling or defensive checks
 
 ### Phase 5: Validate
 
@@ -128,8 +134,15 @@ Apply changes following these principles:
 - [ ] Public API unchanged
 ```
 
+## Related tools — when to use what
+
+- **humanize** (agent, humanize plugin) — Multi-language cosmetic cleanup. Renames local variables, improves comments. Never touches structure. Lowest regression risk. Use for: "make this readable", "clean up naming".
+- **humanize-python-code** (this command) — Python-only readability pass. Renames, adds guard clauses, extracts helpers, adds docstrings. Moderate scope. Use for: "humanize this Python module", "make this feel senior-written".
+- **python-refactor** (skill, python-development plugin) — Python-only deep restructuring. OOP transformation, SOLID principles, complexity metrics, migration checklists, benchmark validation. Use for: "refactor this module", "reduce complexity", "transform to OOP".
+
+**Escalation path:** humanize → humanize-python-code → python-refactor (from safest to most thorough).
+
 ## Related Skills
 
-- `python-refactor` — Full systematic refactoring with complexity metrics and migration checklists
 - `python-testing-patterns` — Set up tests before making changes
 - `async-python-patterns` — Async-specific readability patterns
