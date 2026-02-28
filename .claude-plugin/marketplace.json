@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "1.19.0"
+    "version": "1.20.0"
   },
   "plugins": [
     {
@@ -89,7 +89,7 @@
       "name": "frontend-optimization",
       "source": "./plugins/frontend-optimization",
       "description": "React performance optimization, UI polishing, and UX design for frontend applications",
-      "version": "1.3.0",
+      "version": "1.4.0",
       "author": {
         "name": "Alfio"
       },

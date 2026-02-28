@@ -282,6 +282,44 @@ Complete delivery with comprehensive specifications:
 - **Tesler's Law**: complexity is conserved — simplify the UI surface, not the underlying function
 - Apply these at wireframe stage as design constraints, not post-design rationalizations
 
+### Wow Factor Architecture
+
+The difference between "good UI" and "that's incredible" is intentional craft stacked at every layer.
+
+**First-impression engineering**
+- Above-the-fold must earn attention in <1s: bold typography, one clear hero motion, confident color
+- Entry animations: stagger content reveals, not simultaneous pop-ins; create narrative, not noise
+- Opening micro-interaction that rewards curiosity (hover, scroll, tap)
+
+**Premium craft signals** — what separates expensive-feeling from generic:
+- Custom cursors or cursor trails in creative/portfolio contexts
+- Subtle texture or noise overlay on flat backgrounds (adds depth without weight)
+- Optical letter-spacing and numeric tabular figures in data displays
+- Consistent 4px or 8px spatial grid — felt subconsciously when perfect, noticed when off
+- Inter-element choreography: elements move *with* each other, not independently
+- Ink-wash or morphing SVG shapes as decorative motion backgrounds
+
+**Emotional design peaks** — moments users screenshot and share:
+- Celebration state on goal completion (confetti burst, hero message, subtle haptic pattern)
+- Empty states that tell a story: illustration + micro-copy + one clear CTA
+- Loading screen that feels like anticipation, not waiting
+- Onboarding: one delightful surprise per step (unexpected animation, clever copy)
+
+**Hierarchy of wow** — apply effort top-down:
+1. Layout rhythm (space, proportion, grid) — foundation of perceived quality
+2. Typography expression (weight contrast, size ratio, optical sizing)
+3. Color confidence (one dominant, one accent, one neutral — avoid muddy mid-tones)
+4. Motion choreography (transitions, reveals, feedback)
+5. Surface texture and depth (shadows, blur, glass, noise)
+6. Micro-copy and tone of voice (makes users smile, not just read)
+
+**Anti-patterns that kill wow:**
+- Rounded corners that are too small (feels cheap) or too large (feels toy-like)
+- Generic sans-serif + flat blue buttons = invisible
+- Equal visual weight on everything = no hierarchy = confusion
+- Fast-in / fast-out animations (enter should ease-out, exit should ease-in)
+- Padding that isn't breathable — cramped UIs feel low-budget regardless of color
+
 ### Compliance-Driven UX (2026)
 - European Accessibility Act: enforced from June 2025 for digital products and services across the EU
 - WCAG 2.2 new criteria: focus appearance (2.4.11), target size minimum 24×24px (2.5.8)
