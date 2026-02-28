@@ -6,6 +6,7 @@ description: >
   AI-generated boilerplate, or make code more maintainable.
 tools: Read, Edit, Write, Glob, Grep, Bash, Task
 model: opus
+color: lime
 ---
 
 # Code Humanizer

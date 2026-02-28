@@ -14,7 +14,7 @@ plugins/
     commands/               # slash-command .md files
 ```
 
-18 plugins: code-review, tauri-development, frontend-optimization, ai-tooling, python-development, stripe, utilities, messaging, research, business, code-documentation, project-setup, mobile-development, typescript-development, csp, frontend-design, digital-marketing, comprehensive-review.
+19 plugins: humanize, deep-dive-analysis, tauri-development, frontend-optimization, ai-tooling, python-development, stripe, utilities, messaging, research, business, code-documentation, project-setup, mobile-development, typescript-development, csp, frontend-design, digital-marketing, comprehensive-review.
 
 ## Plugin anatomy
 
@@ -49,7 +49,7 @@ When changes modify plugins (agents, skills, commands), update the marketplace *
 4. **Push to remote** — `git push` to `master`
 
 Key fields in `.claude-plugin/marketplace.json`:
-- `metadata.version`: overall marketplace version (currently `1.13.0`)
+- `metadata.version`: overall marketplace version
 - `plugins[].version`: per-plugin version
 - Install command: `claude plugin marketplace add acaprino/alfio-claude-plugins`
 
