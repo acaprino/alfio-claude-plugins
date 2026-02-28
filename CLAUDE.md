@@ -14,7 +14,7 @@ plugins/
     commands/               # slash-command .md files
 ```
 
-18 plugins: code-review, tauri-development, frontend-optimization, ai-tooling, python-development, stripe, utilities, messaging, research, business, code-documentation, project-setup, mobile-development, typescript-development, csp, digital-marketing, frontend-design, comprehensive-review.
+18 plugins: code-review, tauri-development, frontend-optimization, ai-tooling, python-development, stripe, utilities, messaging, research, business, code-documentation, project-setup, mobile-development, typescript-development, csp, frontend-design, digital-marketing, comprehensive-review.
 
 ## Plugin anatomy
 
@@ -22,11 +22,11 @@ plugins/
 - `name`: agent identifier (kebab-case)
 - `description`: when/how to use the agent
 - `model`: LLM model (default: `opus`)
-- `tools`: comma-separated tool list (e.g. `Read, Write, Edit, Bash, Glob, Grep`)
+- `tools` (optional): comma-separated tool list (e.g. `Read, Write, Edit, Bash, Glob, Grep`); omit to allow all tools
 - `color`: UI accent color
-- Body: terse keyword-list style system prompt, typically 70-200 lines
+- Body: terse keyword-list style system prompt; simple agents ~60-200 lines, complex agents up to ~800 lines
 
-**Skills** — Directory with `SKILL.md` (frontmatter: `name`, `description`) and optional `references/` subdirectory for supporting docs.
+**Skills** — Directory with `SKILL.md` (frontmatter: `name`, `description`) and optional supplementary subdirs: `references/` (docs), `scripts/`, `templates/`, `assets/`.
 
 **Commands** — Slash-command `.md` files with usage instructions and examples. No frontmatter required.
 
@@ -36,7 +36,7 @@ plugins/
 - Plugin names: kebab-case directory names
 - Default model: `opus` (Opus 4.6) for all agents
 - Agent body style: terse keyword lists, imperative tone, structured with markdown headers
-- Skills reference dir: `references/` for supplementary material
+- Skills supplementary subdirs: `references/`, `scripts/`, `templates/`, `assets/` as needed
 - No runtime dependencies — all plugins are pure markdown
 
 ## Marketplace update workflow

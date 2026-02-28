@@ -1,6 +1,6 @@
 # 🔌 Alfio Claude Plugins
 
-Custom Claude Code plugin marketplace with development workflow agents, skills, and commands for Python development, code review, Tauri/Rust, frontend optimization, AI tooling, and constraint programming optimization.
+Custom Claude Code plugin marketplace with development workflow agents, skills, and commands for Python development, code review, Tauri/Rust, frontend optimization, AI tooling, constraint programming, and more.
 
 ---
 
@@ -9,34 +9,23 @@ Custom Claude Code plugin marketplace with development workflow agents, skills, 
 - [Installation](#-installation)
 - [Plugins Overview](#-plugins-overview)
 - [Python Development](#-python-development-plugin)
-  - [Agents](#-agents)
-  - [Skills](#-skills)
-  - [Commands](#-commands)
 - [Code Review](#-code-review-plugin)
-  - [Agents](#-agents-1)
-  - [Skills](#-skills-1)
+- [Comprehensive Review](#-comprehensive-review-plugin)
 - [Tauri Development](#-tauri-development-plugin)
-  - [Agents](#-agents-2)
-  - [Skills](#-skills-2)
 - [Frontend Optimization](#-frontend-optimization-plugin)
-  - [Agents](#-agents-3)
+- [Frontend Design](#-frontend-design-plugin)
 - [AI Tooling](#-ai-tooling-plugin)
-  - [Agents](#-agents-4)
 - [Stripe](#-stripe-plugin)
-  - [Skills](#-skills-3)
 - [Utilities](#-utilities-plugin)
-  - [Skills](#-skills-4)
-  - [Commands](#-commands-2)
 - [Business](#-business-plugin)
-  - [Skills](#-skills-5)
 - [Project Setup](#-project-setup-plugin)
-  - [Agents](#-agents-5)
-  - [Commands](#-commands-3)
+- [Code Documentation](#-code-documentation-plugin)
 - [CSP](#-csp-plugin)
-  - [Agents](#-agents-6)
 - [Digital Marketing](#-digital-marketing-plugin)
-  - [Agents](#-agents-7)
-  - [Commands](#-commands-4)
+- [Messaging](#-messaging-plugin)
+- [Research](#-research-plugin)
+- [Mobile Development](#-mobile-development-plugin)
+- [TypeScript Development](#-typescript-development-plugin)
 - [Usage Examples](#-usage-examples)
 - [Project Structure](#-project-structure)
 - [Contributing](#-contributing)
@@ -57,14 +46,22 @@ claude plugin marketplace add acaprino/alfio-claude-plugins
 ```bash
 claude plugin install python-development@alfio-claude-plugins
 claude plugin install code-review@alfio-claude-plugins
+claude plugin install comprehensive-review@alfio-claude-plugins
 claude plugin install tauri-development@alfio-claude-plugins
 claude plugin install frontend-optimization@alfio-claude-plugins
+claude plugin install frontend-design@alfio-claude-plugins
 claude plugin install ai-tooling@alfio-claude-plugins
 claude plugin install stripe@alfio-claude-plugins
 claude plugin install business@alfio-claude-plugins
 claude plugin install project-setup@alfio-claude-plugins
+claude plugin install code-documentation@alfio-claude-plugins
 claude plugin install csp@alfio-claude-plugins
 claude plugin install digital-marketing@alfio-claude-plugins
+claude plugin install messaging@alfio-claude-plugins
+claude plugin install research@alfio-claude-plugins
+claude plugin install mobile-development@alfio-claude-plugins
+claude plugin install typescript-development@alfio-claude-plugins
+claude plugin install utilities@alfio-claude-plugins
 ```
 
 ### 💻 From Local Path (Development)
@@ -90,17 +87,24 @@ claude plugin list
 
 | Plugin | Description | 🤖 Agents | 🛠️ Skills | ⚡ Commands |
 |--------|-------------|:------:|:------:|:--------:|
-| [🐍 **python-development**](#-python-development-plugin) | Modern Python, Django, FastAPI, testing, packaging | 3 | 6 | 2 |
-| [🔍 **code-review**](#-code-review-plugin) | Code review and deep analysis | 1 | 1 | 1 |
+| [🐍 **python-development**](#-python-development-plugin) | Modern Python, Django, FastAPI, testing, packaging | 3 | 7 | 3 |
+| [🔍 **code-review**](#-code-review-plugin) | Code review, deep analysis, and code humanization | 2 | 1 | 2 |
+| [🏗️ **comprehensive-review**](#-comprehensive-review-plugin) | Multi-agent review orchestration (architecture, security, patterns) | 4 | - | 2 |
 | [🦀 **tauri-development**](#-tauri-development-plugin) | Tauri 2 mobile/desktop and Rust engineering | 2 | 1 | - |
 | [⚛️ **frontend-optimization**](#-frontend-optimization-plugin) | React performance, UI polish, and UX design | 3 | - | - |
-| [🧠 **ai-tooling**](#-ai-tooling-plugin) | Prompt engineering and LLM optimization | 1 | - | 1 |
+| [🎨 **frontend-design**](#-frontend-design-plugin) | Distinctive, production-grade frontend interfaces | - | 1 | - |
+| [🧠 **ai-tooling**](#-ai-tooling-plugin) | Prompt engineering, brainstorming, and planning workflows | 1 | 3 | 1 |
 | [💳 **stripe**](#-stripe-plugin) | Payments, subscriptions, Connect, billing, revenue optimization | - | 2 | - |
 | [🗂️ **utilities**](#-utilities-plugin) | File organization, cleanup, and directory management | - | 1 | 1 |
 | [⚖️ **business**](#-business-plugin) | Legal advisory, compliance, contracts, and risk management | - | 1 | - |
-| [⚙️ **project-setup**](#-project-setup-plugin) | .claude.md auditing, verification, and creation with ground truth validation | 1 | - | 2 |
-| [🧩 **csp**](#-csp-plugin) | Constraint satisfaction problems and optimization with OR-Tools CP-SAT | 1 | - | - |
-| [📢 **digital-marketing**](#-digital-marketing-plugin) | SEO optimization, content marketing, and engagement-driven campaigns | 2 | - | 2 |
+| [⚙️ **project-setup**](#-project-setup-plugin) | .claude.md auditing, creation, and maintenance | 1 | - | 2 |
+| [📖 **code-documentation**](#-code-documentation-plugin) | Technical documentation engineering and maintenance | 1 | - | 2 |
+| [🧩 **csp**](#-csp-plugin) | Constraint satisfaction and optimization with OR-Tools CP-SAT | 1 | - | - |
+| [📢 **digital-marketing**](#-digital-marketing-plugin) | SEO optimization, content marketing, and campaigns | 2 | - | 2 |
+| [📨 **messaging**](#-messaging-plugin) | RabbitMQ messaging, configuration, and optimization | 1 | - | - |
+| [🔎 **research**](#-research-plugin) | Advanced search and information retrieval | 1 | - | - |
+| [📱 **mobile-development**](#-mobile-development-plugin) | Android app competitive analysis via ADB | - | 1 | - |
+| [🔷 **typescript-development**](#-typescript-development-plugin) | TypeScript/JavaScript with Metabase coding standards | - | 1 | - |
 
 ---
 
@@ -298,6 +302,26 @@ Fast Python dependency management with uv (10-100x faster than pip).
 
 ---
 
+#### `python-comments`
+
+Write and audit Python code comments using antirez's 9-type taxonomy.
+
+| | |
+|---|---|
+| **Invoke** | Skill reference |
+| **Use for** | Comment quality review, docstring improvements, documentation audits |
+
+**Two modes:**
+- **Write** - Add/improve comments in code using systematic classification
+- **Audit** - Classify and assess existing comments with structured report
+
+**Features:**
+- 9-type comment taxonomy (Function, Design, Why, Teacher, Checklist, Guide, Trivial, Debt, Backup)
+- Python-specific mapping (docstrings, inline comments, type hints)
+- Quality scoring and improvement recommendations
+
+---
+
 ### ⚡ Commands
 
 #### `/python-scaffold`
@@ -323,12 +347,12 @@ Generate production-ready Python project structures.
 
 ---
 
-#### `/python-refactor`
+#### `/python-full-refactor`
 
-Execute 4-phase refactoring workflow on target code.
+Execute comprehensive 4-phase systematic refactoring workflow on target code.
 
 ```
-/python-refactor src/legacy_module.py
+/python-full-refactor src/legacy_module.py
 ```
 
 **Outputs:**
@@ -339,9 +363,24 @@ Execute 4-phase refactoring workflow on target code.
 
 ---
 
+#### `/humanize-python-code`
+
+Rewrite Python code to feel like it was written by a thoughtful senior developer.
+
+```
+/humanize-python-code src/module.py
+```
+
+**Focus areas:**
+- Readable naming and natural flow
+- Remove AI-generated boilerplate
+- Improve code structure and clarity
+
+---
+
 ## 🔍 Code Review Plugin
 
-> Tools for systematic code review and deep codebase analysis.
+> Tools for systematic code review, deep codebase analysis, and code humanization.
 
 ### 🤖 Agents
 
@@ -364,6 +403,22 @@ Use the senior-code-reviewer agent to review [file/feature]
 - Findings by severity (CRITICAL, HIGH, MEDIUM, LOW)
 - Quality scores (Security, Performance, Maintainability)
 - Prioritized action plan
+
+---
+
+#### `humanize`
+
+Rewrites source code to make it more readable and human-friendly without changing behavior.
+
+| | |
+|---|---|
+| **Model** | `sonnet` |
+| **Use for** | Code cleanup, naming improvements, removing AI-generated boilerplate |
+
+**Invocation:**
+```
+Use the humanize agent to clean up [file/module]
+```
 
 ---
 
@@ -404,11 +459,126 @@ Perform systematic code review with security, performance, and architecture anal
 4. 🧹 **Code quality** - DRY, SOLID, error handling
 5. 🏗️ **Architecture** - Design patterns, scalability
 
-**Outputs:**
-- Executive summary with DEPLOY/FIX-FIRST/REDESIGN recommendation
-- Findings by severity (CRITICAL, HIGH, MEDIUM, LOW)
-- Quality scores (Security, Performance, Maintainability, Testing)
-- Prioritized action plan with effort estimates
+---
+
+#### `/deep-dive-analysis`
+
+Perform comprehensive codebase analysis with structure extraction and AI-powered semantic understanding.
+
+```
+/deep-dive-analysis src/core/
+```
+
+---
+
+## 🏗️ Comprehensive Review Plugin
+
+> Multi-agent code review orchestration with architecture, security, pattern analysis, and best practices across multiple phases.
+
+### 🤖 Agents
+
+#### `architect-review`
+
+Master software architect specializing in modern architecture patterns, clean architecture, microservices, event-driven systems, and DDD.
+
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Use for** | Architecture integrity, scalability review, design pattern assessment |
+
+**Invocation:**
+```
+Use the architect-review agent to review [system/design]
+```
+
+---
+
+#### `code-reviewer`
+
+Elite code review expert specializing in AI-powered code analysis, security vulnerabilities, performance optimization, and production reliability.
+
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Use for** | Code quality assurance, static analysis, configuration review |
+
+**Invocation:**
+```
+Use the code-reviewer agent to review [file/feature]
+```
+
+---
+
+#### `security-auditor`
+
+Expert security auditor specializing in DevSecOps, comprehensive cybersecurity, and compliance frameworks.
+
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Use for** | Security audits, DevSecOps, compliance (GDPR/HIPAA/SOC2), threat modeling |
+
+**Invocation:**
+```
+Use the security-auditor agent to audit [system/codebase]
+```
+
+**Expertise:**
+- Vulnerability assessment and threat modeling
+- OAuth2/OIDC secure authentication
+- OWASP standards and cloud security
+- Security automation and incident response
+
+---
+
+#### `pattern-quality-scorer`
+
+Pattern consistency analyzer and quantitative code quality scorer.
+
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Use for** | Pattern deviation detection, anti-pattern checklists, quality scoring |
+
+**Invocation:**
+```
+Use the pattern-quality-scorer agent to analyze [codebase]
+```
+
+**Methodology:**
+- 16-item anti-pattern checklist
+- 6 mental models (security engineer, performance engineer, team lead, systems architect, SRE, pattern detective)
+- 1-10 Code Quality Score per category
+
+---
+
+### ⚡ Commands
+
+#### `/full-review`
+
+Orchestrate comprehensive multi-dimensional code review using all specialized review agents.
+
+```
+/full-review src/features/auth/ --security-focus
+```
+
+**Options:**
+| Flag | Effect |
+|------|--------|
+| `--security-focus` | Prioritize security analysis |
+| `--performance-critical` | Deep performance review |
+| `--strict-mode` | Strictest quality standards |
+| `--framework react\|django` | Framework-specific checks |
+
+---
+
+#### `/pr-enhance`
+
+Optimize pull requests with comprehensive descriptions and review facilitation.
+
+```
+/pr-enhance
+```
 
 ---
 
@@ -546,9 +716,28 @@ Use the ui-ux-designer agent to design [feature/system]
 
 ---
 
+## 🎨 Frontend Design Plugin
+
+> Create distinctive, production-grade frontend interfaces with high design quality, avoiding generic AI aesthetics.
+
+### 🛠️ Skills
+
+#### `frontend-design`
+
+Create polished web components, pages, and applications with creative design that avoids generic AI output.
+
+| | |
+|---|---|
+| **Invoke** | Skill reference |
+| **Use for** | Web components, landing pages, UI design, production-grade interfaces |
+
+**Source:** Ported from [anthropics/claude-code](https://github.com/anthropics/claude-code) frontend-design plugin.
+
+---
+
 ## 🧠 AI Tooling Plugin
 
-> Prompt engineering and LLM optimization tools.
+> Prompt engineering, brainstorming, and planning workflows for AI-powered development.
 
 ### 🤖 Agents
 
@@ -575,6 +764,47 @@ Use the prompt-engineer agent to optimize [prompt/system]
 
 ---
 
+### 🛠️ Skills
+
+#### `brainstorming`
+
+Explore user intent, requirements, and design before any creative or implementation work.
+
+| | |
+|---|---|
+| **Invoke** | Skill reference |
+| **Use for** | Feature design, requirements exploration, creative ideation |
+
+**Source:** Ported from [obra/superpowers](https://github.com/obra/superpowers).
+
+---
+
+#### `writing-plans`
+
+Create structured implementation plans from specs or requirements before touching code.
+
+| | |
+|---|---|
+| **Invoke** | Skill reference |
+| **Use for** | Multi-step task planning, spec-to-plan conversion |
+
+**Source:** Ported from [obra/superpowers](https://github.com/obra/superpowers).
+
+---
+
+#### `executing-plans`
+
+Execute written implementation plans in a separate session with review checkpoints.
+
+| | |
+|---|---|
+| **Invoke** | Skill reference |
+| **Use for** | Plan execution, checkpoint reviews, staged implementation |
+
+**Source:** Ported from [obra/superpowers](https://github.com/obra/superpowers).
+
+---
+
 ### ⚡ Commands
 
 #### `/prompt-optimize`
@@ -590,18 +820,6 @@ Analyze and optimize prompts for better results, reduced token usage, and improv
 2. 🔍 **Issue detection** - Redundancy, ambiguity, missing constraints
 3. ✨ **Optimization** - Apply clarity, token reduction, structure patterns
 4. ✅ **Validation** - Compare metrics, test scenarios
-
-**Outputs:**
-- Current prompt analysis with scores (Clarity, Specificity, Token efficiency)
-- Optimized prompt with all improvements applied
-- Metrics comparison (before/after tokens, scores)
-- Recommendations for further improvement
-
-**Optimization patterns applied:**
-- 🎯 Clarity optimization (vague → specific)
-- ⚡ Token reduction (remove filler, compress)
-- 🔧 Structure improvement (Role, Task, Constraints, Format)
-- 🛡️ Reliability patterns (constraints, verification, fallbacks)
 
 ---
 
@@ -639,11 +857,6 @@ Complete Stripe API integration covering payments, subscriptions, Connect market
 | Report usage | `stripe.SubscriptionItem.create_usage_record()` |
 | Connect account | `stripe.Account.create(type="express")` |
 
-**Includes:**
-- 📜 Python utility scripts (customer management, webhooks, sync)
-- 🔥 Firebase integration reference
-- 📋 API cheatsheet
-
 **Prerequisites:**
 ```bash
 export STRIPE_SECRET_KEY="sk_test_..."
@@ -669,26 +882,6 @@ Monetization expert that analyzes codebases to discover features, calculate serv
 4. **Implement** - Build payment integration and checkout flows
 5. **Optimize** - Add conversion optimization and revenue tracking
 
-**Capabilities:**
-- 📊 **Feature Discovery** - Scan routes, components, services to build feature inventory
-- 💰 **Cost Mapping** - Calculate fixed, variable, and per-use costs from service integrations
-- 📈 **Usage Analysis** - Model user consumption patterns and set optimal tier limits
-- 🏷️ **Tier Design** - Create Free/Pro/Enterprise tiers with healthy margins
-- 📉 **Revenue Modeling** - Calculate ARPU, LTV, break-even, and 12-month projections
-
-**Output Example:**
-```
-═══════════════════════════════════════════════════════════
-                    PRICING STRATEGY REPORT
-═══════════════════════════════════════════════════════════
-📁 CODEBASE ANALYSIS - Services & Features discovered
-💰 COST BREAKDOWN - Fixed + Variable + Feature costs
-📊 USAGE PATTERN ANALYSIS - Distribution & tier limits
-📈 REVENUE MODEL - ARPU, LTV, break-even, projections
-🏷️ RECOMMENDED TIERS - Free, Pro, Business, Enterprise
-═══════════════════════════════════════════════════════════
-```
-
 **Key Metrics Calculated:**
 | Metric | Formula |
 |--------|---------|
@@ -696,12 +889,6 @@ Monetization expert that analyzes codebases to discover features, calculate serv
 | LTV | (ARPU × Margin) / Monthly Churn |
 | Break-even | Fixed Costs / (ARPU - Variable Cost) |
 | Optimal Price | (Cost Floor × 0.3) + (Value Ceiling × 0.7) |
-
-**Includes:**
-- 📜 Reference docs for pricing patterns, subscriptions, usage modeling
-- 🔥 Stripe integration patterns
-- ✅ Checkout optimization best practices
-- 📋 Implementation checklist
 
 ---
 
@@ -726,11 +913,6 @@ Personal organization assistant for maintaining clean, logical file structures.
 - 📁 **Suggest Structure** - Propose logical folder organization
 - 🤖 **Automate** - Move, rename, organize with approval
 - 🗑️ **Cleanup** - Identify old/unused files for archiving
-
-**Organization patterns:**
-- By type: Documents, Images, Videos, Archives, Code
-- By purpose: Work vs Personal, Active vs Archive
-- By date: Current year, Previous years, Old files
 
 ---
 
@@ -785,17 +967,6 @@ Expert legal advisor specializing in technology law, compliance, and risk mitiga
 | Employment | Agreements, NDAs, non-competes, IP assignments |
 | Corporate | Formation, governance, equity, M&A |
 
-**Workflow phases:**
-1. **Assessment** - Review business model, identify risks, audit compliance
-2. **Implementation** - Draft documents, implement policies, train stakeholders
-3. **Excellence** - Achieve comprehensive protection, continuous monitoring
-
-**Integration with other agents:**
-- Works with security-auditor on compliance
-- Guides HR on employment law
-- Assists data-engineer on privacy
-- Partners with executives on strategy
-
 ---
 
 ## ⚙️ Project Setup Plugin
@@ -817,43 +988,20 @@ Expert auditor for `.claude.md` files that verifies ground truth, detects obsole
 - ✅ **Ground Truth Verification** - Validates every claim against actual codebase
 - 🔍 **Obsolescence Detection** - Finds outdated file paths, dependencies, commands
 - 📏 **Best Practices Compliance** - Checks instruction economy, conciseness, progressive disclosure
-- 💬 **Interactive Workflow** - Asks questions when encountering ambiguities
 - ✏️ **Tailored Creation** - Generates .claude.md based on your preferences
 - 🔧 **Guided Improvement** - Helps prioritize and apply fixes incrementally
-
-**Verification categories:**
-| Category | What It Checks |
-|----------|---------------|
-| Tech Stack | Dependencies, versions, frameworks |
-| File Structure | Paths, directories, organization |
-| Workflows | Build, test, deployment commands |
-| Tools | Linters, formatters, CI/CD |
-| Architecture | Patterns, conventions, design |
 
 **Best practices enforced:**
 - Conciseness (<300 lines, ideally <100)
 - Instruction economy (~150-200 instruction budget)
 - Progressive disclosure (reference docs, don't embed)
 - Pointers over copies (reference files, not code)
-- No style policing (delegate to linters)
-- Universal applicability (only always-relevant guidance)
-
-**Anti-patterns detected:**
-- Factually incorrect information
-- Non-existent file references
-- Commands that don't work
-- Obsolete dependencies
-- Code duplication
-- Over-instruction
-- Vague guidance
 
 ### ⚡ Commands
 
 #### `/create-claude-md`
 
 Creates a new `.claude.md` file through interactive questionnaire about your workflow and preferences.
-
-**Output:** Tailored .claude.md file (<300 lines) with all claims verified against codebase.
 
 #### `/maintain-claude-md`
 
@@ -863,25 +1011,55 @@ Audits and optionally improves your existing `.claude.md` file with ground truth
 1. **Audit-only**: Review findings, no changes applied
 2. **Audit + improvements**: Fix issues with guided prioritization
 
-**Output:**
-- Audit-only: Comprehensive report with verified vs incorrect claims, obsolete information, and prioritized recommendations
-- With improvements: Updated .claude.md with user-approved changes, diff showing what changed, and verification commands
+---
 
-**Interactive workflow:**
+## 📖 Code Documentation Plugin
+
+> Technical documentation engineering with AI-powered codebase analysis and management.
+
+### 🤖 Agents
+
+#### `documentation-engineer`
+
+Expert documentation engineer that creates accurate technical documentation by analyzing existing code first. Uses bottom-up analysis to ensure documentation reflects reality.
+
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Use for** | API docs, architecture docs, tutorials, documentation management |
+
+**Invocation:**
 ```
-Agent: I've audited .claude.md. Found 3 critical issues, 5 high priority...
-       Would you like me to fix these issues?
-You:   Yes
+Use the documentation-engineer agent to document [codebase/feature]
+```
 
-Agent: Should I fix all critical issues?
-You:   Yes
+**Capabilities:**
+- Documentation-as-code workflows
+- API documentation generation
+- Architecture and design docs
+- Tutorials and onboarding guides
+- Documentation reorganization and compaction
 
-Agent: High priority issues found. Which should I prioritize?
-You:   Reduce length and remove code duplication
+---
 
-Agent: Here's the improved version (185 lines, was 450)
-       [Shows diff] Apply these changes?
-You:   Yes
+### ⚡ Commands
+
+#### `/docs-create`
+
+Create accurate documentation for specified targets using the documentation-engineer agent.
+
+```
+/docs-create src/api/
+```
+
+---
+
+#### `/docs-maintain`
+
+Audit and refactor existing documentation to ensure accuracy and completeness.
+
+```
+/docs-maintain docs/
 ```
 
 ---
@@ -894,7 +1072,7 @@ You:   Yes
 
 #### `or-tools-expert`
 
-Master constraint programmer specializing in modeling and solving complex optimization problems using Google OR-Tools CP-SAT, the state-of-the-art open-source solver for CSP and combinatorial optimization.
+Master constraint programmer specializing in modeling and solving complex optimization problems using Google OR-Tools CP-SAT.
 
 | | |
 |---|---|
@@ -916,48 +1094,6 @@ Master constraint programmer specializing in modeling and solving complex optimi
 | Routing | TSP, VRP, circuit problems |
 | Classic CSP | N-Queens, Sudoku, graph coloring |
 | Planning | Production planning, workforce optimization |
-
-**Key techniques:**
-- **Global Constraints**: `add_all_different`, `add_circuit`, `add_no_overlap`, `add_cumulative`
-- **Interval Variables**: For scheduling with start, duration, end
-- **Reification**: Conditional constraints with `only_enforce_if`
-- **Performance**: Tight domains, parallelism (`num_workers=0`), hints
-- **Advanced**: Solution enumeration, assumptions for debugging
-
-**Example workflow:**
-```python
-from ortools.sat.python import cp_model
-
-# Build model
-model = cp_model.CpModel()
-x = model.new_int_var(0, 100, 'x')
-y = model.new_int_var(0, 100, 'y')
-model.add(x + 2*y <= 100)
-model.maximize(x + y)
-
-# Solve with parallelism
-solver = cp_model.CpSolver()
-solver.parameters.num_workers = 0  # Use all cores
-status = solver.solve(model)
-
-if status == cp_model.OPTIMAL:
-    print(f'x={solver.value(x)}, y={solver.value(y)}')
-```
-
-**Best practices:**
-- ✅ Use tight variable domains (smallest realistic bounds)
-- ✅ Prefer global constraints over decomposed equivalents
-- ✅ Enable parallelism by default (`num_workers=0`)
-- ✅ Provide hints from heuristics to warm-start search
-- ✅ Break symmetries for interchangeable elements
-- ✅ Scale floats to integers (e.g., cents for money)
-
-**Comparison:**
-| vs | Advantage |
-|----|-----------|
-| MIP solvers | Better at scheduling, disjunctive logic, global constraints |
-| python-constraint | Production-grade performance, optimization, parallelism |
-| MiniZinc | Direct Python integration, no intermediate language |
 
 **Prerequisites:**
 ```bash
@@ -1065,13 +1201,97 @@ Develop a content strategy and marketing plan.
 
 ---
 
+## 📨 Messaging Plugin
+
+> Message broker expertise for RabbitMQ configuration, optimization, and high availability.
+
+### 🤖 Agents
+
+#### `rabbitmq-expert`
+
+Expert in RabbitMQ messaging, configuration, and optimization.
+
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Use for** | RabbitMQ setup, queue design, AMQP patterns, high availability, performance tuning |
+
+**Invocation:**
+```
+Use the rabbitmq-expert agent to [design/configure/optimize] [messaging system]
+```
+
+---
+
+## 🔎 Research Plugin
+
+> Advanced search and information retrieval specialist for precise knowledge discovery.
+
+### 🤖 Agents
+
+#### `search-specialist`
+
+Expert search specialist for advanced information retrieval, query optimization, and knowledge discovery across diverse sources.
+
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Use for** | Information retrieval, query optimization, web search, codebase search |
+
+**Invocation:**
+```
+Use the search-specialist agent to research [topic/question]
+```
+
+---
+
+## 📱 Mobile Development Plugin
+
+> Automated competitive analysis of Android mobile apps via ADB.
+
+### 🛠️ Skills
+
+#### `analyze-mobile-app`
+
+Mobile app competitive analyzer with automated ADB-based navigation, screenshot capture, and report generation.
+
+| | |
+|---|---|
+| **Invoke** | Skill reference |
+| **Use for** | Competitor app analysis, UX/UI documentation, mobile app research |
+
+**Capabilities:**
+- Navigate Android apps via ADB
+- Capture and annotate screenshots
+- Document UX/UI patterns
+- Generate comprehensive analysis reports
+
+---
+
+## 🔷 TypeScript Development Plugin
+
+> TypeScript and JavaScript development with Metabase coding standards.
+
+### 🛠️ Skills
+
+#### `typescript-write`
+
+Write TypeScript and JavaScript code following Metabase coding standards and best practices.
+
+| | |
+|---|---|
+| **Invoke** | Skill reference |
+| **Use for** | TypeScript/JavaScript development, code refactoring, coding standards |
+
+---
+
 ## 💡 Usage Examples
 
 ### 🐍 Python Development Workflow
 ```
 1️⃣ /python-scaffold FastAPI microservice
 2️⃣ Implement features with python-pro agent
-3️⃣ /python-refactor on complex modules
+3️⃣ /python-full-refactor on complex modules
 4️⃣ Use python-testing-patterns for test coverage
 ```
 
@@ -1079,8 +1299,17 @@ Develop a content strategy and marketing plan.
 ```
 1️⃣ /senior-code-review src/features/auth/
 2️⃣ Address CRITICAL and HIGH issues first
-3️⃣ /python-refactor on flagged modules
+3️⃣ /python-full-refactor on flagged modules
 4️⃣ Use react-performance-optimizer for React-specific issues
+```
+
+### 🏗️ Comprehensive Review Workflow
+```
+1️⃣ /full-review src/ --security-focus
+2️⃣ architect-review checks design patterns and scalability
+3️⃣ security-auditor runs OWASP and compliance checks
+4️⃣ pattern-quality-scorer generates quality scores
+5️⃣ Review consolidated findings and action plan
 ```
 
 ### 🦀 Tauri App Optimization
@@ -1090,10 +1319,17 @@ Develop a content strategy and marketing plan.
 3️⃣ Use ui-polisher for animations and polish
 ```
 
+### 🧠 AI-Assisted Planning
+```
+1️⃣ Use brainstorming skill to explore requirements
+2️⃣ Use writing-plans skill to create implementation plan
+3️⃣ Use executing-plans skill to implement with checkpoints
+```
+
 ### 🔧 Legacy Code Modernization
 ```
 1️⃣ /deep-dive-analysis to understand codebase
-2️⃣ /python-refactor on legacy modules
+2️⃣ /python-full-refactor on legacy modules
 3️⃣ Use python-testing-patterns to add test coverage
 4️⃣ Use senior-code-reviewer before merge
 ```
@@ -1141,17 +1377,30 @@ alfio-claude-plugins/
 │   │   │   ├── python-performance-optimization/
 │   │   │   ├── async-python-patterns/
 │   │   │   ├── python-packaging/
-│   │   │   └── uv-package-manager/
+│   │   │   ├── uv-package-manager/
+│   │   │   └── python-comments/
 │   │   └── commands/
 │   │       ├── python-scaffold.md
-│   │       └── python-refactor.md
+│   │       ├── python-full-refactor.md
+│   │       └── humanize-python-code.md
 │   ├── code-review/
 │   │   ├── agents/
-│   │   │   └── senior-code-reviewer.md
+│   │   │   ├── senior-code-reviewer.md
+│   │   │   └── humanize.md
 │   │   ├── skills/
 │   │   │   └── deep-dive-analysis/
 │   │   └── commands/
-│   │       └── senior-code-review.md
+│   │       ├── senior-code-review.md
+│   │       └── deep-dive-analysis.md
+│   ├── comprehensive-review/
+│   │   ├── agents/
+│   │   │   ├── architect-review.md
+│   │   │   ├── code-reviewer.md
+│   │   │   ├── security-auditor.md
+│   │   │   └── pattern-quality-scorer.md
+│   │   └── commands/
+│   │       ├── full-review.md
+│   │       └── pr-enhance.md
 │   ├── tauri-development/
 │   │   ├── agents/
 │   │   │   ├── tauri-optimizer.md
@@ -1163,52 +1412,64 @@ alfio-claude-plugins/
 │   │       ├── react-performance-optimizer.md
 │   │       ├── ui-polisher.md
 │   │       └── ui-ux-designer.md
+│   ├── frontend-design/
+│   │   └── skills/
+│   │       └── frontend-design/
 │   ├── ai-tooling/
 │   │   ├── agents/
 │   │   │   └── prompt-engineer.md
+│   │   ├── skills/
+│   │   │   ├── brainstorming/
+│   │   │   ├── writing-plans/
+│   │   │   └── executing-plans/
 │   │   └── commands/
 │   │       └── prompt-optimize.md
 │   ├── stripe/
 │   │   └── skills/
 │   │       ├── stripe-agent/
-│   │       │   ├── SKILL.md
-│   │       │   ├── scripts/
-│   │       │   │   ├── stripe_utils.py
-│   │       │   │   ├── webhook_handler.py
-│   │       │   │   ├── sync_subscriptions.py
-│   │       │   │   └── setup_products.py
-│   │       │   └── references/
-│   │       │       ├── firebase-integration.md
-│   │       │       └── api-cheatsheet.md
 │   │       └── revenue-optimizer/
-│   │           ├── SKILL.md
-│   │           └── references/
-│   │               ├── pricing-patterns.md
-│   │               ├── stripe.md
-│   │               ├── cost-analysis.md
-│   │               ├── subscription-patterns.md
-│   │               ├── usage-revenue-modeling.md
-│   │               └── checkout-optimization.md
 │   ├── utilities/
 │   │   ├── skills/
 │   │   │   └── file-organizer/
-│   │   │       └── SKILL.md
 │   │   └── commands/
 │   │       └── organize-files.md
 │   ├── business/
 │   │   └── skills/
 │   │       └── legal-advisor/
-│   │           └── SKILL.md
+│   ├── project-setup/
+│   │   ├── agents/
+│   │   │   └── claude-md-auditor.md
+│   │   └── commands/
+│   │       ├── create-claude-md.md
+│   │       └── maintain-claude-md.md
+│   ├── code-documentation/
+│   │   ├── agents/
+│   │   │   └── documentation-engineer.md
+│   │   └── commands/
+│   │       ├── docs-create.md
+│   │       └── docs-maintain.md
 │   ├── csp/
 │   │   └── agents/
 │   │       └── or-tools-expert.md
-│   └── digital-marketing/
-│       ├── agents/
-│       │   ├── seo-specialist.md
-│       │   └── content-marketer.md
-│       └── commands/
-│           ├── seo-audit.md
-│           └── content-strategy.md
+│   ├── digital-marketing/
+│   │   ├── agents/
+│   │   │   ├── seo-specialist.md
+│   │   │   └── content-marketer.md
+│   │   └── commands/
+│   │       ├── seo-audit.md
+│   │       └── content-strategy.md
+│   ├── messaging/
+│   │   └── agents/
+│   │       └── rabbitmq-expert.md
+│   ├── research/
+│   │   └── agents/
+│   │       └── search-specialist.md
+│   ├── mobile-development/
+│   │   └── skills/
+│   │       └── analyze-mobile-app/
+│   └── typescript-development/
+│       └── skills/
+│           └── typescript-write/
 ├── LICENSE
 └── README.md
 ```
@@ -1264,4 +1525,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-**📊 Total:** 🤖 17 Agents | 🛠️ 14 Skills | ⚡ 14 Commands
+**📊 Total:** 🤖 22 Agents | 🛠️ 19 Skills | ⚡ 15 Commands across 18 plugins
