@@ -15,7 +15,7 @@ You MUST follow these rules exactly. Violating any of them is a failure.
 4. **Halt on failure.** If any step fails (agent error, missing files, access issues), STOP immediately. Present the error and ask the user how to proceed. Do NOT silently continue.
 5. **Never enter plan mode autonomously.** Do NOT use EnterPlanMode. This command IS the plan -- execute it.
 6. **Phase 6 runs 3 agents in parallel.** Fire all three agents in a single response using multiple Task tool calls.
-7. **HTML report is mandatory.** Phase 6 MUST produce `.frontend-redesign/report.html` -- a self-contained visual dashboard.
+7. **Markdown report is mandatory.** Phase 6 MUST produce `.frontend-redesign/report.md` -- an actionable checklist with scores, findings, and fix instructions.
 
 ## Pre-flight Checks
 
@@ -557,350 +557,79 @@ Task:
     ```
 ```
 
-### Generate HTML Report
+### Generate Markdown Report
 
-After all agents complete, create `.frontend-redesign/report.html` — a self-contained visual dashboard.
+After all agents complete, create `.frontend-redesign/report.md` — an actionable checklist.
 
-Use this exact HTML template and design system:
+Merge and deduplicate overlapping findings. Group by category (UX, Layout, CSS). Order by severity.
 
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Frontend Redesign Audit — [date]</title>
-  <style>
-    :root {
-      --c-bg: #0f1117;
-      --c-surface: #1a1d27;
-      --c-surface-2: #22263a;
-      --c-border: #2a2d3a;
-      --c-text: #e2e8f0;
-      --c-muted: #8892a4;
-      --c-critical: #ef4444;
-      --c-high: #f97316;
-      --c-medium: #eab308;
-      --c-low: #3b82f6;
-      --c-good: #22c55e;
-      --c-accent: #8b5cf6;
-      --c-ux: #06b6d4;
-      --c-layout: #f59e0b;
-      --c-css: #ec4899;
-      --radius: 10px;
-    }
+**Output file:** `.frontend-redesign/report.md`
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+```markdown
+# Frontend Redesign Audit — [date]
 
-    body {
-      background: var(--c-bg);
-      color: var(--c-text);
-      font-family: 'Inter', system-ui, sans-serif;
-      font-size: 14px;
-      line-height: 1.6;
-      padding: 40px 28px;
-      max-width: 1020px;
-      margin: 0 auto;
-    }
+Full redesign pipeline audit · [N] components · [M] stylesheets
 
-    header { margin-bottom: 36px; }
-    header h1 { font-size: 26px; font-weight: 800; color: #fff; letter-spacing: -.02em; }
-    .subtitle { color: var(--c-muted); margin-top: 6px; font-size: 13px; }
-    .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
-    .tag {
-      font-size: 11px; padding: 3px 9px; border-radius: 99px;
-      border: 1px solid var(--c-border); background: var(--c-surface); color: var(--c-muted);
-      font-family: monospace;
-    }
+## Scores
 
-    .legend { display: flex; gap: 20px; margin-bottom: 28px; flex-wrap: wrap; }
-    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--c-muted); }
-    .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+| Category | Score |
+|----------|-------|
+| UX Quality | X/10 |
+| Layout System | X/10 |
+| CSS Architecture | X/10 |
+| Accessibility | X/10 |
+| Typography | X/10 |
+| **Overall** | **X/10** |
 
-    .scores {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 14px;
-      margin-bottom: 36px;
-    }
-    .score-card {
-      background: var(--c-surface);
-      border: 1px solid var(--c-border);
-      border-radius: var(--radius);
-      padding: 22px 18px 18px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-    .score-card::before {
-      content: '';
-      position: absolute; top: 0; left: 0; right: 0;
-      height: 3px;
-    }
-    .score-card.cat-ux::before     { background: var(--c-ux); }
-    .score-card.cat-layout::before { background: var(--c-layout); }
-    .score-card.cat-css::before    { background: var(--c-css); }
-    .score-card.cat-overall::before { background: var(--c-accent); }
-    .score-card .label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--c-muted); margin-bottom: 10px; }
-    .score-card .value { font-size: 42px; font-weight: 900; line-height: 1; }
-    .score-card .sub  { font-size: 12px; color: var(--c-muted); margin-top: 4px; }
-    .score-card .gauge { margin-top: 12px; height: 5px; border-radius: 99px; background: var(--c-border); overflow: hidden; }
-    .score-card .gauge-fill { height: 100%; border-radius: 99px; }
-    .score-good   .value, .score-good   .gauge-fill { color: var(--c-good);     background: var(--c-good); }
-    .score-mid    .value, .score-mid    .gauge-fill { color: var(--c-medium);   background: var(--c-medium); }
-    .score-bad    .value, .score-bad    .gauge-fill { color: var(--c-critical); background: var(--c-critical); }
-    .cat-overall .value { color: #c4b5fd; }
-    .cat-overall .gauge-fill { background: var(--c-accent); }
+Critical: X | High: X | Medium: X | Low: X
 
-    .pillrow { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
-    .pill {
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 5px 14px; border-radius: 99px;
-      font-size: 13px; font-weight: 600;
-    }
-    .pill.critical { background: rgba(239,68,68,.12); color: var(--c-critical); border: 1px solid rgba(239,68,68,.3); }
-    .pill.high     { background: rgba(249,115,22,.12); color: var(--c-high);     border: 1px solid rgba(249,115,22,.3); }
-    .pill.medium   { background: rgba(234,179,8,.12);  color: var(--c-medium);   border: 1px solid rgba(234,179,8,.3); }
-    .pill.low      { background: rgba(59,130,246,.12); color: var(--c-low);      border: 1px solid rgba(59,130,246,.3); }
+## Before vs After Redesign
 
-    .tabs { display: flex; gap: 2px; margin-bottom: 20px; border-bottom: 1px solid var(--c-border); }
-    .tab {
-      padding: 8px 16px; font-size: 13px; font-weight: 500; cursor: pointer;
-      color: var(--c-muted); border-bottom: 2px solid transparent;
-      background: none; border-top: none; border-left: none; border-right: none;
-      margin-bottom: -1px; transition: color .15s;
-    }
-    .tab.active { color: #fff; border-bottom-color: var(--c-accent); }
+| Metric | Before (Phase 1) | After (Phase 6) |
+|--------|-------------------|------------------|
+| UX Score | X/10 | Y/10 |
+| Layout Score | X/10 | Y/10 |
+| CSS Score | X/10 | Y/10 |
+| Critical Issues | X | Y |
 
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
+## Remaining Critical & High Issues
 
-    .section { margin-bottom: 28px; }
-    .section-title {
-      font-size: 14px; font-weight: 600; color: var(--c-muted);
-      text-transform: uppercase; letter-spacing: .06em;
-      margin-bottom: 12px;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .section-title .cnt {
-      font-size: 12px; font-weight: 500; color: var(--c-muted);
-      background: var(--c-surface); border: 1px solid var(--c-border);
-      border-radius: 99px; padding: 1px 8px;
-    }
+### UX & Components
 
-    .finding {
-      background: var(--c-surface);
-      border: 1px solid var(--c-border);
-      border-left: 3px solid transparent;
-      border-radius: var(--radius);
-      padding: 14px 16px;
-      margin-bottom: 10px;
-    }
-    .finding.critical { border-left-color: var(--c-critical); }
-    .finding.high     { border-left-color: var(--c-high); }
-    .finding.medium   { border-left-color: var(--c-medium); }
-    .finding.low      { border-left-color: var(--c-low); }
+#### `Component.tsx` — [issue title]
+- **Severity**: Critical
+- **Issue**: [description]
+- **Fix**: [concrete fix instruction]
+- [ ] Fixed
 
-    .finding-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
-    .badge {
-      font-size: 10px; font-weight: 700; padding: 2px 7px;
-      border-radius: 4px; text-transform: uppercase; letter-spacing: .05em;
-    }
-    .badge.critical { background: rgba(239,68,68,.15); color: var(--c-critical); }
-    .badge.high     { background: rgba(249,115,22,.15); color: var(--c-high); }
-    .badge.medium   { background: rgba(234,179,8,.15);  color: var(--c-medium); }
-    .badge.low      { background: rgba(59,130,246,.15); color: var(--c-low); }
-    .badge.cat-ux     { background: rgba(6,182,212,.1);   color: #67e8f9; }
-    .badge.cat-layout { background: rgba(245,158,11,.1);  color: #fcd34d; }
-    .badge.cat-css    { background: rgba(236,72,153,.1);  color: #f9a8d4; }
+### Layout & Spacing
 
-    .file-ref { font-family: monospace; font-size: 11px; color: var(--c-muted); }
-    .finding-text { color: var(--c-text); margin-bottom: 8px; }
-    .fix-box {
-      background: rgba(34,197,94,.07);
-      border: 1px solid rgba(34,197,94,.18);
-      border-radius: 6px;
-      padding: 8px 12px;
-      font-size: 12px; color: #86efac;
-    }
-    .fix-box b { font-weight: 600; }
+#### `Layout.tsx` — [issue title]
+- **Severity**: High
+- **Issue**: [description]
+- **Fix**: [fix instruction]
+- [ ] Fixed
 
-    .positives-box {
-      background: rgba(34,197,94,.05);
-      border: 1px solid rgba(34,197,94,.18);
-      border-radius: var(--radius);
-      padding: 20px;
-      margin-bottom: 28px;
-    }
-    .positives-box h3 { color: var(--c-good); font-size: 14px; font-weight: 600; margin-bottom: 10px; }
-    .positives-box ul { padding-left: 18px; }
-    .positives-box li { color: #bbf7d0; margin-bottom: 4px; }
+### CSS Architecture
 
-    .action-plan {
-      background: var(--c-surface);
-      border: 1px solid var(--c-border);
-      border-radius: var(--radius);
-      padding: 20px;
-      margin-bottom: 36px;
-    }
-    .action-plan h3 { font-size: 15px; font-weight: 600; margin-bottom: 14px; }
-    .action-item {
-      display: flex; gap: 12px;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--c-border);
-    }
-    .action-item:last-child { border-bottom: none; padding-bottom: 0; }
-    .action-num {
-      flex-shrink: 0;
-      width: 24px; height: 24px; border-radius: 50%;
-      background: var(--c-accent); color: #fff;
-      font-size: 12px; font-weight: 700;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .action-text { font-size: 13px; }
+#### `styles.css` — [issue title]
+- **Severity**: High
+- **Issue**: [description]
+- **Fix**: [fix instruction]
+- [ ] Fixed
 
-    /* REDESIGN-SPECIFIC: Before/After comparison */
-    .comparison {
-      background: var(--c-surface);
-      border: 1px solid var(--c-border);
-      border-radius: var(--radius);
-      padding: 20px;
-      margin-bottom: 28px;
-    }
-    .comparison h3 { font-size: 15px; font-weight: 600; margin-bottom: 14px; }
-    .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .comparison-col h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--c-muted); margin-bottom: 8px; }
-    .comparison-col.before { border-right: 1px solid var(--c-border); padding-right: 16px; }
-    .comparison-item { font-size: 13px; margin-bottom: 6px; }
-    .comparison-item .old { color: var(--c-critical); text-decoration: line-through; }
-    .comparison-item .new { color: var(--c-good); }
+## Medium & Low Issues
+[Same format, grouped by category]
 
-    footer {
-      border-top: 1px solid var(--c-border);
-      padding-top: 18px;
-      font-size: 11px; color: var(--c-muted);
-    }
+## What's Working Well
+- [positive observations from all agents]
 
-    @media print {
-      body { background: #fff; color: #111; }
-      .finding, .score-card { border-color: #ccc; }
-      .tab-content { display: block !important; }
-      .tabs { display: none; }
-    }
-  </style>
-  <script>
-    function switchTab(tabId, btn) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-      document.getElementById(tabId).classList.add('active');
-      btn.classList.add('active');
-    }
-  </script>
-</head>
-<body>
-
-<header>
-  <h1>Frontend Redesign Audit</h1>
-  <div class="subtitle">Full redesign pipeline audit · [DATE] · [N] components · [M] stylesheets</div>
-  <div class="tag-row">
-    <!-- one .tag per key scanned directory/file -->
-  </div>
-</header>
-
-<div class="legend">
-  <div class="legend-item"><div class="legend-dot" style="background:var(--c-ux)"></div> UX & Components</div>
-  <div class="legend-item"><div class="legend-dot" style="background:var(--c-layout)"></div> Layout & Spacing</div>
-  <div class="legend-item"><div class="legend-dot" style="background:var(--c-css)"></div> CSS Architecture</div>
-</div>
-
-<!-- SCORES -->
-<div class="scores">
-  <!-- Populate: score-good for 8-10, score-mid for 5-7, score-bad for 1-4 -->
-  <!-- Categories: UX Quality, Layout System, CSS Architecture, Accessibility, Typography, Overall -->
-</div>
-
-<!-- SEVERITY SUMMARY -->
-<div class="pillrow">
-  <span class="pill critical">● X Critical</span>
-  <span class="pill high">● X High</span>
-  <span class="pill medium">● X Medium</span>
-  <span class="pill low">● X Low</span>
-</div>
-
-<!-- BEFORE/AFTER COMPARISON -->
-<div class="comparison">
-  <h3>Before vs After Redesign</h3>
-  <div class="comparison-grid">
-    <div class="comparison-col before">
-      <h4>Before</h4>
-      <!-- Key metrics/issues from Phase 1 audit -->
-    </div>
-    <div class="comparison-col">
-      <h4>After</h4>
-      <!-- Improvements from Phases 3-5 -->
-    </div>
-  </div>
-</div>
-
-<!-- TABBED FINDINGS -->
-<div class="tabs">
-  <button class="tab active" onclick="switchTab('tab-all', this)">All Findings</button>
-  <button class="tab" onclick="switchTab('tab-ux', this)">UX & Components</button>
-  <button class="tab" onclick="switchTab('tab-layout', this)">Layout & Spacing</button>
-  <button class="tab" onclick="switchTab('tab-css', this)">CSS Architecture</button>
-</div>
-
-<div id="tab-all" class="tab-content active">
-  <!-- All findings from all agents, organized by severity -->
-</div>
-
-<div id="tab-ux" class="tab-content">
-  <!-- UX-only findings -->
-</div>
-
-<div id="tab-layout" class="tab-content">
-  <!-- Layout-only findings -->
-</div>
-
-<div id="tab-css" class="tab-content">
-  <!-- CSS-only findings -->
-</div>
-
-<!-- POSITIVES -->
-<div class="positives-box">
-  <h3>What's Working Well</h3>
-  <ul>
-    <!-- Positives from all agents -->
-  </ul>
-</div>
-
-<!-- ACTION PLAN -->
-<div class="action-plan">
-  <h3>Remaining Action Items</h3>
-  <!-- Top 5 remaining improvements from the audit -->
-</div>
-
-<footer>
-  Generated by /frontend-redesign · workflows plugin · [TIMESTAMP]
-</footer>
-
-</body>
-</html>
-```
-
-**Populate the report:**
-- Score classes: `score-good` for 8-10, `score-mid` for 5-7, `score-bad` for 1-4
-- Category badge classes: `cat-ux`, `cat-layout`, `cat-css`
-- Comparison section: key before/after metrics from Phase 1 vs Phase 6 audits
-- Tab sections: duplicate relevant findings into each tab
-- Action plan: ordered list of top 5 remaining improvements
-
-**Open the file:**
-
-```bash
-start .frontend-redesign/report.html     # Windows
-open .frontend-redesign/report.html      # macOS
-xdg-open .frontend-redesign/report.html  # Linux
+## Remaining Action Items
+1. [ ] [top priority remaining fix]
+2. [ ] [second priority]
+3. [ ] [third priority]
+4. [ ] [fourth priority]
+5. [ ] [fifth priority]
 ```
 
 Update `state.json`: set `status` to `"complete"`, `last_updated` to current timestamp.
@@ -921,7 +650,7 @@ Frontend redesign pipeline complete for: $ARGUMENTS
 - Implementation Log: .frontend-redesign/03-implementation-log.md
 - Performance: .frontend-redesign/04-performance.md
 - Polish Log: .frontend-redesign/05-polish-log.md
-- HTML Report: .frontend-redesign/report.html
+- Audit Report: .frontend-redesign/report.md
 
 ## Summary
 Overall Score: X/10

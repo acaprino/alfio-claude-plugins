@@ -332,40 +332,29 @@ Write and audit Python code comments using antirez's 9-type taxonomy.
 
 #### `/python-scaffold`
 
-Generate production-ready Python project structures.
+Scaffold production-ready Python projects with modern tooling. Presents plan and confirms before writing files.
 
 ```
 /python-scaffold FastAPI REST API for user management
 ```
 
-**Project types:**
-- FastAPI (APIs, microservices)
-- Django (full-stack web apps)
-- Library (reusable packages)
-- CLI (command-line tools)
+**Project types:** FastAPI, Django, Library, CLI, Generic
 
-**Generates:**
-- Complete directory structure
-- pyproject.toml with dependencies
-- pytest configuration
-- Makefile with common tasks
-- .env.example and .gitignore
+**Generates:** Directory structure, pyproject.toml, pytest config, Makefile, .env.example, .gitignore. Verifies with `uv sync` + `pytest` after scaffolding.
 
 ---
 
 #### `/python-full-refactor`
 
-Execute comprehensive 4-phase systematic refactoring workflow on target code.
+Metrics-driven 4-phase refactoring with checkpoint approval before execution and persistent output files.
 
 ```
 /python-full-refactor src/legacy_module.py
 ```
 
-**Outputs:**
-- Pre-refactoring analysis report
-- Prioritized issue list
-- Refactoring plan with risk assessment
-- Post-refactoring metrics comparison
+**Phases:** Analysis → Planning → (Checkpoint) → Execution → Validation
+
+**Output:** `.python-refactor/` directory with analysis, plan, execution log, and validation report.
 
 ---
 
@@ -463,11 +452,13 @@ AI-powered systematic codebase analysis combining structure extraction with sema
 
 #### `/deep-dive-analysis`
 
-Perform comprehensive codebase analysis with structure extraction and AI-powered semantic understanding.
+7-phase systematic codebase analysis with state management, output files, and phased execution: structure → interfaces → flows → semantics → risks → documentation → report.
 
 ```
-/deep-dive-analysis src/core/
+/deep-dive-analysis src/core/ --critical
 ```
+
+**Output:** `.deep-dive/` directory with 7 phase files and a final consolidated report.
 
 ---
 
@@ -564,16 +555,16 @@ Review code changes made in the current Claude Code session by analyzing git dif
 /review-changes --security-focus
 ```
 
-Runs focused architecture, security, and pattern analysis on changed files only. Skips documentation files.
+Auto-detects uncommitted changes or recent commits, confirms scope with user, then runs focused architecture, security, and pattern analysis in parallel. Skips documentation files.
 
 ---
 
 #### `/pr-enhance`
 
-Optimize pull requests with comprehensive descriptions and review facilitation.
+Analyze current branch changes, generate comprehensive PR description with risk assessment and review checklist, and optionally create the PR via `gh`.
 
 ```
-/pr-enhance
+/pr-enhance --create
 ```
 
 ---
@@ -749,13 +740,13 @@ Specialized knowledge for writing modern high-quality CSS.
 
 #### `/review-frontend-changes`
 
-Review frontend code changes made in the current session — React, performance, UX, CSS — and output a visual HTML report.
+Review frontend code changes made in the current session — React, performance, UX, CSS — and output an actionable markdown report.
 
 ```
 /review-frontend-changes --framework react
 ```
 
-**Output:** `.frontend-review/report.html` — visual, color-coded, openable in a browser.
+**Output:** `.frontend-review/report.md` — actionable checklist with scores, findings, and fix instructions.
 
 ---
 
@@ -767,7 +758,7 @@ Full design, layout, and CSS audit of the entire frontend — UX patterns, compo
 /review-design src/ --framework react
 ```
 
-**Output:** `.design-review/report.html` — visual, color-coded, openable in a browser.
+**Output:** `.design-review/report.md` — actionable checklist with scores, grouped by category (UX, Layout, CSS).
 
 ---
 
@@ -864,17 +855,13 @@ Execute written implementation plans in a separate session with review checkpoin
 
 #### `/prompt-optimize`
 
-Analyze and optimize prompts for better results, reduced token usage, and improved reliability.
+Analyze, score, and optimize prompts for LLMs — evaluates clarity, specificity, structure, token efficiency, robustness, and output control. Shows before/after comparison.
 
 ```
-/prompt-optimize "You are a helpful assistant that..."
+/prompt-optimize "You are a helpful assistant that..." --optimize-for tokens
 ```
 
-**Optimization phases:**
-1. **Analysis** - Parse structure, count tokens, detect patterns
-2. **Issue detection** - Redundancy, ambiguity, missing constraints
-3. **Optimization** - Apply clarity, token reduction, structure patterns
-4. **Validation** - Compare metrics, test scenarios
+**Phases:** Analyze (6-dimension scorecard) → Optimize → Compare (before/after scores + token count)
 
 ---
 
@@ -1101,10 +1088,10 @@ Use the documentation-engineer agent to document [codebase/feature]
 
 #### `/docs-create`
 
-Create accurate documentation for specified targets using the documentation-engineer agent.
+Analyze code bottom-up and generate accurate documentation — API reference, architecture guides, or full project docs. Confirms scope before generating.
 
 ```
-/docs-create src/api/
+/docs-create src/api/ --api-only
 ```
 
 ---
@@ -1222,37 +1209,29 @@ Use the content-marketer agent to [plan/create/optimize] [content/campaign]
 
 #### `/seo-audit`
 
-Perform a comprehensive SEO audit and optimization analysis.
+5-phase technical SEO audit with Playwright analysis, scoring, checkpoint before fixes, and persistent report.
 
 ```
 /seo-audit https://example.com
 ```
 
-**Examples:**
-| Command | Action |
-|---------|--------|
-| `/seo-audit https://example.com` | Full technical SEO audit |
-| `/seo-audit src/pages` | Audit page structure for SEO |
-| `/seo-audit --keywords "react tutorial"` | Keyword research and analysis |
-| `/seo-audit --schema` | Structured data recommendations |
+**Phases:** Discovery → Technical Audit → Score → (Checkpoint) → Fix → Report
+
+**Output:** `.seo-audit/` directory with discovery, audit, scorecard, fixes, and final report.
 
 ---
 
 #### `/content-strategy`
 
-Develop a content strategy and marketing plan.
+Marketing and conversion audit using 3 parallel agents (UX/Conversion, Content/Copy, Social/Visual) with checkpoint before changes and persistent report.
 
 ```
-/content-strategy "B2B SaaS product launch"
+/content-strategy https://example.com
 ```
 
-**Examples:**
-| Command | Action |
-|---------|--------|
-| `/content-strategy "product launch"` | Full content strategy |
-| `/content-strategy --audit src/blog` | Audit existing content |
-| `/content-strategy --calendar Q1 2026` | Generate editorial calendar |
-| `/content-strategy --competitor "site.com"` | Competitive content analysis |
+**Phases:** Scope → Parallel Audit (3 agents) → Synthesis → (Checkpoint) → Apply → Report
+
+**Output:** `.content-strategy/` directory with scope, audit, plan, changes, and final report.
 
 ---
 
@@ -1359,14 +1338,14 @@ End-to-end feature pipeline: brainstorm design, write implementation plan, execu
 
 #### `/frontend-redesign`
 
-Full frontend redesign pipeline: UX audit, layout system design, implementation, React performance optimization, UI polish, and final design audit with visual HTML report.
+Full frontend redesign pipeline: UX audit, layout system design, implementation, React performance optimization, UI polish, and final design audit with visual report.
 
 | | |
 |---|---|
 | **Invoke** | `/frontend-redesign <target path> [--framework react\|vue\|svelte] [--skip-performance] [--strict-mode]` |
 | **Pipeline** | ui-ux-designer → ui-layout-designer → frontend-design → react-performance-optimizer → ui-polisher → design audit |
 | **Checkpoints** | After layout spec and polish phases |
-| **Output** | `.frontend-redesign/report.html` — dark-theme visual dashboard |
+| **Output** | `.frontend-redesign/report.md` — actionable checklist with before/after comparison |
 | **Dependencies** | frontend, frontend-design plugins |
 
 #### `/mobile-intel`
@@ -1416,9 +1395,9 @@ End-to-end Tauri 2 desktop app pipeline: Rust backend review, Tauri IPC optimiza
 
 ### Quick Session Review
 ```
-1. /review-changes — review code changes from current session
-2. /review-frontend-changes — review frontend changes with HTML report
-3. /review-design src/ — full design audit with HTML report
+1. /review-changes — review uncommitted changes or recent commits
+2. /review-frontend-changes — review frontend changes with markdown report
+3. /review-design src/ — full design audit with markdown report
 ```
 
 ### Tauri App Optimization
