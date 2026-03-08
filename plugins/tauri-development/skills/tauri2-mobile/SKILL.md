@@ -115,6 +115,8 @@ fn greet(name: &str) -> String {
 | Deep link not received | Check scheme in tauri.conf.json, init plugin |
 | Safe area CSS fails on Android | `env()` not supported in WebView; use JS fallback |
 | Windows APK build symlink error | Enable Developer Mode or copy .so files manually |
+| Stale content after rebuild | .so compiled in dev mode embeds old assets; rebuild with `tauri android build --debug` or apply Kotlin workaround (see build-deploy.md) |
+| OpenSSL cross-compile fails on Windows | Install Strawberry Perl for vendored OpenSSL; see build-deploy.md |
 
 See [references/testing.md](references/testing.md) for detailed troubleshooting.
 

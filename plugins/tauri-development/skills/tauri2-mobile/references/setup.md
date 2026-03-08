@@ -34,6 +34,10 @@ $env:ANDROID_HOME = "$env:LOCALAPPDATA\Android\Sdk"
 $env:NDK_HOME = "$env:ANDROID_HOME\ndk\<version>"
 ```
 
+**Windows: Strawberry Perl (if using `reqwest` with `native-tls`):**
+
+If your Rust dependencies include `reqwest` with the `native-tls` feature, cross-compiling for Android requires OpenSSL. The vendored `openssl-src` crate needs a full Perl installation -- Git Bash's built-in Perl is insufficient. Install [Strawberry Perl](https://strawberryperl.com/) and ensure it is in your PATH before running `tauri android build`.
+
 **Rust targets:**
 ```bash
 rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
