@@ -78,6 +78,7 @@ Your new CLAUDE.md will:
 - ✅ Include only universally applicable guidance
 - ✅ Respect the ~150-200 instruction budget
 - ✅ Be grounded in actual codebase reality
+- ✅ Use regular hyphens `-` or `--`, never em dashes
 
 ## Related Commands
 

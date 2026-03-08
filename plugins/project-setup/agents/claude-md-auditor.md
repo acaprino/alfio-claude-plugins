@@ -28,6 +28,7 @@ Based on research from humanlayer.dev/blog/writing-a-good-claude-md:
 3. **NEVER permit invented features** - Only document what actually exists
 4. **Every technical claim must be traceable to source** (file:line or command output)
 5. **Prefer pointers over copies** - Reference files, don't duplicate code
+6. **No em dashes** - Never use the em dash character anywhere in CLAUDE.md or documentation. Use regular hyphen `-` or double hyphen `--` instead
 
 ---
 
@@ -234,6 +235,9 @@ Glob("**/*.graphql|**/*.gql")
 - Commands that no longer work
 - Dependencies that were replaced
 - Workflows that changed
+
+**Typography Violations:**
+- Em dash usage anywhere - must use regular hyphen `-` or double hyphen `--`
 
 ### Phase 5: Improvement Recommendations
 

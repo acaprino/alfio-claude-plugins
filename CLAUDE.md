@@ -18,17 +18,17 @@ plugins/
 
 ## Plugin anatomy
 
-**Agents** — Markdown files with YAML frontmatter:
+**Agents** - Markdown files with YAML frontmatter:
 - `name`: agent identifier (kebab-case)
 - `description`: when/how to use the agent
 - `model`: LLM model (default: `opus`)
 - `tools` (optional): comma-separated tool list (e.g. `Read, Write, Edit, Bash, Glob, Grep`); omit to allow all tools
-- `color`: UI accent color — **only these values are supported**: `red`, `blue`, `green`, `yellow`, `purple`, `orange`, `pink`, `cyan`
+- `color`: UI accent color - **only these values are supported**: `red`, `blue`, `green`, `yellow`, `purple`, `orange`, `pink`, `cyan`
 - Body: terse keyword-list style system prompt; simple agents ~60-200 lines, complex agents up to ~800 lines
 
-**Skills** — Directory with `SKILL.md` (frontmatter: `name`, `description`) and optional supplementary subdirs: `references/` (docs), `scripts/`, `templates/`, `assets/`.
+**Skills** - Directory with `SKILL.md` (frontmatter: `name`, `description`) and optional supplementary subdirs: `references/` (docs), `scripts/`, `templates/`, `assets/`.
 
-**Commands** — Slash-command `.md` files with usage instructions and examples. No frontmatter required.
+**Commands** - Slash-command `.md` files with usage instructions and examples. No frontmatter required.
 
 ## Conventions
 
@@ -37,16 +37,17 @@ plugins/
 - Default model: `opus` (Opus 4.6) for all agents
 - Agent body style: terse keyword lists, imperative tone, structured with markdown headers
 - Skills supplementary subdirs: `references/`, `scripts/`, `templates/`, `assets/` as needed
-- No runtime dependencies — all plugins are pure markdown
+- No runtime dependencies - all plugins are pure markdown
+- Never use the em dash character anywhere - in code, comments, commit messages, or documentation. Use a regular hyphen `-` or double hyphen `--` instead
 
 ## Marketplace update workflow
 
 When changes modify plugins (agents, skills, commands), update the marketplace **before committing**:
 
-1. **Bump plugin version** — increment `version` for the changed plugin in `.claude-plugin/marketplace.json`
-2. **Bump marketplace version** — increment `metadata.version` in the same file
-3. **Commit together** — stage both the plugin files and `marketplace.json` in one commit
-4. **Push to remote** — `git push` to `master`
+1. **Bump plugin version** - increment `version` for the changed plugin in `.claude-plugin/marketplace.json`
+2. **Bump marketplace version** - increment `metadata.version` in the same file
+3. **Commit together** - stage both the plugin files and `marketplace.json` in one commit
+4. **Push to remote** - `git push` to `master`
 
 Key fields in `.claude-plugin/marketplace.json`:
 - `metadata.version`: overall marketplace version
@@ -57,14 +58,14 @@ Key fields in `.claude-plugin/marketplace.json`:
 
 1. Create `plugins/<name>/` with `agents/`, `skills/`, and/or `commands/` subdirectories as needed
 2. Write agent/skill/command markdown files following existing patterns
-3. Register the plugin in `.claude-plugin/marketplace.json` — add entry to `plugins[]` with `name`, `source`, `description`, `version` (start at `1.0.0`), `author`, `license`, `keywords`, `category`, `strict`, and paths to agents/skills/commands
+3. Register the plugin in `.claude-plugin/marketplace.json` - add entry to `plugins[]` with `name`, `source`, `description`, `version` (start at `1.0.0`), `author`, `license`, `keywords`, `category`, `strict`, and paths to agents/skills/commands
 4. Bump `metadata.version` and commit everything together
 
 ## Git workflow
 
 - Single branch: `master`
 - Commit style: imperative, descriptive (e.g. "Add high-value keywords to prompt-engineer agent")
-- No PR workflow — direct push to master
+- No PR workflow - direct push to master
 
 ## Build / CI
 
@@ -76,11 +77,11 @@ Some plugins are ported from external repositories and should be kept in sync wi
 
 | Plugin | Upstream source | Files to sync |
 |--------|----------------|---------------|
-| `frontend-design` | `anthropics/claude-code` — `plugins/frontend-design/skills/frontend-design/SKILL.md` | `plugins/frontend-design/skills/frontend-design/SKILL.md` |
-| `ai-tooling` (brainstorming) | `obra/superpowers` — `skills/brainstorming/SKILL.md` | `plugins/ai-tooling/skills/brainstorming/SKILL.md` |
-| `ai-tooling` (writing-plans) | `obra/superpowers` — `skills/writing-plans/SKILL.md` | `plugins/ai-tooling/skills/writing-plans/SKILL.md` |
-| `ai-tooling` (executing-plans) | `obra/superpowers` — `skills/executing-plans/SKILL.md` | `plugins/ai-tooling/skills/executing-plans/SKILL.md` |
-| `frontend` (css-master) | `paulirish/dotfiles` — `agents/paulirish-skills/skills/modern-css/SKILL.md` | `plugins/frontend/skills/css-master/SKILL.md`, `plugins/frontend/skills/css-master/references/argyle-cacadia-2025-deck.md` |
+| `frontend-design` | `anthropics/claude-code` - `plugins/frontend-design/skills/frontend-design/SKILL.md` | `plugins/frontend-design/skills/frontend-design/SKILL.md` |
+| `ai-tooling` (brainstorming) | `obra/superpowers` - `skills/brainstorming/SKILL.md` | `plugins/ai-tooling/skills/brainstorming/SKILL.md` |
+| `ai-tooling` (writing-plans) | `obra/superpowers` - `skills/writing-plans/SKILL.md` | `plugins/ai-tooling/skills/writing-plans/SKILL.md` |
+| `ai-tooling` (executing-plans) | `obra/superpowers` - `skills/executing-plans/SKILL.md` | `plugins/ai-tooling/skills/executing-plans/SKILL.md` |
+| `frontend` (css-master) | `paulirish/dotfiles` - `agents/paulirish-skills/skills/modern-css/SKILL.md` | `plugins/frontend/skills/css-master/SKILL.md`, `plugins/frontend/skills/css-master/references/argyle-cacadia-2025-deck.md` |
 
 ### How to sync a plugin
 

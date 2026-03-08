@@ -261,3 +261,4 @@ Before accepting a CLAUDE.md, verify:
 - [ ] References actual files
 - [ ] No invented features
 - [ ] Delegates formatting to tools
+- [ ] No em dashes - uses regular hyphens `-` or `--`
