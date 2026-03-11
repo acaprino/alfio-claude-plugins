@@ -91,6 +91,30 @@ Two panes — equal or weighted (60/40, 70/30).
 }
 ```
 
+### Organic / Anti-Grid
+Fluid, natural compositions that break rigid structure -- magazine-style editorial feel.
+Deliberately asymmetrical placement, overlapping elements, varied whitespace, free-form content flow.
+Use when: portfolio, creative agency, brand storytelling, editorial, fashion, art.
+Avoid when: data-heavy, e-commerce catalog, enterprise dashboards.
+```css
+.organic {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: clamp(1rem, 3vw, 2.5rem);
+}
+/* Deliberately irregular placement */
+.organic__hero   { grid-column: 1 / 8; grid-row: 1 / 3; }
+.organic__aside  { grid-column: 9 / 13; grid-row: 1; align-self: end; }
+.organic__pull   { grid-column: 3 / 11; margin-top: -4rem; position: relative; z-index: 1; }
+.organic__offset { grid-column: 2 / 7; transform: rotate(-1deg); }
+```
+Key principles:
+- Guide the eye through visual weight and flow, not grid lines
+- Intentional overlap creates depth and editorial quality
+- Vary element sizes dramatically -- one dominant, rest subordinate
+- Negative space is the structure -- let content breathe unevenly
+- Combine with motion narrative for scroll-driven journey feel
+
 ### Editorial Asymmetry
 3-column base grid; content spans 2+1 or 1+2 for unequal rhythm.
 ```css

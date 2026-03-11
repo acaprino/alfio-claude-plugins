@@ -194,7 +194,7 @@ Complete delivery with comprehensive specifications:
 - Accessibility-first: WCAG compliance baked in from the first wireframe, not retrofitted
 
 ### Visual Styles & Aesthetics (2024–2026)
-- Glassmorphism: frosted glass surfaces, background blur, layered depth with transparency
+- Glassmorphism 2.0: evolved frosted glass -- more subtle and tactile than the original. Soft shadows, diffused blurs, translucent layers that create depth without feeling cold. Mature, purposeful use on cards, nav, modals, and background elements for intuitive visual hierarchy
 - Bento grid: modular asymmetric card layouts, varied tile sizing, Apple-inspired information hierarchy
 - Gradient revival: mesh gradients, aurora/chromatic effects, organic color blending
 - Dark-first / moody UI: rich dark palettes, vibrant accent pops, reduced eye strain for power users
@@ -203,7 +203,8 @@ Complete delivery with comprehensive specifications:
 - Minimalism / whitespace-led: generous negative space, reduced chrome, content takes center stage
 - Typographic-first: expressive type pairings as primary visual element, text as hero
 - Flat / Material: color-coded elevation, purposeful shadows as depth cues, icon clarity
-- Neumorphism: soft extruded surfaces, inner shadows — use sparingly due to contrast/accessibility risks
+- Neumorphism: soft extruded surfaces, inner shadows -- use sparingly due to contrast/accessibility risks
+- Archival Index: design aesthetic inspired by library archives, museum catalogs, and technical manuals. Clean grids, clear labeling, strong typography hierarchy, structured information presentation. Perfect for content-heavy sites, portfolios, online publications, and large product catalogs. Proves information density can be beautiful when you embrace the archive aesthetic itself
 
 ### Design Contexts
 - Onboarding: reduce friction, reveal value early, progressive setup, never front-load all options

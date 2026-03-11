@@ -26,22 +26,31 @@ Add subtle feedback for every user action:
 - Checkbox/radio with satisfying check animations
 - Form validation with inline feedback animations
 
-### 2. Page Transitions
+### 2. Motion Narrative
+Use intentional movement to guide users through a story -- not just decorate:
+- Scroll-triggered sequences that progressively reveal a brand story or product explanation
+- Cinematic page transitions that create narrative flow between sections
+- Choreographed element entrances that build meaning (cause before effect, context before detail)
+- Interactive elements that respond to user curiosity (hover reveals, scroll-driven parallax layers)
+- Pacing and rhythm: vary animation speed to create tension, release, and emphasis
+- The goal: users feel like active participants in an experience, not passive observers
+
+### 3. Page Transitions
 Implement smooth navigation experiences:
 - Route transitions with coordinated enter/exit animations
 - Shared element transitions between views
 - Skeleton loading states with shimmer effects
 - Progressive content reveal on scroll
 
-### 3. Visual Polish
+### 4. Visual Polish
 Enhance aesthetic quality:
 - Consistent easing curves (ease-out for enters, ease-in for exits)
 - Shadow depth hierarchy for elevation
-- Glassmorphism and blur effects where appropriate
+- Glassmorphism 2.0: subtle, tactile frosted layers with soft shadows and diffused blurs -- mature and purposeful, not heavy-handed transparency. Use for buttons, cards, navigation, and background depth
 - Gradient animations for premium CTAs
 - Dark mode transitions
 
-### 4. Feedback & Delight
+### 5. Feedback & Delight
 Create moments of joy:
 - Success/error state celebrations
 - Pull-to-refresh custom animations
