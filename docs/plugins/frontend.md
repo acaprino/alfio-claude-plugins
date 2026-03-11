@@ -1,0 +1,173 @@
+# Frontend Plugin
+
+> Five specialized agents and four skills for every layer of frontend work -- from strategic planning and creative design direction to React performance optimization.
+>
+> **Which tool do I use?**
+> | Need | Tool | What it does |
+> |------|------|------|
+> | "What should we build?" | `/frontend:premium-web-consultant` | Strategy and planning -- website brief, sitemap, design direction, content strategy. No code. |
+> | "Build it from scratch" | `/frontend:ui-studio` | Orchestrates all frontend agents from a product brief to shipped UI. |
+> | "Improve what exists" | `/frontend-redesign` | Audits and redesigns existing frontend code -- UX, layout, performance, polish. |
+
+## Agents
+
+### `react-performance-optimizer`
+
+Expert in React 19 performance including React Compiler and Server Components.
+
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Use for** | Bundle analysis, re-render optimization, virtualization |
+
+**Invocation:**
+```
+Use the react-performance-optimizer agent to analyze [component/app]
+```
+
+**Performance targets:**
+| Metric | Web | Desktop |
+|--------|-----|---------|
+| Bundle (initial) | < 200KB | < 3MB |
+| Frame rate | 60 FPS | 60 FPS |
+| Render time | < 16ms | < 16ms |
+
+---
+
+### `ui-polisher`
+
+Senior UI polish specialist and motion designer for premium interfaces.
+
+| | |
+|---|---|
+| **Model** | `sonnet` |
+| **Use for** | Micro-interactions, animations, transitions, loading states |
+
+**Invocation:**
+```
+Use the ui-polisher agent to improve [component/page]
+```
+
+---
+
+### `ui-ux-designer`
+
+Elite UI/UX designer for beautiful, accessible interfaces and design systems.
+
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Use for** | Design systems, user flows, wireframes, accessibility |
+
+**Invocation:**
+```
+Use the ui-ux-designer agent to design [feature/system]
+```
+
+---
+
+### `ui-layout-designer`
+
+Spatial composition specialist for grid systems, responsive breakpoint strategy, and CSS Grid/Flexbox developer handoff.
+
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Use for** | Page structure, above-the-fold layouts, responsive strategy, layout-to-CSS specs |
+
+**Invocation:**
+```
+Use the ui-layout-designer agent to design [layout/page]
+```
+
+**Philosophy:** Structure first. Proportions second. Chrome last. Uses 8px spatial system and content-priority-driven layout.
+
+---
+
+### `css-master`
+
+Expert CSS developer for hands-on CSS work -- refactoring styles, migrating SASS/preprocessors to native CSS, setting up CSS architecture, adopting modern CSS features.
+
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Use for** | CSS refactoring, SASS-to-native migration, CSS architecture, Container Queries, View Transitions, Scroll-driven animations |
+
+**Invocation:**
+```
+Use the css-master agent to [refactor/migrate/architect] [styles]
+```
+
+---
+
+## Skills
+
+### `css-master`
+
+Comprehensive CSS reference covering modern CSS features, architecture methodologies, and production patterns.
+
+| | |
+|---|---|
+| **Invoke** | Skill reference |
+| **Use for** | Container Queries, View Transitions, Masonry, Scroll-driven animations, legacy CSS refactoring |
+
+**Source:** Ported from [paulirish/dotfiles](https://github.com/paulirish/dotfiles).
+
+---
+
+### `premium-web-consultant`
+
+Premium web design consultant for the strategy phase before any code is written. Conducts structured client discovery (business goals, audience, competitors, tone), produces professional deliverables, and orchestrates specialist agents (seo-specialist, ui-ux-designer, ui-layout-designer, css-master, content-marketer) at defined handoff points.
+
+| | |
+|---|---|
+| **Invoke** | `/frontend:premium-web-consultant` |
+| **Use for** | Planning a new website or redesign -- website brief, sitemap, design direction, content strategy |
+
+**Deliverables:** Website brief, sitemap, design direction, content strategy, implementation roadmap. Hand off to `ui-studio` when ready to build.
+
+> **When to use this vs other tools:** Use `premium-web-consultant` when you need to decide *what* to build. Use `ui-studio` when you have a product goal and want to build it. Use `/frontend-redesign` when you already have a frontend and want to improve it.
+
+---
+
+### `ui-studio`
+
+Orchestrates full frontend development from a product goal to shipped UI. Establishes a shared product brief (goal, audience, aesthetic tone) as the north star, then coordinates frontend-design, ui-layout-designer, ui-ux-designer, ui-polisher, and react-performance-optimizer toward a coherent result.
+
+| | |
+|---|---|
+| **Invoke** | `/frontend:ui-studio` |
+| **Use for** | Building a new UI, page, or feature from scratch |
+
+**Flow:** Product Brief -> Design Direction -> Layout -> UX Patterns -> Implementation -> Polish -> Performance -> Review.
+
+> **When to use this vs other tools:** Use `ui-studio` when you have a clear product goal and want to build new UI. Use `premium-web-consultant` first if you need strategy and planning. Use `/frontend-redesign` to improve existing code.
+
+---
+
+### `frontend-design`
+
+Create distinctive, production-grade frontend interfaces with bold aesthetic direction. Guides typography, color, motion, spatial composition, and visual details to avoid generic AI output.
+
+| | |
+|---|---|
+| **Invoke** | Skill reference |
+| **Use for** | Web components, landing pages, UI design, production-grade interfaces |
+
+**Source:** Ported from [anthropics/claude-code](https://github.com/anthropics/claude-code) frontend-design plugin.
+
+---
+
+## Commands
+
+### `/review-design`
+
+Unified frontend design review -- auto-detects scope: diff mode for changed frontend files, or full audit for entire frontend. UX patterns, CSS architecture, and React performance.
+
+```
+/review-design src/ --framework react     # full audit
+/review-design --full                     # explicit full audit
+/review-design                            # auto-detect: diff mode if changes exist
+```
+
+**Output:** `.design-review/report.md` -- actionable checklist with scores, grouped by category (UX, Layout, CSS).
