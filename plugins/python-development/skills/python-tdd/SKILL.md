@@ -1,5 +1,5 @@
 ---
-name: python-testing-patterns
+name: python-tdd
 description: "Generate focused, behavior-driven Python tests using TDD methodology with pytest. Use when writing tests, improving coverage, reviewing test quality, or practicing red-green-refactor workflows."
 ---
 

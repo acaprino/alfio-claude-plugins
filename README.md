@@ -1,12 +1,12 @@
 # Alfio Claude Plugins
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Marketplace](https://img.shields.io/badge/marketplace-v1.54.0-green.svg)](.claude-plugin/marketplace.json)
+[![Marketplace](https://img.shields.io/badge/marketplace-v1.56.0-green.svg)](.claude-plugin/marketplace.json)
 [![Plugins](https://img.shields.io/badge/plugins-22-orange.svg)](#plugins-overview)
 
 22 ready-to-install plugins for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) -- Anthropic's official AI coding CLI. Specialized agents, skills, and commands for Python, code review, frontend, Tauri/Rust, AI tooling, Obsidian, and more -- so you spend less time prompting and more time shipping.
 
-**22 plugins | 21 agents | 25 skills | 18 commands** -- install only what you need.
+**22 plugins | 19 agents | 25 skills | 18 commands** -- install only what you need.
 
 ---
 
@@ -86,7 +86,7 @@ claude plugin list
 
 | Plugin | Description | Agents | Skills | Commands |
 |--------|-------------|:------:|:------:|:--------:|
-| [**python-development**](#python-development-plugin) | Build production-ready Python apps faster with Django, FastAPI, testing, and packaging agents | 3 | 8 | 2 |
+| [**python-development**](#python-development-plugin) | Modern Python development ecosystem with testing, packaging, async patterns, and code refactoring tools | 1 | 8 | 2 |
 | [**humanize**](#humanize-plugin) | Make AI-generated code look human-written -- fixes names, removes boilerplate | 1 | - | 1 |
 | [**deep-dive-analysis**](#deep-dive-analysis-plugin) | Understand any codebase in minutes with 7-phase systematic analysis | - | 1 | 1 |
 | [**code-review**](#code-review-plugin) | Catch bugs before they ship -- 3 agents review architecture, security, and patterns in parallel | 3 | - | 3 |
@@ -352,14 +352,14 @@ graph TD
 1. /python-scaffold FastAPI microservice
 2. Implement features with python-pro agent
 3. /python-refactor on complex modules
-4. Use python-testing-patterns for test coverage
+4. Use python-tdd for test coverage
 ```
 
 #### Legacy Code Modernization
 ```
 1. /deep-dive-analysis to understand codebase
 2. /python-refactor on legacy modules
-3. Use python-testing-patterns to add test coverage
+3. Use python-tdd to add test coverage
 4. /humanize to clean up naming and comments
 ```
 
@@ -430,52 +430,6 @@ Use the python-pro agent to [implement/optimize/review] [feature]
 
 ---
 
-#### `django-pro`
-
-Expert Django developer specializing in Django 5.x, DRF, async views, and scalable architectures.
-
-| | |
-|---|---|
-| **Model** | `opus` |
-| **Use for** | Django apps, DRF APIs, ORM optimization, Celery tasks, Django Channels |
-
-**Invocation:**
-```
-Use the django-pro agent to [design/implement/optimize] [feature]
-```
-
-**Expertise:**
-- Django 5.x async views and middleware
-- Django REST Framework patterns
-- ORM optimization (select_related, prefetch_related)
-- Celery background tasks
-- Django Channels WebSockets
-
----
-
-#### `fastapi-pro`
-
-Expert FastAPI developer for high-performance async APIs with modern Python patterns.
-
-| | |
-|---|---|
-| **Model** | `opus` |
-| **Use for** | FastAPI microservices, async SQLAlchemy, Pydantic V2, WebSockets |
-
-**Invocation:**
-```
-Use the fastapi-pro agent to [build/optimize] [API/service]
-```
-
-**Expertise:**
-- FastAPI 0.100+ with Annotated types
-- SQLAlchemy 2.0+ async patterns
-- Pydantic V2 validation
-- OAuth2/JWT authentication
-- OpenTelemetry observability
-
----
-
 ### Skills
 
 #### `python-refactor`
@@ -500,11 +454,11 @@ Systematic 4-phase refactoring workflow transforming complex code into clean, ma
 - OOP transformation patterns
 - Regression prevention checklists
 
-**Synergy:** Works with `python-testing-patterns` and `python-performance-optimization`
+**Synergy:** Works with `python-tdd` and `python-performance-optimization`
 
 ---
 
-#### `python-testing-patterns`
+#### `python-tdd`
 
 Comprehensive testing strategies with pytest, fixtures, mocking, and TDD.
 
@@ -1760,12 +1714,10 @@ alfio-claude-plugins/
 ├── plugins/
 │   ├── python-development/
 │   │   ├── agents/
-│   │   │   ├── python-pro.md
-│   │   │   ├── django-pro.md
-│   │   │   └── fastapi-pro.md
+│   │   │   └── python-pro.md
 │   │   ├── skills/
 │   │   │   ├── python-refactor/
-│   │   │   ├── python-testing-patterns/
+│   │   │   ├── python-tdd/
 │   │   │   ├── python-performance-optimization/
 │   │   │   ├── async-python-patterns/
 │   │   │   ├── python-packaging/
