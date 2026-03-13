@@ -12,7 +12,7 @@
     {
       "name": "humanize",
       "source": "./plugins/humanize",
-      "description": "Rewrites source code to be more readable and human-friendly without changing behavior — improves naming, comments, and structure with mandatory test validation",
+      "description": "Rewrites source code to be more readable and human-friendly without changing behavior - improves naming, comments, and structure with mandatory test validation",
       "version": "2.4.0",
       "author": {
         "name": "Alfio"

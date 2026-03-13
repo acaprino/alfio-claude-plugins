@@ -14,7 +14,7 @@ plugins/
     commands/               # slash-command .md files
 ```
 
-22 plugins: humanize, deep-dive-analysis, tauri-development, frontend, ai-tooling, python-development, stripe, utilities, messaging, research, business, code-documentation, project-setup, mobile-development, typescript-development, csp, digital-marketing, senior-review, app-explorer, workflows, obsidian-development, browser-extensions.
+23 plugins: humanize, deep-dive-analysis, tauri-development, frontend, ai-tooling, python-development, stripe, utilities, messaging, research, business, code-documentation, project-setup, mobile-development, typescript-development, csp, digital-marketing, senior-review, app-explorer, workflows, obsidian-development, browser-extensions, learning.
 
 ## Plugin anatomy
 
@@ -22,7 +22,7 @@ plugins/
 - `name`: agent identifier (kebab-case)
 - `description`: when/how to use the agent
 - `model`: LLM model (default: `opus`)
-- `tools` (optional): comma-separated tool list (e.g. `Read, Write, Edit, Bash, Glob, Grep`); omit to allow all tools
+- `tools` (optional): comma-separated tool list (e.g. `Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch, Task`); omit to allow all tools
 - `color`: UI accent color (e.g. `red`, `blue`, `green`, `yellow`, `purple`, `orange`, `cyan`, `magenta`, `violet`, `teal`, `indigo`, `gold`, `rust`, `pink`)
 - Body: terse keyword-list style system prompt; simple agents ~60-200 lines, complex agents up to ~800 lines
 

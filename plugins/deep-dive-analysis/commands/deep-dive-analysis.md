@@ -1,5 +1,5 @@
 ---
-description: "Systematic codebase analysis combining structure extraction with semantic understanding — documents WHAT, WHY, HOW, and CONSEQUENCES of code with phased output"
+description: "Systematic codebase analysis combining structure extraction with semantic understanding -- documents WHAT, WHY, HOW, and CONSEQUENCES of code with phased output"
 argument-hint: "<target path> [--critical] [--comments] [--docs-only] [--phase N]"
 ---
 
@@ -66,13 +66,13 @@ Files to analyze: [count] ([language breakdown])
 Flags: [active flags]
 
 Analysis phases:
-1. Structure Extraction — file inventory, dependency graph
-2. Interface Analysis — public APIs, contracts, exports
-3. Flow Tracing — data flow, control flow, critical paths
-4. Semantic Understanding — WHY code exists, design decisions
-5. Pattern & Risk Detection — anti-patterns, red flags, tech debt
-6. Documentation Health — existing docs accuracy, gaps
-7. Final Report — consolidated findings
+1. Structure Extraction -- file inventory, dependency graph
+2. Interface Analysis -- public APIs, contracts, exports
+3. Flow Tracing -- data flow, control flow, critical paths
+4. Semantic Understanding -- WHY code exists, design decisions
+5. Pattern & Risk Detection -- anti-patterns, red flags, tech debt
+6. Documentation Health -- existing docs accuracy, gaps
+7. Final Report -- consolidated findings
 
 1. Proceed with full analysis
 2. Analyze specific phase only (--phase N)
@@ -236,7 +236,7 @@ Diagram guidelines:
 
 ## Phase 4: Semantic Understanding
 
-This is the AI-powered phase — understand the **WHY** behind the code:
+This is the AI-powered phase -- understand the **WHY** behind the code:
 
 - Business purpose of each module
 - Design decisions and trade-offs (inferred from code patterns)
@@ -473,8 +473,8 @@ Wait for the user's choice before proceeding. If the user picks option 1, confir
 
 ## Quick Examples
 
-- `/deep-dive-analysis src/` — Full 7-phase analysis
-- `/deep-dive-analysis src/auth/ --critical` — Prioritize security-critical code
-- `/deep-dive-analysis src/ --docs-only` — Documentation health check only
-- `/deep-dive-analysis src/ --comments` — Include comment quality audit
-- `/deep-dive-analysis src/ --phase 5` — Jump to pattern & risk detection
+- `/deep-dive-analysis src/` -- Full 7-phase analysis
+- `/deep-dive-analysis src/auth/ --critical` -- Prioritize security-critical code
+- `/deep-dive-analysis src/ --docs-only` -- Documentation health check only
+- `/deep-dive-analysis src/ --comments` -- Include comment quality audit
+- `/deep-dive-analysis src/ --phase 5` -- Jump to pattern & risk detection
