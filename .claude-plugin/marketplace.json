@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "1.71.0"
+    "version": "1.73.0"
   },
   "plugins": [
     {
@@ -512,8 +512,8 @@
     {
       "name": "app-explorer",
       "source": "./plugins/app-explorer",
-      "description": "Automated webapp explorer that crawls a local web application using Playwright BFS, mapping all screens, interactive elements, navigation flows, and user workflows into a structured JSON sitemap with per-screen screenshots",
-      "version": "1.1.0",
+      "description": "Automated webapp explorer that exhaustively crawls a local web application using Playwright BFS, mapping all screens, 20+ element types, modals, dialogs, drawers, and user workflows into a structured JSON sitemap with per-screen screenshots",
+      "version": "2.0.0",
       "author": {
         "name": "Alfio"
       },
@@ -615,7 +615,7 @@
       "name": "learning",
       "source": "./plugins/learning",
       "description": "Learning and knowledge management tools -- mind map generation, visual summaries, and study aids",
-      "version": "1.3.0",
+      "version": "1.4.0",
       "author": {
         "name": "Alfio"
       },
@@ -634,10 +634,10 @@
       "strict": false,
       "skills": [
         "./skills/generate-mindmap",
-        "./skills/markmind-mapper"
+        "./skills/markmind-exporter"
       ],
       "commands": [
-        "./commands/build-mindmap"
+        "./commands/export-to-markmind"
       ]
     }
   ]
