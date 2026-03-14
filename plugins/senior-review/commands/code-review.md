@@ -125,7 +125,7 @@ Run all three agents **in parallel** in a single response:
 
 ```
 Task:
-  subagent_type: "architect-review"
+  subagent_type: "senior-review:architect-review"
   description: "Architecture review for senior-review command"
   prompt: |
     Review the following code changes for architectural soundness and code quality.
@@ -163,7 +163,7 @@ Task:
 
 ```
 Task:
-  subagent_type: "security-auditor"
+  subagent_type: "senior-review:security-auditor"
   description: "Security review for senior-review command"
   prompt: |
     Review the following code changes for security vulnerabilities.
@@ -195,7 +195,7 @@ Task:
 
 ```
 Task:
-  subagent_type: "pattern-quality-scorer"
+  subagent_type: "senior-review:pattern-quality-scorer"
   description: "Pattern scoring for senior-review command"
   prompt: |
     Analyze the following code changes for pattern consistency and quality.

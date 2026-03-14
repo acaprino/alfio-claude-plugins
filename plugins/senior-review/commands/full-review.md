@@ -236,7 +236,7 @@ specialized perspective.
 
 ```
 Task:
-  subagent_type: "architect-review"
+  subagent_type: "senior-review:architect-review"
   description: "Architecture review for $ARGUMENTS"
   prompt: |
     Review the architectural design and structural integrity of the target code.
@@ -289,7 +289,7 @@ Run both agents in parallel using multiple Task tool calls in a single response.
 
 ```
 Task:
-  subagent_type: "security-auditor"
+  subagent_type: "senior-review:security-auditor"
   description: "Security audit for $ARGUMENTS"
   prompt: |
     Execute a comprehensive security audit on the target code.
@@ -625,7 +625,7 @@ Read all `.full-review/*.md` files (01 through 04) for full context before analy
 
 ```
 Task:
-  subagent_type: "pattern-quality-scorer"
+  subagent_type: "senior-review:pattern-quality-scorer"
   description: "Code quality, pattern analysis and scoring for $ARGUMENTS"
   prompt: |
     Perform a comprehensive code quality review, pattern consistency analysis, and quantitative scoring.

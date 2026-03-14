@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "1.84.0"
+    "version": "1.85.0"
   },
   "plugins": [
     {
@@ -486,7 +486,7 @@
       "name": "senior-review",
       "source": "./plugins/senior-review",
       "description": "Multi-agent code review orchestration with architecture, security, pattern analysis, and best practices across 5 phases",
-      "version": "2.6.0",
+      "version": "2.7.0",
       "author": {
         "name": "Alfio"
       },
@@ -500,9 +500,6 @@
       ],
       "category": "review",
       "strict": false,
-      "optionalDependencies": [
-        "deep-dive-analysis"
-      ],
       "agents": [
         "./agents/architect-review.md",
         "./agents/security-auditor.md",
