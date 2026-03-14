@@ -152,7 +152,8 @@
       "skills": [
         "./skills/brainstorming",
         "./skills/writing-plans",
-        "./skills/executing-plans"
+        "./skills/executing-plans",
+        "./skills/anvil-forge"
       ],
       "commands": [
         "./commands/prompt-optimize.md"
