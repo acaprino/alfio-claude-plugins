@@ -271,9 +271,66 @@ Task:
     - Recommended action (remove, verify dynamic usage, add to __all__)
 ```
 
-## Step 4: Consolidated Review
+## Step 4: Consolidate Agent Findings
 
-After all agents complete, synthesize findings into a structured review:
+After all four agents complete, collect and organize their findings into a single intermediate summary. Group findings by severity and category. This summary becomes the input for Step 4b.
+
+## Step 4b: Quality Scoring
+
+Run the pattern-quality-scorer agent with ALL findings from Step 4 to produce a calibrated quality score:
+
+```
+Task:
+  subagent_type: "senior-review:pattern-quality-scorer"
+  description: "Quality scoring with all agent findings"
+  prompt: |
+    Produce a calibrated quality score for the reviewed code changes.
+    You have the consolidated findings from all review agents -- use them to score accurately.
+
+    ## Changed Files
+    [list of changed code files]
+
+    ## Full File Contents
+    [paste full contents of each changed file]
+
+    ## Diff
+    [paste the git diff output]
+
+    ## Agent Findings
+    ### Architecture & Code Quality (Agent A)
+    [paste findings from architect-review]
+
+    ### Security (Agent B)
+    [paste findings from security-auditor]
+
+    ### Pattern Consistency (Agent C)
+    [paste findings from pattern analysis]
+
+    ### Dead Code (Agent D)
+    [paste findings from dead code detection]
+
+    ## Instructions
+    Using ALL agent findings above, produce a quantitative quality score.
+
+    Default score is 5/10. Justify any score above 7 with specific evidence.
+
+    | Category        | Score | Confidence |
+    |-----------------|-------|------------|
+    | Architecture    | X/10  | X%         |
+    | Security        | X/10  | X%         |
+    | Code Quality    | X/10  | X%         |
+    | Consistency     | X/10  | X%         |
+    | **Overall**     | **X/10** | **X%**  |
+
+    Also provide:
+    - Executive summary (2-3 sentences)
+    - What's done well (positive observations)
+    - Top concerns (most impactful issues across all categories)
+```
+
+## Step 5: Final Review Output
+
+After scoring completes, synthesize everything into the final structured review:
 
 ```
 ## Code Review -- [PR title or branch name]
@@ -298,6 +355,9 @@ After all agents complete, synthesize findings into a structured review:
 | # | Severity | File:Line | Finding | Confidence | Action |
 |---|----------|-----------|---------|------------|--------|
 
+### Pattern Consistency
+- [pattern deviations found, or "Changes follow established patterns"]
+
 ### CLAUDE.md Compliance
 - [list any violations, or "All changes comply with project conventions"]
 
@@ -313,7 +373,7 @@ If `--strict` and there are Critical findings:
 STRICT MODE: Critical issues found. Recommend fixing before merging.
 ```
 
-## Step 5: Auto-Comment on PR (if --auto-comment)
+## Step 6: Auto-Comment on PR (if --auto-comment)
 
 If `--auto-comment` flag is set and reviewing a PR:
 
