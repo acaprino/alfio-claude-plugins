@@ -40,13 +40,8 @@ The script checks:
    - All agents within a plugin should use the same color
    - Warn when a single color is overused across too many plugins (>3)
    - Report color distribution across all plugins
-   - Semantic harmony check: compares each plugin's color against a category-based recommendation
-     - Cool spectrum (analytical): review=blue, research=teal, optimization=cyan
-     - Cool spectrum (development): development=indigo, frontend=violet
-     - Warm spectrum (creative): marketing=orange, documentation=green
-     - Earthy/neutral (tooling): ai-ml=magenta, infrastructure=rust, utilities=gold
-     - Warm accent (specialized): payments=yellow, testing=pink, mobile=red, workflow=purple
-   - Use `--fix` to auto-apply harmonized colors to all agents
+   - Valid colors: red, blue, green, yellow, purple, orange, cyan, magenta, violet, teal, indigo, gold, rust, pink
+   - Use `--fix` to auto-correct invalid or missing colors
 5. **Naming conventions**
    - All names are kebab-case
    - Agent filename matches frontmatter `name` field
@@ -75,6 +70,18 @@ Address findings by severity:
 - **WARNING**: Orphaned files, naming mismatches, overlapping keywords, color inconsistencies
 - **INFO**: Suggestions for improvement, consolidation opportunities
 
-### Step 4: Re-validate
+### Step 4: Evaluate color harmony
+
+After the script passes, review the color distribution in the report output and evaluate semantic harmony:
+
+1. Read each plugin's description and category from marketplace.json
+2. Consider the nature of each plugin - similar domains should have visually related colors, distinct domains should contrast
+3. Guiding principles:
+   - Warm colors (red, orange, yellow, gold, pink) for creative/outward-facing plugins
+   - Cool colors (blue, cyan, teal, indigo, violet) for analytical/development plugins
+   - Earthy/neutral (green, rust, magenta, purple) for tooling/infrastructure
+4. If colors feel disharmonious, propose a new assignment with reasoning and apply after user confirmation
+
+### Step 5: Re-validate
 
 Run the script again after fixes to confirm a clean audit.

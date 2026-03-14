@@ -35,35 +35,6 @@ VALID_COLORS = [
     "magenta", "violet", "teal", "indigo", "gold", "rust", "pink"
 ]
 
-# Semantic color mapping: category -> recommended color
-# Designed for visual harmony: similar domains get adjacent hues,
-# distinct domains get contrasting colors.
-#
-# Warm spectrum (creative/outward): red, orange, yellow, gold, pink
-# Cool spectrum (analytical/inward): blue, cyan, teal, indigo, violet
-# Earthy/neutral (tooling/infra): green, rust, magenta, purple
-CATEGORY_COLOR_MAP = {
-    # Cool - analytical/review
-    "review": "blue",
-    "research": "teal",
-    # Cool - development
-    "development": "indigo",
-    "frontend": "violet",
-    "optimization": "cyan",
-    # Warm - creative/outward
-    "marketing": "orange",
-    "documentation": "green",
-    # Earthy - tooling/infra
-    "ai-ml": "magenta",
-    "infrastructure": "rust",
-    "utilities": "gold",
-    # Warm accent - specialized
-    "payments": "yellow",
-    "testing": "pink",
-    "mobile": "red",
-    "workflow": "purple",
-}
-
 SEMVER_PATTERN = re.compile(r"^\d+\.\d+\.\d+$")
 KEBAB_CASE_PATTERN = re.compile(r"^[a-z][a-z0-9]*(-[a-z0-9]+)*$")
 
@@ -519,46 +490,6 @@ def audit(fix=False):
                 f"Color '{color}' is overused ({len(pnames)} plugins): "
                 f"{', '.join(sorted(pnames))} - consider diversifying",
             )
-
-    # Semantic color harmonization check
-    # Compare each plugin's actual color against the category-recommended color
-    plugin_category_map = {p.get("name"): p.get("category", "") for p in plugins}
-    mismatches = []
-    for pname, colors in plugin_colors.items():
-        category = plugin_category_map.get(pname, "")
-        recommended = CATEGORY_COLOR_MAP.get(category)
-        if not recommended:
-            continue
-        actual = sorted(colors)[0] if len(colors) == 1 else None
-        if actual and actual != recommended:
-            mismatches.append((pname, category, actual, recommended))
-
-    if mismatches:
-        report.add("info", "Color harmony recommendations (category -> recommended color):")
-        for pname, cat, actual, recommended in mismatches:
-            report.add(
-                "info",
-                f"  {pname} [{cat}]: {actual} -> {recommended}",
-            )
-
-    if fix and mismatches:
-        for plugin in plugins:
-            pname = plugin.get("name", "")
-            match = next((m for m in mismatches if m[0] == pname), None)
-            if not match:
-                continue
-            _, _, _, recommended = match
-            source = plugin.get("source", "")
-            source_path = PROJECT_ROOT / source.lstrip("./")
-            for agent_path in plugin.get("agents", []):
-                full_path = source_path / agent_path.lstrip("./")
-                if not full_path.exists():
-                    continue
-                if set_frontmatter_field(full_path, "color", recommended):
-                    report.add(
-                        "info",
-                        f"[HARMONIZED] {pname}: agent {agent_path} -> {recommended}",
-                    )
 
     # Category analysis
     categories = {}
