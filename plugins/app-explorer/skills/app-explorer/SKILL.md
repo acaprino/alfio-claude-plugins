@@ -1,172 +1,290 @@
 ---
 name: app-explorer
 description: >
-  Automated webapp explorer that exhaustively crawls a local web application using Playwright
-  BFS, mapping all screens, interactive elements, navigation flows, and user workflows into
-  a structured JSON sitemap with per-screen screenshots. Captures 20+ element types including
-  form fields, toggles, accordions, sliders, chips, cards, and generic clickables. Recursively
-  explores modals, dialogs, drawers, and hamburger menus. Computes UX metrics: min clicks per
-  destination, average depth, deepest screens, per-screen element summaries. Supports
-  authenticated SPAs with session persistence and mobile viewport. Use when: analyzing webapp
-  structure, documenting UI flows, preparing for visual analysis, mapping user workflows,
-  auditing navigation complexity.
+  AI-driven webapp explorer using Playwright MCP tools for interactive, intelligent
+  mapping of web applications. Navigates through login flows, SPAs, modals, drawers,
+  and dynamic content by reading accessibility snapshots and making smart exploration
+  decisions. Produces a structured JSON sitemap with per-screen screenshots, navigation
+  graph, element inventory, and workflow paths. Handles authenticated apps by filling
+  credentials and clicking through auth flows. Adapts in real-time to unexpected UI
+  states, loading spinners, and complex navigation patterns that defeat automated crawlers.
   Triggers: /app-explorer, "explore my app", "map the webapp", "analyze app structure",
   "crawl my frontend", "mappa la webapp", "esplora l'app".
 ---
 
 # app-explorer
 
-Crawls a local webapp and produces `.app-explorer/sitemap.json` + screenshots.
+Maps a web application interactively using Playwright MCP tools. The AI navigates, screenshots, and catalogs every screen - handling login, SPAs, modals, and dynamic content that automated crawlers cannot.
 
-## Usage
+## Strategy: Playwright MCP (primary)
+
+Use Playwright MCP tools directly. The AI controls the browser, reads accessibility snapshots, makes intelligent decisions about what to click/explore, and builds the sitemap incrementally.
+
+### Why Playwright MCP over a crawler script
+
+- **Login handling**: fill credentials, click buttons, handle MFA/captcha prompts, OAuth redirects
+- **SPA intelligence**: the AI understands which navigation items lead to new screens vs. redundant views
+- **Adaptive exploration**: skip loading states, wait for content, retry failed navigations
+- **Interactive content**: open drawers, expand accordions, fill search fields, trigger modals
+- **Real-time decisions**: prioritize unexplored areas, avoid infinite loops in dynamic lists
+
+### Required MCP tools
+
+| Tool | Purpose |
+|---|---|
+| `browser_navigate` | Go to URLs |
+| `browser_snapshot` | Read accessibility tree (primary way to understand page) |
+| `browser_click` | Click buttons, links, tabs, nav items |
+| `browser_fill_form` | Fill login forms, search fields |
+| `browser_take_screenshot` | Capture screen state to file |
+| `browser_press_key` | Escape to dismiss overlays, Enter to submit |
+| `browser_wait_for` | Wait for navigation, loading states |
+| `browser_tabs` | Handle multi-tab scenarios |
+
+## Exploration workflow
+
+### Phase 1: Setup
+
+```
+1. mkdir -p .app-explorer/screenshots
+2. browser_navigate to the target URL
+3. browser_snapshot to understand the landing page
+```
+
+### Phase 2: Authentication (if needed)
+
+When credentials are provided:
+```
+1. browser_snapshot to find login form fields
+2. browser_fill_form with email/username + password
+3. browser_click the login/submit button
+4. browser_wait_for navigation to complete
+5. browser_snapshot to confirm login succeeded
+6. If login fails (still on login page), retry or ask user for help
+```
+
+When NO credentials are provided:
+```
+1. Tell the user: "The app requires login. Please log in manually in the browser, then tell me when ready."
+2. Wait for user confirmation
+3. browser_snapshot to verify authenticated state
+```
+
+### Phase 3: Systematic BFS exploration
+
+Maintain mental state of:
+- **Visited screens**: set of (url + content_fingerprint) already explored
+- **Screen queue**: screens discovered but not yet explored
+- **Navigation graph**: which screen leads to which
+- **Screen counter**: incrementing ID (screen_001, screen_002, ...)
+
+For each screen:
+```
+1. browser_snapshot to read full accessibility tree
+2. browser_take_screenshot to save visual state to .app-explorer/screenshots/screen_NNN_<name>.png
+3. Catalog all interactive elements from the snapshot:
+   - Navigation items (bottom nav, sidebar, tab bars)
+   - Buttons, links, tabs, menu items
+   - Form fields (inputs, textareas, dropdowns, checkboxes, toggles)
+   - Expandables (accordions, collapsibles)
+   - Cards, chips, list items that appear clickable
+   - Modal/drawer/dialog triggers
+4. Record element inventory in the screen's data
+5. For each unexplored navigation target:
+   a. browser_click the element
+   b. browser_snapshot to see if screen changed
+   c. If new screen: record it, take screenshot, add to queue
+   d. If overlay/modal: screenshot it, explore its contents, dismiss with Escape
+   e. browser_navigate back or click back-nav to return to current screen
+```
+
+### Exploration priorities
+
+Explore in this order to maximize coverage efficiently:
+1. **Primary navigation** - bottom nav tabs, sidebar menu items, top nav links
+2. **Page-level actions** - prominent buttons ("View plan", "Add", "Settings")
+3. **List items / cards** - tappable cards that lead to detail views
+4. **Expandables** - accordions, collapsible sections
+5. **Modal triggers** - buttons that open overlays, dialogs, bottom sheets
+6. **Contextual actions** - icon buttons, kebab menus, swipe actions
+7. **Pagination / date navigation** - week selectors, page controls (sample 1-2)
+8. **Form interactions** - dropdowns to see options (don't submit forms)
+
+### Overlay / modal handling
+
+When clicking an element opens an overlay:
+```
+1. browser_snapshot to detect overlay content
+2. browser_take_screenshot (viewport only, not full page)
+3. Catalog overlay elements
+4. If overlay has tabs/navigation, explore each tab
+5. Dismiss: browser_press_key "Escape", or click close button
+6. browser_snapshot to confirm overlay dismissed
+```
+
+### SPA fingerprinting
+
+Many SPAs change content without changing URL. Distinguish screens by:
+- URL path + query params
+- Page heading text (h1, h2)
+- Active navigation state (which tab/nav item is selected)
+- Presence of overlays/modals
+- Key content identifiers (list titles, section headers)
+
+If URL + headings + active nav match a visited screen, skip it.
+
+### Phase 4: Build sitemap
+
+After exploration is complete, create `.app-explorer/sitemap.json`:
+
+```json
+{
+  "meta": {
+    "app_url": "https://example.com",
+    "explored_at": "2026-03-14T20:00:00Z",
+    "exploration_method": "playwright-mcp",
+    "total_screens": 12,
+    "total_actions": 87,
+    "avg_clicks_to_reach_any_screen": 1.8,
+    "max_clicks_to_reach_any_screen": 4,
+    "deepest_screen": { "id": "screen_009", "title": "Subscription Details", "min_clicks": 4 }
+  },
+  "screens": {
+    "screen_001": {
+      "id": "screen_001",
+      "url": "/",
+      "title": "Home",
+      "screenshot": "screenshots/screen_001_home.png",
+      "depth": 0,
+      "min_clicks_from_root": 0,
+      "path_from_root": [],
+      "reached_via": "root",
+      "elements": [
+        { "type": "nav_item", "label": "Home", "leads_to": "screen_001" },
+        { "type": "nav_item", "label": "Diary", "leads_to": "screen_002" },
+        { "type": "button", "label": "Add meal", "leads_to": "screen_005" }
+      ],
+      "element_summary": {
+        "total_interactive": 24,
+        "buttons": 8,
+        "links": 3,
+        "nav_items": 4,
+        "form_fields": 0,
+        "cards": 5,
+        "toggles": 0
+      }
+    }
+  },
+  "navigation_graph": {
+    "screen_001": ["screen_002", "screen_003", "screen_004", "screen_005"],
+    "screen_002": ["screen_001", "screen_006"]
+  },
+  "workflows": [
+    {
+      "id": "wf_001",
+      "destination_screen": "screen_009",
+      "destination_title": "Subscription Details",
+      "destination_url": "/settings/subscription",
+      "min_clicks": 4,
+      "steps": [
+        { "step": 1, "screen": "screen_001", "title": "Home", "action": "click 'Profile' nav" },
+        { "step": 2, "screen": "screen_004", "title": "Profile", "action": "click 'Subscription'" },
+        { "step": 3, "screen": "screen_009", "title": "Subscription Details", "action": "arrived" }
+      ]
+    }
+  ]
+}
+```
+
+### Phase 5: Summary report
+
+After writing sitemap.json, present to the user:
+- Total screens discovered
+- Navigation structure overview (which main sections exist)
+- Deepest/most hidden screens
+- Notable UX observations (dead ends, excessive depth, missing back navigation)
+
+## Element types to catalog
+
+### Navigation elements
+| type | what to look for in snapshot |
+|---|---|
+| `nav_item` | Buttons inside `navigation` landmarks, bottom tab bars |
+| `link` | `<a>` elements with internal hrefs |
+| `tab` | `[role=tab]` elements |
+| `menu_item` | `[role=menuitem]` elements |
+| `breadcrumb` | Navigation breadcrumbs |
+
+### Action elements
+| type | what to look for |
+|---|---|
+| `button` | `<button>` with visible text or aria-label |
+| `icon_button` | Buttons with only icons (no text) |
+| `fab` | Floating action buttons (typically centered bottom) |
+| `chip` | Clickable chips, tags, filter pills |
+| `card` | Clickable cards, list items with actions |
+
+### Form elements
+| type | what to look for |
+|---|---|
+| `input` | Text inputs, search fields, date pickers |
+| `textarea` | Multiline text fields |
+| `dropdown` | `<select>`, `[role=combobox]` |
+| `checkbox` | Checkboxes, `[role=checkbox]` |
+| `toggle` | Switches, `[role=switch]` |
+| `radio` | Radio buttons, `[role=radio]` |
+| `slider` | Range inputs, `[role=slider]` |
+| `file_upload` | File input buttons |
+
+### Expandable elements
+| type | what to look for |
+|---|---|
+| `accordion` | `<details>`, `[aria-expanded]` sections |
+| `expandable` | Collapsible sections, show/hide toggles |
+| `drawer_trigger` | Hamburger menus, sidebar openers |
+| `modal_trigger` | Buttons that open overlays/dialogs |
+
+### Informational elements (catalog but don't click)
+| type | what to look for |
+|---|---|
+| `progress` | Progress bars, circular progress |
+| `badge` | Notification badges, status indicators |
+| `chart` | Data visualizations |
+
+## Tips for effective exploration
+
+- **Read the snapshot first, click second**: the accessibility snapshot tells you everything about the page structure. Use it to plan your clicks.
+- **Track active states**: note which nav item is "active" or "pressed" - this tells you where you are.
+- **Don't click destructive actions**: skip "Delete", "Log out", "Cancel subscription" etc.
+- **Sample repetitive content**: if there are 50 list items of the same type, click 1-2 to see the detail view, then move on.
+- **Handle loading**: if snapshot shows a spinner or empty content, use `browser_wait_for` with a selector or just wait 2-3 seconds and re-snapshot.
+- **Stay within the app domain**: don't follow external links.
+- **Take viewport screenshots for overlays**: use `fullPage: false` for modals/drawers so the overlay is properly visible.
+- **Take full-page screenshots for regular pages**: use `fullPage: true` for main screens to capture all content.
+
+## Fallback: Python crawler (optional)
+
+For simple apps without login requirements or complex SPA behavior, the Python crawler script can be used as a fast automated alternative:
 
 ```bash
-# Step 1: ensure .app-explorer/ exists
-mkdir -p .app-explorer/screenshots
-
-# Step 2: run the crawler (browser will open - ask user to login if needed)
 python "{SKILL_BASE_DIR}/scripts/crawler.py" \
   --url <URL> \
   --output .app-explorer \
   --max-depth 5 \
   --max-screens 200
-
-# Mobile viewport (default: on, 390x844)
-python "{SKILL_BASE_DIR}/scripts/crawler.py" \
-  --url <URL> --output .app-explorer
-
-# Custom viewport
-python "{SKILL_BASE_DIR}/scripts/crawler.py" \
-  --url <URL> --output .app-explorer --width 1280 --height 800 --no-mobile
-
-# Reuse auth from previous crawl (skip login)
-python "{SKILL_BASE_DIR}/scripts/crawler.py" \
-  --url <URL> --output .app-explorer --auth .app-explorer/auth.json
 ```
 
-Replace `{SKILL_BASE_DIR}` with the base directory shown at the top of this skill context.
+The crawler opens a headed browser, waits for manual login, then runs automated BFS. Use it only when:
+- The app is a simple multi-page site (not an SPA)
+- No programmatic login is needed
+- Basic coverage is sufficient
 
-### CLI flags
+For anything else, use the Playwright MCP approach above.
 
-| Flag | Default | Description |
-|---|---|---|
-| `--url` | required | Starting URL |
-| `--output` | `.app-explorer` | Output directory |
-| `--max-depth` | `5` | Max BFS depth |
-| `--max-screens` | `200` | Max screens to explore |
-| `--mobile` | on | Mobile viewport with touch (390x844) |
-| `--no-mobile` | - | Disable mobile viewport |
-| `--width` | `390` | Viewport width |
-| `--height` | `844` | Viewport height |
-| `--auth` | none | Path to `auth.json` from previous crawl to skip login |
-| `--thorough` | on | Exhaustive exploration: captures all 20+ element types, recursively explores modals/dialogs/drawers, detects generic clickables |
-| `--no-thorough` | - | Fall back to basic detection (buttons, links, dropdowns, tabs, menu items, nav items only) |
+## Post-exploration: Visual analysis
 
-## Workflow
-
-1. Create `.app-explorer/` in the current working directory if it doesn't exist.
-2. Run crawler.py with the target URL. The script:
-   - Opens a **headed** (visible) browser with mobile viewport (390x844)
-   - Navigates to the URL
-   - Prints: `"Browser aperto. Effettua il login se necessario, poi premi Invio per avviare il crawl..."`
-   - Waits for user to press Enter
-   - Validates login succeeded (re-prompts if still on login page)
-   - Saves auth state to `auth.json` for future reuse
-   - Runs BFS crawl using the **post-login page** as root (preserves auth session)
-   - Explores all pages, buttons, menus, modals, tabs, bottom navigation
-   - With `--thorough` (default): captures 20+ element types, recursively explores overlays (up to depth 3), auto-detects hamburger/drawer menus with dedicated screenshots
-   - Uses multi-signal fingerprinting (includes visible modals/dialogs/drawers) to distinguish SPA states with same URL
-   - Saves a screenshot for every unique screen
-   - Writes `.app-explorer/sitemap.json`
-3. Confirm to user: `"Crawl completato. N schermate trovate. Sitemap in .app-explorer/sitemap.json"`
-4. Read `sitemap.json` for downstream visual analysis or to answer structure/UX questions.
-
-## SPA support
-
-The crawler handles single-page applications with:
-- **Auth session persistence**: saves browser storage state after login, uses current page as BFS root (no re-navigation that would lose auth)
-- **Multi-signal fingerprinting**: combines URL + interactive labels + DOM headings + active tab state to distinguish pages with the same URL
-- **Bottom navigation detection**: finds nav buttons, tab bars, and bottom nav components common in mobile SPAs
-- **Recursive overlay exploration**: clicks elements inside modals, dialogs, and drawers to discover nested screens (depth up to 3); explores tabs, nav items, accordions inside overlays - not just buttons/links
-- **Hamburger/drawer auto-detection**: identifies hamburger menu buttons and sidebar triggers, opens them, takes a dedicated viewport screenshot of the open drawer, then explores hidden navigation items
-- **Viewport-aware screenshots**: uses viewport-only screenshots for overlays/dialogs/drawers (preserving mobile framing), full-page for regular screens
-- **Button-opened pages queued for BFS**: when clicking a button navigates to a new URL (not just opening an overlay), that URL is enqueued for full BFS exploration of its own links and buttons
-- **Overlay dismiss**: tries Escape, close button, then backdrop click to dismiss modals/sheets before continuing
-- **Enhanced fingerprinting**: considers visible modals, dialogs, and drawers as part of the screen identity
-- **Auth reuse**: `--auth auth.json` flag to skip login on subsequent crawls
-
-## sitemap.json structure
-
-```json
-{
-  "meta": { "app_url", "explored_at", "total_screens", "total_actions",
-            "avg_clicks_to_reach_any_screen", "max_clicks_to_reach_any_screen",
-            "deepest_screen": { "id", "title", "min_clicks" } },
-  "screens": {
-    "screen_001": {
-      "id", "url", "title", "screenshot", "depth", "min_clicks_from_root",
-      "path_from_root": [ { "step", "from_screen", "action", "label" } ],
-      "reached_via",
-      "elements": [ { "type", "label", "selector"/"href", "leads_to" } ],
-      "element_summary": {
-        "total_interactive": 42,
-        "buttons": 8,
-        "links": 12,
-        "form_fields": 6,
-        "toggles": 2,
-        "accordions": 3,
-        "..."
-      }
-    }
-  },
-  "navigation_graph": { "screen_id": ["screen_id", ...] },
-  "workflows": [
-    { "id", "destination_screen", "destination_title", "destination_url",
-      "min_clicks", "steps": [ { "step", "screen", "title", "action" } ] }
-  ]
-}
-```
-
-## Element types captured
-
-### Interactive elements (always detected)
-
-| type | description |
-|---|---|
-| `button` | `<button>` with text/aria-label |
-| `link` | Internal `<a href>` |
-| `dropdown` | `<select>`, `[role=combobox]` with options |
-| `tab` | `[role=tab]` |
-| `menu_item` | `[role=menuitem]` |
-| `nav_item` | Bottom nav / tab bar buttons |
-| `modal_trigger` | Elements that open an overlay/modal |
-
-### Thorough-mode element types (requires `--thorough`, default: on)
-
-| type | description |
-|---|---|
-| `input` | Text, email, password, number, search, date, time, color, file inputs |
-| `textarea` | Multiline text fields |
-| `toggle` | Switches, checkboxes styled as toggles (`[role=switch]`) |
-| `checkbox` | `input[type=checkbox]`, `[role=checkbox]` |
-| `radio` | `input[type=radio]`, `[role=radio]` |
-| `accordion` | Semantic accordions (`<details>`, `.accordion`, `[data-accordion]`) |
-| `expandable` | Buttons with `[aria-expanded]` (non-accordion expandables) |
-| `slider` | Range inputs, `[role=slider]` |
-| `icon_button` | Buttons with only icons (no text), FABs |
-| `chip` | Clickable chips, tags, badges |
-| `card` | Clickable cards and list items |
-| `drawer_trigger` | Hamburger menu buttons, sidebar triggers |
-| `dialog_trigger` | Elements with `[aria-haspopup=dialog]` |
-| `context_menu_trigger` | Elements with `[aria-haspopup=menu]` |
-| `tree_item` | `[role=treeitem]` |
-| `toolbar_button` | Buttons inside `[role=toolbar]` |
-| `pagination` | Pagination links and steppers |
-| `generic_clickable` | Any element with click handler or `cursor:pointer` not captured above |
-
-## Phase 2: Visual analysis
-
-After crawl, use `sitemap.json` as navigation map:
+After building the sitemap, use it as a navigation map for follow-up work:
 - Read `workflows` to find paths to any destination
-- Use MCP Playwright tools to navigate to specific screens for visual inspection
+- Use Playwright MCP tools to revisit specific screens for detailed inspection
 - Answer UX questions: "what's the most hidden feature?", "how deep is the delete flow?"
+- Compare screen layouts, identify inconsistencies, audit accessibility
