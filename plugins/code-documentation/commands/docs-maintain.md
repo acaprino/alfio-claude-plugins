@@ -1,3 +1,7 @@
+---
+description: "Audit and improve existing CLAUDE.md with ground truth verification and guided improvements"
+---
+
 # Maintain Documentation
 
 Use the `documentation-engineer` agent to audit and refactor existing documentation:

@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "1.76.0"
+    "version": "1.77.0"
   },
   "plugins": [
     {
@@ -640,7 +640,40 @@
         "./skills/forcegraph-exporter"
       ],
       "commands": [
-        "./commands/export-to-markmind"
+        "./commands/export-to-markmind.md"
+      ]
+    },
+    {
+      "name": "marketplace-ops",
+      "source": "./plugins/marketplace-ops",
+      "description": "Marketplace consolidation and plugin management -- auditing, validation, AI quality review of descriptions and trigger keywords, upstream sync, plugin scaffolding, and health monitoring for the anvil-toolset ecosystem",
+      "version": "1.1.0",
+      "author": {
+        "name": "Alfio"
+      },
+      "license": "MIT",
+      "keywords": [
+        "marketplace",
+        "audit",
+        "validation",
+        "sync",
+        "scaffold",
+        "plugin-management",
+        "consolidation"
+      ],
+      "category": "utilities",
+      "strict": false,
+      "agents": [
+        "./agents/marketplace-manager.md"
+      ],
+      "skills": [
+        "./skills/marketplace-audit"
+      ],
+      "commands": [
+        "./commands/marketplace-health.md",
+        "./commands/marketplace-sync-upstream.md",
+        "./commands/marketplace-scaffold-plugin.md",
+        "./commands/marketplace-review.md"
       ]
     }
   ]

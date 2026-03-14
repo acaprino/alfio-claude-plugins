@@ -1,3 +1,8 @@
+---
+description: "Use when organizing messy folders (Downloads, Desktop, Documents), finding duplicate files, cleaning up directories, or restructuring file hierarchies"
+argument-hint: "<path> [find duplicates | by type | by date]"
+---
+
 # File Organizer
 
 Use the `file-organizer` skill to organize, cleanup, and restructure:
