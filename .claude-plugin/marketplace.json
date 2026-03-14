@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "1.90.0"
+    "version": "1.91.0"
   },
   "plugins": [
     {
@@ -515,7 +515,7 @@
       "name": "app-explorer",
       "source": "./plugins/app-explorer",
       "description": "AI-driven webapp explorer using Playwright MCP tools for interactive mapping of web applications - handles login, SPAs, modals, drawers, and dynamic content with intelligent BFS exploration and structured JSON sitemap output",
-      "version": "3.1.0",
+      "version": "3.2.0",
       "author": {
         "name": "Alfio"
       },

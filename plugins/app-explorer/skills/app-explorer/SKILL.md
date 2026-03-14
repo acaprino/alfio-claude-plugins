@@ -87,31 +87,51 @@ When NO credentials are provided:
 
 ### Phase 3: Systematic BFS exploration
 
+**CRITICAL RULE: NEVER declare exploration complete until you have clicked EVERY interactive element on EVERY discovered screen.** The most common failure mode is stopping too early after exploring only primary navigation. An app with 4 nav tabs likely has 15-30+ screens when you also explore cards, buttons, modals, settings sub-pages, detail views, input flows, and contextual actions. If you have explored fewer than 10 screens for a non-trivial app, you are almost certainly not done.
+
 Maintain mental state of:
 - **Visited screens**: set of (url + content_fingerprint) already explored
 - **Screen queue**: screens discovered but not yet explored
 - **Navigation graph**: which screen leads to which
 - **Screen counter**: incrementing ID (screen_001, screen_002, ...)
+- **Pending elements per screen**: track which interactive elements have NOT been clicked yet
 
 For each screen:
 ```
 1. browser_snapshot to read full accessibility tree
 2. browser_take_screenshot to save visual state to .app-explorer/screenshots/screen_NNN_<name>.png
-3. Catalog all interactive elements from the snapshot:
+3. Catalog ALL interactive elements from the snapshot:
    - Navigation items (bottom nav, sidebar, tab bars)
    - Buttons, links, tabs, menu items
    - Form fields (inputs, textareas, dropdowns, checkboxes, toggles)
    - Expandables (accordions, collapsibles)
    - Cards, chips, list items that appear clickable
    - Modal/drawer/dialog triggers
+   - Icon buttons (edit, delete, settings, info, share, etc.)
+   - FABs (floating action buttons)
 4. Record element inventory in the screen's data
-5. For each unexplored navigation target:
+5. Click EVERY interactive element that could lead to a new screen or overlay:
    a. browser_click the element
    b. browser_snapshot to see if screen changed
    c. If new screen: record it, take screenshot, add to queue
-   d. If overlay/modal: screenshot it, explore its contents, dismiss with Escape
+   d. If overlay/modal: screenshot it, explore ALL its contents (tabs, buttons, sub-sections), then dismiss with Escape or close button
    e. browser_navigate back or click back-nav to return to current screen
+   f. Mark element as explored
+6. Do NOT move to the next screen until all elements on the current screen have been explored
 ```
+
+### Exhaustive exploration rules
+
+These rules are mandatory. Violating them produces incomplete sitemaps.
+
+1. **Click every card/list item**: If a screen shows a list of items (meals, recipes, history entries, settings rows), click at least the first item of each distinct type to discover detail views
+2. **Explore every modal/bottom sheet fully**: When a modal opens, it often contains tabs, sub-sections, or additional buttons. Explore ALL of them before dismissing
+3. **Follow every settings row**: Settings/profile pages often have 5-15 sub-pages (account, notifications, goals, subscriptions, about, etc.). Click every single row
+4. **Test every input method**: If the app offers multiple ways to do something (e.g., add via photo/text/voice/gallery), explore each input method's flow as a separate screen
+5. **Explore date/calendar navigation**: Click forward/back on date selectors to see if different dates reveal different screen states
+6. **Open every FAB/action menu**: Floating action buttons and "+" buttons often reveal multi-option menus. Explore each option
+7. **Check empty vs. populated states**: If navigating to a section shows "no data" but another date/filter shows data, both are distinct screens worth capturing
+8. **Never skip icon buttons**: Small icon buttons (gear, pencil, trash, info circle, share) frequently lead to important sub-screens or modals
 
 ### Exploration priorities
 
@@ -148,7 +168,24 @@ Many SPAs change content without changing URL. Distinguish screens by:
 
 If URL + headings + active nav match a visited screen, skip it.
 
-### Phase 4: Build sitemap
+### Phase 4: Completeness check (mandatory before building sitemap)
+
+Before declaring exploration complete, you MUST perform this self-audit:
+
+```
+1. List every screen you discovered
+2. For each screen, list every interactive element you cataloged
+3. For each interactive element, confirm it was clicked/explored
+4. If ANY element was not explored, go back and explore it NOW
+5. Check: did you explore sub-pages behind settings/profile rows?
+6. Check: did you open every modal/bottom sheet trigger?
+7. Check: did you click at least one item in every list/card grid?
+8. Check: did you try every distinct input method or action type?
+```
+
+Only proceed to Phase 5 when ALL elements on ALL screens have been explored or explicitly skipped (with a documented reason, e.g., "destructive action", "external link", "logout").
+
+### Phase 5: Build sitemap
 
 After exploration is complete, create `.app-explorer/sitemap.json`:
 
@@ -211,7 +248,7 @@ After exploration is complete, create `.app-explorer/sitemap.json`:
 }
 ```
 
-### Phase 5: Summary report
+### Phase 6: Summary report
 
 After writing sitemap.json, present to the user:
 - Total screens discovered
@@ -270,12 +307,14 @@ After writing sitemap.json, present to the user:
 
 - **Read the snapshot first, click second**: the accessibility snapshot tells you everything about the page structure. Use it to plan your clicks.
 - **Track active states**: note which nav item is "active" or "pressed" - this tells you where you are.
-- **Don't click destructive actions**: skip "Delete", "Log out", "Cancel subscription" etc.
-- **Sample repetitive content**: if there are 50 list items of the same type, click 1-2 to see the detail view, then move on.
+- **Don't click destructive actions**: skip "Delete", "Log out", "Cancel subscription" etc. But DO document them as elements.
+- **Sample repetitive content**: if there are 50 list items of the same type, click 2-3 to see the detail view, then move on. But always click at least 2.
 - **Handle loading**: if snapshot shows a spinner or empty content, use `browser_wait_for` with a selector or just wait 2-3 seconds and re-snapshot.
 - **Stay within the app domain**: don't follow external links.
 - **Take viewport screenshots for overlays**: use `fullPage: false` for modals/drawers so the overlay is properly visible.
 - **Take full-page screenshots for regular pages**: use `fullPage: true` for main screens to capture all content.
+- **When in doubt, click it**: if you're unsure whether an element leads to a new screen, click it. The cost of an extra click is much lower than the cost of missing a screen.
+- **Never stop early**: finding 5-7 screens for a feature-rich app is a sign you haven't explored deeply enough. Keep going until you've exhausted all interactive paths.
 
 ## Fallback: Python crawler (optional)
 
