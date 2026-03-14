@@ -83,24 +83,24 @@ Orchestrate comprehensive multi-dimensional code review using all specialized re
 
 ---
 
-### `/senior-review`
+### `/code-review`
 
 Unified code review -- auto-detects scope: uncommitted/staged changes, recent commits, PR number, or branch diff. Runs architecture, security, and pattern analysis agents in parallel with confidence scoring.
 
 ```
-/senior-review                    # auto-detect: uncommitted changes or branch diff
-/senior-review 42                 # review PR #42
-/senior-review --commits 3        # review last 3 commits
-/senior-review --branch feature   # review branch diff
-/senior-review --auto-comment     # post findings as PR comments
+/code-review                    # auto-detect: uncommitted changes or branch diff
+/code-review 42                 # review PR #42
+/code-review --commits 3        # review last 3 commits
+/code-review --branch feature   # review branch diff
+/code-review --auto-comment     # post findings as PR comments
 ```
 
 ---
 
-### `/pr-enhance`
+### `/pr-review`
 
 Analyze current branch changes, generate comprehensive PR description with risk assessment and review checklist, and optionally create the PR via `gh`.
 
 ```
-/pr-enhance --create
+/pr-review --create
 ```
