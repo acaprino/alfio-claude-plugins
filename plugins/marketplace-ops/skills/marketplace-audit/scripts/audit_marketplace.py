@@ -398,6 +398,23 @@ def audit():
         for kw, pnames in sorted(shared_kw.items()):
             report.add("info", f"Shared keyword '{kw}': {', '.join(pnames)}")
 
+    # Dependency validation
+    plugin_names = {p.get("name") for p in plugins}
+    for plugin in plugins:
+        pname = plugin.get("name", "")
+        for dep in plugin.get("dependencies", []):
+            if dep not in plugin_names:
+                report.add(
+                    "critical",
+                    f"Plugin '{pname}': dependency '{dep}' not found in marketplace",
+                )
+        for dep in plugin.get("optionalDependencies", []):
+            if dep not in plugin_names:
+                report.add(
+                    "warning",
+                    f"Plugin '{pname}': optional dependency '{dep}' not found in marketplace",
+                )
+
     report.print_report()
     return 1 if report.critical else 0
 

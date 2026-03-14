@@ -110,6 +110,8 @@ Update `state.json`: add `"00-scope.md"` to `files_created`, add step 0 to `comp
 
 Skip this phase entirely if `--deep-dive` flag is not set.
 
+**Note:** This phase does NOT require the `deep-dive-analysis` plugin -- it uses `general-purpose` agents to perform its own structural analysis. The `deep-dive-analysis` plugin is a separate, standalone tool.
+
 When `--deep-dive` is active, run deep-dive analysis on the target path to gather structural and semantic context that strengthens all subsequent review phases.
 
 Spawn 3 agents in parallel using the Agent tool:

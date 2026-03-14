@@ -16,6 +16,21 @@ description: >
 
 Maps a web application interactively using Playwright MCP tools. The AI navigates, screenshots, and catalogs every screen - handling login, SPAs, modals, and dynamic content that automated crawlers cannot.
 
+## Dependency: playwright-skill plugin
+
+This skill requires the `playwright-skill` plugin to be installed for Playwright MCP tools (`browser_navigate`, `browser_snapshot`, `browser_click`, etc.). If Playwright MCP tools are not available, STOP and tell the user:
+
+```
+Missing required plugin: playwright-skill
+
+The app-explorer skill requires Playwright MCP tools for browser automation.
+Install it with:
+  claude plugin marketplace add acaprino/anvil-toolset --plugin playwright-skill
+
+Or install the full marketplace:
+  claude plugin marketplace add acaprino/anvil-toolset
+```
+
 ## Strategy: Playwright MCP (primary)
 
 Use Playwright MCP tools directly. The AI controls the browser, reads accessibility snapshots, makes intelligent decisions about what to click/explore, and builds the sitemap incrementally.

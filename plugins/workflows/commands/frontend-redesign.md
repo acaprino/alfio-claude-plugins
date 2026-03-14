@@ -21,6 +21,26 @@ You MUST follow these rules exactly. Violating any of them is a failure.
 
 ## Pre-flight Checks
 
+### 0. Dependency check
+
+This command requires agents from the `frontend` plugin. Before proceeding, verify it is installed by checking that these agents are available:
+
+**Required plugins:**
+- `frontend` -- ui-ux-designer, ui-layout-designer, react-performance-optimizer, ui-polisher, css-master agents; frontend-design skill
+
+Check by looking for the agent/skill files. If the `frontend` plugin is missing, STOP and tell the user:
+
+```
+Missing required plugin: frontend
+
+This workflow command depends on agents from the frontend plugin.
+Install it with:
+  claude plugin marketplace add acaprino/anvil-toolset --plugin frontend
+
+Or install the full marketplace:
+  claude plugin marketplace add acaprino/anvil-toolset
+```
+
 ### 1. Check for existing session
 
 Check if `.frontend-redesign/state.json` exists:

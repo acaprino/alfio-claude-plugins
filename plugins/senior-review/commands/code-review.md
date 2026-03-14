@@ -86,14 +86,14 @@ gh api repos/{owner}/{repo}/pulls/{number}/comments --jq '.[].path' | sort -u
 
 5. **Read CLAUDE.md** if it exists -- note project conventions, naming rules, patterns
 
-6. **Check for deep-dive context** -- if `.deep-dive/` exists and contains completed analysis files:
+6. **Check for deep-dive context** (optional -- requires `deep-dive-analysis` plugin) -- if `.deep-dive/` exists and contains completed analysis files:
    - Read `.deep-dive/01-structure.md` for structural context
    - Read `.deep-dive/03-flows.md` for execution flow context
    - Read `.deep-dive/04-semantics.md` for design decision context
    - Read `.deep-dive/05-risks.md` for known risk context
    - Include a "Deep Dive Context" section in each agent's prompt (see template below)
    - Note in the review output that deep-dive context was used
-   - If `.deep-dive/` does not exist or is incomplete, proceed normally without it
+   - If `.deep-dive/` does not exist or is incomplete, proceed normally without it -- this is expected behavior when the `deep-dive-analysis` plugin is not installed or hasn't been run
 
 ### Deep Dive Context Template
 

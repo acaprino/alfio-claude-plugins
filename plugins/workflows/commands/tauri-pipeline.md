@@ -18,6 +18,31 @@ You MUST follow these rules exactly. Violating any of them is a failure.
 
 ## Pre-flight Checks
 
+### 0. Dependency check
+
+This command requires agents from other plugins. Before proceeding, verify they are installed:
+
+**Required plugins:**
+- `tauri-development` -- rust-engineer, tauri-optimizer agents (Phases 1-2)
+- `frontend` -- react-performance-optimizer, ui-layout-designer, ui-polisher agents (Phases 3-5)
+
+Check by looking for the agent/skill files. If a required plugin is missing:
+
+- If `tauri-development` is missing and `--frontend-only` is NOT set, STOP and tell the user.
+- If `frontend` is missing and `--rust-only` is NOT set, STOP and tell the user.
+- If the missing plugin's phases would be skipped by flags, warn but continue.
+
+```
+Missing required plugin(s): [list]
+
+This workflow command depends on agents from other anvil-toolset plugins.
+Install them with:
+  claude plugin marketplace add acaprino/anvil-toolset --plugin <name>
+
+Or install the full marketplace:
+  claude plugin marketplace add acaprino/anvil-toolset
+```
+
 ### 1. Verify Tauri project structure
 
 Check that `src-tauri/` directory and `src-tauri/tauri.conf.json` (or `tauri.conf.json` at root) exist:

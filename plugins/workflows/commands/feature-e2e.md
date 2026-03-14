@@ -19,6 +19,30 @@ You MUST follow these rules exactly. Violating any of them is a failure.
 
 ## Pre-flight Checks
 
+### 0. Dependency check
+
+This command requires agents and skills from other plugins. Before proceeding, verify the following plugins are installed by checking that their agents/skills are available:
+
+**Required plugins:**
+- `ai-tooling` -- brainstorming, writing-plans, executing-plans skills
+- `senior-review` -- architect-review, security-auditor, pattern-quality-scorer agents
+- `humanize` -- humanize agent (skip Phase 5 if missing)
+
+Check by looking for the agent/skill files. If a required plugin is missing, STOP and tell the user:
+
+```
+Missing required plugin(s): [list]
+
+This workflow command depends on agents and skills from other anvil-toolset plugins.
+Install them with:
+  claude plugin marketplace add acaprino/anvil-toolset --plugin <name>
+
+Or install the full marketplace:
+  claude plugin marketplace add acaprino/anvil-toolset
+```
+
+If only `humanize` is missing, warn but continue (treat as `--skip-humanize`).
+
 ### 1. Check for existing session
 
 Check if `.feature-e2e/state.json` exists:

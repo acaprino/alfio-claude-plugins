@@ -18,6 +18,33 @@ You MUST follow these rules exactly. Violating any of them is a failure.
 
 ## Pre-flight Checks
 
+### 0. Dependency check
+
+This command requires agents and skills from other plugins. Before proceeding, verify they are installed:
+
+**Required plugins:**
+- `mobile-development` -- analyze-mobile-app skill (Phase 1)
+- `frontend` -- ui-ux-designer agent (Phase 3)
+- `ai-tooling` -- brainstorming, writing-plans skills (Phases 2, 4)
+
+**Optional plugins:**
+- `tauri-development` -- tauri2-mobile skill (Phase 5, skip scaffold if missing)
+
+Check by looking for the agent/skill files. If a required plugin is missing, STOP and tell the user:
+
+```
+Missing required plugin(s): [list]
+
+This workflow command depends on agents and skills from other anvil-toolset plugins.
+Install them with:
+  claude plugin marketplace add acaprino/anvil-toolset --plugin <name>
+
+Or install the full marketplace:
+  claude plugin marketplace add acaprino/anvil-toolset
+```
+
+If only `tauri-development` is missing, warn but continue (treat as `--skip-scaffold`).
+
 ### 1. Verify ADB connection
 
 ```bash

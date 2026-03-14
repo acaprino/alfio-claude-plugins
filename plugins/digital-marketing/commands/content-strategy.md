@@ -16,6 +16,25 @@ argument-hint: "<url or local path> [--focus <areas>] [--competitor <url>] [--so
 
 ## Pre-flight
 
+### Dependency check (live sites only)
+
+For live URL targets, this command uses Playwright MCP tools for browser-based analysis. If Playwright MCP tools (`browser_navigate`, `browser_snapshot`, etc.) are not available, warn the user:
+
+```
+Optional plugin missing: playwright-skill
+
+Live site analysis works best with Playwright MCP tools for DOM inspection,
+screenshots, and responsive testing. Without it, analysis will be limited
+to what can be fetched via WebFetch/curl.
+
+Install it with:
+  claude plugin marketplace add acaprino/anvil-toolset --plugin playwright-skill
+```
+
+If Playwright tools are unavailable, fall back to WebFetch for fetching pages and analyze the raw HTML instead. Skip browser-specific checks (screenshots, responsive resize).
+
+### Initialize
+
 Create `.content-strategy/` directory. If it exists, ask to archive or overwrite.
 
 Use the `content-marketer` agent for analysis.

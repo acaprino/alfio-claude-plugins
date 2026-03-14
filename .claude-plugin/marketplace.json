@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "1.83.0"
+    "version": "1.84.0"
   },
   "plugins": [
     {
@@ -454,7 +454,7 @@
       "name": "digital-marketing",
       "source": "./plugins/digital-marketing",
       "description": "SEO optimization and content marketing with technical audits, keyword research, content strategy, and engagement-driven campaigns",
-      "version": "1.3.0",
+      "version": "1.4.0",
       "author": {
         "name": "Alfio"
       },
@@ -470,6 +470,9 @@
       ],
       "category": "marketing",
       "strict": false,
+      "optionalDependencies": [
+        "playwright-skill"
+      ],
       "agents": [
         "./agents/seo-specialist.md",
         "./agents/content-marketer.md"
@@ -483,7 +486,7 @@
       "name": "senior-review",
       "source": "./plugins/senior-review",
       "description": "Multi-agent code review orchestration with architecture, security, pattern analysis, and best practices across 5 phases",
-      "version": "2.5.0",
+      "version": "2.6.0",
       "author": {
         "name": "Alfio"
       },
@@ -497,6 +500,9 @@
       ],
       "category": "review",
       "strict": false,
+      "optionalDependencies": [
+        "deep-dive-analysis"
+      ],
       "agents": [
         "./agents/architect-review.md",
         "./agents/security-auditor.md",
@@ -512,7 +518,7 @@
       "name": "app-explorer",
       "source": "./plugins/app-explorer",
       "description": "AI-driven webapp explorer using Playwright MCP tools for interactive mapping of web applications - handles login, SPAs, modals, drawers, and dynamic content with intelligent BFS exploration and structured JSON sitemap output",
-      "version": "3.0.0",
+      "version": "3.1.0",
       "author": {
         "name": "Alfio"
       },
@@ -529,6 +535,9 @@
       ],
       "category": "utilities",
       "strict": false,
+      "dependencies": [
+        "playwright-skill"
+      ],
       "skills": [
         "./skills/app-explorer"
       ]
@@ -537,7 +546,7 @@
       "name": "workflows",
       "source": "./plugins/workflows",
       "description": "Cross-plugin orchestration pipelines -- end-to-end feature development, frontend redesign with UX audit, competitive mobile intelligence, and Tauri desktop app review",
-      "version": "1.2.0",
+      "version": "1.3.0",
       "author": {
         "name": "Alfio"
       },
@@ -552,6 +561,14 @@
       ],
       "category": "workflow",
       "strict": false,
+      "dependencies": [
+        "frontend",
+        "senior-review",
+        "humanize",
+        "ai-tooling",
+        "tauri-development",
+        "mobile-development"
+      ],
       "commands": [
         "./commands/feature-e2e.md",
         "./commands/frontend-redesign.md",
@@ -646,7 +663,7 @@
       "name": "marketplace-ops",
       "source": "./plugins/marketplace-ops",
       "description": "Marketplace consolidation and plugin management -- auditing, validation, AI quality review of descriptions and trigger keywords, upstream sync, plugin scaffolding, and health monitoring for the anvil-toolset ecosystem",
-      "version": "1.2.0",
+      "version": "1.3.0",
       "author": {
         "name": "Alfio"
       },
