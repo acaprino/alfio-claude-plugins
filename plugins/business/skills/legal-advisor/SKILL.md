@@ -75,8 +75,85 @@ Single authoritative reference -- all areas of expertise:
 # Workflow
 
 ## Phase 1 -- Research & Assessment
-- Use WebSearch to find applicable statutes, regulations, case law, and legal precedents relevant to the user's question and jurisdiction
-- Search for recent legal developments, regulatory updates, and enforcement actions in the relevant domain
+
+Research is NOT optional. Every legal analysis MUST be grounded in verified, current sources. Never rely solely on training data for normative claims.
+
+### Source Authority Hierarchy
+
+Always prefer higher-tier sources:
+1. **Official legal texts** -- EUR-Lex, Normattiva, legislation.gov.uk, legifrance.gouv.fr, leginfo.legislature.ca.gov, Fedlex
+2. **Regulatory authority guidance** -- EDPB, Garante, ICO, CNIL, FTC, SEC, USPTO, EUIPO
+3. **Court decisions** -- CJEU (curia.europa.eu), national supreme/appellate courts
+4. **Institutional commentary** -- European Commission, national ministries, bar associations
+5. **Specialist legal analysis** -- reputable law firms, academic journals, peer-reviewed articles
+6. **DEPRIORITIZE** -- SEO blogs, AI-generated summaries, generic legal advice sites
+
+### Search Strategy
+
+**Query construction by domain:**
+
+Legislation:
+- EU: `site:eur-lex.europa.eu "{regulation number}" article {N}`
+- Italy: `site:normattiva.it "{law number}" articolo {N}`
+- Germany: `site:gesetze-im-internet.de {law abbreviation}`
+- France: `site:legifrance.gouv.fr "{code/loi}" article {N}`
+- Spain: `site:boe.es "{ley}" articulo {N}`
+- UK: `site:legislation.gov.uk "{act name}" section {N}`
+- USA: `site:law.cornell.edu "{USC title}" section {N}` or `site:leginfo.legislature.ca.gov "{code}" section {N}`
+- Brazil: `site:planalto.gov.br "lei {number}"`
+- Switzerland: `site:fedlex.admin.ch "{law number}"`
+
+Regulatory guidance:
+- `site:edpb.europa.eu guidelines {topic} {year}`
+- `site:garanteprivacy.it {docweb number OR topic}`
+- `site:ico.org.uk guidance {topic}`
+- `site:cnil.fr {topic}`
+- `site:ftc.gov {topic} enforcement`
+- `site:sec.gov {topic} guidance`
+
+Case law:
+- CJEU: `site:curia.europa.eu "{case name}" OR "C-{number}"`
+- `ECLI:{case identifier}`
+- National: search by case number + court name + legal domain
+
+IP:
+- `site:euipo.europa.eu {trademark/design topic}`
+- `site:wipo.int {patent/trademark topic}`
+- `site:uspto.gov {patent/trademark topic}`
+
+Corporate/securities:
+- `site:sec.gov {filing type} {topic}`
+- `site:consob.it {topic}` (Italy)
+- `site:esma.europa.eu {topic}` (EU)
+
+### Search Sequencing
+
+**Step 1 -- Identify applicable law (run 3+ parallel searches):**
+- Search for the primary statute/regulation governing the user's question
+- Search for the relevant jurisdiction's implementing legislation
+- Search for recent amendments or updates to the applicable law
+
+**Step 2 -- Find authoritative interpretation:**
+- Search for regulatory guidance, official commentary, or FAQ from the relevant authority
+- Search for landmark case law interpreting the provision
+- Search for recent enforcement actions in the same domain
+
+**Step 3 -- Triangulate high-risk advice:**
+- For advice involving significant liability, penalties, or irreversible actions: require minimum 2 independent official sources
+- If sources conflict: cite both, explain the divergence, mark as `[REQUIRES LEGAL REVIEW]`
+- For evolving areas: search for the current year to catch recent developments
+
+### Recency Validation
+
+Before delivering any legal analysis:
+- Verify cited statutes have not been amended or repealed
+- Check if cited case law has been overturned or distinguished
+- Search for regulatory updates from the current year
+- If a key source is older than 2 years: actively search for updates or confirmations
+- Flag any time-sensitive deadlines discovered during research
+
+### Research Assessment
+
 - Map business model to legal requirements
 - Identify compliance gaps and regulatory exposure
 - Audit existing contracts, policies, IP inventory

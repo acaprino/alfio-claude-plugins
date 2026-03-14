@@ -308,7 +308,7 @@
       "name": "business",
       "source": "./plugins/business",
       "description": "Legal advisory and compliance document generation -- Privacy Policies, Cookie Policies, DPAs, DPIA reports, GDPR/ePrivacy/CCPA compliance, contract review, IP, and risk mitigation",
-      "version": "1.4.0",
+      "version": "1.5.0",
       "author": {
         "name": "Alfio"
       },
@@ -325,7 +325,7 @@
       "category": "business",
       "strict": false,
       "agents": [
-        "./agents/privacy-compliance-generator.md"
+        "./agents/privacy-doc-generator.md"
       ],
       "skills": [
         "./skills/legal-advisor"
