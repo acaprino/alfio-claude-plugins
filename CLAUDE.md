@@ -12,23 +12,26 @@ plugins/
     agents/                 # agent .md files (frontmatter + system prompt)
     skills/                 # skill directories (SKILL.md + optional references/)
     commands/               # slash-command .md files
+    hooks/                  # hook handlers (JS) + hooks.json (anvil-hooks only)
 ```
 
-25 plugins: humanize, deep-dive-analysis, tauri-development, frontend, ai-tooling, python-development, stripe, utilities, messaging, research, business, code-documentation, project-setup, mobile-development, typescript-development, csp, digital-marketing, senior-review, app-explorer, workflows, obsidian-development, browser-extensions, learning, marketplace-ops, playwright-skill.
+27 plugins: humanize, deep-dive-analysis, tauri-development, frontend, ai-tooling, python-development, stripe, utilities, messaging, research, business, code-documentation, project-setup, mobile-development, typescript-development, csp, digital-marketing, senior-review, app-explorer, workflows, obsidian-development, browser-extensions, learning, marketplace-ops, playwright-skill, anvil-hooks, cc-usage.
 
 ## Plugin anatomy
 
 **Agents** - Markdown files with YAML frontmatter:
 - `name`: agent identifier (kebab-case)
-- `description`: when/how to use the agent
+- `description`: when/how to use the agent (use YAML multiline `>` for long descriptions)
 - `model`: LLM model (default: `opus`)
 - `tools` (optional): comma-separated tool list (e.g. `Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch, Task`); omit to allow all tools
 - `color`: UI accent color (e.g. `red`, `blue`, `green`, `yellow`, `purple`, `orange`, `cyan`, `magenta`, `violet`, `teal`, `indigo`, `gold`, `rust`, `pink`)
 - Body: terse keyword-list style system prompt; simple agents ~60-200 lines, complex agents up to ~800 lines
 
-**Skills** - Directory with `SKILL.md` (frontmatter: `name`, `description`) and optional supplementary subdirs: `references/` (docs), `scripts/`, `templates/`, `assets/`.
+**Skills** - Directory with `SKILL.md` (frontmatter: `name`, `description`) and optional supplementary subdirs: `references/` (docs), `scripts/`, `templates/`, `assets/`, `lib/`.
 
 **Commands** - Slash-command `.md` files with usage instructions and examples. No frontmatter required.
+
+**Hooks** - Used by `anvil-hooks` plugin. Contains `hooks.json` (hook definitions) and `handlers/` directory with JS handler scripts. Uses `.claude-plugin/plugin.json` instead of marketplace registration for hook configuration.
 
 ## Conventions
 
@@ -36,7 +39,7 @@ plugins/
 - Plugin names: kebab-case directory names
 - Default model: `opus` (Opus 4.6) for all agents
 - Agent body style: terse keyword lists, imperative tone, structured with markdown headers
-- Skills supplementary subdirs: `references/`, `scripts/`, `templates/`, `assets/` as needed
+- Skills supplementary subdirs: `references/`, `scripts/`, `templates/`, `assets/`, `lib/` as needed
 - No build step or runtime framework - plugins are markdown with optional helper scripts (Python, JS) in skills' `scripts/` subdirs
 - Never use the em dash character anywhere - in code, comments, commit messages, or documentation. Use a regular hyphen `-` or double hyphen `--` instead
 
@@ -56,7 +59,7 @@ Key fields in `.claude-plugin/marketplace.json`:
 
 ## Adding a new plugin
 
-1. Create `plugins/<name>/` with `agents/`, `skills/`, and/or `commands/` subdirectories as needed
+1. Create `plugins/<name>/` with `agents/`, `skills/`, `commands/`, and/or `hooks/` subdirectories as needed
 2. Write agent/skill/command markdown files following existing patterns
 3. Register the plugin in `.claude-plugin/marketplace.json` - add entry to `plugins[]` with `name`, `source`, `description`, `version` (start at `1.0.0`), `author`, `license`, `keywords`, `category`, `strict`, paths to agents/skills/commands, and optionally `dependencies`/`optionalDependencies` (arrays of plugin names)
 4. Bump `metadata.version` and commit everything together
