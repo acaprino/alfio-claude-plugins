@@ -105,7 +105,7 @@ class CrawlContext:
     screenshots_dir: Path
     visited: set = field(default_factory=set)
     thorough: bool = True
-    max_overlay_depth: int = 2
+    max_overlay_depth: int = 3
     log: logging.Logger = field(default_factory=lambda: logging.getLogger("crawler"))
     screen_counter: int = 0
 
@@ -784,9 +784,15 @@ def explore_hamburger_menu(
     current_url: str,
     thorough: bool,
     log: logging.Logger,
-) -> list[dict]:
-    """Try to find and open hamburger/drawer menus, extract their items."""
+    ctx: CrawlContext | None = None,
+) -> tuple[list[dict], dict | None]:
+    """Try to find and open hamburger/drawer menus, extract their items.
+
+    Returns (drawer_elements, drawer_screen) where drawer_screen is a screen
+    dict with a screenshot of the open drawer state (or None).
+    """
     drawer_elements: list[dict] = []
+    drawer_screen: dict | None = None
     seen: set[str] = set()
 
     def _add_drawer(el_type: str, label: str, extra: dict | None = None) -> None:
@@ -837,6 +843,29 @@ def explore_hamburger_menu(
                 except Exception:
                     pass
 
+            # Screenshot the open drawer state before closing
+            if drawer_elements and ctx is not None:
+                try:
+                    drawer_sid = ctx.next_screen_id()
+                    drawer_ss_path = str(ctx.screenshots_dir / f"{drawer_sid}.png")
+                    page.screenshot(path=drawer_ss_path, full_page=False, timeout=5000)
+                    drawer_screen = {
+                        "id": drawer_sid,
+                        "url": page.url,
+                        "title": f"Drawer menu - {page.title()}",
+                        "screenshot": drawer_ss_path,
+                        "depth": 0,
+                        "min_clicks_from_root": 1,
+                        "path_from_root": [],
+                        "reached_via": {"from_screen": None, "action": "open_drawer", "label": "hamburger_menu"},
+                        "elements": list(drawer_elements),
+                        "overlay": {"type": "drawer", "title": "Navigation drawer", "visible": True},
+                    }
+                    if thorough:
+                        drawer_screen["element_summary"] = compute_element_summary(drawer_elements)
+                except Exception:
+                    pass
+
             # Close the drawer
             try:
                 page.keyboard.press("Escape")
@@ -856,7 +885,7 @@ def explore_hamburger_menu(
         except Exception:
             pass
 
-    return drawer_elements
+    return drawer_elements, drawer_screen
 
 
 # ---------------------------------------------------------------------------
@@ -1048,6 +1077,77 @@ def extract_overlay_elements(
                         })
                 except Exception:
                     pass
+
+            # Tabs inside overlay
+            for tab in container_loc.locator("[role='tab']:visible").all():
+                try:
+                    label = _safe_label(tab, "")
+                    key = f"tab::{label}"
+                    if label and key not in seen:
+                        seen.add(key)
+                        overlay_elements.append({
+                            "type": "tab",
+                            "label": label,
+                            "selector": _best_selector(tab),
+                            "in_overlay": True,
+                        })
+                except Exception:
+                    pass
+
+            # Menu items inside overlay
+            for mi in container_loc.locator(
+                "[role='menuitem']:visible, [role='option']:visible"
+            ).all():
+                try:
+                    label = _safe_label(mi, "")
+                    key = f"menu_item::{label}"
+                    if label and key not in seen:
+                        seen.add(key)
+                        overlay_elements.append({
+                            "type": "menu_item",
+                            "label": label,
+                            "selector": _best_selector(mi),
+                            "in_overlay": True,
+                        })
+                except Exception:
+                    pass
+
+            # Nav items inside overlay
+            for ni in container_loc.locator(
+                "nav button:visible, nav [role='button']:visible"
+            ).all():
+                try:
+                    label = _safe_label(ni, "")
+                    key = f"nav_item::{label}"
+                    if label and key not in seen and len(label) < 30:
+                        seen.add(key)
+                        overlay_elements.append({
+                            "type": "nav_item",
+                            "label": label,
+                            "selector": _best_selector(ni),
+                            "in_overlay": True,
+                        })
+                except Exception:
+                    pass
+
+            # Accordions inside overlay
+            for acc in container_loc.locator(
+                "details > summary:visible, "
+                ".accordion:visible, [data-accordion]:visible"
+            ).all():
+                try:
+                    label = _safe_label(acc, "")
+                    key = f"accordion::{label}"
+                    if label and key not in seen:
+                        seen.add(key)
+                        overlay_elements.append({
+                            "type": "accordion",
+                            "label": label,
+                            "selector": _best_selector(acc),
+                            "in_overlay": True,
+                        })
+                except Exception:
+                    pass
         finally:
             # Always clean up the marker attribute
             try:
@@ -1193,14 +1293,16 @@ def explore_clickable_element(
 ) -> list[dict]:
     """
     Click a non-link element, check if it opened a new state, capture it.
-    Returns a list of new screen dicts (may contain multiple if overlay
-    exploration discovers sub-screens).
+    Returns a tuple of (new_screens, urls_to_enqueue) where new_screens is
+    a list of screen dicts and urls_to_enqueue is a list of BFS queue entries
+    for pages discovered via button clicks that change the URL.
     """
     selector = element.get("selector", "")
     if not selector:
-        return []
+        return [], []
 
     new_screens: list[dict] = []
+    urls_to_enqueue: list[dict] = []
 
     try:
         page.locator(selector).first.click(timeout=3000)
@@ -1219,14 +1321,21 @@ def explore_clickable_element(
 
         if fp in ctx.visited:
             _dismiss_overlay(page, original_screen_fp, ctx)
-            return []
+            return [], []
 
         ctx.visited.add(fp)
         screen_id = ctx.next_screen_id()
         screenshot_path = str(ctx.screenshots_dir / f"{screen_id}.png")
 
+        # Use viewport-only screenshot when an overlay is visible to avoid
+        # capturing the full page behind the dialog/drawer/modal.
+        has_overlay = _is_overlay_visible(page)
         try:
-            page.screenshot(path=screenshot_path, full_page=True, timeout=5000)
+            page.screenshot(
+                path=screenshot_path,
+                full_page=not has_overlay,
+                timeout=5000,
+            )
         except Exception:
             screenshot_path = ""
 
@@ -1266,11 +1375,11 @@ def explore_clickable_element(
 
                     if overlay_depth < ctx.max_overlay_depth:
                         for oel in overlay_els:
-                            if oel["type"] not in ("button", "link"):
+                            if oel["type"] not in CLICKABLE_TYPES and oel["type"] != "link":
                                 continue
                             if not oel.get("selector"):
                                 continue
-                            sub_screens = explore_clickable_element(
+                            sub_screens, sub_urls = explore_clickable_element(
                                 page, oel, screen_id,
                                 ctx,
                                 depth + 1, new_path,
@@ -1278,6 +1387,26 @@ def explore_clickable_element(
                                 overlay_depth=overlay_depth + 1,
                             )
                             new_screens.extend(sub_screens)
+                            urls_to_enqueue.extend(sub_urls)
+            else:
+                # No overlay - the click opened a new page (URL changed).
+                # Enqueue it for BFS so its own links/buttons get explored.
+                clicked_url = page.url
+                norm_clicked = normalize_url(clicked_url, ctx.base_origin)
+                if (
+                    is_internal_url(clicked_url, ctx.base_origin)
+                    and norm_clicked not in ctx.visited
+                ):
+                    urls_to_enqueue.append({
+                        "url": clicked_url,
+                        "depth": depth + 1,
+                        "path": new_path,
+                        "reached_via": {
+                            "from_screen": current_screen_id,
+                            "action": f"click:{element['type']}",
+                            "label": element.get("label", ""),
+                        },
+                    })
 
             screen["element_summary"] = compute_element_summary(new_elements)
 
@@ -1286,10 +1415,10 @@ def explore_clickable_element(
         # Dismiss modal / restore original state
         _dismiss_overlay(page, original_screen_fp, ctx)
 
-        return new_screens
+        return new_screens, urls_to_enqueue
 
     except Exception:
-        return []
+        return [], []
 
 
 def _dismiss_overlay(
@@ -1611,9 +1740,20 @@ def crawl(
             # Thorough: explore hamburger/drawer menus
             # (re-navigate after to restore page state for fingerprinting)
             if thorough:
-                drawer_items = explore_hamburger_menu(
-                    page, base_origin, page.url, thorough, log,
+                drawer_items, drawer_screen = explore_hamburger_menu(
+                    page, base_origin, page.url, thorough, log, ctx=ctx,
                 )
+                if drawer_screen is not None:
+                    drawer_screen["depth"] = depth
+                    drawer_screen["min_clicks_from_root"] = depth + 1
+                    drawer_screen["path_from_root"] = path + [{
+                        "step": depth + 1,
+                        "from_screen": "pending",
+                        "action": "open_drawer",
+                        "label": "hamburger_menu",
+                    }]
+                    screens[drawer_screen["id"]] = drawer_screen
+                    log.info("[%d] %s  (drawer menu)", ctx.screen_counter - 1, drawer_screen["id"])
                 if drawer_items:
                     existing_labels_set = {
                         f"{e['type']}::{e.get('label', '')}" for e in elements
@@ -1648,6 +1788,14 @@ def crawl(
 
             log.info("[%d] %s  %s  (%d elements)", ctx.screen_counter - 1, screen_id, page.url, len(elements))
 
+            # Patch drawer_screen's from_screen now that we have screen_id
+            if thorough and drawer_screen is not None and drawer_screen["id"] in screens:
+                for step in drawer_screen.get("path_from_root", []):
+                    if step.get("from_screen") == "pending":
+                        step["from_screen"] = screen_id
+                if drawer_screen.get("reached_via", {}).get("from_screen") is None:
+                    drawer_screen["reached_via"]["from_screen"] = screen_id
+
             # Enqueue link children + mark leads_to as None (resolved post-crawl)
             enriched_elements = []
             for el in elements:
@@ -1679,19 +1827,23 @@ def crawl(
                         continue
                     if ctx.screen_counter >= max_screens:
                         break
-                    new_screens = explore_clickable_element(
+                    click_screens, click_urls = explore_clickable_element(
                         page, el, screen_id,
                         ctx,
                         depth, path,
                         original_screen_fp=fp,
                     )
-                    for ns in new_screens:
+                    for ns in click_screens:
                         screens[ns["id"]] = ns
                         log.info(
                             "[%d] %s  (via click:%s '%s')",
                             ctx.screen_counter - 1, ns["id"],
                             el.get("type", ""), el.get("label", ""),
                         )
+                    # Enqueue pages discovered via button clicks for BFS
+                    for cu in click_urls:
+                        if cu["depth"] <= max_depth:
+                            queue.append(cu)
 
                     # Re-navigate back to current URL after each click
                     try:

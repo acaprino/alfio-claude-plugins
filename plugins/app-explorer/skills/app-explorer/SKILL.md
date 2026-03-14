@@ -74,7 +74,7 @@ Replace `{SKILL_BASE_DIR}` with the base directory shown at the top of this skil
    - Saves auth state to `auth.json` for future reuse
    - Runs BFS crawl using the **post-login page** as root (preserves auth session)
    - Explores all pages, buttons, menus, modals, tabs, bottom navigation
-   - With `--thorough` (default): captures 20+ element types, recursively explores overlays, auto-detects hamburger/drawer menus
+   - With `--thorough` (default): captures 20+ element types, recursively explores overlays (up to depth 3), auto-detects hamburger/drawer menus with dedicated screenshots
    - Uses multi-signal fingerprinting (includes visible modals/dialogs/drawers) to distinguish SPA states with same URL
    - Saves a screenshot for every unique screen
    - Writes `.app-explorer/sitemap.json`
@@ -87,9 +87,11 @@ The crawler handles single-page applications with:
 - **Auth session persistence**: saves browser storage state after login, uses current page as BFS root (no re-navigation that would lose auth)
 - **Multi-signal fingerprinting**: combines URL + interactive labels + DOM headings + active tab state to distinguish pages with the same URL
 - **Bottom navigation detection**: finds nav buttons, tab bars, and bottom nav components common in mobile SPAs
-- **Recursive overlay exploration**: clicks elements inside modals, dialogs, and drawers to discover nested screens
-- **Hamburger/drawer auto-detection**: identifies hamburger menu buttons and sidebar triggers, opens them to explore hidden navigation
-- **Overlay dismiss**: tries Escape, then backdrop click to dismiss modals/sheets before continuing
+- **Recursive overlay exploration**: clicks elements inside modals, dialogs, and drawers to discover nested screens (depth up to 3); explores tabs, nav items, accordions inside overlays - not just buttons/links
+- **Hamburger/drawer auto-detection**: identifies hamburger menu buttons and sidebar triggers, opens them, takes a dedicated viewport screenshot of the open drawer, then explores hidden navigation items
+- **Viewport-aware screenshots**: uses viewport-only screenshots for overlays/dialogs/drawers (preserving mobile framing), full-page for regular screens
+- **Button-opened pages queued for BFS**: when clicking a button navigates to a new URL (not just opening an overlay), that URL is enqueued for full BFS exploration of its own links and buttons
+- **Overlay dismiss**: tries Escape, close button, then backdrop click to dismiss modals/sheets before continuing
 - **Enhanced fingerprinting**: considers visible modals, dialogs, and drawers as part of the screen identity
 - **Auth reuse**: `--auth auth.json` flag to skip login on subsequent crawls
 
