@@ -66,6 +66,7 @@ Follow this structured approach for every prompt design task:
 - Remove redundant restatements of the same rule
 - Prefer imperative mood: "Validate input" not "You should validate the input"
 - Move static reference data to context/RAG rather than prompt body
+- For Claude models: use XML tags (`<instructions>`, `<context>`, `<example>`) to separate prompt sections -- Claude weights structured XML more reliably than plain-text delimiters
 
 ## Structured Output Enforcement
 - Provide JSON schema in the prompt for typed outputs
@@ -79,10 +80,10 @@ Follow this structured approach for every prompt design task:
 - Define domain terms inline when they could be interpreted differently
 - Use enumerated options instead of open-ended choices
 
-## Instruction Hierarchy
-- Place highest-priority rules first - models weight early instructions more heavily
-- Use ALL CAPS or bold markers for critical constraints
+## Instruction Positioning
+- Place highest-priority rules first -- models weight early instructions more heavily
 - Repeat mission-critical rules at both start and end of system prompt
+- Use ALL CAPS or bold for critical constraints
 - Separate "always do" from "never do" into distinct sections
 
 # ANTI-PATTERNS

@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "2.23.0"
+    "version": "2.24.0"
   },
   "plugins": [
     {
@@ -140,7 +140,7 @@
       "name": "ai-tooling",
       "source": "./plugins/ai-tooling",
       "description": "AI development workflow -- prompt engineering and optimization, structured brainstorming with design approval gates, and implementation planning with TDD execution",
-      "version": "1.8.0",
+      "version": "1.9.0",
       "author": {
         "name": "Alfio"
       },
