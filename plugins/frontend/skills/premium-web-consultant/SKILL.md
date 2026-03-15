@@ -285,7 +285,7 @@ Merge both outputs into the content strategy document.
 
 ## Phase 5: Final Package
 
-Compile all phase outputs into a single umbrella document.
+Compile all phase outputs into a single umbrella document. Use the `references/final-package-template.md` template.
 
 Structure:
 1. **Table of Contents**
