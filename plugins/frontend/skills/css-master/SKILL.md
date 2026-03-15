@@ -13,6 +13,57 @@ Comprehensive reference for writing modern, robust, maintainable, and accessible
 
 ## Layout and Responsive Design
 
+### Flexbox Patterns (One-Dimensional Layout)
+
+Use Flexbox for component-level alignment, distribution, and 1D layouts. Always prefer `gap` over margins for spacing.
+
+```css
+/* Cluster / Auto-wrap pattern */
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Center exactly */
+.center-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Sidebar + Main content (Auto-grow) */
+.with-sidebar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
+}
+.with-sidebar > .sidebar { flex: 1 1 250px; }
+.with-sidebar > .main    { flex: 3 1 500px; }
+```
+
+### CSS Grid Patterns (Two-Dimensional Layout)
+
+Use Grid for macro-layouts and structured data. Rely on fluid math to avoid Media Queries where possible.
+
+```css
+/* Fluid Auto-Grid (auto-fit + minmax) */
+.auto-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+  gap: var(--space-md);
+}
+
+/* Standard App Layout */
+.app-layout {
+  display: grid;
+  grid-template-rows: auto 1fr auto; /* Header, Main (fluid), Footer */
+  min-block-size: 100dvh;
+}
+```
+
 ### Container Queries
 
 Use container queries for component-based responsive design. See `references/css-patterns.md` for detailed examples.
@@ -91,7 +142,27 @@ h1, p, button { text-box: trim-both cap alphabetic; /* Optical vertical centerin
 - `svh` / `svw` - Small (smallest possible viewport)
 - `lvh` / `lvw` - Large (largest possible viewport)
 
+### Variable Fonts
+
+Prefer variable fonts to reduce HTTP requests and enable granular weight/slant control with smooth transitions.
+
+```css
+@font-face {
+  font-family: 'Inter Variable';
+  src: url('inter-variable.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+h1 {
+  font-family: 'Inter Variable', sans-serif;
+  font-variation-settings: 'wght' 750, 'slnt' -10;
+  transition: font-variation-settings 0.3s ease;
+}
+```
+
 ### Web Fonts
+
 ```css
 @font-face {
   font-family: 'Inter';
@@ -187,6 +258,25 @@ See `references/css-patterns.md` for detailed BEM, CSS Modules, and SASS pattern
 - **CSS Modules**: React/Vue/Svelte component projects - automatic scoping
 - **Tailwind**: Utility-first, rapid iteration; use `@apply` sparingly
 - **SASS**: Use only when you need maps/iteration or mixins; native CSS covers most use cases now
+
+---
+
+## Logical Properties
+
+Always use Logical Properties instead of directional (physical) properties to support internationalization (RTL/LTR) natively.
+
+- **Width/Height** -- `inline-size` / `block-size`
+- **Margin/Padding Top & Bottom** -- `margin-block` / `padding-block`
+- **Margin/Padding Left & Right** -- `margin-inline` / `padding-inline`
+- **Top/Right/Bottom/Left** -- `inset-block-start` / `inset-inline-end` / `inset-block-end` / `inset-inline-start`
+
+```css
+/* Physical (avoid) */
+.box { width: 100%; margin-top: 1rem; padding-left: 2rem; }
+
+/* Logical (prefer) */
+.box { inline-size: 100%; margin-block-start: 1rem; padding-inline-start: 2rem; }
+```
 
 ---
 
