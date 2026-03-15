@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "2.29.0"
+    "version": "2.30.0"
   },
   "plugins": [
     {
@@ -465,8 +465,8 @@
     {
       "name": "digital-marketing",
       "source": "./plugins/digital-marketing",
-      "description": "SEO optimization and content marketing with technical audits, keyword research, content strategy, and engagement-driven campaigns",
-      "version": "1.8.0",
+      "description": "SEO optimization, content marketing, and brand naming -- technical audits, keyword research, content strategy, and strategic brand naming with market saturation analysis, domain checks, trademark screening, and weighted scoring",
+      "version": "1.9.0",
       "author": {
         "name": "Alfio"
       },
@@ -478,7 +478,12 @@
         "keyword-research",
         "content-strategy",
         "organic-traffic",
-        "search-optimization"
+        "search-optimization",
+        "brand",
+        "naming",
+        "branding",
+        "domain-check",
+        "trademark"
       ],
       "category": "marketing",
       "strict": false,
@@ -489,9 +494,13 @@
         "./agents/seo-specialist.md",
         "./agents/content-marketer.md"
       ],
+      "skills": [
+        "./skills/brand-naming"
+      ],
       "commands": [
         "./commands/seo-audit.md",
-        "./commands/content-strategy.md"
+        "./commands/content-strategy.md",
+        "./commands/brand-naming.md"
       ]
     },
     {
@@ -795,35 +804,6 @@
       ],
       "commands": [
         "./commands/cc-usage.md"
-      ]
-    },
-    {
-      "name": "brand-naming",
-      "source": "./plugins/brand-naming",
-      "description": "Brand naming strategist -- generates, filters, scores, and validates brand names through structured workflow with domain checks, trademark screening, SEO analysis, and weighted scoring",
-      "version": "1.0.0",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "brand",
-        "naming",
-        "branding",
-        "product-name",
-        "startup-name",
-        "domain-check",
-        "trademark",
-        "scoring",
-        "marketing"
-      ],
-      "category": "business",
-      "strict": false,
-      "skills": [
-        "./skills/brand-naming"
-      ],
-      "commands": [
-        "./commands/brand-naming.md"
       ]
     }
   ]
