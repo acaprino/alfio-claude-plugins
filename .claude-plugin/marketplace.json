@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "2.28.0"
+    "version": "2.29.0"
   },
   "plugins": [
     {
@@ -795,6 +795,35 @@
       ],
       "commands": [
         "./commands/cc-usage.md"
+      ]
+    },
+    {
+      "name": "brand-naming",
+      "source": "./plugins/brand-naming",
+      "description": "Brand naming strategist -- generates, filters, scores, and validates brand names through structured workflow with domain checks, trademark screening, SEO analysis, and weighted scoring",
+      "version": "1.0.0",
+      "author": {
+        "name": "Alfio"
+      },
+      "license": "MIT",
+      "keywords": [
+        "brand",
+        "naming",
+        "branding",
+        "product-name",
+        "startup-name",
+        "domain-check",
+        "trademark",
+        "scoring",
+        "marketing"
+      ],
+      "category": "business",
+      "strict": false,
+      "skills": [
+        "./skills/brand-naming"
+      ],
+      "commands": [
+        "./commands/brand-naming.md"
       ]
     }
   ]
