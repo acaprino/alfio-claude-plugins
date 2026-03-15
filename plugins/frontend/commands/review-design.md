@@ -20,9 +20,9 @@ You are a senior frontend design auditor. Review frontend code for design qualit
 ### Check for changed frontend files
 
 ```bash
-git diff HEAD --name-only | grep -E '\.(tsx|jsx|vue|svelte|css|scss|sass|less|html)$'
-git diff --name-only | grep -E '\.(tsx|jsx|vue|svelte|css|scss|sass|less|html)$'
-git diff --cached --name-only | grep -E '\.(tsx|jsx|vue|svelte|css|scss|sass|less|html)$'
+git diff HEAD --name-only | grep -E '\.(tsx|jsx|vue|svelte|css|scss|sass|less|html)$' || true
+git diff --name-only | grep -E '\.(tsx|jsx|vue|svelte|css|scss|sass|less|html)$' || true
+git diff --cached --name-only | grep -E '\.(tsx|jsx|vue|svelte|css|scss|sass|less|html)$' || true
 ```
 
 ### Decision tree
@@ -47,6 +47,28 @@ Or use the path from `$ARGUMENTS` if provided. List what you find -- components,
 
 If no frontend files are found, stop and say so.
 
+## Step 1.5: Run Deterministic Linters (if available)
+
+Before sampling files, run any available linting tools and capture their output. These provide ground truth that agents can interpret and explain rather than re-discovering manually:
+
+```bash
+# CSS linting (if stylelint is configured)
+npx stylelint "**/*.css" --formatter json 2>/dev/null || true
+
+# React/JS linting (if eslint is configured)
+npx eslint --format json "src/**/*.{tsx,jsx}" 2>/dev/null || true
+
+# Accessibility audit (if axe-core CLI is available)
+npx @axe-core/cli --format json 2>/dev/null || true
+```
+
+If any of these commands produce output, pass the relevant results to the corresponding agent:
+- Stylelint output to Agent C1 (CSS Architecture)
+- ESLint output to Agent D (React Performance)
+- Axe output to Agent A (UX Patterns)
+
+This reduces hallucinations and lets agents focus on explaining WHY issues exist and HOW to fix them, rather than counting brackets.
+
 ## Step 2: Sample Key Files & Gather Context
 
 Read a representative cross-section:
@@ -57,6 +79,15 @@ Read a representative cross-section:
 - State management files (stores, contexts, atoms)
 
 This gives you the design language, patterns, and architecture to evaluate against.
+
+**Context segmentation:** Do NOT pass all files to all agents. Each agent should receive only the files relevant to its domain:
+- **Agent A (UX):** Components, layout files, brief
+- **Agent B (Layout):** Layout files, stylesheets, design tokens, brief
+- **Agent C1 (CSS):** Stylesheets, config files, design tokens
+- **Agent C2 (Visual Polish):** Stylesheets, animated components
+- **Agent D (React):** Components, state management files, config
+
+This avoids context duplication and keeps each agent focused.
 
 **UI Studio brief check:** Look for a product brief file (`brief.md`, `product-brief.md`, or similar) in the project root or docs directory. If found, use it as the north star for evaluating design coherence -- every UX, layout, and aesthetic decision should align with the stated goal, audience, and aesthetic tone from the brief. Pass the brief content to all agents as evaluation context.
 
@@ -77,10 +108,13 @@ Task:
     [list of key files sampled]
 
     ## File Contents
-    [paste sampled component and layout file contents]
+    [paste sampled component and layout file contents -- NOT stylesheets, those go to CSS agents]
 
     ## Product Brief (if available)
     [paste brief content or "No product brief found -- evaluate against general UX best practices"]
+
+    ## Linter Output (if available)
+    [paste axe-core accessibility report if captured in Step 1.5, or "No linter output available"]
 
     ## Instructions
     Evaluate:
@@ -104,7 +138,6 @@ Task:
         - 5-second glance test: Can a new user understand the page purpose in 5 seconds?
         - Letter spacing on large headlines (> 32px should have tighter tracking)
         - Nested rounded corners: inner radius = outer radius - gap (not matching radii)
-        - 8-point spacing grid consistency
         - HSB color tinting for hover/active states (not opacity)
         - Card design: do cards use visual hierarchy instead of labels?
         - Kill lines/use space: is content tight or is there unnecessary padding/decoration?
@@ -144,7 +177,7 @@ Task:
     [list of key files sampled]
 
     ## File Contents
-    [paste sampled layout and stylesheet file contents]
+    [paste sampled layout files, stylesheets, and design token files]
 
     ## Product Brief (if available)
     [paste brief content or "No product brief found -- evaluate against general layout best practices"]
@@ -194,10 +227,13 @@ Task:
     [list of key files sampled]
 
     ## File Contents
-    [paste sampled stylesheet, config, and component file contents]
+    [paste sampled stylesheets, config files, and design tokens only -- NOT component logic]
 
     ## Product Brief (if available)
     [paste brief content or "No product brief found -- evaluate against CSS architecture best practices"]
+
+    ## Linter Output (if available)
+    [paste stylelint JSON report if captured in Step 1.5, or "No linter output available"]
 
     ## Instructions
     Evaluate:
@@ -261,7 +297,7 @@ Task:
     [list of key files sampled]
 
     ## File Contents
-    [paste sampled stylesheet and component file contents]
+    [paste sampled stylesheets and animated/interactive component files only]
 
     ## Product Brief (if available)
     [paste brief content or "No product brief found -- evaluate against general visual polish best practices"]
@@ -323,10 +359,13 @@ Task:
     [list of key files sampled]
 
     ## File Contents
-    [paste sampled component, state management, and config file contents]
+    [paste sampled components, state management files, and config -- NOT stylesheets]
 
     ## Product Brief (if available)
     [paste brief content -- especially performance budget and stack info -- or "No product brief found"]
+
+    ## Linter Output (if available)
+    [paste ESLint JSON report if captured in Step 1.5, or "No linter output available"]
 
     ## Instructions
     Evaluate:
