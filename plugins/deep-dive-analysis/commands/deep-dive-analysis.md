@@ -13,6 +13,18 @@ argument-hint: "<target path> [--critical] [--comments] [--docs-only] [--phase N
 4. **Never enter plan mode.** Execute immediately.
 5. **Code is ground truth.** Document what the code actually does, not what you think it should do.
 
+## Tool Integration
+
+For Python projects, you MUST use the scripts in `.claude/skills/deep-dive-analysis/scripts/` instead of manual file reading:
+
+- **Phase 1-2 (Structure):** Use `ast_parser.py` for class/function/import extraction and `classifier.py` for file classification. Do NOT attempt to parse AST manually or count imports with grep.
+- **Phase 5 (Risks):** Use `usage_finder.py` to trace symbol usages across the codebase.
+- **Phase 6 (Docs):** Use `doc_review.py` for link validation and marker checks, and `rewrite_comments.py` for comment quality analysis.
+
+For non-Python files, use the Read tool and Grep tool directly.
+
+Do NOT use raw bash commands (cat, grep, find) to extract structure when a dedicated script exists. The scripts use real AST parsing, which is faster, more accurate, and consumes fewer tokens than reading files line by line.
+
 ## Forbidden Files
 
 NEVER read or include contents from:
@@ -84,15 +96,22 @@ Analysis phases:
 
 ## Parallel Execution Strategy
 
-After scope confirmation, spawn agents in parallel using the Agent tool. Each agent writes its output files directly to `.deep-dive/`. Each agent receives the target path and active flags as context.
+After scope confirmation, execute in two waves. All agents write output files directly to `.deep-dive/` and receive the target path and active flags as context.
 
 ### Full depth (default)
 
-- **Agent A (Structure):** Executes Phase 1 + Phase 2. Writes `01-structure.md` and `02-interfaces.md`.
-- **Agent B (Behavior):** Executes Phase 3 + Phase 4. Writes `03-flows.md` and `04-semantics.md`.
-- **Agent C (Quality):** Executes Phase 5 + Phase 6. Writes `05-risks.md` and `06-documentation.md`.
+**Wave 1 -- Structure (sequential, must complete first):**
 
-Wait for all 3 agents to complete, then execute Phase 7 in the main context - read all 6 output files and generate the final report.
+- **Agent A (Structure):** Executes Phase 1 + Phase 2. Writes `01-structure.md` and `02-interfaces.md`.
+
+Wait for Agent A to complete. Its output provides the structural foundation (dependency graph, entry points, module inventory) that Agents B and C need to do meaningful analysis.
+
+**Wave 2 -- Behavior + Quality (parallel, with structure context):**
+
+- **Agent B (Behavior):** Executes Phase 3 + Phase 4. Receives `.deep-dive/01-structure.md` as input context. Writes `03-flows.md` and `04-semantics.md`.
+- **Agent C (Quality):** Executes Phase 5 + Phase 6. Receives `.deep-dive/01-structure.md` as input context. Writes `05-risks.md` and `06-documentation.md`.
+
+Wait for both agents to complete, then execute Phase 7 in the main context.
 
 ### Lite depth (`--depth=lite`)
 
@@ -241,10 +260,11 @@ For each significant process discovered, generate a Mermaid flowchart diagram. C
 [One Mermaid flowchart per process, e.g. complete purchase flow from cart to confirmation, onboarding flow from signup to first action]
 
 Diagram guidelines:
+- Limit to the 5 most critical/complex paths per category to avoid noise. Reference additional flows in prose.
 - Use `flowchart TD` (top-down) for linear processes, `flowchart LR` (left-right) for pipelines
 - Include decision nodes (`{condition}`) for branching logic
 - Label edges with conditions, data passed, or HTTP methods
-- Reference source files as comments: `%% src/auth/login.py:45`
+- Reference source files as comments: `%% src/auth/login.py::handle_request`
 - Mark error/failure paths with dotted lines: `-->|error|`
 - Keep each diagram under 30 nodes - split large processes into sub-diagrams
 ```
@@ -365,7 +385,13 @@ If `--comments` flag is set, also analyze comment quality:
 
 ## Phase 7: Final Report
 
-Read all `.deep-dive/*.md` files (01 through 06) and generate the consolidated report.
+Synthesize all `.deep-dive/*.md` files (01 through 06) into a consolidated report.
+
+**Context management strategy** (to avoid "lost in the middle" on large codebases):
+1. Read each phase file one at a time
+2. After reading each file, extract the key findings into a running summary (max 5 bullet points per phase)
+3. After processing all 6 files, write the final report from the extracted summaries
+4. For detailed sections, cross-reference the original phase files rather than duplicating content
 
 **Output file:** `.deep-dive/07-final-report.md`
 
@@ -501,13 +527,13 @@ What would you like to do next?
 
 Wait for the user's choice before proceeding. If the user picks option 1, confirm which actions to execute and in what order before starting.
 
-If the user picks option 2, apply low-risk code fixes directly without further confirmation. These include:
-- Updating stale names/references in comments (e.g., old project names)
-- Fixing type hint syntax (e.g., `float = None` to `float | None = None`)
-- Replacing deprecated patterns with modern equivalents
-- Fixing obvious typos in strings and comments
+If the user picks option 2, use the dedicated Python scripts for safe, automated fixes:
 
-Present a summary of changes made after applying fixes.
+1. **Comment cleanup:** Run `rewrite_comments.py rewrite <file> --apply --backup` for each file flagged in Phase 6. The script handles backup, AST-safe removal of trivial/backup comments, and auto-formatting. Do NOT manually edit comments with the Edit tool.
+2. **Type hint fixes:** Apply these with the Edit tool one file at a time, verifying syntax after each change.
+3. **Stale references:** Update outdated names/references in comments using targeted Edit tool replacements.
+
+Present a summary of changes made after applying fixes. If `rewrite_comments.py` is not available (non-Python project), fall back to targeted Edit tool changes with explicit before/after diffs shown to the user.
 
 ## Quick Examples
 
