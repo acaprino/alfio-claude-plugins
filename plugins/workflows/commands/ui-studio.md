@@ -220,24 +220,76 @@ Success:     [definition of done]
 - Out of scope: [list]
 ```
 
-Update `state.json`: set `current_phase` to "checkpoint-1", add phase 1 to `completed_phases`.
+Update `state.json`: set `current_phase` to "1b", add phase 1 to `completed_phases`.
+
+---
+
+## Phase 1B: Quick Concept Artifact
+
+**Always run this phase.** Right after the brief is finalized, generate a rough visual artifact so the user has something tangible to react to before committing to the full design pipeline.
+
+```
+Task:
+  subagent_type: "general-purpose"
+  description: "Generate quick concept artifact from product brief"
+  prompt: |
+    Generate a single self-contained HTML file that visualizes the product concept as a rough mockup.
+    This is a quick concept artifact -- NOT a polished design. Speed and tangibility over polish.
+
+    ## Product Brief
+    [Insert contents of .ui-studio/01-brief.md]
+
+    ## Project Context
+    [Insert contents of .ui-studio/00-context.md]
+
+    ## Instructions
+
+    Create `.ui-studio/concept-artifact.html` -- a single HTML file (no external dependencies) that:
+
+    1. **Shows the overall layout** with rough blocks/sections matching the product goal
+    2. **Uses colors and typography** that match the aesthetic tone from the brief
+    3. **Includes realistic placeholder content** (not lorem ipsum -- domain-appropriate text)
+    4. **Shows the primary user flow** or key screen described in the brief
+    5. **Is responsive** with a basic mobile breakpoint
+    6. **Includes inline CSS** -- everything in one file, openable directly in a browser
+
+    Style: think wireframe with personality -- enough visual fidelity to convey the direction,
+    rough enough that the user knows this is a starting point, not the final design.
+
+    Keep it under 300 lines. Fast and tangible over comprehensive.
+```
+
+**Output file:** `.ui-studio/concept-artifact.html`
+
+After generating, tell the user how to preview it:
+
+```
+Quick concept artifact generated: .ui-studio/concept-artifact.html
+Open it directly in your browser to see a rough visual preview of the product direction.
+
+This is intentionally rough -- it's meant to validate the direction before we invest in detailed design.
+```
+
+Update `state.json`: set `current_phase` to "checkpoint-1", add phase "1b" to `completed_phases`.
 
 ---
 
 ## PHASE CHECKPOINT 1 -- User Approval Required
 
 ```
-Phase 1 complete: Product brief finalized.
+Phase 1 complete: Product brief finalized + concept artifact generated.
 
 Goal: [one sentence]
 Aesthetic: [tone]
 Audience: [who]
+Preview: .ui-studio/concept-artifact.html
 
 Please review:
-- .ui-studio/01-brief.md
+- .ui-studio/01-brief.md (product brief)
+- .ui-studio/concept-artifact.html (open in browser for visual preview)
 
-1. Continue -- proceed to design direction
-2. Revise brief -- adjust before designing
+1. Continue -- proceed to detailed design
+2. Revise direction -- adjust brief or visual direction before designing
 3. Pause -- save progress and stop here
 ```
 
