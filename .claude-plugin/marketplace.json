@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "2.45.0"
+    "version": "2.46.0"
   },
   "plugins": [
     {
@@ -819,8 +819,8 @@
     {
       "name": "codebase-mapper",
       "source": "./plugins/codebase-mapper",
-      "description": "Human-readable codebase guide generator -- explores unfamiliar projects and produces 9 narrative documents with Mermaid diagrams covering overview, features, tech stack, architecture, workflows, data model, onboarding, open questions, and hands-on project anatomy",
-      "version": "1.1.0",
+      "description": "Human-readable codebase guide generator -- explores unfamiliar projects and produces 10 narrative documents with Mermaid diagrams covering overview, features, tech stack, architecture, workflows, data model, onboarding, open questions, project anatomy, and configuration/usage guide",
+      "version": "1.2.0",
       "author": {
         "name": "Alfio"
       },
@@ -846,6 +846,7 @@
         "./agents/flow-writer.md",
         "./agents/onboarding-writer.md",
         "./agents/ops-writer.md",
+        "./agents/config-writer.md",
         "./agents/guide-reviewer.md"
       ],
       "skills": [

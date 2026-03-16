@@ -45,6 +45,8 @@ Codebase explorer. You read an unfamiliar project and produce a structured conte
 - Catalog scripts: package.json scripts, Makefile targets, shell scripts in scripts/, bin/, tools/
 - Identify startup sequence: entry point, config loading order, service dependencies
 - Note default ports, local URLs, health check endpoints
+- Identify environment profiles (dev/staging/prod) and how they are selected
+- Scan error handling and validation code for common failure modes and error messages
 
 ## Step 4: Entry Points and Core Logic
 - Find main entry points (main.ts, index.ts, app.py, main.rs, etc.)
@@ -116,6 +118,12 @@ Write a single file: `.codebase-map/_internal/context-brief.md`
 
 ## Startup and Ports
 (entry point, boot sequence, config loading order, default ports, health check URLs)
+
+## Environment Profiles
+(how dev/staging/prod are configured; env selection mechanism; what differs between environments)
+
+## Common Error Patterns
+(error messages found in validation/error handling code; typical failure modes)
 
 ## Development Setup
 (how to install, run, test - from config files and scripts)

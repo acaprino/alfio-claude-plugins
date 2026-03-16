@@ -11,12 +11,12 @@ color: gold
 
 # ROLE
 
-Technical editor and reviewer. You read all 9 codebase-mapper documents, verify consistency, improve cross-references, uniformize tone, and produce the INDEX.md entry point.
+Technical editor and reviewer. You read all 10 codebase-mapper documents, verify consistency, improve cross-references, uniformize tone, and produce the INDEX.md entry point.
 
 # INPUT
 
 Read all files in `.codebase-map/`:
-- 01-overview.md through 09-project-anatomy.md
+- 01-overview.md through 10-configuration-guide.md
 - _internal/context-brief.md (for fact-checking)
 
 # REVIEW PROCESS
@@ -45,6 +45,8 @@ Read all files in `.codebase-map/`:
 - Check that 07-getting-started.md covers setup for all tools mentioned in 03-tech-stack.md
 - Verify 09-project-anatomy.md config files and env vars are consistent with 03-tech-stack.md and 07-getting-started.md
 - Check that scripts in 09-project-anatomy.md match commands referenced in 07-getting-started.md
+- Verify 10-configuration-guide.md recipes and commands are consistent with 09-project-anatomy.md catalog
+- Check that troubleshooting error messages in 10-configuration-guide.md exist in the actual codebase
 - Add any new questions discovered during review to 08-open-questions.md
 
 ## Step 5: Diagram Validation
@@ -80,6 +82,7 @@ Write `.codebase-map/INDEX.md`:
 | 7 | [Getting Started](07-getting-started.md) | [1-sentence abstract] |
 | 8 | [Open Questions](08-open-questions.md) | [1-sentence abstract] |
 | 9 | [Project Anatomy](09-project-anatomy.md) | [1-sentence abstract] |
+| 10 | [Configuration Guide](10-configuration-guide.md) | [1-sentence abstract] |
 
 ## Reading Order
 

@@ -1,11 +1,11 @@
 ---
-description: "Generate a human-readable codebase guide - explores the project, writes 9 narrative documents with Mermaid diagrams, and produces an INDEX.md entry point"
+description: "Generate a human-readable codebase guide - explores the project, writes 10 narrative documents with Mermaid diagrams, and produces an INDEX.md entry point"
 argument-hint: "[target-path]"
 ---
 
 # Map Codebase
 
-Generate a human-readable guide for an unfamiliar codebase. Produces 9 narrative documents with inline Mermaid diagrams, organized for progressive learning.
+Generate a human-readable guide for an unfamiliar codebase. Produces 10 narrative documents with inline Mermaid diagrams, organized for progressive learning.
 
 ## Pre-flight
 
@@ -34,9 +34,9 @@ Spawn a single `codebase-explorer` agent:
 
 If the context brief is missing or empty, stop and report the error.
 
-## Phase 2: Write (parallel - 5 agents)
+## Phase 2: Write (parallel - 6 agents)
 
-Spawn all 5 writer agents simultaneously:
+Spawn all 6 writer agents simultaneously:
 
 ### Agent 1: `overview-writer`
 > Read `.codebase-map/_internal/context-brief.md`, then write `.codebase-map/01-overview.md` and `.codebase-map/02-features.md`. Include a Mermaid mindmap in the overview. Follow the writing guidelines - narrative tone, no AI boilerplate, file paths for every claim.
@@ -53,9 +53,12 @@ Spawn all 5 writer agents simultaneously:
 ### Agent 5: `ops-writer`
 > Read `.codebase-map/_internal/context-brief.md`, then write `.codebase-map/09-project-anatomy.md`. Document the annotated directory tree, every configuration file and what it controls, all environment variables, scripts and executables, startup sequence, and default ports/URLs. Verify claims by reading actual config files and grepping for env var usage. Follow the writing guidelines - narrative tone, no AI boilerplate, file paths for every claim.
 
-**Verify:** Check that all 9 documents exist:
+### Agent 6: `config-writer`
+> Read `.codebase-map/_internal/context-brief.md`, then write `.codebase-map/10-configuration-guide.md`. Write a practical guide covering configuration walkthrough, environment profiles, configuration recipes, common day-to-day operations with exact commands, troubleshooting with real error messages from the codebase, and a quick-reference cheat sheet. Verify by reading actual config files and grepping for error messages. Follow the writing guidelines - narrative tone, no AI boilerplate, file paths for every claim.
+
+**Verify:** Check that all 10 documents exist:
 ```bash
-ls -la .codebase-map/0*.md
+ls -la .codebase-map/0*.md .codebase-map/10*.md
 ```
 
 If any documents are missing, report which ones failed and stop.
@@ -65,7 +68,7 @@ If any documents are missing, report which ones failed and stop.
 Spawn a single `guide-reviewer` agent:
 
 **Agent task:**
-> Read all 9 documents in `.codebase-map/` (01 through 09) and the context brief in `_internal/`. Review for terminology consistency, add cross-references between documents, fix any AI boilerplate in tone, validate Mermaid diagram syntax, and detect gaps. Apply edits directly. Then write `.codebase-map/INDEX.md` as the entry point with a navigable summary table and suggested reading paths.
+> Read all 10 documents in `.codebase-map/` (01 through 10) and the context brief in `_internal/`. Review for terminology consistency, add cross-references between documents, fix any AI boilerplate in tone, validate Mermaid diagram syntax, and detect gaps. Apply edits directly. Then write `.codebase-map/INDEX.md` as the entry point with a navigable summary table and suggested reading paths.
 
 **Verify:** Check that `.codebase-map/INDEX.md` exists.
 
@@ -86,6 +89,7 @@ Codebase map generated in .codebase-map/
   07-getting-started.md - Developer onboarding guide
   08-open-questions.md  - Knowledge gaps to clarify
   09-project-anatomy.md - Config files, env vars, scripts, directory tree
+  10-configuration-guide.md - Configuration recipes, operations, troubleshooting
 
 Start reading from INDEX.md
 ```

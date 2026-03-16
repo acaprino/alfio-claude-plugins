@@ -28,6 +28,7 @@ All output goes to `.codebase-map/` in the project root:
   07-getting-started.md       # Where to start working, key files, dev setup
   08-open-questions.md        # Gaps, unknowns, things to ask the team
   09-project-anatomy.md       # Config files, env vars, scripts, directory tree
+  10-configuration-guide.md   # Configuration recipes, operations, troubleshooting
   _internal/
     context-brief.md          # Phase 1 exploration output (internal reference)
 ```
@@ -59,12 +60,13 @@ All output goes to `.codebase-map/` in the project root:
 Single `codebase-explorer` agent reads the project and writes `_internal/context-brief.md`.
 
 ### Phase 2 - Write
-Five parallel writer agents, each reading context-brief.md:
+Six parallel writer agents, each reading context-brief.md:
 - `overview-writer` - 01-overview.md, 02-features.md (mindmap)
 - `tech-writer` - 03-tech-stack.md, 04-architecture.md (component diagram)
 - `flow-writer` - 05-workflows.md, 06-data-model.md (flowcharts, sequence, ER)
 - `onboarding-writer` - 07-getting-started.md, 08-open-questions.md
 - `ops-writer` - 09-project-anatomy.md (config files, env vars, scripts, directory tree)
+- `config-writer` - 10-configuration-guide.md (config recipes, operations, troubleshooting)
 
 ### Phase 3 - Review
-Single `guide-reviewer` agent reads all 9 documents, adds cross-references, fixes consistency, and produces INDEX.md.
+Single `guide-reviewer` agent reads all 10 documents, adds cross-references, fixes consistency, and produces INDEX.md.

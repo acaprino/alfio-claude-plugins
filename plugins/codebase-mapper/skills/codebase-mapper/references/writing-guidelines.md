@@ -62,4 +62,5 @@ Use relative markdown links between documents:
 - 07-getting-started.md: 100-200 lines
 - 08-open-questions.md: 50-150 lines
 - 09-project-anatomy.md: 200-500 lines
+- 10-configuration-guide.md: 150-400 lines
 - INDEX.md: 50-100 lines
