@@ -1,0 +1,94 @@
+# Codebase Mapper Plugin
+
+> Generate a human-readable guide for any unfamiliar codebase. Explores the project in 3 phases -- automated discovery, parallel document writing, and cross-reference review -- producing 10 narrative documents with Mermaid diagrams.
+
+## How it works
+
+The `/map-codebase` command orchestrates a 3-phase pipeline:
+
+1. **Phase 1 (Explore):** The `codebase-explorer` agent scans the project (README, configs, entry points, directory structure) and writes a context brief to `.codebase-map/_internal/`.
+2. **Phase 2 (Write):** Six writer agents run in parallel, each producing 1-2 documents from the context brief.
+3. **Phase 3 (Review):** The `guide-reviewer` agent reviews all documents for consistency, adds cross-references, and produces `INDEX.md`.
+
+**Output directory:** `.codebase-map/` in the project root, containing 10 numbered documents plus an index.
+
+**Target audience:** A smart colleague on their first day.
+
+---
+
+## Agents
+
+### Phase 1: Discovery
+
+#### `codebase-explorer`
+
+Explores an unfamiliar project to build a context brief for the writer agents.
+
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Tools** | Read, Bash, Glob, Grep |
+| **Produces** | `.codebase-map/_internal/context-brief.md` |
+
+---
+
+### Phase 2: Writers (run in parallel)
+
+| Agent | Model | Produces | Content |
+|-------|-------|----------|---------|
+| `overview-writer` | `opus` | `01-overview.md`, `02-features.md` | Project overview with mindmap, feature catalog |
+| `tech-writer` | `opus` | `03-tech-stack.md`, `04-architecture.md` | Technologies, dependencies, architectural layers with component diagrams |
+| `flow-writer` | `opus` | `05-workflows.md`, `06-data-model.md` | User/system workflows with flowcharts, data structures with ER diagrams |
+| `onboarding-writer` | `opus` | `07-getting-started.md`, `08-open-questions.md` | Developer onboarding steps, knowledge gaps |
+| `ops-writer` | `opus` | `09-project-anatomy.md` | Config files, env vars, startup scripts, directory tree |
+| `config-writer` | `opus` | `10-configuration-guide.md` | Environment setup, configuration scenarios, troubleshooting |
+
+All writer agents use the tools: Read, Write, Glob, Grep.
+
+---
+
+### Phase 3: Review
+
+#### `guide-reviewer`
+
+Reviews all generated documents for consistency, adds cross-references, uniformizes tone, and produces `INDEX.md`. Flags gaps and contradictions.
+
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Tools** | Read, Write, Edit, Glob, Grep |
+| **Produces** | `INDEX.md` |
+
+---
+
+## Skills
+
+### `codebase-mapper`
+
+Knowledge base providing writing guidelines, tone rules, and diagram conventions for all codebase-mapper agents.
+
+| | |
+|---|---|
+| **Invoke** | Referenced automatically by all codebase-mapper agents |
+| **Use for** | Writing style, Mermaid diagram conventions, output structure rules |
+
+---
+
+## Commands
+
+### `/map-codebase`
+
+Generate a human-readable codebase guide.
+
+```
+/map-codebase                   # map current directory
+/map-codebase ../other-project  # map a different project
+```
+
+**Pre-flight:** Checks for existing `.codebase-map/` directory and asks before overwriting.
+
+**Output:** 10 narrative documents in `.codebase-map/` with an `INDEX.md` entry point.
+
+---
+
+**Related:** [deep-dive-analysis](deep-dive-analysis.md) (structural analysis) | [code-documentation](code-documentation.md) (API-level docs)

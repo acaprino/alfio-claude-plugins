@@ -68,6 +68,37 @@ Execute written implementation plans in a separate session with review checkpoin
 
 ---
 
+### `anvil-forge`
+
+Skill activation engine that ensures every installed skill gets used when it should. Runs at conversation start and before every task to check if any skill applies.
+
+| | |
+|---|---|
+| **Invoke** | Activated automatically (not manually invoked) |
+| **Use for** | Ensuring skills are discovered and used proactively |
+
+**Behavior:** If there is even a 1% chance a skill applies to the current task, it must be invoked. User instructions always take precedence over skill directives. Skipped when dispatched as a subagent.
+
+---
+
+### `claude-agent-sdk`
+
+Build apps with the Claude Agent SDK (formerly Claude Code SDK). Covers programmatic agent orchestration, subagent management, custom tools, and deployment workflows.
+
+| | |
+|---|---|
+| **Invoke** | Skill reference |
+| **Trigger** | `claude-agent-sdk`, `@anthropic-ai/claude-agent-sdk`, "agent sdk", "build an agent", "programmatic claude", "sidecar" |
+
+**Key distinction:** The Agent SDK (`claude-agent-sdk`) runs the full Claude Code agent loop with built-in tools. The Anthropic Client SDK (`anthropic`) is for raw API calls.
+
+**Packages:**
+| | TypeScript | Python |
+|---|---|---|
+| Install | `npm install @anthropic-ai/claude-agent-sdk` | `pip install claude-agent-sdk` |
+
+---
+
 ## Commands
 
 ### `/prompt-optimize`
@@ -79,3 +110,7 @@ Analyze, score, and optimize prompts for LLMs -- evaluates clarity, specificity,
 ```
 
 **Phases:** Analyze (6-dimension scorecard) -> Optimize -> Compare (before/after scores + token count)
+
+---
+
+**Related:** [workflows](workflows.md) (`/feature-e2e` and `/ui-studio` use brainstorming, writing-plans, executing-plans) | [anvil-hooks](anvil-hooks.md) (anvil-forge skill awareness)

@@ -1,6 +1,8 @@
-# Python Testing Patterns Skill Rewrite
+# [ARCHIVED] Python Testing Patterns Skill Rewrite
 
 > **Status:** COMPLETED -- skill rewritten and renamed to `python-tdd`.
+>
+> **Note:** This plan is archived. The skill now lives at `plugins/python-development/skills/python-tdd/`. All references to `python-testing-patterns` in this document are historical -- the current skill name is `python-tdd` (plugin version 1.13.0).
 
 > **For Claude:** Use the executing-plans skill to implement this plan task-by-task.
 

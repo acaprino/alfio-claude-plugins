@@ -31,3 +31,7 @@ Expert deep research agent for complex multi-source investigation requiring syst
 ```
 Use the deep-researcher agent to research [complex topic/question]
 ```
+
+---
+
+**Related:** [digital-marketing](digital-marketing.md) (SEO research and content strategy) | [ai-tooling](ai-tooling.md) (brainstorming skill for design research)

@@ -1,6 +1,6 @@
 # Frontend Plugin
 
-> Five specialized agents and four skills for every layer of frontend work -- from strategic planning and creative design direction to React performance optimization.
+> Four specialized agents and five skills for every layer of frontend work -- from strategic planning and creative design direction to polished production UI.
 >
 > **Which tool do I use?**
 > | Need | Tool | What it does |
@@ -8,31 +8,9 @@
 > | "What should we build?" | `/frontend:premium-web-consultant` | Strategy and planning -- website brief, sitemap, design direction, content strategy. No code. |
 > | "Build it from scratch" | `/frontend:ui-studio` | Orchestrates all frontend agents from a product brief to shipped UI. |
 > | "Improve what exists" | `/frontend-redesign` | Audits and redesigns existing frontend code -- UX, layout, performance, polish. |
+> | "Optimize React perf" | [react-development](react-development.md) | React 19 performance, state management, bundle optimization. Separate plugin. |
 
 ## Agents
-
-### `react-performance-optimizer`
-
-Expert in React 19 performance including React Compiler and Server Components.
-
-| | |
-|---|---|
-| **Model** | `opus` |
-| **Use for** | Bundle analysis, re-render optimization, virtualization |
-
-**Invocation:**
-```
-Use the react-performance-optimizer agent to analyze [component/app]
-```
-
-**Performance targets:**
-| Metric | Web | Desktop |
-|--------|-----|---------|
-| Bundle (initial) | < 200KB | < 3MB |
-| Frame rate | 60 FPS | 60 FPS |
-| Render time | < 16ms | < 16ms |
-
----
 
 ### `ui-polisher`
 
@@ -158,6 +136,20 @@ Create distinctive, production-grade frontend interfaces with bold aesthetic dir
 
 ---
 
+### `shadcn-ui`
+
+Expert guidance for building with shadcn/ui -- component composition, registry system, form patterns, data tables, sidebar navigation, theming, and Tailwind v4 migration.
+
+| | |
+|---|---|
+| **Invoke** | Skill reference |
+| **Use for** | shadcn/ui components, registry authoring, complex form patterns, theming, Tailwind v4 migration |
+| **Trigger** | "shadcn", "shadcn/ui", "shadcn components", "shadcn registry", "shadcn blocks" |
+
+**Core philosophy:** shadcn/ui is NOT a component library -- it is a collection of accessible components you copy into your project and own. Components are built on Radix UI primitives and styled with Tailwind CSS.
+
+---
+
 ## Commands
 
 ### `/review-design`
@@ -171,3 +163,7 @@ Unified frontend design review -- auto-detects scope: diff mode for changed fron
 ```
 
 **Output:** `.design-review/report.md` -- actionable checklist with scores, grouped by category (UX, Layout, CSS).
+
+---
+
+**Related:** [react-development](react-development.md) (React performance optimization) | [workflows](workflows.md) (`/frontend-redesign` and `/ui-studio` orchestrate frontend agents) | [xterm](xterm.md) (terminal UI components)

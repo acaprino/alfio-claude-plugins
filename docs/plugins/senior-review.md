@@ -97,6 +97,27 @@ Unified code review -- auto-detects scope: uncommitted/staged changes, recent co
 
 ---
 
+### `/cleanup-dead-code`
+
+Find and remove dead code -- auto-detects language: Knip for TypeScript/JavaScript, vulture + ruff for Python. Runs tests before and after to verify no regressions.
+
+```
+/cleanup-dead-code src/ --dry-run
+```
+
+| Flag | Effect |
+|------|--------|
+| `--dry-run` | Report findings without modifying files |
+| `--dependencies-only` | Only check unused dependencies |
+| `--exports-only` | Only check unused exports |
+| `--production` | Skip devDependencies |
+
+**Safety:** Checks `git status` before starting. Reverts changes if tests fail. Requires approval before removing Python functions/classes (high false-positive rate).
+
+**Related:** Delegates to `typescript-development:knip` (TS/JS) and `python-development:python-dead-code` (Python) skills.
+
+---
+
 ### `/pr-review`
 
 Analyze current branch changes, generate comprehensive PR description with risk assessment and review checklist, and optionally create the PR via `gh`.
@@ -104,3 +125,7 @@ Analyze current branch changes, generate comprehensive PR description with risk 
 ```
 /pr-review --create
 ```
+
+---
+
+**Related:** [workflows](workflows.md) (`/feature-e2e` and `/full-review` orchestrate these agents) | [typescript-development](typescript-development.md) (Knip for dead code) | [python-development](python-development.md) (vulture/ruff for dead code)

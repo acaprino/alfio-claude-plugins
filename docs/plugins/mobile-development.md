@@ -11,10 +11,21 @@ Mobile app competitive analyzer with automated ADB-based navigation, screenshot 
 | | |
 |---|---|
 | **Invoke** | Skill reference |
-| **Use for** | Competitor app analysis, UX/UI documentation, mobile app research |
+| **Trigger** | Competitor app analysis, mobile UX review, Android app documentation |
 
-**Capabilities:**
-- Navigate Android apps via ADB
-- Capture and annotate screenshots
-- Document UX/UI patterns
-- Generate comprehensive analysis reports
+**Workflow:**
+1. **Setup** - Verify ADB connection, get device info, identify current app
+2. **Main loop** - For each screen: screenshot, analyze visually, dump UI hierarchy, document patterns
+3. **Report** - Generate structured analysis with screenshots
+
+**Output files:**
+- `docs/{APP}_ANALYSIS.md` - Detailed analysis
+- `docs/{APP}_REPORT.html` - Visual HTML report
+- `docs/{APP}_USER_FLOWS.md` - User flow documentation
+- `img/*.png` - Captured screenshots
+
+**Prerequisites:** ADB installed and an Android device/emulator connected.
+
+---
+
+**Related:** [workflows](workflows.md) (`/mobile-intel` and `/mobile-tauri-pipeline` use this skill) | [tauri-development](tauri-development.md) (scaffolds Tauri 2 mobile apps from analysis output)

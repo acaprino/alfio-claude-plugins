@@ -33,3 +33,7 @@ AI-powered systematic codebase analysis combining structure extraction with sema
 ```
 
 **Output:** `.deep-dive/` directory with 7 phase files and a final consolidated report.
+
+---
+
+**Related:** [codebase-mapper](codebase-mapper.md) (generates 10 narrative documents from codebase exploration) | [workflows](workflows.md) (`/full-review` uses deep-dive as its first phase) | [senior-review](senior-review.md) (code review agents that run after deep-dive)
