@@ -1,19 +1,33 @@
 # Research Plugin
 
-> Find precise answers fast. Advanced multi-source search strategies with query optimization across codebases and web sources -- when you need more than a simple grep.
+> Search and research toolkit -- fast lookups and deep multi-source investigation with query optimization across codebases and web sources.
 
 ## Agents
 
-### `search-specialist`
+### `quick-searcher`
 
-Expert search specialist for advanced information retrieval, query optimization, and knowledge discovery across diverse sources.
+Fast search agent for simple fact-finding, single-concept lookups, and quick answers.
+
+| | |
+|---|---|
+| **Model** | `sonnet` |
+| **Use for** | Quick fact-finding, single-concept lookups, simple queries |
+
+**Invocation:**
+```
+Use the quick-searcher agent to find [specific fact/file/value]
+```
+
+### `deep-researcher`
+
+Expert deep research agent for complex multi-source investigation requiring systematic coverage and cross-referencing.
 
 | | |
 |---|---|
 | **Model** | `opus` |
-| **Use for** | Information retrieval, query optimization, web search, codebase search |
+| **Use for** | Complex research, iterative refinement, multi-source cross-referencing, query optimization |
 
 **Invocation:**
 ```
-Use the search-specialist agent to research [topic/question]
+Use the deep-researcher agent to research [complex topic/question]
 ```
