@@ -2,13 +2,13 @@
 
 ## Agent Color Palette
 
-Valid colors: `red`, `blue`, `green`, `yellow`, `purple`, `orange`, `cyan`, `magenta`, `violet`, `teal`, `indigo`, `gold`, `rust`, `pink`
+Valid colors: `red`, `blue`, `green`, `yellow`, `purple`, `orange`, `pink`, `cyan`
 
 ### Semantic Color Guidance
 
-- **Warm** (red, orange, yellow, gold, pink) -- creative, outward-facing, marketing, content
-- **Cool** (blue, cyan, teal, indigo, violet) -- analytical, development, code quality
-- **Earthy** (green, rust, magenta, purple) -- tooling, infrastructure, utilities
+- **Warm** (red, orange, yellow, pink) -- creative, outward-facing, marketing, content
+- **Cool** (blue, cyan, purple) -- analytical, development, code quality
+- **Neutral** (green) -- tooling, infrastructure, utilities
 
 All agents within a plugin should use the same color. Avoid reusing a color across more than 3 plugins.
 

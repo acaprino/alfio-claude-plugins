@@ -3,7 +3,7 @@ name: rust-engineer
 description: "Expert Rust developer for writing, reviewing, and debugging Rust code. Use when working on Rust implementations -- ownership patterns, async programming, trait design, error handling, FFI, performance optimization, or unsafe code review."
 tools: Read, Write, Edit, Bash, Glob, Grep
 model: opus
-color: indigo
+color: blue
 ---
 
 # ROLE

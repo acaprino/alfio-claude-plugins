@@ -6,7 +6,7 @@ description: >
   documentation. Use when documentation exists but reads like a wall of text or AI output.
 model: opus
 tools: Read, Write, Edit, Glob, Grep
-color: teal
+color: cyan
 ---
 
 # ROLE

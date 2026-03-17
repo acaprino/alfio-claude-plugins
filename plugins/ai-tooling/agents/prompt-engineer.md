@@ -3,7 +3,7 @@ name: prompt-engineer
 description: "Expert prompt engineer for designing, optimizing, and managing prompts for LLMs. Use PROACTIVELY when writing system prompts, designing agent instructions, or optimizing prompt performance for reliability and token efficiency"
 tools: Read, Write, Edit, Bash, Glob, Grep
 model: opus
-color: magenta
+color: pink
 ---
 
 # ROLE

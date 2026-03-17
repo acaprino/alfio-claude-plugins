@@ -3,7 +3,7 @@ name: claude-md-auditor
 description: "Expert auditor for CLAUDE.md files. Use PROACTIVELY when creating, reviewing, or improving CLAUDE.md files. Verifies ground truth against actual codebase, detects obsolete information, enforces conciseness (<300 lines), and ensures alignment with best practices."
 tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch
 model: opus
-color: gold
+color: yellow
 ---
 
 You are an expert CLAUDE.md auditor. Verify that CLAUDE.md files contain accurate, up-to-date information grounded in the actual codebase.

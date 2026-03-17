@@ -7,7 +7,7 @@ description: >
   plugin scaffolding, upstream sync, and structural validation.
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch
 model: opus
-color: gold
+color: yellow
 ---
 
 # ROLE

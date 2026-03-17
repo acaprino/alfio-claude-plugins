@@ -5,7 +5,7 @@ description: >
   Use when you need a fast answer to a straightforward question -- a specific fact, a file
   location, a config value, or a quick web lookup. Do NOT use for complex multi-source
   research requiring systematic coverage or iterative refinement.
-tools: Read, Grep, Glob, Bash, WebFetch, WebSearch
+tools: Read, Grep, Glob, WebFetch, WebSearch
 model: sonnet
 color: cyan
 ---
@@ -60,17 +60,11 @@ Prefer codebase tools over web tools for codebase questions.
 - Add year for recency
 - Add "official" or "documentation" for authoritative sources
 
-## WebFetch -- prefer Python script
-
-**Default: use the Python webfetch script** instead of the built-in WebFetch tool -- it has strict timeouts and won't block:
-
-```bash
-python plugins/research/scripts/webfetch.py "URL" --timeout 10 --max-chars 20000
-```
-
-Exit code 1 = timeout or error -- move on without that result. Only fall back to built-in WebFetch if Bash is unavailable.
+## WebFetch
 
 - Prefer documentation pages and API references over blog posts
+- Evaluate fetched content quality -- discard low-authority sources
+- Be aware that large pages may be truncated -- target specific sections when possible
 
 # KEYWORD DEVELOPMENT
 

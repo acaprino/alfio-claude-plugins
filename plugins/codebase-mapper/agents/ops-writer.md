@@ -7,7 +7,7 @@ description: >
   writer agents.
 model: opus
 tools: Read, Write, Glob, Grep
-color: teal
+color: cyan
 ---
 
 # ROLE

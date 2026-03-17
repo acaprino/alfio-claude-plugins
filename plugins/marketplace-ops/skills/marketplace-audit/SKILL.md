@@ -40,7 +40,7 @@ The script checks:
    - All agents within a plugin should use the same color
    - Warn when a single color is overused across too many plugins (>3)
    - Report color distribution across all plugins
-   - Valid colors: red, blue, green, yellow, purple, orange, cyan, magenta, violet, teal, indigo, gold, rust, pink
+   - Valid colors: red, blue, green, yellow, purple, orange, pink, cyan
    - Use `--fix` to auto-correct invalid or missing colors
 5. **Naming conventions**
    - All names are kebab-case
@@ -77,9 +77,9 @@ After the script passes, review the color distribution in the report output and 
 1. Read each plugin's description and category from marketplace.json
 2. Consider the nature of each plugin - similar domains should have visually related colors, distinct domains should contrast
 3. Guiding principles:
-   - Warm colors (red, orange, yellow, gold, pink) for creative/outward-facing plugins
-   - Cool colors (blue, cyan, teal, indigo, violet) for analytical/development plugins
-   - Earthy/neutral (green, rust, magenta, purple) for tooling/infrastructure
+   - Warm colors (red, orange, yellow, pink) for creative/outward-facing plugins
+   - Cool colors (blue, cyan, purple) for analytical/development plugins
+   - Neutral (green) for tooling/infrastructure
 4. If colors feel disharmonious, propose a new assignment with reasoning and apply after user confirmation
 
 ### Step 5: Re-validate

@@ -6,7 +6,7 @@ description: >
   Spawned by the map-codebase command after all writer agents complete.
 model: opus
 tools: Read, Write, Edit, Glob, Grep
-color: gold
+color: yellow
 ---
 
 # ROLE

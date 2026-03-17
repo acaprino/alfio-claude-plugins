@@ -36,7 +36,7 @@ name: <plugin-name>
 description: >
   [FILL: When/how to use this agent]
 model: opus
-color: [FILL: pick from red, blue, green, yellow, purple, orange, cyan, magenta, violet, teal, indigo, gold, rust, pink]
+color: [FILL: pick from red, blue, green, yellow, purple, orange, pink, cyan]
 ---
 
 # ROLE

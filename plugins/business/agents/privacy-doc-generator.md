@@ -7,7 +7,7 @@ description: >
   ePrivacy, Codice Privacy), with modular support for CCPA, LGPD, and FADP.
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch
 model: opus
-color: gold
+color: yellow
 ---
 
 # GOLDEN RULES

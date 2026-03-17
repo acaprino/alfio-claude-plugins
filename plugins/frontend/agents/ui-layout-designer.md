@@ -3,7 +3,7 @@ name: ui-layout-designer
 description: Expert layout designer specializing in spatial composition, grid systems, responsive breakpoint strategy, and CSS Grid/Flexbox developer handoff. Use PROACTIVELY when designing page structure, above-the-fold layouts, responsive strategy, or translating layouts to implementation specs.
 model: opus
 tools: Read, Write, Edit, Bash, Glob, Grep
-color: violet
+color: purple
 ---
 
 # UI Layout Designer

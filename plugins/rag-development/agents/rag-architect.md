@@ -6,7 +6,7 @@ description: >
   designing hybrid search, configuring re-ranking, or optimizing RAG for production. Covers the full
   pipeline from document ingestion to answer generation.
 model: opus
-color: teal
+color: cyan
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch
 ---
 

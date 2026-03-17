@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "2.62.0"
+    "version": "2.64.0"
   },
   "plugins": [
     {
@@ -66,7 +66,7 @@
       "name": "tauri-development",
       "source": "./plugins/tauri-development",
       "description": "Tauri 2 desktop and mobile development -- IPC optimization, Rust backend patterns, cross-platform builds, and React integration for high-performance apps",
-      "version": "1.7.0",
+      "version": "1.8.0",
       "author": {
         "name": "Alfio"
       },
@@ -92,7 +92,7 @@
       "name": "frontend",
       "source": "./plugins/frontend",
       "description": "UI polishing, UX design, comprehensive CSS (BEM, CSS Modules, SASS, accessibility, cross-browser), layout design, daisyUI components, Radix UI primitives and themes, and premium web consulting",
-      "version": "3.3.0",
+      "version": "3.4.0",
       "author": {
         "name": "Alfio"
       },
@@ -141,7 +141,7 @@
       "name": "react-development",
       "source": "./plugins/react-development",
       "description": "React performance optimization, React 19 API adoption, state management audit, bundle analysis, re-render detection, and Vercel best practices checklist",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "author": {
         "name": "Alfio"
       },
@@ -199,7 +199,7 @@
       "name": "ai-tooling",
       "source": "./plugins/ai-tooling",
       "description": "AI development workflow -- prompt engineering and optimization, structured brainstorming with design approval gates, implementation planning with TDD execution, and Claude Agent SDK integration guide",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "author": {
         "name": "Alfio"
       },
@@ -236,7 +236,7 @@
       "name": "python-development",
       "source": "./plugins/python-development",
       "description": "Python development toolkit -- TDD with pytest, code refactoring with complexity metrics, performance profiling, async patterns, uv package management, dead code detection, comment auditing, and project scaffolding",
-      "version": "1.13.0",
+      "version": "1.14.0",
       "author": {
         "name": "Alfio"
       },
@@ -327,7 +327,7 @@
       "name": "messaging",
       "source": "./plugins/messaging",
       "description": "RabbitMQ and AMQP messaging -- queue configuration, exchange routing, clustering, high availability, and event-driven architecture optimization",
-      "version": "1.2.0",
+      "version": "1.3.0",
       "author": {
         "name": "Alfio"
       },
@@ -350,7 +350,7 @@
       "name": "research",
       "source": "./plugins/research",
       "description": "Search and research toolkit -- quick-searcher (sonnet) for fast fact-finding and single-concept lookups, deep-researcher (opus) for complex multi-source investigation requiring systematic coverage, cross-referencing, and iterative refinement",
-      "version": "2.3.0",
+      "version": "2.5.0",
       "author": {
         "name": "Alfio"
       },
@@ -376,7 +376,7 @@
       "name": "business",
       "source": "./plugins/business",
       "description": "Legal advisory and compliance document generation -- Privacy Policies, Cookie Policies, DPAs, DPIA reports, GDPR/ePrivacy/CCPA compliance, contract review, IP, and risk mitigation",
-      "version": "1.5.0",
+      "version": "1.6.0",
       "author": {
         "name": "Alfio"
       },
@@ -403,7 +403,7 @@
       "name": "project-setup",
       "source": "./plugins/project-setup",
       "description": "Project configuration and setup tools including CLAUDE.md creation and maintenance with ground truth validation",
-      "version": "1.6.0",
+      "version": "1.7.0",
       "author": {
         "name": "Alfio"
       },
@@ -740,7 +740,7 @@
       "name": "marketplace-ops",
       "source": "./plugins/marketplace-ops",
       "description": "Marketplace consolidation and plugin management -- auditing, validation, AI quality review, upstream sync, plugin scaffolding, and health monitoring for the anvil-toolset ecosystem",
-      "version": "1.6.0",
+      "version": "1.7.0",
       "author": {
         "name": "Alfio"
       },
@@ -854,7 +854,7 @@
       "name": "codebase-mapper",
       "source": "./plugins/codebase-mapper",
       "description": "Human-readable codebase guide generator -- explores unfamiliar projects and produces 10 narrative documents with Mermaid diagrams, plus standalone documentation creation, maintenance, and humanization with bottom-up code analysis",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "author": {
         "name": "Alfio"
       },
@@ -936,7 +936,7 @@
       "name": "rag-development",
       "source": "./plugins/rag-development",
       "description": "RAG system design, implementation, and optimization -- chunking strategies, embedding models, vector databases (Qdrant), hybrid search, re-ranking, advanced patterns (Graph RAG, CRAG, Self-RAG, Agentic RAG), evaluation with RAGAS/DeepEval, and production deployment",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "author": {
         "name": "Alfio"
       },

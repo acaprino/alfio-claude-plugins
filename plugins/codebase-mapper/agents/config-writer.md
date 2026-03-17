@@ -6,7 +6,7 @@ description: >
   scenarios, common operations, and troubleshooting. Spawned in parallel with other writer agents.
 model: opus
 tools: Read, Write, Glob, Grep
-color: rust
+color: orange
 ---
 
 # ROLE
