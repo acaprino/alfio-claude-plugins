@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "2.67.0"
+    "version": "2.68.0"
   },
   "plugins": [
     {
@@ -800,8 +800,8 @@
     {
       "name": "anvil-hooks",
       "source": "./plugins/anvil-hooks",
-      "description": "Anvil session hooks -- ASCII logo on startup, skill awareness injection, security gate for hardcoded secrets, autocompact when context is high, cleanup of duplicate built-in plugins, brainstorm gate for creative/building prompts, and review gate for PR/merge operations",
-      "version": "1.6.0",
+      "description": "Anvil session hooks -- ASCII logo on startup, skill awareness injection, security gate for hardcoded secrets, autocompact when context is high, cleanup of duplicate built-in plugins, brainstorm gate for creative/building prompts, review gate for PR/merge operations, and docs gate for documentation auditing",
+      "version": "1.7.0",
       "author": {
         "name": "Alfio"
       },
@@ -818,6 +818,7 @@
         "brainstorm",
         "gate",
         "review",
+        "docs",
         "pr",
         "merge"
       ],
