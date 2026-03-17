@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "2.52.0"
+    "version": "2.54.0"
   },
   "plugins": [
     {
@@ -91,8 +91,8 @@
     {
       "name": "frontend",
       "source": "./plugins/frontend",
-      "description": "UI polishing, UX design, comprehensive CSS (BEM, CSS Modules, SASS, accessibility, cross-browser), layout design, and premium web consulting",
-      "version": "3.1.0",
+      "description": "UI polishing, UX design, comprehensive CSS (BEM, CSS Modules, SASS, accessibility, cross-browser), layout design, daisyUI components, Radix UI primitives and themes, and premium web consulting",
+      "version": "3.3.0",
       "author": {
         "name": "Alfio"
       },
@@ -105,6 +105,12 @@
         "css-master",
         "shadcn",
         "shadcn-ui",
+        "daisyui",
+        "daisy-ui",
+        "radix",
+        "radix-ui",
+        "radix-primitives",
+        "radix-themes",
         "layout-design",
         "product-brief",
         "web-consultant",
@@ -123,7 +129,9 @@
         "./skills/css-master",
         "./skills/premium-web-consultant",
         "./skills/frontend-design",
-        "./skills/shadcn-ui"
+        "./skills/shadcn-ui",
+        "./skills/daisyui",
+        "./skills/radix-ui"
       ],
       "commands": [
         "./commands/review-design.md"
