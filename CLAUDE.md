@@ -31,7 +31,7 @@ plugins/
 
 **Commands** - Slash-command `.md` files with YAML frontmatter (`description`, `argument-hint`) and usage instructions/examples.
 
-**Hooks** - Used by `anvil-hooks` plugin. Contains `hooks.json` (hook definitions) and `handlers/` directory with JS handler scripts. Uses `plugins/anvil-hooks/.claude-plugin/plugin.json` instead of marketplace registration for hook configuration.
+**Hooks** - Used by `anvil-hooks` and `prompt-improver` plugins. Contains `hooks.json` (hook definitions) and `handlers/` directory with JS handler scripts. `anvil-hooks` also uses `plugins/anvil-hooks/.claude-plugin/plugin.json` for supplementary hook configuration alongside marketplace registration.
 
 ## Conventions
 
@@ -68,7 +68,7 @@ Key fields in `.claude-plugin/marketplace.json`:
 
 - Single branch: `master`
 - Commit style: imperative, descriptive (e.g. "Add high-value keywords to prompt-engineer agent")
-- No PR workflow - direct push to master
+- Primary workflow: direct push to master (PRs used occasionally)
 
 ## Build / CI
 
