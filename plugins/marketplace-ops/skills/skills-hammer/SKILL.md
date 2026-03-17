@@ -7,7 +7,9 @@ description: >
   bumps versions. Use PROACTIVELY when the user asks to create, add, scaffold, or
   build a new skill, agent, command, or plugin. Also trigger on "new skill",
   "new agent", "new plugin", "add a skill", "add an agent", "skills-hammer".
-  DO NOT TRIGGER for editing or updating existing components -- only for new creation.
+  Also helps decide skill vs agent architecture when reorganizing plugins.
+  DO NOT TRIGGER for editing or updating existing components -- only for new creation
+  or architectural decisions (skill vs agent).
 ---
 
 # Skills Hammer
@@ -26,6 +28,18 @@ Determine what the user wants to create:
 ```
 
 If unclear, ask: "What do you want to create -- a skill, agent, command, or full plugin?"
+
+## Skill vs Agent Decision
+
+Before gathering requirements, help the user decide the right component type.
+
+**Key question:** "Does this need its own context/tools/isolation, or is it knowledge that any agent should access?"
+
+- If it's **knowledge, conventions, recipes** --> Skill
+- If it needs **isolation, tool restrictions, parallel execution** --> Agent
+- If it's a **domain with both knowledge and specialist work** --> Skill + Agent(s)
+
+See [references/skills-vs-agents.md](references/skills-vs-agents.md) for the full decision table, real restructure examples, and anti-patterns.
 
 ## Phase 1: Requirements Gathering
 

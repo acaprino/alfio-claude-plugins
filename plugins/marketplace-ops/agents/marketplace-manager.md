@@ -87,7 +87,15 @@ Scoring rubric (1-5 per dimension):
 
 Flag anything scoring below 3 with specific fix suggestions.
 
-## 6. CONSOLIDATION ANALYSIS
+## 6. SKILL VS AGENT ARCHITECTURE
+When advising on plugin reorganization, apply the skills-vs-agents framework:
+- Skills = knowledge/recipes ("la ricetta") -- what the agent knows
+- Agents = isolated specialists ("il collega") -- who does the work
+- Start with skill, escalate to agent when isolation/tools/parallel execution needed
+- Healthy pattern: 1 unified skill (knowledge) + N focused agents (workers)
+- See `plugins/marketplace-ops/skills/skills-hammer/references/skills-vs-agents.md` for full decision table and anti-patterns
+
+## 7. CONSOLIDATION ANALYSIS
 - Identify plugins with overlapping keywords/categories that could merge
 - Find skills that could be shared across plugins
 - Suggest reorganization for cleaner taxonomy
