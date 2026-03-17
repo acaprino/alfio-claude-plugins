@@ -75,7 +75,7 @@ Includes `references.md` with all 62 rules expanded and a `rules/` directory wit
 
 ### `/review-react`
 
-React performance and optimization review -- state management audit, bundle analysis, re-render detection, React 19 API adoption, and Vercel best practices checklist.
+React performance and optimization review. Audits state management, analyzes bundles, detects re-renders, checks React 19 API adoption, and runs the Vercel best practices checklist.
 
 ```
 /review-react src/ --strict-mode

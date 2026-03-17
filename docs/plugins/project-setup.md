@@ -6,7 +6,7 @@
 
 ### `claude-md-auditor`
 
-Expert auditor for `.claude.md` files that verifies ground truth, detects obsolete information, and ensures alignment with best practices.
+Audits `.claude.md` files by verifying ground truth, detecting obsolete information, and checking alignment with best practices.
 
 | | |
 |---|---|
@@ -20,7 +20,7 @@ Expert auditor for `.claude.md` files that verifies ground truth, detects obsole
 - **Tailored Creation** - Generates .claude.md based on your preferences
 - **Guided Improvement** - Helps prioritize and apply fixes incrementally
 
-**Best practices enforced:**
+**Enforces these best practices:**
 - Conciseness (<300 lines, ideally <100)
 - Instruction economy (~150-200 instruction budget)
 - Progressive disclosure (reference docs, don't embed)
@@ -30,12 +30,16 @@ Expert auditor for `.claude.md` files that verifies ground truth, detects obsole
 
 ### `/create-claude-md`
 
-Creates a new `.claude.md` file through interactive questionnaire about your workflow and preferences.
+Create a new `.claude.md` file through an interactive questionnaire about your workflow and preferences.
 
 ### `/maintain-claude-md`
 
-Audits and optionally improves your existing `.claude.md` file with ground truth verification.
+Audit and optionally improve your existing `.claude.md` file with ground truth verification.
 
 **Two workflows:**
 1. **Audit-only**: Review findings, no changes applied
 2. **Audit + improvements**: Fix issues with guided prioritization
+
+---
+
+**Related:** [marketplace-ops](marketplace-ops.md) (plugin management and validation)

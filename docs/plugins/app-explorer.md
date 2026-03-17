@@ -1,12 +1,12 @@
 # App Explorer Plugin
 
-> Automated webapp explorer that crawls a local web application using Playwright BFS, mapping all screens, interactive elements, navigation flows, and user workflows into a structured JSON sitemap with per-screen screenshots.
+> Automated webapp explorer. Crawls a local web application with Playwright BFS, maps all screens, interactive elements, navigation flows, and user workflows, and outputs a structured JSON sitemap with per-screen screenshots.
 
 ## Skills
 
 ### `app-explorer`
 
-Crawls local web applications via Playwright breadth-first search. Maps screens, interactive elements, and navigation flows into structured JSON with screenshots. Computes UX metrics (min clicks, average depth, deepest screens).
+Crawls local web applications via Playwright breadth-first search. Maps screens, interactive elements, and navigation flows into structured JSON with screenshots. Computes UX metrics: min clicks, average depth, deepest screens.
 
 | | |
 |---|---|
@@ -60,7 +60,7 @@ All 4 main sections are reachable in 1 click from any other section via bottom n
 
 ### 4. SPA characteristics observed
 
-- **Horizontal swipe navigation**: sections slide horizontally (Home, Diario, Stats, Profilo are rendered as adjacent panels)
+- **Horizontal swipe navigation**: sections slide horizontally (Home, Diario, Stats, Profilo render as adjacent panels)
 - **Bottom-sheet dialogs**: "Aggiungi cibo" opens as a bottom sheet with blur backdrop
 - **Auth-gated**: all routes redirect to `/` login if unauthenticated
 - **Mobile-first**: designed for 390px viewport with touch targets, no desktop layout observed
@@ -88,3 +88,7 @@ python "{SKILL_BASE_DIR}/scripts/crawler.py" \
   --output .app-explorer \
   --auth .app-explorer/auth.json
 ```
+
+---
+
+**Related:** [playwright-skill](playwright-skill.md) (underlying browser automation) | [frontend](frontend.md) (UI redesign after mapping) | [workflows](workflows.md) (pipelines that use app exploration)

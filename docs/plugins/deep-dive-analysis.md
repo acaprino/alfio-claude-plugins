@@ -6,7 +6,7 @@
 
 ### `deep-dive-analysis`
 
-AI-powered systematic codebase analysis combining structure extraction with semantic understanding.
+Systematic codebase analysis that combines structure extraction with semantic understanding.
 
 | | |
 |---|---|

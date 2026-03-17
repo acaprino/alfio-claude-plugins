@@ -6,7 +6,7 @@
 
 ### `generate-mindmap`
 
-Brainstorm and generate a structured mindmap JSON outline from any content. Handles content analysis, hierarchy design, emoji assignment, and color coding -- outputting a renderer-agnostic JSON structure.
+Brainstorm and generate a structured mindmap JSON outline from any content. Analyzes content, designs hierarchy, assigns emoji and colors, and outputs a renderer-agnostic JSON structure.
 
 | | |
 |---|---|
@@ -20,7 +20,7 @@ Brainstorm and generate a structured mindmap JSON outline from any content. Hand
 
 ### `markmind-exporter`
 
-Render a mindmap JSON outline into Obsidian MarkMind Rich format. Takes a pre-built JSON structure and converts it into a `.md` file for the MarkMind plugin.
+Render a mindmap JSON outline into Obsidian MarkMind Rich format. Takes a pre-built JSON structure and converts it to a `.md` file for the MarkMind plugin.
 
 | | |
 |---|---|
@@ -38,7 +38,7 @@ Render a mindmap JSON outline into Obsidian MarkMind Rich format. Takes a pre-bu
 
 ### `forcegraph-exporter`
 
-Export a mindmap JSON outline as a single self-contained interactive HTML file using force-graph. Produces a zoomable, draggable visualization that opens in any browser.
+Export a mindmap JSON outline as a single self-contained HTML file using force-graph. Produces a zoomable, draggable visualization that opens in any browser.
 
 | | |
 |---|---|
@@ -68,3 +68,7 @@ Generate a MarkMind mind map from any topic, text, or file. Chains `generate-min
 ```
 
 **Output:** `.md` file ready for Obsidian MarkMind plugin.
+
+---
+
+**Related:** [obsidian-development](obsidian-development.md) (Obsidian plugin development) | [ai-tooling](ai-tooling.md) (brainstorming skill for ideation)

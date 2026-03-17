@@ -68,3 +68,7 @@ Expert guidance for Tauri 2 mobile app development (Android/iOS).
 | Dev Android | `npm run tauri android dev` |
 | Build APK | `npm run tauri android build --apk` |
 | Build iOS | `npm run tauri ios build` |
+
+---
+
+**Related:** [workflows](workflows.md) (`/tauri-pipeline` and `/mobile-tauri-pipeline` orchestrate these agents) | [frontend](frontend.md) (UI polish and layout for Tauri webviews) | [react-development](react-development.md) (React performance in Tauri)

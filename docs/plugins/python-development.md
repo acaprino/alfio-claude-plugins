@@ -31,7 +31,7 @@ Use the python-pro agent to [implement/optimize/review] [feature]
 
 ### `python-refactor`
 
-Systematic 4-phase refactoring workflow transforming complex code into clean, maintainable code.
+Systematic 4-phase refactoring workflow that transforms complex code into clean, maintainable code.
 
 | | |
 |---|---|
@@ -57,7 +57,7 @@ Systematic 4-phase refactoring workflow transforming complex code into clean, ma
 
 ### `python-tdd`
 
-Comprehensive testing strategies with pytest, fixtures, mocking, and TDD.
+Testing strategies with pytest, fixtures, mocking, and TDD.
 
 | | |
 |---|---|
@@ -111,7 +111,7 @@ Async/await patterns for high-performance concurrent applications.
 
 ### `python-packaging`
 
-Creating and distributing Python packages with modern standards.
+Create and distribute Python packages with modern standards.
 
 | | |
 |---|---|
@@ -187,7 +187,7 @@ Write and audit Python code comments using antirez's 9-type taxonomy.
 
 ### `/python-scaffold`
 
-Scaffold production-ready Python projects with modern tooling. Presents plan and confirms before writing files.
+Scaffold production-ready Python projects with modern tooling. Presents the plan and asks for confirmation before writing files.
 
 ```
 /python-scaffold FastAPI REST API for user management
@@ -195,7 +195,7 @@ Scaffold production-ready Python projects with modern tooling. Presents plan and
 
 **Project types:** FastAPI, Django, Library, CLI, Generic
 
-**Generates:** Directory structure, pyproject.toml, pytest config, Makefile, .env.example, .gitignore. Verifies with `uv sync` + `pytest` after scaffolding.
+**Generates:** Directory structure, pyproject.toml, pytest config, Makefile, .env.example, .gitignore. Verifies the result with `uv sync` + `pytest` after scaffolding.
 
 ---
 
@@ -210,3 +210,7 @@ Metrics-driven 4-phase refactoring with checkpoint approval before execution and
 **Phases:** Analysis -> Planning -> (Checkpoint) -> Execution -> Validation
 
 **Output:** `.python-refactor/` directory with analysis, plan, execution log, and validation report.
+
+---
+
+**Related:** [senior-review](senior-review.md) (`/cleanup-dead-code` uses python-dead-code skill) | [humanize](humanize.md) (post-refactor code cleanup) | [workflows](workflows.md) (`/feature-e2e` for end-to-end development)

@@ -70,14 +70,14 @@ Execute written implementation plans in a separate session with review checkpoin
 
 ### `anvil-forge`
 
-Skill activation engine that ensures every installed skill gets used when it should. Runs at conversation start and before every task to check if any skill applies.
+Skill activation engine that checks every installed skill against the current task. Fires at conversation start and before every task.
 
 | | |
 |---|---|
-| **Invoke** | Activated automatically (not manually invoked) |
-| **Use for** | Ensuring skills are discovered and used proactively |
+| **Invoke** | Runs automatically at conversation start and before tasks -- not manually invoked |
+| **Use for** | Proactive skill discovery and activation |
 
-**Behavior:** If there is even a 1% chance a skill applies to the current task, it must be invoked. User instructions always take precedence over skill directives. Skipped when dispatched as a subagent.
+**Behavior:** Invokes any skill with even a 1% chance of relevance to the current task. User instructions always override skill directives. Skips activation when running as a subagent.
 
 ---
 

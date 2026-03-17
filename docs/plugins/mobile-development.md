@@ -1,6 +1,6 @@
 # Mobile Development Plugin
 
-> Know your competition inside out. Automated Android app analysis via ADB -- navigate, screenshot, and document UX/UI patterns into comprehensive competitive reports.
+> Know your competition inside out. Automated Android app analysis via ADB -- navigate, screenshot, and document UX/UI patterns into structured competitive reports.
 
 ## Skills
 

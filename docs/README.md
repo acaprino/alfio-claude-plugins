@@ -1,6 +1,6 @@
 # Anvil Toolset Documentation
 
-Custom Claude Code plugin marketplace with agents, skills, and commands for development workflows, code quality, AI tooling, and more.
+Custom Claude Code plugin marketplace. Agents, skills, and commands for development workflows, code quality, AI tooling, and more.
 
 **Install:** `claude plugin marketplace add acaprino/anvil-toolset`
 
@@ -18,7 +18,8 @@ Custom Claude Code plugin marketplace with agents, skills, and commands for deve
 | [csp](plugins/csp.md) | optimization | Constraint programming with Google OR-Tools CP-SAT solver | 1 agent |
 | [deep-dive-analysis](plugins/deep-dive-analysis.md) | review | Systematic codebase analysis -- architecture, data flows, anti-patterns | 1 skill, 1 command |
 | [digital-marketing](plugins/digital-marketing.md) | marketing | SEO audits, content strategy, brand naming, domain hunting | 2 agents, 2 skills, 3 commands |
-| [frontend](plugins/frontend.md) | frontend | UI polish, UX design, CSS, layout, web consulting, shadcn/ui | 4 agents, 5 skills, 1 command |
+| [frontend](plugins/frontend.md) | frontend | UI polish, UX design, CSS, layout, web consulting, shadcn/ui | 4 agents, 6 skills, 1 command |
+| [git-worktrees](plugins/git-worktrees.md) | utilities | Git worktree management -- create, pause, resume, merge parallel branches | 1 agent, 1 skill, 1 command |
 | [humanize](plugins/humanize.md) | review | Rewrite code for readability -- naming, comments, structure | 1 agent, 1 command |
 | [learning](plugins/learning.md) | productivity | Mind maps, Obsidian MarkMind export, interactive force-graph visualization | 3 skills, 1 command |
 | [marketplace-ops](plugins/marketplace-ops.md) | utilities | Plugin management -- auditing, validation, upstream sync, scaffolding | 1 agent, 2 skills, 4 commands |
@@ -28,6 +29,7 @@ Custom Claude Code plugin marketplace with agents, skills, and commands for deve
 | [playwright-skill](plugins/playwright-skill.md) | testing | Browser automation with Playwright -- testing, screenshots, form filling | 1 skill |
 | [project-setup](plugins/project-setup.md) | utilities | CLAUDE.md creation and maintenance with ground truth validation | 1 agent, 2 commands |
 | [python-development](plugins/python-development.md) | development | TDD, refactoring, profiling, async, uv, dead code, scaffolding | 1 agent, 8 skills, 2 commands |
+| [rag-development](plugins/rag-development.md) | ai-ml | RAG system design and audit -- chunking, embeddings, Qdrant, advanced patterns | 2 agents, 1 skill, 1 command |
 | [react-development](plugins/react-development.md) | frontend | React 19 performance, state management, bundle optimization, Vercel best practices | 1 agent, 1 skill, 1 command |
 | [research](plugins/research.md) | research | Quick search (Sonnet) and deep multi-source research (Opus) | 2 agents |
 | [senior-review](plugins/senior-review.md) | review | Multi-agent code review -- architecture, security, patterns, dead code | 3 agents, 4 commands |

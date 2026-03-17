@@ -56,7 +56,7 @@ Use the content-marketer agent to [plan/create/optimize] [content/campaign]
 
 ### `brand-naming`
 
-Brand naming strategist that generates, filters, scores, and validates brand names through a lateral thinking workflow.
+Brand naming strategist. Generates, filters, scores, and validates brand names through a lateral thinking workflow.
 
 | | |
 |---|---|
@@ -103,7 +103,7 @@ Generate, filter, score, and validate brand names through a structured naming wo
 
 ### `/seo-audit`
 
-5-phase technical SEO audit with Playwright analysis, scoring, checkpoint before fixes, and persistent report.
+5-phase technical SEO audit with Playwright analysis, scoring, a checkpoint before applying fixes, and a persistent report.
 
 ```
 /seo-audit https://example.com
@@ -117,7 +117,7 @@ Generate, filter, score, and validate brand names through a structured naming wo
 
 ### `/content-strategy`
 
-Marketing and conversion audit using 3 parallel agents (UX/Conversion, Content/Copy, Social/Visual) with checkpoint before changes and persistent report.
+Marketing and conversion audit. Runs 3 parallel agents (UX/Conversion, Content/Copy, Social/Visual) with a checkpoint before applying changes and a persistent report.
 
 ```
 /content-strategy https://example.com
@@ -126,3 +126,7 @@ Marketing and conversion audit using 3 parallel agents (UX/Conversion, Content/C
 **Phases:** Scope -> Parallel Audit (3 agents) -> Synthesis -> (Checkpoint) -> Apply -> Report
 
 **Output:** `.content-strategy/` directory with scope, audit, plan, changes, and final report.
+
+---
+
+**Related:** [research](research.md) (deep research for content strategy) | [frontend](frontend.md) (UI/UX for marketing pages) | [playwright-skill](playwright-skill.md) (browser automation for SEO audits)

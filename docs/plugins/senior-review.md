@@ -22,7 +22,7 @@ Use the architect-review agent to review [system/design]
 
 ### `security-auditor`
 
-Expert security auditor specializing in DevSecOps, comprehensive cybersecurity, and compliance frameworks.
+Security auditor specializing in DevSecOps, cybersecurity, and compliance frameworks.
 
 | | |
 |---|---|
@@ -67,7 +67,7 @@ Use the pattern-quality-scorer agent to analyze [codebase]
 
 ### `/full-review`
 
-Orchestrate comprehensive multi-dimensional code review using all specialized review agents.
+Run a multi-dimensional code review across all specialized review agents.
 
 ```
 /full-review src/features/auth/ --security-focus
@@ -85,7 +85,7 @@ Orchestrate comprehensive multi-dimensional code review using all specialized re
 
 ### `/code-review`
 
-Unified code review -- auto-detects scope: uncommitted/staged changes, recent commits, PR number, or branch diff. Runs architecture, security, and pattern analysis agents in parallel with confidence scoring.
+Unified code review that auto-detects scope: uncommitted/staged changes, recent commits, PR number, or branch diff. Fires architecture, security, and pattern analysis agents in parallel with confidence scoring.
 
 ```
 /code-review                    # auto-detect: uncommitted changes or branch diff
@@ -99,7 +99,7 @@ Unified code review -- auto-detects scope: uncommitted/staged changes, recent co
 
 ### `/cleanup-dead-code`
 
-Find and remove dead code -- auto-detects language: Knip for TypeScript/JavaScript, vulture + ruff for Python. Runs tests before and after to verify no regressions.
+Find and remove dead code. Auto-detects language: Knip for TypeScript/JavaScript, vulture + ruff for Python. Runs tests before and after to catch regressions.
 
 ```
 /cleanup-dead-code src/ --dry-run
@@ -112,7 +112,7 @@ Find and remove dead code -- auto-detects language: Knip for TypeScript/JavaScri
 | `--exports-only` | Only check unused exports |
 | `--production` | Skip devDependencies |
 
-**Safety:** Checks `git status` before starting. Reverts changes if tests fail. Requires approval before removing Python functions/classes (high false-positive rate).
+**Safety:** Checks `git status` before starting. Reverts changes when tests fail. Asks for approval before removing Python functions/classes (high false-positive rate).
 
 **Related:** Delegates to `typescript-development:knip` (TS/JS) and `python-development:python-dead-code` (Python) skills.
 
@@ -120,7 +120,7 @@ Find and remove dead code -- auto-detects language: Knip for TypeScript/JavaScri
 
 ### `/pr-review`
 
-Analyze current branch changes, generate comprehensive PR description with risk assessment and review checklist, and optionally create the PR via `gh`.
+Analyze current branch changes, generate a PR description with risk assessment and review checklist, and optionally create the PR via `gh`.
 
 ```
 /pr-review --create

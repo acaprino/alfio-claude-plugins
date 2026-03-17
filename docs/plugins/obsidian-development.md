@@ -6,7 +6,7 @@
 
 ### `obsidian-plugin-development`
 
-Write Obsidian plugin code that passes the ObsidianReviewBot automated review on first submission. Covers all required eslint-plugin-obsidianmd rules with code examples.
+Write Obsidian plugin code that passes ObsidianReviewBot on first submission. Covers all required eslint-plugin-obsidianmd rules with code examples.
 
 | | |
 |---|---|
@@ -16,7 +16,7 @@ Write Obsidian plugin code that passes the ObsidianReviewBot automated review on
 
 ### `obsidian-scaffold`
 
-Scaffold a new Obsidian community plugin project that is bot-compliant from day one.
+Scaffold a new Obsidian community plugin project -- bot-compliant from day one.
 
 | | |
 |---|---|
@@ -26,7 +26,7 @@ Scaffold a new Obsidian community plugin project that is bot-compliant from day 
 
 ### `obsidian-check`
 
-Pre-submission lint and review. Auto-installs `eslint-plugin-obsidianmd` if missing, runs all 28 ESLint rules (including `ui/sentence-case`), plus additional manual checks not covered by the linter.
+Pre-submission lint and review. Auto-installs `eslint-plugin-obsidianmd` if missing, runs all 28 ESLint rules (including `ui/sentence-case`), plus manual checks the linter does not cover.
 
 | | |
 |---|---|
@@ -34,3 +34,7 @@ Pre-submission lint and review. Auto-installs `eslint-plugin-obsidianmd` if miss
 | **Auto-setup** | Installs `eslint-plugin-obsidianmd` with recommended config if not present |
 | **Checks** | TypeScript compilation, 28 ESLint rules (sentence case, inline styles, commands, manifest, etc.), 6 manual checks, manifest validation, LICENSE |
 | **Output** | Structured report with severity grouping, file:line locations, and suggested fixes |
+
+---
+
+**Related:** [typescript-development](typescript-development.md) (TypeScript coding standards) | [learning](learning.md) (mind maps for Obsidian MarkMind)

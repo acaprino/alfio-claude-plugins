@@ -40,3 +40,7 @@ uv add ortools
 - [OR-Tools Documentation](https://developers.google.com/optimization/cp)
 - [CP-SAT Primer](https://d-krupke.github.io/cpsat-primer/) - comprehensive guide
 - [CP-SAT Log Analyzer](https://cpsat-log-analyzer.streamlit.app/)
+
+---
+
+**Related:** [python-development](python-development.md) (Python implementation patterns for constraint models)

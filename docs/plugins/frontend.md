@@ -1,6 +1,6 @@
 # Frontend Plugin
 
-> Four specialized agents and five skills for every layer of frontend work -- from strategic planning and creative design direction to polished production UI.
+> Four agents and six skills for every layer of frontend work -- from strategic planning and creative design direction to polished production UI.
 >
 > **Which tool do I use?**
 > | Need | Tool | What it does |
@@ -82,7 +82,7 @@ Use the css-master agent to [refactor/migrate/architect] [styles]
 
 ### `css-master`
 
-Comprehensive CSS reference covering modern CSS features, architecture methodologies, and production patterns.
+CSS reference covering modern features, architecture methodologies, and production patterns.
 
 | | |
 |---|---|
@@ -95,7 +95,7 @@ Comprehensive CSS reference covering modern CSS features, architecture methodolo
 
 ### `premium-web-consultant`
 
-Premium web design consultant for the strategy phase before any code is written. Conducts structured client discovery (business goals, audience, competitors, tone), produces professional deliverables, and orchestrates specialist agents (seo-specialist, ui-ux-designer, ui-layout-designer, css-master, content-marketer) at defined handoff points.
+Premium web design consultant for the strategy phase before writing any code. Conducts structured client discovery (business goals, audience, competitors, tone), produces professional deliverables, and hands off to specialist agents (seo-specialist, ui-ux-designer, ui-layout-designer, css-master, content-marketer) at defined points.
 
 | | |
 |---|---|
@@ -125,7 +125,7 @@ Orchestrates full frontend development from a product goal to shipped UI. Establ
 
 ### `frontend-design`
 
-Create distinctive, production-grade frontend interfaces with bold aesthetic direction. Guides typography, color, motion, spatial composition, and visual details to avoid generic AI output.
+Create distinctive, production-grade frontend interfaces with bold aesthetic direction. Guides typography, color, motion, spatial composition, and visual details to avoid generic-looking output.
 
 | | |
 |---|---|
@@ -146,7 +146,7 @@ Expert guidance for building with shadcn/ui -- component composition, registry s
 | **Use for** | shadcn/ui components, registry authoring, complex form patterns, theming, Tailwind v4 migration |
 | **Trigger** | "shadcn", "shadcn/ui", "shadcn components", "shadcn registry", "shadcn blocks" |
 
-**Core philosophy:** shadcn/ui is NOT a component library -- it is a collection of accessible components you copy into your project and own. Components are built on Radix UI primitives and styled with Tailwind CSS.
+**Core philosophy:** shadcn/ui is NOT a component library -- you copy accessible components into your project and own them. Components build on Radix UI primitives and use Tailwind CSS for styling.
 
 ---
 
@@ -154,7 +154,7 @@ Expert guidance for building with shadcn/ui -- component composition, registry s
 
 ### `/review-design`
 
-Unified frontend design review -- auto-detects scope: diff mode for changed frontend files, or full audit for entire frontend. UX patterns, CSS architecture, and React performance.
+Unified frontend design review. Auto-detects scope: diff mode for changed files, or full audit for the entire frontend. Covers UX patterns, CSS architecture, and React performance.
 
 ```
 /review-design src/ --framework react     # full audit

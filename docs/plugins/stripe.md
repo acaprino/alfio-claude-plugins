@@ -43,7 +43,7 @@ pip install stripe
 
 ### `revenue-optimizer`
 
-Monetization expert that analyzes codebases to discover features, calculate service costs, model usage patterns, and create data-driven pricing strategies with revenue projections.
+Monetization expert. Analyzes your codebase to discover features, calculate service costs, model usage patterns, and create data-driven pricing strategies with revenue projections.
 
 | | |
 |---|---|
@@ -64,3 +64,7 @@ Monetization expert that analyzes codebases to discover features, calculate serv
 | LTV | (ARPU x Margin) / Monthly Churn |
 | Break-even | Fixed Costs / (ARPU - Variable Cost) |
 | Optimal Price | (Cost Floor x 0.3) + (Value Ceiling x 0.7) |
+
+---
+
+**Related:** [python-development](python-development.md) (Python implementation patterns) | [business](business.md) (legal and compliance for payment flows)

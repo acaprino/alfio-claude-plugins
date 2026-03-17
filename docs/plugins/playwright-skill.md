@@ -6,7 +6,7 @@
 
 ### `playwright-skill`
 
-Complete browser automation skill that writes custom Playwright code for any task and executes it via a universal executor.
+Browser automation skill that writes custom Playwright code for any task and runs it via a universal executor.
 
 | | |
 |---|---|

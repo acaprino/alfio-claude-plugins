@@ -27,7 +27,7 @@ These run after specific tool invocations:
 
 ## Configuration
 
-Hooks are defined in `plugins/anvil-hooks/hooks/hooks.json`. Handler scripts live in `plugins/anvil-hooks/hooks/handlers/`.
+`plugins/anvil-hooks/hooks/hooks.json` defines the hooks. Handler scripts live in `plugins/anvil-hooks/hooks/handlers/`.
 
 **Optional dependency:** `ai-tooling` (for skill awareness injection).
 

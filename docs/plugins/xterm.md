@@ -1,6 +1,6 @@
 # xterm Plugin
 
-> Build, debug, and extend xterm.js terminal emulators in web, Electron, and Tauri apps. Comprehensive skill covering addons, PTY wiring, theming, high-performance data handling, and browser quirks -- plus two commands for debugging and implementing features.
+> Build, debug, and extend xterm.js terminal emulators in web, Electron, and Tauri apps. Covers addons, PTY wiring, theming, high-performance data handling, and browser quirks -- plus two commands for debugging and implementing features.
 
 ## Skills
 
@@ -47,7 +47,7 @@ Diagnose and fix xterm.js terminal issues with a two-phase analysis: quick pitfa
 
 ### `/xterm-implement`
 
-Implement xterm.js features into existing terminal code. Reads the current setup and adds the requested feature without conflicts.
+Implement xterm.js features into existing terminal code. Reads your current setup and adds the requested feature without conflicts.
 
 ```
 /xterm-implement "add WebGL rendering with fallback"

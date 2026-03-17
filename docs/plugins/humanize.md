@@ -46,3 +46,7 @@ Quick command to humanize source files.
 | `/humanize src/utils.py` | Humanize a specific file |
 | `/humanize src/` | Humanize all source files in a directory |
 | `/humanize src/api/ --dry-run` | Preview changes without modifying files |
+
+---
+
+**Related:** [workflows](workflows.md) (`/feature-e2e` runs humanize as its final phase) | [senior-review](senior-review.md) (code review before humanizing)

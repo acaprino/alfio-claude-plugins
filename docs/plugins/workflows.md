@@ -47,7 +47,7 @@ graph TD
 
 ### `/frontend-redesign`
 
-Full frontend redesign pipeline: UX audit, layout system design, implementation, React performance optimization, UI polish, and final design audit with visual report. Use this to **improve existing frontend code** -- not for planning or building from scratch.
+Full frontend redesign pipeline: UX audit, layout system design, implementation, React performance optimization, UI polish, and final design audit with visual report. Use this to **improve existing frontend code** -- not to plan or build from scratch.
 
 | | |
 |---|---|
@@ -146,7 +146,7 @@ graph TD
 
 ### `/mobile-intel`
 
-Competitive mobile intelligence: analyze competitor Android app via ADB, brainstorm differentiating features, design improved UX, write implementation plan, and scaffold Tauri 2 mobile app.
+Competitive mobile intelligence: analyze a competitor Android app via ADB, brainstorm differentiating features, design improved UX, write an implementation plan, and scaffold a Tauri 2 mobile app.
 
 | | |
 |---|---|
@@ -203,7 +203,7 @@ graph TD
 
 ### `/mobile-tauri-pipeline`
 
-End-to-end mobile app pipeline: competitor analysis via ADB, brainstorm features, UX design, implementation plan, scaffold Tauri 2 mobile app, Rust backend review, and IPC optimization.
+End-to-end mobile app pipeline: competitor analysis via ADB, feature brainstorm, UX design, implementation plan, Tauri 2 mobile scaffold, Rust backend review, and IPC optimization.
 
 | | |
 |---|---|
@@ -232,4 +232,8 @@ End-to-end UI development pipeline: brainstorm product concept, design direction
 | Symbol | Meaning |
 |--------|---------|
 | Blue boxes | Parallel agents (run simultaneously) |
-| Orange diamonds | Checkpoints (require user approval to proceed) |
+| Orange diamonds | Checkpoints (require your approval to proceed) |
+
+---
+
+**Related:** [senior-review](senior-review.md) (review agents used in pipelines) | [ai-tooling](ai-tooling.md) (brainstorming and planning skills) | [frontend](frontend.md) (UI agents for redesign pipelines)

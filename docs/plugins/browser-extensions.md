@@ -6,7 +6,7 @@
 
 ### `firefox-extension-dev`
 
-Comprehensive Firefox WebExtension development guidance covering the full extension lifecycle.
+Firefox WebExtension development guidance covering the full extension lifecycle.
 
 | | |
 |---|---|
@@ -27,3 +27,7 @@ Comprehensive Firefox WebExtension development guidance covering the full extens
 - Official examples: [mdn/webextensions-examples](https://github.com/mdn/webextensions-examples)
 - Browser polyfill: [mozilla/webextension-polyfill](https://github.com/mozilla/webextension-polyfill)
 - Extension Workshop: [extensionworkshop.com](https://extensionworkshop.com)
+
+---
+
+**Related:** [typescript-development](typescript-development.md) (TypeScript coding standards for extension code)

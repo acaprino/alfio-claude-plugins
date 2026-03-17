@@ -51,7 +51,7 @@ All writer agents use the tools: Read, Write, Glob, Grep.
 
 #### `guide-reviewer`
 
-Reviews all generated documents for consistency, adds cross-references, uniformizes tone, and produces `INDEX.md`. Flags gaps and contradictions.
+Reviews all generated documents for consistency, adds cross-references, unifies tone, and produces `INDEX.md`. Flags gaps and contradictions.
 
 | | |
 |---|---|
@@ -69,7 +69,7 @@ Knowledge base providing writing guidelines, tone rules, and diagram conventions
 
 | | |
 |---|---|
-| **Invoke** | Referenced automatically by all codebase-mapper agents |
+| **Invoke** | All codebase-mapper agents reference this automatically |
 | **Use for** | Writing style, Mermaid diagram conventions, output structure rules |
 
 ---
@@ -95,7 +95,7 @@ Generate a human-readable codebase guide.
 
 ### `documentation-engineer`
 
-Expert documentation engineer that creates accurate technical documentation by analyzing existing code first. Uses bottom-up analysis with the shared writing guidelines.
+Creates accurate technical documentation by analyzing existing code first. Uses bottom-up analysis with the shared writing guidelines.
 
 | | |
 |---|---|
@@ -107,7 +107,7 @@ Expert documentation engineer that creates accurate technical documentation by a
 
 ### `doc-humanizer`
 
-Rewrites existing documentation to follow the human-centered writing guidelines. Transforms dense, AI-style docs into clear, scannable content.
+Rewrites existing documentation to follow human-centered writing guidelines. Transforms dense, AI-style docs into clear, scannable content.
 
 | | |
 |---|---|
@@ -121,7 +121,7 @@ Rewrites existing documentation to follow the human-centered writing guidelines.
 
 ### `/docs-create`
 
-Analyze code bottom-up and generate accurate documentation -- API reference, architecture guides, or full project docs.
+Analyze code bottom-up and generate documentation -- API reference, architecture guides, or full project docs.
 
 ```
 /docs-create src/api/ --api-only
@@ -131,7 +131,7 @@ Analyze code bottom-up and generate accurate documentation -- API reference, arc
 
 ### `/docs-maintain`
 
-Audit and refactor existing documentation to ensure accuracy and completeness.
+Audit and refactor existing documentation for accuracy and completeness.
 
 ```
 /docs-maintain docs/
@@ -141,7 +141,7 @@ Audit and refactor existing documentation to ensure accuracy and completeness.
 
 ### `/humanize-docs`
 
-Rewrite existing documentation to be human-readable -- removes AI-style density, applies progressive disclosure.
+Rewrite existing documentation for readability -- strips AI-style density and applies progressive disclosure.
 
 ```
 /humanize-docs docs/

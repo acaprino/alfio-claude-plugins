@@ -31,7 +31,7 @@ Analyzes Claude Code session data from local JSONL files to generate usage repor
 | Sonnet | $3 | $15 | $3.75 | $0.30 |
 | Haiku | $0.80 | $4 | $1 | $0.08 |
 
-When `costUSD` is present in the JSONL data, that native value takes priority over calculated estimates.
+When the JSONL data includes `costUSD`, that native value takes priority over calculated estimates.
 
 **Inspired by:** [paulrobello/par_cc_usage](https://github.com/paulrobello/par_cc_usage)
 
@@ -60,4 +60,8 @@ Analyze your Claude Code token usage, costs, and activity.
 | `brief` | Show only overview and billing block |
 | `block` | Show only current billing block |
 
-Runs a Python analysis script under the hood and presents the markdown output directly -- tables render in the conversation.
+Runs a Python analysis script under the hood and displays the markdown output directly -- tables render in the conversation.
+
+---
+
+**Related:** [marketplace-ops](marketplace-ops.md) (plugin ecosystem management)

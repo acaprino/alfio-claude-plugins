@@ -67,7 +67,7 @@ Includes a conventions reference with color palette, categories, agent structure
 
 ### `/marketplace-health`
 
-Quick marketplace health check -- validates marketplace.json, checks file references, reports plugin counts and version status.
+Quick marketplace health check -- validates marketplace.json, checks file references, and reports plugin counts and version status.
 
 ### `/marketplace-scaffold-plugin`
 
@@ -79,8 +79,12 @@ Scaffold a new plugin with proper directory structure, starter files, and market
 
 ### `/marketplace-sync-upstream`
 
-Sync upstream-sourced plugins with their remote repositories -- fetches latest content, compares with local, preserves local additions, and updates versions.
+Sync upstream-sourced plugins with their remote repositories. Fetches latest content, compares with local files, preserves local additions, and bumps versions.
 
 ### `/marketplace-review`
 
 AI-powered quality review of plugin descriptions, trigger keywords, agent prompts, skill instructions, and command definitions.
+
+---
+
+**Related:** [anvil-hooks](anvil-hooks.md) (session lifecycle hooks) | [project-setup](project-setup.md) (CLAUDE.md management)

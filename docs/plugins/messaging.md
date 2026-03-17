@@ -6,7 +6,7 @@
 
 ### `rabbitmq-expert`
 
-RabbitMQ and AMQP architecture expert. Designs queue topologies, configures exchanges and bindings, sets up clustering and high availability, diagnoses delivery issues, and optimizes throughput.
+RabbitMQ and AMQP architecture expert. Designs queue topologies, configures exchanges and bindings, sets up clustering and high availability, diagnoses delivery issues, and tunes throughput.
 
 | | |
 |---|---|
@@ -26,3 +26,7 @@ Use the rabbitmq-expert agent to [design/configure/optimize] [messaging system]
 - **High availability** - node failover, network partition handling, data safety policies
 - **Performance** - prefetch tuning, publisher confirms, consumer acknowledgments, lazy queues
 - **Monitoring** - management plugin, Prometheus metrics, alerting thresholds
+
+---
+
+**Related:** [python-development](python-development.md) (Python implementation patterns for consumers/producers)
