@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "2.57.0"
+    "version": "2.58.0"
   },
   "plugins": [
     {
@@ -350,7 +350,7 @@
       "name": "research",
       "source": "./plugins/research",
       "description": "Search and research toolkit -- quick-searcher (sonnet) for fast fact-finding and single-concept lookups, deep-researcher (opus) for complex multi-source investigation requiring systematic coverage, cross-referencing, and iterative refinement",
-      "version": "2.2.0",
+      "version": "2.3.0",
       "author": {
         "name": "Alfio"
       },
@@ -397,34 +397,6 @@
       ],
       "skills": [
         "./skills/legal-advisor"
-      ]
-    },
-    {
-      "name": "code-documentation",
-      "source": "./plugins/code-documentation",
-      "description": "Bottom-up technical documentation -- codebase analysis, API reference generation, doc refactoring and consolidation, ground truth verification, and tutorial creation",
-      "version": "1.7.0",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "documentation",
-        "technical-writing",
-        "code-analysis",
-        "api-docs",
-        "architecture",
-        "tutorials",
-        "documentation-management"
-      ],
-      "category": "documentation",
-      "strict": false,
-      "agents": [
-        "./agents/documentation-engineer.md"
-      ],
-      "commands": [
-        "./commands/docs-create.md",
-        "./commands/docs-maintain.md"
       ]
     },
     {

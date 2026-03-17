@@ -168,10 +168,10 @@ Context strategies:
 **Default: use the Python webfetch script** instead of the built-in WebFetch tool. It has strict timeouts and won't block indefinitely:
 
 ```bash
-python plugins/research/scripts/webfetch.py "URL" --timeout 15 --max-chars 30000
+python plugins/research/scripts/webfetch.py "URL" --timeout 30 --max-chars 50000
 ```
 
-Options: `--timeout SECONDS` (default 15), `--max-chars CHARS` (default 30000), `--raw` (skip HTML extraction).
+Options: `--timeout SECONDS` (default 30), `--max-chars CHARS` (default 50000), `--raw` (skip HTML extraction).
 Exit code 1 = timeout or error -- move on without that result.
 
 Only fall back to the built-in WebFetch tool if Bash is unavailable.
