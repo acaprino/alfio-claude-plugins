@@ -12,10 +12,10 @@ plugins/
     agents/                 # agent .md files (frontmatter + system prompt)
     skills/                 # skill directories (SKILL.md + optional references/)
     commands/               # slash-command .md files
-    hooks/                  # hook handlers (JS) + hooks.json (anvil-hooks only)
+    hooks/                  # hook handlers (JS/Python) + hooks.json (anvil-hooks, prompt-improver)
 ```
 
-29 plugins: humanize, deep-dive-analysis, tauri-development, frontend, react-development, xterm, ai-tooling, python-development, stripe, system-utils, messaging, research, business, project-setup, mobile-development, typescript-development, csp, digital-marketing, senior-review, app-explorer, workflows, obsidian-development, browser-extensions, learning, marketplace-ops, playwright-skill, anvil-hooks, cc-usage, codebase-mapper.
+32 plugins: humanize, deep-dive-analysis, tauri-development, frontend, react-development, xterm, ai-tooling, python-development, stripe, system-utils, messaging, research, business, project-setup, mobile-development, typescript-development, csp, digital-marketing, senior-review, app-explorer, workflows, obsidian-development, browser-extensions, learning, marketplace-ops, playwright-skill, anvil-hooks, prompt-improver, cc-usage, codebase-mapper, git-worktrees, rag-development.
 
 ## Plugin anatomy
 
@@ -93,6 +93,7 @@ Some plugins are ported from external repositories and should be kept in sync wi
 | `playwright-skill` | `lackeyjb/playwright-skill` - `skills/playwright-skill/` | `plugins/playwright-skill/skills/playwright-skill/SKILL.md`, `plugins/playwright-skill/skills/playwright-skill/API_REFERENCE.md`, `plugins/playwright-skill/skills/playwright-skill/run.js`, `plugins/playwright-skill/skills/playwright-skill/package.json`, `plugins/playwright-skill/skills/playwright-skill/lib/helpers.js` |
 | `react-development` (react-best-practices) | `vercel-labs/agent-skills` - `skills/react-best-practices/` | `plugins/react-development/skills/react-best-practices/SKILL.md`, `plugins/react-development/skills/react-best-practices/references.md`, `plugins/react-development/skills/react-best-practices/rules/*.md` |
 | `digital-marketing` (domain-hunter) | `ReScienceLab/opc-skills` - `skills/domain-hunter/` | `plugins/digital-marketing/skills/domain-hunter/SKILL.md`, `plugins/digital-marketing/skills/domain-hunter/references/registrars.md`, `plugins/digital-marketing/skills/domain-hunter/references/spaceship-api.md` |
+| `prompt-improver` | `severity1/claude-code-prompt-improver` | `plugins/prompt-improver/skills/prompt-improver/SKILL.md`, `plugins/prompt-improver/skills/prompt-improver/references/*.md`, `plugins/prompt-improver/hooks/handlers/improve-prompt.js` |
 
 ### How to sync a plugin
 
@@ -137,6 +138,19 @@ gh api repos/ReScienceLab/opc-skills/contents/skills/domain-hunter/SKILL.md \
 gh api repos/ReScienceLab/opc-skills/contents/skills/domain-hunter/references/registrars.md \
   --jq '.content' | base64 -d
 gh api repos/ReScienceLab/opc-skills/contents/skills/domain-hunter/references/spaceship-api.md \
+  --jq '.content' | base64 -d
+
+# Fetch latest prompt-improver files from upstream (severity1/claude-code-prompt-improver example)
+gh api repos/severity1/claude-code-prompt-improver/contents/skills/prompt-improver/SKILL.md \
+  --jq '.content' | base64 -d
+gh api repos/severity1/claude-code-prompt-improver/contents/skills/prompt-improver/references/question-patterns.md \
+  --jq '.content' | base64 -d
+gh api repos/severity1/claude-code-prompt-improver/contents/skills/prompt-improver/references/research-strategies.md \
+  --jq '.content' | base64 -d
+gh api repos/severity1/claude-code-prompt-improver/contents/skills/prompt-improver/references/examples.md \
+  --jq '.content' | base64 -d
+# NOTE: upstream uses Python (scripts/improve-prompt.py), local version is JS (hooks/handlers/improve-prompt.js)
+gh api repos/severity1/claude-code-prompt-improver/contents/scripts/improve-prompt.py \
   --jq '.content' | base64 -d
 ```
 

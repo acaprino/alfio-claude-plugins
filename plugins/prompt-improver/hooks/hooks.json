@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "description": "Improves user prompts by adding clarifying questions",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/handlers/improve-prompt.js\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
