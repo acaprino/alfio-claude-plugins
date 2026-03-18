@@ -10,6 +10,8 @@ description: >
   states, loading spinners, and complex navigation patterns that defeat automated crawlers.
   Triggers: /app-explorer, "explore my app", "map the webapp", "analyze app structure",
   "crawl my frontend", "mappa la webapp", "esplora l'app".
+model: opus
+color: cyan
 ---
 
 # app-explorer
