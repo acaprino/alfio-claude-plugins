@@ -32,6 +32,59 @@ Build an internal simplified ROPA (Record of Processing Activities, Art. 30 GDPR
 
 ---
 
+# PHASE 0: REGULATORY DELTA CHECK
+
+**Trigger:** This phase activates when the user passes an existing compliance document to review, update, audit, check, or assess. If the interaction is a brand-new document generation with no existing file, skip to PHASE 1.
+
+**Step 0.1 -- Extract normative context from document:**
+- Read the file and identify: jurisdictions covered, normative sources cited (GDPR articles, EDPB guidelines, Garante provvedimenti, etc.), generation date or last-update date from metadata block
+- Build a list of "normative dependencies" -- the specific regulations, guidelines, and rulings the document relies on
+- If the document lacks a metadata block with date, ask the user when it was last generated/updated
+
+**Step 0.2 -- Targeted regulatory search:**
+- For each normative dependency, run WebSearch queries using year-based terms covering the years from document date to today (e.g. `guidelines 2025 2026`) as proxy for date filtering:
+  - `site:edpb.europa.eu guidelines {topic} {year}` for new EDPB guidelines
+  - `site:garanteprivacy.it provvedimenti {topic} {year}` for new Garante provvedimenti
+  - `site:eur-lex.europa.eu {regulation} {year}` for legislative amendments
+  - `site:curia.europa.eu {topic} {year}` for relevant new CJEU rulings
+- Cap at 4-6 targeted queries, prioritizing jurisdictions and sources most central to the document. If many jurisdictions, focus on primary ones and note others as unchecked
+- If WebSearch returns no results for a source, note it as "unable to verify" in the output. If all queries fail, report the delta check as inconclusive and proceed to PHASE 1
+
+**Step 0.3 -- Cascading output:**
+
+When updates are found, present a summary table:
+
+```
+## Regulatory Delta Check
+Document: {filename}
+Period: {document date} - {today}
+Jurisdictions: {list}
+
+| # | Source | Date | Update | Impacted section | Relevance |
+|---|--------|------|--------|------------------|-----------|
+| 1 | ... | ... | ... | ... | High/Medium/Low |
+
+Want to drill into any items? Indicate the numbers.
+```
+
+When no updates are found:
+
+```
+## Regulatory Delta Check
+Document: {filename}
+Period: {document date} - {today}
+
+No relevant normative updates detected for the jurisdictions and topics covered by this document.
+```
+
+Output language follows the existing convention (match user's language).
+
+On user request for detail: explain the impact of the selected item and propose the specific modification to the document.
+
+**Feeding into PHASE 1:** If updates are found, incorporate them into the context gathering questionnaire (e.g. "your document does not cover X, introduced by Y -- do you want to include it?").
+
+---
+
 # PHASE 1: CONTEXT GATHERING
 
 ## Step 1 -- Jurisdiction Setup

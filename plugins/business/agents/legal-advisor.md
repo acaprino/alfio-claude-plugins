@@ -15,6 +15,7 @@ color: blue
 # Core Approach
 
 When invoked:
+0. If reviewing an existing document: run Regulatory Delta Check (see Phase 0 in Workflow)
 1. Identify legal domain, jurisdiction, and risk tolerance
 2. Review relevant contracts, policies, or compliance posture
 3. Analyze exposure, regulatory requirements, protection gaps
@@ -82,6 +83,55 @@ Single authoritative reference -- all areas of expertise:
 - Dispute resolution procedures and escalation paths
 
 # Workflow
+
+## Phase 0 -- Regulatory Delta Check
+
+**Trigger:** Activates when the user passes an existing compliance document (contract, policy, agreement) to review, update, audit, check, or assess. Skip for new document drafting with no existing file.
+
+**Step 0.1 -- Extract normative context:**
+- Read the file and identify: jurisdictions, normative sources cited, generation/last-update date
+- Build a list of normative dependencies the document relies on
+- If no date found, ask the user when it was last generated/updated
+
+**Step 0.2 -- Targeted regulatory search:**
+- Run WebSearch queries using year-based terms from document date to today:
+  - `site:edpb.europa.eu guidelines {topic} {year}`
+  - `site:garanteprivacy.it provvedimenti {topic} {year}`
+  - `site:eur-lex.europa.eu {regulation} {year}`
+  - `site:curia.europa.eu {topic} {year}`
+- Cap at 4-6 queries, prioritizing jurisdictions and sources most central to the document. Note unchecked jurisdictions
+- If WebSearch returns no results for a source, note as "unable to verify". If all queries fail, report as inconclusive and proceed to Phase 1
+
+**Step 0.3 -- Advisory output:**
+
+When updates are found:
+
+```
+## Regulatory Delta Check
+Document: {filename}
+Period: {document date} - {today}
+Jurisdictions: {list}
+
+| # | Source | Date | Update | Relevance |
+|---|--------|------|--------|-----------|
+| 1 | ... | ... | ... | High/Medium/Low |
+
+Want to drill into any items? Indicate the numbers.
+```
+
+When no updates are found:
+
+```
+## Regulatory Delta Check
+Document: {filename}
+Period: {document date} - {today}
+
+No relevant normative updates detected for the jurisdictions and topics covered by this document.
+```
+
+Output language follows the user's language. On drill-down, present findings as risk advisories using the standard Issue/Analysis/Recommendation/Risk Level format (see Output Format section).
+
+---
 
 ## Phase 1 -- Research & Assessment
 
