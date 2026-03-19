@@ -34,6 +34,26 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 If the spec covers multiple independent subsystems, it should have been broken into sub-project specs during brainstorming. If it wasn't, suggest breaking this into separate plans -- one per subsystem. Each plan should produce working, testable software on its own.
 
+## UI/Frontend Visual Checkpoint
+
+If the plan involves UI or frontend work (new views, layouts, components, visual redesigns), generate a **standalone HTML mockup** before writing the detailed task list:
+
+1. Create a single `.html` file with **React** and a UI library (shadcn/ui, Radix UI, daisyUI, or other appropriate library) loaded from CDN (esm.sh, unpkg, cdn.tailwindcss.com), showing the full layout with:
+   - All views/screens as navigable tabs or scrollable sections
+   - Realistic placeholder content (domain-appropriate, not lorem ipsum)
+   - Colors, typography, and spacing matching the design spec
+   - Responsive behavior with at least one mobile breakpoint
+   - Key states visible (empty, loaded, error, loading)
+   - Interactive navigation and state transitions (React useState for tab switching, modals, etc.)
+   - The file must open directly in a browser without npm install
+2. Save it next to the plan: `docs/plans/YYYY-MM-DD-<feature-name>-mockup.html`
+3. Tell the user to open it in a browser and ask for approval before proceeding
+4. Only write the detailed implementation plan after the user confirms the visual direction
+
+This avoids investing in a detailed plan for a layout the user hasn't validated visually.
+
+**Skip this step if:** the task is backend-only, CLI-only, or the user explicitly says they don't need a mockup.
+
 ## File Structure
 
 Before defining tasks, map out which files will be created or modified and what each one is responsible for. This is where decomposition decisions get locked in.
