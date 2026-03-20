@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "2.95.0"
+    "version": "2.96.0"
   },
   "plugins": [
     {
@@ -375,8 +375,8 @@
     {
       "name": "business",
       "source": "./plugins/business",
-      "description": "Legal advisory and compliance document generation -- Privacy Policies, Cookie Policies, DPAs, DPIA reports, GDPR/ePrivacy/CCPA compliance, contract review, IP, and risk mitigation",
-      "version": "1.8.0",
+      "description": "Legal advisory, compliance document generation, and SaaS business planning -- Privacy Policies, Cookie Policies, DPAs, GDPR/ePrivacy/CCPA compliance, contract review, GTM strategy, market sizing, pricing, and positioning",
+      "version": "1.9.0",
       "author": {
         "name": "Alfio"
       },
@@ -388,13 +388,22 @@
         "privacy",
         "gdpr",
         "intellectual-property",
-        "risk-management"
+        "risk-management",
+        "saas",
+        "gtm",
+        "business-plan",
+        "pricing",
+        "positioning"
       ],
       "category": "business",
       "strict": false,
       "agents": [
         "./agents/privacy-doc-generator.md",
-        "./agents/legal-advisor.md"
+        "./agents/legal-advisor.md",
+        "./agents/business-planner.md"
+      ],
+      "skills": [
+        "./skills/saas-business-plan"
       ]
     },
     {
