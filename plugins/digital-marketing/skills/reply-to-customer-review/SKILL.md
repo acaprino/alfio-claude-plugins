@@ -91,24 +91,53 @@ Craft the response following these rules:
 - Negative (major): 4-6 sentences
 - Abusive: 1-2 sentences max (if responding at all)
 
-### Step 3: AI Trace Removal
+### Step 3: Humanization (inline, no subagent)
 
-Before presenting the response, run it through the `text-humanizer` agent to remove AI writing traces. The response must sound like a real person wrote it -- not a chatbot template.
+Before presenting the response, self-check against these rules. The response must sound like a real person wrote it -- not a chatbot or corporate template.
 
-```
-Task:
-  subagent_type: "text-humanizer"
-  description: "Remove AI writing traces from review response"
-  prompt: |
-    Humanize this review response. Remove AI patterns (filler phrases, promotional
-    language, sycophantic tone, rule of three, generic positive conclusions) while
-    preserving the empathetic tone and factual content. Keep it short and natural.
+#### Core principles
 
-    Do NOT add the self-evaluation pass -- just return the cleaned text.
+1. Delete filler -- remove openers, emphasis crutches, softening phrases
+2. Break formulaic structures -- no binary contrasts, dramatic segmentation, rhetorical setups
+3. Vary rhythm -- mix sentence lengths, two items beat three, vary paragraph endings
+4. Trust the reader -- state facts directly, skip over-explaining and hand-holding
+5. Delete quotable lines -- if a sentence sounds like a pullquote or inspirational poster, rewrite it
 
-    Text:
-    [generated response]
-```
+#### Personality injection
+
+Avoiding AI patterns is half the job. Soulless "clean" writing is just as obvious.
+- Have a real voice -- react to what the guest said, don't just acknowledge it
+- Be specific about feelings -- concrete details, not abstract labels
+- Acknowledge complexity -- real people have mixed feelings and say so
+- Allow some imperfection -- perfect parallel structure feels algorithmic
+
+#### BANNED words (never use, in any language)
+
+"testament", "pivotal", "landscape", "delve", "foster", "underscore", "showcase", "showcases", "vibrant", "crucial", "enhance", "garner", "interplay", "tapestry", "endeavor", "embark", "paramount", "comprehensive", "furthermore", "henceforth", "additionally", "noteworthy", "commendable", "invaluable", "exceptional"
+
+#### BANNED patterns
+
+**Content**: no inflated significance ("This truly reflects..."), no promotional tone (reply as a person, not a brochure), no vague attributions ("many guests say..."), no formulaic "challenges and future" framing.
+
+**Language**: no copula avoidance ("serves as" -- just use "is"), no -ing fillers at sentence start ("Highlighting..."), no negative parallelisms ("not only... but also"), no forced rule of three, no elegant variation / synonym cycling (pick one word and reuse it -- don't rotate "stay/sojourn/visit/experience"), no false ranges.
+
+**Style**: no excessive em dashes, no bold text or emoji, no curly quotation marks.
+
+**Communication**: no servile tone ("Great feedback!", "Thank you so much for your kind words!", "We truly appreciate..."), no template phrases ("We are sorry to hear...", "Thank you for taking the time...", "Your feedback is valuable...", "Your satisfaction is our priority..."), no filler phrases ("In order to", "At its core", "It is important to note"), no generic positive conclusions ("we look forward to continuing", "we strive for excellence"), no excessive hedging ("perhaps", "we believe", "we hope" -- be direct), no collaborative artifacts ("Hope this helps!", "Don't hesitate to...").
+
+#### DO
+
+- Vary sentence rhythm -- short punchy + longer flowing, mixed naturally
+- Be specific -- reference actual details from the review, not vague praise
+- Sound like a real person talking, not a corporate template
+- Use natural phrasing for the target language (idiomatic, not translated)
+- Keep it concise -- don't pad with filler
+- Use simple constructions (is/are/has) when they work
+- React to facts, don't just report them back
+
+#### Self-check
+
+After drafting, re-read the response and ask: "Would a real B&B owner actually write this?" If any sentence sounds like ChatGPT, rewrite it.
 
 ### Step 4: Output
 

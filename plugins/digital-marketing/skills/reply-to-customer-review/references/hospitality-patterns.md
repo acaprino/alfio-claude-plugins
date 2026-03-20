@@ -21,35 +21,45 @@ Common topics in hospitality reviews and their typical phrasing:
 | Check-in | smooth, easy, flexible, self check-in worked perfectly | confusing directions, late check-in, lockbox didn't work, no instructions |
 | Noise | quiet, peaceful, relaxing, serene | noisy, loud neighbors, thin walls, street noise, party house next door |
 
-## Response Templates by Severity
+## Response Patterns by Severity
 
-### Positive Review Response Pattern
+These are structural guides, not copy-paste templates. Every response must sound like a real person wrote it. Reference specific details from the actual review.
 
-Structure: Thank -> Reference specific detail -> Reinforce -> Invite return
+### Positive Review
+
+Structure: Brief thanks -> Reference a specific detail they mentioned -> Casual invite back
 
 Example (friendly tone):
-> Thank you so much for your kind words, [Name]! We're thrilled you enjoyed the [specific detail they mentioned]. It's exactly the experience we want every guest to have. We'd love to welcome you back anytime -- your next stay will be just as special!
+> Ciao [Name], che bello leggere questo. La terrazza al tramonto piace molto anche a noi. Se torni in zona, facci sapere.
+
+Anti-patterns to avoid: "We're thrilled", "It's exactly the experience we want every guest to have", "your next stay will be just as special".
 
 ### Negative - Unfounded/Unrealistic Expectations
 
-Structure: Acknowledge -> Provide context -> Invite private resolution
+Structure: Acknowledge the feeling -> Factual context (one sentence) -> Offer private contact
 
 Example (friendly tone):
-> Thank you for sharing your experience, [Name]. We understand expectations can vary, and we're sorry the stay didn't meet yours. Our listing clearly describes [relevant detail], but we appreciate the feedback and are always looking to improve our communication. We'd love to discuss this further -- please reach out to us directly at [contact].
+> [Name], ci dispiace che il soggiorno non sia andato come speravi. L'appartamento ha le dimensioni indicate nell'annuncio (45 mq), ma capiamo che dal vivo possa sembrare diverso. Se vuoi parlarne, scrivici a [contact].
+
+Anti-patterns to avoid: "We understand expectations can vary", "we appreciate the feedback and are always looking to improve".
 
 ### Negative - Minor Real Problem
 
-Structure: Thank -> Acknowledge issue -> Explain corrective action -> Invite return
+Structure: Acknowledge the issue directly -> What you did about it -> Brief invite back
 
 Example (friendly tone):
-> Thank you for your honest feedback, [Name]. You're absolutely right about [issue], and we sincerely apologize for the inconvenience. We've already [specific corrective action taken]. This isn't the standard we hold ourselves to, and we've made sure it won't happen again. We hope you'll give us another chance to show you the experience we're known for.
+> Hai ragione sul [issue], [Name], e ci scusiamo. Abbiamo già [specific action]. Non doveva succedere. Se ci dai un'altra possibilità, vedrai la differenza.
+
+Anti-patterns to avoid: "Thank you for your honest feedback", "This isn't the standard we hold ourselves to", "the experience we're known for".
 
 ### Negative - Major Real Problem
 
-Structure: Apologize -> Take responsibility -> Describe immediate action -> Offer compensation -> Provide direct contact
+Structure: Direct apology -> Take responsibility -> Concrete action taken -> Offer compensation -> Contact info
 
 Example (friendly tone):
-> We owe you a sincere apology, [Name]. What you described with [issue] is completely unacceptable, and we take full responsibility. We've immediately [urgent corrective action], and [additional systemic change]. We'd like to make this right -- please contact us directly at [contact] so we can [specific compensation offer]. Your feedback is helping us become better, and we're grateful you brought this to our attention.
+> [Name], quello che è successo con [issue] non va bene, punto. Ci scusiamo. Abbiamo già [urgent action] e cambiato [systemic fix]. Vorremmo rimediare: scrivici a [contact] per [specific compensation]. È giusto così.
+
+Anti-patterns to avoid: "We owe you a sincere apology", "completely unacceptable", "Your feedback is helping us become better".
 
 ## Operational Actions by Category
 

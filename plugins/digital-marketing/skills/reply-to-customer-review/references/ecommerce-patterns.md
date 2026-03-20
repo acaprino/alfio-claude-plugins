@@ -21,35 +21,45 @@ Common topics in e-commerce/app reviews and their typical phrasing:
 | Returns/Refunds | easy return, quick refund, hassle-free, no questions asked | difficult return process, refused refund, restocking fee, took weeks for refund |
 | Packaging | beautiful packaging, eco-friendly, gift-ready, well-protected | excessive packaging, damaged box, no protection, wasteful |
 
-## Response Templates by Severity
+## Response Patterns by Severity
 
-### Positive Review Response Pattern
+These are structural guides, not copy-paste templates. Every response must sound like a real person wrote it. Reference specific details from the actual review.
 
-Structure: Thank -> Reference specific detail -> Reinforce value -> Encourage continued use
+### Positive Review
+
+Structure: Brief thanks -> Reference a specific detail -> Light forward-look
 
 Example (friendly tone):
-> Thank you for the wonderful review, [Name]! We're so glad you're enjoying [specific feature/product they mentioned]. Our team works hard to [relevant value proposition], and it means a lot to hear it's making a difference. We have some exciting updates coming that we think you'll love!
+> [Name], glad the [specific product/feature] is working well for you. We put a lot of work into [specific aspect they mentioned]. Stick around, there's more coming.
+
+Anti-patterns to avoid: "We're so glad you're enjoying", "it means a lot to hear", "exciting updates coming that we think you'll love".
 
 ### Negative - Unfounded/Unrealistic Expectations
 
-Structure: Acknowledge -> Clarify product/service scope -> Offer guidance -> Invite contact
+Structure: Acknowledge the feeling -> One factual clarification -> Offer help
 
 Example (friendly tone):
-> Thank you for your feedback, [Name]. We understand [product/app] might not have met your expectations regarding [specific point]. Our [product/feature] is designed to [clarify actual scope], and we've clearly described this in [listing/documentation]. That said, we're always improving -- if you'd like help getting the most out of [product], our support team is happy to assist at [contact].
+> [Name], we get the frustration. [Product/feature] does [actual scope], which is what we describe in [listing/docs]. If you need help getting the most out of it, write us at [contact].
+
+Anti-patterns to avoid: "We understand X might not have met your expectations", "we're always improving", "our support team is happy to assist".
 
 ### Negative - Minor Real Problem
 
-Structure: Thank -> Acknowledge -> Explain fix -> Offer remedy
+Structure: Acknowledge the issue -> What you fixed -> Offer to make it right
 
 Example (friendly tone):
-> Thank you for letting us know, [Name]. We're sorry about the [issue] you experienced -- that's not the standard we aim for. We've [specific corrective action] to prevent this going forward. We'd love to make this right for you -- please reach out to our support team at [contact] and we'll [specific remedy].
+> That shouldn't have happened, [Name]. We fixed [specific action] so it won't repeat. Write us at [contact] and we'll sort out [specific remedy] for you.
+
+Anti-patterns to avoid: "Thank you for letting us know", "that's not the standard we aim for", "We'd love to make this right".
 
 ### Negative - Major Real Problem
 
-Structure: Apologize -> Take responsibility -> Immediate action -> Compensation -> Direct contact
+Structure: Direct apology -> Take responsibility -> Action taken -> Compensation -> Contact
 
 Example (friendly tone):
-> We sincerely apologize for your experience, [Name]. What happened with [issue] is unacceptable, and we take full responsibility. We've immediately [urgent action taken], and our team is [systemic fix being implemented]. Please contact us directly at [contact] -- we want to [specific compensation: full refund, replacement, etc.] and make sure this is fully resolved for you.
+> [Name], this one's on us. [Issue] shouldn't happen, period. We've already [urgent action] and changed [systemic fix]. Write us at [contact] for a [specific compensation]. We owe you that.
+
+Anti-patterns to avoid: "We sincerely apologize", "is unacceptable, and we take full responsibility", "make sure this is fully resolved for you".
 
 ## Operational Actions by Category
 
