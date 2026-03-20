@@ -17,34 +17,50 @@ You MUST follow these rules exactly. Violating any of them is a failure.
 4. **Halt on failure.** If any step fails (agent error, missing files, access issues), STOP immediately. Present the error and ask the user how to proceed. Do NOT silently continue.
 5. **Use only local agents.** All `subagent_type` references use agents bundled with this plugin or `general-purpose`. No cross-plugin dependencies.
 6. **Never enter plan mode autonomously.** Do NOT use EnterPlanMode. This command IS the plan -- execute it.
+7. **Use session directory for all paths.** Every reference to `.full-review/` in this command means `$SESSION_DIR` -- the session-specific directory determined during pre-flight (e.g., `.full-review-auth/`). Do NOT use a bare `.full-review/` directory.
 
 ## Pre-flight Checks
 
 Before starting, perform these checks:
 
-### 1. Check for existing session
+### 1. Check for existing sessions
 
-Check if `.full-review/state.json` exists:
+Scan for directories matching `.full-review-*/state.json` in the project root.
 
-- If it exists and `status` is `"in_progress"`: Read it, display the current phase, and ask the user:
+- If one or more sessions have `status: "in_progress"`:
+  List all sessions with their target, phase, and started_at, then ask:
 
   ```
-  Found an in-progress review session:
-  Target: [target from state]
-  Current phase: [phase from state]
+  Found existing review session(s):
 
-  1. Resume from where we left off
-  2. Start fresh (archives existing session)
+  [#] .full-review-<label>/ -- Target: [target] -- Phase [N] -- Started [date]
+  ...
+
+  1. Resume session [label] (repeat for each in-progress session)
+  N. Start a new session
   ```
 
-- If it exists and `status` is `"complete"`: Ask whether to archive and start fresh.
+- If sessions exist but all are `"complete"`: proceed to starting a new session.
+- If no `.full-review-*` directories exist: proceed to starting a new session.
 
-### 2. Initialize state
+### 2. Determine session directory
 
-Create `.full-review/` directory and `state.json`:
+Derive a short label from the review target:
+- Path targets: use the final meaningful segment (e.g., `src/auth` -> `auth`, `./lib/database.ts` -> `database`)
+- Description targets: extract the primary noun (e.g., "recent payment changes" -> `payments`)
+- Fallback: `YYYYMMDD-HHmm` timestamp
+- Kebab-case, lowercase, no file extensions
+- If `.full-review-<label>/` already exists, append `-2`, `-3`, etc.
+
+Set `$SESSION_DIR` = `.full-review-<label>/` for all subsequent operations.
+
+### 3. Initialize state
+
+Create `$SESSION_DIR` directory and `state.json`:
 
 ```json
 {
+  "session_dir": ".full-review-<label>",
   "target": "$ARGUMENTS",
   "status": "in_progress",
   "flags": {
@@ -65,7 +81,7 @@ Create `.full-review/` directory and `state.json`:
 
 Parse `$ARGUMENTS` for `--deep-dive`, `--security-focus`, `--performance-critical`, `--strict-mode`, and `--framework` flags. Update the flags object accordingly.
 
-### 3. Identify review target
+### 4. Identify review target
 
 Determine what code to review from `$ARGUMENTS`:
 
@@ -982,13 +998,13 @@ Present the final summary:
 Comprehensive code review complete for: $ARGUMENTS
 
 ## Review Output Files
-- Scope: .full-review/00-scope.md
-- Architecture: .full-review/01-architecture.md
-- Security & Performance: .full-review/02-security-performance.md
-- Testing & Documentation: .full-review/03-testing-documentation.md
-- Best Practices: .full-review/04-best-practices.md
-- Quality Scoring: .full-review/05-quality-scoring.md
-- Final Report: .full-review/06-final-report.md
+- Scope: $SESSION_DIR/00-scope.md
+- Architecture: $SESSION_DIR/01-architecture.md
+- Security & Performance: $SESSION_DIR/02-security-performance.md
+- Testing & Documentation: $SESSION_DIR/03-testing-documentation.md
+- Best Practices: $SESSION_DIR/04-best-practices.md
+- Quality Scoring: $SESSION_DIR/05-quality-scoring.md
+- Final Report: $SESSION_DIR/06-final-report.md
 
 ## Summary
 - Total findings: [count]
@@ -996,7 +1012,7 @@ Comprehensive code review complete for: $ARGUMENTS
 - Code Quality Score: [X/10]
 
 ## Next Steps
-1. Review the full report at .full-review/06-final-report.md
+1. Review the full report at $SESSION_DIR/06-final-report.md
 2. Address Critical (P0) issues immediately
 3. Plan High (P1) fixes for current sprint
 4. Add Medium (P2) and Low (P3) items to backlog
