@@ -90,3 +90,37 @@ Il singolo indicatore che cattura il valore core per i clienti:
 - **Baremetrics** -- analytics + dunning + forecasting
 - **ProfitWell** -- free, benchmarking su 14.000+ aziende
 - **Stack a costo zero**: ProfitWell + Looker Studio + PostHog self-hosted
+
+## Unit Economics e proiezioni finanziarie
+
+### Burn Rate e Runway
+
+**Burn Rate mensile** = costi fissi (team, infrastruttura, tool) + costi variabili (ads, CAC)
+
+**Runway** = funding disponibile / burn rate mensile = mesi di sopravvivenza
+
+Benchmark per fase:
+- Pre-seed: 12-18 mesi di runway raccomandati
+- Seed: 18-24 mesi
+- Series A+: 24+ mesi
+
+### Break-even
+
+**Break-even MRR** = burn rate mensile / gross margin %
+
+**Clienti necessari per break-even** = break-even MRR / (ACV / 12)
+
+### Benchmark costi SaaS
+
+| Voce | % del revenue (target) |
+|------|----------------------|
+| COGS (hosting, infra) | 20-30% |
+| R&D / Engineering | 20-25% |
+| Sales & Marketing | 30-50% (early-stage), 20-30% (growth) |
+| G&A | 10-15% |
+
+### Formula LTV semplificata
+
+**LTV** = ARPA x Gross Margin % x (1 / Monthly Churn Rate)
+
+Esempio: ARPA EUR 100/mese x 80% margin x (1 / 5% churn) = EUR 1.600 LTV

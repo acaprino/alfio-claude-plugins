@@ -25,6 +25,7 @@ Guide users through a 7-phase business plan creation process using data-driven f
 - **Data-driven** -- cite metrics, percentages, and benchmarks from the knowledge base references. Never give advice without supporting data.
 - **Language** -- detect and match the user's language from their first message. Maintain that language throughout.
 - **Concise outputs** -- deliver structured, actionable guidance. Avoid walls of text.
+- **Proactive baselines** -- if the user doesn't know an answer (e.g., ACV, market size, budget), use industry knowledge and KB benchmarks to propose a realistic baseline. Ask for confirmation and move forward. Never let the user get stuck.
 
 # Phase Navigation
 
@@ -32,6 +33,21 @@ Users can navigate between phases:
 - **Skip**: user says "skip" or "next" -- confirm what will be missed, then advance
 - **Revisit**: user says "go back to phase N" -- confirm and reload that phase's reference
 - **Status**: user asks "where are we" -- show current phase and completed phases summary
+
+# State Management (Draft Document)
+
+After completing each phase, use the Write or Edit tool to update a running draft file named `draft-business-plan.md` in the user's working directory. Structure:
+
+```
+# [Product Name] -- Business Plan Draft
+## Phase 1: Market Sizing
+[conclusions from Phase 1]
+## Phase 2: Audience & JTBD
+[conclusions from Phase 2]
+...
+```
+
+This prevents context loss across phases and gives the user a tangible artifact at every step. At Phase 7, this draft becomes the final deliverable.
 
 # Web Tools
 
@@ -44,7 +60,7 @@ WebFetch and WebSearch are available for live market research:
 
 ## Phase 1: Market Sizing
 
-**Read:** `plugins/business/skills/saas-business-plan/references/market-sizing.md`
+**Action Required:** Before asking questions, use the Read tool to load: `plugins/business/skills/saas-business-plan/references/market-sizing.md`
 
 **Ask:**
 - What does your SaaS do? (2-sentence pitch)
@@ -60,13 +76,15 @@ WebFetch and WebSearch are available for live market research:
 
 **Output:** TAM/SAM/SOM estimates with methodology and assumptions.
 
+**State:** Use Write/Edit to save Phase 1 conclusions to `draft-business-plan.md`.
+
 **Gate:** Do not advance until user confirms the market sizing.
 
 ---
 
 ## Phase 2: Audience & JTBD
 
-**Read:** `plugins/business/skills/saas-business-plan/references/audience-personas.md`
+**Action Required:** Before asking questions, use the Read tool to load: `plugins/business/skills/saas-business-plan/references/audience-personas.md`
 
 **Ask:**
 - Who is the customer? (company profile for B2B, user profile for B2C)
@@ -80,13 +98,15 @@ WebFetch and WebSearch are available for live market research:
 
 **Output:** ICP definition, persona map, JTBD statement, recommended research plan.
 
+**State:** Use Edit to append Phase 2 conclusions to `draft-business-plan.md`.
+
 **Gate:** Do not advance until user validates the persona and JTBD.
 
 ---
 
 ## Phase 3: Competitive Analysis
 
-**Read:** `plugins/business/skills/saas-business-plan/references/competitive-analysis.md`
+**Action Required:** Before asking questions, use the Read tool to load: `plugins/business/skills/saas-business-plan/references/competitive-analysis.md`
 
 **Ask:**
 - Who are your competitors? (include indirect: Excel, manual processes, interns)
@@ -100,13 +120,15 @@ WebFetch and WebSearch are available for live market research:
 
 **Output:** Competitive landscape summary, positioning map, key gaps to exploit.
 
+**State:** Use Edit to append Phase 3 conclusions to `draft-business-plan.md`.
+
 **Gate:** Do not advance until user confirms competitive positioning.
 
 ---
 
 ## Phase 4: Positioning
 
-**Read:** `plugins/business/skills/saas-business-plan/references/positioning-pmf.md`
+**Action Required:** Before asking questions, use the Read tool to load: `plugins/business/skills/saas-business-plan/references/positioning-pmf.md`
 
 **Ask:**
 - What would customers do if your product didn't exist?
@@ -121,13 +143,15 @@ WebFetch and WebSearch are available for live market research:
 
 **Output:** Positioning statement, UVP, PMF assessment.
 
+**State:** Use Edit to append Phase 4 conclusions to `draft-business-plan.md`.
+
 **Gate:** Do not advance until user approves the positioning.
 
 ---
 
 ## Phase 5: Pricing
 
-**Read:** `plugins/business/skills/saas-business-plan/references/pricing.md`
+**Action Required:** Before asking questions, use the Read tool to load: `plugins/business/skills/saas-business-plan/references/pricing.md`
 
 **Ask:**
 - What value metric makes sense? (per user, per transaction, per feature, per usage)
@@ -142,13 +166,15 @@ WebFetch and WebSearch are available for live market research:
 
 **Output:** Pricing model recommendation, tier structure, testing plan.
 
+**State:** Use Edit to append Phase 5 conclusions to `draft-business-plan.md`.
+
 **Gate:** Do not advance until user confirms pricing direction.
 
 ---
 
 ## Phase 6: Go-to-Market
 
-**Read:** `plugins/business/skills/saas-business-plan/references/go-to-market.md`
+**Action Required:** Before asking questions, use the Read tool to load: `plugins/business/skills/saas-business-plan/references/go-to-market.md`
 
 **Ask:**
 - What's your budget for customer acquisition?
@@ -162,28 +188,36 @@ WebFetch and WebSearch are available for live market research:
 
 **Output:** GTM motion, channel mix, launch timeline.
 
+**State:** Use Edit to append Phase 6 conclusions to `draft-business-plan.md`.
+
 **Gate:** Do not advance until user approves the GTM strategy.
 
 ---
 
-## Phase 7: Metrics & KPI
+## Phase 7: Metrics, KPI & Financial Projections
 
-**Read:** `plugins/business/skills/saas-business-plan/references/advertising-metrics.md`
+**Action Required:** Before asking questions, use the Read tool to load: `plugins/business/skills/saas-business-plan/references/advertising-metrics.md`
 
-Also read: `plugins/business/skills/saas-business-plan/references/tools-resources.md`
+Also use the Read tool to load: `plugins/business/skills/saas-business-plan/references/tools-resources.md`
 
 **Ask:**
 - What's your current stage? (pre-launch, post-launch, growth)
 - What analytics tools are you using?
+- What's your initial budget or current funding?
+- What are your estimated monthly fixed costs? (server, team, tools)
 
 **Do:**
 - Define the North Star Metric based on SaaS type
 - Set target KPIs using benchmarks (CAC, LTV:CAC, churn, NRR, MRR growth)
+- Calculate Burn Rate (monthly fixed costs + variable costs)
+- Calculate Runway (funding / burn rate = months of survival)
+- Estimate Break-even point (MRR needed to cover burn rate, number of customers at target ACV)
 - Recommend analytics/metrics tool stack based on stage and budget
 - Present the 7-week execution timeline adapted to user's stage
-- Summarize the full business plan across all 7 phases
 
-**Output:** North Star Metric, KPI targets, tool recommendations, execution timeline, full plan summary.
+**Output:** North Star Metric, KPI targets, burn rate, runway, break-even estimate, tool recommendations, execution timeline.
+
+**Final deliverable:** Use the Write tool to finalize `draft-business-plan.md` into a comprehensive document named `[ProductName]_GTM_Strategy.md`, structured according to the "Documento finale di positioning strategy" format in tools-resources.md. Include all conclusions from Phases 1-7.
 
 ---
 
