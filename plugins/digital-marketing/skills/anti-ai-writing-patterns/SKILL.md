@@ -223,15 +223,39 @@ Avoiding AI patterns is only half the job. Sterile, voiceless writing is just as
 
 ## STYLE PATTERNS
 
-### 13. Em Dash Overuse
+### 13. Em Dash and Hyphen Overuse (CRITICAL -- #1 AI Tell)
 
-**Problem:** LLMs use em dashes more than humans, mimicking "punchy" sales writing.
+**The em dash is the single most persistent and recognizable AI writing signature.** It is deeply embedded in LLM training data from books, essays, and articles where humans used it frequently. Models treat it as a default flow connector and cannot reliably stop using it even when explicitly instructed. As a result, human writers are now actively avoiding em dashes because their presence signals AI-generated text. The em dash has become what one Hacker News commenter called "a GPT-ism that is not advisable unless you want people to think your writing is the output of an LLM."
+
+**This pattern has the HIGHEST PRIORITY in the humanization process.** After completing all other rewrites, do a dedicated final pass to find and replace every remaining em dash or double hyphen used as a dash.
+
+**Detection:** Look for em dashes (--), en dashes (-), and double hyphens (--) used as sentence connectors, parenthetical insertions, or dramatic pauses. Also look for clusters: two or more dash-interrupted clauses in a single paragraph is a strong AI signal.
+
+**Replacement strategy (in order of preference):**
+1. **Comma** -- the most natural replacement in 80% of cases
+2. **Period + new sentence** -- when the dash connects two independent thoughts
+3. **Colon** -- when introducing an explanation or list
+4. **Parentheses** -- for true parenthetical asides
+5. **Semicolon** -- for closely related independent clauses
+6. **Remove entirely** -- restructure the sentence to eliminate the need
 
 **Before:**
 > The term is primarily promoted by Dutch institutions--not by the people themselves. You don't say "Netherlands, Europe" as an address--yet this mislabeling continues--even in official documents.
 
 **After:**
 > The term is primarily promoted by Dutch institutions, not by the people themselves. You don't say "Netherlands, Europe" as an address, yet this mislabeling continues in official documents.
+
+**Before:**
+> The results were clear--users preferred simplicity--and the team pivoted accordingly.
+
+**After:**
+> The results were clear: users preferred simplicity, and the team pivoted accordingly.
+
+**Before:**
+> She built the prototype in two weeks--a record for the team--and launched it to beta users immediately.
+
+**After:**
+> She built the prototype in two weeks (a record for the team) and launched it to beta users immediately.
 
 ---
 
@@ -390,11 +414,12 @@ Avoiding AI patterns is only half the job. Sterile, voiceless writing is just as
    - Uses specific details over vague claims
    - Maintains appropriate tone for context
    - Uses simple constructions (is/are/has) where appropriate
-5. Present a draft humanized version
-6. Prompt: "What makes the below so obviously AI generated?"
-7. Answer briefly with the remaining tells (if any)
-8. Prompt: "Now make it not obviously AI generated."
-9. Present the final version (revised after the audit)
+5. **Em dash elimination pass** -- scan the entire rewritten text for any remaining em dashes, en dashes, or double hyphens used as dashes. Replace every instance using the replacement strategy in Pattern #13. This is a separate, dedicated pass because em dashes are the hardest AI pattern to eliminate and tend to survive earlier rewrites.
+6. Present a draft humanized version
+7. Prompt: "What makes the below so obviously AI generated?"
+8. Answer briefly with the remaining tells (if any)
+9. Prompt: "Now make it not obviously AI generated."
+10. Present the final version (revised after the audit)
 
 ## Output Format
 

@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "2.96.0"
+    "version": "2.97.0"
   },
   "plugins": [
     {
@@ -519,7 +519,7 @@
       "name": "digital-marketing",
       "source": "./plugins/digital-marketing",
       "description": "SEO optimization, content marketing, brand naming, domain hunting, text humanization, and customer review response -- technical audits, keyword research, content strategy, brand naming, domain checks, trademark screening, AI text rewriting, and professional review reply generation with sentiment analysis",
-      "version": "1.22.0",
+      "version": "1.23.0",
       "author": {
         "name": "Alfio"
       },
