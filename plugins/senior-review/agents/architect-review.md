@@ -43,6 +43,8 @@ Apply these four mental models when analyzing the code:
 - **Fire-and-Forget:** Are Promises created but never awaited/caught?
 - **Missing Timeouts:** Are external HTTP/DB calls missing explicit timeouts?
 - **Retry/Fallback:** What happens if the external dependency is down? Does the system crash gracefully?
+- **Kill-Path Cleanup:** If the process is terminated (SIGKILL, task cancel) during an async operation, are resources (DB connections, file handles, temp files) cleaned up via try/finally? Check error paths, not just happy paths.
+- **Persisted State Consistency:** If the code writes to files/databases for later resume, is there a validity key (hash, fingerprint, version) to detect stale or corrupted state? Can a resumed operation silently produce wrong results from outdated cached data?
 
 ### 4. The State Auditor (Resource & Memory Management)
 - **Global Mutability:** Are there module-level `let`/`var` or static mutable fields?

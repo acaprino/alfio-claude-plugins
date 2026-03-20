@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "2.97.0"
+    "version": "2.98.0"
   },
   "plugins": [
     {
@@ -575,8 +575,8 @@
     {
       "name": "senior-review",
       "source": "./plugins/senior-review",
-      "description": "Multi-agent code review orchestration with architecture, security, pattern analysis, calibrated quality scoring, and multi-language dead code detection",
-      "version": "2.16.0",
+      "description": "Multi-agent code review orchestration with architecture, security, pattern analysis, calibrated quality scoring, multi-language dead code detection, failure flow tracing, and UI race condition auditing",
+      "version": "2.18.0",
       "author": {
         "name": "Alfio"
       },
@@ -599,7 +599,9 @@
       "agents": [
         "./agents/architect-review.md",
         "./agents/security-auditor.md",
-        "./agents/pattern-quality-scorer.md"
+        "./agents/pattern-quality-scorer.md",
+        "./agents/failure-flow-tracer.md",
+        "./agents/ui-race-auditor.md"
       ],
       "commands": [
         "./commands/full-review.md",

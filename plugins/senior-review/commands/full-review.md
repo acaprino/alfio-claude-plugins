@@ -309,7 +309,7 @@ Update `state.json`: set `current_step` to 2, `current_phase` to 2, add step 1A 
 
 Read `.full-review/01-architecture.md` for context from Phase 1.
 
-Run both agents in parallel using multiple Task tool calls in a single response.
+Run all three agents in parallel using multiple Task tool calls in a single response.
 
 ### Step 2A: Security Vulnerability Assessment
 
@@ -380,7 +380,51 @@ Agent tool call:
     Write your findings as a structured markdown document.
 ```
 
-After both complete, consolidate into `.full-review/02-security-performance.md`:
+### Step 2C: Failure Flow & Resilience Analysis
+
+```
+Agent tool call:
+  - description: "Failure flow analysis for $ARGUMENTS"
+  - subagent_type: "senior-review:failure-flow-tracer"
+  - run_in_background: true
+  - prompt: |
+    Trace failure paths, kill scenarios, and resume/retry correctness in the target code.
+
+    ## Review Scope
+    [Insert contents of .full-review/00-scope.md]
+
+    ## Phase 1 Context
+    [Insert contents of .full-review/01-architecture.md -- focus on state management and resource lifecycle findings]
+
+    ## Instructions
+    Analyze the target code for failure-path bugs:
+
+    1. **Persisted State Map** -- Identify all files/databases/caches created by the code.
+       For each: who writes, who reads, what validates it, what could invalidate it.
+
+    2. **Kill Point Analysis** -- For each await/async operation, simulate process termination.
+       What persisted state is left inconsistent? Does the next run handle it?
+
+    3. **Cache Invalidation** -- For every cached/persisted artifact, is there a validity key
+       (hash, version, fingerprint)? If source data changes between runs, is the cache
+       properly invalidated? Can stale cached results be silently mixed with fresh results?
+
+    4. **Resource Lifecycle** -- Are DB connections, file handles, temp files, subprocesses
+       guaranteed to be cleaned up via try/finally or context managers on the error path?
+
+    5. **Concurrency Under Failure** -- For parallel operations: if one task fails or the
+       parent is killed, what happens to sibling tasks? Are side effects already committed?
+
+    6. **Resume/Retry Correctness** -- If the code has resume/retry logic, trace the full
+       cycle: start -> partial completion -> kill -> resume. What assumptions does resume
+       make? What if those assumptions are violated?
+
+    For each finding: severity, concrete step-by-step scenario, file + line, confidence (0-100), fix.
+
+    Write your findings as a structured markdown document.
+```
+
+After all three complete, consolidate into `.full-review/02-security-performance.md`:
 
 ```markdown
 # Phase 2: Security & Performance Review
@@ -392,6 +436,10 @@ After both complete, consolidate into `.full-review/02-security-performance.md`:
 ## Performance Findings
 
 [Summary from 2B, organized by severity]
+
+## Failure Flow & Resilience Findings
+
+[Summary from 2C, organized by severity]
 
 ## Critical Issues for Phase 3 Context
 
@@ -415,6 +463,7 @@ Summary:
 - Architecture: [X critical, Y high, Z medium findings]
 - Security: [X critical, Y high, Z medium findings]
 - Performance: [X critical, Y high, Z medium findings]
+- Resilience: [X critical, Y high, Z medium findings]
 
 Please review:
 - .full-review/01-architecture.md
@@ -726,7 +775,7 @@ Agent tool call:
     - **3-4**: Poor — significant issues, needs rework
     - **1-2**: Critical — fundamental problems, unsafe
 
-    Provide scores for: Security, Performance, Maintainability, Testing, and an Overall score.
+    Provide scores for: Security, Performance, Maintainability, Resilience, Testing, and an Overall score.
 
     Write your findings as a structured markdown document with an Executive Summary, Code Quality Findings,
     Pattern Consistency Findings, What's Done Well, and the Code Quality Score table.
@@ -760,6 +809,7 @@ Write output to `.full-review/05-quality-scoring.md`:
 | Security        | X/10  |
 | Performance     | X/10  |
 | Maintainability | X/10  |
+| Resilience      | X/10  |
 | Testing         | X/10  |
 | **Overall**     | **X/10** |
 ```
@@ -794,6 +844,7 @@ Read all `.full-review/*.md` files (01 through 05). Generate the final consolida
 | Security        | X/10  |
 | Performance     | X/10  |
 | Maintainability | X/10  |
+| Resilience      | X/10  |
 | Testing         | X/10  |
 | **Overall**     | **X/10** |
 
@@ -841,6 +892,7 @@ Read all `.full-review/*.md` files (01 through 05). Generate the final consolida
 - **Pattern Consistency**: [count] findings ([breakdown by severity])
 - **Security**: [count] findings ([breakdown by severity])
 - **Performance**: [count] findings ([breakdown by severity])
+- **Resilience**: [count] findings ([breakdown by severity])
 - **Testing**: [count] findings ([breakdown by severity])
 - **Documentation**: [count] findings ([breakdown by severity])
 - **Best Practices**: [count] findings ([breakdown by severity])

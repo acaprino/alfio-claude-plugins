@@ -133,7 +133,7 @@ If total changed lines exceed 500, batch the files into groups of 3-5 files per 
 
 **Agent tool parameters (use ONLY these):** `description` (required), `prompt` (required), `subagent_type`, `run_in_background`, `model`, `isolation`, `resume`. Do NOT pass any other parameters -- the Agent tool rejects unknown fields.
 
-Run all four agents **in parallel** in a single response:
+Run all agents **in parallel** in a single response (Agent F only when UI files are in scope):
 
 ### Agent A: Architecture & Code Quality
 
@@ -170,6 +170,8 @@ Agent tool call:
     5. Over/under-engineering -- is the solution appropriately scoped?
     6. CLAUDE.md compliance -- do changes follow project conventions?
     7. Flow correctness -- trace modified flows within provided files. If the flow calls external modules not present in context, state "Cannot verify downstream impact in [Module] -- out of scope" rather than guessing.
+    8. Resource lifecycle -- are DB connections, file handles, temp files cleaned up on BOTH success AND error paths (try/finally)? If the process is killed during an async operation, what state is left behind?
+    9. Persisted state validity -- if code writes cache/state files for later resume, is there a validity key to detect stale data? Can a resumed run silently produce wrong results?
 
     For each finding: severity (Critical/High/Medium/Low), file + line, confidence (0-100), concrete fix.
 ```
@@ -289,9 +291,120 @@ Agent tool call:
     - Recommended action (remove, verify dynamic usage, add to __all__)
 ```
 
+### Agent E: Failure Flow Analysis
+
+```
+Agent tool call:
+  - description: "Failure flow analysis for senior-review command"
+  - subagent_type: "senior-review:failure-flow-tracer"
+  - run_in_background: true
+  - prompt: |
+    Trace failure paths, kill scenarios, and resume/retry correctness in the changed code.
+    You have both the diff AND the full file contents for context.
+
+    ## Changed Files
+    [list of changed code files]
+
+    ## Full File Contents
+    [paste full contents of each changed file]
+
+    ## Diff
+    [paste the git diff output]
+
+    ## Project Conventions (from CLAUDE.md)
+    [paste relevant conventions, or "none found"]
+
+    ## Instructions
+    Analyze the CHANGED code for failure-path bugs:
+
+    1. **Persisted State Map** -- Identify all files/databases/caches written by the changed code.
+       For each: who writes, who reads, what validates it, what could invalidate it.
+
+    2. **Kill Point Analysis** -- For each await/async operation in the diff, simulate process
+       termination at that exact point. What persisted state is left inconsistent? Does the
+       next run handle it?
+
+    3. **Cache Invalidation** -- For every cached/persisted artifact, is there a validity key
+       (hash, version, fingerprint)? If the source data changes between runs, is the cache
+       properly invalidated? Can stale cached results be silently mixed with fresh results?
+
+    4. **Resource Lifecycle** -- Are DB connections, file handles, temp files, subprocesses
+       guaranteed to be cleaned up via try/finally or context managers? Check the ERROR path,
+       not just the happy path.
+
+    5. **Concurrency Under Failure** -- For asyncio.gather, thread pools, or parallel operations:
+       if one task fails or the parent is killed, what happens to sibling tasks? Are side effects
+       (file writes, DB updates) already committed? Is progress reporting accurate during
+       concurrent execution or does it batch/delay?
+
+    6. **Resume Correctness** -- If the code has resume/retry logic, trace the full cycle:
+       start → partial completion → kill → resume. What assumptions does resume make about
+       the environment? What if those assumptions are violated (input file changed, config
+       changed, output dir moved)?
+
+    For each finding: severity (Critical/High/Medium/Low), concrete step-by-step scenario,
+    file + line, confidence (0-100), concrete fix.
+```
+
+### Agent F: UI Race Condition Analysis
+
+**Only run this agent if the changed files include UI/frontend code** (`.tsx`, `.jsx`, `.vue`, `.svelte`, `.component.ts`, `.qml`, or files containing scroll/focus/layout manipulation).
+
+```
+Agent tool call:
+  - description: "UI race condition analysis for senior-review command"
+  - subagent_type: "senior-review:ui-race-auditor"
+  - run_in_background: true
+  - prompt: |
+    Analyze the following UI code changes for race conditions between async rendering,
+    layout, and event handlers.
+    You have both the diff AND the full file contents for context.
+
+    ## Changed Files
+    [list of changed code files]
+
+    ## Full File Contents
+    [paste full contents of each changed file]
+
+    ## Diff
+    [paste the git diff output]
+
+    ## Project Conventions (from CLAUDE.md)
+    [paste relevant conventions, or "none found"]
+
+    ## Instructions
+    Analyze the CHANGED code for UI timing bugs:
+
+    1. **Async-Render-Event Triangle** -- Map data sources that trigger re-renders,
+       layout-dependent operations (scroll, focus, measurement), and event handlers
+       that read layout state. Identify where these three interact.
+
+    2. **Scroll Race Analysis** -- For every scrollIntoView, scrollTop assignment,
+       or scrollToIndex call: is the layout complete when it fires? Can reflow after
+       the call shift scrollTop and trigger false "user scrolled" detection?
+
+    3. **Batch Render Timing** -- For bulk state updates (history restore, list load,
+       large dataset): do effects/callbacks that depend on layout fire before or
+       after all items are rendered and measured?
+
+    4. **Stale Closure Audit** -- Do event handlers, timers, or observers capture
+       DOM references or layout values that can go stale between capture and use?
+
+    5. **Programmatic vs User Event Discrimination** -- Do scroll/focus/resize
+       handlers distinguish between programmatic manipulation and genuine user
+       interaction? Missing guards cause false state transitions.
+
+    6. **Cross-Component Layout Coupling** -- Does component A resize/reflow and
+       affect component B's scroll position, measurements, or visibility without
+       B being notified?
+
+    For each finding: severity (Critical/High/Medium/Low), step-by-step timeline
+    (T0→T1→...→RESULT), file + line, confidence (0-100), concrete fix.
+```
+
 ## Step 4: Consolidate Agent Findings
 
-After all four agents complete, collect and organize their findings into a single intermediate summary. Group findings by severity and category. This summary becomes the input for Step 4b.
+After all five agents complete, collect and organize their findings into a single intermediate summary. Group findings by severity and category. This summary becomes the input for Step 4b.
 
 ## Step 4b: Quality Scoring
 
@@ -327,6 +440,9 @@ Agent tool call:
     ### Dead Code (Agent D)
     [paste findings from dead code detection]
 
+    ### Failure Flow (Agent E)
+    [paste findings from failure-flow-tracer]
+
     ## Instructions
     Using ALL agent findings above, produce a quantitative quality score.
 
@@ -338,6 +454,7 @@ Agent tool call:
     | Security        | X/10  | X%         |
     | Code Quality    | X/10  | X%         |
     | Consistency     | X/10  | X%         |
+    | Resilience      | X/10  | X%         |
     | **Overall**     | **X/10** | **X%**  |
 
     Also provide:
@@ -372,6 +489,10 @@ After scoring completes, synthesize everything into the final structured review:
 ### Dead Code Findings
 | # | Severity | File:Line | Finding | Confidence | Action |
 |---|----------|-----------|---------|------------|--------|
+
+### Failure Flow & Resilience
+| # | Severity | File:Line | Scenario | Confidence | Fix |
+|---|----------|-----------|----------|------------|-----|
 
 ### Pattern Consistency
 - [pattern deviations found, or "Changes follow established patterns"]
@@ -428,7 +549,7 @@ cat > .full-review/temp_summary_comment.md << 'SUMMARY_EOF'
 [top 3 recommended actions]
 
 ---
-*Reviewed by: architect-review, security-auditor, pattern-quality-scorer, dead-code-detector*
+*Reviewed by: architect-review, security-auditor, pattern-quality-scorer, dead-code-detector, failure-flow-tracer*
 SUMMARY_EOF
 
 gh pr comment {number} -F .full-review/temp_summary_comment.md
