@@ -113,13 +113,23 @@ Task:
     5. **Bundle optimization**: Heavy imports, missing code splitting, lazy loading opportunities, tree-shaking blockers
     6. **Virtualization check**: Large lists/tables not using TanStack Virtual or similar, index as key in virtualized lists
     7. **Context-aware caching**: TanStack Query config appropriate for app type? CRUD apps need short stale times, real-time apps need WebSocket invalidation, static content can use long cache
-    8. **useEffect cleanup audit**:
+    8. **useEffect/useCallback infinite loop detection (CRITICAL)**:
+       - `useCallback` that updates state listed in its own dependency array, called from a `useEffect` that depends on the callback -- creates infinite re-trigger cycle
+       - `useEffect` with no ref guard calling state-updating functions on mount
+       - Unstable callback references (object/array deps) in `useEffect` dependency arrays causing continuous re-firing
+       - Symptom: repeated identical network requests, 429 rate limit errors, CPU spike on component mount
+    9. **useEffect cleanup audit**:
        - Missing `AbortController` on fetch calls
        - `Channel.onmessage` not nulled on unmount
        - WebSocket connections not closed
        - Missing `clearInterval` / `clearTimeout`
        - Missing `removeEventListener`
-    9. **Performance budget** (if brief provided): Does the current state meet the stated Core Web Vitals or performance targets?
+    10. **Stale closure detection (CRITICAL)**:
+       - Variables derived from state/props captured in `useEffect(..., [])` closures without ref indirection
+       - Event handlers registered at mount time reading state that changes after mount
+       - Interval/timeout callbacks reading stale captured values
+       - Symptom: handler uses outdated state value, decisions based on stale data, no crash or warning
+    11. **Performance budget** (if brief provided): Does the current state meet the stated Core Web Vitals or performance targets?
 
     For each finding: severity (Critical/High/Medium/Low), file, issue, specific fix with code example.
     Note what's done well.

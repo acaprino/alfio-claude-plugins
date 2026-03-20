@@ -300,6 +300,71 @@ function TradingPanel() {
 }
 ```
 
+### useEffect/useCallback Infinite Loop Detection (CRITICAL)
+
+**Detect dependency cycles where a callback updates state listed in its own deps, causing re-triggering via useEffect:**
+
+#### The Pattern
+
+```javascript
+// INFINITE LOOP: fetchData updates usageStatus -> new callback ref -> effect re-fires
+const fetchData = useCallback(async () => {
+  await refreshUsage();  // updates usageStatus
+  // ...
+}, [usageStatus, subscription]);  // usageStatus in deps
+
+useEffect(() => {
+  fetchData();  // fires when fetchData changes -> infinite loop
+}, [fetchData]);
+```
+
+#### Anti-Patterns to Detect
+
+1. **useCallback that updates its own deps** -- callback calls a function that sets state listed in its `useCallback` dependency array, and an `useEffect` depends on the callback
+2. **useEffect with no guard calling state-updating functions** -- mount effect that calls a function producing side effects (API calls, state updates) without a ref guard or condition
+3. **Unstable callback references in useEffect deps** -- `useCallback` with object/array/function deps that change on every render, combined with a `useEffect` that calls it
+
+#### Fixes
+
+**Fix 1: Ref guard for mount-once effects**
+```javascript
+const hasStarted = useRef(false);
+
+useEffect(() => {
+  if (hasStarted.current) return;
+  hasStarted.current = true;
+  fetchData();
+}, [fetchData]);
+```
+
+**Fix 2: Remove reactive state from callback deps (use refs)**
+```javascript
+const usageStatusRef = useRef(usageStatus);
+usageStatusRef.current = usageStatus;
+
+const fetchData = useCallback(async () => {
+  // Read from ref instead of closure
+  const status = usageStatusRef.current;
+  await refreshUsage();
+  // ...
+}, []);  // stable reference
+```
+
+**Fix 3: Move to event handler (no effect needed)**
+```javascript
+// If fetchData is triggered by user action, call it directly in the handler
+const handleClick = () => {
+  fetchData();
+};
+```
+
+#### Diagnostic Checklist: Infinite Loops
+
+1. **Grep for the pattern:** `useCallback` with state deps + `useEffect` depending on that callback
+2. **Check if callback body updates any of its own deps** (directly or via called functions like `refreshUsage()`)
+3. **Check Network tab** for repeated identical requests -- hallmark of this bug
+4. **Check for 429 rate limit errors** -- infinite loops hammer APIs
+
 ### useEffect Cleanup Patterns (CRITICAL)
 
 **Always clean up subscriptions, channels, and event listeners:**
@@ -334,6 +399,52 @@ useEffect(() => {
 - [ ] clearInterval/clearTimeout
 - [ ] removeEventListener
 - [ ] Unsubscribe from stores if using manual subscription
+
+### Stale Closure Detection (CRITICAL)
+
+**Detect closures inside mount-only effects that capture state/props variables -- the captured value never updates, causing silent stale data reads (CWE-367 TOCTOU analog).**
+
+#### Anti-Patterns to Detect
+
+1. **State/props variable read inside `useEffect(..., [])` callback** -- variable derived from `useState` or props used directly in the effect body or in event handlers registered within it, without ref indirection
+2. **Event handler registered at mount time reading state directly** -- `addEventListener`, Tauri `listen()`, or subscription callback captures component-level state instead of reading from a ref
+3. **`setInterval`/`setTimeout` callback reading captured state** -- interval or timeout created in a mount effect reads a state variable that was captured at creation time
+4. **WebSocket/Channel `onmessage` reading local variables** -- message handler inside `useEffect(..., [])` uses variables from the component scope without refs
+
+#### Fixes
+
+**Fix 1: Ref indirection pattern**
+```javascript
+const countRef = useRef(count);
+countRef.current = count; // update ref on every render
+
+useEffect(() => {
+  const handler = () => {
+    console.log(countRef.current); // always latest
+  };
+  window.addEventListener('focus', handler);
+  return () => window.removeEventListener('focus', handler);
+}, []);
+```
+
+**Fix 2: useEffectEvent (React 19)**
+```javascript
+const onFocus = useEffectEvent(() => {
+  console.log(count); // always latest -- useEffectEvent handles it
+});
+
+useEffect(() => {
+  window.addEventListener('focus', onFocus);
+  return () => window.removeEventListener('focus', onFocus);
+}, []);
+```
+
+#### Diagnostic Checklist: Stale Closures
+
+1. **Grep for the pattern:** `useEffect` with `[]` deps containing `addEventListener`, `setInterval`, `setTimeout`, `listen(`, `onmessage`
+2. **Check if callback body reads state/props variables** that are not accessed via `.current` on a ref
+3. **Symptom:** handler uses outdated state value, UI shows stale data after state change, decisions based on mount-time snapshot
+4. **Key difference from infinite loops:** no repeated calls, no network spam -- just silently wrong data
 
 ### Bundle Optimization
 

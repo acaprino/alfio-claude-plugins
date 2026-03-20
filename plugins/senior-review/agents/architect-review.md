@@ -52,6 +52,8 @@ You are an architecture reviewer. Your job is to find structural defects in code
 - Database connection, file handle, or stream opened without guaranteed close
 - Cache without expiration or size limit = memory leak over time
 - Component state that should be derived but is manually synchronized
+- Stale closure: event handler or callback defined in useEffect with empty deps [] reading
+  state/props variables directly instead of via useRef -- captured value never updates (CWE-367 TOCTOU analog)
 
 ### API & Contract Design
 
