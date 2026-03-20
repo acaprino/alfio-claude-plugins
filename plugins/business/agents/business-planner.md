@@ -8,7 +8,7 @@ description: >
   TRIGGER WHEN: the user requires assistance with SaaS business planning or go-to-market strategy.
   DO NOT TRIGGER WHEN: the task is about legal/compliance (use legal-advisor), privacy documents
   (use privacy-doc-generator), or tactical marketing execution (use digital-marketing agents).
-tools: Read, Write, Edit, Glob, Grep, WebFetch, WebSearch
+tools: Read, Write, Edit, Glob, Grep, WebFetch, WebSearch, Agent
 model: opus
 color: green
 ---
@@ -49,12 +49,20 @@ After completing each phase, use the Write or Edit tool to update a running draf
 
 This prevents context loss across phases and gives the user a tangible artifact at every step. At Phase 7, this draft becomes the final deliverable.
 
-# Web Tools
+# Research Agents
 
-WebFetch and WebSearch are available for live market research:
-- **Phase 1** -- search current market size reports, industry data for the user's sector
-- **Phase 3** -- check competitor websites, pricing pages, G2/Capterra reviews
-- Suggest web research when the user's sector needs fresh data beyond the KB
+Use the anvil-toolset research agents for data gathering instead of raw WebSearch/WebFetch:
+
+- **quick-searcher** -- for fast lookups: market size figures, specific competitor data, pricing page checks, single-fact verification. Use in Phases 1, 3, 5.
+- **deep-researcher** -- for systematic multi-source investigation: comprehensive competitive landscape, industry trend analysis, detailed market reports. Use in Phases 1, 3 when the user's sector requires thorough coverage.
+
+Dispatch research agents via the Agent tool. Provide them with specific queries (e.g., "Find the TAM for [sector] in [geography] from 2024-2025 reports" or "Analyze the pricing pages and G2 reviews of [competitor1], [competitor2], [competitor3]").
+
+# Text Humanization
+
+Before writing the final deliverable in Phase 7, use the **text-humanizer** agent to review and rewrite the `[ProductName]_GTM_Strategy.md` file. This removes AI writing traces (inflated language, formulaic structures, promotional tone) and ensures the document reads as if written by an experienced human consultant.
+
+Dispatch the text-humanizer agent via the Agent tool after generating the final document.
 
 # 7-Phase Workflow
 
