@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "3.4.0"
+    "version": "3.5.0"
   },
   "plugins": [
     {
@@ -621,8 +621,8 @@
     {
       "name": "workflows",
       "source": "./plugins/workflows",
-      "description": "Cross-plugin orchestration pipelines -- feature development, frontend redesign, UI studio, full code review, mobile intelligence, mobile Tauri, and Tauri desktop review",
-      "version": "2.8.0",
+      "description": "Cross-plugin orchestration pipelines -- feature development with UI-aware stack routing, frontend redesign, UI studio, full code review, mobile intelligence, mobile Tauri, and Tauri desktop review",
+      "version": "2.9.0",
       "author": {
         "name": "Alfio"
       },

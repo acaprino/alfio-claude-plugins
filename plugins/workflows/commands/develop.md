@@ -32,9 +32,13 @@ This command requires agents and skills from other plugins. Before proceeding, v
 - `platform-engineering` -- platform-reviewer agent, platform-engineering skill
 - `testing` -- test-writer agent, tdd skill
 
-**Optional plugins:**
+**Optional plugins (loaded conditionally based on detected stack):**
 - `humanize` -- humanize agent (skip Phase 6 if missing)
 - `git-worktrees` -- worktree management (required if `--worktree` flag is set)
+- `frontend` -- ui-layout-designer agent, web-designer agent, frontend skill (loaded when UI changes detected)
+- `tauri-development` -- tauri-desktop agent, rust-engineer agent (loaded for Tauri projects)
+- `react-development` -- react-performance-optimizer agent (loaded for React projects)
+- `python-development` -- python-pro agent (loaded for Python GUI projects)
 
 Check by looking for the agent/skill files. If a required plugin is missing, STOP and tell the user:
 
@@ -119,6 +123,11 @@ Scan the current project to understand:
 ## Detected Platforms
 [SPA, PWA, Mobile, Electron, Tauri -- based on package.json, manifest files, build configs]
 
+## UI Stack (auto-detected)
+- UI changes detected: [yes/no]
+- UI framework: [React/Vue/Svelte/Angular/vanilla/Qt/GTK/Flutter/none]
+- Backend layer: [Rust (Tauri)/Node.js (Electron)/Python (Qt/GTK)/none]
+
 ## Flags
 - Skip Brainstorm: [yes/no]
 - Skip Humanize: [yes/no]
@@ -177,6 +186,54 @@ Present the design in sections scaled to complexity. Get user approval after eac
 - Error handling (failure modes, recovery)
 - Testing strategy (what to test, how)
 
+### Step 1E: Layout Planning (conditional)
+
+After the design is approved in Step 1D, detect whether the feature involves UI/layout changes.
+
+**Auto-detection signals:**
+
+1. **Keywords in feature description:** `button`, `page`, `modal`, `dialog`, `form`, `section`, `sidebar`, `navbar`, `header`, `footer`, `layout`, `dashboard`, `panel`, `tab`, `menu`, `dropdown`, `tooltip`, `card`, `table`, `grid`, `responsive`, `component`, `view`, `screen`, `widget`, `input`, `list`
+2. **Files in scope:** `.tsx`, `.jsx`, `.vue`, `.svelte`, `.css`, `.scss`, `.html`, `.qml`, `.ui`, `.dart`
+3. **UI framework detected in project:** React, Vue, Svelte, Angular, Qt, GTK, Flutter (from `package.json`, `pubspec.yaml`, CMakeLists.txt, etc.)
+
+If 1+ signal detected, ask the user:
+
+```
+Detected UI/layout changes in this feature.
+
+1. Include spatial layout planning with UI Layout Designer (recommended)
+2. Skip layout planning -- proceed without
+```
+
+**If confirmed**, dispatch the layout designer:
+
+```
+Agent tool call:
+  - description: "Layout planning for feature UI"
+  - subagent_type: "frontend:ui-layout-designer"
+  - prompt: |
+    Plan the spatial layout for a UI feature being added to an existing project.
+
+    ## Feature Design
+    [Insert design from Step 1D -- architecture, components, data flow]
+
+    ## Project Context
+    [Insert from .develop/00-context.md -- framework, existing component patterns]
+
+    ## Instructions
+    Produce a layout specification covering:
+    1. Spatial composition -- grid/flex strategy, component placement
+    2. Responsive breakpoint strategy -- how the layout adapts
+    3. Component hierarchy -- nesting, containment relationships
+    4. Spacing and sizing -- consistent spacing scale, key dimensions
+    5. Developer handoff notes -- CSS approach, class naming, framework-specific patterns
+
+    Keep it practical and implementation-ready. Reference existing patterns in the project where applicable.
+    Write your specification as a structured markdown document.
+```
+
+Append the layout designer's output as a "## Layout Specification" section in the design document.
+
 **Output file:** `.develop/01-design.md`
 
 ```markdown
@@ -205,6 +262,9 @@ Present the design in sections scaled to complexity. Get user approval after eac
 
 ## Testing Strategy
 [What to test and how]
+
+## Layout Specification (if UI feature)
+[Spatial composition, responsive strategy, component hierarchy, spacing, developer handoff -- from ui-layout-designer]
 
 ## Design Decisions
 [Key decisions made during brainstorming]
@@ -343,6 +403,24 @@ Before executing, load the platform-engineering skill context based on detected 
 - **Tauri**: Also load `platform-security` (Tauri section)
 
 During execution, check each implementation step against loaded rules. If a MUST rule would be violated, STOP and flag it before writing the code.
+
+### Stack-Aware UI Agent Loading
+
+If Step 1E produced a Layout Specification, load the appropriate agents/skills based on the detected stack from `.develop/00-context.md`:
+
+| Detected Stack | UI Layer (agents/skills) | Backend Layer (agents) |
+|---------------|--------------------------|------------------------|
+| **Web** (React, Vue, Svelte, vanilla) | `frontend:web-designer` + `frontend:frontend` skill | -- |
+| **Tauri** | `frontend:web-designer` + `frontend:frontend` skill | `tauri-development:tauri-desktop` + `tauri-development:rust-engineer` |
+| **Electron** | `frontend:web-designer` + `frontend:frontend` skill | general-purpose (Node.js) |
+| **React Native** | `frontend:frontend` skill (adapted for mobile) | general-purpose |
+| **Python GUI** (Qt/GTK) | general-purpose | `python-development:python-pro` |
+| **Flutter** | general-purpose | general-purpose (Dart) |
+
+During execution:
+- For UI implementation tasks (HTML, CSS, components), consult the loaded UI layer agents for styling, animations, and responsive patterns
+- For backend-of-frontend tasks (Tauri commands, IPC, state management), consult the loaded backend layer agents
+- Both layers remain available throughout Phase 3 -- the executing agent should reference them when implementing UI-related plan tasks
 
 ### Execution Loop
 
