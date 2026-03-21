@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "3.0.0"
+    "version": "3.1.0"
   },
   "plugins": [
     {
@@ -1058,6 +1058,39 @@
       ],
       "skills": [
         "./skills/tdd"
+      ]
+    },
+    {
+      "name": "platform-engineering",
+      "source": "./plugins/platform-engineering",
+      "description": "Cross-platform development rulebook -- security (validation, auth tokens, API security, XSS/CSP, secrets), architecture (client-server, REST vs GraphQL, offline-first, monolith-first, CI/CD), and performance (bundles, images, Core Web Vitals, SSR/SSG, CDN caching) for SPA, PWA, mobile, Electron, and Tauri",
+      "version": "1.0.0",
+      "author": {
+        "name": "Alfio"
+      },
+      "license": "MIT",
+      "keywords": [
+        "cross-platform",
+        "security",
+        "architecture",
+        "performance",
+        "web-vitals",
+        "oauth",
+        "csp",
+        "xss",
+        "electron",
+        "tauri",
+        "pwa",
+        "mobile",
+        "fullstack"
+      ],
+      "category": "development",
+      "strict": false,
+      "agents": [
+        "./agents/platform-reviewer.md"
+      ],
+      "skills": [
+        "./skills/platform-engineering"
       ]
     }
   ]
