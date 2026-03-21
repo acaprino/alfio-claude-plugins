@@ -1,6 +1,6 @@
 ---
 description: >
-  "Orchestrate comprehensive multi-dimensional code review using specialized review agents. Optionally enriched with deep-dive structural and semantic analysis for deeper context." argument-hint: "<target path or description> [--deep-dive] [--security-focus] [--performance-critical] [--strict-mode] [--framework react|spring|django|rails]".
+  "Orchestrate comprehensive multi-dimensional code review using specialized review agents. Optionally enriched with deep-dive structural and semantic analysis for deeper context. Supports multi-service distributed flow analysis with cross-boundary contract verification, timeout chain validation, and resilience pattern auditing." argument-hint: "<target path(s) or description> [--deep-dive] [--distributed] [--security-focus] [--performance-critical] [--strict-mode] [--framework react|spring|django|rails]".
   TRIGGER WHEN: the user requires assistance with tasks related to this domain.
   DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
 ---
@@ -68,6 +68,7 @@ Create `$SESSION_DIR` directory and `state.json`:
     "security_focus": false,
     "performance_critical": false,
     "strict_mode": false,
+    "distributed": false,
     "framework": null
   },
   "current_step": 1,
@@ -79,7 +80,9 @@ Create `$SESSION_DIR` directory and `state.json`:
 }
 ```
 
-Parse `$ARGUMENTS` for `--deep-dive`, `--security-focus`, `--performance-critical`, `--strict-mode`, and `--framework` flags. Update the flags object accordingly.
+Parse `$ARGUMENTS` for `--deep-dive`, `--security-focus`, `--performance-critical`, `--strict-mode`, `--distributed`, and `--framework` flags. Update the flags object accordingly.
+
+Multiple target paths are supported (e.g., `/full-review services/payment services/order`). Store all paths in a `"targets"` array in `state.json`. If a single directory is given with `--distributed`, auto-discover sub-services within it (look for nested `package.json`, `go.mod`, `pom.xml`, `pyproject.toml`, `Dockerfile` at depth 2+).
 
 ### 4. Identify review target
 
@@ -108,6 +111,7 @@ Determine what code to review from `$ARGUMENTS`:
 - Security Focus: [yes/no]
 - Performance Critical: [yes/no]
 - Strict Mode: [yes/no]
+- Distributed: [yes/no/auto-detected]
 - Framework: [name or auto-detected]
 
 ## Review Phases
@@ -118,6 +122,31 @@ Determine what code to review from `$ARGUMENTS`:
 4. Best Practices & Standards
 5. Consolidated Report
 ```
+
+### 5. Distributed system auto-detection
+
+After identifying files, check whether the target is a multi-service system. **Skip if `--distributed` flag is already set.**
+
+**Auto-detection criteria (2+ of these = distributed system):**
+1. 2+ independent build roots (`package.json`/`go.mod`/`pom.xml`/`pyproject.toml`) at different directory levels within scope
+2. `docker-compose.yml` with 2+ service definitions
+3. Grep finds HTTP client calls with URLs referencing other service names, or message broker publish/subscribe patterns
+4. Kubernetes manifests with 2+ `Deployment` or `Service` kind definitions
+5. 2+ `.proto` files or OpenAPI specs in different directories
+
+When auto-detected, ask the user:
+
+```
+Detected multi-service architecture:
+- [service-a] ([language])
+- [service-b] ([language])
+...
+
+1. Include distributed flow analysis (recommended)
+2. Skip distributed flow analysis (single-service focus)
+```
+
+If confirmed, set `distributed: true` in `state.json` and add a `## Services` section to `00-scope.md` listing each service with its path and detected language/framework.
 
 Update `state.json`: add `"00-scope.md"` to `files_created`, add step 0 to `completed_steps`.
 
@@ -242,6 +271,7 @@ When `--deep-dive` flag is active, each review agent prompt in Phases 1-5 gets t
 - For performance agent (Phase 2B): structure, flows
 - For ui-race-auditor (Phase 2C): structure (component hierarchy), flows (render/layout/event timing), semantics (state management assumptions)
 - For test/docs agents (Phase 3): interfaces, flows, risks
+- For distributed-flow-auditor (Phase 2D): structure (service boundaries), flows (cross-service calls), semantics (business transaction assumptions)
 - For best practices agents (Phase 4): all deep-dive findings]
 
 Use this context to strengthen your analysis. Do NOT re-report findings already
@@ -480,6 +510,37 @@ Agent tool call:
     Write your findings as a structured markdown document.
 ```
 
+### Step 2D: Distributed Flow Analysis (conditional)
+
+**Only run this agent if the review targets multiple services/paths OR the `--distributed` flag is set OR auto-detection identified multi-service architecture.** Skip entirely for single-module monoliths.
+
+```
+Agent tool call:
+  - description: "Distributed flow analysis for $ARGUMENTS"
+  - subagent_type: "senior-review:distributed-flow-auditor"
+  - run_in_background: true
+  - prompt: |
+    Analyze cross-service flows, contracts, and integration patterns
+    across the target services.
+
+    ## Review Scope
+    [Insert contents of .full-review/00-scope.md -- includes all service paths and detected services]
+
+    ## Phase 1 Context
+    [Insert contents of .full-review/01-code-audit.md -- focus on architecture and boundary findings]
+
+    ## Instructions
+    Analyze all cross-boundary interactions between the services in scope:
+    1. Build service topology map from file-system heuristics
+    2. Extract and compare contracts on both sides (API, message, shared DB)
+    3. Trace end-to-end flows through the call chain
+    4. Validate timeout chains (inner < outer rule)
+    5. Audit resilience patterns (idempotency, circuit breakers, retries, sagas)
+    6. Check message ordering and delivery guarantees
+
+    Write your findings as a structured markdown document.
+```
+
 After all agents complete, consolidate into `.full-review/02-security-performance.md`:
 
 ```markdown
@@ -496,6 +557,10 @@ After all agents complete, consolidate into `.full-review/02-security-performanc
 ## UI Race Condition Findings (if applicable)
 
 [Summary from 2C, organized by severity, or "N/A -- no UI files in scope"]
+
+## Distributed Flow Findings (if applicable)
+
+[Summary from 2D, organized by severity, or "N/A -- single-module scope"]
 
 ## Critical Issues for Phase 3 Context
 
@@ -843,6 +908,7 @@ Read all `.full-review/*.md` files (01 through 04). Generate the final consolida
 - **Best Practices**: [count] findings ([breakdown by severity])
 - **CI/CD & DevOps**: [count] findings ([breakdown by severity])
 - **UI Race Conditions**: [count] findings ([breakdown by severity])
+- **Distributed Integration**: [count] findings ([breakdown by severity])
 - **Dead Code**: [count] findings ([breakdown by severity])
 
 ## Recommended Action Plan
@@ -883,9 +949,22 @@ Comprehensive code review complete for: $ARGUMENTS
 - Code Quality Score: [X/10]
 
 ## Next Steps
-1. Review the full report at $SESSION_DIR/06-final-report.md
+1. Review the full report at $SESSION_DIR/05-final-report.md
 2. Address Critical (P0) issues immediately
 3. Plan High (P1) fixes for current sprint
 4. Add Medium (P2) and Low (P3) items to backlog
 ```
+
+After presenting the summary, ask:
+
 ```
+1. Keep all review files (default)
+2. Keep only the final report -- delete intermediate files
+3. Delete all review files -- cleanup session directory entirely
+```
+
+**Cleanup behavior by option:**
+
+- **Option 1:** No action. All files remain in `$SESSION_DIR/`.
+- **Option 2:** Delete intermediate files (`00-scope.md`, `01-code-audit.md`, `02-security-performance.md`, `03-testing-documentation.md`, `04-best-practices.md`, `state.json`, and any `dd-*.md` deep-dive files). Keep only `05-final-report.md`. Move it to project root as `full-review-report-<label>.md`, then remove the empty `$SESSION_DIR/` directory.
+- **Option 3:** Delete the entire `$SESSION_DIR/` directory and all its contents.
