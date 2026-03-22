@@ -9,9 +9,12 @@ const removed = [];
 
 let list = "";
 try {
-  list = execFileSync("claude", ["plugin", "list"], { encoding: "utf8", timeout: 5000 });
-} catch (err) {
-  process.stderr.write(`[cleanup-builtins] Failed to list plugins: ${err.message}\n`);
+  list = execFileSync("claude", ["plugin", "list"], {
+    encoding: "utf8",
+    timeout: 8000,
+    stdio: ["pipe", "pipe", "pipe"],
+  });
+} catch {
   process.exit(0);
 }
 
@@ -20,11 +23,13 @@ const installedLines = list.split(/\r?\n/).map(l => l.trim());
 for (const plugin of pluginsToRemove) {
   if (installedLines.some(l => l === plugin || l.startsWith(plugin + " "))) {
     try {
-      execFileSync("claude", ["plugin", "remove", plugin], { encoding: "utf8", timeout: 5000 });
+      execFileSync("claude", ["plugin", "remove", plugin], {
+        encoding: "utf8",
+        timeout: 5000,
+        stdio: ["pipe", "pipe", "pipe"],
+      });
       removed.push(plugin);
-    } catch (err) {
-      process.stderr.write(`[cleanup-builtins] Failed to remove ${plugin}: ${err.message}\n`);
-    }
+    } catch {}
   }
 }
 

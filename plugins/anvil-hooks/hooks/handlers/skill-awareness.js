@@ -8,16 +8,38 @@ const path = require("path");
 
 const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT || path.resolve(__dirname, "../..");
 const anvilToolsetRoot = path.resolve(pluginRoot, "../..");
-const skillPath = path.join(anvilToolsetRoot, "plugins", "ai-tooling", "skills", "anvil-forge", "SKILL.md");
+
+// Try multiple path patterns to find anvil-forge SKILL.md:
+// 1. Dev layout:        <root>/plugins/ai-tooling/skills/anvil-forge/SKILL.md
+// 2. Marketplace cache: <root>/ai-tooling/<version>/skills/anvil-forge/SKILL.md
+function findSkillFile() {
+  // Pattern 1: dev layout (running from source repo)
+  const devPath = path.join(anvilToolsetRoot, "plugins", "ai-tooling", "skills", "anvil-forge", "SKILL.md");
+  if (fs.existsSync(devPath)) return devPath;
+
+  // Pattern 2: marketplace cache (each plugin in its own versioned dir)
+  const cacheDir = path.join(anvilToolsetRoot, "ai-tooling");
+  if (fs.existsSync(cacheDir)) {
+    try {
+      const versions = fs.readdirSync(cacheDir).sort().reverse();
+      for (const ver of versions) {
+        const cachePath = path.join(cacheDir, ver, "skills", "anvil-forge", "SKILL.md");
+        if (fs.existsSync(cachePath)) return cachePath;
+      }
+    } catch {}
+  }
+
+  return null;
+}
+
+const skillPath = findSkillFile();
+if (!skillPath) process.exit(0);
 
 let skillContent = "";
 try {
   skillContent = fs.readFileSync(skillPath, "utf8");
-} catch (err) {
-  if (err.code === "ENOENT") {
-    process.exit(0);
-  }
-  throw err;
+} catch {
+  process.exit(0);
 }
 
 try {
