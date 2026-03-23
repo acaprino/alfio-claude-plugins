@@ -79,6 +79,7 @@ Apply the codebase-mapper writing guidelines:
 - NEVER add information not present in the original
 - NEVER remove factual content - only restructure and rephrase
 - NEVER change code examples (fix formatting only)
+- **NEVER remove or flatten tables** - tables are functional data structures (comparison matrices, API references, config tables, parameter lists). Humanize text inside cells if needed, but preserve the table structure. Do not convert tables to prose.
 - Preserve all file paths, line references, and citations
 - Mark anything unclear in original with `[UNCLEAR IN ORIGINAL]`
 - If original has errors, preserve them but add `[POSSIBLE ERROR: ...]` comment

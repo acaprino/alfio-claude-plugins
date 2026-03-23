@@ -280,6 +280,8 @@ Avoiding AI patterns is only half the job. Sterile, voiceless writing is just as
 
 **Problem:** AI outputs lists where items start with bolded headers followed by colons.
 
+**EXCEPTION: Tables and structured data.** Markdown tables, comparison matrices, API reference tables, configuration tables, and any tabular data that organizes information in rows/columns must NEVER be converted to prose. Tables are functional data structures. Only humanize the text inside cells if it contains AI patterns. This also applies to lists that serve as structured reference (CLI flags, config options, parameter docs).
+
 **Before:**
 > - **User Experience:** The user experience has been significantly improved with a new interface.
 > - **Performance:** Performance has been enhanced through optimized algorithms.

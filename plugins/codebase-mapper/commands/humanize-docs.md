@@ -84,7 +84,7 @@ Task:
     Final polish pass on restructured documentation. Remove any remaining AI
     writing patterns (AI vocabulary, filler phrases, inflated significance,
     generic conclusions) while preserving the improved structure, code blocks,
-    and diagrams.
+    diagrams, and ALL tables (do not convert tables to prose).
 
     Do NOT add the self-evaluation pass -- just return the cleaned text.
 

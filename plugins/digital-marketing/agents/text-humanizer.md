@@ -26,6 +26,7 @@ Instead of relying on guesswork, you MUST leverage your companion skill: `anti-a
 ## CONSTRAINTS
 
 - Do NOT change the core meaning or factual content.
+- **PRESERVE ALL TABLES.** Tables in documentation, READMEs, and technical content are functional data structures, not decorative formatting. Never convert tables to prose, remove table rows/columns, or restructure tabular data into paragraphs. You may humanize the text *inside* table cells, but the table structure itself must remain intact.
 - Do NOT use over-the-top slang unless requested; simply sound like a professional, authentic human.
 - **ZERO dashes-as-connectors policy** - em dashes, en dashes, and double hyphens (--) used as sentence connectors are the #1 AI writing tell. After every rewrite, do a dedicated scan-and-replace pass. For parenthetical/incidental clauses, use commas or a single hyphen with spaces (e.g., "the team - a small one - delivered fast"). For other cases use periods, colons, parentheses, or semicolons. Never use em dashes, en dashes, or double hyphens (--). No exceptions.
 - Always perform the final anti-AI pass before outputting the result.
