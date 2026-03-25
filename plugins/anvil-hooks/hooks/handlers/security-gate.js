@@ -1,11 +1,11 @@
 // Security Gate - PostToolUse hook (disablable)
 // Checks for hardcoded secrets in Write/Edit operations
-// Toggle: set "securityGate" to false in ~/.claude/anvil-config.json to disable
+// Toggle: set "securityGate" to false in ~/.claude/figs-config.json to disable
 
 const fs = require("fs");
 const path = require("path");
 
-const configPath = path.join(process.env.HOME || process.env.USERPROFILE, ".claude", "anvil-config.json");
+const configPath = path.join(process.env.HOME || process.env.USERPROFILE, ".claude", "figs-config.json");
 
 // Check if security gate is enabled
 let enabled = true;

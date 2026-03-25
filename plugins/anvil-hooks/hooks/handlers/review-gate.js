@@ -1,11 +1,11 @@
 // Review Gate - PreToolUse hook (disablable)
 // Blocks PR creation and merges to main/master until /code-review is run
-// Toggle: set "reviewGate" to false in ~/.claude/anvil-config.json to disable
+// Toggle: set "reviewGate" to false in ~/.claude/figs-config.json to disable
 
 const fs = require("fs");
 const path = require("path");
 
-const configPath = path.join(process.env.HOME || process.env.USERPROFILE, ".claude", "anvil-config.json");
+const configPath = path.join(process.env.HOME || process.env.USERPROFILE, ".claude", "figs-config.json");
 
 // Check if review gate is enabled
 let enabled = true;

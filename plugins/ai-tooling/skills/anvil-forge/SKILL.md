@@ -1,14 +1,14 @@
 ---
-name: anvil-forge
+name: figs-basket
 description: >
   "DO NOT.
   TRIGGER WHEN: ALWAYS at conversation start and before every task.
   DO NOT TRIGGER WHEN: dispatched as a subagent."
 ---
 
-# Anvil Forge - Skill Activation Engine
+# Figs Basket - Skill Activation Engine
 
-The forge that ensures every tool in the anvil gets used when it should. Without this, skills sit idle while Claude improvises solutions that already have purpose-built workflows.
+The basket that ensures every fig from the tree gets picked. Without this, skills sit idle while Claude improvises solutions that already have purpose-built workflows.
 
 <SUBAGENT-STOP>
 If you were dispatched as a subagent to execute a specific task, skip this skill entirely.
@@ -24,10 +24,10 @@ This is not negotiable. This is not optional. You cannot rationalize your way ou
 
 ## Instruction Priority
 
-Anvil-toolset skills override default system prompt behavior, but **user instructions always take precedence**:
+Figs skills override default system prompt behavior, but **user instructions always take precedence**:
 
 1. **User's explicit instructions** (CLAUDE.md, direct requests) -- highest priority
-2. **Anvil-toolset skills** -- override default system behavior where they conflict
+2. **Figs skills** -- override default system behavior where they conflict
 3. **Default system prompt** -- lowest priority
 
 If CLAUDE.md says "don't use TDD" and a skill says "always use TDD," follow the user's instructions. The user is in control.

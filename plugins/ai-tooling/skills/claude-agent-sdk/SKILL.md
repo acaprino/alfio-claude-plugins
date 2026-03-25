@@ -130,6 +130,9 @@ asyncio.run(main())
 | `canUseTool` / `can_use_tool` | `function` | Runtime permission callback |
 | `includePartialMessages` / `include_partial_messages` | `boolean` | Enable token-level streaming |
 | `spawnClaudeCodeProcess` | `function` | Custom process spawner (VMs, containers, remote) |
+| `agentProgressSummaries` | `boolean` | Enable periodic AI-generated progress summaries for running subagents |
+| `debug` / `debug` | `boolean` | Enable programmatic debug logging |
+| `debugFile` / `debug_file` | `string` | File path for debug log output |
 
 ### Example -- Full Configuration
 
@@ -339,8 +342,9 @@ for await (const msg of query({
 | `tools` | `string[]` | Restricted tool set |
 | `model` | `string` | `"sonnet"`, `"opus"`, `"haiku"`, or `"inherit"` |
 | `disallowedTools` | `string[]` | Tools to block (TS only) |
-| `mcpServers` | `object` | MCP servers available to subagent (TS only) |
-| `skills` | `string[]` | Skills the subagent can invoke (TS only) |
+| `mcpServers` | `object` | MCP servers available to subagent |
+| `skills` | `string[]` | Skills the subagent can invoke |
+| `memory` | `object` | Memory configuration for the subagent |
 | `maxTurns` | `number` | Turn limit for this subagent (TS only) |
 
 ### Subagent Behavior
@@ -350,6 +354,7 @@ for await (const msg of query({
 - **No nesting** -- subagents cannot spawn their own subagents
 - **Resumable** -- subagents can be resumed by ID from tool results
 - **Cost isolated** -- each subagent's token usage is tracked separately
+- **Progress summaries** -- enable `agentProgressSummaries: true` to receive periodic AI-generated progress updates from running subagents
 
 ---
 
@@ -420,29 +425,80 @@ async with ClaudeSDKClient() as client:
     await client.interrupt()
 ```
 
-### List and Read Past Sessions
+### List, Inspect, and Manage Sessions
 
 ```typescript
-import { listSessions, getSessionMessages } from "@anthropic-ai/claude-agent-sdk";
+import {
+  listSessions, getSessionInfo, getSessionMessages,
+  forkSession, tagSession, renameSession,
+} from "@anthropic-ai/claude-agent-sdk";
 
+// List sessions
 const sessions = await listSessions({ dir: "/path/to/project", limit: 10 });
 for (const session of sessions) {
-  console.log(session.sessionId, session.createdAt);
-  const messages = await getSessionMessages(session.sessionId);
+  console.log(session.sessionId, session.createdAt, session.tag);
 }
+
+// Single-session metadata lookup
+const info = await getSessionInfo(sessionId);
+console.log(info.tag, info.createdAt);
+
+// Read conversation history (includes parallel tool results)
+const messages = await getSessionMessages(sessionId);
+
+// Branch a conversation from a specific point
+const forked = await forkSession(sessionId);
+
+// Organize sessions with tags and renames
+await tagSession(sessionId, "auth-refactor");
+await renameSession(sessionId, "auth-refactor-v2");
 ```
 
 ```python
-from claude_agent_sdk import list_sessions, get_session_messages
+from claude_agent_sdk import (
+    list_sessions, get_session_info, get_session_messages,
+    fork_session, tag_session, rename_session,
+)
 
 sessions = await list_sessions(dir="/path/to/project", limit=10)
 for session in sessions:
     messages = await get_session_messages(session.session_id)
+
+info = await get_session_info(session_id)
+await tag_session(session_id, "auth-refactor")
+await rename_session(session_id, "auth-refactor-v2")
+```
+
+### Session State Events
+
+Session state change events are **opt-in** as of v0.2.83. Enable with environment variable:
+
+```bash
+export CLAUDE_CODE_EMIT_SESSION_STATE_EVENTS=1
+```
+
+### Exit Reasons
+
+The `ExitReason` type includes: `"end_turn"`, `"max_turns"`, `"budget"`, `"interrupt"`, `"resume"`.
+
+---
+
+## 8. Introspection Utilities
+
+```typescript
+import { supportedAgents, getSettings } from "@anthropic-ai/claude-agent-sdk";
+
+// Discover available subagents
+const agents = await supportedAgents();
+
+// Inspect runtime-resolved settings (includes applied model and effort)
+const settings = await getSettings();
+console.log(settings.applied.model, settings.applied.effort);
 ```
 
 ---
 
-## 8. Permissions
+## 9. Permissions
 
 Control what the agent can do at runtime.
 
@@ -492,7 +548,7 @@ Callback return values:
 
 ---
 
-## 9. Hooks -- Lifecycle Events
+## 10. Hooks -- Lifecycle Events
 
 Hooks intercept agent lifecycle events for logging, validation, or control flow.
 
@@ -510,6 +566,9 @@ Hooks intercept agent lifecycle events for logging, validation, or control flow.
 | `PreCompact` | Before context compaction | Log or modify |
 | `Notification` | Agent sends a notification | Display or forward |
 | `PermissionRequest` | Tool needs permission | Auto-approve or deny |
+| `TaskCompleted` | A task has been completed | Process results |
+| `TeammateIdle` | A teammate agent is idle | Reassign or notify |
+| `ConfigChange` | Configuration changed at runtime | Security auditing |
 | `SessionStart` (TS) | Session initialized | Setup actions |
 | `SessionEnd` (TS) | Session completed | Cleanup actions |
 
@@ -581,7 +640,7 @@ for await (const msg of query({
 
 ---
 
-## 10. Streaming
+## 11. Streaming
 
 ### Message Types
 
@@ -590,8 +649,11 @@ Messages streamed from `query()` include:
 | Type | Description |
 |---|---|
 | `system` (subtype: `init`) | Session initialized -- contains `session_id` |
+| `system` (subtype: `api_retry`) | API retry info -- attempt count, max retries, delay, error status |
 | `assistant` | Claude's response with `content` blocks (text, tool_use) |
 | `result` | Final result with `result` text, `total_cost_usd`, `usage` |
+| `task_progress` | Real-time usage metrics for running agents |
+| `rate_limit` | Rate limit event with retry timing (Python: `RateLimitEvent`) |
 | `stream_event` | Partial token (when `includePartialMessages: true`) |
 
 ### Token-Level Streaming
@@ -612,7 +674,7 @@ for await (const msg of query({
 
 ---
 
-## 11. Structured Output
+## 12. Structured Output
 
 Force the agent to return JSON conforming to a schema:
 
@@ -655,7 +717,7 @@ for await (const msg of query({
 
 ---
 
-## 12. Plugins and Skills
+## 13. Plugins and Skills
 
 Load local plugins to give the agent access to custom skills, agents, and commands:
 
@@ -679,7 +741,7 @@ options: {
 
 ---
 
-## 13. Cost Tracking
+## 14. Cost Tracking
 
 ```typescript
 for await (const msg of query({ prompt: "Analyze auth.py", options: {} })) {
@@ -705,7 +767,7 @@ options: { maxBudgetUsd: 0.50 }  // stop after $0.50
 
 ---
 
-## 14. Hosting & Deployment Patterns
+## 15. Hosting & Deployment Patterns
 
 ### Ephemeral Sessions
 
@@ -777,7 +839,7 @@ for await (const msg of query({
 
 ---
 
-## 15. Security Best Practices
+## 16. Security Best Practices
 
 1. **Always set `allowedTools`** -- restrict to minimum necessary tools
 2. **Use `maxBudgetUsd`** -- prevent runaway costs
@@ -808,7 +870,7 @@ options: {
 
 ---
 
-## 16. Common Patterns
+## 17. Common Patterns
 
 ### CI/CD Code Review Agent
 
@@ -895,7 +957,7 @@ async def chat_loop():
 
 ---
 
-## 17. Migration from claude-code-sdk
+## 18. Migration from claude-code-sdk
 
 The old `claude-code-sdk` / `@anthropic-ai/claude-code-sdk` packages are deprecated. Migration:
 
@@ -943,7 +1005,7 @@ To fully restore old `claude-code-sdk` behavior, use both options together.
 
 ---
 
-## 18. TypeScript V2 Preview
+## 19. TypeScript V2 Preview
 
 A simplified session-based API is available as a preview:
 
@@ -985,7 +1047,7 @@ for await (const msg of unstable_v2_prompt("Quick question", { model: "claude-ha
 
 ---
 
-## 19. ClaudeSDKClient Methods (Python)
+## 20. ClaudeSDKClient Methods (Python)
 
 The Python `ClaudeSDKClient` provides additional runtime control methods:
 

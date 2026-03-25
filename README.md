@@ -1,6 +1,6 @@
 <div align="center">
 
-# Anvil Toolset
+# Figs
 
 **33 specialized plugins for Claude Code -- so you spend less time prompting and more time shipping.**
 
@@ -15,7 +15,7 @@
 
 ---
 
-## Why Anvil?
+## Why Figs?
 
 - **Domain experts, not generic prompts** -- each plugin encodes months of specialized knowledge (Python, Rust, React, security, SEO, legal...)
 - **Multi-agent orchestration** -- code review fires architecture, security, and pattern analysis in parallel
@@ -27,12 +27,12 @@
 
 ```bash
 # Add the marketplace
-claude plugin marketplace add acaprino/anvil-toolset
+claude plugin marketplace add acaprino/figs
 
 # Install the plugins you need
-claude plugin install python-development@anvil-toolset
-claude plugin install senior-review@anvil-toolset
-claude plugin install frontend@anvil-toolset
+claude plugin install python-development@figs
+claude plugin install senior-review@figs
+claude plugin install frontend@figs
 ```
 
 That's it. Plugins activate automatically when relevant -- or invoke them directly:
@@ -84,7 +84,7 @@ That's it. Plugins activate automatically when relevant -- or invoke them direct
 | **[playwright-skill](docs/plugins/playwright-skill.md)** | General-purpose browser automation with Playwright | - | 1 | - |
 | **[cc-usage](docs/plugins/cc-usage.md)** | Token usage, costs, and billing analysis | - | 1 | 1 |
 | **[prompt-improver](docs/plugins/prompt-improver.md)** | Enrich vague prompts with research-based questions | - | 1 | - |
-| **[anvil-hooks](docs/plugins/anvil-hooks.md)** | Session hooks -- startup branding, skill awareness, security gate | - | - | - |
+| **[figs-hooks](docs/plugins/figs-hooks.md)** | Session hooks -- startup branding, skill awareness, security gate | - | - | - |
 | **[docs](docs/plugins/docs.md)** | Craft top-tier README.md files | - | 1 | 1 |
 | **[testing](docs/plugins/testing.md)** | TDD methodology and behavior-driven test generation | 1 | 1 | - |
 
@@ -109,7 +109,7 @@ Plugins are pure Markdown with optional JS/Python helper scripts. No build step,
 <summary><b>Project Structure</b></summary>
 
 ```
-anvil-toolset/
+figs/
 ├── .claude-plugin/
 │   └── marketplace.json       # plugin registry
 ├── docs/plugins/              # per-plugin documentation
@@ -131,8 +131,8 @@ anvil-toolset/
 <summary><b>Local Development Install</b></summary>
 
 ```bash
-git clone https://github.com/acaprino/anvil-toolset.git
-claude plugin install ./anvil-toolset/plugins/python-development
+git clone https://github.com/acaprino/figs.git
+claude plugin install ./figs/plugins/python-development
 ```
 
 </details>

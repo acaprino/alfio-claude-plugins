@@ -1,12 +1,12 @@
 {
-  "name": "anvil-toolset",
+  "name": "figs",
   "owner": {
     "name": "Alfio",
     "email": ""
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "3.10.2"
+    "version": "3.11.0"
   },
   "plugins": [
     {
@@ -198,7 +198,7 @@
       "name": "ai-tooling",
       "source": "./plugins/ai-tooling",
       "description": "AI development workflow -- prompt engineering and optimization, structured brainstorming with design approval gates, implementation planning with TDD execution, and Claude Agent SDK integration guide",
-      "version": "2.3.0",
+      "version": "2.5.0",
       "author": {
         "name": "Alfio"
       },
@@ -224,7 +224,7 @@
         "./skills/brainstorming",
         "./skills/writing-plans",
         "./skills/executing-plans",
-        "./skills/anvil-forge",
+        "./skills/figs-basket",
         "./skills/claude-agent-sdk"
       ],
       "commands": [
@@ -760,8 +760,8 @@
     {
       "name": "marketplace-ops",
       "source": "./plugins/marketplace-ops",
-      "description": "Marketplace consolidation and plugin management -- auditing, validation, AI quality review, upstream sync, plugin scaffolding, and health monitoring for the anvil-toolset ecosystem",
-      "version": "1.9.0",
+      "description": "Marketplace consolidation and plugin management -- auditing, validation, AI quality review, upstream sync, plugin scaffolding, and health monitoring for the figs ecosystem",
+      "version": "1.10.0",
       "author": {
         "name": "Alfio"
       },
@@ -775,7 +775,7 @@
         "plugin-management",
         "consolidation",
         "create",
-        "forge"
+        "create"
       ],
       "category": "utilities",
       "strict": false,
@@ -818,17 +818,17 @@
       ]
     },
     {
-      "name": "anvil-hooks",
-      "source": "./plugins/anvil-hooks",
-      "description": "Anvil session hooks -- ASCII logo on startup, skill awareness injection, security gate for hardcoded secrets, autocompact when context is high, cleanup of duplicate built-in plugins, brainstorm gate for creative/building prompts, review gate for PR/merge operations, and docs gate for documentation auditing",
-      "version": "1.8.0",
+      "name": "figs-hooks",
+      "source": "./plugins/figs-hooks",
+      "description": "Figs session hooks -- ASCII logo on startup, skill awareness injection, security gate for hardcoded secrets, autocompact when context is high, cleanup of duplicate built-in plugins, brainstorm gate for creative/building prompts, review gate for PR/merge operations, and docs gate for documentation auditing",
+      "version": "1.9.0",
       "author": {
         "name": "Alfio"
       },
       "license": "MIT",
       "keywords": [
         "hooks",
-        "anvil",
+        "figs",
         "logo",
         "security",
         "secrets",

@@ -1,5 +1,5 @@
 // Skill Awareness - SessionStart hook
-// Injects the anvil-forge skill content into every session so Claude
+// Injects the figs-basket skill content into every session so Claude
 // knows to check for and invoke relevant skills before responding.
 // Mirrors the pattern from obra/superpowers using-superpowers hook.
 
@@ -7,23 +7,23 @@ const fs = require("fs");
 const path = require("path");
 
 const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT || path.resolve(__dirname, "../..");
-const anvilToolsetRoot = path.resolve(pluginRoot, "../..");
+const figsRoot = path.resolve(pluginRoot, "../..");
 
-// Try multiple path patterns to find anvil-forge SKILL.md:
-// 1. Dev layout:        <root>/plugins/ai-tooling/skills/anvil-forge/SKILL.md
-// 2. Marketplace cache: <root>/ai-tooling/<version>/skills/anvil-forge/SKILL.md
+// Try multiple path patterns to find figs-basket SKILL.md:
+// 1. Dev layout:        <root>/plugins/ai-tooling/skills/figs-basket/SKILL.md
+// 2. Marketplace cache: <root>/ai-tooling/<version>/skills/figs-basket/SKILL.md
 function findSkillFile() {
   // Pattern 1: dev layout (running from source repo)
-  const devPath = path.join(anvilToolsetRoot, "plugins", "ai-tooling", "skills", "anvil-forge", "SKILL.md");
+  const devPath = path.join(figsRoot, "plugins", "ai-tooling", "skills", "figs-basket", "SKILL.md");
   if (fs.existsSync(devPath)) return devPath;
 
   // Pattern 2: marketplace cache (each plugin in its own versioned dir)
-  const cacheDir = path.join(anvilToolsetRoot, "ai-tooling");
+  const cacheDir = path.join(figsRoot, "ai-tooling");
   if (fs.existsSync(cacheDir)) {
     try {
       const versions = fs.readdirSync(cacheDir).sort().reverse();
       for (const ver of versions) {
-        const cachePath = path.join(cacheDir, ver, "skills", "anvil-forge", "SKILL.md");
+        const cachePath = path.join(cacheDir, ver, "skills", "figs-basket", "SKILL.md");
         if (fs.existsSync(cachePath)) return cachePath;
       }
     } catch {}
@@ -43,7 +43,7 @@ try {
 }
 
 try {
-  const context = `<IMPORTANT>\nYou have the Anvil skill system.\n\n**Below is the full content of your 'ai-tooling:anvil-forge' skill -- your guide to using skills. For all other skills, use the 'Skill' tool:**\n\n${skillContent}\n</IMPORTANT>`;
+  const context = `<IMPORTANT>\nYou have the Figs skill system.\n\n**Below is the full content of your 'ai-tooling:figs-basket' skill -- your guide to using skills. For all other skills, use the 'Skill' tool:**\n\n${skillContent}\n</IMPORTANT>`;
 
   const output = {
     hookSpecificOutput: {

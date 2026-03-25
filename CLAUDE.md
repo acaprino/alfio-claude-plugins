@@ -1,6 +1,6 @@
-# anvil-toolset
+# figs
 
-Custom Claude Code plugin marketplace. Contains agents, skills, and commands for development workflows, code quality, AI tooling, and more. Remote: `acaprino/anvil-toolset` on GitHub.
+Custom Claude Code plugin marketplace. Contains agents, skills, and commands for development workflows, code quality, AI tooling, and more. Remote: `acaprino/figs` on GitHub.
 
 ## Project structure
 
@@ -12,10 +12,10 @@ plugins/
     agents/                 # agent .md files (frontmatter + system prompt)
     skills/                 # skill directories (SKILL.md + optional references/)
     commands/               # slash-command .md files
-    hooks/                  # hook handlers (JS/Python) + hooks.json (anvil-hooks, prompt-improver)
+    hooks/                  # hook handlers (JS/Python) + hooks.json (figs-hooks, prompt-improver)
 ```
 
-34 plugins: humanize, deep-dive-analysis, tauri-development, frontend, react-development, xterm, ai-tooling, python-development, stripe, system-utils, messaging, research, business, project-setup, mobile-development, typescript-development, csp, digital-marketing, senior-review, app-explorer, workflows, obsidian-development, browser-extensions, learning, marketplace-ops, playwright-skill, anvil-hooks, prompt-improver, cc-usage, codebase-mapper, git-worktrees, rag-development, docs, testing.
+34 plugins: humanize, deep-dive-analysis, tauri-development, frontend, react-development, xterm, ai-tooling, python-development, stripe, system-utils, messaging, research, business, project-setup, mobile-development, typescript-development, csp, digital-marketing, senior-review, app-explorer, workflows, obsidian-development, browser-extensions, learning, marketplace-ops, playwright-skill, figs-hooks, prompt-improver, cc-usage, codebase-mapper, git-worktrees, rag-development, docs, testing.
 
 ## Plugin anatomy
 
@@ -31,7 +31,7 @@ plugins/
 
 **Commands** - Slash-command `.md` files with YAML frontmatter (`description`, `argument-hint`) and usage instructions/examples.
 
-**Hooks** - Used by `anvil-hooks` and `prompt-improver` plugins. Contains `hooks.json` (hook definitions) and `handlers/` directory with JS handler scripts. `anvil-hooks` also uses `plugins/anvil-hooks/.claude-plugin/plugin.json` for supplementary hook configuration alongside marketplace registration.
+**Hooks** - Used by `figs-hooks` and `prompt-improver` plugins. Contains `hooks.json` (hook definitions) and `handlers/` directory with JS handler scripts. `figs-hooks` also uses `plugins/figs-hooks/.claude-plugin/plugin.json` for supplementary hook configuration alongside marketplace registration.
 
 ## Conventions
 
@@ -55,7 +55,7 @@ When changes modify plugins (agents, skills, commands), update the marketplace *
 Key fields in `.claude-plugin/marketplace.json`:
 - `metadata.version`: overall marketplace version
 - `plugins[].version`: per-plugin version
-- Install command: `claude plugin marketplace add acaprino/anvil-toolset`
+- Install command: `claude plugin marketplace add acaprino/figs`
 
 ## Adding a new plugin
 

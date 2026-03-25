@@ -1,5 +1,5 @@
 {
-  "description": "Anvil session hooks -- startup logo, skill awareness, security gate, autocompact, brainstorm gate, review gate, and docs gate",
+  "description": "Figs session hooks -- startup logo, skill awareness, security gate, autocompact, brainstorm gate, review gate, and docs gate",
   "hooks": {
     "PreToolUse": [
       {
@@ -39,7 +39,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/handlers/anvil-logo.js\"",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/handlers/figs-logo.js\"",
             "timeout": 5
           },
           {

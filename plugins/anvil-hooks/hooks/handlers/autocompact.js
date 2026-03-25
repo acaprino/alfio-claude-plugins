@@ -1,7 +1,7 @@
 // Autocompact - PostToolUse hook (configurable)
 // Triggers context compaction when usage approaches 100%.
-// Toggle: set "autocompact" to false in ~/.claude/anvil-config.json to disable
-// Threshold: set "autocompactThreshold" (0-100) in anvil-config.json (default: 80)
+// Toggle: set "autocompact" to false in ~/.claude/figs-config.json to disable
+// Threshold: set "autocompactThreshold" (0-100) in figs-config.json (default: 80)
 //
 // Reads context metrics from the statusline bridge file written by
 // gsd-statusline.js. When used_pct exceeds the threshold, injects an
@@ -16,7 +16,7 @@ const path = require("path");
 const DEFAULT_THRESHOLD = 80;
 const STALE_SECONDS = 60;
 
-const configPath = path.join(process.env.HOME || process.env.USERPROFILE, ".claude", "anvil-config.json");
+const configPath = path.join(process.env.HOME || process.env.USERPROFILE, ".claude", "figs-config.json");
 
 // Check config: enabled + threshold
 let enabled = true;
