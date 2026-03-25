@@ -39,12 +39,12 @@ Check by looking for the agent/skill files. If a required plugin is missing, STO
 ```
 Missing required plugin(s): [list]
 
-This workflow command depends on agents and skills from other anvil-toolset plugins.
+This workflow command depends on agents and skills from other figs plugins.
 Install them with:
-  claude plugin marketplace add acaprino/anvil-toolset --plugin <name>
+  claude plugin marketplace add acaprino/figs --plugin <name>
 
 Or install the full marketplace:
-  claude plugin marketplace add acaprino/anvil-toolset
+  claude plugin marketplace add acaprino/figs
 ```
 
 If only optional plugins are missing, warn but continue (skip their phases).

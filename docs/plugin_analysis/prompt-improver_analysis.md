@@ -1,6 +1,6 @@
 # Analisi Plugin: `prompt-improver`
 
-Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `prompt-improver` appartenente al marketplace Anvil Toolset. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
+Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `prompt-improver` appartenente al marketplace Figs. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
 
 ## 📊 Analisi Qualitativa & Ergonomica
 * **Punti di Forza (Pros):** Interviene prima dell'esecuzione per arricchire prompt vaghi.

@@ -1,6 +1,6 @@
 # Analisi Plugin: `rag-development`
 
-Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `rag-development` appartenente al marketplace Anvil Toolset. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
+Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `rag-development` appartenente al marketplace Figs. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
 
 ## 📊 Analisi Qualitativa & Ergonomica
 * **Punti di Forza (Pros):** Architettura RAG completa e focus su Qdrant.

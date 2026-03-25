@@ -1,6 +1,6 @@
 # Analisi Plugin: `tauri-development`
 
-Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `tauri-development` appartenente al marketplace Anvil Toolset. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
+Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `tauri-development` appartenente al marketplace Figs. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
 
 ## 📊 Analisi Qualitativa & Ergonomica
 * **Punti di Forza (Pros):** Ottima distinzione tra sviluppo desktop e mobile (Tauri v2).

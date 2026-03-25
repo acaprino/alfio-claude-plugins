@@ -7,7 +7,7 @@ description: >
 
 # Scaffold New Plugin
 
-Create a new plugin following anvil-toolset conventions.
+Create a new plugin following figs conventions.
 
 ## Procedure
 

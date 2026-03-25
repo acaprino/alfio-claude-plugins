@@ -1,6 +1,6 @@
 # Analisi Plugin: `playwright-skill`
 
-Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `playwright-skill` appartenente al marketplace Anvil Toolset. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
+Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `playwright-skill` appartenente al marketplace Figs. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
 
 ## 📊 Analisi Qualitativa & Ergonomica
 * **Punti di Forza (Pros):** Automazione browser completa e generazione test in /tmp.

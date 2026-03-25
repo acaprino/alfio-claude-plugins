@@ -38,10 +38,10 @@ Missing required plugin: frontend
 
 This workflow command depends on agents from the frontend plugin.
 Install it with:
-  claude plugin marketplace add acaprino/anvil-toolset --plugin frontend
+  claude plugin marketplace add acaprino/figs --plugin frontend
 
 Or install the full marketplace:
-  claude plugin marketplace add acaprino/anvil-toolset
+  claude plugin marketplace add acaprino/figs
 ```
 
 ### 1. Check for existing session

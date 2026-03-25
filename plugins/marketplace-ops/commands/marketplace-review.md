@@ -7,7 +7,7 @@ description: >
 
 # Marketplace AI Review
 
-Perform an AI-driven quality evaluation of plugin content across the anvil-toolset marketplace.
+Perform an AI-driven quality evaluation of plugin content across the figs marketplace.
 
 ## What this evaluates
 

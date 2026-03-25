@@ -1,15 +1,15 @@
-# Anvil Toolset Documentation
+# Figs Documentation
 
 Custom Claude Code plugin marketplace. Agents, skills, and commands for development workflows, code quality, AI tooling, and more.
 
-**Install:** `claude plugin marketplace add acaprino/anvil-toolset`
+**Install:** `claude plugin marketplace add acaprino/figs`
 
 ## Plugin Index
 
 | Plugin | Category | Description | Docs |
 |--------|----------|-------------|------|
 | [ai-tooling](plugins/ai-tooling.md) | ai-ml | Prompt engineering, brainstorming, planning, execution, Claude Agent SDK | 1 agent, 5 skills, 1 command |
-| [anvil-hooks](plugins/anvil-hooks.md) | security | Session hooks -- startup logo, skill awareness, security gate, autocompact, brainstorm gate, review gate | hooks only |
+| [figs-hooks](plugins/figs-hooks.md) | security | Session hooks -- startup logo, skill awareness, security gate, autocompact, brainstorm gate, review gate | hooks only |
 | [app-analyzer](plugins/app-analyzer.md) | analysis | Android app analysis via ADB and webapp exploration via Playwright | 1 agent |
 | [browser-extensions](plugins/browser-extensions.md) | development | Firefox WebExtension development -- Manifest V2/V3, browser.* APIs, AMO publishing | 1 agent, 1 skill |
 | [business](plugins/business.md) | business | Legal advisory, privacy policies, GDPR/ePrivacy/CCPA compliance, contract review | 2 agents |

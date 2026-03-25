@@ -1,4 +1,4 @@
-# Anvil-Toolset Conventions Reference
+# Figs Conventions Reference
 
 ## Agent Color Palette
 

@@ -1,6 +1,6 @@
 # Analisi Plugin: `business`
 
-Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `business` appartenente al marketplace Anvil Toolset. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
+Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `business` appartenente al marketplace Figs. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
 
 ## 📊 Analisi Qualitativa & Ergonomica
 * **Punti di Forza (Pros):** Netta e utile separazione tra consulenza legale generale e generazione di documenti per la privacy.

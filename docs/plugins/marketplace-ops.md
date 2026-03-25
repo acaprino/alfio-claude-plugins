@@ -1,12 +1,12 @@
 # Marketplace Ops Plugin
 
-> Manage and maintain the anvil-toolset plugin ecosystem -- audit marketplace integrity, scaffold new plugins, create skills and agents, and review content quality.
+> Manage and maintain the figs plugin ecosystem -- audit marketplace integrity, scaffold new plugins, create skills and agents, and review content quality.
 
 ## Agents
 
 ### `marketplace-manager`
 
-Expert marketplace operations manager for anvil-toolset.
+Expert marketplace operations manager for figs.
 
 | | |
 |---|---|
@@ -46,7 +46,7 @@ Structural validation of the marketplace ecosystem.
 
 ### `skills-hammer`
 
-Guided creation of new anvil-toolset components.
+Guided creation of new figs components.
 
 | | |
 |---|---|
@@ -83,4 +83,4 @@ AI-powered quality review of plugin descriptions, trigger keywords, agent prompt
 
 ---
 
-**Related:** [anvil-hooks](anvil-hooks.md) (session lifecycle hooks) | [project-setup](project-setup.md) (CLAUDE.md management)
+**Related:** [figs-hooks](figs-hooks.md) (session lifecycle hooks) | [project-setup](project-setup.md) (CLAUDE.md management)

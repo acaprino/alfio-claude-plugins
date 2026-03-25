@@ -30,7 +30,7 @@ Analyze your Claude Code token usage, costs, and activity.
 /cc-usage 30d          # Last 30 days
 /cc-usage brief        # Quick summary only
 /cc-usage block        # Current billing block only
-/cc-usage project:anvil-toolset  # Filter to one project
+/cc-usage project:figs  # Filter to one project
 /cc-usage json         # Machine-readable output
 ```
 

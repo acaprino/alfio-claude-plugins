@@ -7,7 +7,7 @@ description: >
 
 # Marketplace Health Check
 
-Run a quick health check on the anvil-toolset marketplace.
+Run a quick health check on the figs marketplace.
 
 ## Procedure
 

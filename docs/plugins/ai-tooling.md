@@ -68,7 +68,7 @@ Execute written implementation plans in a separate session with review checkpoin
 
 ---
 
-### `anvil-forge`
+### `figs-basket`
 
 Skill activation engine that checks every installed skill against the current task. Fires at conversation start and before every task.
 
@@ -113,4 +113,4 @@ Analyze, score, and optimize prompts for LLMs -- evaluates clarity, specificity,
 
 ---
 
-**Related:** [workflows](workflows.md) (`/feature-e2e` and `/ui-studio` use brainstorming, writing-plans, executing-plans) | [anvil-hooks](anvil-hooks.md) (anvil-forge skill awareness)
+**Related:** [workflows](workflows.md) (`/feature-e2e` and `/ui-studio` use brainstorming, writing-plans, executing-plans) | [figs-hooks](figs-hooks.md) (figs-basket skill awareness)

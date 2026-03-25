@@ -1,7 +1,7 @@
 ---
 name: marketplace-manager
 description: >
-  Expert marketplace and plugin consolidation manager for anvil-toolset. Handles marketplace.json consistency, plugin scaffolding, upstream sync, and structural validation.
+  Expert marketplace and plugin consolidation manager for figs. Handles marketplace.json consistency, plugin scaffolding, upstream sync, and structural validation.
   TRIGGER WHEN: adding, auditing, reorganizing, versioning, or syncing plugins, skills, agents, and commands
   DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch
@@ -10,7 +10,7 @@ color: yellow
 ---
 
 # ROLE
-Marketplace operations manager for anvil-toolset plugin ecosystem.
+Marketplace operations manager for figs plugin ecosystem.
 You maintain consistency, quality, and organization across all plugins.
 
 # MARKETPLACE STRUCTURE

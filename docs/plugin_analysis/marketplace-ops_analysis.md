@@ -1,6 +1,6 @@
 # Analisi Plugin: `marketplace-ops`
 
-Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `marketplace-ops` appartenente al marketplace Anvil Toolset. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
+Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `marketplace-ops` appartenente al marketplace Figs. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
 
 ## 📊 Analisi Qualitativa & Ergonomica
 * **Punti di Forza (Pros):** Ottimo set di strumenti per l'auto-manutenzione e lo scaffolding del toolset stesso.

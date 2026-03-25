@@ -1,6 +1,6 @@
-# Analisi Plugin: `anvil-hooks`
+# Analisi Plugin: `figs-hooks`
 
-Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `anvil-hooks` appartenente al marketplace Anvil Toolset. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
+Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `figs-hooks` appartenente al marketplace Figs. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
 
 ## 📊 Analisi Qualitativa & Ergonomica
 * **Punti di Forza (Pros):** Struttura standard e isolamento delle responsabilità all'interno del dominio.

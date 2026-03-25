@@ -1,6 +1,6 @@
 # Analisi Plugin: `codebase-mapper`
 
-Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `codebase-mapper` appartenente al marketplace Anvil Toolset. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
+Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `codebase-mapper` appartenente al marketplace Figs. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
 
 ## 📊 Analisi Qualitativa & Ergonomica
 * **Punti di Forza (Pros):** Plugin ingegneristicamente più avanzato. Architettura multi-agente a fasi per l'esplorazione e la documentazione.

@@ -30,7 +30,7 @@ screenshots, and responsive testing. Without it, analysis will be limited
 to what can be fetched via WebFetch/curl.
 
 Install it with:
-  claude plugin marketplace add acaprino/anvil-toolset --plugin playwright-skill
+  claude plugin marketplace add acaprino/figs --plugin playwright-skill
 ```
 
 If Playwright tools are unavailable, fall back to WebFetch for fetching pages and analyze the raw HTML instead. Skip browser-specific checks (screenshots, responsive resize).
