@@ -242,7 +242,8 @@ Agent:
     5. Run /code-review on worktree changes (senior-review plugin)
     6. Recommend merge strategy based on commit count
     7. If --pr flag: delegate to /pr-review for full PR with risk assessment
-    8. After merge: offer cleanup
+    8. After merge: check if CLAUDE.md needs updating based on merged changes
+    9. Offer cleanup
 ```
 
 ## Error Handling

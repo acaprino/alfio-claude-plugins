@@ -975,6 +975,16 @@ Update `state.json`: set `current_step` to 6, add step 5 to `completed_steps`, s
 
 ---
 
+## CLAUDE.md Alignment Check
+
+After the review, check if findings suggest the project's `CLAUDE.md` is stale:
+
+1. Read `CLAUDE.md` (if it exists)
+2. Cross-reference review findings with documented conventions, structure, and workflows
+3. If any documented information is outdated or missing, note it in the review output and propose updates to the user
+
+---
+
 ## Completion
 
 Present the final summary:

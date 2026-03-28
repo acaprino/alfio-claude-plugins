@@ -38,6 +38,8 @@ For each task:
 
 After all tasks complete and verified:
 - Verify all tests pass
+- Check if the project's `CLAUDE.md` needs updating based on changes made (new files, changed conventions, updated dependencies)
+- If `CLAUDE.md` is stale, propose specific updates before finalizing
 - Present summary of what was built
 - Offer options: merge to main, create PR, or clean up branch (squash commits, update docs)
 

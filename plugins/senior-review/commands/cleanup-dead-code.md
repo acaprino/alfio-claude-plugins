@@ -107,4 +107,12 @@ Re-run tests. If any fail, revert the last batch. Present a summary of what was 
 - Remove dependencies used only in scripts
 - Touch test files unless they reference removed symbols
 
+## CLAUDE.md Alignment Check
+
+After cleanup, verify `CLAUDE.md` still reflects the codebase:
+
+1. Read `CLAUDE.md` (if it exists)
+2. Check if removed code was referenced in documented conventions or structure
+3. If `CLAUDE.md` references removed symbols, files, or patterns, propose updates to the user
+
 $ARGUMENTS

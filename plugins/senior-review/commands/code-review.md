@@ -454,6 +454,16 @@ If `--strict` and there are Critical findings:
 STRICT MODE: Critical issues found. Recommend fixing before merging.
 ```
 
+## Step 5b: CLAUDE.md Alignment Check
+
+After producing the review output, check if findings suggest the project's `CLAUDE.md` is stale:
+
+1. Read `CLAUDE.md` (if it exists -- it was already read in Step 2)
+2. Cross-reference review findings with documented conventions, structure, and workflows
+3. If any documented information is outdated or missing, add a `### CLAUDE.md Staleness` section to the review output noting what needs updating
+
+---
+
 ## Step 6: Auto-Comment on PR (if --auto-comment)
 
 If `--auto-comment` flag is set and reviewing a PR:

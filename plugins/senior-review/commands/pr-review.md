@@ -263,6 +263,16 @@ gh pr create --base [base-branch] --title "[title]" --body "[description]"
 
 Present the PR URL when done.
 
+### CLAUDE.md Alignment Check
+
+After generating the PR description, check if changes suggest the project's `CLAUDE.md` needs updating:
+
+1. Read `CLAUDE.md` (if it exists)
+2. Cross-reference changed files with documented conventions, structure, and workflows
+3. If `CLAUDE.md` references outdated information, add a note in the PR description under a `## CLAUDE.md Updates Needed` section
+
+---
+
 ### If `--strict-mode` and Critical risk:
 
 ```

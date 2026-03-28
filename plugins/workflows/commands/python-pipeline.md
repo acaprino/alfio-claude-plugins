@@ -93,6 +93,20 @@ Ask the user: "Pipeline complete! Review the changes and let me know if any furt
 
 ---
 
+## CLAUDE.md Alignment Check
+
+Before finalizing, verify the project's `CLAUDE.md` still reflects the current state:
+
+1. Read `CLAUDE.md` (if it exists)
+2. Compare against changes made during this pipeline:
+   - New or renamed files/directories
+   - Changed conventions, dependencies, or tech stack
+   - Updated build/test commands or workflows
+3. If `CLAUDE.md` is out of date, propose specific updates to the user
+4. If no `CLAUDE.md` exists and the project would benefit from one, suggest creating it
+
+---
+
 ## Completion
 
 Once Phase 3 is approved:
