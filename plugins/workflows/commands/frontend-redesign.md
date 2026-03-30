@@ -38,10 +38,10 @@ Missing required plugin: frontend
 
 This workflow command depends on agents from the frontend plugin.
 Install it with:
-  claude plugin marketplace add acaprino/figtree-plugins --plugin frontend
+  claude plugin marketplace add acaprino/alfio-claude-plugins --plugin frontend
 
 Or install the full marketplace:
-  claude plugin marketplace add acaprino/figtree-plugins
+  claude plugin marketplace add acaprino/alfio-claude-plugins
 ```
 
 ### 1. Check for existing session

@@ -1,6 +1,6 @@
 # Analisi Plugin: `system-utils`
 
-Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `system-utils` appartenente al marketplace Figs. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
+Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `system-utils` appartenente al marketplace ACP. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
 
 ## 📊 Analisi Qualitativa & Ergonomica
 * **Punti di Forza (Pros):** Comandi pratici per l'organizzazione dei file locali.

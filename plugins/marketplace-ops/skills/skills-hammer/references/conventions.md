@@ -1,4 +1,4 @@
-# Figs Conventions Reference
+# ACP Conventions Reference
 
 ## Agent Color Palette
 

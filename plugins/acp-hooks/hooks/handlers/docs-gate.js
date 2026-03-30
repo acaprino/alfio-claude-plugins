@@ -1,13 +1,13 @@
 // Docs Gate - PreToolUse hook (disablable, conditional by default)
 // Blocks PR creation and merges to main/master when docs may need auditing
-// Toggle: set "docsGate" to false in ~/.claude/figs-config.json to disable
+// Toggle: set "docsGate" to false in ~/.claude/acp-config.json to disable
 // Mode: set "docsGateMode" to "always" to block unconditionally (default: "conditional")
 
 const fs = require("fs");
 const path = require("path");
 const { execSync } = require("child_process");
 
-const configPath = path.join(process.env.HOME || process.env.USERPROFILE, ".claude", "figs-config.json");
+const configPath = path.join(process.env.HOME || process.env.USERPROFILE, ".claude", "acp-config.json");
 
 // Read config
 let enabled = true;

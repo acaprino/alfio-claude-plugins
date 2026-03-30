@@ -6,7 +6,7 @@
 
 ## Overview
 
-A new figtree-plugins plugin providing an expert agent and knowledge base skill for OpenTelemetry Python instrumentation. The plugin targets developers building distributed systems with async Python, custom transport propagation (AMQP, ZMQ), and AWS deployment (ADOT, X-Ray, ECS).
+A new ACP plugin providing an expert agent and knowledge base skill for OpenTelemetry Python instrumentation. The plugin targets developers building distributed systems with async Python, custom transport propagation (AMQP, ZMQ), and AWS deployment (ADOT, X-Ray, ECS).
 
 The design is informed by two sources:
 1. A comprehensive OTel Python advanced guide (SDK v1.40.0 / 0.61b0, March 2026)

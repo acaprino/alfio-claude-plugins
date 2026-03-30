@@ -47,10 +47,10 @@ Missing required plugin: playwright-skill
 
 The app-analyzer agent requires Playwright MCP tools for web app analysis.
 Install it with:
-  claude plugin marketplace add acaprino/figtree-plugins --plugin playwright-skill
+  claude plugin marketplace add acaprino/alfio-claude-plugins --plugin playwright-skill
 
 Or install the full marketplace:
-  claude plugin marketplace add acaprino/figtree-plugins
+  claude plugin marketplace add acaprino/alfio-claude-plugins
 ```
 
 ### Initialize output

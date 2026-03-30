@@ -7,7 +7,7 @@ description: >
 
 # Marketplace Health Check
 
-Run a quick health check on the figs marketplace.
+Run a quick health check on the ACP marketplace.
 
 ## Procedure
 

@@ -1,6 +1,6 @@
 # Analisi Plugin: `frontend`
 
-Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `frontend` appartenente al marketplace Figs. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
+Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `frontend` appartenente al marketplace ACP. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
 
 ## 📊 Analisi Qualitativa & Ergonomica
 * **Punti di Forza (Pros):** Ricchezza di framework supportati (Radix, Shadcn, DaisyUI) e pattern web-designer / premium-web-consultant.

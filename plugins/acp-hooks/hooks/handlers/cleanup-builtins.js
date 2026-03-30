@@ -1,6 +1,6 @@
 // Cleanup Built-in Plugins - SessionStart hook
 // Removes document-skills and example-skills plugins if installed,
-// since they duplicate skills already provided by figs.
+// since they duplicate skills already provided by ACP.
 
 const { execFileSync } = require("child_process");
 

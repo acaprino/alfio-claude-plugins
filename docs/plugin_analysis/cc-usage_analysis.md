@@ -1,6 +1,6 @@
 # Analisi Plugin: `cc-usage`
 
-Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `cc-usage` appartenente al marketplace Figs. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
+Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `cc-usage` appartenente al marketplace ACP. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
 
 ## 📊 Analisi Qualitativa & Ergonomica
 * **Punti di Forza (Pros):** Gestione pragmatica dei costi e dell'utilizzo dei token.

@@ -1,12 +1,12 @@
 {
-  "name": "figtree-plugins",
+  "name": "alfio-claude-plugins",
   "owner": {
     "name": "Alfio",
     "email": ""
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "3.25.0"
+    "version": "4.1.0"
   },
   "plugins": [
     {
@@ -224,7 +224,7 @@
         "./skills/brainstorming",
         "./skills/writing-plans",
         "./skills/executing-plans",
-        "./skills/figs-basket",
+        "./skills/acp-loader",
         "./skills/claude-agent-sdk"
       ],
       "commands": [
@@ -577,7 +577,7 @@
       "name": "senior-review",
       "source": "./plugins/senior-review",
       "description": "Multi-agent code review orchestration with unified code auditing (architecture, failure flow, pattern analysis, scoring), security auditing, UI race condition detection, React performance review, distributed flow analysis (cross-service contracts, timeout chains, saga validation), automated lint-based dead code and unused parameter detection (ruff, vulture, knip), and multi-language dead code cleanup. Backed by a comprehensive defect taxonomy knowledge base (140+ defect patterns, CWE/OWASP mappings).",
-      "version": "4.3.0",
+      "version": "4.4.0",
       "author": {
         "name": "Alfio"
       },
@@ -760,7 +760,7 @@
     {
       "name": "marketplace-ops",
       "source": "./plugins/marketplace-ops",
-      "description": "Marketplace consolidation and plugin management -- auditing, validation, AI quality review, upstream sync, plugin scaffolding, and health monitoring for the figs ecosystem",
+      "description": "Marketplace consolidation and plugin management -- auditing, validation, AI quality review, upstream sync, plugin scaffolding, and health monitoring for the ACP ecosystem",
       "version": "1.10.0",
       "author": {
         "name": "Alfio"
@@ -818,17 +818,17 @@
       ]
     },
     {
-      "name": "figs-hooks",
-      "source": "./plugins/figs-hooks",
-      "description": "Figs session hooks -- ASCII logo on startup, skill awareness injection, security gate for hardcoded secrets, autocompact when context is high, cleanup of duplicate built-in plugins, brainstorm gate for creative/building prompts, review gate for PR/merge operations, and docs gate for documentation auditing",
-      "version": "1.9.0",
+      "name": "acp-hooks",
+      "source": "./plugins/acp-hooks",
+      "description": "ACP session hooks -- ASCII logo on startup, skill awareness injection, security gate for hardcoded secrets, autocompact when context is high, cleanup of duplicate built-in plugins, brainstorm gate for creative/building prompts, review gate for PR/merge operations, and docs gate for documentation auditing",
+      "version": "2.0.0",
       "author": {
         "name": "Alfio"
       },
       "license": "MIT",
       "keywords": [
         "hooks",
-        "figs",
+        "acp",
         "logo",
         "security",
         "secrets",

@@ -1,6 +1,6 @@
 # Analisi Plugin: `deep-dive-analysis`
 
-Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `deep-dive-analysis` appartenente al marketplace Figs. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
+Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `deep-dive-analysis` appartenente al marketplace ACP. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
 
 ## 📊 Analisi Qualitativa & Ergonomica
 * **Punti di Forza (Pros):** Comprensione semantica profonda del codice (WHAT, WHY, HOW).

@@ -1,6 +1,6 @@
 # Analisi Plugin: `ai-tooling`
 
-Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `ai-tooling` appartenente al marketplace Figs. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
+Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `ai-tooling` appartenente al marketplace ACP. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
 
 ## 📊 Analisi Qualitativa & Ergonomica
 * **Punti di Forza (Pros):** Architettura di orchestrazione eccellente con pipeline chiara (Brainstorming -> Plan -> Execute). Uso esplicito di trigger.

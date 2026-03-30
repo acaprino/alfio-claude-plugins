@@ -37,12 +37,12 @@ Check by looking for the agent/skill files. If a required plugin is missing, STO
 ```
 Missing required plugin(s): [list]
 
-This workflow command depends on agents and skills from other figs plugins.
+This workflow command depends on agents and skills from other ACP plugins.
 Install them with:
-  claude plugin marketplace add acaprino/figtree-plugins --plugin <name>
+  claude plugin marketplace add acaprino/alfio-claude-plugins --plugin <name>
 
 Or install the full marketplace:
-  claude plugin marketplace add acaprino/figtree-plugins
+  claude plugin marketplace add acaprino/alfio-claude-plugins
 ```
 
 If only `tauri-development` is missing, warn but continue (treat as `--skip-scaffold`).

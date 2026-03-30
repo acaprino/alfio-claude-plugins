@@ -1,6 +1,6 @@
 # Analisi Plugin: `git-worktrees`
 
-Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `git-worktrees` appartenente al marketplace Figs. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
+Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `git-worktrees` appartenente al marketplace ACP. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
 
 ## 📊 Analisi Qualitativa & Ergonomica
 * **Punti di Forza (Pros):** Risolve un problema reale (gestione task paralleli) in modo elegante e proattivo.

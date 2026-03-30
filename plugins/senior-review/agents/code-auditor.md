@@ -53,6 +53,12 @@ Triage before detailed analysis:
 - Unbounded resource usage (memory leaks, infinite loops)
 - Missing error handling on I/O operations
 
+**Singleton Injection Audit**
+- For every singleton/factory pattern found (classmethod `get_instance`, `__new__` override, module-level instance caches), grep ALL call sites across the codebase
+- If different callers pass different constructor/init arguments (especially when some pass None/omit optional deps and others pass real dependencies): flag as CRITICAL -- creation order determines which arguments take effect, late callers' arguments may be silently discarded
+- Check: does `get_instance()` have an elif/else branch that updates the existing instance when new dependencies are provided? If not, flag silent discard risk
+- Check: is there a mechanism for late binding (`set_broker`, `set_dependency`) that retroactively wires dependencies after singleton creation?
+
 If critical issues found: report immediately with CRITICAL severity before continuing.
 
 ### Phase 2: Architecture & Boundaries

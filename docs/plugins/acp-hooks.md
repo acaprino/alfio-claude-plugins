@@ -1,6 +1,6 @@
-# Figs Hooks Plugin
+# ACP Hooks Plugin
 
-> Session lifecycle hooks for the figs ecosystem -- startup branding, skill awareness, security enforcement, automatic context management, brainstorm gating, and code review gating.
+> Session lifecycle hooks for the ACP ecosystem -- startup branding, skill awareness, security enforcement, automatic context management, brainstorm gating, and code review gating.
 
 **Note:** This plugin uses `plugin.json` for hook configuration instead of marketplace registration. Hooks run automatically -- no manual invocation needed.
 
@@ -12,9 +12,9 @@ These run automatically when a Claude Code session starts:
 
 | Handler | Purpose |
 |---------|---------|
-| `figs-logo.js` | Displays ASCII logo on session startup |
+| `acp-logo.js` | Displays ASCII logo on session startup |
 | `skill-awareness.js` | Injects skill awareness so Claude knows which skills are available |
-| `cleanup-builtins.js` | Removes duplicate built-in plugins that conflict with figs |
+| `cleanup-builtins.js` | Removes duplicate built-in plugins that conflict with ACP |
 
 ### UserPromptSubmit hooks
 
@@ -36,7 +36,7 @@ These run before specific tool invocations:
 | `docs-gate.js` | `Bash` | Blocks PR/merge when documentation may need auditing -- detects changes to plugin files and reminds to update docs |
 
 **Bypass conditions:**
-- Set `reviewGate` to `false` in `~/.claude/figs-config.json`
+- Set `reviewGate` to `false` in `~/.claude/acp-config.json`
 - Add `--no-review` flag to the command
 - Merging FROM main/master into a feature branch (pulling in upstream changes is fine)
 
@@ -51,9 +51,9 @@ These run after specific tool invocations:
 
 ## Configuration
 
-`plugins/figs-hooks/hooks/hooks.json` defines the hooks. Handler scripts live in `plugins/figs-hooks/hooks/handlers/`.
+`plugins/acp-hooks/hooks/hooks.json` defines the hooks. Handler scripts live in `plugins/acp-hooks/hooks/handlers/`.
 
-**Disablable hooks** (via `~/.claude/figs-config.json`):
+**Disablable hooks** (via `~/.claude/acp-config.json`):
 - `securityGate: false` - disable secret scanning
 - `reviewGate: false` - disable PR/merge review gating
 
@@ -61,4 +61,4 @@ These run after specific tool invocations:
 
 ---
 
-**Related:** [marketplace-ops](marketplace-ops.md) (plugin management) | [ai-tooling](ai-tooling.md) (figs-basket skill awareness) | [senior-review](senior-review.md) (code review commands)
+**Related:** [marketplace-ops](marketplace-ops.md) (plugin management) | [ai-tooling](ai-tooling.md) (acp-loader skill awareness) | [senior-review](senior-review.md) (code review commands)

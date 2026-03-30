@@ -7,7 +7,7 @@ description: >
 
 # Marketplace AI Review
 
-Perform an AI-driven quality evaluation of plugin content across the figs marketplace.
+Perform an AI-driven quality evaluation of plugin content across the ACP marketplace.
 
 ## What this evaluates
 

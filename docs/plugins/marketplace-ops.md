@@ -1,12 +1,12 @@
 # Marketplace Ops Plugin
 
-> Manage and maintain the figs plugin ecosystem -- audit marketplace integrity, scaffold new plugins, create skills and agents, and review content quality.
+> Manage and maintain the ACP plugin ecosystem -- audit marketplace integrity, scaffold new plugins, create skills and agents, and review content quality.
 
 ## Agents
 
 ### `marketplace-manager`
 
-Expert marketplace operations manager for figs.
+Expert marketplace operations manager for ACP.
 
 | | |
 |---|---|
@@ -46,7 +46,7 @@ Structural validation of the marketplace ecosystem.
 
 ### `skills-hammer`
 
-Guided creation of new figs components.
+Guided creation of new ACP components.
 
 | | |
 |---|---|
@@ -83,4 +83,4 @@ AI-powered quality review of plugin descriptions, trigger keywords, agent prompt
 
 ---
 
-**Related:** [figs-hooks](figs-hooks.md) (session lifecycle hooks) | [project-setup](project-setup.md) (CLAUDE.md management)
+**Related:** [acp-hooks](acp-hooks.md) (session lifecycle hooks) | [project-setup](project-setup.md) (CLAUDE.md management)

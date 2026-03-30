@@ -1,6 +1,6 @@
 # Analisi Plugin: `browser-extensions`
 
-Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `browser-extensions` appartenente al marketplace Figs. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
+Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `browser-extensions` appartenente al marketplace ACP. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
 
 ## 📊 Analisi Qualitativa & Ergonomica
 * **Punti di Forza (Pros):** Focus verticale eccellente su Firefox e Manifest V2/V3.

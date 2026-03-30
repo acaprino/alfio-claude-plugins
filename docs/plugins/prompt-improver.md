@@ -46,4 +46,4 @@ Evaluates incoming prompts for vagueness and triggers the skill when enrichment 
 
 ---
 
-**Related:** [ai-tooling](ai-tooling.md) (prompt-optimize command) | [figs-hooks](figs-hooks.md) (other session hooks)
+**Related:** [ai-tooling](ai-tooling.md) (prompt-optimize command) | [acp-hooks](acp-hooks.md) (other session hooks)

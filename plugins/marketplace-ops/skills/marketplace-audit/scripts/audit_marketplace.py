@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Marketplace Audit Script for figs.
+Marketplace Audit Script for ACP.
 
 Validates marketplace.json consistency, checks file references,
 validates frontmatter, detects orphaned files, and reports issues.

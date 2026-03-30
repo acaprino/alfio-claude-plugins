@@ -1,6 +1,6 @@
 # Analisi Plugin: `app-analyzer`
 
-Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `app-analyzer` appartenente al marketplace Figs. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
+Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `app-analyzer` appartenente al marketplace ACP. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
 
 ## 📊 Analisi Qualitativa & Ergonomica
 * **Punti di Forza (Pros):** Analisi esaustiva (struttura, UX, business model) con supporto multi-piattaforma.

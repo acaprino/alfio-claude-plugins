@@ -1,6 +1,6 @@
 # Analisi Plugin: `senior-review`
 
-Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `senior-review` appartenente al marketplace Figs. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
+Questo documento contiene un'analisi qualitativa, ergonomica e tecnica del plugin `senior-review` appartenente al marketplace ACP. L'obiettivo è fornire feedback costruttivo per il miglioramento e l'espansione.
 
 ## 📊 Analisi Qualitativa & Ergonomica
 * **Punti di Forza (Pros):** Auditor di sicurezza avversariale e scorer qualitativo. Ruoli ben definiti.

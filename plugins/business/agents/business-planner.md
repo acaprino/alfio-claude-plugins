@@ -51,7 +51,7 @@ This prevents context loss across phases and gives the user a tangible artifact 
 
 # Research Agents
 
-Use the figs research agents for data gathering instead of raw WebSearch/WebFetch:
+Use the ACP research agents for data gathering instead of raw WebSearch/WebFetch:
 
 - **quick-searcher** -- for fast lookups: market size figures, specific competitor data, pricing page checks, single-fact verification. Use in Phases 1, 3, 5.
 - **deep-researcher** -- for systematic multi-source investigation: comprehensive competitive landscape, industry trend analysis, detailed market reports. Use in Phases 1, 3 when the user's sector requires thorough coverage.

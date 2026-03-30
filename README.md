@@ -1,6 +1,6 @@
 <div align="center">
 
-# Figtree Plugins
+# ACP
 
 **33 specialized plugins for Claude Code -- so you spend less time prompting and more time shipping.**
 
@@ -15,7 +15,7 @@
 
 ---
 
-## Why Figtree Plugins?
+## Why ACP?
 
 - **Domain experts, not generic prompts** -- each plugin encodes months of specialized knowledge (Python, Rust, React, security, SEO, legal...)
 - **Multi-agent orchestration** -- code review fires architecture, security, and pattern analysis in parallel
@@ -27,12 +27,12 @@
 
 ```bash
 # Add the marketplace
-claude plugin marketplace add acaprino/figtree-plugins
+claude plugin marketplace add acaprino/alfio-claude-plugins
 
 # Install the plugins you need
-claude plugin install python-development@figtree-plugins
-claude plugin install senior-review@figtree-plugins
-claude plugin install frontend@figtree-plugins
+claude plugin install python-development@alfio-claude-plugins
+claude plugin install senior-review@alfio-claude-plugins
+claude plugin install frontend@alfio-claude-plugins
 ```
 
 That's it. Plugins activate automatically when relevant -- or invoke them directly:
@@ -84,7 +84,7 @@ That's it. Plugins activate automatically when relevant -- or invoke them direct
 | **[playwright-skill](docs/plugins/playwright-skill.md)** | General-purpose browser automation with Playwright | - | 1 | - |
 | **[cc-usage](docs/plugins/cc-usage.md)** | Token usage, costs, and billing analysis | - | 1 | 1 |
 | **[prompt-improver](docs/plugins/prompt-improver.md)** | Enrich vague prompts with research-based questions | - | 1 | - |
-| **[figs-hooks](docs/plugins/figs-hooks.md)** | Session hooks -- startup branding, skill awareness, security gate | - | - | - |
+| **[acp-hooks](docs/plugins/acp-hooks.md)** | Session hooks -- startup branding, skill awareness, security gate | - | - | - |
 | **[docs](docs/plugins/docs.md)** | Craft top-tier README.md files | - | 1 | 1 |
 | **[testing](docs/plugins/testing.md)** | TDD methodology and behavior-driven test generation | 1 | 1 | - |
 
@@ -109,7 +109,7 @@ Plugins are pure Markdown with optional JS/Python helper scripts. No build step,
 <summary><b>Project Structure</b></summary>
 
 ```
-figtree-plugins/
+acp/
 ├── .claude-plugin/
 │   └── marketplace.json       # plugin registry
 ├── docs/plugins/              # per-plugin documentation
@@ -131,8 +131,8 @@ figtree-plugins/
 <summary><b>Local Development Install</b></summary>
 
 ```bash
-git clone https://github.com/acaprino/figtree-plugins.git
-claude plugin install ./figtree-plugins/plugins/python-development
+git clone https://github.com/acaprino/alfio-claude-plugins.git
+claude plugin install ./acp/plugins/python-development
 ```
 
 </details>
