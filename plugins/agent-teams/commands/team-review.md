@@ -7,6 +7,12 @@ argument-hint: "<target> [--reviewers security,performance,architecture,testing,
 
 Orchestrate a multi-reviewer parallel code review where each reviewer focuses on a specific quality dimension. Produces a consolidated, deduplicated report organized by severity.
 
+## Skills to Load
+
+Before starting, invoke these skills to inform the review process:
+- `agent-teams:multi-reviewer-patterns` -- dimension allocation, deduplication rules, severity calibration
+- `agent-teams:team-communication-protocols` -- message type selection, shutdown protocol
+
 ## Pre-flight Checks
 
 1. Verify `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is set

@@ -7,6 +7,11 @@ argument-hint: "[team-name] [--force] [--keep-tasks]"
 
 Gracefully shut down an active agent team by sending shutdown requests to all teammates, collecting final results, and cleaning up team resources.
 
+## Skills to Load
+
+Before starting, invoke this skill for shutdown protocol:
+- `agent-teams:team-communication-protocols` -- graceful shutdown sequence, handling rejections
+
 ## Phase 1: Pre-Shutdown
 
 1. Parse `$ARGUMENTS` for team name and flags:

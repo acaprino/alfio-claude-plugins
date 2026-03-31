@@ -69,14 +69,44 @@ If "custom" is specified:
 2. For each member, ask for role selection: team-lead, team-reviewer, team-debugger, team-implementer
 3. Ask for team name if not provided via `--name`
 
+## Skills to Load
+
+Before spawning, invoke the relevant skills for the preset to inform team configuration:
+
+| Preset | Skills to reference |
+|--------|-------------------|
+| review | `agent-teams:team-composition-patterns`, `agent-teams:multi-reviewer-patterns` |
+| debug | `agent-teams:team-composition-patterns`, `agent-teams:parallel-debugging` |
+| feature | `agent-teams:team-composition-patterns`, `agent-teams:parallel-feature-development`, `agent-teams:task-coordination-strategies` |
+| fullstack | `agent-teams:team-composition-patterns`, `agent-teams:parallel-feature-development`, `agent-teams:task-coordination-strategies` |
+| research | `agent-teams:team-composition-patterns` |
+| security | `agent-teams:team-composition-patterns`, `agent-teams:multi-reviewer-patterns` |
+| migration | `agent-teams:team-composition-patterns`, `agent-teams:parallel-feature-development`, `agent-teams:task-coordination-strategies` |
+
 ## Phase 2: Team Creation
 
 1. Use the `Teammate` tool with `operation: "spawnTeam"` to create the team
 2. For each team member, use the `Task` tool with:
    - `team_name`: the team name
    - `name`: descriptive member name (e.g., "security-reviewer", "hypothesis-1")
-   - `subagent_type`: "general-purpose" (teammates need full tool access)
+   - `subagent_type`: the specialized agent type matching the role (see table below)
    - `prompt`: Role-specific instructions referencing the appropriate agent definition
+
+### Subagent Types by Preset
+
+| Preset | Role | subagent_type |
+|--------|------|---------------|
+| review | reviewer | `agent-teams:team-reviewer` |
+| debug | investigator | `agent-teams:team-debugger` |
+| feature | lead | `agent-teams:team-lead` |
+| feature | implementer | `agent-teams:team-implementer` |
+| fullstack | lead | `agent-teams:team-lead` |
+| fullstack | implementer | `agent-teams:team-implementer` |
+| research | researcher | `general-purpose` |
+| security | reviewer | `agent-teams:team-reviewer` |
+| migration | lead | `agent-teams:team-lead` |
+| migration | implementer | `agent-teams:team-implementer` |
+| migration | verifier | `agent-teams:team-reviewer` |
 
 ## Phase 3: Initial Setup
 

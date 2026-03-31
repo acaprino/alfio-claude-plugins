@@ -7,6 +7,11 @@ argument-hint: "[team-name] [--assign task-id=member-name] [--message member-nam
 
 Manage task assignments and team workload. Provides a delegation dashboard showing unassigned tasks, member workloads, blocked tasks, and rebalancing suggestions.
 
+## Skills to Load
+
+Before starting, invoke this skill to inform task delegation:
+- `agent-teams:task-coordination-strategies` -- workload monitoring indicators, rebalancing steps
+
 ## Pre-flight Checks
 
 1. Parse `$ARGUMENTS` for team name and action flags:

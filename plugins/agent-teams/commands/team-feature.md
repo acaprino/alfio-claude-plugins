@@ -7,6 +7,13 @@ argument-hint: "<feature-description> [--team-size N] [--branch feature/name] [-
 
 Orchestrate parallel feature development with multiple implementer agents. Decomposes features into work streams with strict file ownership, manages dependencies, and verifies integration.
 
+## Skills to Load
+
+Before starting, invoke these skills to inform the feature development process:
+- `agent-teams:parallel-feature-development` -- file ownership strategies, conflict avoidance, integration patterns
+- `agent-teams:task-coordination-strategies` -- task decomposition, dependency graphs, workload monitoring
+- `agent-teams:team-communication-protocols` -- message type selection, plan approval workflow, shutdown protocol
+
 ## Pre-flight Checks
 
 1. Verify `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is set

@@ -7,6 +7,12 @@ argument-hint: "<error-description-or-file> [--hypotheses N] [--scope files|modu
 
 Debug complex issues using the Analysis of Competing Hypotheses (ACH) methodology. Multiple debugger agents investigate different hypotheses in parallel, gathering evidence to confirm or falsify each one.
 
+## Skills to Load
+
+Before starting, invoke these skills to inform the debugging process:
+- `agent-teams:parallel-debugging` -- hypothesis generation framework, evidence standards, arbitration protocol
+- `agent-teams:team-communication-protocols` -- message type selection, shutdown protocol
+
 ## Pre-flight Checks
 
 1. Verify `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is set
