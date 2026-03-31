@@ -264,6 +264,58 @@ migration-lead (plan) -> migrator-1 --+
 - Database migrations (ORM changes, schema restructuring)
 - Build system changes (Webpack -> Vite, CRA -> Next.js)
 
+## Deep Search Team Preset
+
+**Command**: `/team-research` or `/team-spawn deep-search`
+
+### Configuration
+
+- **Team Size**: 2-4 (depends on `--depth`)
+- **Agent Types**: `research:deep-researcher` + `codebase-mapper:codebase-explorer` + domain-specific expert
+- **Display Mode**: tmux recommended
+
+### Members (deep mode)
+
+| Name             | Role            | Focus                                              |
+| ---------------- | --------------- | -------------------------------------------------- |
+| lead-researcher  | deep-researcher | Orchestrates investigation, cross-references        |
+| codebase-analyst | deep-researcher | Local code, git history, architecture, patterns    |
+| web-researcher   | deep-researcher | Web sources, docs, articles, comparisons           |
+| domain-expert    | auto-selected   | Domain-specific validation and deep analysis       |
+
+### Domain Expert Selection
+
+| Topic | Agent |
+|-------|-------|
+| Security | `senior-review:security-auditor` |
+| Architecture | `senior-review:code-auditor` |
+| Frontend | `frontend:frontend-architect` |
+| Python | `python-development:python-architect` |
+| Tauri | `tauri-development:tauri-desktop` |
+| Business | `business:business-planner` |
+| Distributed | `senior-review:distributed-flow-auditor` |
+| Performance | `react-development:react-performance-optimizer` |
+
+### Depth Levels
+
+| Depth | Researchers | Use When |
+|-------|-------------|----------|
+| quick | 2 (codebase + web) | Simple fact-finding, quick comparisons |
+| standard | 3 (+ context builder) | Most research questions |
+| deep | 4 (+ domain expert) | Complex questions requiring domain expertise |
+
+### Task Template
+
+```
+Subject: {role}: {sub-question}
+Description:
+  Research question: {specific sub-question for this researcher}
+  Scope: {codebase | web | both}
+  Focus: {specific angle this researcher covers}
+  Citation requirements: file:line for code, URLs for web
+  Output format: Structured findings with evidence and confidence
+```
+
 ## Docs Team Preset
 
 **Command**: `/team-spawn docs`

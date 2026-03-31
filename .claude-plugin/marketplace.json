@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "5.6.0"
+    "version": "5.6.1"
   },
   "plugins": [
     {
@@ -1274,7 +1274,7 @@
       "name": "agent-teams",
       "source": "./plugins/agent-teams",
       "description": "Orchestrate multi-agent teams for parallel code review, hypothesis-driven debugging, and coordinated feature development using Claude Code Agent Teams",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "author": {
         "name": "Seth Hobson"
       },
@@ -1312,7 +1312,8 @@
         "./commands/team-feature.md",
         "./commands/team-delegate.md",
         "./commands/team-status.md",
-        "./commands/team-shutdown.md"
+        "./commands/team-shutdown.md",
+        "./commands/team-research.md"
       ]
     }
   ]

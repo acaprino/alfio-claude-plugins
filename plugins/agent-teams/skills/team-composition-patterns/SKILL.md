@@ -83,6 +83,12 @@ Best practices for composing multi-agent teams, selecting team sizes, choosing a
 - **Agents**: 1x `team-lead` + 2x `team-implementer` + 1x `team-reviewer`
 - **Use when**: Large codebase migration (framework upgrade, language port, API version bump) requiring parallel work with correctness verification
 
+### Deep Search Team
+
+- **Size**: 2-4 (depends on depth level)
+- **Agents**: 2-3x `research:deep-researcher` + optional domain expert (auto-selected)
+- **Use when**: Complex questions requiring systematic coverage across codebase, web, and domain expertise
+
 ### Docs Team
 
 - **Size**: 3 (explorer + writer + verifier)

@@ -1,5 +1,5 @@
 ---
-description: "Spawn an agent team using presets (review, debug, feature, fullstack, research, security, migration, docs, app-analysis, tauri) or custom composition"
+description: "Spawn an agent team using presets (review, debug, feature, fullstack, research, deep-search, security, migration, docs, app-analysis, tauri) or custom composition"
 argument-hint: "<preset|custom> [--name team-name] [--members N] [--delegate]"
 ---
 
@@ -65,6 +65,24 @@ If a preset is specified, use these configurations:
   - Docs: `codebase-mapper:codebase-explorer` (project understanding)
 - Team name default: `research-team`
 
+**`deep-search`** -- Deep multi-source investigation with iterative refinement (default: 4 members)
+
+- Spawn a coordinated research team for complex questions requiring systematic coverage:
+  - Lead researcher: `research:deep-researcher` (orchestrates the investigation, cross-references findings)
+  - Codebase analyst: `research:deep-researcher` (focused on local code, git history, architecture)
+  - Web researcher: `research:deep-researcher` (focused on web sources, docs, articles, comparisons)
+  - Domain expert: auto-selected based on topic:
+    - Security topic: `senior-review:security-auditor`
+    - Architecture topic: `senior-review:code-auditor`
+    - Frontend topic: `frontend:frontend-architect`
+    - Python topic: `python-development:python-architect`
+    - Tauri topic: `tauri-development:tauri-desktop`
+    - Business topic: `business:business-planner`
+    - General topic: `codebase-mapper:codebase-explorer`
+- Each researcher covers a different angle and reports structured findings with citations
+- Lead synthesizes all findings into a unified report with confidence levels
+- Team name default: `deep-search-team`
+
 **`security`** -- Comprehensive security audit using specialized agents (default: 4 members)
 
 - Spawn specialized security reviewers:
@@ -126,6 +144,7 @@ Before spawning, invoke the relevant skills for the preset to inform team config
 | feature | `agent-teams:parallel-feature-development`, `agent-teams:task-coordination-strategies`, `ai-tooling:writing-plans` |
 | fullstack | `agent-teams:parallel-feature-development`, `agent-teams:task-coordination-strategies`, `ai-tooling:writing-plans` |
 | research | `agent-teams:team-composition-patterns` |
+| deep-search | `agent-teams:team-composition-patterns`, `agent-teams:team-communication-protocols` |
 | security | `agent-teams:multi-reviewer-patterns`, `senior-review:defect-taxonomy`, `platform-engineering:platform-engineering` |
 | migration | `agent-teams:parallel-feature-development`, `agent-teams:task-coordination-strategies`, `ai-tooling:writing-plans` |
 | docs | `codebase-mapper:codebase-mapper`, `agent-teams:team-composition-patterns` |
@@ -158,6 +177,10 @@ Use the **most specialized agent** available. The team-lead's Ecosystem Integrat
 | fullstack | backend | `agent-teams:team-implementer` | `python-development:python-architect` |
 | fullstack | tests | `agent-teams:team-implementer` | `testing:test-writer` |
 | research | researcher | `general-purpose` | `research:deep-researcher`, `codebase-mapper:codebase-explorer` |
+| deep-search | lead researcher | -- | `research:deep-researcher` |
+| deep-search | codebase analyst | -- | `research:deep-researcher` |
+| deep-search | web researcher | -- | `research:deep-researcher` |
+| deep-search | domain expert | -- | Auto-detect from topic |
 | security | OWASP | `agent-teams:team-reviewer` | `senior-review:security-auditor` |
 | security | platform | `agent-teams:team-reviewer` | `platform-engineering:platform-reviewer` |
 | security | distributed | `agent-teams:team-reviewer` | `senior-review:distributed-flow-auditor` |
