@@ -111,6 +111,25 @@ Detect if the codebase is a fullstack application by checking for **2+ of these 
 
 If 2+ signals found, set `FULLSTACK_APP=true` and run Agent D (Platform Engineering Review) in Step 3.
 
+## Step 1b: Intent Discovery
+
+Before diving into file contents, understand **what the change is trying to accomplish**. Run a single bash call:
+
+```bash
+echo "BRANCH:" && git rev-parse --abbrev-ref HEAD && echo "COMMITS:" && git log --oneline ${MERGE_BASE:-HEAD~1}..HEAD
+```
+
+Combined with conversation context (user description, PR title/body if available), write a 2-3 line intent summary:
+
+```
+Intent: Simplify tax calculation by replacing the multi-tier rate lookup
+with a flat-rate computation. Must not regress edge cases in tax-exempt handling.
+```
+
+**Pass this intent to every agent** in Step 3. Intent shapes how hard each reviewer looks -- a "fix typo" intent means less scrutiny than a "rewrite auth middleware" intent.
+
+**When intent is ambiguous:** Ask one question: "What is the primary goal of these changes?" Do not proceed until intent is established.
+
 ## Step 2: Gather Context
 
 For each changed code file:
@@ -175,6 +194,28 @@ If total changed lines exceed 500, batch the files into groups of 3-5 files per 
 ## Step 3: Run Parallel Review Agents
 
 **Agent tool parameters (use ONLY these):** `description` (required), `prompt` (required), `subagent_type`, `run_in_background`, `model`, `isolation`, `resume`. Do NOT pass any other parameters -- the Agent tool rejects unknown fields.
+
+### Shared Instructions for All Agents
+
+Include these instructions in every agent prompt:
+
+```
+## Intent
+[paste the 2-3 line intent summary from Step 1b]
+
+## Diff Scope & Pre-existing Classification
+
+Classify every finding into one of three tiers:
+
+- **Primary** -- lines added or modified in the diff. Your main focus. Full confidence.
+- **Secondary** -- unchanged code in the same function/block as a changed line. Report
+  if the diff makes the issue newly relevant, noting the interaction.
+- **Pre-existing** -- issues in unchanged code unrelated to the diff. Mark these with
+  `[PRE-EXISTING]` prefix. They are reported separately and do NOT count toward the verdict.
+
+Rule: if you'd flag the same issue on an identical diff without the surrounding file,
+it's pre-existing. If the diff makes it newly relevant, it's secondary.
+```
 
 Run all agents **in parallel** in a single response (Agent C only when UI files are in scope):
 
@@ -547,11 +588,159 @@ Agent tool call:
     If no history-based issues found, say so explicitly.
 ```
 
+### Agent F: Testing Review (conditional)
+
+**Only run this agent if the diff touches test files** (`test_*`, `*_test.*`, `*.spec.*`, `*.test.*`, `conftest.py`, `fixtures/`, `__tests__/`).
+
+```
+Agent tool call:
+  - description: "Testing review for senior-review command"
+  - subagent_type: "general-purpose"
+  - run_in_background: true
+  - prompt: |
+    Review the test code changes for quality, coverage gaps, and reliability.
+
+    [Include shared instructions: Intent + Diff Scope]
+
+    ## Changed Files
+    [list of changed test files + their corresponding source files]
+
+    ## Diff
+    [paste the git diff output]
+
+    ## Instructions
+    Analyze the CHANGED test code for:
+    1. **Coverage gaps** -- are there untested branches, edge cases, or error paths
+       in the corresponding source code?
+    2. **Weak assertions** -- tests that pass but don't actually verify behavior
+       (e.g., only checking status code, not response body)
+    3. **Brittle tests** -- tests coupled to implementation details (mocking internals,
+       hardcoded values, order-dependent assertions)
+    4. **Missing edge cases** -- boundary values, empty inputs, null/None handling,
+       concurrent access
+    5. **Test isolation** -- shared mutable state between tests, missing setup/teardown,
+       tests that depend on execution order
+    6. **Fixture quality** -- overly complex fixtures, fixtures that hide important setup,
+       missing factory patterns
+
+    For each finding: severity (Critical/High/Medium/Low), file + line, confidence (0-100),
+    description, suggested fix.
+
+    If test changes look solid, say so explicitly.
+```
+
+### Agent G: API Contract Review (conditional)
+
+**Only run this agent if the diff touches API-related files** (route definitions, serializers, type signatures, API versioning, OpenAPI/Swagger specs, GraphQL schemas).
+
+```
+Agent tool call:
+  - description: "API contract review for senior-review command"
+  - subagent_type: "general-purpose"
+  - run_in_background: true
+  - prompt: |
+    Review the API contract changes for backwards compatibility and correctness.
+
+    [Include shared instructions: Intent + Diff Scope]
+
+    ## Changed Files
+    [list of changed API-related files]
+
+    ## Diff
+    [paste the git diff output]
+
+    ## Instructions
+    Analyze the CHANGED API code for:
+    1. **Breaking changes** -- removed fields, renamed endpoints, changed response
+       shapes, tightened input validation that rejects previously valid requests
+    2. **Versioning** -- is the change backwards compatible? If not, is there a
+       version bump or migration path?
+    3. **Input validation** -- new endpoints missing validation, overly permissive
+       schemas, type coercion risks
+    4. **Response consistency** -- error response format matches existing patterns,
+       pagination follows conventions, status codes are correct
+    5. **Documentation sync** -- if OpenAPI/Swagger specs exist, do they match the
+       implementation changes?
+
+    For each finding: severity (Critical/High/Medium/Low), file + line, confidence (0-100),
+    description, suggested fix.
+```
+
+### Agent H: Data Migrations Review (conditional)
+
+**Only run this agent if the diff touches migration files** (database migrations, schema changes, backfill scripts, Alembic/Django/Rails/Prisma migration files).
+
+```
+Agent tool call:
+  - description: "Data migrations review for senior-review command"
+  - subagent_type: "general-purpose"
+  - run_in_background: true
+  - prompt: |
+    Review the database migration changes for safety and correctness.
+
+    [Include shared instructions: Intent + Diff Scope]
+
+    ## Changed Files
+    [list of changed migration files]
+
+    ## Diff
+    [paste the git diff output]
+
+    ## Instructions
+    Analyze the migration for:
+    1. **Reversibility** -- is the migration reversible? Is there a down/rollback
+       function? Would rollback lose data?
+    2. **Lock risk** -- will the migration lock tables during execution? For large
+       tables: does it use batched operations or online DDL?
+    3. **Data integrity** -- does the migration preserve existing data? Are NOT NULL
+       constraints added with proper defaults? Are foreign keys safe?
+    4. **Ordering** -- does this migration depend on another migration running first?
+       Is the dependency declared?
+    5. **Backfill safety** -- if backfilling data: is it batched? Is there a progress
+       indicator? What happens if it fails midway?
+    6. **Zero-downtime compatibility** -- can old code run against the new schema
+       and vice versa? (column additions are safe, renames/removals are not)
+
+    For each finding: severity (Critical/High/Medium/Low), file + line, confidence (0-100),
+    description, suggested fix.
+```
+
 ---
 
 ## Step 4: Consolidate Findings & Extract Score
 
-After all agents complete, collect and organize findings. The code-auditor (Agent A) already produces the quality score -- extract it directly. No separate scoring step needed.
+After all agents complete, run the merge pipeline:
+
+### 4a. Confidence Gating
+
+Apply a three-tier confidence filter to all findings:
+
+| Confidence | Action |
+|------------|--------|
+| **< 0.50 (< 50%)** | **Suppress** -- finding is speculative, discard it. Record suppressed count. |
+| **0.50 - 0.69** | **Flag** -- include in report but mark as low-confidence |
+| **>= 0.70** | **Report** -- full confidence, include normally |
+
+### 4b. Deduplication
+
+When multiple agents flag the same issue, merge them:
+
+1. Compute fingerprint: `normalize(file) + line_bucket(line, +-3) + normalize(title)`
+2. When fingerprints match:
+   - Keep the **highest severity**
+   - Keep the **highest confidence** with strongest evidence
+   - **Union** the evidence from all agents
+   - Note which agents flagged it (shows cross-agent agreement)
+3. Record the dedup count
+
+### 4c. Separate Pre-existing
+
+Pull out findings with `[PRE-EXISTING]` prefix into a separate list. These are reported in their own section and do NOT count toward the verdict.
+
+### 4d. Sort & Score
+
+- Sort by severity (Critical first) -> confidence (descending) -> file path -> line number
+- Extract the Code Quality Score from code-auditor (Agent A) directly
 
 ## Step 4b: Validate Critical & High Findings
 
@@ -613,6 +802,9 @@ After validation completes, synthesize everything into the final structured revi
 ## Code Review -- [PR title or branch name]
 
 ### Review Scope
+- **Scope:** [diff source -- e.g., origin/main..HEAD, uncommitted changes, PR #42]
+- **Intent:** [2-3 line intent summary from Step 1b]
+- **Reviewers:** code-auditor, security-auditor, dead-code, [+ conditional agents with justification]
 - Files reviewed: [N]
 - Lines changed: +X / -Y
 - CLAUDE.md compliance: [checked / not found]
@@ -649,22 +841,48 @@ After validation completes, synthesize everything into the final structured revi
 | # | Severity | File:Line | Pattern | Commits Referenced | Confidence |
 |---|----------|-----------|---------|-------------------|------------|
 
+### Testing Issues (if applicable)
+| # | Severity | File:Line | Finding | Confidence | Fix |
+|---|----------|-----------|---------|------------|-----|
+
+### API Contract Issues (if applicable)
+| # | Severity | File:Line | Finding | Confidence | Fix |
+|---|----------|-----------|---------|------------|-----|
+
+### Data Migration Issues (if applicable)
+| # | Severity | File:Line | Finding | Confidence | Fix |
+|---|----------|-----------|---------|------------|-----|
+
+### Coverage
+- Suppressed: [N] findings below 0.50 confidence
+- Deduplicated: [N] cross-agent duplicates merged
+- Residual risks: [risks noticed but not confirmed as findings]
+- Testing gaps: [missing test coverage identified]
+
 ### Pattern Consistency
 - [pattern deviations found, or "Changes follow established patterns"]
 
 ### CLAUDE.md Compliance
 - [list any violations, or "All changes comply with project conventions"]
 
-### Top 3 Recommended Actions
-1. [highest priority]
-2. [second priority]
-3. [third priority]
+### Pre-existing Issues (does not count toward verdict)
+| # | File:Line | Issue | Reviewer |
+|---|-----------|-------|----------|
+[issues in unchanged code unrelated to the diff, or "None"]
+
+---
+
+> **Verdict:** [Ready to merge / Ready with fixes / Not ready]
+>
+> **Reasoning:** [1-2 sentences explaining why]
+>
+> **Fix order:** [severity-ordered list of what to fix first, if applicable]
 ```
 
 If `--strict` and there are Critical findings:
 
 ```
-STRICT MODE: Critical issues found. Recommend fixing before merging.
+STRICT MODE: Critical issues found. Not ready to merge.
 ```
 
 ## Step 5b: CLAUDE.md Alignment Check
@@ -738,5 +956,69 @@ SUMMARY_EOF
 
 gh pr comment {number} -F .full-review/temp_summary_comment.md
 ```
+
+---
+
+## Step 7: Fix Loop (if --fix or verdict is "Ready with fixes")
+
+After presenting the review (Step 5/6), offer an interactive fix cycle. Skip this step if the verdict is "Ready to merge" with no findings, or if the user didn't request fixes.
+
+### 7a. Severity Acceptance
+
+Present a single prompt listing all severity levels with findings. Use `AskUserQuestion` with `multiSelect: true`:
+
+When Critical or High findings exist:
+- [x] **Critical + High (Recommended)** -- N issues
+- [ ] **Medium** -- N issues
+- [ ] **Low** -- N issues
+
+When only Medium/Low findings exist:
+- [ ] **Medium** -- N issues
+- [ ] **Low** -- N issues
+
+Only include severity levels that have findings.
+
+### 7b. Apply Fixes
+
+For the selected severities, spawn one or more fix subagents:
+
+```
+Agent tool call:
+  - description: "Fix [N] review findings"
+  - subagent_type: "general-purpose"
+  - prompt: |
+    Fix the following code review findings. For each finding, apply the
+    minimal correct fix. Run tests after fixing to verify no regressions.
+
+    ## Findings to Fix
+    [filtered findings at selected severities with file:line and suggested fix]
+
+    ## Rules
+    - Fix ONLY the listed findings, do not refactor surrounding code
+    - Run existing tests after each fix
+    - If a fix would require significant refactoring, note it and skip
+    - Commit each fix or batch of related fixes
+```
+
+Wait for all fixes to complete before proceeding.
+
+### 7c. Re-review Offer
+
+After fixes land, present:
+- **Run another review round (Recommended)** -- verify fixes and check for new issues
+- **Proceed without re-review**
+
+If another round: run the full Step 1-7 flow again (fresh agents, fresh scope).
+
+### 7d. Post-fix Options
+
+After the fix-review cycle completes (clean verdict or user chose to stop):
+
+**On a feature branch:**
+- **Create a PR (Recommended)** -- push and open via `gh pr create`
+- **Continue without PR**
+
+**On main/master:**
+- **Continue**
 
 $ARGUMENTS
