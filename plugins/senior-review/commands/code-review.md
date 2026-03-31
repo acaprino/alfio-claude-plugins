@@ -705,6 +705,50 @@ Agent tool call:
     description, suggested fix.
 ```
 
+### Agent I: React Performance Review (conditional)
+
+**Only run this agent if the diff touches `.tsx` or `.jsx` files AND the project has React as a dependency** (check `package.json` for `react` in dependencies/devDependencies).
+
+```
+Agent tool call:
+  - description: "React performance review for senior-review command"
+  - subagent_type: "react-development:react-performance-optimizer"
+  - run_in_background: true
+  - prompt: |
+    Review the following React code changes for performance issues,
+    anti-patterns, and optimization opportunities.
+
+    [Include shared instructions: Intent + Diff Scope]
+
+    ## Changed Files
+    [list of changed .tsx/.jsx files]
+
+    ## Full File Contents
+    [paste full contents of each changed React file]
+
+    ## Diff
+    [paste the git diff output]
+
+    ## Instructions
+    Analyze the CHANGED React code for:
+    1. **React Compiler compatibility** -- patterns that break automatic memoization
+       (external mutables, dynamic property access, non-idiomatic hooks)
+    2. **Server Components** -- client-only APIs in server components, missing
+       'use client' directives, unnecessary client boundaries
+    3. **Re-render optimization** -- missing keys, unstable references in props,
+       inline object/function creation in render, expensive computations without
+       useMemo/useCallback where warranted
+    4. **State management** -- derived state that should be computed, unnecessary
+       state, state that belongs higher/lower in the tree
+    5. **Bundle impact** -- large imports that could be lazy-loaded, barrel file
+       re-exports pulling in unused code
+    6. **External store subscriptions** -- useSyncExternalStore patterns,
+       tearing risks with concurrent features
+
+    For each finding: severity (Critical/High/Medium/Low), file + line, confidence (0-100),
+    description, concrete fix with code example.
+```
+
 ---
 
 ## Step 4: Consolidate Findings & Extract Score
@@ -850,6 +894,10 @@ After validation completes, synthesize everything into the final structured revi
 |---|----------|-----------|---------|------------|-----|
 
 ### Data Migration Issues (if applicable)
+| # | Severity | File:Line | Finding | Confidence | Fix |
+|---|----------|-----------|---------|------------|-----|
+
+### React Performance (if applicable)
 | # | Severity | File:Line | Finding | Confidence | Fix |
 |---|----------|-----------|---------|------------|-----|
 

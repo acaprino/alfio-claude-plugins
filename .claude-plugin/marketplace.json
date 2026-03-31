@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "5.1.0"
+    "version": "5.2.0"
   },
   "plugins": [
     {
@@ -577,7 +577,7 @@
       "name": "senior-review",
       "source": "./plugins/senior-review",
       "description": "Multi-agent code review orchestration with unified code auditing (architecture, failure flow, pattern analysis, scoring), security auditing, UI race condition detection, distributed flow analysis, platform engineering review, dead code detection, git blame/history analysis, finding validation with false-positive filtering, committable PR suggestions, pre-review skip logic, intent-driven review, confidence gating, cross-agent deduplication, pre-existing issue separation, verdict system, interactive fix loop, and conditional reviewers for testing quality, API contracts, and data migrations. Backed by a comprehensive defect taxonomy knowledge base (140+ defect patterns, CWE/OWASP mappings).",
-      "version": "5.0.0",
+      "version": "5.1.0",
       "author": {
         "name": "Alfio"
       },
