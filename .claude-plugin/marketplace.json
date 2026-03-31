@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "5.3.0"
+    "version": "5.4.0"
   },
   "plugins": [
     {
@@ -760,7 +760,7 @@
       "name": "marketplace-ops",
       "source": "./plugins/marketplace-ops",
       "description": "Marketplace consolidation and plugin management -- auditing, validation, AI quality review, upstream sync, plugin scaffolding, and health monitoring for the ACP ecosystem",
-      "version": "1.12.0",
+      "version": "1.13.0",
       "author": {
         "name": "Alfio"
       },

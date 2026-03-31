@@ -25,6 +25,10 @@ DESCRIPTION_RECOMMENDED_LIMIT = 300
 TOTAL_DESCRIPTION_BUDGET = 15000
 SKILL_BODY_WARN_LINES = 300
 SKILL_BODY_MAX_LINES = 500
+SKILL_BODY_TOKEN_TARGET = 5000
+SKILL_BODY_TOKEN_WARN = 4000
+EXAMPLE_TAG_MIN = 3
+EXAMPLE_TAG_MAX = 5
 
 # Passive patterns that indicate low activation descriptions
 PASSIVE_PATTERNS = [
@@ -149,6 +153,46 @@ def check_skill_body(skill_dir):
     return issues
 
 
+def check_skill_body_extended(skill_dir):
+    """Extended body checks: tokens, examples, frontmatter fields, preprocessor."""
+    issues = []
+    skill_md = skill_dir / "SKILL.md"
+    if not skill_md.exists():
+        return issues, 0
+
+    text = skill_md.read_text(encoding="utf-8", errors="replace")
+    fm, body = parse_frontmatter(text)
+
+    # Token estimate (chars / 4)
+    est_tokens = len(body) // 4
+    if est_tokens > SKILL_BODY_TOKEN_TARGET:
+        issues.append(("WARNING", f"SKILL.md body is ~{est_tokens:,} tokens (target: <{SKILL_BODY_TOKEN_TARGET:,}) -- split into references/"))
+    elif est_tokens > SKILL_BODY_TOKEN_WARN:
+        issues.append(("INFO", f"SKILL.md body is ~{est_tokens:,} tokens (approaching {SKILL_BODY_TOKEN_TARGET:,} target)"))
+
+    # Example tags
+    example_count = len(re.findall(r"<example>", body, re.IGNORECASE))
+    if example_count == 0:
+        issues.append(("INFO", f"No <example> tags -- guide recommends {EXAMPLE_TAG_MIN}-{EXAMPLE_TAG_MAX}"))
+    elif example_count < EXAMPLE_TAG_MIN:
+        issues.append(("INFO", f"Only {example_count} <example> tag(s) -- guide recommends {EXAMPLE_TAG_MIN}-{EXAMPLE_TAG_MAX}"))
+
+    # context: fork detection
+    if fm.get("context", "").strip() == "fork":
+        issues.append(("INFO", "Uses context: fork (isolated subagent)"))
+
+    # disable-model-invocation detection
+    if fm.get("disable-model-invocation", "").strip().lower() == "true":
+        issues.append(("INFO", "Has disable-model-invocation: true (slash-command only)"))
+
+    # !command preprocessor syntax (backtick-wrapped shell commands)
+    preproc_count = len(re.findall(r"!`[^`]+`", body))
+    if preproc_count > 0:
+        issues.append(("INFO", f"Uses {preproc_count} !`command` preprocessor injection(s)"))
+
+    return issues, est_tokens
+
+
 def check_agent_body(agent_path):
     """Validate agent body size and em dash."""
     issues = []
@@ -161,6 +205,18 @@ def check_agent_body(agent_path):
 
     if EM_DASH in text:
         issues.append(("WARNING", "Agent file contains em dash character -- use hyphen or double hyphen"))
+
+    return issues
+
+
+def check_agent_frontmatter_extended(agent_path):
+    """Check agent-specific frontmatter: tools field presence."""
+    issues = []
+    text = agent_path.read_text(encoding="utf-8", errors="replace")
+    fm, _ = parse_frontmatter(text)
+
+    if "tools" not in fm:
+        issues.append(("INFO", "No tools field -- all tools allowed (consider restricting)"))
 
     return issues
 
@@ -191,6 +247,7 @@ def main():
     plugins = data.get("plugins", [])
 
     total_desc_chars = 0
+    total_body_tokens = 0
     all_results = []
     total_skills = 0
     total_agents = 0
@@ -224,8 +281,10 @@ def main():
 
             desc_issues, desc_len = check_description(desc, "skill", sname)
             body_issues = check_skill_body(skill_dir)
-            all_issues = desc_issues + body_issues
+            extended_issues, est_tokens = check_skill_body_extended(skill_dir)
+            all_issues = desc_issues + body_issues + extended_issues
             total_desc_chars += desc_len
+            total_body_tokens += est_tokens
 
             for severity, _ in all_issues:
                 total_issues[severity] = total_issues.get(severity, 0) + 1
@@ -251,7 +310,8 @@ def main():
 
             desc_issues, desc_len = check_description(desc, "agent", aname)
             body_issues = check_agent_body(agent_path)
-            all_issues = desc_issues + body_issues
+            extended_issues = check_agent_frontmatter_extended(agent_path)
+            all_issues = desc_issues + body_issues + extended_issues
             total_desc_chars += desc_len
 
             for severity, _ in all_issues:
@@ -278,6 +338,7 @@ def main():
         print(f"  ** OVER BUDGET by {total_desc_chars - TOTAL_DESCRIPTION_BUDGET:,} chars -- skills may be silently dropped!")
     elif total_desc_chars > TOTAL_DESCRIPTION_BUDGET * 0.8:
         print(f"  ** Approaching budget limit ({TOTAL_DESCRIPTION_BUDGET - total_desc_chars:,} chars remaining)")
+    print(f"Total skill body tokens (est.): {total_body_tokens:,}")
     print(f"Issues: {total_issues.get('CRITICAL', 0)} critical, {total_issues.get('WARNING', 0)} warnings, {total_issues.get('INFO', 0)} info")
     print("-" * 60)
 
