@@ -1,5 +1,5 @@
 ---
-description: "Spawn an agent team using presets (review, debug, feature, fullstack, research, deep-search, security, migration, docs, app-analysis, tauri) or custom composition"
+description: "Spawn an agent team using presets (review, debug, feature, fullstack, research, deep-search, security, migration, docs, app-analysis, tauri, ui-studio) or custom composition"
 argument-hint: "<preset|custom> [--name team-name] [--members N] [--delegate]"
 ---
 
@@ -125,6 +125,22 @@ If a preset is specified, use these configurations:
   - Platform: `tauri-development:tauri-desktop` or `tauri-development:tauri-mobile`
 - Team name default: `tauri-team`
 
+**`ui-studio`** -- Parallel UI design and build pipeline (default: 3+3 members in two phases)
+
+- Runs in two parallel waves (see `/team-design` for full pipeline):
+  - **Design wave** (3 parallel agents):
+    - Design direction: `frontend:web-designer`
+    - Layout: `frontend:ui-layout-designer`
+    - UX patterns: `frontend:web-designer`
+  - **Polish wave** (3-4 parallel agents):
+    - UI polish: `frontend:web-designer`
+    - Performance: `react-development:react-performance-optimizer`
+    - Code review: `senior-review:code-auditor`
+    - Security: `senior-review:security-auditor` (optional)
+- Sequential phases between waves: brainstorm, component architecture, plan, execute
+- Team name default: `ui-studio-team`
+- **Shortcut**: Use `/team-design` for the full orchestrated pipeline
+
 ### Custom Composition
 
 If "custom" is specified:
@@ -150,6 +166,7 @@ Before spawning, invoke the relevant skills for the preset to inform team config
 | docs | `codebase-mapper:codebase-mapper`, `agent-teams:team-composition-patterns` |
 | app-analysis | `agent-teams:team-composition-patterns` |
 | tauri | `agent-teams:parallel-feature-development`, `tauri-development:tauri`, `agent-teams:task-coordination-strategies` |
+| ui-studio | `ai-tooling:brainstorming`, `frontend:frontend`, `agent-teams:parallel-feature-development`, `agent-teams:team-communication-protocols` |
 
 ## Phase 2: Team Creation
 
@@ -197,6 +214,13 @@ Use the **most specialized agent** available. The team-lead's Ecosystem Integrat
 | tauri | rust | -- | `tauri-development:rust-engineer` |
 | tauri | frontend | -- | `frontend:frontend-architect` |
 | tauri | platform | -- | `tauri-development:tauri-desktop` or `tauri-development:tauri-mobile` |
+| ui-studio | design direction | -- | `frontend:web-designer` |
+| ui-studio | layout | -- | `frontend:ui-layout-designer` |
+| ui-studio | UX patterns | -- | `frontend:web-designer` |
+| ui-studio | polish | -- | `frontend:web-designer` |
+| ui-studio | performance | -- | `react-development:react-performance-optimizer` |
+| ui-studio | review | -- | `senior-review:code-auditor` |
+| ui-studio | security | -- | `senior-review:security-auditor` |
 
 ## Phase 3: Initial Setup
 
