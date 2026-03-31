@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "5.2.0"
+    "version": "5.3.0"
   },
   "plugins": [
     {
@@ -328,7 +328,7 @@
       "name": "messaging",
       "source": "./plugins/messaging",
       "description": "RabbitMQ and AMQP messaging -- queue configuration, exchange routing, clustering, high availability, and event-driven architecture optimization",
-      "version": "1.3.1",
+      "version": "1.3.2",
       "author": {
         "name": "Alfio"
       },
@@ -760,7 +760,7 @@
       "name": "marketplace-ops",
       "source": "./plugins/marketplace-ops",
       "description": "Marketplace consolidation and plugin management -- auditing, validation, AI quality review, upstream sync, plugin scaffolding, and health monitoring for the ACP ecosystem",
-      "version": "1.11.0",
+      "version": "1.12.0",
       "author": {
         "name": "Alfio"
       },
@@ -788,7 +788,8 @@
       "commands": [
         "./commands/marketplace-health.md",
         "./commands/marketplace-scaffold-plugin.md",
-        "./commands/marketplace-review.md"
+        "./commands/marketplace-review.md",
+        "./commands/skills-validate.md"
       ]
     },
     {
@@ -1243,7 +1244,7 @@
       "name": "grabber-development",
       "source": "./plugins/grabber-development",
       "description": "Expert Python web scraping -- target assessment, stealth browser automation, TLS fingerprint impersonation, anti-bot bypass, proxy architecture, API discovery, DOM extraction, and production observability",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "author": {
         "name": "Alfio"
       },

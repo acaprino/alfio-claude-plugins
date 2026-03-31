@@ -10,7 +10,7 @@ description: >
   architecture, reverse-engineering APIs, or extracting data from websites
   DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
 model: opus
-color: green
+color: pink
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch
 ---
 

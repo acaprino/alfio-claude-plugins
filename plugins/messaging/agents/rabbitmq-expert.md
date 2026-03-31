@@ -5,7 +5,7 @@ description: >
   TRIGGER WHEN: configuring RabbitMQ exchanges, designing queue topologies, troubleshooting message delivery, setting up clustering/HA, or optimizing AMQP throughput"
   DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
 model: opus
-color: yellow
+color: blue
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch
 ---
 
