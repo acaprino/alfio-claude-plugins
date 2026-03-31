@@ -91,4 +91,4 @@ React performance and optimization review. Audits state management, analyzes bun
 
 ---
 
-**Related:** [frontend](frontend.md) (UI design, layout, CSS) | [workflows](workflows.md) (`/frontend-redesign` and `/ui-studio` use this agent)
+**Related:** [frontend](frontend.md) (UI design, layout, CSS) | [agent-teams](agent-teams.md) (`/team-design` uses this agent)

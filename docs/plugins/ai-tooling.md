@@ -113,4 +113,4 @@ Analyze, score, and optimize prompts for LLMs -- evaluates clarity, specificity,
 
 ---
 
-**Related:** [workflows](workflows.md) (`/feature-e2e` and `/ui-studio` use brainstorming, writing-plans, executing-plans) | [acp-hooks](acp-hooks.md) (acp-loader skill awareness)
+**Related:** [agent-teams](agent-teams.md) (`/team-feature` and `/team-design` use brainstorming, writing-plans, executing-plans) | [acp-hooks](acp-hooks.md) (acp-loader skill awareness)

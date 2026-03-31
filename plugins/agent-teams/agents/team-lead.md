@@ -113,9 +113,9 @@ When spawning teammates, choose the most specialized agent available:
 **Implementation** -- instead of generic `team-implementer`, prefer:
 | Context | Specialized Agent | When |
 |---------|------------------|------|
-| Python | `python-development:python-architect` | Python projects (orchestrates sub-agents) |
+| Python | `python-development:python-engineer` | Python architecture + implementation |
 | Rust | `tauri-development:rust-engineer` | Rust code, ownership, async, FFI |
-| React/frontend | `frontend:frontend-architect` | Frontend features (orchestrates sub-agents) |
+| React/frontend | `frontend:frontend-engineer` | Frontend architecture + implementation |
 | Tauri desktop | `tauri-development:tauri-desktop` | Tauri IPC, WebView, window management |
 | Tauri mobile | `tauri-development:tauri-mobile` | Mobile plugins, signing, emulator testing |
 | CSS/UI design | `frontend:web-designer` | Styling, animations, design systems |

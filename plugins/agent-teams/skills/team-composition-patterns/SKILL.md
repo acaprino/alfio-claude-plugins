@@ -104,7 +104,7 @@ Best practices for composing multi-agent teams, selecting team sizes, choosing a
 ### Tauri Team
 
 - **Size**: 4 (1 lead + 3 specialists)
-- **Agents**: 1x `team-lead` + 1x `tauri-development:rust-engineer` + 1x `frontend:frontend-architect` + 1x `tauri-development:tauri-desktop`
+- **Agents**: 1x `team-lead` + 1x `tauri-development:rust-engineer` + 1x `frontend:frontend-engineer` + 1x `tauri-development:tauri-desktop`
 - **Use when**: Building or optimizing Tauri v2 desktop/mobile applications
 
 ### UI Studio Team
@@ -112,7 +112,7 @@ Best practices for composing multi-agent teams, selecting team sizes, choosing a
 - **Size**: 3+3 (design wave + polish wave, spawned sequentially)
 - **Design wave**: 1x `frontend:web-designer` (direction) + 1x `frontend:ui-layout-designer` (layout) + 1x `frontend:web-designer` (UX)
 - **Polish wave**: 1x `frontend:web-designer` (polish) + 1x `react-development:react-performance-optimizer` (perf) + 1x `senior-review:code-auditor` (review)
-- **Use when**: Building new UI from scratch or major redesigns -- parallelizes the `/workflows:ui-studio` pipeline
+- **Use when**: Building new UI from scratch or major redesigns
 
 ## Agent Type Selection
 

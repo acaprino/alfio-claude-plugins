@@ -57,4 +57,4 @@ Rewrite source code for readability with validation checkpoints.
 
 ---
 
-**Related:** [workflows](workflows.md) (`/feature-e2e` runs clean-code as its final phase) | [senior-review](senior-review.md) (code review before cleaning)
+**Related:** [agent-teams](agent-teams.md) (`/team-feature` can include clean-code as a final step) | [senior-review](senior-review.md) (code review before cleaning)

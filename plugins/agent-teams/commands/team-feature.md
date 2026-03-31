@@ -75,8 +75,8 @@ Before starting, invoke these skills to inform the feature development process:
 3. Spawn a `team-lead` agent to coordinate
 4. For each work stream, use `Task` tool to spawn the **most specialized agent** for the context:
    - Detect codebase language/framework from files in scope
-   - Python code: `subagent_type: "python-development:python-architect"`
-   - React/frontend: `subagent_type: "frontend:frontend-architect"`
+   - Python code: `subagent_type: "python-development:python-engineer"`
+   - React/frontend: `subagent_type: "frontend:frontend-engineer"`
    - Rust code: `subagent_type: "tauri-development:rust-engineer"`
    - Tests: `subagent_type: "testing:test-writer"`
    - General/mixed: `subagent_type: "agent-teams:team-implementer"`

@@ -63,7 +63,7 @@ Before responding to ANY user message, run this check:
 
 5. Is this frontend/UI work?
    --> Check: frontend:frontend, frontend:frontend-design, frontend:ui-studio,
-       frontend:premium-web-consultant, workflows:frontend-redesign
+       frontend:premium-web-consultant, agent-teams:team-design
 
 6. Is this a code review request?
    --> Check: senior-review:code-review, senior-review:full-review
@@ -72,7 +72,7 @@ Before responding to ANY user message, run this check:
    --> Check: python-development skills (python-tdd, python-refactor, etc.)
 
 8. Is this Tauri/Rust work?
-   --> Check: tauri-development skills, workflows:tauri-pipeline
+   --> Check: tauri-development skills, agent-teams:team-spawn tauri
 
 9. Is this about documentation?
    --> Check: codebase-mapper:docs-create
@@ -116,19 +116,21 @@ Examples:
 
 ## Workflow Awareness
 
-These workflow commands chain multiple skills automatically. Prefer them for complex tasks:
+These commands orchestrate multi-agent teams for complex tasks. Prefer them over invoking individual skills:
 
-| Task | Workflow |
-|------|----------|
-| Build a new feature end-to-end | `/workflows:feature-e2e` |
-| Build a new UI from scratch | `/workflows:ui-studio` |
+| Task | Command |
+|------|---------|
+| Build a new feature end-to-end | `/agent-teams:team-feature` or `/agent-teams:team-spawn fullstack` |
+| Build a new UI from scratch | `/agent-teams:team-design` |
 | Full codebase review (deep-dive + review) | `/senior-review:full-review` |
-| Frontend redesign | `/workflows:frontend-redesign` |
-| Mobile app from competitor analysis | `/workflows:mobile-intel` |
-| Mobile app with Tauri build + review | `/workflows:mobile-tauri-pipeline` |
-| Tauri desktop app review | `/workflows:tauri-pipeline` |
+| Frontend redesign | `/agent-teams:team-design` |
+| Mobile app from competitor analysis | `/agent-teams:team-spawn app-analysis` |
+| Mobile app with Tauri build + review | `/agent-teams:team-spawn tauri` |
+| Tauri desktop app review | `/agent-teams:team-spawn tauri` |
+| Debug with competing hypotheses | `/agent-teams:team-debug` |
+| Deep multi-source research | `/agent-teams:team-research` |
 
-If the user's request matches a workflow scope, suggest the workflow instead of invoking individual skills.
+If the user's request matches a team scope, suggest the team command instead of invoking individual skills.
 
 ## Skill Types
 

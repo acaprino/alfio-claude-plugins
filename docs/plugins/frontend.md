@@ -7,8 +7,8 @@
 | Need | Tool | What it does |
 |------|------|------|
 | "What should we build?" | `/frontend:premium-web-consultant` | Strategy and planning |
-| "Build it from scratch" | `/workflows:ui-studio` | Orchestrates frontend agents |
-| "Improve what exists" | `/workflows:frontend-redesign` | Audits and redesigns existing code |
+| "Build it from scratch" | `/agent-teams:team-design` | Orchestrates frontend agents |
+| "Improve what exists" | `/agent-teams:team-design` | Audits and redesigns existing code |
 | "Optimize React perf" | [react-development](react-development.md) | React 19 performance |
 
 ## Agents
@@ -131,4 +131,4 @@ Frontend design review -- auto-detects scope: diff mode for changed frontend fil
 
 ---
 
-**Related:** [workflows](workflows.md) (`/ui-studio` and `/frontend-redesign` orchestrate frontend agents) | [react-development](react-development.md) (React performance) | [tauri-development](tauri-development.md) (Tauri desktop/mobile apps)
+**Related:** [agent-teams](agent-teams.md) (`/team-design` orchestrates frontend agents) | [react-development](react-development.md) (React performance) | [tauri-development](tauri-development.md) (Tauri desktop/mobile apps)

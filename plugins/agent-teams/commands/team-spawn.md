@@ -43,8 +43,8 @@ If a preset is specified, use these configurations:
 
 - Spawn 1 `agent-teams:team-lead` + 2 specialized implementers
 - Lead auto-selects implementer agents based on codebase context:
-  - Python: `python-development:python-architect`
-  - React/frontend: `frontend:frontend-architect`
+  - Python: `python-development:python-engineer`
+  - React/frontend: `frontend:frontend-engineer`
   - Rust: `tauri-development:rust-engineer`
   - General: `agent-teams:team-implementer`
 - Team name default: `feature-team`
@@ -52,8 +52,8 @@ If a preset is specified, use these configurations:
 **`fullstack`** -- Full-stack development with specialized layer agents (default: 4 members)
 
 - Spawn 1 `agent-teams:team-lead` + 3 layer-specific agents:
-  - Frontend: `frontend:frontend-architect` or `frontend:web-designer`
-  - Backend: `python-development:python-architect` or `agent-teams:team-implementer`
+  - Frontend: `frontend:frontend-engineer` or `frontend:web-designer`
+  - Backend: `python-development:python-engineer` or `agent-teams:team-implementer`
   - Tests: `testing:test-writer` or `python-development:python-test-engineer`
 - Team name default: `fullstack-team`
 
@@ -74,8 +74,8 @@ If a preset is specified, use these configurations:
   - Domain expert: auto-selected based on topic:
     - Security topic: `senior-review:security-auditor`
     - Architecture topic: `senior-review:code-auditor`
-    - Frontend topic: `frontend:frontend-architect`
-    - Python topic: `python-development:python-architect`
+    - Frontend topic: `frontend:frontend-engineer`
+    - Python topic: `python-development:python-engineer`
     - Tauri topic: `tauri-development:tauri-desktop`
     - Business topic: `business:business-planner`
     - General topic: `codebase-mapper:codebase-explorer`
@@ -121,7 +121,7 @@ If a preset is specified, use these configurations:
 - Spawn Tauri specialists:
   - Lead: `agent-teams:team-lead`
   - Rust backend: `tauri-development:rust-engineer`
-  - Frontend: `frontend:frontend-architect` or `react-development:react-performance-optimizer`
+  - Frontend: `frontend:frontend-engineer` or `react-development:react-performance-optimizer`
   - Platform: `tauri-development:tauri-desktop` or `tauri-development:tauri-mobile`
 - Team name default: `tauri-team`
 
@@ -188,10 +188,10 @@ Use the **most specialized agent** available. The team-lead's Ecosystem Integrat
 | review | performance | `agent-teams:team-reviewer` | `react-development:react-performance-optimizer` (React) |
 | debug | investigator | `agent-teams:team-debugger` | -- |
 | feature | lead | `agent-teams:team-lead` | -- |
-| feature | implementer | `agent-teams:team-implementer` | `python-development:python-architect`, `frontend:frontend-architect`, `tauri-development:rust-engineer` |
+| feature | implementer | `agent-teams:team-implementer` | `python-development:python-engineer`, `frontend:frontend-engineer`, `tauri-development:rust-engineer` |
 | fullstack | lead | `agent-teams:team-lead` | -- |
-| fullstack | frontend | `agent-teams:team-implementer` | `frontend:frontend-architect` |
-| fullstack | backend | `agent-teams:team-implementer` | `python-development:python-architect` |
+| fullstack | frontend | `agent-teams:team-implementer` | `frontend:frontend-engineer` |
+| fullstack | backend | `agent-teams:team-implementer` | `python-development:python-engineer` |
 | fullstack | tests | `agent-teams:team-implementer` | `testing:test-writer` |
 | research | researcher | `general-purpose` | `research:deep-researcher`, `codebase-mapper:codebase-explorer` |
 | deep-search | lead researcher | -- | `research:deep-researcher` |
@@ -212,7 +212,7 @@ Use the **most specialized agent** available. The team-lead's Ecosystem Integrat
 | app-analysis | designer | -- | `frontend:web-designer` |
 | tauri | lead | `agent-teams:team-lead` | -- |
 | tauri | rust | -- | `tauri-development:rust-engineer` |
-| tauri | frontend | -- | `frontend:frontend-architect` |
+| tauri | frontend | -- | `frontend:frontend-engineer` |
 | tauri | platform | -- | `tauri-development:tauri-desktop` or `tauri-development:tauri-mobile` |
 | ui-studio | design direction | -- | `frontend:web-designer` |
 | ui-studio | layout | -- | `frontend:ui-layout-designer` |

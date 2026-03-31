@@ -152,4 +152,4 @@ Analyze current branch changes, generate a PR description with risk assessment a
 
 ---
 
-**Related:** [workflows](workflows.md) (`/feature-e2e` and `/full-review` orchestrate these agents) | [typescript-development](typescript-development.md) (Knip for dead code) | [python-development](python-development.md) (vulture/ruff for dead code)
+**Related:** [agent-teams](agent-teams.md) (`/team-review` and `/team-spawn security` use these agents) | [typescript-development](typescript-development.md) (Knip for dead code) | [python-development](python-development.md) (vulture/ruff for dead code)

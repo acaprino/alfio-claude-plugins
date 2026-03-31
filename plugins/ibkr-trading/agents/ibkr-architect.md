@@ -243,5 +243,5 @@ class HistThrottle:
 ## Synergies
 
 - **python-development:async-python-patterns** -- asyncio patterns for ib_async event loops
-- **python-development:python-architect** -- Python architecture for trading system structure
+- **python-development:python-engineer** -- Python architecture for trading system structure
 - **python-development:python-tdd** -- testing trading logic with mock IB connections

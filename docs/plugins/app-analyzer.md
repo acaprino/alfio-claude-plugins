@@ -40,4 +40,4 @@ Use the app-analyzer agent to analyze [app name or URL]
 
 ---
 
-**Related:** [playwright-skill](playwright-skill.md) (optional dependency for web app exploration) | [workflows](workflows.md) (`/mobile-intel` and `/mobile-tauri-pipeline` use this plugin) | [tauri-development](tauri-development.md) (scaffolds Tauri 2 mobile apps from analysis output)
+**Related:** [playwright-skill](playwright-skill.md) (optional dependency for web app exploration) | [agent-teams](agent-teams.md) (`/team-spawn app-analysis` uses this plugin) | [tauri-development](tauri-development.md) (scaffolds Tauri 2 mobile apps from analysis output)

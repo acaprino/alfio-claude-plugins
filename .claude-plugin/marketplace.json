@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "5.7.0"
+    "version": "5.8.0"
   },
   "plugins": [
     {
@@ -93,7 +93,7 @@
       "name": "frontend",
       "source": "./plugins/frontend",
       "description": "UI polishing, UX design, comprehensive CSS (BEM, CSS Modules, SASS, accessibility, cross-browser), layout design, daisyUI components, Radix UI primitives and themes, and premium web consulting",
-      "version": "3.7.0",
+      "version": "3.8.0",
       "author": {
         "name": "Alfio"
       },
@@ -123,7 +123,7 @@
       "agents": [
         "./agents/web-designer.md",
         "./agents/ui-layout-designer.md",
-        "./agents/frontend-architect.md"
+        "./agents/frontend-engineer.md"
       ],
       "skills": [
         "./skills/frontend",
@@ -235,7 +235,7 @@
       "name": "python-development",
       "source": "./plugins/python-development",
       "description": "Python development toolkit -- TDD with pytest, code refactoring with complexity metrics, performance profiling, async patterns, uv package management, dead code detection, comment auditing, and project scaffolding",
-      "version": "1.16.0",
+      "version": "1.17.0",
       "author": {
         "name": "Alfio"
       },
@@ -254,7 +254,7 @@
       "category": "development",
       "strict": false,
       "agents": [
-        "./agents/python-architect.md",
+        "./agents/python-engineer.md",
         "./agents/python-refactor-agent.md",
         "./agents/python-test-engineer.md"
       ],
@@ -620,52 +620,6 @@
         "./commands/pr-review.md",
         "./commands/code-review.md",
         "./commands/cleanup-dead-code.md"
-      ]
-    },
-    {
-      "name": "workflows",
-      "source": "./plugins/workflows",
-      "description": "Cross-plugin orchestration pipelines -- feature development with UI-aware stack routing, frontend redesign, UI studio, full code review, mobile intelligence, mobile Tauri, and Tauri desktop review",
-      "version": "2.15.0",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "workflow",
-        "pipeline",
-        "orchestration",
-        "cross-plugin",
-        "end-to-end",
-        "automation",
-        "review",
-        "ui-studio"
-      ],
-      "category": "workflow",
-      "strict": false,
-      "dependencies": [
-        "frontend",
-        "react-development",
-        "senior-review",
-        "ai-tooling",
-        "tauri-development",
-        "app-analyzer",
-        "deep-dive-analysis",
-        "platform-engineering",
-        "testing",
-        "git-worktrees"
-      ],
-      "optionalDependencies": [
-        "clean-code"
-      ],
-      "commands": [
-        "./commands/develop-feature.md",
-        "./commands/frontend-redesign.md",
-        "./commands/mobile-intel.md",
-        "./commands/tauri-pipeline.md",
-        "./commands/mobile-tauri-pipeline.md",
-        "./commands/ui-studio.md",
-        "./commands/python-pipeline.md"
       ]
     },
     {
@@ -1274,7 +1228,7 @@
       "name": "agent-teams",
       "source": "./plugins/agent-teams",
       "description": "Orchestrate multi-agent teams for parallel code review, hypothesis-driven debugging, and coordinated feature development using Claude Code Agent Teams",
-      "version": "2.2.0",
+      "version": "2.3.0",
       "author": {
         "name": "Seth Hobson"
       },

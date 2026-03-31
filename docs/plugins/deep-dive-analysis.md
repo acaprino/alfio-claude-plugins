@@ -36,4 +36,4 @@ Systematic codebase analysis that combines structure extraction with semantic un
 
 ---
 
-**Related:** [codebase-mapper](codebase-mapper.md) (generates 10 narrative documents from codebase exploration) | [workflows](workflows.md) (`/full-review` uses deep-dive as its first phase) | [senior-review](senior-review.md) (code review agents that run after deep-dive)
+**Related:** [codebase-mapper](codebase-mapper.md) (generates 10 narrative documents from codebase exploration) | [senior-review](senior-review.md) (code review agents that run after deep-dive)

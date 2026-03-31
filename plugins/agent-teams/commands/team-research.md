@@ -64,8 +64,8 @@ Before starting, invoke these skills:
 |--------|-------|
 | security | `senior-review:security-auditor` |
 | architecture | `senior-review:code-auditor` |
-| frontend | `frontend:frontend-architect` |
-| python | `python-development:python-architect` |
+| frontend | `frontend:frontend-engineer` |
+| python | `python-development:python-engineer` |
 | tauri | `tauri-development:tauri-desktop` |
 | business | `business:business-planner` |
 | distributed | `senior-review:distributed-flow-auditor` |

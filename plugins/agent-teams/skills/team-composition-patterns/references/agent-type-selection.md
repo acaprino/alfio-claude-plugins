@@ -9,9 +9,9 @@ Does the teammate need to modify files?
 |-- YES -> Does a marketplace specialist exist for this domain?
 |          |-- YES -> Use the specialist (see table below)
 |          |         Examples:
-|          |         |-- Python code -> python-development:python-architect
+|          |         |-- Python code -> python-development:python-engineer
 |          |         |-- Security review -> senior-review:security-auditor
-|          |         |-- React frontend -> frontend:frontend-architect
+|          |         |-- React frontend -> frontend:frontend-engineer
 |          |         |-- Rust code -> tauri-development:rust-engineer
 |          |         +-- Tests -> testing:test-writer
 |          +-- NO -> Does it need a generic team role?
@@ -50,10 +50,10 @@ RULE: Always prefer a marketplace specialist over a generic team agent.
 | `senior-review:ui-race-auditor` | team-reviewer (UI races) | Async rendering timing bugs |
 | `platform-engineering:platform-reviewer` | team-reviewer (platform) | Cross-platform compliance |
 | `react-development:react-performance-optimizer` | team-reviewer (React perf) | React 19 optimization |
-| `python-development:python-architect` | team-implementer (Python) | Python architecture + orchestration |
+| `python-development:python-engineer` | team-implementer (Python) | Python architecture + implementation |
 | `python-development:python-test-engineer` | team-implementer (Python tests) | pytest TDD |
 | `tauri-development:rust-engineer` | team-implementer (Rust) | Rust ownership, async, FFI |
-| `frontend:frontend-architect` | team-implementer (frontend) | Frontend orchestration |
+| `frontend:frontend-engineer` | team-implementer (frontend) | Frontend design + implementation |
 | `frontend:web-designer` | team-implementer (CSS/UI) | Styling, animations, design |
 | `tauri-development:tauri-desktop` | team-implementer (Tauri) | Tauri IPC, WebView, bundling |
 | `tauri-development:tauri-mobile` | team-implementer (mobile) | Tauri mobile plugins, signing |

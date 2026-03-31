@@ -213,4 +213,4 @@ Metrics-driven 4-phase refactoring with checkpoint approval before execution and
 
 ---
 
-**Related:** [senior-review](senior-review.md) (`/cleanup-dead-code` uses python-dead-code skill) | [clean-code](clean-code.md) (post-refactor code cleanup) | [workflows](workflows.md) (`/feature-e2e` for end-to-end development)
+**Related:** [senior-review](senior-review.md) (`/cleanup-dead-code` uses python-dead-code skill) | [clean-code](clean-code.md) (post-refactor code cleanup) | [agent-teams](agent-teams.md) (`/team-feature` for end-to-end development)

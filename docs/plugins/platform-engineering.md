@@ -44,4 +44,4 @@ Comprehensive cross-platform development rulebook with 12 reference documents co
 
 ---
 
-**Related:** [senior-review](senior-review.md) (code-level review) | [workflows](workflows.md) (used in pipeline dependencies) | [tauri-development](tauri-development.md) (desktop/mobile platform)
+**Related:** [senior-review](senior-review.md) (code-level review) | [agent-teams](agent-teams.md) (team presets include platform review) | [tauri-development](tauri-development.md) (desktop/mobile platform)

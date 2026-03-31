@@ -5,7 +5,7 @@ argument-hint: "<product-goal-or-feature> [--skip-brainstorm] [--skip-review] [-
 
 # Team Design
 
-Orchestrate the UI Studio pipeline using parallel agent teams. Phases that are independent run simultaneously, dramatically reducing total time compared to the sequential `/workflows:ui-studio`.
+Orchestrate the UI Studio pipeline using parallel agent teams. Phases that are independent run simultaneously, dramatically reducing total time.
 
 ## Skills to Load
 
@@ -125,7 +125,7 @@ Use `ai-tooling:executing-plans` skill:
 2. For each task: write failing test -> implement -> verify passing
 3. After each batch: show progress, wait for user feedback
 4. Spawn specialized implementers based on task type:
-   - React components: `frontend:frontend-architect`
+   - React components: `frontend:frontend-engineer`
    - CSS/styling: `frontend:web-designer`
    - Tests: `testing:test-writer`
 5. Output: `.ui-studio/08-execution-log.md`

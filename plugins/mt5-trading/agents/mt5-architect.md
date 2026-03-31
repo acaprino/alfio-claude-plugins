@@ -260,5 +260,5 @@ def run_bot(symbols, timeframe, poll_interval=1.0):
 ## Synergies
 
 - **python-development:async-python-patterns** -- asyncio patterns for aiomql integration
-- **python-development:python-architect** -- Python architecture for trading system structure
+- **python-development:python-engineer** -- Python architecture for trading system structure
 - **ibkr-trading** -- comparison and multi-broker architecture decisions

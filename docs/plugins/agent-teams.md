@@ -38,7 +38,7 @@ Use the team-lead agent to coordinate [task]
 - Builds dependency graphs using blockedBy/blocks relationships
 - Monitors progress at milestones, not every step
 
-**Ecosystem integration:** The lead always selects specialized marketplace agents over generic team agents when the task matches. Full mapping covers code review (security-auditor, code-auditor, distributed-flow-auditor, ui-race-auditor, platform-reviewer), implementation (python-architect, rust-engineer, frontend-architect, tauri-desktop, web-designer), testing (test-writer, python-test-engineer), research (deep-researcher, quick-searcher, codebase-explorer), and documentation (documentation-engineer).
+**Ecosystem integration:** The lead always selects specialized marketplace agents over generic team agents when the task matches. Full mapping covers code review (security-auditor, code-auditor, distributed-flow-auditor, ui-race-auditor, platform-reviewer), implementation (python-engineer, rust-engineer, frontend-engineer, tauri-desktop, web-designer), testing (test-writer, python-test-engineer), research (deep-researcher, quick-searcher, codebase-explorer), and documentation (documentation-engineer).
 
 ---
 
@@ -105,7 +105,7 @@ Use the team-implementer agent to build [component]
 - Creates new files only within assigned directories
 - Interface contracts are immutable without team lead approval
 
-**Fallback role:** This agent is a fallback for implementation tasks without a specialized agent. The team-lead spawns `python-development:python-architect`, `frontend:frontend-architect`, `tauri-development:rust-engineer`, or `testing:test-writer` when the task matches those contexts.
+**Fallback role:** This agent is a fallback for implementation tasks without a specialized agent. The team-lead spawns `python-development:python-engineer`, `frontend:frontend-engineer`, `tauri-development:rust-engineer`, or `testing:test-writer` when the task matches those contexts.
 
 ---
 
@@ -135,14 +135,14 @@ Spawn an agent team using preset configurations or custom composition.
 | `review` | 3 | security-auditor + code-auditor + team-reviewer (or react-performance-optimizer) |
 | `debug` | 3 | 3x team-debugger, each with a different hypothesis |
 | `feature` | 3 | team-lead + 2 specialized implementers (auto-detected) |
-| `fullstack` | 4 | team-lead + frontend-architect + backend (python-architect or team-implementer) + test-writer |
+| `fullstack` | 4 | team-lead + frontend-engineer + backend (python-engineer or team-implementer) + test-writer |
 | `research` | 3 | deep-researcher + quick-searcher + codebase-explorer |
 | `deep-search` | 4 | lead researcher + codebase analyst + web researcher + domain expert (auto-selected) |
 | `security` | 4 | security-auditor + platform-reviewer + distributed-flow-auditor + security-auditor (separate scope) |
 | `migration` | 4 | team-lead + 2 specialized implementers + code-auditor (verifier) |
 | `docs` | 3 | codebase-explorer + documentation-engineer + code-auditor (accuracy verifier) |
 | `app-analysis` | 3 | app-analyzer + deep-researcher + web-designer |
-| `tauri` | 4 | team-lead + rust-engineer + frontend-architect + tauri-desktop/tauri-mobile |
+| `tauri` | 4 | team-lead + rust-engineer + frontend-engineer + tauri-desktop/tauri-mobile |
 | `ui-studio` | 3+3 | Design wave (web-designer x2 + ui-layout-designer), then polish wave (web-designer + react-performance-optimizer + code-auditor) |
 
 ---
@@ -201,7 +201,7 @@ Develop features in parallel with multiple agents using file ownership boundarie
 
 **Key features:**
 - `--plan-first` presents the decomposition (streams, file ownership, interface contracts, dependencies) for user approval before spawning agents
-- Auto-detects codebase language to select specialized implementers (python-architect, frontend-architect, rust-engineer, test-writer)
+- Auto-detects codebase language to select specialized implementers (python-engineer, frontend-engineer, rust-engineer, test-writer)
 - Integration verification runs build and tests after all streams complete
 
 ---
@@ -282,7 +282,7 @@ Deep multi-source research with parallel investigators covering codebase, web, a
 | `standard` | 3 | Codebase analyst + Web researcher + Context builder |
 | `deep` | 4 | Codebase analyst + Web researcher + Context builder + Domain expert (auto-selected) |
 
-Domain expert is auto-selected based on `--domain` flag or auto-detected from the topic: security-auditor, code-auditor, frontend-architect, python-architect, tauri-desktop, business-planner, or distributed-flow-auditor.
+Domain expert is auto-selected based on `--domain` flag or auto-detected from the topic: security-auditor, code-auditor, frontend-engineer, python-engineer, tauri-desktop, business-planner, or distributed-flow-auditor.
 
 ---
 
@@ -402,7 +402,7 @@ A defining feature of this plugin is its deep integration with the broader marke
 
 **Review tasks** delegate to `senior-review` agents (security-auditor, code-auditor, distributed-flow-auditor, ui-race-auditor) and `platform-engineering:platform-reviewer`.
 
-**Implementation tasks** delegate to `python-development:python-architect`, `frontend:frontend-architect`, `tauri-development:rust-engineer`, `tauri-development:tauri-desktop`, `frontend:web-designer`, and `frontend:ui-layout-designer`.
+**Implementation tasks** delegate to `python-development:python-engineer`, `frontend:frontend-engineer`, `tauri-development:rust-engineer`, `tauri-development:tauri-desktop`, `frontend:web-designer`, and `frontend:ui-layout-designer`.
 
 **Testing tasks** delegate to `testing:test-writer` and `python-development:python-test-engineer`.
 
@@ -425,4 +425,4 @@ The generic team-reviewer, team-implementer, and team-debugger agents are used o
 
 ---
 
-**Related:** [senior-review](senior-review.md) (specialized review agents) | [ai-tooling](ai-tooling.md) (brainstorming, planning, execution skills) | [frontend](frontend.md) (web-designer, ui-layout-designer, frontend-architect) | [research](research.md) (deep-researcher, quick-searcher) | [workflows](workflows.md) (sequential pipelines -- agent-teams parallelizes similar workflows)
+**Related:** [senior-review](senior-review.md) (specialized review agents) | [ai-tooling](ai-tooling.md) (brainstorming, planning, execution skills) | [frontend](frontend.md) (web-designer, ui-layout-designer, frontend-engineer) | [research](research.md) (deep-researcher, quick-searcher)

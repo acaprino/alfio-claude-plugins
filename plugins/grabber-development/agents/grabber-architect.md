@@ -346,5 +346,5 @@ def mitmproxy_addon():
 ## Synergies
 
 - **python-development:async-python-patterns** -- asyncio patterns for async scraping pipelines
-- **python-development:python-architect** -- system architecture for scraping services
+- **python-development:python-engineer** -- system architecture for scraping services
 - **opentelemetry:opentelemetry** -- distributed tracing for scraping observability

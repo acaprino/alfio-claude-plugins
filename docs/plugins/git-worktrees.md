@@ -77,4 +77,4 @@ Git worktree management with subcommands for the full lifecycle.
 
 ---
 
-**Related:** [workflows](workflows.md) (multi-phase pipelines that can run in worktrees) | [senior-review](senior-review.md) (pre-merge review)
+**Related:** [agent-teams](agent-teams.md) (multi-agent teams that can run in worktrees) | [senior-review](senior-review.md) (pre-merge review)

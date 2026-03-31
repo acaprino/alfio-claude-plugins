@@ -289,8 +289,8 @@ migration-lead (plan) -> migrator-1 --+
 |-------|-------|
 | Security | `senior-review:security-auditor` |
 | Architecture | `senior-review:code-auditor` |
-| Frontend | `frontend:frontend-architect` |
-| Python | `python-development:python-architect` |
+| Frontend | `frontend:frontend-engineer` |
+| Python | `python-development:python-engineer` |
 | Tauri | `tauri-development:tauri-desktop` |
 | Business | `business:business-planner` |
 | Distributed | `senior-review:distributed-flow-auditor` |
@@ -365,7 +365,7 @@ explorer (context brief) -> tech-writer (docs) -> doc-verifier (accuracy check)
 ### Configuration
 
 - **Team Size**: 4 (1 lead + 3 specialists)
-- **Agent Types**: `agent-teams:team-lead` + `tauri-development:rust-engineer` + `frontend:frontend-architect` + `tauri-development:tauri-desktop`
+- **Agent Types**: `agent-teams:team-lead` + `tauri-development:rust-engineer` + `frontend:frontend-engineer` + `tauri-development:tauri-desktop`
 - **Display Mode**: tmux recommended
 
 ### Members
@@ -374,7 +374,7 @@ explorer (context brief) -> tech-writer (docs) -> doc-verifier (accuracy check)
 | --------------- | ----------------- | ---------------------------------------------- |
 | tauri-lead      | team-lead         | Coordination, IPC contract design, integration |
 | rust-backend    | rust-engineer     | Rust commands, state management, plugins       |
-| frontend-dev    | frontend-architect | React UI, components, performance             |
+| frontend-dev    | frontend-engineer | React UI, components, performance             |
 | platform-expert | tauri-desktop     | WebView tuning, window management, bundling    |
 
 ### Dependency Pattern

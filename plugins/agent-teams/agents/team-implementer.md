@@ -86,11 +86,11 @@ This agent is a **fallback** for implementation tasks without a specialized agen
 
 | Context | Preferred Agent | Use team-implementer when... |
 |---------|----------------|------------------------------|
-| Python project | `python-development:python-architect` | No Python-specific expertise needed |
+| Python project | `python-development:python-engineer` | No Python-specific expertise needed |
 | Python tests | `python-development:python-test-engineer` | Generic test writing needed |
 | Python refactoring | `python-development:python-refactor-agent` | Generic refactoring needed |
 | Rust code | `tauri-development:rust-engineer` | Non-Rust implementation |
-| React/frontend | `frontend:frontend-architect` | Non-frontend implementation |
+| React/frontend | `frontend:frontend-engineer` | Non-frontend implementation |
 | CSS/UI design | `frontend:web-designer` | No styling/design work |
 | Layout/grid | `frontend:ui-layout-designer` | No layout work |
 | Tauri desktop | `tauri-development:tauri-desktop` | Non-Tauri desktop work |
