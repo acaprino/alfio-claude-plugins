@@ -9,7 +9,7 @@ Custom Claude Code plugin marketplace. Agents, skills, and commands for developm
 | Plugin | Category | Description | Docs |
 |--------|----------|-------------|------|
 | [ai-tooling](plugins/ai-tooling.md) | ai-ml | Prompt engineering, brainstorming, planning, execution, Claude Agent SDK | 1 agent, 5 skills, 1 command |
-| [acp-hooks](plugins/acp-hooks.md) | security | Session hooks -- startup logo, skill awareness, security gate, autocompact, brainstorm gate, review gate | hooks only |
+| [acp-hooks](plugins/acp-hooks.md) | security | Session hooks -- startup logo, skill awareness, security gate, autocompact, brainstorm gate, review gate, docs gate, team spawn gate | hooks only |
 | [agent-teams](plugins/agent-teams.md) | development | Orchestrate multi-agent teams for parallel code review, debugging, and coordinated feature development | 4 agents, 6 skills, 9 commands |
 | [app-analyzer](plugins/app-analyzer.md) | analysis | Android app analysis via ADB and webapp exploration via Playwright | 1 agent |
 | [browser-extensions](plugins/browser-extensions.md) | development | Firefox WebExtension development -- Manifest V2/V3, browser.* APIs, AMO publishing | 1 agent, 1 skill |
@@ -40,13 +40,12 @@ Custom Claude Code plugin marketplace. Agents, skills, and commands for developm
 | [rag-development](plugins/rag-development.md) | ai-ml | RAG system design and audit -- chunking, embeddings, Qdrant, advanced patterns | 2 agents, 1 skill, 1 command |
 | [react-development](plugins/react-development.md) | frontend | React 19 performance, state management, bundle optimization, Vercel best practices | 1 agent, 1 skill, 1 command |
 | [research](plugins/research.md) | research | Quick search (Sonnet) and deep multi-source research (Opus) | 2 agents |
-| [senior-review](plugins/senior-review.md) | review | Multi-agent code review -- architecture, security, patterns, distributed flows, dead code | 4 agents, 1 skill, 4 commands |
+| [senior-review](plugins/senior-review.md) | review | Multi-agent code review -- architecture, security, patterns, distributed flows, startup cycles, dead code | 5 agents, 1 skill, 4 commands |
 | [stripe](plugins/stripe.md) | payments | Stripe payments, subscriptions, Connect, revenue optimization | 2 agents |
 | [system-utils](plugins/system-utils.md) | utilities | File organization, duplicate detection, directory cleanup | 1 skill, 1 command |
 | [tauri-development](plugins/tauri-development.md) | development | Tauri 2 desktop/mobile -- IPC optimization, Rust backend, cross-platform | 3 agents, 1 skill |
 | [testing](plugins/testing.md) | testing | TDD methodology, E2E testing patterns, behavior-driven test generation | 1 agent, 2 skills |
-| [typescript-development](plugins/typescript-development.md) | development | TypeScript best practices and dead code detection via Knip | 2 skills |
-| [workflows](plugins/workflows.md) | workflow | Cross-plugin pipelines -- feature e2e, frontend redesign, UI studio, reviews | 8 commands |
+| [typescript-development](plugins/typescript-development.md) | development | TypeScript best practices, dead code detection via Knip, and enterprise TypeScript mastery | 3 skills |
 | [xterm](plugins/xterm.md) | frontend | xterm.js terminal emulator -- addons, PTY wiring, debugging, features | 1 skill, 2 commands |
 
 ## Quick Start Recipes
@@ -77,4 +76,4 @@ Custom Claude Code plugin marketplace. Agents, skills, and commands for developm
 /cc-usage 30d
 ```
 
-See the [workflows plugin](plugins/workflows.md) for more pipeline commands with Mermaid diagrams.
+See the [agent-teams plugin](plugins/agent-teams.md) for multi-agent pipeline commands with Mermaid diagrams.

@@ -193,6 +193,11 @@ function countWords(text) {
   return text.split(/\s+/).filter(Boolean).length;
 }
 
+function matchWord(text, word) {
+  const re = new RegExp("\\b" + word.replace(/\s+/g, "\\s+") + "\\b", "i");
+  return re.test(text);
+}
+
 function matchPreset(prompt) {
   const lower = prompt.toLowerCase();
   const words = countWords(prompt);
@@ -220,7 +225,7 @@ function matchPreset(prompt) {
     // Apply scope boost: each matching scope word reduces minWords by 5
     let effectiveMin = preset.minWords;
     if (preset.scopeBoost) {
-      const boostCount = preset.scopeBoost.filter(sw => lower.includes(sw)).length;
+      const boostCount = preset.scopeBoost.filter(sw => matchWord(lower, sw)).length;
       effectiveMin = Math.max(5, effectiveMin - boostCount * 5);
     }
 
@@ -260,6 +265,7 @@ const DOMAIN_KEYWORDS = [
   "queue", "cache", "redis", "postgres", "mongo", "stripe"
 ];
 
+// SYNC: update this catalog when agents are added or removed from the marketplace
 const AGENT_CATALOG = [
   "python-development:python-engineer -- Python implementation",
   "python-development:python-test-engineer -- Python tests",
@@ -297,7 +303,7 @@ function detectComplexity(prompt) {
   if (words < 10) return false;
 
   // Must have at least one action verb
-  const hasAction = ACTION_VERBS.some(v => lower.includes(v));
+  const hasAction = ACTION_VERBS.some(v => matchWord(lower, v));
   if (!hasAction) return false;
 
   // Score complexity signals
@@ -308,19 +314,16 @@ function detectComplexity(prompt) {
   else if (words >= 15) score += 1;
 
   // Scope words (entire, full, from scratch, etc.)
-  const scopeCount = SCOPE_WORDS.filter(s => lower.includes(s)).length;
+  const scopeCount = SCOPE_WORDS.filter(s => matchWord(lower, s)).length;
   score += scopeCount * 2;
 
   // Multiple domain keywords (cross-domain work)
-  const domainCount = DOMAIN_KEYWORDS.filter(d => {
-    const re = new RegExp("\\b" + d + "\\b", "i");
-    return re.test(lower);
-  }).length;
+  const domainCount = DOMAIN_KEYWORDS.filter(d => matchWord(lower, d)).length;
   if (domainCount >= 3) score += 3;
   else if (domainCount >= 2) score += 2;
 
   // Multiple action verbs (multi-step work)
-  const actionCount = ACTION_VERBS.filter(v => lower.includes(v)).length;
+  const actionCount = ACTION_VERBS.filter(v => matchWord(lower, v)).length;
   if (actionCount >= 3) score += 2;
   else if (actionCount >= 2) score += 1;
 
@@ -329,11 +332,14 @@ function detectComplexity(prompt) {
     "and then", "after that", "also need", "plus",
     "e poi", "dopo", "inoltre", "anche"
   ];
-  if (multiStepPhrases.some(p => lower.includes(p))) score += 2;
+  if (multiStepPhrases.some(p => matchWord(lower, p))) score += 2;
 
   // Listing patterns (1., 2., bullet points, commas separating tasks)
   if (/\d\.\s/.test(prompt)) score += 2;
   if ((prompt.match(/,/g) || []).length >= 3) score += 1;
+
+  // Questions are less likely to need teams
+  if (prompt.trimEnd().endsWith("?")) score -= 2;
 
   // Threshold: need score >= 3 to suggest a custom team
   return score >= 3;
@@ -342,9 +348,13 @@ function detectComplexity(prompt) {
 // --- Main ---
 
 let input = "";
+const MAX_INPUT = 1024 * 64; // 64 KB
 const stdinTimeout = setTimeout(() => process.exit(0), 3000);
 process.stdin.setEncoding("utf8");
-process.stdin.on("data", (chunk) => { input += chunk; });
+process.stdin.on("data", (chunk) => {
+  input += chunk;
+  if (input.length > MAX_INPUT) process.exit(0);
+});
 process.stdin.on("end", () => {
   clearTimeout(stdinTimeout);
   try {
@@ -381,7 +391,6 @@ process.stdin.on("end", () => {
         `2. Invoke the skill: ${matched.command}`,
         ``,
         `Do NOT ask for confirmation -- just launch the team. The user expects proactive team usage.`,
-        `If the user added --no-team to their prompt, skip this and work as a single agent.`,
         `</IMPORTANT>`
       ].join("\n");
     } else if (detectComplexity(prompt)) {
@@ -408,7 +417,6 @@ process.stdin.on("end", () => {
         `2. Spawn the agents using the Agent tool with the chosen subagent_type values`,
         ``,
         `Do NOT ask for confirmation -- compose and launch the team directly.`,
-        `If the user added --no-team to their prompt, skip this and work as a single agent.`,
         `</IMPORTANT>`
       ].join("\n");
     } else {

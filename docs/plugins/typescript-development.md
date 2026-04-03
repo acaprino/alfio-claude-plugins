@@ -1,6 +1,6 @@
 # TypeScript Development Plugin
 
-> Write clean TypeScript that follows established standards. Metabase coding patterns plus Knip dead code detection for unused files, exports, and dependencies.
+> Write clean TypeScript that follows established standards. Metabase coding patterns, Knip dead code detection, and enterprise-grade TypeScript mastery with type-safe patterns, modern tooling, and framework integration.
 
 ## Skills
 
@@ -21,6 +21,25 @@ Find unused files, dependencies, exports, and types in JavaScript/TypeScript pro
 |---|---|
 | **Invoke** | Skill reference |
 | **Use for** | Dead code detection, unused dependency cleanup, bundle size optimization, CI dependency hygiene |
+
+### `mastering-typescript`
+
+Master enterprise-grade TypeScript development with type-safe patterns, modern tooling, and framework integration. Upstream-synced from SpillwaveSolutions/mastering-typescript-skill.
+
+| | |
+|---|---|
+| **Invoke** | Skill reference |
+| **Use for** | TypeScript 5.9+ development, type system fundamentals (generics, mapped types, conditional types, satisfies operator), enterprise patterns (error handling, Zod validation), React integration, NestJS APIs, LangChain.js AI apps, JavaScript migration, modern toolchain configuration (Vite 7, pnpm, ESLint, Vitest) |
+
+**Reference files:**
+| File | Content |
+|------|---------|
+| type-system.md | Type system fundamentals, utility types, type guards |
+| generics.md | Generic patterns, constraints, inference |
+| enterprise-patterns.md | Error handling, validation, architecture patterns |
+| react-integration.md | Type-safe React components, hooks, state management |
+| nestjs-integration.md | NestJS scalable API patterns |
+| toolchain.md | Vite 7, pnpm, ESLint, Vitest configuration |
 
 ---
 

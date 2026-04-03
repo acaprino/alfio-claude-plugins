@@ -2,14 +2,14 @@
 
 # ACP - Alfio Caprino Claude Code Plugins
 
-**40 specialized plugins for Claude Code -- so you spend less time prompting and more time shipping.**
+**39 specialized plugins for Claude Code -- so you spend less time prompting and more time shipping.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat)](LICENSE)
-[![Marketplace](https://img.shields.io/badge/marketplace-v5.7.0-green?style=flat)](.claude-plugin/marketplace.json)
-[![Plugins](https://img.shields.io/badge/plugins-40-orange?style=flat)](#plugins)
-[![Agents](https://img.shields.io/badge/agents-55-purple?style=flat)](#plugins)
+[![Marketplace](https://img.shields.io/badge/marketplace-v5.13.0-green?style=flat)](.claude-plugin/marketplace.json)
+[![Plugins](https://img.shields.io/badge/plugins-39-orange?style=flat)](#plugins)
+[![Agents](https://img.shields.io/badge/agents-56-purple?style=flat)](#plugins)
 [![Skills](https://img.shields.io/badge/skills-61-teal?style=flat)](#plugins)
-[![Commands](https://img.shields.io/badge/commands-51-red?style=flat)](#plugins)
+[![Commands](https://img.shields.io/badge/commands-44-red?style=flat)](#plugins)
 
 </div>
 
@@ -40,11 +40,11 @@ That's it. Plugins activate automatically when relevant -- or invoke them direct
 ```bash
 # Slash commands
 /code-review          # Multi-agent architecture + security + pattern review
-/develop-feature      # Brainstorm -> plan -> implement -> review -> humanize
+/agent-teams:team-feature  # Decompose -> spawn agents -> implement -> verify
 /python-scaffold      # Scaffold a production-ready Python project
 
 # Agents
-"Use the python-pro agent to implement rate limiting"
+"Use the python-engineer agent to implement rate limiting"
 "Ask the rust-engineer to review my Tauri backend"
 ```
 
@@ -55,11 +55,10 @@ That's it. Plugins activate automatically when relevant -- or invoke them direct
 | Plugin | Description | A | S | C |
 |--------|-------------|:-:|:-:|:-:|
 | **[python-development](docs/plugins/python-development.md)** | TDD, refactoring, async patterns, packaging, performance, dead code detection | 3 | 8 | 2 |
-| **[senior-review](docs/plugins/senior-review.md)** | 4 agents review architecture, security, patterns, and distributed flows in parallel | 4 | 1 | 4 |
+| **[senior-review](docs/plugins/senior-review.md)** | 5 agents review architecture, security, patterns, distributed flows, and startup cycles in parallel | 5 | 1 | 4 |
 | **[frontend](docs/plugins/frontend.md)** | UI polish, layout design, modern CSS, web strategy, Radix/shadcn/daisyUI | 3 | 5 | 1 |
 | **[codebase-mapper](docs/plugins/codebase-mapper.md)** | Generate 10 narrative docs with Mermaid diagrams from any codebase | 10 | 1 | 4 |
 | **[ai-tooling](docs/plugins/ai-tooling.md)** | Brainstorm, plan, execute, optimize prompts, Agent SDK | 1 | 5 | 1 |
-| **[workflows](docs/plugins/workflows.md)** | End-to-end pipelines: feature dev, frontend redesign, mobile, Tauri, review | - | - | 7 |
 | **[tauri-development](docs/plugins/tauri-development.md)** | Tauri 2 desktop + mobile, Rust backend, IPC optimization | 3 | 1 | - |
 | **[digital-marketing](docs/plugins/digital-marketing.md)** | SEO audits, content strategy, brand naming, domain hunting, text humanization | 3 | 4 | 5 |
 | **[react-development](docs/plugins/react-development.md)** | React 19 performance, state management, bundle optimization | 1 | 1 | 1 |
@@ -76,7 +75,7 @@ That's it. Plugins activate automatically when relevant -- or invoke them direct
 | **[app-analyzer](docs/plugins/app-analyzer.md)** | Analyze Android apps via ADB and webapps via Playwright | 1 | - | - |
 | **[xterm](docs/plugins/xterm.md)** | Build and debug xterm.js terminal emulators | - | 1 | 2 |
 | **[obsidian-development](docs/plugins/obsidian-development.md)** | Pass ObsidianReviewBot on first try | - | 3 | - |
-| **[typescript-development](docs/plugins/typescript-development.md)** | TypeScript best practices and Knip dead code detection | - | 2 | - |
+| **[typescript-development](docs/plugins/typescript-development.md)** | TypeScript best practices, Knip dead code detection, and enterprise TypeScript mastery | - | 3 | - |
 | **[system-utils](docs/plugins/system-utils.md)** | Clean up messy folders, find duplicates | - | 1 | 1 |
 | **[messaging](docs/plugins/messaging.md)** | RabbitMQ queue design and AMQP patterns | 1 | - | - |
 | **[csp](docs/plugins/csp.md)** | Scheduling, routing, assignment with OR-Tools CP-SAT | 1 | - | - |
@@ -92,8 +91,8 @@ That's it. Plugins activate automatically when relevant -- or invoke them direct
 | **[mt5-trading](docs/plugins/mt5-trading.md)** | MetaTrader 5 Python algotrading -- API, polling events, order execution | 1 | 1 | 1 |
 | **[opentelemetry](docs/plugins/opentelemetry.md)** | OpenTelemetry Python -- distributed tracing, context propagation, exporters | 1 | 1 | - |
 | **[docker](docs/plugins/docker.md)** | Optimized multi-stage Dockerfiles for any language or framework | - | 1 | - |
-| **grabber-development** | Python web scraping -- stealth automation, anti-bot bypass, proxy architecture | 1 | 1 | - |
-| **agent-teams** | Orchestrate multi-agent teams for parallel code review, debugging, and coordinated feature development | 4 | 6 | 9 |
+| **[grabber-development](docs/plugins/grabber-development.md)** | Python web scraping -- stealth automation, anti-bot bypass, proxy architecture | 1 | 1 | - |
+| **[agent-teams](docs/plugins/agent-teams.md)** | Orchestrate multi-agent teams for parallel code review, debugging, and coordinated feature development | 4 | 6 | 9 |
 
 **A** = Agents, **S** = Skills, **C** = Commands
 
@@ -104,9 +103,9 @@ That's it. Plugins activate automatically when relevant -- or invoke them direct
 
 | Type | What it is | How to use |
 |------|-----------|------------|
-| **Agent** | A specialized AI persona with domain expertise | `Use the python-pro agent to implement rate limiting` |
+| **Agent** | A specialized AI persona with domain expertise | `Use the python-engineer agent to implement rate limiting` |
 | **Skill** | A knowledge module Claude references automatically | Activates when the task matches its trigger keywords |
-| **Command** | A slash command that kicks off a workflow | `/code-review`, `/python-scaffold`, `/develop-feature` |
+| **Command** | A slash command that kicks off a workflow | `/code-review`, `/python-scaffold`, `/agent-teams:team-feature` |
 
 Plugins are pure Markdown with optional JS/Python helper scripts. No build step, no runtime framework.
 
@@ -127,7 +126,7 @@ acp/
 │   │   └── commands/          # slash-command .md files
 │   ├── senior-review/
 │   ├── frontend/
-│   └── ...                    # 40 plugins total
+│   └── ...                    # 39 plugins total
 ├── LICENSE
 └── README.md
 ```

@@ -1,6 +1,6 @@
 # Senior Review Plugin
 
-> Catch bugs before they ship. Specialized agents review code quality, security, and UI timing in parallel -- backed by a comprehensive defect taxonomy knowledge base with 140+ defect patterns and CWE/OWASP mappings.
+> Catch bugs before they ship. Five specialized agents review code quality, security, UI timing, distributed flows, and startup cycles in parallel -- backed by a comprehensive defect taxonomy knowledge base with 140+ defect patterns and CWE/OWASP mappings.
 
 ## Agents
 
@@ -65,6 +65,50 @@ Framework-agnostic UI race condition analyst detecting timing bugs between async
 ```
 Use the ui-race-auditor agent to analyze [UI component/codebase]
 ```
+
+---
+
+### `distributed-flow-auditor`
+
+Adversarial cross-service flow analyst for microservices, agent-based, and multi-module distributed systems. Traces request flows, API/message contracts, saga orchestration, timeout chains, and integration boundaries across multiple services or modules.
+
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Use for** | Cross-service analysis, distributed flow tracing, contract verification, multi-service code review |
+
+**Invocation:**
+```
+Use the distributed-flow-auditor agent to analyze [multi-service system]
+```
+
+**Methodology:**
+- 6-phase analysis: service topology discovery, contract extraction, cross-boundary flow tracing, timeout chain validation, resilience pattern audit, message ordering and delivery
+- Hunts for contract mismatches, cascading timeout violations, missing idempotency, broken saga compensation, message ordering bugs, and split-brain risks
+- Both sides of every boundary verified: producer `file:line` AND consumer `file:line`
+- References `defect-taxonomy` skill for CWE-mapped detection strategies
+
+---
+
+### `chicken-egg-detector`
+
+Detects chicken-and-egg problems, circular initialization dependencies, and bootstrap deadlocks across services, modules, and infrastructure. Traces startup ordering, init sequences, config bootstrapping, and migration dependencies.
+
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Use for** | Startup dependency analysis, circular initialization detection, bootstrap cycle auditing, service startup ordering review |
+
+**Invocation:**
+```
+Use the chicken-egg-detector agent to analyze [system/infrastructure]
+```
+
+**Methodology:**
+- 6-phase analysis: component inventory and init sequence discovery, dependency graph construction, bootstrap sequence analysis, temporal coupling detection, migration and schema dependency analysis, infrastructure dependency mapping
+- Finds cases where component A requires B to be ready but B requires A -- creating deadlocks, flaky startups, or hidden temporal coupling
+- Concrete evidence: every finding includes file:line references for both sides of the dependency cycle
+- References `defect-taxonomy` skill for integration error patterns
 
 ---
 

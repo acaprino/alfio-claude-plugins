@@ -1,6 +1,6 @@
 # Frontend Plugin
 
-> Two agents and seven skills for every layer of frontend work -- from CSS architecture to premium polish.
+> Three agents and five skills for every layer of frontend work -- from CSS architecture to premium polish.
 
 ## Quick Reference
 
@@ -47,6 +47,31 @@ Use the ui-layout-designer agent to design [layout/page]
 
 ---
 
+### `frontend-engineer`
+
+Hands-on frontend engineer for building components, pages, and applications. Designs architecture (component tree, state management, layout strategy) and implements directly. Modern CSS, React, responsive design, accessibility.
+
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Use for** | Building new frontend features, components, or applications, frontend architecture planning |
+
+**Invocation:**
+```
+Use the frontend-engineer agent to build [component/feature/application]
+```
+
+**Capabilities:**
+- Component architecture: composition, slots, compound components, render props
+- State management: local state, context, reducers, derived state
+- Layout: CSS Grid, Flexbox, container queries, responsive breakpoints
+- Styling: CSS Modules, Tailwind, CSS custom properties, design tokens
+- Motion: transitions, keyframe animations, reduced-motion support
+- Accessibility: semantic HTML, ARIA, focus management, keyboard navigation
+- Performance: code splitting, lazy loading, image optimization, Core Web Vitals
+
+---
+
 ## Skills
 
 ### `frontend`
@@ -66,16 +91,6 @@ Unified web frontend knowledge base -- CSS, UX, UI patterns, layouts, and flows.
 | ui-pattern-guide.md | Cards vs list vs table, navigation, pagination, page archetypes |
 | layout-patterns.md | Holy Grail, Full-Bleed, Split Screen, Bento Grid, Masonry, and more |
 | flow-patterns.md | Step indicators, quiz layouts, coachmarks, paywalls, completeness meters |
-
----
-
-### `frontend-design`
-
-Create distinctive, production-grade frontend interfaces. Upstream-synced from anthropics/claude-code.
-
-| | |
-|---|---|
-| **Use for** | Building web components, pages, or applications with high design quality |
 
 ---
 

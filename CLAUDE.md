@@ -84,7 +84,6 @@ Some plugins are ported from external repositories and should be kept in sync wi
 
 | Plugin | Upstream source | Files to sync |
 |--------|----------------|---------------|
-| `frontend` (frontend-design) | `anthropics/claude-code` - `plugins/frontend-design/skills/frontend-design/SKILL.md` | `plugins/frontend/skills/frontend-design/SKILL.md` |
 | `ai-tooling` (brainstorming) | `obra/superpowers` - `skills/brainstorming/SKILL.md` | `plugins/ai-tooling/skills/brainstorming/SKILL.md` |
 | `ai-tooling` (writing-plans) | `obra/superpowers` - `skills/writing-plans/SKILL.md` | `plugins/ai-tooling/skills/writing-plans/SKILL.md` |
 | `ai-tooling` (executing-plans) | `obra/superpowers` - `skills/executing-plans/SKILL.md` | `plugins/ai-tooling/skills/executing-plans/SKILL.md` |
@@ -103,10 +102,6 @@ Some plugins are ported from external repositories and should be kept in sync wi
 ### How to sync a plugin
 
 ```bash
-# Fetch latest SKILL.md from upstream (anthropics/claude-code example)
-gh api repos/anthropics/claude-code/contents/plugins/frontend-design/skills/frontend-design/SKILL.md \
-  --jq '.content' | base64 -d
-
 # Fetch latest SKILL.md from upstream (obra/superpowers example)
 gh api repos/obra/superpowers/contents/skills/brainstorming/SKILL.md \
   --jq '.content' | base64 -d
@@ -222,6 +217,6 @@ gh api repos/SpillwaveSolutions/mastering-typescript-skill/contents/mastering-ty
   --jq '.content' | base64 -d
 ```
 
-Then compare with the local file, apply upstream changes while preserving local additions (source attribution line at top of each file, plus any plugin-specific sections like Typography Reference or Isolated Prompting for frontend-design in `plugins/frontend/skills/frontend-design/`), bump the plugin version, bump `metadata.version`, and commit + push.
+Then compare with the local file, apply upstream changes while preserving local additions (source attribution line at top of each file), bump the plugin version, bump `metadata.version`, and commit + push.
 
 **Important:** Upstream superpowers skills reference other superpowers skills we don't have (e.g. `superpowers:using-git-worktrees`, `superpowers:finishing-a-development-branch`, `superpowers:subagent-driven-development`). When syncing, replace `superpowers:` skill references with either our local `ai-tooling:` equivalents or generic guidance describing the same action. Keep `docs/plans/` path (not upstream's `docs/superpowers/plans/`).

@@ -4,26 +4,74 @@
 
 ## Agents
 
-### `python-pro`
+### `python-engineer`
 
-Expert Python developer mastering Python 3.12+ features, modern tooling (uv, ruff), and production-ready practices.
+Hands-on Python 3.12+ engineer. Designs system architecture and implements production-ready code using modern tooling (uv, ruff, FastAPI, Pydantic). Async-first, type-safe, well-tested.
 
 | | |
 |---|---|
 | **Model** | `opus` |
-| **Use for** | Modern Python patterns, async programming, performance optimization, type hints |
+| **Use for** | Planning new Python projects, designing architecture, making tech stack decisions, implementing Python features |
 
 **Invocation:**
 ```
-Use the python-pro agent to [implement/optimize/review] [feature]
+Use the python-engineer agent to [design/implement/optimize] [feature]
 ```
 
 **Expertise:**
-- Python 3.12+ features (pattern matching, type hints, dataclasses)
-- Modern tooling: uv, ruff, mypy, pytest
-- Async/await patterns with asyncio
-- Performance profiling and optimization
-- FastAPI, Django, Pydantic integration
+- Python 3.12+ features (pattern matching, generics, Protocol typing, dataclasses)
+- Modern tooling: uv, ruff, mypy/pyright, pyproject.toml
+- Web frameworks: FastAPI, Django 5.x, SQLAlchemy 2.0+, Pydantic v2
+- Data pipelines, structured logging, async I/O
+- Docker multi-stage builds, K8s manifests, cloud deploy
+
+---
+
+### `python-refactor-agent`
+
+Expert Python refactoring agent. Cleans up legacy code, reduces complexity, removes dead code using vulture/ruff, and improves documentation/comments.
+
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Use for** | Refactoring code, removing dead code, optimizing imports, reducing cognitive complexity, improving code readability and docstrings |
+
+**Invocation:**
+```
+Use the python-refactor-agent to refactor [module/file]
+```
+
+**Capabilities:**
+- Code quality tools: ruff, vulture, mypy
+- Refactoring patterns: Extract Method, Replace Conditional with Polymorphism, introducing Dataclasses/Protocols
+- Complexity reduction: flattening nested loops/conditionals
+- Dead code removal: unused imports, variables, functions, and classes
+- Documentation: antirez's 9-type comment taxonomy, Google-style docstrings
+- Leverages `python-refactor`, `python-dead-code`, `python-comments`, and `python-performance-optimization` skills
+
+---
+
+### `python-test-engineer`
+
+Expert Python test engineer. Writes focused, behavior-driven pytest suites, handles TDD workflows, and improves code coverage.
+
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Use for** | Writing tests, improving test coverage, fixing broken tests, setting up pytest configurations, red-green-refactor workflows |
+
+**Invocation:**
+```
+Use the python-test-engineer to write tests for [module/feature]
+```
+
+**Capabilities:**
+- Testing frameworks: pytest, unittest, coverage, tox, nox
+- Mocking: unittest.mock, pytest-mock, patching external APIs and databases
+- Fixtures: reusable, modular pytest fixtures for database setup, API clients, mock data
+- TDD workflow: Red-Green-Refactor cycles
+- Pytest infrastructure rules: conftest execution order, mock placement strategy, mock target resolution, test marker discipline
+- Leverages the `python-tdd` skill for best practices
 
 ---
 
