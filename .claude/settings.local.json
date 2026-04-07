@@ -7,7 +7,10 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:cocalc.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(mkdir -p /d/tmp/code-review-skill)",
+      "Bash(unzip -o \"C:\\\\Users\\\\alfio\\\\Downloads\\\\code-review.zip\" -d /d/tmp/code-review-skill)",
+      "Read(//d/tmp/**)"
     ]
   }
 }
