@@ -129,6 +129,7 @@ These commands orchestrate multi-agent teams for complex tasks. Prefer them over
 | Tauri desktop app review | `/agent-teams:team-spawn tauri` |
 | Debug with competing hypotheses | `/agent-teams:team-debug` |
 | Deep multi-source research | `/agent-teams:team-research` |
+| Map an unfamiliar codebase | `/agent-teams:team-codebase-map` |
 
 If the user's request matches a team scope, suggest the team command instead of invoking individual skills.
 

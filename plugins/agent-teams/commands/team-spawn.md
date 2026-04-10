@@ -1,5 +1,5 @@
 ---
-description: "Spawn an agent team using presets (review, debug, feature, fullstack, research, deep-search, security, migration, docs, app-analysis, tauri, ui-studio) or custom composition"
+description: "Spawn an agent team using presets (review, debug, feature, fullstack, research, deep-search, security, migration, docs, codebase-mapper, app-analysis, tauri, ui-studio) or custom composition"
 argument-hint: "<preset|custom> [--name team-name] [--members N] [--delegate]"
 ---
 
@@ -108,6 +108,21 @@ If a preset is specified, use these configurations:
   - Reviewer: `senior-review:code-auditor` (verify accuracy)
 - Team name default: `docs-team`
 
+**`codebase-mapper`** -- Parallel codebase documentation with phased pipeline (default: 8 members across 3 phases)
+
+- Runs in three sequential phases (see `/team-codebase-map` for full pipeline):
+  - **Phase 1** (1 agent, sequential): `codebase-mapper:codebase-explorer` builds context brief
+  - **Phase 2** (6 agents, parallel):
+    - Overview: `codebase-mapper:overview-writer`
+    - Tech stack: `codebase-mapper:tech-writer`
+    - Workflows: `codebase-mapper:flow-writer`
+    - Onboarding: `codebase-mapper:onboarding-writer`
+    - Ops: `codebase-mapper:ops-writer`
+    - Config: `codebase-mapper:config-writer`
+  - **Phase 3** (1 agent, sequential): `codebase-mapper:guide-reviewer` reviews all docs and produces INDEX.md
+- Team name default: `codebase-mapper-team`
+- **Shortcut**: Use `/team-codebase-map` for the full orchestrated pipeline
+
 **`app-analysis`** -- Competitive app analysis (default: 3 members)
 
 - Spawn analysis specialists:
@@ -164,6 +179,7 @@ Before spawning, invoke the relevant skills for the preset to inform team config
 | security | `agent-teams:multi-reviewer-patterns`, `senior-review:defect-taxonomy`, `platform-engineering:platform-engineering` |
 | migration | `agent-teams:parallel-feature-development`, `agent-teams:task-coordination-strategies`, `ai-tooling:writing-plans` |
 | docs | `codebase-mapper:codebase-mapper`, `agent-teams:team-composition-patterns` |
+| codebase-mapper | `codebase-mapper:codebase-mapper`, `agent-teams:task-coordination-strategies`, `agent-teams:team-communication-protocols` |
 | app-analysis | `agent-teams:team-composition-patterns` |
 | tauri | `agent-teams:parallel-feature-development`, `tauri-development:tauri`, `agent-teams:task-coordination-strategies` |
 | ui-studio | `ai-tooling:brainstorming`, `frontend:frontend`, `agent-teams:parallel-feature-development`, `agent-teams:team-communication-protocols` |
@@ -207,6 +223,14 @@ Use the **most specialized agent** available. The team-lead's Ecosystem Integrat
 | docs | explorer | -- | `codebase-mapper:codebase-explorer` |
 | docs | writer | -- | `codebase-mapper:documentation-engineer` |
 | docs | verifier | -- | `senior-review:code-auditor` |
+| codebase-mapper | explorer | -- | `codebase-mapper:codebase-explorer` |
+| codebase-mapper | overview | -- | `codebase-mapper:overview-writer` |
+| codebase-mapper | tech | -- | `codebase-mapper:tech-writer` |
+| codebase-mapper | flow | -- | `codebase-mapper:flow-writer` |
+| codebase-mapper | onboarding | -- | `codebase-mapper:onboarding-writer` |
+| codebase-mapper | ops | -- | `codebase-mapper:ops-writer` |
+| codebase-mapper | config | -- | `codebase-mapper:config-writer` |
+| codebase-mapper | reviewer | -- | `codebase-mapper:guide-reviewer` |
 | app-analysis | mapper | -- | `app-analyzer:app-analyzer` |
 | app-analysis | researcher | -- | `research:deep-researcher` |
 | app-analysis | designer | -- | `frontend:web-designer` |
