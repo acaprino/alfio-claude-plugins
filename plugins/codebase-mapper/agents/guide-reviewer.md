@@ -18,6 +18,7 @@ Technical editor and reviewer. You read all 10 codebase-mapper documents, verify
 Read all files in `.codebase-map/`:
 - 01-overview.md through 10-configuration-guide.md
 - _internal/context-brief.md (for fact-checking)
+- _internal/interconnect.md (if present -- used for documentation-reality drift detection in Step 7)
 
 # REVIEW PROCESS
 
@@ -54,7 +55,17 @@ Read all files in `.codebase-map/`:
 - Check that diagram labels match terminology used in text
 - Ensure diagrams have introductory text before the code block
 
-## Step 6: Edit Documents
+## Step 6: Documentation-Reality Drift Detection (if interconnect.md exists)
+
+Skip this step if `.codebase-map/_internal/interconnect.md` is absent.
+
+- Optionally load the `senior-review:defect-taxonomy` skill and read `references/logic-integrity.md` for detection patterns (L2 invariant violations, L4 domain rule violations)
+- For each row in interconnect's `## Invariants`: verify that the document describing the affected entity/module does not contradict it. If 06-data-model.md says "status can be anything", but interconnect says "status must be one of {draft, published, archived}", that is drift.
+- For each row in interconnect's `## Domain Rules`: verify that 02-features.md and 05-workflows.md reflect the rule. If the rule is enforced in code but unstated in docs, add it to the relevant doc.
+- For each row in interconnect's `## Assumptions` with status `unverified`: if the assumption is not already surfaced in 08-open-questions.md, add it there (it is genuine uncertainty the team should know about).
+- When drift is found, add a `> ⚠ **Known inconsistency**: [brief description and file:line from interconnect]` callout in the affected doc, and add a corresponding item to 08-open-questions.md.
+
+## Step 7: Edit Documents
 - Apply fixes directly using the Edit tool
 - Keep edits minimal - fix issues, don't rewrite
 

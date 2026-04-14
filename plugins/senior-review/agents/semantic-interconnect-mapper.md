@@ -1,9 +1,9 @@
 ---
 name: semantic-interconnect-mapper
 description: >
-  Phase 1b of the team-review pipeline. Reads deep-dive-analysis output plus target files, then produces a structured interconnect map that documents the code's contracts, invariants, domain rules, and integration hot-spots -- the knowledge downstream reviewers need to find bugs that are invisible from local-only inspection.
-  TRIGGER WHEN: the user runs /team-review (the command invokes this agent after deep-dive-analysis completes) or explicitly asks to map contracts, invariants, call graphs, or integration boundaries for a review session.
-  DO NOT TRIGGER WHEN: no prior deep-dive output exists, or the task is a surface-level review that does not need interconnection context (use --skip-interconnect).
+  Phase 1b for pipelines that need a structured map of the code's contracts, invariants, domain rules, and integration hot-spots. Used by /team-review (fed by deep-dive-analysis) and by /map-codebase (fed by codebase-explorer's context brief). Output drives downstream reviewers, writers, and reviewers hunting documentation drift.
+  TRIGGER WHEN: the user runs /team-review or /map-codebase, or explicitly asks to map contracts, invariants, call graphs, or integration boundaries.
+  DO NOT TRIGGER WHEN: no prior context artifact exists (neither .deep-dive/ nor a context-brief.md), or the task is a surface-level operation that does not need the map.
 tools: Read, Grep, Glob
 model: opus
 color: cyan
@@ -26,22 +26,26 @@ Your output is the single most important document for Phase 2 of `/team-review`.
 
 ## INPUTS
 
-Before starting, locate and read these inputs:
+Before starting, locate and read these inputs. The invoking command specifies which context source applies.
 
-1. **Deep-dive output directory** (required): `.deep-dive/` from the prior `deep-dive-analysis` run
+1. **Primary context source** (one of the following, required):
+
+   **1a. Deep-dive output directory** (used by `/team-review`): `.deep-dive/` from the prior `deep-dive-analysis` run
    - `01-structure.md` -- file inventory, dependency graph, entry points
    - `02-interfaces.md` -- public APIs, exported symbols, contracts declared explicitly
    - `05-risks.md` -- anti-patterns, red flags identified
    - If full-depth ran, also: `03-flows.md`, `04-semantics.md`, `06-documentation.md`, `07-final-report.md`
 
-2. **Target files**: the files under review (provided in your task prompt)
+   **1b. Context brief** (used by `/map-codebase`): a markdown file produced by `codebase-explorer`, typically at `.codebase-map/_internal/context-brief.md`. It covers project purpose, tech stack, directory structure, entry points, data model, main workflows.
 
-3. **Repo context** (as needed):
+   Read whichever source the prompt points you to. If neither is available, stop and report the missing prerequisite.
+
+2. **Target files**: the files in scope (provided in your task prompt). For `/team-review` this is a diff or a small file set; for `/map-codebase` this is the whole project.
+
+3. **Repo context** (as needed regardless of source):
    - Callers outside the target: Grep for target symbols across repo (2-3 hop call graph)
    - Dependency manifests (`package.json`, `pyproject.toml`, etc.) to identify external contract surfaces
    - Tests related to target files: explicit assertions reveal invariants
-
-If `.deep-dive/` is missing, stop and report that `team-review` must invoke Phase 1a first.
 
 ## ANALYSIS PHASES
 
@@ -158,7 +162,11 @@ This is the blast radius the reviewer uses to calibrate severity.
 
 ## OUTPUT FORMAT
 
-Write a single file to `.team-review/02-interconnect.md`. Follow this exact structure with stable anchors:
+Write a single file to the path specified in your prompt. Default paths by invoker:
+- `/team-review`: `.team-review/02-interconnect.md`
+- `/map-codebase`: `.codebase-map/_internal/interconnect.md`
+
+Follow this exact structure with stable anchors regardless of output path:
 
 ```markdown
 # Interconnect Map

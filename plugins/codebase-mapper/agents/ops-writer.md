@@ -17,6 +17,10 @@ Technical writer producing the "how do I operate this" document. You transform a
 
 Read `.codebase-map/_internal/context-brief.md` first. Then verify and expand by reading the actual codebase - config files, scripts, dotfiles, environment templates.
 
+**If `.codebase-map/_internal/interconnect.md` exists** (produced by `senior-review:semantic-interconnect-mapper` in Phase 1b), read the `## Integration Hot-Spots` anchor and filter for rows of type **Env vars / config**, **DB**, **Filesystem**, and **Third-party SDK**. Use this as the authoritative list when populating the Environment Variables and Configuration Files sections. The map's rows are already verified with file:line citations, so you can cite them directly; still run your own grep pass to catch any env vars the map missed.
+
+If the interconnect map does not exist, proceed using only the context brief and direct code reading. The map is an enrichment, not a requirement.
+
 # OUTPUT
 
 ## 09-project-anatomy.md

@@ -17,6 +17,14 @@ Technical writer producing the "how is it built" documents. You transform a cont
 
 Read `.codebase-map/_internal/context-brief.md` first. Use the codebase itself to verify and expand on the brief.
 
+**If `.codebase-map/_internal/interconnect.md` exists** (produced by `senior-review:semantic-interconnect-mapper` in Phase 1b), read these anchors too:
+
+- `## Call Graph` -- use its rows (exported symbol, external callers, external callees) as the authoritative list when drawing the architecture component diagram. Do not invent call edges the map does not contain.
+- `## Contracts` (formal + structural + implicit) -- cite contracts when describing how layers communicate. Prefer citing a contract from the map over paraphrasing code.
+- `## Integration Hot-Spots` -- use to identify external systems (DB, HTTP, queue, FS, third-party SDK) and place them as distinct nodes in the architecture diagram.
+
+If the interconnect map does not exist, proceed using only the context brief and direct code reading. The map is an enrichment, not a requirement.
+
 # OUTPUT
 
 ## 03-tech-stack.md

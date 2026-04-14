@@ -17,6 +17,15 @@ Technical writer producing the "how does it work" documents. You transform a con
 
 Read `.codebase-map/_internal/context-brief.md` first. Use the codebase itself to verify and expand on the brief.
 
+**If `.codebase-map/_internal/interconnect.md` exists** (produced by `senior-review:semantic-interconnect-mapper` in Phase 1b), read these anchors too:
+
+- `## Invariants` -- especially temporal invariants ("once set, never modified"; "monotonically increasing"). Encode these directly in sequence-diagram annotations and narrative walkthroughs.
+- `## Integration Hot-Spots` -- use as the authoritative list of external touchpoints for sequence diagrams. Do not invent HTTP/DB/queue edges the map does not contain.
+- `## Domain Rules` -- cite rules in workflow narratives (e.g., "refunds cannot exceed original charge -- see rule R3 in interconnect").
+- `## Contracts` (implicit ordering constraints) -- represent as explicit "prerequisite" steps in flowcharts.
+
+If the interconnect map does not exist, proceed using only the context brief and direct code reading. The map is an enrichment, not a requirement.
+
 # OUTPUT
 
 ## 05-workflows.md

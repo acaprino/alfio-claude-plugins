@@ -24,24 +24,29 @@ Before starting, invoke these skills:
 
 ## Pipeline Overview
 
-The sequential map-codebase command runs 8 agents one-by-one. This team version parallelizes Phase 2:
+The sequential map-codebase command runs agents one-by-one. This team version parallelizes Phase 2:
 
 ```
 Phase 1: Explore (sequential -- 1 agent)
   - codebase-explorer builds context brief
          |
          v
+Phase 1b: Interconnect Map (sequential -- 1 agent)
+  - semantic-interconnect-mapper builds structured facts
+    (contracts, invariants, domain rules, integration hot-spots)
+         |
+         v
 Phase 2: Write (parallel -- 6 agents)
   - overview-writer   --> 01-overview.md, 02-features.md
-  - tech-writer       --> 03-tech-stack.md, 04-architecture.md
-  - flow-writer       --> 05-workflows.md, 06-data-model.md
+  - tech-writer       --> 03-tech-stack.md, 04-architecture.md      [reads interconnect]
+  - flow-writer       --> 05-workflows.md, 06-data-model.md         [reads interconnect]
   - onboarding-writer --> 07-getting-started.md, 08-open-questions.md
-  - ops-writer        --> 09-project-anatomy.md
+  - ops-writer        --> 09-project-anatomy.md                      [reads interconnect]
   - config-writer     --> 10-configuration-guide.md
          |
          v
 Phase 3: Review (sequential -- 1 agent)
-  - guide-reviewer --> INDEX.md
+  - guide-reviewer --> INDEX.md                                      [drift detection]
 ```
 
 ## Phase 1: Explore (Sequential)
@@ -60,7 +65,26 @@ Spawn a single explorer agent:
 3. Verify `.codebase-map/_internal/context-brief.md` exists and is non-empty
 4. If missing or empty, stop and report the error
 
-**CHECKPOINT**: Present a brief summary of what the explorer found. Ask user to confirm before spawning 6 parallel writers.
+**CHECKPOINT**: Present a brief summary of what the explorer found. Ask user to confirm before continuing to Phase 1b.
+
+## Phase 1b: Interconnect Map (Sequential)
+
+Spawn a single `senior-review:semantic-interconnect-mapper` agent:
+
+1. Task:
+   > Build the interconnect map for this project.
+   >
+   > Primary context source: `.codebase-map/_internal/context-brief.md` (produced by codebase-explorer).
+   > Target files: the whole project (infer scope from the context brief's directory structure).
+   > Output path: `.codebase-map/_internal/interconnect.md`
+   >
+   > Produce the full structured map following your agent definition: Call Graph (2-3 hop for public entry points), Contracts (formal / structural / implicit), Invariants, Domain Rules, Assumptions (verified / documented / unverified), Integration Hot-Spots, Change Impact Radius, Reviewer Hints.
+   >
+   > Every claim must cite file:line. No recommendations, no fixes. Empty sections are acceptable if nothing applies.
+
+2. Wait for completion
+3. Verify `.codebase-map/_internal/interconnect.md` exists and contains the required anchors
+4. If missing, continue to Phase 2 in degraded mode (writers use only the context brief) -- log a warning
 
 ## Phase 2: Parallel Write Team (6 agents)
 
@@ -76,12 +100,12 @@ Spawn a write team with 6 specialists working simultaneously:
 
 **Agent 2: Tech Writer**
 - `subagent_type`: `codebase-mapper:tech-writer`
-- Task: "Read `.codebase-map/_internal/context-brief.md`, then write `.codebase-map/03-tech-stack.md` and `.codebase-map/04-architecture.md`. Include a Mermaid component/layer diagram in the architecture doc. Follow the writing guidelines -- narrative tone, no AI boilerplate, file paths for every claim."
+- Task: "Read `.codebase-map/_internal/context-brief.md`, then write `.codebase-map/03-tech-stack.md` and `.codebase-map/04-architecture.md`. Include a Mermaid component/layer diagram in the architecture doc. If `.codebase-map/_internal/interconnect.md` exists, read its `## Call Graph`, `## Contracts`, and `## Integration Hot-Spots` anchors and cite those structured facts in the architecture doc instead of paraphrasing code. Follow the writing guidelines -- narrative tone, no AI boilerplate, file paths for every claim."
 - Output: `03-tech-stack.md`, `04-architecture.md`
 
 **Agent 3: Flow Writer**
 - `subagent_type`: `codebase-mapper:flow-writer`
-- Task: "Read `.codebase-map/_internal/context-brief.md`, then write `.codebase-map/05-workflows.md` and `.codebase-map/06-data-model.md`. Include Mermaid flowcharts and sequence diagrams for workflows, and an ER diagram for the data model. Follow the writing guidelines -- narrative tone, no AI boilerplate, file paths for every claim."
+- Task: "Read `.codebase-map/_internal/context-brief.md`, then write `.codebase-map/05-workflows.md` and `.codebase-map/06-data-model.md`. Include Mermaid flowcharts and sequence diagrams for workflows, and an ER diagram for the data model. If `.codebase-map/_internal/interconnect.md` exists, read its `## Invariants` (especially temporal), `## Integration Hot-Spots`, and `## Domain Rules` anchors and encode those facts directly in sequence diagrams and data-flow narratives. Follow the writing guidelines -- narrative tone, no AI boilerplate, file paths for every claim."
 - Output: `05-workflows.md`, `06-data-model.md`
 
 **Agent 4: Onboarding Writer**
@@ -91,7 +115,7 @@ Spawn a write team with 6 specialists working simultaneously:
 
 **Agent 5: Ops Writer**
 - `subagent_type`: `codebase-mapper:ops-writer`
-- Task: "Read `.codebase-map/_internal/context-brief.md`, then write `.codebase-map/09-project-anatomy.md`. Document the annotated directory tree, every configuration file and what it controls, all environment variables, scripts and executables, startup sequence, and default ports/URLs. Verify claims by reading actual config files and grepping for env var usage. Follow the writing guidelines -- narrative tone, no AI boilerplate, file paths for every claim."
+- Task: "Read `.codebase-map/_internal/context-brief.md`, then write `.codebase-map/09-project-anatomy.md`. Document the annotated directory tree, every configuration file and what it controls, all environment variables, scripts and executables, startup sequence, and default ports/URLs. If `.codebase-map/_internal/interconnect.md` exists, read its `## Integration Hot-Spots` anchor (rows of type Env/config) and use it as the authoritative list of env vars and config files. Verify claims by reading actual config files and grepping for env var usage. Follow the writing guidelines -- narrative tone, no AI boilerplate, file paths for every claim."
 - Output: `09-project-anatomy.md`
 
 **Agent 6: Config Writer**
@@ -116,7 +140,7 @@ If any documents are missing, report which ones failed. Continue to Phase 3 with
 Spawn a single reviewer agent:
 
 - `subagent_type`: `codebase-mapper:guide-reviewer`
-- Task: "Read all documents in `.codebase-map/` (01 through 10) and the context brief in `_internal/`. Review for terminology consistency, add cross-references between documents, fix any AI boilerplate in tone, validate Mermaid diagram syntax, and detect gaps. Apply edits directly. Then write `.codebase-map/INDEX.md` as the entry point with a navigable summary table and suggested reading paths."
+- Task: "Read all documents in `.codebase-map/` (01 through 10) and the context brief in `_internal/`. If `.codebase-map/_internal/interconnect.md` exists, also read its `## Invariants` and `## Domain Rules` anchors and use the `senior-review:defect-taxonomy` skill's `logic-integrity.md` reference to detect documentation-reality drift. Flag any drift as a '⚠ known inconsistency' callout in the affected doc and add a corresponding item to 08-open-questions.md. Review for terminology consistency, add cross-references between documents, fix any AI boilerplate in tone, validate Mermaid diagram syntax, and detect gaps. Apply edits directly. Then write `.codebase-map/INDEX.md` as the entry point with a navigable summary table and suggested reading paths."
 - Wait for completion
 
 **Verify:** Check that `.codebase-map/INDEX.md` exists.
