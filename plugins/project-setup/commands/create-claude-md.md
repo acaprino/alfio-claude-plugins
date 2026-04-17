@@ -77,7 +77,7 @@ You'll receive:
 
 Your new CLAUDE.md will:
 - ✅ Include detailed project structure mapping files/directories to their purpose
-- ✅ Scale length to project complexity (no arbitrary cap)
+- ✅ Scale length to project complexity, but stay under ~40k characters (Claude Code performance warning threshold). If the project needs more, link out to `docs/` instead of inlining
 - ✅ Reference files instead of duplicating code
 - ✅ Delegate style enforcement to linters
 - ✅ Include only universally applicable guidance
