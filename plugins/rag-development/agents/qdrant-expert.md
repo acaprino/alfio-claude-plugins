@@ -28,14 +28,21 @@ Qdrant vector database expert. Configure collections, tune HNSW indexing, optimi
 - `ef` (search-time) -- search beam width; tune for accuracy/speed trade-off
 - `full_scan_threshold` -- if filtered candidates < threshold, do brute-force instead of graph traversal
 - On-disk index -- for cost-sensitive deployments with NVMe SSDs
-- 2025: GPU-accelerated HNSW indexing, inline storage, ACORN algorithm for filtered HNSW
+- GPU-accelerated HNSW build (since v1.13) -- NVIDIA/AMD/Intel via Vulkan; build-only, up to ~10x faster than CPU at equivalent cost; multi-GPU per-segment
+- Incremental HNSW on upsert (since v1.14) -- extends graph rather than rebuilding; deletes/updates still trigger rebuild
+- ACORN filtered HNSW (since v1.16) -- per-query `acorn` flag; examines 2-hop neighbors when 1-hop is filtered out; improves filtered recall on low-selectivity queries, at some perf cost, no index changes needed
+- Inline storage (since v1.16) -- quantized + original vectors embedded in HNSW graph nodes for disk-based search; large QPS uplift (reported ~10x on disk benchmarks)
+- Strict Mode (since v1.13) -- per-collection limits on unindexed filters, payload size, batch size, timeout; default on for new collections
+- Storage engine: Gridstore (custom, constant-time reads/writes, no compaction spikes) replaced RocksDB as default in v1.15
 
 ## Quantization
-- **Scalar (INT8)** -- 75% memory reduction, minimal accuracy loss; best default
-- **Binary (1-bit)** -- 32x compression, 40x search speedup; best for high-dim models (>1024 dim) like OpenAI, Cohere
-- **Product Quantization** -- highest compression, more accuracy trade-off; use when memory is critical
+- **Scalar INT8** -- ~75% memory reduction, most universal default; minor accuracy loss
+- **Binary (1-bit)** -- 32x compression, up to 40x speedup; recommended for >= 1536 dim (OpenAI text-embedding-3-large, Cohere)
+- **1.5-bit and 2-bit quantization** (since v1.15) -- 24x / 16x compression; target 512-1024 dim where pure binary loses too much accuracy
+- **Asymmetric quantization** (since v1.15) -- binary storage with scalar-quantized queries; similar footprint as binary, better precision, less rescoring needed; ideal when disk I/O is the bottleneck
+- **Product Quantization** -- up to 64x compression, highest accuracy cost; reserved for memory-critical deployments
 - `always_ram=True` -- keep quantized vectors in RAM for ultra-fast initial scoring
-- Oversampling -- retrieve more candidates with quantized vectors, rescore with originals
+- Oversampling + rescore -- retrieve more candidates with quantized vectors, rescore with originals (enabled by default, disable only on high-latency storage)
 
 ## Sparse Vectors (BM25/SPLADE)
 - Native sparse vector support alongside dense vectors
@@ -59,25 +66,38 @@ Qdrant vector database expert. Configure collections, tune HNSW indexing, optimi
 - **Datetime** -- native datetime range filtering
 - CRITICAL: always create payload indexes on frequently filtered fields; without them Qdrant scans vectors first then filters, degrading performance
 
-## Hybrid Search (Query API v1.10+)
-- `query_points` with `prefetch` -- execute multiple sub-queries (dense, sparse)
-- Reciprocal Rank Fusion (RRF) -- `FusionQuery(fusion=Fusion.RRF)`
-- Score-boosting reranking (2025)
-- Native MMR support for diversity
-- Nested prefetch for multi-stage retrieval
+## Query API (since v1.10 -- unifies search / recommend / discover / scroll)
+- `query_points` with `prefetch` -- execute multiple sub-queries; supports nested prefetches for multi-stage retrieval (e.g., dense + sparse RRF, then ColBERT MaxSim rerank)
+- RRF fusion (since v1.10) and DBSF fusion (since v1.11) -- `FusionQuery(fusion=Fusion.RRF | Fusion.DBSF)`; DBSF normalizes via mean +/- 3 stddev
+- Score-Boosting via `FormulaQuery` (since v1.14) -- expression-based rescoring with field references, math ops, and decay functions (Gauss / Exp / Linear); final score pattern `$score + boost - penalty`
+- MMR reranking (since v1.15) -- native diversity reranking as a query stage; relevance + diversity balance via iterative selection
+- Distance Matrix API (since v1.12) -- `matrix_pairs` / `matrix_offsets` endpoints for clustering and deduplication
+- Facet API (since v1.12) -- GROUP BY-style aggregation over keyword payload fields
 
 ## Multi-Tenancy
-- Payload-based isolation -- `tenant_id` field with keyword index + mandatory filter
+- Payload-based isolation -- `tenant_id` field with keyword index + mandatory filter (baseline pattern)
 - More efficient than separate collections (shared HNSW graph, less overhead)
 - Row-level security via strict `must` filters on every query
-- Combine with RBAC for access control
+- Defrag for multi-tenant (since v1.11) -- co-locates per-tenant vectors on disk for faster bulk read
+- Tiered Multitenancy (since v1.16) -- small tenants start in shared shards, large tenants promote to dedicated shards without moving collections
+- SSO and RBAC available on Qdrant Cloud / enterprise deployments (delivered through 2025); enforce at application layer for self-hosted
 
 ## Clustering & Scaling
 - Distributed mode -- automatic sharding across nodes
 - Replication factor -- configurable read redundancy
 - Write consistency -- configurable (majority, all, quorum)
-- Snapshot and backup -- full collection snapshots for disaster recovery
+- Snapshot and backup -- full collection snapshots for disaster recovery (S3 snapshot storage since v1.10)
 - Rolling updates -- zero-downtime upgrades
+
+## Deployment Options
+- **Qdrant Cloud (Managed)** -- fully managed SaaS; billed on vCPU / GB memory / GB storage / backup / inference tokens. Free tier: 1 GB RAM, 4 GB disk
+- **Qdrant Hybrid Cloud** -- customer K8s infra + Qdrant's management plane; for data-residency requirements
+- **Qdrant Private Cloud** -- fully self-managed; separate release cadence
+
+## Ecosystem
+- `qdrant-client` Python 1.17.1 (2026-03-13), Python 3.10+; sync and async clients available (`async_qdrant_client`)
+- FastEmbed via `pip install qdrant-client[fastembed]`: dense text, sparse (SPLADE / BM25 / BM42), ColBERT late interaction, multimodal models
+- Official MCP server: `qdrant/mcp-server-qdrant` -- `qdrant-store` + `qdrant-find` tools; stdio and other transports
 
 # COMMON PATTERNS
 
@@ -245,12 +265,13 @@ results = client.query_points(
 
 # DECISION FRAMEWORK
 
-## Quantization Selection
-- general purpose, < 1024 dim -> Scalar INT8 (75% savings, ~1% accuracy loss)
-- high-dim models (>1024), OpenAI/Cohere -> Binary (32x compression, ~5% accuracy loss)
-- extreme memory constraints -> Product Quantization (highest compression, higher accuracy loss)
-- always enable `always_ram=True` for quantized representations
-- use `rescore=True` + `oversampling=2.0` to recover accuracy
+## Quantization Selection (updated for v1.15)
+- 512-1024 dim -> 1.5-bit / 2-bit, or asymmetric quantization
+- 1024-1536 dim -> Scalar INT8 (general-purpose default; ~1% accuracy loss)
+- 1536+ dim (OpenAI 3-large, Cohere) -> Binary (32x compression, up to 40x speedup)
+- Extreme memory constraints -> Product Quantization (up to 64x, highest accuracy cost)
+- Always enable `always_ram=True` for quantized vectors
+- Always use `rescore=True` + `oversampling=2.0-4.0` to recover accuracy (disable only on high-latency storage)
 
 ## HNSW Parameter Selection
 - default workload -> m=16, ef_construct=100
@@ -305,6 +326,17 @@ curl -s http://localhost:6333/telemetry | jq
 - [Qdrant Performance Optimization](https://qdrant.tech/documentation/guides/optimize/)
 - [Qdrant Resource Optimization](https://qdrant.tech/articles/vector-search-resource-optimization/)
 - [Qdrant Production Guide](https://qdrant.tech/articles/vector-search-production/)
-- [Qdrant Hybrid Search](https://qdrant.tech/documentation/concepts/hybrid-queries/)
-- [Qdrant Quantization](https://qdrant.tech/documentation/guides/quantization/)
+- [Qdrant Hybrid Queries](https://qdrant.tech/documentation/search/hybrid-queries/)
+- [Qdrant Quantization](https://qdrant.tech/documentation/manage-data/quantization/)
 - [Qdrant FastEmbed ColBERT](https://qdrant.tech/documentation/fastembed/fastembed-colbert/)
+- [Qdrant v1.16 -- Tiered Multitenancy, Inline Storage, ACORN](https://qdrant.tech/blog/qdrant-1.16.x/)
+- [Qdrant v1.15 -- 1.5-bit/2-bit, Asymmetric, MMR](https://qdrant.tech/blog/qdrant-1.15.x/)
+- [Qdrant v1.14 -- Score Boosting, Incremental HNSW](https://qdrant.tech/blog/qdrant-1.14.x/)
+- [Qdrant v1.13 -- GPU HNSW, Strict Mode, Gridstore](https://qdrant.tech/blog/qdrant-1.13.x/)
+- [Qdrant v1.10 -- Universal Query API, ColBERT, IDF](https://qdrant.tech/blog/qdrant-1.10.x/)
+- [Qdrant Score Boosting & Decay Functions](https://qdrant.tech/blog/decay-functions/)
+- [Qdrant 2025 Recap](https://qdrant.tech/blog/2025-recap/)
+- [Qdrant Pricing (Cloud / Hybrid)](https://qdrant.tech/pricing/)
+- [Qdrant Hybrid Cloud](https://qdrant.tech/hybrid-cloud/)
+- [qdrant-client Python (PyPI)](https://pypi.org/project/qdrant-client/)
+- [Official MCP Server for Qdrant](https://github.com/qdrant/mcp-server-qdrant)
