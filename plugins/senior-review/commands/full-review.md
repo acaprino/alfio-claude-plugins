@@ -436,7 +436,7 @@ If `--strict-mode` is set AND there are Critical findings, stop and ask the user
 
 Read `.full-review/01-code-audit.md` for context from Phase 1.
 
-Run all agents in parallel using multiple Task tool calls in a single response (Steps 2C, 2D, 2E only when applicable).
+Run all agents in parallel using multiple Agent tool calls in a single response (Steps 2C, 2D, 2E only when applicable).
 
 ### Step 2A: Security Vulnerability Assessment
 
@@ -732,7 +732,7 @@ If `--strict-mode` is set AND there are Critical findings, stop and ask the user
 
 Read `.full-review/01-code-audit.md` and `.full-review/02-security-performance.md` for context.
 
-Run both agents in parallel using multiple Task tool calls in a single response.
+Run both agents in parallel using multiple Agent tool calls in a single response.
 
 ### Step 3A: Test Coverage & Quality Analysis
 
@@ -831,7 +831,7 @@ Update `state.json`: set `current_step` to 4, `current_phase` to 4, add steps 3A
 
 Read all previous `.full-review/*.md` files for full context.
 
-Run all three agents in parallel using multiple Task tool calls in a single response.
+Run all three agents in parallel using multiple Agent tool calls in a single response.
 
 ### Step 4A: Framework & Language Best Practices
 

@@ -38,7 +38,7 @@ Docs: https://www.radix-ui.com
 | CSS architecture, modern CSS features | **web-designer** |
 | Page layout composition, grid systems | **ui-layout-designer** agent |
 | Animations, micro-interactions, visual polish | **web-designer** agent |
-| Distinctive visual identity | **frontend-design** |
+| Distinctive visual identity | **frontend** skill |
 | daisyUI components (different library, class-based) | **daisyui** |
 
 ## Live Component Lookup

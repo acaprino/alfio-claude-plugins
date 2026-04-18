@@ -70,7 +70,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog"
 **Fix**:
 - Customize CSS variables in `globals.css` before building
 - Use `shadcn/create` to choose colors, spacing, fonts, and icons upfront
-- Use **frontend-design** skill for distinctive visual identity
+- Use **frontend** skill for distinctive visual identity
 - Consider a custom registry:base to define your design system
 
 ## 8. forwardRef Breakage in React 19

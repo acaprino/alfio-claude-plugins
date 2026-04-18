@@ -84,7 +84,7 @@ Social proof and E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthin
   - Optional: 360-view, video walkthrough, user-submitted photos
 - Image quality: consistent lighting, professional, high-resolution
 - Zoom: click-to-zoom or hover-zoom on product images
-- Video: product demo, explainer, or unboxing — auto-thumbnail, not autoplay
+- Video: product demo, explainer, or unboxing -- auto-thumbnail, not autoplay
 - Descriptions: feature → benefit framing, scannable specs, use cases, comparison points
 
 ### Pricing Pages

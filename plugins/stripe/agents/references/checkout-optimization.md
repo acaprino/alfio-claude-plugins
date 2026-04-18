@@ -111,7 +111,7 @@ function TrustSignals() {
       {/* Testimonial */}
       <blockquote className="testimonial">
         "This tool has 10x'd our productivity."
-        <cite>— Jane D., CEO at TechCo</cite>
+        <cite>-- Jane D., CEO at TechCo</cite>
       </blockquote>
     </div>
   );

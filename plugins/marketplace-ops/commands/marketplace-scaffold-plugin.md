@@ -1,8 +1,9 @@
 ---
 description: >
-  "Scaffold a new plugin with proper directory structure, starter files, and marketplace.json registration" argument-hint: "<plugin-name> [--with-agent] [--with-skill] [--with-command] [--category <cat>]".
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Scaffold a new plugin with proper directory structure, starter files, and marketplace.json registration.
+  TRIGGER WHEN: the user asks to create a new plugin, bootstrap plugin structure, or add a new entry to marketplace.json.
+  DO NOT TRIGGER WHEN: adding a skill or agent to an existing plugin (use skills-creator) or reviewing existing plugins.
+argument-hint: "<plugin-name> [--with-agent] [--with-skill] [--with-command] [--category <cat>]"
 ---
 
 # Scaffold New Plugin

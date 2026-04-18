@@ -1,8 +1,9 @@
 ---
 description: >
-  "Scaffold production-ready Python projects with modern tooling — FastAPI, Django, Library, CLI, or Generic — using uv, pytest, ruff" argument-hint: "<project-name> [--type fastapi|django|library|cli|generic]".
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Scaffold production-ready Python projects with modern tooling -- FastAPI, Django, Library, CLI, or Generic -- using uv, pytest, ruff.
+  TRIGGER WHEN: the user asks to start a new Python project, bootstrap FastAPI/Django/CLI/library structure, or set up uv+pytest+ruff from scratch.
+  DO NOT TRIGGER WHEN: adding to an existing Python project (use python-engineer agent directly) or scaffolding a non-Python project.
+argument-hint: "<project-name> [--type fastapi|django|library|cli|generic]"
 ---
 
 # Python Project Scaffolding
@@ -32,11 +33,11 @@ If type is unclear, ask:
 Project: [name]
 
 What type of project?
-1. FastAPI — REST APIs, microservices, async
-2. Django — Full-stack web, admin panels
-3. Library — Reusable package
-4. CLI — Command-line tool
-5. Generic — Standard Python application
+1. FastAPI -- REST APIs, microservices, async
+2. Django -- Full-stack web, admin panels
+3. Library -- Reusable package
+4. CLI -- Command-line tool
+5. Generic -- Standard Python application
 ```
 
 ## Step 2: Present Plan & Confirm
@@ -61,7 +62,7 @@ Tooling:
 - Type checking: mypy (library/cli only)
 
 1. Create this project
-2. Adjust — change structure or dependencies
+2. Adjust -- change structure or dependencies
 3. Cancel
 ```
 

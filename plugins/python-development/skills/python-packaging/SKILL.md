@@ -76,7 +76,7 @@ version = "0.1.0"
 description = "A short description"
 authors = [{name = "Your Name", email = "you@example.com"}]
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.11"
 dependencies = [
     "requests>=2.28.0",
 ]

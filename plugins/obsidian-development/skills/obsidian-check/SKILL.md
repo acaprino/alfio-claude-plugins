@@ -12,7 +12,7 @@ Review code against all ObsidianReviewBot rules before pushing. Reports violatio
 
 ## Usage
 
-`/obsidian-check` — scans the current Obsidian plugin project for all bot violations.
+`/obsidian-check` -- scans the current Obsidian plugin project for all bot violations.
 
 ## Procedure
 

@@ -2,8 +2,8 @@
 name: web-designer
 description: >
   Web-specific frontend expert covering CSS architecture, animations/micro-interactions, design systems, UX psychology, accessibility, and visual polish. Use PROACTIVELY for any web UI work -- styling, motion design, design tokens, component specification, or interface aesthetics.
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  TRIGGER WHEN: web UI work -- styling, motion design, design tokens, component specification, interface aesthetics, UX psychology, or accessibility.
+  DO NOT TRIGGER WHEN: the task is page-layout/grid-system composition only (use ui-layout-designer), or React performance (use react-performance-optimizer).
 model: opus
 tools: Read, Write, Edit, Bash, Glob, Grep
 color: purple

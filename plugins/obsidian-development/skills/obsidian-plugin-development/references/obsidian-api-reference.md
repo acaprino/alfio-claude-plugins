@@ -222,7 +222,7 @@ emptyStateText: string
 setPlaceholder(placeholder: string): void
 setInstructions(instructions: Instruction[]): void
 
-// Abstract — implement in subclass
+// Abstract -- implement in subclass
 getSuggestions(query: string): T[] | Promise<T[]>
 renderSuggestion(value: T, el: HTMLElement): void
 onChooseSuggestion(item: T, evt: MouseEvent | KeyboardEvent): void

@@ -1,7 +1,7 @@
 ---
 name: claude-agent-sdk
 description: >
-  Build apps with the Claude Agent SDK (formerly Claude Code SDK). DO NOT.
+  Build apps with the Claude Agent SDK (formerly Claude Code SDK). Covers programmatic agent loops, tool integration, subagent orchestration, prompt caching, and migration between Claude model versions.
   TRIGGER WHEN: code references claude-agent-sdk, user says "agent sdk", "build an agent", "programmatic claude", "claude code sdk", "sidecar", "run claude programmatically".
   DO NOT TRIGGER WHEN: user is using the Claude API client SDK (`anthropic`/`@anthropic-ai/sdk`) for direct chat completions, or doing general programming unrelated to agent orchestration.
 ---

@@ -1,8 +1,9 @@
 ---
 description: >
-  "Implement xterm.js features into existing terminal code -- addons, PTY wiring, theming, search, resize, decorations, parser hooks, framework integration. Reads current setup and adds the feature without conflicts" argument-hint: "<feature-description> [--path <file>]".
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Implement xterm.js features into existing terminal code -- addons, PTY wiring, theming, search, resize, decorations, parser hooks, framework integration. Reads current setup and adds the feature without conflicts.
+  TRIGGER WHEN: the user asks to add an xterm.js addon, PTY integration, theme, search, or framework (React/Vue/Electron/Tauri) wiring.
+  DO NOT TRIGGER WHEN: debugging existing xterm code (use /xterm:xterm-debug).
+argument-hint: "<feature-description> [--path <file>]"
 ---
 
 # xterm.js Feature Implementer
@@ -12,7 +13,7 @@ You are an xterm.js integration expert. Implement new terminal features into exi
 ## CRITICAL RULES
 
 1. **Read existing code first.** Understand what's already configured before adding anything.
-2. **Use the xtermjs-skill.** Reference `frontend:xtermjs-skill` for correct API patterns and addon usage.
+2. **Use the xtermjs-skill.** Reference `xterm:xtermjs-skill` for correct API patterns and addon usage.
 3. **No duplicate setup.** Check if the requested addon/feature is already loaded. Don't double-load addons.
 4. **Respect loading order.** Addons have ordering requirements: `open()` before WebglAddon, WebSocket open before AttachAddon, FitAddon.fit() after container has dimensions.
 5. **Match existing code style.** Follow the project's import style, naming, and patterns.

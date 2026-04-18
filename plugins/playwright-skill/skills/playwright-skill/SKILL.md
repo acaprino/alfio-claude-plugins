@@ -2,9 +2,9 @@
 # Upstream source: https://github.com/lackeyjb/playwright-skill - skills/playwright-skill/SKILL.md
 name: playwright-skill
 description: >
-  "Complete browser automation with Playwright. Auto-detects dev servers, writes clean test scripts to /tmp. Test pages, fill forms, take screenshots, check responsive design, validate UX, test login flows, check links, automate any browser task.".
-  TRIGGER WHEN: the user mentions testing a website, automating browser tasks, taking screenshots, checking links, or any browser interaction
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Complete browser automation with Playwright. Auto-detects dev servers, writes clean test scripts. Test pages, fill forms, take screenshots, check responsive design, validate UX, test login flows, check links, automate any browser task.
+  TRIGGER WHEN: the user mentions testing a website, automating browser tasks, taking screenshots, checking links, or any browser interaction.
+  DO NOT TRIGGER WHEN: the task is unit testing non-browser code, or the user needs Cypress/Selenium specifically.
 ---
 
 **IMPORTANT - Path Resolution:**

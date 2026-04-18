@@ -1,7 +1,7 @@
 ---
 name: brainstorming
 description: >
-  You MUST use this before ANY creative or implementation work -- creating features, building components, adding functionality, modifying behavior, or any non-trivial task. Explores user intent, requirements and design before implementation. A conversation that starts as a question but progresses into "which approach should we take?" or "here's the architecture" IS a brainstorming session and MUST invoke this skill before any implementation begins. DO NOT.
+  Explore user intent, requirements, and design through collaborative dialogue before any implementation. You MUST use this before ANY creative or implementation work -- creating features, building components, adding functionality, modifying behavior, or any non-trivial task. A conversation that starts as a question but progresses into "which approach should we take?" or "here's the architecture" IS a brainstorming session and MUST invoke this skill before any implementation begins.
   TRIGGER WHEN: (1) user says 'brainstorm', 'design', 'build', 'create', 'add', 'implement', 'develop', 'make', or gives any task involving new code; (2) the conversation has evolved into architectural discussion -- comparing approaches, evaluating trade-offs, drawing architecture diagrams, making technology choices, or discussing how components connect -- even if no explicit trigger word was used. A conversation that starts as a question but progresses into "which approach should we take?" or "here's the architecture" IS a brainstorming session and MUST invoke this skill before any implementation begins.
   DO NOT TRIGGER WHEN: user has a spec/plan ready, is fixing a specific bug, or doing a one-line change.
 ---
@@ -68,7 +68,7 @@ digraph brainstorming {
 }
 ```
 
-**The terminal state is invoking writing-plans.** Do NOT invoke frontend-design, mcp-builder, or any other implementation skill. The ONLY skill you invoke after brainstorming is writing-plans.
+**The terminal state is invoking writing-plans.** Do NOT invoke any implementation skill (frontend, python-tdd, tauri, etc.) directly. The ONLY skill you invoke after brainstorming is writing-plans.
 
 ## The Process
 

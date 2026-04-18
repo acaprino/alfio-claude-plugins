@@ -2,8 +2,8 @@
 name: tech-writer
 description: >
   Phase 2 writer for codebase-mapper. Produces 03-tech-stack.md and 04-architecture.md from the context brief. Documents technologies, dependencies, code organization, and architectural layers with component diagrams. Spawned in parallel with other writer agents.
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  TRIGGER WHEN: spawned by the /codebase-mapper:map-codebase command during Phase 2 to produce 03-tech-stack.md and 04-architecture.md.
+  DO NOT TRIGGER WHEN: invoked outside the map-codebase pipeline -- this agent expects a context brief in .codebase-map/_internal/.
 model: opus
 tools: Read, Write, Glob, Grep
 color: cyan

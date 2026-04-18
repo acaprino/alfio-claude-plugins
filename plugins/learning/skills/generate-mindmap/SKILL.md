@@ -2,8 +2,8 @@
 name: generate-mindmap
 description: >
   "Brainstorm and generate a Buzan-style structured mindmap JSON outline from any content. Use this skill whenever the user asks to create a mind map, mappa mentale, concept map, or visual summary. The skill prioritizes COGNITIVE EFFECTIVENESS over structural efficiency: it uses single keywords, strong visual associations (emojis), organic radiant thinking, and cross-linking to maximize memory retention and idea generation.".
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  TRIGGER WHEN: the user asks to create a mind map, mappa mentale, concept map, or visual summary -- typically to learn, brainstorm, or structure knowledge around a topic.
+  DO NOT TRIGGER WHEN: the user wants a traditional outline, flowchart, or diagram (use Mermaid directly) rather than a radiant Buzan-style mind map.
 ---
 
 # Generate Mindmap (Buzan Method)

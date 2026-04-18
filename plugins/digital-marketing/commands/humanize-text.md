@@ -1,8 +1,9 @@
 ---
 description: >
-  "Remove AI writing traces from text -- detects 24 patterns (inflated symbolism, promotional language, AI vocabulary, filler phrases, etc.) and rewrites for natural human voice with self-evaluation pass" argument-hint: "<file or text> [--score]".
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Remove AI writing traces from text -- detects 24 patterns (inflated symbolism, promotional language, AI vocabulary, filler phrases, etc.) and rewrites for natural human voice with self-evaluation pass.
+  TRIGGER WHEN: the user asks to humanize prose/text, remove AI-sounding copy, or rewrite articles/blog posts/documentation for natural voice.
+  DO NOT TRIGGER WHEN: cleaning up source code (use /clean-code:clean-code) or translating text.
+argument-hint: "<file or text> [--score]"
 ---
 
 # Humanize Text

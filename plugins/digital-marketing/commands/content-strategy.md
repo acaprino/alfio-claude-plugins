@@ -1,8 +1,9 @@
 ---
 description: >
-  "Marketing material and conversion optimization audit — UX patterns, CTAs, social media, copy quality, product presentation, and visual media with parallel analysis and persistent report" argument-hint: "<url or local path> [--focus <areas>] [--competitor <url>] [--social] [--strict-mode]".
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Marketing material and conversion optimization audit -- UX patterns, CTAs, social media, copy quality, product presentation, and visual media with parallel analysis and persistent report.
+  TRIGGER WHEN: the user asks for a content/marketing/CRO audit of a website, landing page, or marketing funnel.
+  DO NOT TRIGGER WHEN: the audit is technical SEO only (use /digital-marketing:seo-audit) or frontend design (use /frontend:review-design).
+argument-hint: "<url or local path> [--focus <areas>] [--competitor <url>] [--social] [--strict-mode]"
 ---
 
 # Content Strategy Audit
@@ -43,10 +44,10 @@ Use the `content-marketer` agent for analysis.
 
 ## Phase 1: Audit Scope
 
-1. **Read target** — navigate to URL (Playwright) or read local files
-2. **Identify page types** — landing, product, blog, about, pricing, checkout, FAQ
-3. **Understand the business** — extract value proposition, target audience, offering
-4. **Baseline metrics** — page count, CTA count, form count, social links
+1. **Read target** -- navigate to URL (Playwright) or read local files
+2. **Identify page types** -- landing, product, blog, about, pricing, checkout, FAQ
+3. **Understand the business** -- extract value proposition, target audience, offering
+4. **Baseline metrics** -- page count, CTA count, form count, social links
 
 **Output file:** `.content-strategy/01-scope.md`
 
@@ -213,10 +214,10 @@ Please review:
 - .content-strategy/02-audit.md
 - .content-strategy/03-plan.md
 
-1. Apply quick wins — implement high-impact, low-effort changes
-2. Apply all fixable items — implement everything that doesn't need design decisions
-3. Choose specific improvements — I'll tell you which ones
-4. Report only — skip implementation, generate final report
+1. Apply quick wins -- implement high-impact, low-effort changes
+2. Apply all fixable items -- implement everything that doesn't need design decisions
+3. Choose specific improvements -- I'll tell you which ones
+4. Report only -- skip implementation, generate final report
 ```
 
 Do NOT proceed until the user approves. You MUST stop generating text completely at this point -- do NOT simulate the user's response or continue autonomously. Wait for explicit user input before starting Phase 4.
@@ -308,9 +309,9 @@ Changes applied: [count]
 
 ## Quick Examples
 
-- `/content-strategy https://example.com` — Full marketing audit
-- `/content-strategy https://example.com/pricing` — Pricing page conversion optimization
-- `/content-strategy src/pages/landing.html` — Audit local landing page
-- `/content-strategy https://example.com --focus cta,social-proof` — Focused audit
-- `/content-strategy https://example.com --social` — Social media presence focus
-- `/content-strategy https://example.com --competitor https://rival.com` — Comparative audit
+- `/content-strategy https://example.com` -- Full marketing audit
+- `/content-strategy https://example.com/pricing` -- Pricing page conversion optimization
+- `/content-strategy src/pages/landing.html` -- Audit local landing page
+- `/content-strategy https://example.com --focus cta,social-proof` -- Focused audit
+- `/content-strategy https://example.com --social` -- Social media presence focus
+- `/content-strategy https://example.com --competitor https://rival.com` -- Comparative audit

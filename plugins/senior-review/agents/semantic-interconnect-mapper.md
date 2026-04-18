@@ -236,7 +236,7 @@ Follow this exact structure with stable anchors regardless of output path:
 - **distributed-flow-auditor**: `## Integration Hot-Spots` (HTTP/queue/IPC), `## Call Graph`
 - **chicken-egg-detector**: `## Assumptions` (initialization order), `## Integration Hot-Spots` (Env/config)
 - **ui-race-auditor**: `## Invariants` (temporal), `## Integration Hot-Spots` (UI state)
-- **api-contract-auditor** (future): `## Contracts` (formal)
+- **api-contract-auditor** (planned, not yet implemented): `## Contracts` (formal)
 ```
 
 ## CALIBRATION

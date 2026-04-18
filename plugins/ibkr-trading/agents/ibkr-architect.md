@@ -201,13 +201,16 @@ def submit_bracket(ib, contract, action, qty, entry, tp, sl):
 ### Reconnection Watchdog
 
 ```python
+import asyncio
+
 def setup_reconnect(ib, host, port, client_id):
-    def on_disconnect():
-        log.warning("Disconnected. Starting reconnect...")
+    async def reconnect_loop():
         delays = [2, 5, 10, 20, 30, 30, 30]
         for attempt, delay in enumerate(delays):
             try:
-                ib.connect(host, port, clientId=client_id, timeout=5)
+                # ib_async connectAsync is non-blocking -- do NOT call ib.connect() (sync)
+                # inside disconnectedEvent; that would block the event loop.
+                await ib.connectAsync(host, port, clientId=client_id, timeout=5)
                 if ib.isConnected():
                     log.info("Reconnected successfully")
                     resubscribe_all()
@@ -215,8 +218,13 @@ def setup_reconnect(ib, host, port, client_id):
                     return
             except Exception as e:
                 log.error(f"Attempt {attempt+1} failed: {e}. Retry in {delay}s")
-                import time; time.sleep(delay)
+                await asyncio.sleep(delay)
         log.critical("All reconnect attempts failed")
+
+    def on_disconnect():
+        log.warning("Disconnected. Scheduling reconnect...")
+        # Schedule the coroutine on the running loop -- never block inside the handler.
+        asyncio.create_task(reconnect_loop())
 
     ib.disconnectedEvent += on_disconnect
 ```

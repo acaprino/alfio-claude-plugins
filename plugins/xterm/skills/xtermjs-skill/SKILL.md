@@ -1,15 +1,15 @@
 ---
-name: xtermjs
+name: xtermjs-skill
 description: >
   Expert guidance for building, configuring, and integrating xterm.js terminal emulators in web and Electron applications. Use this skill whenever the user mentions xterm, xterm.js, @xterm/xterm, terminal emulator in the browser, web terminal, WebSSH, in-browser shell, or asks about addons like FitAddon, WebglAddon, SearchAddon, AttachAddon, or integration with node-pty. Also trigger for questions about ANSI/VT sequences, terminal theming, PTY over WebSocket, custom key handlers, parser hooks, or embedding a terminal in React/Vue/Angular/Electron apps.
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  TRIGGER WHEN: the user mentions xterm, xterm.js, @xterm/xterm, terminal emulator in the browser, web terminal, WebSSH, in-browser shell, or asks about addons like FitAddon, WebglAddon, SearchAddon, AttachAddon, or integration with node-pty.
+  DO NOT TRIGGER WHEN: the user wants a native OS terminal (not browser-based) or a non-xterm terminal library (e.g. VT100 emulator in Python).
 ---
 
 # xterm.js Development Skill
 
 xterm.js (`@xterm/xterm`) is a full-featured terminal emulator that runs in the browser or
-Electron. It is NOT a shell — it must be connected to a backend process (e.g. via node-pty +
+Electron. It is NOT a shell -- it must be connected to a backend process (e.g. via node-pty +
 WebSocket) to execute commands.
 
 ---
@@ -75,7 +75,7 @@ Use `\r\n` (not just `\n`) for newlines when writing directly.
 | ClipboardAddon | `@xterm/addon-clipboard` | Browser clipboard integration |
 | WebFontsAddon | `@xterm/addon-web-fonts` | Wait for web fonts before rendering |
 | Unicode11Addon | `@xterm/addon-unicode11` | Unicode 11 character width support |
-| LigaturesAddon | `@xterm/addon-ligatures` | Font ligature support (canvas renderer only) |
+| LigaturesAddon | `@xterm/addon-ligatures` | Font ligature support (DEPRECATED with Canvas renderer removal; prefer WebGL + font features) |
 
 ### Loading addons
 
@@ -228,7 +228,9 @@ term.options.theme = darkTheme;
 term.attachCustomKeyEventHandler((ev: KeyboardEvent) => {
   // Example: Ctrl+Shift+C → copy
   if (ev.ctrlKey && ev.shiftKey && ev.key === 'C') {
-    document.execCommand('copy');
+    // Modern clipboard API (navigator.clipboard requires HTTPS/localhost)
+    const selection = term.getSelection();
+    if (selection) navigator.clipboard.writeText(selection);
     return false; // don't pass to terminal
   }
   return true;
@@ -360,7 +362,7 @@ const term = new Terminal({
   disableStdin: false,   // read-only mode
   allowProposedApi: false, // enable experimental APIs
   allowTransparency: false, // transparent background support
-  windowsMode: false,    // Windows-style line ending behavior
+  windowsPty: undefined, // pass { backend: 'conpty' | 'winpty', buildNumber } for Windows PTY (v5+; replaces deprecated windowsMode)
   macOptionIsMeta: false, // treat Option key as Meta (macOS)
   rightClickSelectsWord: false,
   fontSize: 14,

@@ -2,8 +2,8 @@
 name: revenue-optimizer
 description: >
   Monetization expert that analyzes codebases to discover features, calculate service costs, model usage patterns, and create data-driven pricing with revenue projections. Use when: (1) Analyzing app features and their costs, (2) Modeling user consumption and usage patterns, (3) Calculating ARPU, LTV, and revenue projections, (4) Setting optimal tier limits based on usage percentiles, (5) Creating pricing tiers with adequate margins, (6) Implementing payment systems (Stripe, etc.), (7) Break-even and profitability analysis, (8) Subscription and billing systems.
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  TRIGGER WHEN: modeling pricing tiers, calculating unit economics, designing monetization strategy, setting quota/usage limits, or projecting revenue/ARPU/LTV.
+  DO NOT TRIGGER WHEN: implementing Stripe plumbing only (use stripe-integrator), or doing general business strategy not tied to pricing/monetization (use business-planner).
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch
 model: opus
 color: orange

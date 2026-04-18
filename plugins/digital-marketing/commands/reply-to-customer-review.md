@@ -1,8 +1,9 @@
 ---
 description: >
-  "Reply to a customer review with sentiment analysis, adaptive tone, and operational suggestions" argument-hint: "\"<review text>\" [--brand <name>] [--tone formal|friendly|casual] [--lang <code>] [--sector hospitality|ecommerce|auto]".
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Reply to a customer review with sentiment analysis, adaptive tone, and operational suggestions.
+  TRIGGER WHEN: the user pastes a customer review (Airbnb, Booking, Amazon, Trustpilot, App Store, Google) and asks for a reply or response.
+  DO NOT TRIGGER WHEN: writing general marketing copy (use content-marketer) or responding to code review comments.
+argument-hint: "\"<review text>\" [--brand <name>] [--tone formal|friendly|casual] [--lang <code>] [--sector hospitality|ecommerce|auto]"
 ---
 
 # Reply to Customer Review

@@ -3,6 +3,9 @@ name: domain-hunter
 description: Search domains, compare prices, find promo codes, get purchase recommendations. Use when user wants to buy a domain, check domain prices, find domain deals, compare registrars, or search for .ai/.com domains.
 ---
 
+<!-- upstream: ReScienceLab/opc-skills - skills/domain-hunter/SKILL.md -->
+<!-- Local drift: Step 3 (Find Promo Codes) uses WebSearch queries instead of upstream Python scripts -->
+
 # Domain Hunter Skill
 
 Help users find and purchase domain names at the best price.

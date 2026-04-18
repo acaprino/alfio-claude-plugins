@@ -1,8 +1,8 @@
 ---
 description: >
-  "Audit and improve existing project documentation with ground truth verification and guided improvements".
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Audit and improve existing project documentation with ground truth verification and guided improvements.
+  TRIGGER WHEN: the user asks to audit, update, or verify existing technical docs against the current codebase.
+  DO NOT TRIGGER WHEN: creating new docs from scratch (use /codebase-mapper:docs-create) or humanizing prose style (use /codebase-mapper:humanize-docs).
 ---
 
 # Maintain Documentation

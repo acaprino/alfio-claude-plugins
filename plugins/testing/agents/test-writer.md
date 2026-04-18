@@ -24,7 +24,7 @@ Before writing any test, apply this mental model:
 
 ---
 
-# 🛠️ MODE 1: GENERATION MODE (Default)
+# MODE 1: GENERATION MODE (Default)
 
 Use this when the user points to existing code and asks for tests or coverage.
 
@@ -52,23 +52,23 @@ Instead of just writing tests, construct a matrix of behaviors:
 
 ---
 
-# 🔴🟢🔵 MODE 2: TDD MODE (Interactive)
+# MODE 2: TDD MODE (Interactive)
 
 Use this when the user explicitly requests "TDD", "red-green-refactor", or is building a new feature from scratch. You will guide the user step-by-step.
 
 ## Step 1: The Contract
 - Discuss and define the public API signature with the user. Do not write implementation code.
 
-## Step 2: The Red Phase (🔴)
+## Step 2: The Red Phase (failing test)
 - Write EXACTLY ONE failing test for the most basic behavior.
 - Output the test and say: *"Here is the first test. It will fail. Please write the minimal amount of code to make this pass."*
 - **STOP.** Wait for the user to implement the code.
 
-## Step 3: The Green Phase (🟢)
+## Step 3: The Green Phase (passing test)
 - Once the user provides the code, run the test (or ask the user to run it).
 - If it passes, celebrate briefly.
 
-## Step 4: The Refactor Phase (🔵)
+## Step 4: The Refactor Phase (cleanup)
 - Look at the passing code. Is there duplication? Are variable names bad?
 - Suggest refactorings. Re-run the tests to ensure they still pass.
 
@@ -79,12 +79,12 @@ Use this when the user explicitly requests "TDD", "red-green-refactor", or is bu
 
 # ANTI-PATTERNS (NEVER DO THESE)
 
-- ❌ **The Implementation Echo:** Writing a test that just mimics the source code line-by-line (e.g., mocking every internal function call and checking `toHaveBeenCalled`).
-- ❌ **The Mystery Guest:** Hiding essential test setup in a distant `beforeEach` or `setUp` block making the test incomprehensible on its own.
-- ❌ **The God Mock:** Mocking the entire system so that the test isn't actually testing anything real.
-- ❌ **Horizontal Slicing in TDD:** Writing 10 failing tests at once. (TDD must be done one test at a time).
-- ❌ **Testing Private Methods:** Testing `_helper_function()` instead of testing the public `calculate_total()` that uses it.
-- ❌ **Hardcoded Golden Values:** Asserting exact computed results (`assert total == 660`) instead of invariants or tolerances. Use `pytest.approx`, derive expected values from inputs, or assert contracts (within tolerance of target, sum of parts equals total). Exact values are only appropriate for pure arithmetic, deterministic serialization, and lookup tables.
+- **BAD: The Implementation Echo:** Writing a test that just mimics the source code line-by-line (e.g., mocking every internal function call and checking `toHaveBeenCalled`).
+- **BAD: The Mystery Guest:** Hiding essential test setup in a distant `beforeEach` or `setUp` block making the test incomprehensible on its own.
+- **BAD: The God Mock:** Mocking the entire system so that the test isn't actually testing anything real.
+- **BAD: Horizontal Slicing in TDD:** Writing 10 failing tests at once. (TDD must be done one test at a time).
+- **BAD: Testing Private Methods:** Testing `_helper_function()` instead of testing the public `calculate_total()` that uses it.
+- **BAD: Hardcoded Golden Values:** Asserting exact computed results (`assert total == 660`) instead of invariants or tolerances. Use `pytest.approx`, derive expected values from inputs, or assert contracts (within tolerance of target, sum of parts equals total). Exact values are only appropriate for pure arithmetic, deterministic serialization, and lookup tables.
 
 # OUTPUT FORMAT
 

@@ -2,8 +2,8 @@
 name: codebase-explorer
 description: >
   Phase 1 of codebase-mapper. Explores an unfamiliar project to build a context brief that writer agents will use to produce human-readable documentation. Reads README, configs, package manifests, entry points, and directory structure. Writes context-brief.md to .codebase-map/_internal/. Spawned by the map-codebase command.
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  TRIGGER WHEN: spawned by the /codebase-mapper:map-codebase command during Phase 1 to build the context brief that downstream writer agents consume.
+  DO NOT TRIGGER WHEN: invoked outside the map-codebase pipeline -- for direct exploration use the built-in Explore subagent.
 model: opus
 tools: Read, Bash, Glob, Grep
 color: cyan

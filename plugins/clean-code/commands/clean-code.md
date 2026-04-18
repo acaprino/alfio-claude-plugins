@@ -1,8 +1,9 @@
 ---
 description: >
-  "Rewrite source code to be more readable and human-friendly -- improves naming, removes AI boilerplate, simplifies structure, adds clarity comments -- without changing behavior" argument-hint: "<file or directory> [--dry-run] [--strict] [--yes] [--force]".
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Rewrite source code to be more readable and human-friendly -- improves naming, removes AI boilerplate, simplifies structure, adds clarity comments -- without changing behavior.
+  TRIGGER WHEN: the user asks to clean up code, improve naming, remove AI-generated boilerplate, simplify structure, or make code more maintainable without changing behavior.
+  DO NOT TRIGGER WHEN: the target is prose/text (use /digital-marketing:humanize-text) or deep architectural refactoring (use /python-development:python-refactor).
+argument-hint: "<file or directory> [--dry-run] [--strict] [--yes] [--force]"
 ---
 
 # Clean Code

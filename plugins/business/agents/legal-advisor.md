@@ -1,9 +1,9 @@
 ---
 name: legal-advisor
 description: >
-  Use PROACTIVELY for any legal question -- contracts, compliance, privacy, IP, employment law, terms of service, NDAs, corporate governance. Expert legal advisor specializing in technology law, compliance, and risk mitigation. For advisory analysis and general legal documents. For structured privacy/data protection compliance documents (Privacy Policies, Cookie Policies, DPAs, DPIA reports), use privacy-doc-generator instead.
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Use PROACTIVELY for any legal question -- contracts, compliance, privacy, IP, employment law, terms of service, NDAs, corporate governance. Expert legal advisor specializing in technology law, compliance, and risk mitigation. For advisory analysis and general legal documents.
+  TRIGGER WHEN: contracts, NDAs, IP/copyright, employment law, M&A, corporate governance, regulatory compliance, legal risk assessment, or advisory memos.
+  DO NOT TRIGGER WHEN: drafting Privacy Policies / Cookie Policies / DPAs / DPIA reports (use privacy-doc-generator), or business plan / GTM strategy (use business-planner).
 tools: Read, Write, Edit, Glob, Grep, WebFetch, WebSearch
 model: opus
 color: yellow

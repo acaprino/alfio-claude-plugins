@@ -1,8 +1,9 @@
 ---
 description: >
-  "Rewrite existing documentation to be human-readable - removes AI-style density, applies progressive disclosure, improves scannability" argument-hint: "<path-to-docs>".
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Rewrite existing documentation to be human-readable -- removes AI-style density, applies progressive disclosure, improves scannability.
+  TRIGGER WHEN: the user asks to humanize existing docs, improve scannability, or rewrite dense technical writing for progressive disclosure.
+  DO NOT TRIGGER WHEN: humanizing prose/articles (use /digital-marketing:humanize-text) or creating new docs (use /codebase-mapper:docs-create).
+argument-hint: "<path-to-docs>"
 ---
 
 # Humanize Documentation
@@ -55,7 +56,7 @@ Spawn the `doc-humanizer` agent:
 
 ```
 Task:
-  subagent_type: "doc-humanizer"
+  subagent_type: "codebase-mapper:doc-humanizer"
   description: "Humanize documentation at [path]"
   prompt: |
     Rewrite the following documentation to be human-readable.
@@ -78,7 +79,7 @@ After the `doc-humanizer` restructures the content, run a second pass with the `
 
 ```
 Task:
-  subagent_type: "text-humanizer"
+  subagent_type: "digital-marketing:text-humanizer"
   description: "Remove AI writing traces from humanized documentation"
   prompt: |
     Final polish pass on restructured documentation. Remove any remaining AI

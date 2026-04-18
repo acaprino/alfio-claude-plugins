@@ -1,8 +1,9 @@
 ---
 description: >
-  "Comprehensive technical SEO audit with Playwright-powered analysis, scoring, prioritized fixes, and a persistent markdown report" argument-hint: "<url or local path> [--focus <categories>] [--competitor <url>] [--local] [--strict-mode]".
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Comprehensive technical SEO audit with Playwright-powered analysis, scoring, prioritized fixes, and a persistent markdown report.
+  TRIGGER WHEN: the user asks for a technical SEO audit, Core Web Vitals check, structured data review, or search visibility analysis of a site.
+  DO NOT TRIGGER WHEN: the audit is about conversion/CTA/copy (use /digital-marketing:content-strategy) or GA4 tracking (use ga4-implementation-expert).
+argument-hint: "<url or local path> [--focus <categories>] [--competitor <url>] [--local] [--strict-mode]"
 ---
 
 # SEO Audit
@@ -44,11 +45,11 @@ Use the `seo-specialist` agent for all analysis.
 
 Gather baseline information before auditing.
 
-1. **Fetch target** — navigate to URL with Playwright, or read local files
-2. **Robots.txt** — fetch `/robots.txt`, check rules, crawl-delay, and extract the explicitly declared Sitemap URL(s)
-3. **Sitemap** — fetch the sitemap found in robots.txt (fallback to `/sitemap.xml` if not declared), count URLs, check lastmod dates
-4. **Tech detection** — identify CMS/framework from headers, meta generators, DOM patterns
-5. **Site structure** — map primary navigation, identify page types
+1. **Fetch target** -- navigate to URL with Playwright, or read local files
+2. **Robots.txt** -- fetch `/robots.txt`, check rules, crawl-delay, and extract the explicitly declared Sitemap URL(s)
+3. **Sitemap** -- fetch the sitemap found in robots.txt (fallback to `/sitemap.xml` if not declared), count URLs, check lastmod dates
+4. **Tech detection** -- identify CMS/framework from headers, meta generators, DOM patterns
+5. **Site structure** -- map primary navigation, identify page types
 
 **Output file:** `.seo-audit/01-discovery.md`
 
@@ -60,35 +61,35 @@ Present discovery summary and confirm scope before proceeding.
 
 Run every check below. Use Playwright `browser_snapshot` for DOM, `browser_evaluate` for JS checks, `browser_network_requests` for resources, `browser_console_messages` for errors, `browser_resize` for responsive testing.
 
-**Core SEO** — Meta title (50-60 chars), meta description (120-160 chars), canonical URL, Open Graph tags, Twitter Cards
+**Core SEO** -- Meta title (50-60 chars), meta description (120-160 chars), canonical URL, Open Graph tags, Twitter Cards
 
-**Headings** — Exactly 1 H1, proper hierarchy, keywords in H1
+**Headings** -- Exactly 1 H1, proper hierarchy, keywords in H1
 
-**Links** — Internal link depth, check HTTP status for a small sample (max 5-10) of internal/external links to save time, redirect chains, orphan pages
+**Links** -- Internal link depth, check HTTP status for a small sample (max 5-10) of internal/external links to save time, redirect chains, orphan pages
 
-**Images** — Alt text, descriptive filenames, lazy loading, WebP/AVIF, dimensions
+**Images** -- Alt text, descriptive filenames, lazy loading, WebP/AVIF, dimensions
 
-**Performance** — Transfer size, request count, Core Web Vitals hints, caching, compression
+**Performance** -- Transfer size, request count, Core Web Vitals hints, caching, compression
 
-**Security** — HTTPS enforced, security headers (CSP, HSTS, X-Frame-Options), no mixed content
+**Security** -- HTTPS enforced, security headers (CSP, HSTS, X-Frame-Options), no mixed content
 
-**Structured Data** — JSON-LD present, valid schema, Rich Results eligibility
+**Structured Data** -- JSON-LD present, valid schema, Rich Results eligibility
 
-**Mobile** — Viewport meta, responsive (375px/768px/1280px), touch targets 44px+, no horizontal scroll
+**Mobile** -- Viewport meta, responsive (375px/768px/1280px), touch targets 44px+, no horizontal scroll
 
-**Crawlability** — robots.txt not blocking important pages, valid sitemap, noindex only on intended pages
+**Crawlability** -- robots.txt not blocking important pages, valid sitemap, noindex only on intended pages
 
-**Content Quality** — Word count (flag <300), duplicate titles/descriptions, keyword density
+**Content Quality** -- Word count (flag <300), duplicate titles/descriptions, keyword density
 
-**URL Structure** — Clean slugs, under 75 chars, keywords in path
+**URL Structure** -- Clean slugs, under 75 chars, keywords in path
 
-**Accessibility** — ARIA landmarks, alt text, color contrast, skip nav, form labels, focus indicators
+**Accessibility** -- ARIA landmarks, alt text, color contrast, skip nav, form labels, focus indicators
 
-**E-E-A-T Signals** — Author info, about page, contact page, trust signals, citations
+**E-E-A-T Signals** -- Author info, about page, contact page, trust signals, citations
 
-**Local SEO** (if applicable) — NAP consistency, LocalBusiness schema, geo tags
+**Local SEO** (if applicable) -- NAP consistency, LocalBusiness schema, geo tags
 
-**Internationalization** (if applicable) — hreflang tags, lang attribute
+**Internationalization** (if applicable) -- hreflang tags, lang attribute
 
 **Output file:** `.seo-audit/02-technical-audit.md`
 
@@ -111,7 +112,7 @@ Calculate scores from Phase 2 findings.
 ```markdown
 # SEO Scorecard
 
-## Overall: [X]/100 — Grade [A-F]
+## Overall: [X]/100 -- Grade [A-F]
 
 | Category | Score | Errors | Warnings | Notices |
 |----------|-------|--------|----------|---------|
@@ -155,10 +156,10 @@ Please review:
 - .seo-audit/02-technical-audit.md
 - .seo-audit/03-scorecard.md
 
-1. Fix quick wins — apply high-impact, low-effort fixes
-2. Fix all — apply all fixable issues
-3. Choose specific fixes — I'll tell you which ones
-4. Report only — skip fixes, generate final report
+1. Fix quick wins -- apply high-impact, low-effort fixes
+2. Fix all -- apply all fixable issues
+3. Choose specific fixes -- I'll tell you which ones
+4. Report only -- skip fixes, generate final report
 ```
 
 Do NOT proceed to Phase 4 until the user approves. You MUST stop generating text completely at this point -- do NOT simulate the user's response or continue autonomously. Wait for explicit user input before starting Phase 4. If `--strict-mode` and Errors exist, recommend fixing all errors.
@@ -253,8 +254,8 @@ Remaining issues: [count]
 
 ## Quick Examples
 
-- `/seo-audit https://example.com` — Full technical SEO audit
-- `/seo-audit https://example.com/products` — Audit specific section
-- `/seo-audit src/pages --local` — Audit local HTML/template files
-- `/seo-audit https://example.com --focus security,performance` — Focused audit
-- `/seo-audit https://example.com --competitor https://rival.com` — Comparative audit
+- `/seo-audit https://example.com` -- Full technical SEO audit
+- `/seo-audit https://example.com/products` -- Audit specific section
+- `/seo-audit src/pages --local` -- Audit local HTML/template files
+- `/seo-audit https://example.com --focus security,performance` -- Focused audit
+- `/seo-audit https://example.com --competitor https://rival.com` -- Comparative audit

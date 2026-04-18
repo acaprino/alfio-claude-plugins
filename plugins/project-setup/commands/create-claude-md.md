@@ -2,8 +2,8 @@
 name: create-claude-md
 description: >
   Create a new CLAUDE.md file tailored to your project through interactive questionnaire.
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  TRIGGER WHEN: the user asks to create/generate/scaffold a CLAUDE.md for a project that doesn't have one.
+  DO NOT TRIGGER WHEN: auditing or updating an existing CLAUDE.md (use /project-setup:maintain-claude-md).
 subagent: project-setup:claude-md-auditor
 ---
 
@@ -76,15 +76,15 @@ You'll receive:
 ## Best Practices Built In
 
 Your new CLAUDE.md will:
-- ✅ Include detailed project structure mapping files/directories to their purpose
-- ✅ Scale length to project complexity, but stay under ~40k characters (Claude Code performance warning threshold). If the project needs more, link out to `docs/` instead of inlining
-- ✅ Reference files instead of duplicating code
-- ✅ Delegate style enforcement to linters
-- ✅ Include only universally applicable guidance
-- ✅ Be grounded in actual codebase reality
-- ✅ Be self-contained -- no satellite files needed
-- ✅ Mark unverifiable claims with `[UNVERIFIED]` and resolve before finalizing
-- ✅ Use regular hyphens `-` or `--`, never em dashes
+- Include detailed project structure mapping files/directories to their purpose
+- Scale length to project complexity, but stay under ~40k characters (Claude Code performance warning threshold). If the project needs more, link out to `docs/` instead of inlining
+- Reference files instead of duplicating code
+- Delegate style enforcement to linters
+- Include only universally applicable guidance
+- Be grounded in actual codebase reality
+- Be self-contained -- no satellite files needed
+- Mark unverifiable claims with `[UNVERIFIED]` and resolve before finalizing
+- Use regular hyphens `-` or `--`, never em dashes
 
 ## Related Commands
 

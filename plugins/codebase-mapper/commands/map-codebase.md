@@ -1,8 +1,9 @@
 ---
 description: >
-  "Generate a human-readable codebase guide - explores the project, writes 10 narrative documents with Mermaid diagrams, and produces an INDEX.md entry point" argument-hint: "[target-path]".
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Generate a human-readable codebase guide -- explores the project, writes 10 narrative documents with Mermaid diagrams, and produces an INDEX.md entry point.
+  TRIGGER WHEN: the user asks to onboard to an unfamiliar project, generate a codebase tour, or produce a full narrative guide for new contributors.
+  DO NOT TRIGGER WHEN: the user wants structured AST/dependency analysis (use /deep-dive-analysis:deep-dive-analysis) or just API docs (use /codebase-mapper:docs-create).
+argument-hint: "[target-path]"
 ---
 
 # Map Codebase

@@ -1,7 +1,7 @@
 ---
 name: premium-web-consultant
 description: >
-  Premium web design consultant that conducts structured client discovery, produces professional deliverables (website brief, sitemap, design direction, content strategy), and orchestrates web-designer, ui-layout-designer, web-designer, seo-specialist, and content-marketer agents automatically.
+  Premium web design consultant that conducts structured client discovery, produces professional deliverables (website brief, sitemap, design direction, content strategy), and orchestrates web-designer, ui-layout-designer, seo-specialist, and content-marketer agents automatically.
   TRIGGER WHEN: planning a new website or redesign before any code is written.
   DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
 ---
@@ -10,7 +10,7 @@ description: >
 
 Strategic website planning skill. Bridges the gap between "I need a website" and writing code. Produces professional strategy documents through structured discovery, then orchestrates specialist agents at defined handoff points.
 
-**Positioning:** This skill handles the discovery and strategy phase. Hand off to `ui-studio` when ready to build. Use `/frontend-redesign` instead if improving an existing frontend codebase.
+**Positioning:** This skill handles the discovery and strategy phase. Hand off to the `frontend-engineer` agent when ready to build. Use `/frontend:review-design` instead if improving an existing frontend codebase.
 
 ---
 
@@ -348,4 +348,4 @@ This prevents each specialist from solving the wrong problem.
 Notes:
 - SEO specialist invoked twice: Phase 1 for competitive analysis, Phase 4 for keyword mapping (needs sitemap from Phase 2)
 - Phase 2 agents run sequentially: web-designer validates IA first, then ui-layout-designer uses the optimized output
-- After Phase 5, hand off to `ui-studio` for implementation
+- After Phase 5, hand off to the `frontend-engineer` agent for implementation

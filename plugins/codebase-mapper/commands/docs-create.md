@@ -1,8 +1,9 @@
 ---
 description: >
-  "Create accurate technical documentation by analyzing the codebase first -- API docs, architecture guides, component docs, or full project documentation" argument-hint: "<target path or description> [--api-only] [--architecture] [--format markdown|html] [--output <path>]".
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Create accurate technical documentation by analyzing the codebase first -- API docs, architecture guides, component docs, or full project documentation.
+  TRIGGER WHEN: the user asks to create API docs, architecture guides, component docs, or new technical documentation for a codebase.
+  DO NOT TRIGGER WHEN: the user wants to audit existing docs (use /codebase-mapper:docs-maintain) or just a README (use /docs:maintain-readme).
+argument-hint: "<target path or description> [--api-only] [--architecture] [--format markdown|html] [--output <path>]"
 ---
 
 # Create Documentation
@@ -69,7 +70,7 @@ Use the `documentation-engineer` agent for the heavy lifting:
 
 ```
 Task:
-  subagent_type: "documentation-engineer"
+  subagent_type: "codebase-mapper:documentation-engineer"
   description: "Generate documentation for [target]"
   prompt: |
     Create accurate technical documentation by analyzing the source code.
@@ -121,8 +122,8 @@ Before saving, pass the generated documentation through the `text-humanizer` age
 
 ```
 Task:
-  subagent_type: "text-humanizer"
-  description: "Remove AI writing traces from generated documentation"
+  subagent_type: "digital-marketing:text-humanizer"
+  description: "Remove AI writing traces from generated documentation (use codebase-mapper:doc-humanizer or digital-marketing:text-humanizer)"
   prompt: |
     Humanize this technical documentation. Remove AI patterns while preserving
     all factual content, code examples, and technical accuracy. Focus on:

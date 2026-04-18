@@ -1,9 +1,9 @@
 ---
 name: acp-loader
 description: >
-  "DO NOT.
+  Skill activation engine that ensures relevant ACP skills are invoked for every task.
   TRIGGER WHEN: ALWAYS at conversation start and before every task.
-  DO NOT TRIGGER WHEN: dispatched as a subagent."
+  DO NOT TRIGGER WHEN: dispatched as a subagent.
 ---
 
 # ACP Loader - Skill Activation Engine
@@ -62,8 +62,8 @@ Before responding to ANY user message, run this check:
    --> ai-tooling:writing-plans to create a plan first
 
 5. Is this frontend/UI work?
-   --> Check: frontend:frontend, frontend:frontend-design, frontend:ui-studio,
-       frontend:premium-web-consultant, agent-teams:team-design
+   --> Check: frontend:frontend, frontend:premium-web-consultant,
+       frontend:shadcn-ui, frontend:daisyui, frontend:radix-ui, agent-teams:team-design
 
 6. Is this a code review request?
    --> Check: senior-review:code-review, senior-review:full-review

@@ -1,8 +1,9 @@
 ---
 description: >
-  "Systematic codebase analysis combining structure extraction with semantic understanding -- documents WHAT, WHY, HOW, and CONSEQUENCES of code with phased output" argument-hint: "<target path> [--critical] [--comments] [--docs-only] [--phase N] [--depth=lite|full]".
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Systematic codebase analysis combining structure extraction with semantic understanding -- documents WHAT, WHY, HOW, and CONSEQUENCES of code with phased output.
+  TRIGGER WHEN: the user asks for a deep analysis of an unfamiliar codebase, pre-review context, or a structure-plus-semantics snapshot.
+  DO NOT TRIGGER WHEN: the user wants human-readable narrative docs (use /codebase-mapper:map-codebase) or a shallow overview.
+argument-hint: "<target path> [--critical] [--comments] [--docs-only] [--phase N] [--depth=lite|full]"
 ---
 
 # Deep Dive Analysis
@@ -17,7 +18,7 @@ description: >
 
 ## Tool Integration
 
-For Python projects, you MUST use the scripts in `.claude/skills/deep-dive-analysis/scripts/` instead of manual file reading:
+For Python projects, you MUST use the scripts in `${CLAUDE_PLUGIN_ROOT}/skills/deep-dive-analysis/scripts/` instead of manual file reading:
 
 - **Phase 1-2 (Structure):** Use `ast_parser.py` for class/function/import extraction and `classifier.py` for file classification. Do NOT attempt to parse AST manually or count imports with grep.
 - **Phase 5 (Risks):** Use `usage_finder.py` to trace symbol usages across the codebase.

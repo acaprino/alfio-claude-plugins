@@ -2,8 +2,8 @@
 name: quick-searcher
 description: >
   Fast search agent for simple fact-finding, single-concept lookups, and quick answers. Do NOT use for complex multi-source research requiring systematic coverage or iterative refinement.
-  TRIGGER WHEN: you need a fast answer to a straightforward question -- a specific fact, a file location, a config value, or a quick web lookup
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  TRIGGER WHEN: you need a fast answer to a straightforward question -- a specific fact, a file location, a config value, or a quick web lookup.
+  DO NOT TRIGGER WHEN: the task is a complex multi-source investigation requiring iterative refinement (use deep-researcher), or the user is implementing/editing code.
 tools: Read, Grep, Glob, WebFetch, WebSearch
 model: sonnet
 color: pink

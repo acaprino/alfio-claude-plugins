@@ -64,14 +64,14 @@ CMD ["node", "server.js"]
 ### Correct: Multi-stage with production-only deps
 
 ```dockerfile
-FROM node:20-slim AS builder
+FROM node:22-slim AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
 RUN npm run build
 
-FROM node:20-slim
+FROM node:22-slim
 WORKDIR /app
 COPY --from=builder /app/package*.json ./
 RUN npm ci --omit=dev
@@ -120,14 +120,14 @@ CMD ["python", "app.py"]
 ### Node.js (TypeScript)
 
 ```dockerfile
-FROM node:20-slim AS builder
+FROM node:22-slim AS builder
 WORKDIR /app
 COPY package*.json tsconfig.json ./
 RUN npm ci
 COPY src/ src/
 RUN npm run build && npm prune --omit=dev
 
-FROM gcr.io/distroless/nodejs20-debian12
+FROM gcr.io/distroless/nodejs22-debian12
 WORKDIR /app
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
@@ -162,7 +162,7 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 ### Go
 
 ```dockerfile
-FROM golang:1.22-alpine AS builder
+FROM golang:1.24-alpine AS builder
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
@@ -179,7 +179,7 @@ ENTRYPOINT ["/server"]
 ### Rust
 
 ```dockerfile
-FROM rust:1.77-slim AS builder
+FROM rust:1.82-slim AS builder
 WORKDIR /app
 COPY Cargo.toml Cargo.lock ./
 RUN mkdir src && echo "fn main() {}" > src/main.rs && cargo build --release && rm -rf src

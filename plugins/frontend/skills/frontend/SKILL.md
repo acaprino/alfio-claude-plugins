@@ -35,12 +35,16 @@ This skill provides a reference for writing modern, robust, and efficient CSS.
 
 **Anchored container queries:** Style positioned elements based on anchor fallback state
 ```css
+/* Anchor positioning (CSS Anchor Positioning API - Chrome 125+, behind flag elsewhere) */
 .tooltip {
-  container-type: anchored;
+  position: absolute;
+  position-anchor: --my-anchor;
+  top: anchor(bottom);
+  left: anchor(center);
 }
 
-@container anchored(top) {
-  /* Styles when positioned at top */
+.anchor-element {
+  anchor-name: --my-anchor;
 }
 ```
 
@@ -53,7 +57,7 @@ This skill provides a reference for writing modern, robust, and efficient CSS.
 
 ### Grid Enhancements
 - **Subgrid:** Inherit parent grid lines for nested layouts
-- **Masonry:** `display: grid-lanes` for Pinterest-style layouts with logical tab order. (Previously proposed as `grid-template-rows: masonry`).
+- **Masonry:** Pinterest-style layouts. Two proposals are active: (1) `grid-template-rows: masonry` (shipping in Safari 17.4+), (2) Chromium's `item-flow` / `item-pack` (under active development). Standards body still deciding between them; use `@supports` for progressive enhancement.
 
 ---
 

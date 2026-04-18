@@ -107,10 +107,10 @@ def health_check(interval=30):
 Friday after ~22:00 UTC the forex market closes. The terminal stays connected but no quotes arrive -- `symbol_info_tick()` returns stale data. The `connected` field in `terminal_info()` may remain `True`.
 
 ```python
-from datetime import datetime
+from datetime import datetime, timezone
 
 def is_market_open():
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     # Forex: Sunday 22:00 UTC to Friday 22:00 UTC
     if now.weekday() == 5:  # Saturday
         return False

@@ -1,8 +1,9 @@
 ---
 description: >
-  "Analyze, evaluate, and optimize prompts for LLMs -- improve clarity, reduce token usage, add structure, and test variations" argument-hint: "<prompt text or file path> [--model claude|gpt|gemini] [--optimize-for clarity|tokens|reliability] [--compare]".
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Analyze, evaluate, and optimize prompts for LLMs -- improve clarity, reduce token usage, add structure, and test variations.
+  TRIGGER WHEN: the user wants to review or optimize a prompt, system message, or agent instructions for clarity/tokens/reliability.
+  DO NOT TRIGGER WHEN: the user wants the prompt-improver hook (which runs automatically) or generating new prompts from scratch.
+argument-hint: "<prompt text or file path> [--model claude|gpt|gemini] [--optimize-for clarity|tokens|reliability] [--compare]"
 ---
 
 # Prompt Optimization

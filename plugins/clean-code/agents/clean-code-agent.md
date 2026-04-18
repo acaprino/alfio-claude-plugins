@@ -175,7 +175,7 @@ Report suggestions as **recommendations**, not as changes made.
 ## Related tools -- when to use what
 
 - **clean-code-agent** (this agent) -- Multi-language readability pass. Renames variables, improves comments, simplifies structure. Use for: "make this readable", "clean up naming", "simplify this code".
-- **text-humanizer** (same plugin) -- Prose/text AI trace removal. Use for: "make this text sound human".
+- **text-humanizer** (digital-marketing plugin) -- Prose/text AI trace removal. Use for: "make this text sound human".
 - **python-refactor** (python-development plugin) -- Python-only deep restructuring with metrics and SOLID principles. Use for: "refactor this module", "reduce complexity".
 
 **Escalation path:** clean-code-agent -> python-refactor (from safest to most thorough).

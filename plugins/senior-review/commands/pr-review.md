@@ -1,8 +1,9 @@
 ---
 description: >
-  "Analyze current branch changes, generate a comprehensive PR description with risk assessment and review checklist, and optionally create the PR via gh CLI" argument-hint: "[--base main] [--create] [--split-check] [--strict-mode]".
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Analyze current branch changes, generate a comprehensive PR description with risk assessment and review checklist, and optionally create the PR via gh CLI.
+  TRIGGER WHEN: the user asks to prepare a PR, write a PR description, or create a pull request from the current branch.
+  DO NOT TRIGGER WHEN: reviewing someone else's PR (use /senior-review:code-review with the PR number).
+argument-hint: "[--base main] [--create] [--split-check] [--strict-mode]"
 ---
 
 # PR Enhancement Pipeline
@@ -12,7 +13,7 @@ description: >
 You MUST follow these rules exactly. Violating any of them is a failure.
 
 1. **Execute phases in order.** Do NOT skip ahead, reorder, or merge phases.
-2. **Start from git diff.** All analysis comes from `git diff` and `git log` — the actual changes are ground truth.
+2. **Start from git diff.** All analysis comes from `git diff` and `git log` -- the actual changes are ground truth.
 3. **Run agents in parallel where marked.** Fire parallel agents in a single response.
 4. **Confirm before creating PR.** If `--create` flag is set, show the full PR description for approval before running `gh pr create`.
 5. **Never enter plan mode.** Execute immediately.
@@ -126,9 +127,9 @@ Task:
     ## Instructions
     Check for:
     1. Secrets or credentials in the diff (API keys, tokens, passwords)
-    2. New dependencies — are they trustworthy? Known vulnerabilities?
+    2. New dependencies -- are they trustworthy? Known vulnerabilities?
     3. Input validation gaps in new/modified code
-    4. Auth/authorization changes — are they correct?
+    4. Auth/authorization changes -- are they correct?
     5. Insecure defaults introduced (debug mode, verbose errors, permissive CORS)
 
     If no security issues, say so clearly.
@@ -153,13 +154,13 @@ Using the analysis from Phase 1 and agent findings from Phase 2, generate a comp
 ## What Changed
 
 ### [Category Icon] [Category] Changes
-- [status]: `filename` — [brief description of change]
+- [status]: `filename` -- [brief description of change]
 
 [Repeat for each category with changes]
 
 ## Why These Changes
 
-[Extract motivation from commit messages and code context — the business reason]
+[Extract motivation from commit messages and code context -- the business reason]
 
 ## Type of Change
 
@@ -240,7 +241,7 @@ Files: [count] | Lines: +[X]/-[Y]
 
 1. Create PR now (pushes branch and creates PR via gh)
 2. Copy description only (I'll create the PR manually)
-3. Revise — adjust the description first
+3. Revise -- adjust the description first
 ```
 
 ### If `--create` flag or user chooses option 1:

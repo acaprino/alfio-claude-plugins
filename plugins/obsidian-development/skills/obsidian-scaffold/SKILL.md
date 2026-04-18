@@ -12,7 +12,7 @@ Scaffold a new Obsidian community plugin project that is bot-compliant from day 
 
 ## Usage
 
-`/obsidian-scaffold` — then answer the prompts for plugin ID, name, author, and description.
+`/obsidian-scaffold` -- then answer the prompts for plugin ID, name, author, and description.
 
 ## What It Creates
 

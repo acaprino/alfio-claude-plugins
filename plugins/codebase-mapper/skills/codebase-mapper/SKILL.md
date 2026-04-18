@@ -2,8 +2,8 @@
 name: codebase-mapper
 description: >
   Knowledge base for the codebase-mapper plugin. Provides writing guidelines, tone rules, and diagram conventions for generating human-readable project guides. Referenced by all codebase-mapper agents during document generation.
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  TRIGGER WHEN: referenced by codebase-mapper pipeline agents (codebase-explorer, overview-writer, tech-writer, flow-writer, onboarding-writer, ops-writer, config-writer, guide-reviewer) during document generation.
+  DO NOT TRIGGER WHEN: outside the /map-codebase pipeline (general documentation work should use docs:readme-craft or codebase-mapper:docs-create).
 ---
 
 # Codebase Mapper Knowledge Base

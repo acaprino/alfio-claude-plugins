@@ -2,8 +2,8 @@
 name: maintain-readme
 description: >
   Audit, restructure, and improve an existing README.md -- verifies accuracy against the codebase, fixes stale links and stats, improves structure following readme-craft best practices, and optionally rewrites sections.
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  TRIGGER WHEN: the user asks to audit, update, or improve an existing README.md -- fix stale stats/links, reorganize sections, or apply readme-craft best practices.
+  DO NOT TRIGGER WHEN: creating a new README from scratch (use docs:readme-craft skill) or auditing non-README docs (use /codebase-mapper:docs-maintain).
 ---
 
 # Maintain README.md

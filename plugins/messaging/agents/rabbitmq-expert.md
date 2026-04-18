@@ -1,9 +1,9 @@
 ---
 name: rabbitmq-expert
 description: >
-  ".
-  TRIGGER WHEN: configuring RabbitMQ exchanges, designing queue topologies, troubleshooting message delivery, setting up clustering/HA, or optimizing AMQP throughput"
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  RabbitMQ expert covering exchange/queue topology design, message delivery guarantees, clustering and HA (Khepri, quorum queues, streams), MQTT 5, AMQP 1.0, and throughput optimization on RabbitMQ 4.x.
+  TRIGGER WHEN: configuring RabbitMQ exchanges, designing queue topologies, troubleshooting message delivery, setting up clustering/HA, or optimizing AMQP throughput.
+  DO NOT TRIGGER WHEN: the task is about Kafka, Redis Streams, NATS, or non-AMQP message brokers.
 model: opus
 color: blue
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch

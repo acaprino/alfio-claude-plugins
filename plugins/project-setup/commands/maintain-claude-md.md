@@ -2,8 +2,8 @@
 name: maintain-claude-md
 description: >
   Audit and improve existing CLAUDE.md with ground truth verification and guided improvements.
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  TRIGGER WHEN: the user asks to audit, update, verify, or improve an existing CLAUDE.md against the current codebase.
+  DO NOT TRIGGER WHEN: creating a CLAUDE.md from scratch (use /project-setup:create-claude-md).
 subagent: project-setup:claude-md-auditor
 ---
 
@@ -134,12 +134,12 @@ Agent: Understood. Here's the complete audit report:
        2. Command "npm test:ci" not found
           → Available: npm test, npm run test:watch
 
-       ⚠️  High Priority (3)
+       [HIGH] High Priority (3)
        1. File length: 380 lines (recommend <300)
        2. Duplicates content from README.md
        3. Missing documentation for new GraphQL API
 
-       💡 Medium Priority (5)
+       [MED] Medium Priority (5)
        ...
 
        Audit complete. Run /maintain-claude-md again when ready to apply fixes.

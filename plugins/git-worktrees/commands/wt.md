@@ -1,8 +1,9 @@
 ---
 description: >
-  "Git worktree management -- create, list, pause, resume, remove, merge, and monitor parallel development worktrees" argument-hint: "<subcommand> [args] [--branch X] [--from Y] [--desc '...'] [--setup 'cmd'] [--no-setup] [--squash|--rebase|--pr]".
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Git worktree management -- create, list, pause, resume, remove, merge, and monitor parallel development worktrees.
+  TRIGGER WHEN: the user asks to create, list, merge, or clean up git worktrees, or wants to work on multiple features/branches in parallel.
+  DO NOT TRIGGER WHEN: doing standard single-branch git operations (checkout, commit, push) without worktree involvement.
+argument-hint: "<subcommand> [args] [--branch X] [--from Y] [--desc '...'] [--setup 'cmd'] [--no-setup] [--squash|--rebase|--pr]"
 ---
 
 # Worktree Manager

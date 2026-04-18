@@ -2,8 +2,8 @@
 name: firefox-extension-dev
 description: >
   Reference knowledge base for Firefox WebExtension development. Contains browser API reference, manifest schema, AMO publishing guide, MDN URL index, and best practices. Used by the firefox-extension-dev agent for documentation lookup.
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  TRIGGER WHEN: building, debugging, or publishing a Firefox/WebExtension add-on (manifest.json, browser.* APIs, AMO submission, web-ext CLI).
+  DO NOT TRIGGER WHEN: targeting Chrome-only extensions, Safari extensions, or userscripts/bookmarklets.
 ---
 
 # Firefox Extension Development References

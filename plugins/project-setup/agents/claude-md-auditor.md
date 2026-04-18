@@ -42,10 +42,10 @@ Build ground truth BEFORE reading CLAUDE.md. Read in this order:
 3. Source structure: `src/**`, `tests/**`, `**/*.test.*`
 4. Build comprehensive file/directory map: annotate each significant directory and file with its purpose and content
 5. Tooling configs: `tsconfig.json`, `.eslintrc*`, `biome.json`, `prettier*`
-5. CI/CD: `.github/**`, `ci/**`
-6. Recent git activity: `git log --oneline -10`
-7. README and other project docs
-8. **CLAUDE.md last** - compare against ground truth already established
+6. CI/CD: `.github/**`, `ci/**`
+7. Recent git activity: `git log --oneline -10`
+8. README and other project docs
+9. **CLAUDE.md last** - compare against ground truth already established
 
 ### Phase 2: Claim Verification
 

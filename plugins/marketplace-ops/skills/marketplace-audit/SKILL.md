@@ -2,8 +2,8 @@
 name: marketplace-audit
 description: >
   Validate ACP marketplace integrity. Use PROACTIVELY before any commit that modifies plugin files or marketplace.json. Checks marketplace.json consistency, verifies all referenced files exist, validates frontmatter fields, detects orphaned plugins/skills/agents/commands, and reports naming convention violations.
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  TRIGGER WHEN: before any commit that modifies plugin files or marketplace.json; when the user asks to verify marketplace.json integrity, find orphan files, or check naming conventions.
+  DO NOT TRIGGER WHEN: the task is AI-powered content quality review (use marketplace-review) or scaffolding new plugins.
 ---
 
 # Marketplace Audit

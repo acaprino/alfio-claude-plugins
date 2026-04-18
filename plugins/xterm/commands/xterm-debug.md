@@ -1,8 +1,9 @@
 ---
 description: >
-  "Diagnose and fix xterm.js terminal issues -- pitfall scan plus deep architectural analysis covering race conditions, error boundaries, fragile assumptions, performance, and edge cases" argument-hint: "[path] [--issue <description>] [--dry-run] [--shallow]".
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Diagnose and fix xterm.js terminal issues -- pitfall scan plus deep architectural analysis covering race conditions, error boundaries, fragile assumptions, performance, and edge cases.
+  TRIGGER WHEN: the user reports a bug or asks to audit an existing xterm.js integration (render glitches, key handling, resize, PTY issues, addon conflicts).
+  DO NOT TRIGGER WHEN: implementing a new xterm feature (use /xterm:xterm-implement).
+argument-hint: "[path] [--issue <description>] [--dry-run] [--shallow]"
 ---
 
 # xterm.js Terminal Debugger
@@ -14,7 +15,7 @@ If `--shallow` is in `$ARGUMENTS`, run only Phase 1 and skip Phase 2.
 ## CRITICAL RULES
 
 1. **Read before diagnosing.** Always read ALL terminal-related files -- not just the main component. Include hooks, utilities, CSS, backend PTY code, types, and tests.
-2. **Use the xtermjs-skill.** Reference `frontend:xtermjs-skill` for correct patterns and API usage.
+2. **Use the xtermjs-skill.** Reference `xterm:xtermjs-skill` for correct patterns and API usage.
 3. **Explain root causes.** Don't just fix -- explain why the issue occurs so the developer learns.
 4. **Preserve existing behavior.** Fixes must not break working functionality. Addon loading order matters.
 5. **Plan before complex fixes.** For issues involving stream interception, coordinate translation, or timer race conditions, analyze the data flow before writing code.

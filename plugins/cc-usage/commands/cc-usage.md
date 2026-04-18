@@ -1,8 +1,9 @@
 ---
 description: >
-  "Analyze Claude Code token usage, costs, billing blocks, and tool activity from local session data" argument-hint: "[--days N] [--session <id>] [--breakdown]".
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Analyze Claude Code token usage, costs, billing blocks, and tool activity from local session data.
+  TRIGGER WHEN: the user asks about their usage, costs, burn rate, billing blocks, or wants a usage dashboard/report from their local Claude Code sessions.
+  DO NOT TRIGGER WHEN: the user wants Anthropic API billing (different API) or organization-level billing.
+argument-hint: "[--days N] [--session <id>] [--breakdown]"
 ---
 
 # /cc-usage
@@ -39,7 +40,7 @@ Analyze your Claude Code token usage, costs, and activity.
 Parse the user's arguments, then run the analysis script:
 
 ```bash
-python plugins/cc-usage/skills/cc-usage/scripts/cc_usage.py [flags]
+python ${CLAUDE_PLUGIN_ROOT}/skills/cc-usage/scripts/cc_usage.py [flags]
 ```
 
 Map user arguments to script flags:

@@ -1,9 +1,9 @@
 ---
 name: executing-plans
 description: >
-  "Also DO NOT.
+  Execute an existing implementation plan task-by-task with verification at each step.
   TRIGGER WHEN: user says 'execute the plan', 'run the plan', 'implement the plan', 'start implementing'.
-  DO NOT TRIGGER WHEN: user wants to write a plan (use writing-plans), wants to brainstorm (use brainstorming), or is doing ad-hoc implementation."
+  DO NOT TRIGGER WHEN: user wants to write a plan (use writing-plans), wants to brainstorm (use brainstorming), or is doing ad-hoc implementation.
 ---
 
 Source: Ported from [obra/superpowers](https://github.com/obra/superpowers) -- `skills/executing-plans`

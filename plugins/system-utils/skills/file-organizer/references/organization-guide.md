@@ -1,6 +1,6 @@
 # File Organization Reference Guide
 
-Condensed best practices for naming, structuring, and maintaining files. Use as optional suggestions — propose to users during organization, never force.
+Condensed best practices for naming, structuring, and maintaining files. Use as optional suggestions -- propose to users during organization, never force.
 
 ---
 
@@ -40,7 +40,7 @@ Numeric IDs: max 10 areas (00-99), max 10 categories each. Item format: `AC.ID` 
 ```
 
 Best for: methodical users, shared environments needing unambiguous references.
-Weakness: rigid — hard to restructure after initial setup.
+Weakness: rigid -- hard to restructure after initial setup.
 
 ### GTD File System (David Allen)
 
@@ -64,7 +64,7 @@ Max 7 folders per level, max 3 levels deep = 343 folders reachable in 1-3 clicks
 
 All lowercase. No spaces, no accents, no special characters.
 
-### Dates — ISO 8601
+### Dates -- ISO 8601
 
 Always `YYYY-MM-DD`. Guarantees correct alphabetical sort across all OSes. Position at start when chronological order matters, after context when grouping by project matters.
 
@@ -78,7 +78,7 @@ Prefer `kebab-case` or `snake_case`. Never spaces. CamelCase acceptable for proj
 
 ### Zero-Padding
 
-Always pad numbers: `01`, `02`... `99` — avoids `1, 10, 11, 2` sort order.
+Always pad numbers: `01`, `02`... `99` -- avoids `1, 10, 11, 2` sort order.
 
 ### Examples
 
@@ -171,19 +171,19 @@ Code/
 
 Flag these during analysis and propose fixes:
 
-- **Desktop as archive** — zero permanent files on Desktop
-- **`New Folder (3)`** — unnamed folders with unknown content
-- **`document_FINAL_v2_DEFINITIVE_copy.docx`** — broken versioning
-- **Downloads never cleaned** — thousands of unsorted files
-- **No backup strategy** — recommend 3-2-1 rule (3 copies, 2 media, 1 offsite)
-- **Duplicates everywhere** — 78% of professionals have this problem
-- **One file, multiple locations** — use shortcuts/aliases instead of copies
+- **Desktop as archive** -- zero permanent files on Desktop
+- **`New Folder (3)`** -- unnamed folders with unknown content
+- **`document_FINAL_v2_DEFINITIVE_copy.docx`** -- broken versioning
+- **Downloads never cleaned** -- thousands of unsorted files
+- **No backup strategy** -- recommend 3-2-1 rule (3 copies, 2 media, 1 offsite)
+- **Duplicates everywhere** -- 78% of professionals have this problem
+- **One file, multiple locations** -- use shortcuts/aliases instead of copies
 
 ---
 
 ## Maintenance Schedule
 
-Propose this after organizing — adapt frequency to user's needs.
+Propose this after organizing -- adapt frequency to user's needs.
 
 | Frequency | Duration | Tasks |
 |-----------|----------|-------|
@@ -198,8 +198,8 @@ Single entry point for all new files. Must be empty after each review session. N
 
 ### Archive Tiers
 
-- **Hot** — active files on SSD
-- **Warm** — recent files on HDD/NAS
-- **Cold** — archive on external disk or cheap cloud
+- **Hot** -- active files on SSD
+- **Warm** -- recent files on HDD/NAS
+- **Cold** -- archive on external disk or cheap cloud
 
 Compressed archives: `YYYY-MM_project-name_archive.7z` with a `README.txt` describing contents and archive date.

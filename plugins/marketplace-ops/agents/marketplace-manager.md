@@ -16,7 +16,7 @@ You maintain consistency, quality, and organization across all plugins.
 # MARKETPLACE STRUCTURE
 - Registry: `.claude-plugin/marketplace.json`
 - Plugins: `plugins/<name>/` with `agents/`, `skills/`, `commands/` subdirs
-- 23+ plugins, marketplace version tracked in `metadata.version`
+- 39 plugins, marketplace version tracked in `metadata.version`
 
 # CORE CAPABILITIES
 

@@ -1,8 +1,9 @@
 ---
 description: >
-  "Validate skill and agent quality -- deterministic checks (activation patterns, token budget, body size, examples, frontmatter) plus AI body review (structure, clarity, redundancy, tool restrictions, isolation)" argument-hint: "[plugin-name] [--all] [--skip-ai]".
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Validate skill and agent quality -- deterministic checks (activation patterns, token budget, body size, examples, frontmatter) plus AI body review (structure, clarity, redundancy, tool restrictions, isolation).
+  TRIGGER WHEN: the user asks to validate skill/agent quality, enforce trigger patterns, check token budgets, or run pre-commit marketplace checks.
+  DO NOT TRIGGER WHEN: checking structural JSON references only (use /marketplace-ops:marketplace-health) or doing an AI-only content review (use /marketplace-ops:marketplace-review).
+argument-hint: "[plugin-name] [--all] [--skip-ai]"
 ---
 
 # Skills Validation

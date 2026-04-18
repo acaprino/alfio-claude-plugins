@@ -1,9 +1,9 @@
 ---
 description: >
-  "Audit an existing MetaTrader 5 trading system for reliability, error handling, and production readiness"
-  argument-hint: "[path-or-description]".
-  TRIGGER WHEN: the user requires assistance with tasks related to this domain.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Audit an existing MetaTrader 5 trading system for reliability, error handling, and production readiness.
+  TRIGGER WHEN: the user asks to review, audit, or validate an MT5 Python trading bot (polling loops, fill modes, reconnection, order retcodes, Windows deployment).
+  DO NOT TRIGGER WHEN: building a new MT5 system from scratch (use the mt5-architect agent), or auditing non-MT5 systems (use /ibkr-trading:ibkr-audit for IB).
+argument-hint: "[path-or-description]"
 ---
 
 # MT5 Trading System Audit

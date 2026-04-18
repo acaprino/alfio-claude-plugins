@@ -49,7 +49,7 @@ el.style.display = 'flex';
 el.style.transform = 'scale(0.9)';
 el.style.opacity = '0';
 
-// YES — use CSS classes
+// YES -- use CSS classes
 el.addClass('hp-flex-container');
 el.toggleClass('hp-scaled', true);
 el.toggleClass('hp-hidden', true);
@@ -65,7 +65,7 @@ Flagged properties include: `display`, `transform`, `opacity`, `width`, `height`
 Don't `as Type` when it doesn't change the type.
 
 ```typescript
-// NO — assertion is redundant with ?? fallback
+// NO -- assertion is redundant with ?? fallback
 draft.url as string ?? ''
 draft.showDate as boolean ?? true
 
@@ -109,7 +109,7 @@ onOpen() { this.render(); }
 Don't return a Promise in callbacks expecting `void`.
 
 ```typescript
-// NO — event callback expects void
+// NO -- event callback expects void
 this.registerEvent(this.app.vault.on('modify', async (file) => {
   await this.reload();
 }));
@@ -125,7 +125,7 @@ this.registerEvent(this.app.vault.on('modify', (file) => {
 Ensure values won't stringify as `[object Object]`.
 
 ```typescript
-// NO — if draft is Record<string,unknown>, draft.mode could be an object
+// NO -- if draft is Record<string,unknown>, draft.mode could be an object
 `Value: ${draft.mode ?? 'default'}`
 
 // YES
@@ -184,7 +184,7 @@ Don't pass `this` (plugin) to `MarkdownRenderer.render()`. Use a `Component` ins
 // NO
 MarkdownRenderer.render(this.app, md, el, '', this);
 
-// YES — use a Component subclass or this view/block
+// YES -- use a Component subclass or this view/block
 MarkdownRenderer.render(this.app, md, el, '', this.component);
 ```
 
@@ -223,7 +223,7 @@ Lookbehinds break on some iOS versions. Avoid unless `isDesktopOnly: true`.
 ### 18. File Operations
 
 - Use `FileManager.trashFile()` instead of `Vault.trash()`/`Vault.delete()`
-- Don't iterate all files to find by path — use `getAbstractFileByPath()`
+- Don't iterate all files to find by path -- use `getAbstractFileByPath()`
 - Use `normalizePath()` for user-provided paths
 
 ### 19. No Sample/Template Code
@@ -283,5 +283,5 @@ Configure ESLint with the plugin's recommended config. Run before submitting PR.
 | `createEl('h2', ...)` in modal | `new Setting(el).setName(...).setHeading()` |
 | Async onOpen without await | Remove `async` keyword |
 | Unhandled promise | Add `void`, `await`, or `.catch()` |
-| `detachLeavesOfType` in onunload | Remove — Obsidian handles it |
+| `detachLeavesOfType` in onunload | Remove -- Obsidian handles it |
 | `abstractFile as TFile` | `if (x instanceof TFile)` |

@@ -1,9 +1,9 @@
 ---
 name: rust-engineer
 description: >
-  "Expert Rust developer for writing, reviewing, and debugging Rust code.
-  TRIGGER WHEN: working on Rust implementations -- ownership patterns, async programming, trait design, error handling, FFI, performance optimization, or unsafe code review."
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Expert Rust developer for writing, reviewing, and debugging Rust code.
+  TRIGGER WHEN: working on Rust implementations -- ownership patterns, async programming (tokio), trait design, error handling, FFI, performance optimization, or unsafe code review.
+  DO NOT TRIGGER WHEN: the task is Tauri-specific (use tauri-desktop or tauri-mobile), or the code is in another language (Python/TypeScript/Go).
 tools: Read, Write, Edit, Bash, Glob, Grep
 model: opus
 color: blue

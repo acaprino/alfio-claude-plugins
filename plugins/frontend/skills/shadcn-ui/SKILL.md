@@ -41,7 +41,7 @@ This skill works alongside the other frontend skills. Route to them when appropr
 | Page layout composition, grid systems, breakpoint strategy | **ui-layout-designer** agent |
 | Animations, micro-interactions, visual polish | **web-designer** agent |
 | UX flows, design tokens, component hierarchy | **web-designer** agent |
-| Distinctive visual identity, avoiding generic AI aesthetics | **frontend-design** |
+| Distinctive visual identity, avoiding generic AI aesthetics | **frontend** skill |
 | React 19 patterns, Server Components, performance | **react-performance-optimizer** agent |
 
 **This skill** handles shadcn-specific concerns: which components to use, how to compose them, registry patterns, form/table/sidebar architecture, and shadcn theming.
