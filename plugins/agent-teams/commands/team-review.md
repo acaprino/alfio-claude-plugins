@@ -85,7 +85,7 @@ Analyze changed files and codebase to determine which review dimensions are rele
 | Security | `senior-review:security-auditor` | Every change can introduce vulnerabilities |
 | Architecture | `senior-review:code-auditor` | Coupling, abstractions, failure flows, pattern consistency, scoring |
 | **Logic integrity** | `senior-review:logic-integrity-auditor` | **Hunts violations of contracts/invariants/domain rules surfaced in Phase 1b** (skipped if `--skip-interconnect`) |
-| Dead code & lint | `general-purpose` | Catch unused imports, variables, unreachable code introduced by the diff |
+| Codebase hygiene | `senior-review:cleanup-auditor` | Dead code + orphan assets + generated artifacts tracked in VCS + phantom/unused deps + barrel-file and eager-bundle bloat |
 
 ### Conditional dimensions (auto-detected from context)
 

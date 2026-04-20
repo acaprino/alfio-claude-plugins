@@ -137,7 +137,7 @@ Think in state machines. Trace what happens when things go wrong.
 **Anti-Pattern Checklist (concrete thresholds):**
 - Empty catch block = always CRITICAL
 - Function longer than 50 lines = check SRP
-- File with more than 10 imports = check for god-module
+- File with more than 10 imports = check for god-module (NB: barrel-file re-export bloat and unused-export cleanup are the `senior-review:cleanup-auditor` D4 territory -- do NOT duplicate those findings here; flag only god-modules that harm coupling/architecture)
 - God objects/classes doing too much
 - Callback hell / promise chains (use async/await)
 - Mutable global state or stateful singletons

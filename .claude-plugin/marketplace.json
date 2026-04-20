@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "5.36.0"
+    "version": "5.37.0"
   },
   "plugins": [
     {
@@ -614,8 +614,8 @@
     {
       "name": "senior-review",
       "source": "./plugins/senior-review",
-      "description": "Multi-agent code review orchestration with unified code auditing (architecture, failure flow, pattern analysis, scoring), security auditing, UI race condition detection, distributed flow analysis, platform engineering review, dead code detection, semantic interconnect mapping (contracts / invariants / domain rules / assumptions) reusable across team-review and codebase-mapper, logic-integrity auditing for cross-component contract violations, git blame/history analysis, finding validation with false-positive filtering, committable PR suggestions, pre-review skip logic, intent-driven review, confidence gating, cross-agent deduplication, pre-existing issue separation, verdict system, interactive fix loop, and conditional reviewers for testing quality, API contracts, and data migrations. Backed by a comprehensive defect taxonomy knowledge base (140+ defect patterns, CWE/OWASP mappings, plus a dedicated logic-integrity reference).",
-      "version": "5.5.0",
+      "description": "Multi-agent code review orchestration with unified code auditing (architecture, failure flow, pattern analysis, scoring), security auditing, UI race condition detection, distributed flow analysis, platform engineering review, codebase-hygiene auditing (dead code + orphan assets + generated artifacts in VCS + phantom/unused deps + barrel-file and eager-bundle bloat), /cleanup-dead-code incremental-phase command with commit-per-category and build+test gates, semantic interconnect mapping (contracts / invariants / domain rules / assumptions) reusable across team-review and codebase-mapper, logic-integrity auditing for cross-component contract violations, git blame/history analysis, finding validation with false-positive filtering, committable PR suggestions, pre-review skip logic, intent-driven review, confidence gating, cross-agent deduplication, pre-existing issue separation, verdict system, interactive fix loop, and conditional reviewers for testing quality, API contracts, and data migrations. Backed by a comprehensive defect taxonomy knowledge base (140+ defect patterns, CWE/OWASP mappings, plus a dedicated logic-integrity reference).",
+      "version": "5.6.0",
       "author": {
         "name": "Alfio"
       },
@@ -655,7 +655,8 @@
         "./agents/chicken-egg-detector.md",
         "./agents/semantic-interconnect-mapper.md",
         "./agents/logic-integrity-auditor.md",
-        "./agents/api-contract-auditor.md"
+        "./agents/api-contract-auditor.md",
+        "./agents/cleanup-auditor.md"
       ],
       "skills": [
         "./skills/defect-taxonomy"
@@ -1297,8 +1298,8 @@
     {
       "name": "agent-teams",
       "source": "./plugins/agent-teams",
-      "description": "Orchestrate multi-agent teams for parallel code review, hypothesis-driven debugging, and coordinated feature development using Claude Code Agent Teams. Includes the team-review pipeline (deep-dive + interconnect map + parallel reviewers + consolidation) for finding cross-component logic bugs, and the team-codebase-map pipeline (context brief + interconnect map + parallel writers + drift-aware review) for producing accurate codebase documentation.",
-      "version": "2.9.1",
+      "description": "Orchestrate multi-agent teams for parallel code review, hypothesis-driven debugging, and coordinated feature development using Claude Code Agent Teams. Includes the team-review pipeline (deep-dive + interconnect map + parallel reviewers + codebase-hygiene auditor + consolidation) for finding cross-component logic bugs plus dead code / orphan assets / VCS cruft / phantom deps, and the team-codebase-map pipeline (context brief + interconnect map + parallel writers + drift-aware review) for producing accurate codebase documentation.",
+      "version": "2.9.2",
       "author": {
         "name": "Seth Hobson"
       },

@@ -1,119 +1,217 @@
 ---
 description: >
-  Find and remove dead code -- auto-detects language: Knip for TypeScript/JavaScript, vulture + ruff for Python.
-  TRIGGER WHEN: the user asks to find/remove unused code, dead exports, unused dependencies, orphan files, or dependency hygiene cleanup.
-  DO NOT TRIGGER WHEN: the task is code readability (use /clean-code:clean-code) or architectural refactoring (use /python-development:python-refactor).
-argument-hint: "[path] [--dry-run] [--dependencies-only] [--exports-only] [--production]"
+  Remove technical debt across 4 dimensions -- dead code (Knip / vulture / ruff), orphan assets, generated artifacts tracked in VCS + .gitignore gaps, and phantom / unused dependencies in monorepo workspaces. Incremental-phase workflow with commit-per-category and build+test gates between phases.
+  TRIGGER WHEN: the user asks to find/remove unused code, dead exports, unused dependencies, orphan assets, generated files in git, phantom deps, or run a codebase cleanup pass.
+  DO NOT TRIGGER WHEN: the task is code readability (use /clean-code:clean-code) or architectural refactoring (use /python-development:python-refactor). For detection only (no edits) as part of /agent-teams:team-review, the `senior-review:cleanup-auditor` agent is used instead.
+argument-hint: "[path] [--dry-run] [--phase=garbage|brand|assets|gitignore|deps|exports] [--dependencies-only] [--exports-only] [--production]"
 ---
 
 # Cleanup Dead Code
 
-Detect and remove unused code. Auto-detects the project language and dispatches to the appropriate skill.
+Detect and remove technical debt across 4 dimensions. Incremental phases, one commit per category, build+test gate between phases, automatic revert on gate failure.
 
 ## CRITICAL RULES
 
-1. **Git pre-flight**: before any analysis, check `git status`. If the working tree has uncommitted changes, warn the user and suggest committing or stashing first -- this ensures safe `git restore` if anything goes wrong.
-2. **Run tests before and after.** Establish a baseline, then verify no regressions.
-3. **If `--dry-run`, report only.** Show findings without modifying files.
-4. **Revert on test failure.** If any test fails after a change, undo it immediately.
-5. **Never remove code that is used via side effects.** Check dynamic imports, decorators, and framework conventions.
-6. **Python functions/classes require approval.** Vulture has high false-positive rates for functions and classes (metaprogramming, framework conventions). Present these separately and get explicit user confirmation before removing. Unused imports (ruff F401) and unused variables (ruff F841) are safe to auto-remove.
+1. **Git pre-flight**: before any phase, `git status` must be clean. Warn and halt if the working tree has uncommitted changes.
+2. **Phase isolation**: each phase commits to its own commit, never mix categories. This makes every step independently revertible.
+3. **Gate after every phase**: `npm run build` (or project-equivalent) must pass. Tests must not regress vs. baseline. If either gate fails, `git reset --hard HEAD~1` and halt.
+4. **Grep-before-delete**: for any asset, export, or dep candidate, run a final confirmation `Grep` with zero results before removal. Skip if any match.
+5. **`--dry-run` reports only**: no file edits, no git operations, no gate runs.
+6. **Never remove via side effects**: dynamic imports, decorators, framework conventions, module augmentation (`*.d.ts` with `declare module`).
+7. **Python functions/classes require approval**: vulture high-FP. Present separately; get explicit user confirmation.
 
-## Step 1: Detect Language
+## Step 0: Detect Project Shape
 
 ```bash
-# Check for TS/JS project
-ls package.json 2>/dev/null
-
-# Check for Python project
-ls pyproject.toml setup.py setup.cfg 2>/dev/null
-find . -maxdepth 3 -name "*.py" -print -quit 2>/dev/null
+# Language
+ls package.json pnpm-workspace.yaml pyproject.toml setup.py setup.cfg Cargo.toml 2>/dev/null
+# Workspace type (if JS/TS)
+cat package.json 2>/dev/null | grep -A 3 '"workspaces"'
+cat pnpm-workspace.yaml 2>/dev/null
+# Frameworks (for gitignore templates)
+ls src-tauri/ android/ ios/ 2>/dev/null
+cat package.json 2>/dev/null | grep -E '"(react|next|vite|nuxt|svelte|solid|vue)"'
 ```
 
-### Decision tree
+Compute:
+- `PROJECT_LANG`: ts|js|py|mixed
+- `PKG_MANAGER`: npm|pnpm|yarn|bun (from lockfile)
+- `WORKSPACE`: none|npm-workspace|pnpm-workspace
+- `FRAMEWORKS`: set of detected frameworks
+- `BUILD_CMD`: inspect `package.json` scripts or fall back to `npm run build`
+- `TEST_CMD`: inspect `package.json` scripts; prefer unit (vitest run, jest, pytest) over e2e
 
-**Knip mode** (TS/JS) - `package.json` exists:
-- Proceed to Step 2A
+## Step 1: Establish Baseline
 
-**Python mode** - `*.py` files, `pyproject.toml`, or `setup.py` exist (no `package.json`):
-- Proceed to Step 2B
-
-**Both exist** - ask the user which to analyze, or run both sequentially.
-
-## Step 2A: Knip Analysis (TypeScript/JavaScript)
-
-Invoke the `knip` skill from `typescript-development`. Pass through any flags from `$ARGUMENTS` (`--dependencies-only`, `--exports-only`, `--production`, path).
-
-Fallback if skill unavailable:
+Before any phase:
 ```bash
-bunx knip 2>/dev/null || npx knip
+git status                        # must be clean
+git rev-parse HEAD                # record starting commit
+$BUILD_CMD                        # must pass
+$TEST_CMD                         # record pass/fail counts as baseline
 ```
 
-Proceed to Step 3 with Knip findings.
+If baseline build or tests fail, halt. The user must stabilize main before cleanup.
 
-## Step 2B: Python Analysis (vulture + ruff)
+## Step 2: Detection (All 4 Dimensions)
 
-Invoke the `python-dead-code` skill from `python-development`. Pass through any path from `$ARGUMENTS`.
+Run `senior-review:cleanup-auditor` conceptually (or replicate its pipeline):
 
-Fallback if skill unavailable:
+### 2A: Dead code
+- **TS/JS**: invoke `typescript-development:knip` skill; fallback `bunx knip --reporter json || npx knip --reporter json`.
+- **Python**: invoke `python-development:python-dead-code` skill; fallback `vulture . --min-confidence 80` + `ruff check . --select F401,F811,F841`.
+
+### 2B: Asset audit
+- List all files in `public/`, `src/assets/`, `assets/`, `static/` with image/font/audio/video extensions.
+- For each asset, `Grep` the basename + relative path across source files.
+- Detect `import.meta.glob('...', { eager: true })` -- expand, count matches, compute usage ratio.
+- Detect rebrand residue: ask user for old brand name if not obvious from git history (`git log --diff-filter=R --name-status`).
+
+### 2C: VCS hygiene
+- `git ls-files` filtered for common generated-artifact patterns (see `cleanup-auditor.md` D3 for the full regex list).
+- `git ls-files` filtered for filesystem garbage (`nul`, `.DS_Store`, shell-redirection filenames).
+- `.gitignore` completeness audit per detected framework.
+
+### 2D: Dependency hygiene (monorepo-aware)
+- Per workspace, list deps; `Grep` each within the workspace directory only.
+- Phantom deps: declared in `W` but imported only from sibling workspaces.
+- Unused deps: declared, zero imports anywhere.
+- Barrel-file bloat: files with >= 30 re-exports, usage ratio < 20%.
+- Eager-bundle bloat: top-level imports of known-heavy packages (`lodash`, `moment`, `@mui/icons-material`, `react-icons/*`, `rxjs`, `@aws-sdk/client-*`) without code-splitting.
+
+Categorize every finding. Present the report. If `--dry-run`, stop here.
+
+## Step 3: Incremental Phase Workflow
+
+Default order, lowest-risk first. If `--phase=<name>` provided, run only that phase. Otherwise run all in order, stopping at first gate failure.
+
+### Phase order
+
+1. `garbage` -- filesystem cruft (`nul`, `.DS_Store`, shell-redirection artifacts)
+2. `brand` -- rebrand residue (old logo files, legacy brand strings in asset filenames)
+3. `assets` -- orphan static files (images, fonts, SVGs, audio)
+4. `gitignore` -- add missing patterns + `git rm --cached` for currently-tracked generated artifacts
+5. `deps` -- unused + phantom dependencies in `package.json`
+6. `exports` -- dead code (exports, types, unused files, unused Python symbols) -- last because highest review burden
+
+### Per-phase template
+
+For every phase `P`:
+
+**P.1: Confirm zero references** (idempotent Grep):
 ```bash
-uv run vulture [target] --min-confidence 80 2>/dev/null || vulture [target] --min-confidence 80
-uv run ruff check [target] --select F401,F841 2>/dev/null || ruff check [target] --select F401,F841
+for item in $CANDIDATES; do
+  # strict string match across source; exclude the file being removed
+  Grep -r "$item" --include='*.{ts,tsx,js,jsx,mjs,cjs,html,css,scss,md,mdx,vue,svelte,py}' \
+    src/ packages/ apps/ public/ 2>/dev/null
+done
 ```
+Skip any item with matches. Log skipped items separately.
 
-Proceed to Step 3 with Python findings.
+**P.2: Apply removals in small batches** (5-20 items per batch). For each batch:
+- JS/TS code: delete file or edit export line.
+- Assets: `git rm` the file.
+- Generated artifacts: `git rm --cached` (keep on disk, ignore going forward).
+- Deps: edit `package.json`, re-run `$PKG_MANAGER install` (or `pnpm install`).
+- `.gitignore`: append missing patterns.
 
-## Step 3: Present Findings
-
-Categorize and display all findings by type (unused imports, variables, functions, classes, dependencies, exports, files). Include file:line locations.
-
-If `--dry-run`, stop here.
-
-## Step 4: Establish Test Baseline
-
-Inspect available test commands before running blindly:
+**P.3: Gate**:
 ```bash
-# TS/JS: check package.json scripts for the right test command
-# Prefer unit tests over e2e -- avoid triggering Playwright/Cypress accidentally
-cat package.json | grep -A 5 '"scripts"'
-# Then run the appropriate test command (e.g., npm run test:unit, vitest run, jest)
-
-# Python
-pytest -v 2>/dev/null || python -m pytest -v 2>/dev/null
+$BUILD_CMD || { git reset --hard HEAD; echo "BUILD FAILED in phase $P, reverted"; exit 1; }
+$TEST_CMD || { git reset --hard HEAD; echo "TESTS FAILED in phase $P, reverted"; exit 1; }
 ```
 
-If no tests exist, warn and ask whether to proceed with manual verification or cancel.
+**P.4: Commit** (one per phase):
+```bash
+git add -A
+git commit -m "chore(cleanup): $P -- <count> items removed
 
-## Step 5: Apply Cleanup
+- <short summary of what was removed>
+"
+```
 
-Apply changes in safest-first order:
-- **TS/JS**: unused dependencies -> unused exports -> unused types -> unused files
-- **Python**: unused imports -> unused variables -> unused functions/classes
+**P.5: Proceed to next phase or halt** if gate failed.
 
-For each change, verify no dynamic imports, side-effect usage, or framework conventions. Remove in small batches and validate.
+## Step 4: Phase-Specific Notes
 
-## Step 6: Validate & Report
+### `garbage`
+Safest phase. `git rm` or `rm` (for untracked). No build/dep impact expected.
 
-Re-run tests. If any fail, revert the last batch. Present a summary of what was removed and test status.
+### `brand`
+Requires user confirmation of old brand name. Run grep for the old name across code, config, docs, asset filenames. Remove matches.
+
+### `assets`
+- Confirm each asset has zero references before `git rm`.
+- Watch for dynamic references: `` `/assets/${name}.svg` `` template literals. Grep for partial basenames too.
+- For eager `import.meta.glob` bloat: do NOT just remove the glob; switch to `{ eager: false }` + lazy `.then()` unless ALL files are provably unused. Removing the glob entirely requires user sign-off.
+
+### `gitignore`
+Two sub-steps:
+1. Add missing patterns to `.gitignore`.
+2. `git rm --cached <paths>` for currently-tracked files now matched by the new patterns.
+Regenerate `.gitignore` only if it was empty or clearly minimal; otherwise append.
+
+### `deps`
+- Phantom deps: move to the correct workspace's `package.json` instead of deleting, unless confirmed unused everywhere.
+- After editing `package.json`, re-install to update the lockfile. Commit both `package.json` AND the lockfile.
+- Do NOT edit `devDependencies` that are implicitly used (`prettier`, `eslint`, `typescript`, `@types/*` matching runtime deps) without a grep of config files.
+
+### `exports`
+- Safest to riskiest order:
+  1. `ruff` unused imports (F401) + unused variables (F841) -- auto-fix.
+  2. Knip unused dependencies (already covered in `deps` phase).
+  3. Knip unused exports / types -- verify with `Grep` of symbol name across ALL workspaces.
+  4. Knip unused files -- verify no dynamic require/import, no framework-convention path.
+  5. vulture unused functions/classes -- **require user confirmation**.
+
+## Step 5: Final Report
+
+After all phases (or at first gate failure):
+```markdown
+## Cleanup Summary
+
+| Phase | Status | Items removed | Bytes freed | Commit |
+|-------|--------|---------------|-------------|--------|
+| garbage | ok | N | X KB | `<sha>` |
+| brand | ok | N | X KB | `<sha>` |
+| assets | ok | N | X MB | `<sha>` |
+| gitignore | ok | N | Y MB (uncached) | `<sha>` |
+| deps | ok | N | Z MB install | `<sha>` |
+| exports | partial (build failed) | N | - | reverted |
+
+Bundle size before: X MB
+Bundle size after: Y MB
+Build time before: Xs
+Build time after: Ys
+Tests: [baseline] N passed -> [after] N passed
+
+Next steps:
+- Rerun `/senior-review:cleanup-dead-code --phase=exports` after investigating the build failure
+- Review `CLAUDE.md` for references to removed symbols (see "CLAUDE.md Alignment Check" below)
+```
 
 ## What It Does
 
-- **TypeScript/JavaScript (Knip)**: Finds unused dependencies, exports, files, and types. See the `knip` skill for details.
-- **Python (vulture + ruff)**: Finds unused imports, variables, functions, classes, and unreachable code. See the `python-dead-code` skill for details.
+- **Dead code (TS/JS)**: Knip for unused dependencies, exports, files, types.
+- **Dead code (Python)**: vulture + ruff for unused imports, variables, functions, classes, unreachable code.
+- **Assets**: orphan detection via grep-by-basename + eager-glob bloat analysis.
+- **VCS**: generated-artifact detection, filesystem garbage removal, `.gitignore` completeness per framework.
+- **Dependencies**: unused + phantom (monorepo-aware) + barrel-file bloat + eager-bundle anti-patterns.
 
 ## What It Does NOT Do
 
-- Remove code used via side effects, dynamic imports, or reflection
-- Modify framework-convention files (Next.js pages/, Django views, pytest fixtures)
-- Remove dependencies used only in scripts
-- Touch test files unless they reference removed symbols
+- Remove code used via side effects, dynamic imports, or reflection (flags as FP candidate instead).
+- Modify framework-convention files (Next.js `pages/`, `app/`, Django views, pytest fixtures).
+- Touch test files unless they reference removed symbols.
+- Run a bundle analyzer. Use `source-map-explorer` or `vite-bundle-visualizer` separately for measurement.
+- Refactor architecture. This command is pure subtraction, not redesign.
 
 ## CLAUDE.md Alignment Check
 
 After cleanup, verify `CLAUDE.md` still reflects the codebase:
 
-1. Read `CLAUDE.md` (if it exists)
-2. Check if removed code was referenced in documented conventions or structure
-3. If `CLAUDE.md` references removed symbols, files, or patterns, propose updates to the user
+1. Read `CLAUDE.md` (if it exists).
+2. `Grep` removed symbols, file paths, and dep names against `CLAUDE.md`.
+3. If references found, propose updates to the user.
 
 $ARGUMENTS
