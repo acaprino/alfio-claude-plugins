@@ -249,9 +249,12 @@ All scripts live in the `stripe:stripe` skill. Absolute paths at runtime use `${
 
 Load from the `stripe:stripe` skill's `references/` directory (see `SKILL.md` for the full index):
 
+- `typescript-nextjs.md` -- App Router Route Handlers, Server Actions, type-narrowed events
+- `embedded-checkout.md` -- `ui_mode: 'embedded'` React mount, return_url vs onComplete, wallet domain verification
 - `billing-meters.md` -- modern usage-based billing (Meter + MeterEvent), tiered pricing, migration from legacy
 - `entitlements.md` -- Feature + ProductFeature + ActiveEntitlement, webhook-driven cache
 - `webhooks-production.md` -- signature verification, idempotency, full event catalog by use-case, audit checklist
+- `stripe-agent-toolkit.md` -- LLM tool-calling, OpenAI Agents SDK / Vercel AI / LangChain / CrewAI, MCP server, RAK scoping
 - `stripe-patterns.md` -- Connect, tax, 3DS, Radar, disputes, idempotency
 - `firebase-integration.md` -- Firebase + Firestore integration
 - `api-cheatsheet.md` -- quick API reference

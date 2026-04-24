@@ -13,9 +13,12 @@ Unified reference for Stripe integrations. Content is split across `references/`
 ## When to load which reference
 
 - **Any Stripe API work** -> start with `references/api-cheatsheet.md` and `references/stripe.md`
+- **TypeScript / Next.js integration (Route Handlers, Server Actions)** -> `references/typescript-nextjs.md`
+- **Embedded Checkout (React mount instead of redirect)** -> `references/embedded-checkout.md`
 - **Webhooks in production (signature, idempotency, event catalog)** -> `references/webhooks-production.md`
 - **Usage-based billing / metered pricing** -> `references/billing-meters.md` (legacy `usage_type=metered` was removed in 2025-03-31.basil)
 - **Feature gating from Stripe products** -> `references/entitlements.md`
+- **LLM agents calling Stripe (OpenAI Agents SDK / Vercel AI / LangChain / CrewAI / MCP)** -> `references/stripe-agent-toolkit.md`
 - **Subscription lifecycle** -> `references/subscription-patterns.md`, `references/usage-revenue-modeling.md`
 - **Checkout conversion optimization** -> `references/checkout-optimization.md`
 - **Pricing strategy and tier design** -> `references/pricing-patterns.md`
