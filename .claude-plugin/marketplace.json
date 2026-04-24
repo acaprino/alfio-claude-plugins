@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "5.39.0"
+    "version": "5.40.0"
   },
   "plugins": [
     {
@@ -278,8 +278,8 @@
     {
       "name": "stripe",
       "source": "./plugins/stripe",
-      "description": "Stripe payments, subscriptions, Connect marketplaces, and revenue optimization for SaaS monetization; includes a dedicated skill (references + scripts) for API patterns, Next.js/TypeScript integration, Embedded Checkout, Billing Meters, Entitlements, webhook reliability, Stripe Agent Toolkit for LLM tool-calling, and pricing design",
-      "version": "2.2.0",
+      "description": "Stripe payments, subscriptions, Connect marketplaces, and revenue optimization for SaaS monetization; includes a dedicated skill (link-first references + scripts) for API patterns, Next.js/TypeScript integration, Embedded Checkout, Billing Meters, Entitlements, webhook reliability, Stripe Agent Toolkit for LLM tool-calling, and pricing design",
+      "version": "2.3.0",
       "author": {
         "name": "Alfio"
       },
@@ -300,7 +300,8 @@
       "strict": false,
       "agents": [
         "./agents/stripe-integrator.md",
-        "./agents/revenue-optimizer.md"
+        "./agents/revenue-optimizer.md",
+        "./agents/stripe-webhooks-auditor.md"
       ],
       "skills": [
         "./skills/stripe"
