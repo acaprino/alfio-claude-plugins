@@ -185,15 +185,29 @@ For checkout implementation details, see [references/checkout-optimization.md](r
 
 ## Feature Gating Pattern
 
+**Prefer Stripe Entitlements** when billing lives in Stripe. It removes hand-rolled plan/feature mapping and keeps access in sync with subscription state automatically via the `entitlements.active_entitlement_summary.updated` webhook. See [references/entitlements.md](references/entitlements.md) for the full pattern (Feature + ProductFeature + ActiveEntitlement, webhook-driven cache, migration from metadata-based gating).
+
+Quick shape:
+
+```python
+# At setup: define features once
+stripe.entitlements.Feature.create(name="Advanced Export", lookup_key="advanced_export")
+# Attach to a Product
+stripe.Product.create_feature(product="prod_pro", entitlement_feature="feat_xxx")
+# Check at runtime against a locally cached summary (kept fresh by webhook)
+def has_feature(customer_id: str, feature: str) -> bool:
+    return feature in cache.get(customer_id, [])
+```
+
+**Self-hosted fallback** (when you can't use Entitlements -- non-Stripe billing, internal flags, free-tier features):
+
 ```typescript
-// Entitlement check pattern
 async function checkFeatureAccess(userId: string, feature: string): Promise<boolean> {
   const subscription = await getSubscription(userId);
   const plan = PLANS[subscription.planId];
   return plan.features.includes(feature);
 }
 
-// Usage in route/component
 if (!await checkFeatureAccess(user.id, 'advanced_export')) {
   return showUpgradePrompt('advanced_export');
 }

@@ -13,7 +13,10 @@ Unified reference for Stripe integrations. Content is split across `references/`
 ## When to load which reference
 
 - **Any Stripe API work** -> start with `references/api-cheatsheet.md` and `references/stripe.md`
-- **Subscription lifecycle / billing** -> `references/subscription-patterns.md`, `references/usage-revenue-modeling.md`
+- **Webhooks in production (signature, idempotency, event catalog)** -> `references/webhooks-production.md`
+- **Usage-based billing / metered pricing** -> `references/billing-meters.md` (legacy `usage_type=metered` was removed in 2025-03-31.basil)
+- **Feature gating from Stripe products** -> `references/entitlements.md`
+- **Subscription lifecycle** -> `references/subscription-patterns.md`, `references/usage-revenue-modeling.md`
 - **Checkout conversion optimization** -> `references/checkout-optimization.md`
 - **Pricing strategy and tier design** -> `references/pricing-patterns.md`
 - **Firebase + Stripe integration** -> `references/firebase-integration.md`
@@ -33,16 +36,29 @@ All scripts live at `${CLAUDE_PLUGIN_ROOT}/skills/stripe/scripts/<name>.py`. Age
 
 ## API version notes
 
-Stripe rolls a new API version every few months. Pin an explicit version in all server-side code:
+Stripe's current version (April 2026) is `2026-04-22.dahlia`. Versions follow the pattern `YYYY-MM-DD.<release>` where the release name (`acacia`, `basil`, `dahlia`, ...) signals major-release boundaries. Monthly point releases are backwards-compatible within a release name.
+
+Pin an explicit version in all server-side code:
 
 ```python
 import stripe
-stripe.api_version = "2025-09-30.preview"  # or the latest dated version appropriate for your account
+stripe.api_version = "2026-04-22.dahlia"
 ```
 
-Client-side SDKs (stripe-node, stripe-python) now support `apiVersion` as a constructor option. Prefer setting it per-request rather than trusting the account default.
+```typescript
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2026-04-22.dahlia',
+});
+```
 
-As of April 2026, the account default version for most Stripe accounts created in 2025+ is in the `2025-xx-xx` family. Dashboard -> Developers -> API version shows your current default.
+The modern Node and Python SDKs bake a default API version into each SDK release, so the SDK itself pins requests unless you override. Prefer explicit pinning on the constructor anyway -- it's the one line that documents which version your integration was written against.
+
+**Breaking changes to know about:**
+
+- `2025-03-31.basil` removed the legacy usage records API (`SubscriptionItem.create_usage_record` and bare `usage_type=metered` prices). All metered prices must now be backed by a Meter. See `billing-meters.md`.
+- `subscription.current_period_end` moved to `subscription.items.data[0].current_period_end`. If your code reads the top-level field, you'll break on any modern version.
+
+Dashboard -> Workbench shows your account's default version. Account defaults lag major releases; never rely on the default -- pin explicitly.
 
 ## Webhook reliability checklist
 
@@ -53,7 +69,7 @@ As of April 2026, the account default version for most Stripe accounts created i
 - Replay past events via `stripe events resend` during development
 - Test signature failures -- attackers spoof webhooks
 
-See `references/stripe-patterns.md` for the full handler template and `scripts/webhook_handler.py` for a working implementation.
+See `references/webhooks-production.md` for the full treatment (event catalog by use-case, multi-environment strategy, audit checklist) and `scripts/webhook_handler.py` for a working implementation.
 
 ## Common pitfalls
 
@@ -61,6 +77,8 @@ See `references/stripe-patterns.md` for the full handler template and `scripts/w
 - Caching `customer.default_source` -- deprecated in favor of `invoice_settings.default_payment_method`
 - Treating `price.id` as the product identifier -- `price.id` changes on any price update; use `product.id` for stable references
 - Forgetting `automatic_payment_methods: { enabled: true }` on Payment Intents -- customers get a default payment-method list that often excludes wallets and BNPL
+- Still calling `SubscriptionItem.create_usage_record` -- removed in API `2025-03-31.basil`. Migrate to `stripe.billing.MeterEvent.create` (see `references/billing-meters.md`).
+- Rolling your own `plan.features` map when your billing lives in Stripe -- use Stripe Entitlements and cache via the `entitlements.active_entitlement_summary.updated` webhook (see `references/entitlements.md`).
 
 ## Integration
 

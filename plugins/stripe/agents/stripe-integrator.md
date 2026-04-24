@@ -224,13 +224,17 @@ except stripe.error.StripeError as e:
 ## Advanced Features
 
 For detailed code examples of the following, see `references/stripe-patterns.md`:
-- **Metered and usage-based billing** - API calls, seats, tiered pricing
 - **Stripe Connect (Marketplaces)** - Connected accounts, platform fees, transfers
 - **Tax Calculation (Stripe Tax)** - Automatic tax in checkout
 - **3D Secure and SCA Compliance** - Strong Customer Authentication (EU/UK)
 - **Fraud Prevention (Stripe Radar)** - Risk assessment, custom rules
 - **Dispute Handling** - Chargebacks, evidence submission
 - **Idempotency** - Preventing duplicate operations
+
+For topics with their own reference files:
+- **Metered / usage-based billing** -> `references/billing-meters.md` (legacy `create_usage_record` removed in `2025-03-31.basil`)
+- **Feature gating via Stripe** -> `references/entitlements.md`
+- **Webhooks in production** -> `references/webhooks-production.md`
 
 ## Scripts Reference
 
@@ -245,7 +249,10 @@ All scripts live in the `stripe:stripe` skill. Absolute paths at runtime use `${
 
 Load from the `stripe:stripe` skill's `references/` directory (see `SKILL.md` for the full index):
 
-- `stripe-patterns.md` -- metered billing, Connect, tax, 3DS, Radar, disputes, idempotency
+- `billing-meters.md` -- modern usage-based billing (Meter + MeterEvent), tiered pricing, migration from legacy
+- `entitlements.md` -- Feature + ProductFeature + ActiveEntitlement, webhook-driven cache
+- `webhooks-production.md` -- signature verification, idempotency, full event catalog by use-case, audit checklist
+- `stripe-patterns.md` -- Connect, tax, 3DS, Radar, disputes, idempotency
 - `firebase-integration.md` -- Firebase + Firestore integration
 - `api-cheatsheet.md` -- quick API reference
 - `stripe.md` -- core Stripe concepts and current API version notes

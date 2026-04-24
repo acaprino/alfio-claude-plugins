@@ -20,7 +20,7 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 import Stripe from 'stripe';
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-09-30.preview',  // pin to a current dated version; check https://stripe.com/docs/upgrades for latest
+  apiVersion: '2026-04-22.dahlia',  // pin to a current dated version; check https://stripe.com/docs/upgrades for latest
 });
 ```
 
@@ -131,17 +131,18 @@ export async function POST(req: Request) {
 
 ## Usage-Based Billing
 
+The legacy `createUsageRecord` API was **removed in Stripe API version `2025-03-31.basil`**. Use Billing Meters instead:
+
 ```typescript
-// Report usage for metered billing
-await stripe.subscriptionItems.createUsageRecord(
-  subscriptionItemId,
-  {
-    quantity: apiCallCount,
-    timestamp: Math.floor(Date.now() / 1000),
-    action: 'increment',
-  }
-);
+await stripe.billing.meterEvents.create({
+  event_name: 'api_request',
+  payload: { stripe_customer_id: 'cus_xxx', value: String(apiCallCount) },
+  identifier: requestId,  // idempotency
+  timestamp: Math.floor(Date.now() / 1000),
+});
 ```
+
+See `billing-meters.md` for the full model, tiered pricing, bulk event streams, backfill, and migration recipe.
 
 ## Price Configuration (Dashboard or API)
 

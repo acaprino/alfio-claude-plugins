@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "5.37.0"
+    "version": "5.38.0"
   },
   "plugins": [
     {
@@ -278,8 +278,8 @@
     {
       "name": "stripe",
       "source": "./plugins/stripe",
-      "description": "Stripe payments, subscriptions, Connect marketplaces, and revenue optimization for SaaS monetization; includes a dedicated skill (references + scripts) for API patterns, checkout optimization, webhook reliability, and pricing design",
-      "version": "2.0.0",
+      "description": "Stripe payments, subscriptions, Connect marketplaces, and revenue optimization for SaaS monetization; includes a dedicated skill (references + scripts) for API patterns, checkout optimization, webhook reliability, Billing Meters, Entitlements, and pricing design",
+      "version": "2.1.0",
       "author": {
         "name": "Alfio"
       },

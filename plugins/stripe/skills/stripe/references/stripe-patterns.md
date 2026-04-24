@@ -2,41 +2,9 @@
 
 ## Metered and Usage-Based Billing
 
-For API calls, seats, or consumption-based pricing:
+**See `billing-meters.md`.** The legacy `usage_type=metered` price + `SubscriptionItem.create_usage_record` flow shown previously here was **removed in Stripe API version `2025-03-31.basil`**. New code must use the Billing Meters API (`stripe.billing.Meter` + `stripe.billing.MeterEvent`).
 
-```python
-# Create metered price
-metered_price = stripe.Price.create(
-    product="prod_xxx",
-    currency="eur",
-    recurring={"interval": "month", "usage_type": "metered"},
-    billing_scheme="per_unit",
-    unit_amount=10,  # 0.10 per unit
-    lookup_key="api_calls"
-)
-
-# Report usage (do this periodically)
-stripe.SubscriptionItem.create_usage_record(
-    "si_xxx",  # subscription item id
-    quantity=150,
-    timestamp=int(datetime.now().timestamp()),
-    action="increment"  # or "set" to override
-)
-
-# Tiered pricing
-tiered_price = stripe.Price.create(
-    product="prod_xxx",
-    currency="eur",
-    recurring={"interval": "month", "usage_type": "metered"},
-    billing_scheme="tiered",
-    tiers_mode="graduated",  # or "volume"
-    tiers=[
-        {"up_to": 100, "unit_amount": 50},      # First 100: 0.50 each
-        {"up_to": 1000, "unit_amount": 30},     # 101-1000: 0.30 each
-        {"up_to": "inf", "unit_amount": 10}     # 1001+: 0.10 each
-    ]
-)
-```
+If you are still pinned to `2025-02-24.acacia` or earlier, your existing integration keeps working, but all new metered prices must be meter-backed. See `billing-meters.md` for a full migration recipe.
 
 ## Stripe Connect (Marketplaces)
 
