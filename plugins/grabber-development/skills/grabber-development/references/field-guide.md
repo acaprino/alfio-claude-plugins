@@ -230,3 +230,70 @@ Second, **AI became bidirectional** -- it powers both detection (per-customer ML
 Third, **the legal Overton window narrowed for commercial AI training** while remaining stable for traditional data scraping. Public data scraping retains CFAA protection, but AI training use faces escalating litigation risk and regulatory requirements, particularly in the EU under the AI Act.
 
 The winning stack in 2026 for a production scraping operation looks like this: **curl_cffi** (with `impersonate="chrome"`) for HTTP-level requests against sites without JS challenges, **Patchright or Nodriver** for browser automation against protected targets, **Crawlee or Scrapy** for orchestration, **residential proxies** (Decodo for value, Bright Data for features) with tiered escalation, **pyrate-limiter with Redis** for distributed rate limiting, **structlog + Prometheus + Grafana** for observability, and **Crawl4AI or Firecrawl** for LLM-ready output. For each target, the key decision is how many layers of evasion are needed -- and increasingly, whether a managed Web Unlocker API makes more economic sense than building and maintaining the full stack yourself.
+
+---
+
+## Official docs and tool references
+
+This file is the synthesis -- read these for the canonical APIs, version notes, and changelogs of each tool referenced above.
+
+### Stealth browsers
+
+- Patchright (Python): https://github.com/Kaliiiiiiiiii-Vinyzu/patchright-python
+- Camoufox: https://camoufox.com/ | repo: https://github.com/daijro/camoufox
+- Nodriver: https://github.com/ultrafunkamsterdam/nodriver | docs: https://ultrafunkamsterdam.github.io/nodriver/
+- rebrowser-patches: https://github.com/rebrowser/rebrowser-patches
+- selenium-driverless: https://github.com/kaliiiiiiiiii/Selenium-Driverless
+
+### HTTP / TLS impersonation
+
+- curl_cffi: https://github.com/lexiforest/curl_cffi | docs: https://curl-cffi.readthedocs.io/
+- primp: https://github.com/deedy5/primp
+- async-tls-client: https://github.com/bytexenon/async-tls-client
+- JA3 / JA4 reference: https://github.com/FoxIO-LLC/ja4
+
+### AI / LLM-driven scraping
+
+- Crawl4AI: https://github.com/unclecode/crawl4ai | docs: https://crawl4ai.com/
+- Firecrawl: https://www.firecrawl.dev/ | repo: https://github.com/mendableai/firecrawl
+- ScrapeGraphAI: https://github.com/ScrapeGraphAI/Scrapegraph-ai
+- Browser Use: https://github.com/browser-use/browser-use
+- Stagehand (Browserbase): https://github.com/browserbase/stagehand
+- Skyvern: https://github.com/Skyvern-AI/skyvern
+- Jina Reader: https://jina.ai/reader/
+- Spider.cloud: https://spider.cloud/
+
+### Frameworks and orchestration
+
+- Crawlee (Python): https://crawlee.dev/python/ | repo: https://github.com/apify/crawlee-python
+- Scrapy: https://docs.scrapy.org/
+
+### Anti-bot interaction
+
+- ghost-cursor: https://github.com/Xetera/ghost-cursor
+- playwright-recaptcha: https://github.com/Xewdy444/Playwright-reCAPTCHA
+- playwright-captcha: https://github.com/eth-r/playwright-captcha
+
+### Proxy and Web Unlocker
+
+- Bright Data Web Unlocker: https://brightdata.com/products/web-unlocker
+- ScrapingBee: https://www.scrapingbee.com/
+- Oxylabs Web Unblocker: https://oxylabs.io/products/scraper-api/web-unblocker
+- Decodo (formerly Smartproxy): https://decodo.com/
+- pyrate-limiter: https://github.com/vutran1710/PyrateLimiter
+
+### Observability
+
+- Spidermon (Scrapy validation): https://spidermon.readthedocs.io/
+- structlog: https://www.structlog.org/
+- Loguru: https://loguru.readthedocs.io/
+- Grafana Loki / Tempo / Prometheus: https://grafana.com/oss/
+
+### Legal references (mentioned above)
+
+- CNIL web scraping guidelines (FR, June 2025): https://www.cnil.fr/en/web-scraping
+- EU AI Act (effective Aug 2, 2026): https://artificialintelligenceact.eu/
+- hiQ v. LinkedIn / Van Buren (CFAA): see EFF coverage at https://www.eff.org/cases/hiq-labs-v-linkedin
+- Reddit v. Perplexity, NYT v. OpenAI: track via https://courtlistener.com/
+
+> **Note**: This file is the curated *field guide* -- the local synthesis. Vendor docs change shape every quarter; if a link 404s, the project name is the search query.
