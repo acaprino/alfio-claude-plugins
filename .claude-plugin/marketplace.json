@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "5.43.0"
+    "version": "5.44.0"
   },
   "plugins": [
     {
@@ -1001,7 +1001,7 @@
       "name": "rag-development",
       "source": "./plugins/rag-development",
       "description": "RAG system design, implementation, and optimization -- chunking strategies, embedding models (Voyage 4 family, OpenAI v3, Cohere embed-v4, Gemini, BGE-M3, NV-Embed-v2, Nomic MoE, Jina v3), vector databases (Qdrant 1.13-1.16), hybrid search, modern rerankers (Voyage rerank-2.5, Cohere Rerank 3.5, Jina Reranker v3, mxbai-rerank-v2), advanced patterns (HippoRAG, LightRAG, LongRAG, Agentic RAG, CRAG, Self-RAG, GraphRAG), evaluation (RAGAS/DeepEval/TruLens), and production deployment",
-      "version": "1.4.0",
+      "version": "1.5.0",
       "author": {
         "name": "Alfio"
       },
