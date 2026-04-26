@@ -1,286 +1,176 @@
 # Events, conversions, audiences
 
-> Source: GA4 official event documentation, GTM trigger and tag reference, and the GA4 Key Events / Google Ads Conversion Actions integration as of 2025-2026.
+The measurement layer: which events to fire, the GTM trigger recipes that map clicks to events, custom dimensions, Key Events (renamed from Conversions in March 2024), audiences for remarketing, Google Ads link, and EEA-specific reporting choices.
 
-This reference covers the measurement layer: which events to track, how to configure them in GTM, how to register custom dimensions, how to mark Key Events, how to create remarketing audiences, and how to link to Google Ads.
+## When to use
 
-## Enhanced Measurement: what GA4 tracks automatically
+Configuring tracking AFTER GTM is installed -- adding events, marking Key Events, building remarketing audiences, linking Google Ads. For the install itself, see `gtm-setup.md` and `framework-integration.md`.
 
-When the data stream is created with Enhanced Measurement enabled (default), GA4 automatically tracks the following events without any custom configuration:
+## What GA4 tracks automatically (Enhanced Measurement)
 
-| Event | Trigger | Notes |
-|---|---|---|
-| `page_view` | Every page load | Includes SPA virtual page views if the GTM Initialization trigger is set up correctly |
-| `session_start` | First page of a session | Auto |
-| `first_visit` | First-ever visit by a user | Auto |
-| `user_engagement` | After 10 seconds on page or interaction | Auto |
-| `scroll` | At 90% page scroll | Toggle individually in stream settings |
-| `click` (outbound) | Click on a link to a different domain | Toggle individually |
-| `view_search_results` | URL contains a search query parameter | Toggle individually, customizable parameter |
-| `video_start`, `video_progress`, `video_complete` | Embedded YouTube videos | Toggle individually, requires JS API enabled iframe |
-| `file_download` | Click on a link with a known file extension | Toggle individually |
+Default-enabled when the data stream is created:
 
-These cover the basics. For actionable conversion data, layer custom events on top.
+| Event | Trigger |
+|-------|---------|
+| `page_view` | Every page load (incl. SPA virtual page views with the right GTM trigger) |
+| `session_start`, `first_visit`, `user_engagement` | Auto |
+| `scroll` | At 90% page scroll (toggleable) |
+| `click` (outbound) | Click on link to different domain (toggleable) |
+| `view_search_results` | URL contains a known search param (toggleable, customizable) |
+| `video_start`/`progress`/`complete` | Embedded YouTube with JS API (toggleable) |
+| `file_download` | Click on link with known file extension (toggleable) |
 
-## Custom events via GTM
+Layer custom events on top for actionable conversion data.
 
-Custom events are configured by creating a GTM **trigger** that fires on a specific user action and a GTM **tag** of type "Google Analytics: GA4 Event" that pushes the event to GA4 with parameters.
+## GTM click-trigger recipes (the local cookbook)
 
-### Pattern 1: click on a button (e.g. "Book", "Reserve")
+The 6 patterns worth memorizing. All use a GTM **trigger** + a **GA4 Event tag** wired to the existing GA4 Google Tag (or measurement ID).
 
-**Trigger**: Click - All Elements
-- Trigger type: Click - All Elements
-- This trigger fires on: Some Clicks
-- Condition: `Click Text` contains `Prenota` (or `Book`, `Reserve`, depending on the language)
-- Optional: also match on `Click Classes` if the button has a unique CSS class
+### Book / Reserve button click
 
-**Tag**: GA4 Event
-- Tag type: Google Analytics: GA4 Event
-- Configuration tag: select the existing GA4 Google Tag (or measurement ID directly)
-- Event name: `book_now_click`
-- Event parameters:
-  - `button_text` = `{{Click Text}}`
-  - `page_path` = `{{Page Path}}` (optional)
+- Trigger: **Click - All Elements**, Some Clicks, `Click Text` contains `Prenota` (or `Book`/`Reserve`)
+- Optional: also match `Click Classes` if the button has a unique class
+- Tag: GA4 Event, name `book_now_click`, params `button_text = {{Click Text}}`
 
-### Pattern 2: WhatsApp link click
+### WhatsApp link
 
-**Trigger**: Click - Just Links
-- Trigger type: Click - Just Links
-- Wait for tags: yes (recommended)
-- This trigger fires on: Some Link Clicks
-- Condition: `Click URL` contains `wa.me`
+- Trigger: **Click - Just Links**, Wait for tags = yes, `Click URL` contains `wa.me`
+- Tag: name `whatsapp_click`, param `link_url = {{Click URL}}`
 
-**Tag**: GA4 Event
-- Event name: `whatsapp_click`
-- Parameters: `link_url` = `{{Click URL}}`
+### Phone (`tel:`)
 
-### Pattern 3: phone number click (`tel:`)
+- Trigger: **Click - Just Links**, `Click URL` starts with `tel:`
+- Tag: name `phone_click`, param `phone_number = {{Click URL}}`
 
-**Trigger**: Click - Just Links
-- Condition: `Click URL` starts with `tel:`
+### Email (`mailto:`)
 
-**Tag**: GA4 Event
-- Event name: `phone_click`
-- Parameters: `phone_number` = `{{Click URL}}` (optional, will include `tel:` prefix)
+- Trigger: **Click - Just Links**, `Click URL` starts with `mailto:`
+- Tag: name `email_click`
 
-### Pattern 4: email click (`mailto:`)
+### Form submission
 
-**Trigger**: Click - Just Links
-- Condition: `Click URL` starts with `mailto:`
+Two reliable approaches:
 
-**Tag**: GA4 Event
-- Event name: `email_click`
+- **A. Native form + thank-you redirect**: trigger on `Page Path equals /grazie`, fire `generate_lead` with `method=contact_form`.
+- **B. AJAX form, no redirect**: form library pushes `dataLayer.push({event:'form_submit_success', form_name:'contact'})` on success. Trigger on Custom Event `form_submit_success`, fire `generate_lead` with `method=contact_form`, `form_name = {{DLV - form_name}}`.
 
-### Pattern 5: form submission (contact form)
+### External OTA / booking platform click
 
-Two reliable approaches depending on the form:
-
-**Approach A: native HTML form with thank-you page redirect**
-
-**Trigger**: Page View
-- Condition: `Page Path` equals `/grazie` (or `/thank-you`)
-
-**Tag**: GA4 Event
-- Event name: `generate_lead`
-- Parameters: `method` = `contact_form`
-
-**Approach B: AJAX form without redirect**
-
-The form library must push to the dataLayer on success:
-
-```javascript
-// In the form success callback
-dataLayer.push({
-  event: 'form_submit_success',
-  form_name: 'contact'
-});
-```
-
-**Trigger**: Custom Event
-- Event name: `form_submit_success`
-
-**Tag**: GA4 Event
-- Event name: `generate_lead`
-- Parameters: `method` = `contact_form`, `form_name` = `{{DLV - form_name}}` (a Data Layer Variable)
-
-### Pattern 6: external OTA / booking platform click
-
-**Trigger**: Click - Just Links
-- Condition: `Click URL` contains `booking.com` OR `Click URL` contains `airbnb`
-
-**Tag**: GA4 Event
-- Event name: `booking_platform_click`
-- Parameters: `platform` = a Custom JavaScript Variable that returns `'booking'` or `'airbnb'` based on the URL
+- Trigger: **Click - Just Links**, `Click URL` contains `booking.com` OR `airbnb`
+- Tag: name `booking_platform_click`, param `platform` = a Custom JS Variable that returns `'booking'` or `'airbnb'` based on the URL
 
 ## Custom dimensions
 
-Custom event parameters do **not** appear automatically in GA4 reports. Each parameter that should appear as a dimension in reports must be registered manually:
+Event parameters do NOT appear in GA4 reports automatically. Each parameter that you want to filter/group/break down by must be **registered**:
 
-1. GA4 > Admin > Data Display > Custom Definitions
-2. Click "Create custom dimension"
-3. Dimension name: human-readable name shown in reports (e.g. "Button Text")
-4. Scope: **Event** (for event parameters; User scope is for user properties)
-5. Description: short note about what the parameter captures
-6. Event parameter: the **exact** parameter name used in the GTM tag (e.g. `button_text`) - case-sensitive
+GA4 → Admin → Data Display → Custom Definitions → Create custom dimension. Scope **Event** (User scope is for user properties). Event parameter name is **case-sensitive** and must match the GTM tag exactly.
 
-After registration it takes up to 24 hours for the dimension to appear in reports. Existing event data with that parameter is **not** retroactively populated - the dimension only sees values collected after registration.
-
-GA4 has a hard limit of **50 event-scoped custom dimensions** and **25 user-scoped** per property. Plan accordingly: not every parameter needs to be a registered dimension. Use registration only for parameters you need to filter, group, or break down by in reports.
+- Up to 24h to appear in reports.
+- **NOT retroactive** -- only sees values collected after registration.
+- Hard limit: **50 event-scoped + 25 user-scoped per property**. Don't register every parameter -- only the ones you'll actually slice by.
 
 ## Key Events (formerly Conversions)
 
-In March 2024 Google renamed "Conversions" to **"Key Events"** in GA4. The term "Conversion" is now reserved exclusively for Google Ads. Functionally they are the same: a flag on an event that tells GA4 to count it as a primary success metric.
+Renamed March 2024. "Conversion" is now Google-Ads-only. Functionally identical: a flag on an event that makes it a primary success metric.
 
-To mark an event as a Key Event:
+To mark: GA4 → Admin → Data Display → Events → toggle "Mark as key event". The event must have fired at least once to appear in the list.
 
-1. GA4 > Admin > Data Display > Events
-2. Find the event in the list (it appears only after firing at least once)
-3. Toggle "Mark as key event" on
+### Suggested Key Events for hospitality / service business
 
-Once marked, the event count appears in the Key Events column of Acquisition reports, and the event becomes importable as a Conversion Action in linked Google Ads accounts.
+- `generate_lead` (form submission) -- primary
+- `book_now_click` -- primary
+- `whatsapp_click`, `email_click`, `phone_click` -- primary
+- `booking_platform_click` -- secondary (micro-conversion: user left to a 3rd party)
 
-**Suggested Key Events for a service or hospitality business**:
+For ecommerce: primary `purchase`, secondary `begin_checkout`, `add_payment_info`, `add_to_cart`.
 
-- `generate_lead` (contact form submission) - primary
-- `book_now_click` (click on the booking button) - primary
-- `whatsapp_click` - primary
-- `email_click`, `phone_click` - primary
-- `booking_platform_click` - secondary (micro-conversion - the user left to a third-party platform)
+## Recommended events (for ecommerce: use the standard names)
 
-For ecommerce, the standard primary Key Event is `purchase`. Secondary Key Events: `begin_checkout`, `add_payment_info`, `add_to_cart`.
+GA4 has a fixed list of "recommended events" mapped to standard reports (Monetization, Funnel). Using the official names instead of inventing custom ones unlocks built-in reports for free. Full list and required parameters: https://support.google.com/analytics/answer/9267735.
 
-## GA4 recommended events for ecommerce
+The `items[]` array shape and the `ecommerce` dataLayer object structure are documented at https://developers.google.com/tag-platform/gtagjs/reference/events. In GTM, on a "GA4 Event" tag with name `purchase`, enable More Settings → Ecommerce → "Send Ecommerce data" with source "Data Layer" -- GTM picks up the `ecommerce` object automatically.
 
-GA4 has a fixed list of "recommended events" that map to standard reports. Using these names instead of inventing custom ones unlocks the built-in Monetization and Funnel reports.
+For non-ecommerce: `login`, `sign_up`, `search`, `share` are also worth using when applicable.
 
-| Event | When to fire | Required parameters |
-|---|---|---|
-| `view_item_list` | User views a product list / category | `item_list_id`, `item_list_name`, `items[]` |
-| `select_item` | User clicks a product in a list | `item_list_id`, `item_list_name`, `items[]` |
-| `view_item` | User views a product detail page | `currency`, `value`, `items[]` |
-| `add_to_cart` | User adds product to cart | `currency`, `value`, `items[]` |
-| `view_cart` | User views the cart | `currency`, `value`, `items[]` |
-| `remove_from_cart` | User removes from cart | `currency`, `value`, `items[]` |
-| `begin_checkout` | User starts checkout | `currency`, `value`, `items[]`, `coupon` |
-| `add_payment_info` | User submits payment info | `currency`, `value`, `payment_type`, `items[]` |
-| `add_shipping_info` | User submits shipping info | `currency`, `value`, `shipping_tier`, `items[]` |
-| `purchase` | Order completed | `currency`, `value`, `transaction_id`, `items[]`, `tax`, `shipping`, `coupon` |
-| `refund` | Order refunded | `currency`, `value`, `transaction_id`, `items[]` |
+## Audiences (build them on day one)
 
-The `items[]` array structure:
+Audiences populate **only from creation date forward** -- they are NOT retroactive. Create them as soon as the property is set up, before campaigns launch.
 
-```javascript
-dataLayer.push({
-  event: 'purchase',
-  ecommerce: {
-    transaction_id: 'T-12345',
-    value: 199.99,
-    currency: 'EUR',
-    tax: 35.99,
-    shipping: 9.99,
-    items: [
-      {
-        item_id: 'SKU-001',
-        item_name: 'Product Name',
-        item_brand: 'Brand',
-        item_category: 'Category',
-        item_variant: 'Red',
-        price: 99.99,
-        quantity: 2
-      }
-    ]
-  }
-});
-```
+### Standard audience set (the local recipe)
 
-In GTM, configure a tag of type "GA4 Event" with event name `purchase`, then in More Settings > Ecommerce, enable "Send Ecommerce data" and set the data source to "Data Layer". GTM will pick up the `ecommerce` object automatically.
+| Audience | Definition | Membership |
+|----------|------------|-----------|
+| All visitors 30 days | `session_start` triggered | 30d |
+| All visitors 180 days | `session_start` triggered | 180d |
+| Engaged visitors | session > 60s AND pageviews > 2 | 90d |
+| Visitors to booking page | `page_location` contains `/prenota` or `/book` | 30d |
+| Visitors to gallery | `page_location` contains `/gallery` or `/foto` | 30d |
+| **High-intent no-conversion** | fired `book_now_click` OR `whatsapp_click` but NOT `generate_lead` | 30d |
+| Cart abandoners (ecommerce) | fired `begin_checkout` but NOT `purchase` | 30d |
+| Past purchasers (ecommerce) | fired `purchase` | 540d (max) |
 
-For non-ecommerce sites, the recommended events `login`, `sign_up`, `search`, `share` are also worth using when they apply.
+The high-intent-no-conversion audience is the most valuable single audience for retargeting -- people who showed booking intent but didn't complete.
 
-## Audiences for remarketing
+Create: GA4 → Admin → Data Display → Audiences → New → Custom audience. Optionally attach an audience trigger (custom event when user joins).
 
-Audiences in GA4 populate **only from the date of creation forward**. They are not retroactive. Create them as soon as the property is set up so data accumulates before Google Ads campaigns launch.
+## Google Ads link (do this even before campaigns)
 
-**Standard audience set** to create on day one:
+GA4 → Admin → Product Links → Google Ads Links → Link. Linker needs admin on both sides. Enable "Personalized advertising".
 
-| Audience | Definition | Membership duration |
-|---|---|---|
-| All visitors 30 days | `session_start` event triggered | 30 days |
-| All visitors 180 days | `session_start` event triggered | 180 days |
-| Engaged visitors | session duration > 60s AND pageviews > 2 | 90 days |
-| Visitors to booking page | `page_location` contains `/prenota` or `/book` | 30 days |
-| Visitors to gallery | `page_location` contains `/gallery` or `/foto` | 30 days |
-| High-intent no-conversion | fired `book_now_click` OR `whatsapp_click` but NOT `generate_lead` | 30 days |
-| Cart abandoners (ecommerce) | fired `begin_checkout` but NOT `purchase` | 30 days |
-| Past purchasers (ecommerce) | fired `purchase` | 540 days (max) |
+Once linked: Ads cost data shows in GA4 Acquisition reports, audiences auto-export to Google Ads Audience Manager, **Key Events become importable as Conversion Actions** (Google Ads → Goals → Conversions → Import → GA4 properties → Web).
 
-To create an audience:
+## Enhanced Conversions (raise conversion-rate signal)
 
-1. GA4 > Admin > Data Display > Audiences
-2. Click "New Audience" > "Create a custom audience"
-3. Set the conditions, the membership duration, and the audience name
-4. Optionally create an audience trigger (a custom event that fires when a user joins the audience)
+Improves attribution by matching first-party hashed user data (email, phone) submitted in forms/checkout against Google's data.
 
-Once GA4 is linked to Google Ads, audiences automatically export to the Google Ads Audience Manager and become available for campaign targeting.
+Enable: GA4 → Admin → Data Streams → select stream → Configure tag settings → Show all → Allow user-provided data capabilities → ON. In GTM, on the GA4 Google Tag or the conversion event tag, configure user-provided data with selectors for the email/phone fields.
 
-## Google Ads link
+Material lift on Smart Bidding signal quality for Google Ads with form-based conversions.
 
-Even before launching campaigns, link GA4 to Google Ads so the integration is ready:
+## EEA reporting identity (the EU-specific local choice)
 
-1. GA4 > Admin > Product Links > Google Ads Links > Link
-2. Choose the Google Ads account (the linker must have admin on both sides)
-3. Enable "Personalized advertising"
-4. Submit
+GA4 → Admin → Reporting Identity offers three modes:
 
-Once linked:
-- GA4 sees Google Ads cost data in Acquisition reports
-- Audiences auto-export to Google Ads Audience Manager
-- Key Events become importable as Conversion Actions in Google Ads
+- **Blended** (default) -- combines User-ID, Google Signals, Device-ID, modeling. Best accuracy when Google Signals is enabled.
+- **Observed** -- User-ID, Google Signals, Device-ID without modeling.
+- **Device-based** -- only Device-ID.
 
-To import Key Events as Conversion Actions: Google Ads > Goals > Conversions > New conversion action > Import > Google Analytics 4 properties > Web. Select the events to import. Each becomes a Conversion Action available for Smart Bidding.
+**For EU sites with Google Signals disabled** (the GDPR-recommended setup), **Device-based often gives the most useful low-traffic reports**. Modeling and Google Signals data trigger thresholding aggressively below 1k sessions/month -- Device-based avoids that entirely. The trade-off is some attribution accuracy.
 
-## Enhanced Conversions
+## Internal traffic exclusion (the gotcha that pollutes data forever)
 
-Enhanced Conversions improve attribution by matching first-party hashed user data (email, phone) submitted in forms or checkouts with Google's user data. To enable:
+Owner visits skew everything. Steps:
 
-1. GA4 > Admin > Data Streams > select the stream > Configure tag settings > Show all > Allow user-provided data capabilities > **toggle ON**
-2. In GTM, on the GA4 Google Tag or on the conversion event tag, configure user-provided data with selectors or variables that point to the email and phone fields
+1. GA4 → Admin → Data Streams → stream → Configure tag settings → Show all → **Define internal traffic** → Create rule "Owner IP", traffic_type = `internal`, "IP equals" → enter your IP.
+2. GA4 → Admin → Data Settings → **Data Filters** → find "Internal Traffic" filter → change state from **Testing** to **Active**.
 
-This becomes particularly valuable when running Google Ads campaigns with form-based conversions, as it materially improves measured conversion rates and Smart Bidding signal quality.
+Once active, internal traffic is permanently excluded from all reports AND **disappears from DebugView** -- disable temporarily for debug sessions or use a different device. For dynamic IPs (most home connections) the rule must be updated periodically.
 
-## Attribution and reporting settings
+## Attribution settings
 
-In GA4 > Admin > Data Display > Attribution Settings:
+GA4 → Admin → Data Display → Attribution Settings:
 
-- **Attribution model**: data-driven (default). With low traffic, GA4 falls back to last-click. Don't change this manually.
-- **Conversion lookback window**: 30 days for fast-cycle ecommerce, 90 days for travel/hospitality, B2B SaaS, or any business with a long decision cycle
-- **Engagement lookback window**: 30 days
+- **Model**: data-driven (default). Don't change manually -- with low traffic GA4 falls back to last-click.
+- **Conversion lookback**: 30d for fast-cycle ecommerce, **90d for travel/hospitality**, B2B SaaS, anything with long decision cycles.
+- **Engagement lookback**: 30d.
 
-In GA4 > Admin > Reporting Identity:
+## Official docs
 
-- **Blended** (default): combines User-ID, Google Signals, Device-ID, and modeling - best for accuracy when Google Signals is enabled
-- **Observed**: User-ID, Google Signals, Device-ID without modeling
-- **Device-based**: only Device-ID - useful for low-traffic sites where data thresholding is a problem because modeling and Google Signals data trigger thresholding more aggressively
+- All recommended events: https://support.google.com/analytics/answer/9267735
+- gtag/dataLayer event reference: https://developers.google.com/tag-platform/gtagjs/reference/events
+- Custom dimensions: https://support.google.com/analytics/answer/10075209
+- Audiences: https://support.google.com/analytics/answer/9267572
+- Audience triggers: https://support.google.com/analytics/answer/9744267
+- Key Events (renamed from Conversions): https://support.google.com/analytics/answer/9267568
+- Google Ads link: https://support.google.com/analytics/answer/9379420
+- Enhanced Conversions: https://support.google.com/google-ads/answer/13258081
+- Reporting Identity: https://support.google.com/analytics/answer/10978788
+- Data filtering / internal traffic: https://support.google.com/analytics/answer/10108813
+- Attribution models: https://support.google.com/analytics/answer/10597962
 
-For an EU site with Google Signals disabled, **Device-based** often gives the most useful low-traffic reports without sacrificing real measurement.
+## Related
 
-## Internal traffic exclusion
-
-Own visits to the site pollute the data. Exclude them:
-
-1. GA4 > Admin > Data Streams > select the stream > Configure tag settings > Show all > Define internal traffic > Create
-2. Rule name: "Owner IP" or similar
-3. Traffic type value: leave as `internal`
-4. Match type: "IP address equals" (or "begins with" / "in range")
-5. Find the IP at [whatismyip.com](https://www.whatismyip.com) or by Googling "what is my IP"
-6. Save
-
-Then activate the filter:
-
-1. GA4 > Admin > Data Settings > Data Filters
-2. Find the "Internal Traffic" filter
-3. Change the state from **Testing** to **Active**
-
-Once active, filtered traffic is permanently excluded from all reports. Note: filtered traffic also disappears from DebugView, so disable temporarily for debug sessions or use a different device.
-
-For dynamic IPs (most home connections), the filter must be updated periodically. For office IPs or static residential IPs, set it once and forget.
+- `gtm-setup.md` -- the install this file builds on
+- `framework-integration.md` -- per-framework GTM placement
+- `gdpr-compliance-eu.md` -- why Google Signals is disabled in EEA setups (the EU differentiator)
+- `diagnostics-troubleshooting.md` -- when the events don't show up

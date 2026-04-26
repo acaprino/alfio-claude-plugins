@@ -1,339 +1,111 @@
 # Framework integration patterns
 
-> Source: official documentation for Next.js (`@next/third-parties` and `next/script`), React Router, WordPress action hooks, and common static site generators as of 2025-2026.
+How to install GTM + the Consent Mode v2 default block correctly per framework. The framework-specific code samples (Next.js App vs Pages Router, React Router, etc.) live upstream; this file is the ordering rules and the gotchas that actually break installations.
 
-This reference covers per-framework patterns for installing GTM and the GA4 tag. For the snippet content itself and the Consent Mode v2 default block, see [`gtm-setup.md`](gtm-setup.md). For the legal/compliance layer that must precede any of these integrations, see [`gdpr-compliance-eu.md`](gdpr-compliance-eu.md).
+## When to use
 
-## Vanilla HTML
+Installing GTM in a Next.js / React / WordPress / static-site / SSR-app codebase. For the snippet content itself and the `<head>` ordering rationale, see `gtm-setup.md`. For the EU compliance layer that must precede this, see `gdpr-compliance-eu.md`.
 
-The simplest case: every HTML page must contain the snippet. The two most common errors are forgetting pages and not centralizing the include.
+## The non-negotiable rule (every framework)
 
-### Single-page sites
+Order in `<head>`, top to bottom:
 
-Paste the head snippet and the noscript body snippet directly in the page source.
+1. **Consent Mode v2 default block** (sets all signals to `denied`, `wait_for_update: 500`)
+2. **CMP loader** (iubenda embed, Cookiebot autoblock script, Orestbida config)
+3. **GTM head snippet**
 
-### Multi-page static sites without a build step
+The GTM noscript iframe goes immediately after `<body>`, never inside `<head>`.
 
-Use a server-side include if the host supports it (Apache SSI, Nginx SSI):
+## Per-framework cheat sheet
 
-```html
-<head>
-  <!--#include virtual="/includes/head-tracking.html" -->
-</head>
-```
+### Next.js App Router (13.4+)
 
-`/includes/head-tracking.html` then contains the Consent Mode v2 default, the CMP loader, and the GTM head snippet.
-
-### Static site generators
-
-Most static site generators have a layout / partial / template system that centralizes head injection.
-
-**Jekyll**: edit `_includes/head.html` (or whatever the theme calls it) and add the snippet block.
-
-**Hugo**: edit `layouts/partials/head.html` (or `layouts/_default/baseof.html` if the theme uses that pattern). Hugo also has a built-in Google Tag Manager partial - configure `googleTagManager` in `config.toml` and add `{{ template "_internal/google_tag_manager.html" . }}` to the head partial.
-
-**Eleventy / 11ty**: edit `_includes/layout.njk` (or whatever your base layout is). Add the snippet directly in the head.
-
-**Astro**: edit `src/layouts/Layout.astro` (or your base layout). The snippet goes inside `<head>`. Astro also has the `astro-google-analytics` and `@astrojs/partytown` integrations for cleaner installation.
-
-**Gatsby**: use `gatsby-plugin-google-tagmanager` in `gatsby-config.js` for the simplest path. Manually, add the snippet to `html.js` (run `gatsby copy-html`).
-
-After updating the template, rebuild the site and **verify with grep** that every output HTML file contains the GTM container ID:
-
-```bash
-grep -l "GTM-XXXXXXX" public/**/*.html
-```
-
-If any file is missing, the layout was not applied uniformly.
-
-## Next.js
-
-Next.js has the most refined integration story for GA4 and GTM thanks to the dedicated `@next/third-parties/google` package.
-
-### App Router (Next.js 13.4+, recommended)
-
-**Preferred approach**: use `@next/third-parties/google`:
+Use `@next/third-parties/google`:
 
 ```bash
 npm install @next/third-parties
 ```
 
-In `app/layout.tsx`:
-
 ```tsx
 import { GoogleTagManager } from '@next/third-parties/google';
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="it">
-      <head>
-        {/* Consent Mode v2 default block - inline script before GTM */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('consent', 'default', {
-                'ad_storage': 'denied',
-                'ad_user_data': 'denied',
-                'ad_personalization': 'denied',
-                'analytics_storage': 'denied',
-                'wait_for_update': 500
-              });
-            `,
-          }}
-        />
-        {/* CMP loader - paste your CMP snippet here */}
-      </head>
-      <body>
-        {children}
-      </body>
-      <GoogleTagManager gtmId="GTM-XXXXXXX" />
-    </html>
-  );
-}
+// In app/layout.tsx <html>...<GoogleTagManager gtmId="GTM-XXXXXXX" /></html>
 ```
 
-`<GoogleTagManager>` injects the GTM head snippet via `next/script` with an optimized loading strategy and adds the noscript iframe automatically. Place it inside `<html>` but after `<body>` to satisfy the noscript placement requirement.
+For the Consent Mode v2 default block, paste an inline `<script dangerouslySetInnerHTML={{__html: ...}}>` in `<head>` BEFORE `<GoogleTagManager>`. There is no `beforeInteractive` strategy in App Router -- inline is the only way to guarantee execution before GTM loads.
 
-**SPA route changes**: GA4 page_view events fire automatically when the GTM tag uses the Initialization - All Pages trigger and the Google Tag is configured to "Send a page view event when this configuration loads". For finer control, push virtual page views from a client component that listens to route changes:
+For SPA route changes, GA4 page_view fires automatically when the GTM Google Tag uses `Initialization - All Pages`. For finer control, push `dataLayer` page_view events from a `usePathname()` + `useEffect()` client component.
 
-```tsx
-'use client';
-import { useEffect } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
+Docs: https://nextjs.org/docs/app/building-your-application/optimizing/third-party-libraries
 
-export function PageViewTracker() {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+### Next.js Pages Router
 
-  useEffect(() => {
-    const url = pathname + (searchParams.toString() ? `?${searchParams.toString()}` : '');
-    if (typeof window !== 'undefined' && (window as any).dataLayer) {
-      (window as any).dataLayer.push({
-        event: 'page_view',
-        page_path: url,
-      });
-    }
-  }, [pathname, searchParams]);
+Use `next/script` in `pages/_document.tsx` for the Consent Mode default with `strategy="beforeInteractive"` (this is the ONLY component where `beforeInteractive` works), and another `<Script strategy="afterInteractive">` for the GTM head snippet. The noscript iframe goes in the `<body>` JSX with `style={{display:'none', visibility:'hidden'}}`.
 
-  return null;
-}
+For SPA routing, listen to `Router.events.routeChangeComplete` in `pages/_app.tsx` and push `page_view` to dataLayer.
+
+Docs: https://nextjs.org/docs/pages/api-reference/components/script
+
+### React (CRA, Vite, non-Next)
+
+Snippet directly in `public/index.html` (CRA) or `index.html` (Vite). Same head-order rules.
+
+For React Router SPAs, use `useLocation()` in a `<PageViewTracker />` mounted once inside `<BrowserRouter>` and push `page_view` to `dataLayer` on location change.
+
+### WordPress
+
+Three paths:
+
+- **Approach A (technical)**: `add_action('wp_head', ..., 1)` + `add_action('wp_body_open', ...)` in a child theme's `functions.php`. Priority `1` ensures early execution. `wp_body_open` was added in WP 5.2 -- older themes need a `header.php` edit.
+- **Approach B (simple)**: edit `header.php` directly. Works but fragile -- theme updates can overwrite. Use a child theme.
+- **Approach C (non-technical)**: Site Kit by Google (limited but guided), GTM4WP (most powerful, dataLayer for WooCommerce / CF7 / Gravity / scroll / video), or a CMP plugin (Complianz, iubenda WP) that handles the entire installation. **The CMP plugin and GTM plugin must be coordinated** so the CMP fires Consent Mode v2 updates that GTM listens for.
+
+### SSR apps (Rails, Django, Laravel)
+
+Insert in the base layout template (`application.html.erb`, `base.html`, `app.blade.php`). Same head-order rules. For Hotwire/Turbo/Inertia/Livewire SPAs, listen to the equivalent of `turbo:load` and push virtual `page_view` events.
+
+### Static site generators
+
+Most have a layout/partial system: Jekyll `_includes/head.html`, Hugo `layouts/partials/head.html` (also has built-in `{{ template "_internal/google_tag_manager.html" . }}`), Eleventy `_includes/layout.njk`, Astro `src/layouts/Layout.astro`, Gatsby `gatsby-plugin-google-tagmanager` in `gatsby-config.js`.
+
+After every build, **verify with grep**:
+
+```bash
+grep -l "GTM-XXXXXXX" public/**/*.html
 ```
 
-Mount `<PageViewTracker />` once in `app/layout.tsx`.
+If a file is missing, the layout was not applied uniformly.
 
-### Pages Router (Next.js 12 and earlier, or legacy projects)
+## Gotchas (the real production bites)
 
-Use `next/script` with `strategy="afterInteractive"` in `pages/_app.tsx` or `pages/_document.tsx`:
-
-```tsx
-// pages/_document.tsx
-import { Html, Head, Main, NextScript } from 'next/document';
-import Script from 'next/script';
-
-export default function Document() {
-  return (
-    <Html lang="it">
-      <Head>
-        <Script
-          id="consent-mode-default"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('consent', 'default', {
-                'ad_storage': 'denied',
-                'ad_user_data': 'denied',
-                'ad_personalization': 'denied',
-                'analytics_storage': 'denied',
-                'wait_for_update': 500
-              });
-            `,
-          }}
-        />
-        {/* CMP loader */}
-        <Script
-          id="gtm-script"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-              new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-              j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-              'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-              })(window,document,'script','dataLayer','GTM-XXXXXXX');
-            `,
-          }}
-        />
-      </Head>
-      <body>
-        <noscript>
-          <iframe
-            src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX"
-            height="0"
-            width="0"
-            style={{ display: 'none', visibility: 'hidden' }}
-          />
-        </noscript>
-        <Main />
-        <NextScript />
-      </body>
-    </Html>
-  );
-}
-```
-
-For SPA route tracking in Pages Router, listen to `Router.events.routeChangeComplete` in `pages/_app.tsx`:
-
-```tsx
-import { useEffect } from 'react';
-import { useRouter } from 'next/router';
-
-export default function App({ Component, pageProps }) {
-  const router = useRouter();
-
-  useEffect(() => {
-    const handleRouteChange = (url) => {
-      if (typeof window !== 'undefined' && (window as any).dataLayer) {
-        (window as any).dataLayer.push({
-          event: 'page_view',
-          page_path: url,
-        });
-      }
-    };
-    router.events.on('routeChangeComplete', handleRouteChange);
-    return () => router.events.off('routeChangeComplete', handleRouteChange);
-  }, [router.events]);
-
-  return <Component {...pageProps} />;
-}
-```
-
-## React (CRA, Vite, non-Next)
-
-For Create React App, Vite, or any React app served as a SPA:
-
-### Static placement
-
-Add the snippet directly to `public/index.html` (CRA) or `index.html` (Vite). Same Consent Mode v2 default + CMP + GTM head order in `<head>`, GTM noscript iframe after `<body>`.
-
-### SPA route tracking with React Router
-
-```tsx
-// src/components/PageViewTracker.tsx
-import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-
-export function PageViewTracker() {
-  const location = useLocation();
-
-  useEffect(() => {
-    if (typeof window !== 'undefined' && (window as any).dataLayer) {
-      (window as any).dataLayer.push({
-        event: 'page_view',
-        page_path: location.pathname + location.search,
-      });
-    }
-  }, [location]);
-
-  return null;
-}
-```
-
-Mount once inside `<BrowserRouter>` at the top of the component tree.
-
-### React Strict Mode double-firing
-
-In development, React Strict Mode double-invokes effects, which can cause `page_view` events to fire twice. This only happens in development - production builds don't have this behavior. Verify with the GA4 DebugView in production rather than dev.
-
-## WordPress
-
-WordPress has multiple deployment paths. Pick based on the user's technical comfort and the existing site setup.
-
-### Approach A: theme `functions.php` action hook (technical)
-
-Add to the active theme's `functions.php` (or better, a child theme's `functions.php`):
-
-```php
-function add_gtm_head() {
-    ?>
-    <!-- Consent Mode v2 defaults -->
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('consent', 'default', {
-        'ad_storage': 'denied',
-        'ad_user_data': 'denied',
-        'ad_personalization': 'denied',
-        'analytics_storage': 'denied',
-        'wait_for_update': 500
-      });
-    </script>
-
-    <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-XXXXXXX');</script>
-    <!-- End Google Tag Manager -->
-    <?php
-}
-add_action('wp_head', 'add_gtm_head', 1);
-
-function add_gtm_body() {
-    ?>
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
-    <?php
-}
-add_action('wp_body_open', 'add_gtm_body');
-```
-
-The priority `1` on `wp_head` ensures the snippet runs early. `wp_body_open` was added in WordPress 5.2 - older themes may not call it; in that case edit `header.php` directly to add the noscript right after `<body>`.
-
-### Approach B: header.php direct edit (simple)
-
-Edit the theme's `header.php` and paste the snippets in the right places. This works but is fragile - theme updates can overwrite changes. Use a child theme or move to Approach A.
-
-### Approach C: plugins (non-technical)
-
-For non-technical users, plugins handle the entire installation:
-
-- **Site Kit by Google**: official Google plugin. Connects to GA4, Search Console, AdSense, PageSpeed Insights with a guided setup. Limited to standard configurations.
-- **GTM4WP**: dedicated GTM plugin with rich dataLayer integration (WooCommerce events, Contact Form 7, Gravity Forms, scroll depth, video tracking). The most powerful option for serious GTM work on WordPress.
-- **WP Cookie Notice / Complianz / iubenda for WordPress**: CMP plugins. Complianz is the most-used native WP CMP. Iubenda has an official WP plugin that handles the embed and Consent Mode v2.
-
-The CMP plugin and the GTM plugin must be coordinated so the CMP fires Consent Mode v2 updates that GTM listens for.
-
-### WordPress caching gotcha
-
-WordPress caching plugins (W3 Total Cache, WP Rocket, LiteSpeed Cache, WP Super Cache) can strip or rewrite the GTM snippet, especially when HTML minification or "delay JavaScript execution" features are enabled. After deploying GTM, **always** flush the cache and verify the snippet still appears in the page source from the front-end (incognito).
-
-If the cache plugin offers a "do not minify" or "exclude from delay" list, add `googletagmanager.com` and `gtm.js` to it.
-
-## Server-side rendered apps (Rails, Django, Laravel, etc.)
-
-Same pattern as WordPress: insert the snippet in the base layout template (Rails `application.html.erb`, Django `base.html`, Laravel Blade `app.blade.php`). The Consent Mode v2 default block, the CMP loader, and the GTM head snippet go in the head; the GTM noscript iframe goes after the opening body tag.
-
-For SPAs hydrated from a server-rendered shell (Hotwire / Turbo / Inertia / Livewire), check that route changes do not skip page_view events. With Turbo, listen to the `turbo:load` event and push a virtual page_view to the dataLayer.
+- **WordPress caching plugins strip the GTM snippet.** W3 Total Cache, WP Rocket, LiteSpeed, WP Super Cache -- especially with HTML minification or "delay JavaScript execution" turned on. Symptom: works in admin/preview but not in incognito on the live front-end. Fix: flush cache, add `googletagmanager.com` + `gtm.js` to the "do not minify" / "exclude from delay" list. **Always re-verify after enabling/updating any cache plugin.**
+- **`strategy="beforeInteractive"` only works in `_document.tsx`** (Pages Router) -- not in pages or app components. In App Router, there's no equivalent; the Consent Mode default must be inline in `<head>`.
+- **React Strict Mode double-fires `page_view` in development only.** Effects run twice in dev, prod is fine. Verify with DebugView in **production**, not local dev.
+- **Hydration mismatch warnings (Next.js, React)** come from `dangerouslySetInnerHTML` differing between server and client. Use `next/script` or `@next/third-parties/google` -- never raw inline `<script>` for GTM in components.
+- **Static export (`next export`)** works with GTM via the same `next/script` patterns. After export, grep the output to confirm the snippet is in every HTML file.
+- **Multi-property / multi-container in one project** = data corruption guaranteed. One property and one container per environment; environments are separated via GTM Environments (auth params), not by mixing IDs.
+- **Hugo / Astro / Gatsby integrations** can ship without Consent Mode v2 defaults out of the box -- always verify the head order is right after enabling the integration. The integration's "GTM container ID" field is just a convenience; the consent ordering is your responsibility.
 
 ## Server-side GTM (sGTM)
 
-Out of scope for this skill. Server-side GTM is a separate Google Cloud deployment that proxies tag requests through a first-party domain, improving cookie persistence and giving more control over data sent to vendors. It is appropriate for high-traffic sites with privacy-engineering requirements. For standard small business deployments, client-side GTM is sufficient.
+Out of scope. Separate Google Cloud deployment that proxies through a first-party domain. Worth it for high-traffic sites with privacy engineering requirements; overkill for most small-business deployments.
 
-If the user asks about sGTM, point them to Google's official Server-side tagging documentation.
+Docs: https://developers.google.com/tag-platform/tag-manager/server-side
 
-## Common framework pitfalls
+## Official docs
 
-- **Hydration mismatch warnings (Next.js, React)**: caused by `dangerouslySetInnerHTML` differences between server and client render. Use `next/script` or `@next/third-parties/google` instead of inline `<script>` to avoid this.
-- **Double-firing in React Strict Mode (development only)**: events fire twice in dev because effects run twice. Production builds are unaffected. Verify in production with DebugView.
-- **Caching plugins stripping snippets (WordPress)**: always flush and re-verify after enabling or updating cache plugins.
-- **Build-time inlining vs runtime injection (Next.js)**: `strategy="beforeInteractive"` only works in `_document.tsx`, not in pages or app components. The Consent Mode default block needs to run before GTM, so it must be `beforeInteractive` in Pages Router or inline in the head in App Router.
-- **Static export (Next.js `next export`)**: works with GTM via the same `next/script` patterns. Verify the snippet appears in the exported HTML files.
-- **Theme updates overwriting changes (WordPress)**: always use a child theme or `functions.php` action hooks rather than editing parent theme files directly.
-- **Multiple GA4 properties / containers in the same project**: keep one property and one container per environment. Mixing dev and prod IDs causes confusing data corruption.
+- `@next/third-parties` (Google integrations): https://nextjs.org/docs/app/building-your-application/optimizing/third-party-libraries
+- `next/script` strategies: https://nextjs.org/docs/app/api-reference/components/script
+- React Router (`useLocation`): https://reactrouter.com/en/main/hooks/use-location
+- WordPress action hooks (`wp_head`, `wp_body_open`): https://developer.wordpress.org/reference/hooks/wp_head/
+- GTM4WP plugin: https://gtm4wp.com/
+- Site Kit by Google: https://wordpress.org/plugins/google-site-kit/
+- Hugo internal GTM template: https://gohugo.io/templates/internal/#google-tag-manager
+- Astro Google Analytics integration: https://github.com/codiume/orbit/tree/main/packages/astro-google-analytics
+- Gatsby GTM plugin: https://www.gatsbyjs.com/plugins/gatsby-plugin-google-tagmanager/
+
+## Related
+
+- `gtm-setup.md` -- the snippet content + `<head>` ordering rationale
+- `events-and-conversions.md` -- the events these snippets enable measuring
+- `gdpr-compliance-eu.md` -- EU compliance layer that comes before any of this
+- `diagnostics-troubleshooting.md` -- when the install seems wrong, run this checklist
