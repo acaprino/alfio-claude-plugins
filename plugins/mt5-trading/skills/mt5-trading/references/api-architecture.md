@@ -1,103 +1,65 @@
 # MT5 Python API Architecture
 
-## Overview
+The official `MetaTrader5` PyPI package (by MetaQuotes) talks to the MT5 terminal via **Windows named pipes** (local IPC). Synchronous request-response only, no callbacks, no streaming. Polling is the only pattern. Current version mirrors the platform build (e.g. 5.0.5640), Python 3.6-3.13.
 
-The `MetaTrader5` package on PyPI is developed and maintained by **MetaQuotes Ltd.** (MIT license). First release: March 2019, 61 releases to date. Version numbers correspond to MT5 platform build numbers. Current version: **5.0.5640**, supports Python 3.6-3.13.
+## When to use
 
-Install: `pip install MetaTrader5`
+Building any Python algotrading system on MT5. For true event-driven (push) behavior you need an MQL5 EA that bridges to Python via ZeroMQ -- see "Alternative libraries" below.
 
-The API communicates with the MT5 terminal via **Windows named pipes** (local IPC). Python and the MT5 terminal must run **on the same Windows machine**. Every API call is a synchronous request-response through the pipe: no callbacks, no push events, no socket connection. The underlying library is compiled in C for performance.
+## Hard constraints (memorize before designing)
 
-Official documentation: https://www.mql5.com/en/docs/python_metatrader5
-Individual function docs: `https://www.mql5.com/en/docs/python_metatrader5/mt5{functionname}_py`
-MetaEditor integration: https://www.metatrader5.com/en/metaeditor/help/development/python
-Release notes: https://www.metatrader5.com/en/releasenotes
+- **Windows-only.** Named pipes IPC has no native cross-platform path. Linux options below are workarounds.
+- **No exceptions, no docstrings, no logging, no context manager.** Every call returns `None` on failure -- check return value AND `mt5.last_error()` after every call.
+- **One Python process = one MT5 terminal connection.** No multi-tenant model.
+- **Not thread-safe.** The pipe is single -- concurrent access from threads = race conditions, crashes, or corrupted data. Serialize calls or use a single dedicated worker thread.
+- **No callbacks / push events.** Pure request-response; you build your own event loop on top of polling.
+- **No Strategy Tester access.** Backtesting is MQL5-only; from Python use Backtrader / Backtesting.py with historical data downloaded via the API.
 
-## The 32 Functions
+## Gotchas
 
-The API exposes 32 functions across five functional areas:
+- **Errors are silent.** `order_send()` returning `None` is a hard failure -- but the API doesn't raise. `mt5.last_error()` returns `(code, description)`. Wrap every call in a check.
+- **MQL5 EAs and Python coexist** on the same terminal. EAs run on charts; Python operates externally. The terminal option **"Disable automatic trading via external Python API"** blocks Python trading (retcode 10027) while leaving EAs active -- a common cause of "my bot stopped working" after broker config changes.
+- **Strategy Tester blocks all socket functions.** Inside the tester, MQL5 EAs cannot communicate with Python via sockets. There is no way to backtest a Python strategy through the MT5 tester.
+- **`pip install MetaTrader5` ships a compiled C library** -- the install is fast but it must match the platform's Python ABI. Mismatch = silent import success but `initialize()` returns False with no useful error.
+- **The API exposes only 32 functions** -- if you can't see it in the docs index, it's not there. There is no `OnTick()`, no event subscription, no async variant.
 
-**Connection**: `initialize()`, `login()`, `shutdown()`, `version()`, `last_error()`
+## Library choice
 
-**Account/Terminal info**: `account_info()`, `terminal_info()`
-
-**Symbols**: `symbols_total()`, `symbols_get()`, `symbol_info()`, `symbol_info_tick()`, `symbol_select()`
-
-**Market depth**: `market_book_add()`, `market_book_get()`, `market_book_release()`
-
-**Historical data**: `copy_rates_from()`, `copy_rates_from_pos()`, `copy_rates_range()`, `copy_ticks_from()`, `copy_ticks_range()`
-
-**Orders and positions**: `orders_total()`, `orders_get()`, `order_calc_margin()`, `order_calc_profit()`, `order_check()`, `order_send()`, `positions_total()`, `positions_get()`
-
-**History**: `history_orders_total()`, `history_orders_get()`, `history_deals_total()`, `history_deals_get()`
-
-## API Limitations
-
-- **Windows-only**: named pipes IPC, no cross-platform support natively
-- **No exceptions**: errors fail silently returning `None`. Must check every return value and call `last_error()`
-- **No type hints, no docstrings, no context manager, no logging**
-- **Single connection per process**: one Python process connects to one MT5 terminal
-- **Not thread-safe**: the IPC pipe is single -- concurrent access causes race conditions, crashes, or corrupted data
-- **No callbacks/streaming**: pure request-response, polling is the only approach
-- **No Strategy Tester access**: backtesting is MQL5-only
-
-## MQL5 EA vs Python API
-
-MQL5 Expert Advisors run **inside** the terminal process with access to:
-- Native event handlers: `OnTick()`, `OnTimer()`, `OnTrade()`, `OnTradeTransaction()`, `OnBookEvent()`, `OnChartEvent()`
-- Strategy Tester with cloud optimization
-- Chart objects, custom indicators, OpenCL acceleration
-
-The Python API **has no access to any of these**. Python and MQL5 EAs can coexist: EAs run on charts while Python operates externally. The terminal offers "Disable automatic trading via external Python API" which blocks Python trading (retcode 10027) while keeping EAs active.
-
-**Strategy Tester is exclusively for MQL5 programs.** Socket functions are blocked in the tester, making MQL5-to-Python communication impossible during backtest. Workaround: use Python backtesting frameworks (Backtrader, Backtesting.py) fed with historical data downloaded via API.
-
-## Alternative Libraries
-
-### aiomql (Recommended for async)
-
-https://github.com/Ichinga-Samuel/aiomql (~109 stars, actively maintained)
-
-The most mature async framework. Wraps every MT5 function with `asyncio.to_thread()`, adds automatic reconnection, a Bot orchestrator for multiple strategies on different instruments, session management (London/NY/Tokyo), integrated risk management, trailing stops, and CSV/JSON/SQLite recording. Remains polling-based internally but with clean async abstractions.
-
-### MQL5-JSON-API (True streaming via ZeroMQ)
-
-https://github.com/khramkov/MQL5-JSON-API
-
-A complete ZeroMQ bridge: an MQL5 EA acts as server with dedicated ports for real-time tick streaming, candle streaming, and trade transaction events. Python connects via `zmq.SUB` and receives true push notifications. **This is the only architecture providing true event-driven on MT5**, the most similar conceptually to the IB TWS API. Requires installing the MQL5 EA and configuring ZeroMQ.
-
-### mt5linux (Linux via Wine)
-
-https://github.com/lucas-campagna/mt5linux (~116 stars)
-
-Uses Wine + RPyC to run MT5 API from Linux. Classified as **inactive**. Updated fork: https://github.com/hpdeandrade/pymt5linux with Python 3.13 and Docker support.
-
-### Others
-
-- **pymt5adapter**: added context manager, exceptions, logging -- **deprecated**
-- **pymt5** (DevCartel): for gateway broker use, not retail trading
-- **metaapi-cloud-sdk**: WebSocket streaming, cross-platform, but **paid cloud service**
-
-## Library Comparison
-
-| Library | Streaming | Async | Cross-platform | Active | Best For |
+| Library | Streaming | Async | Cross-platform | Status | Best for |
 |---------|-----------|-------|----------------|--------|----------|
-| MetaTrader5 official | Polling | Sync | Windows only | Yes | Direct access, low overhead |
-| aiomql | Async polling | asyncio | Windows only | Yes | **Best Python-pure framework** |
-| MQL5-JSON-API (ZMQ) | True streaming | Yes | Any | Moderate | **True event-driven** |
-| metaapi-cloud-sdk | WebSocket | Yes | Any | Yes | Cross-platform (paid) |
+| **MetaTrader5** (official) | Polling | Sync | Windows | Active | Direct access, low overhead |
+| **aiomql** | Async polling | asyncio | Windows | Active | Best Python-pure async framework |
+| **MQL5-JSON-API** (ZMQ) | **True streaming** | Yes | Any | Moderate | True event-driven via MQL5 EA bridge |
+| **metaapi-cloud-sdk** | WebSocket | Yes | Any | Active (paid) | Cross-platform, paid cloud |
+| **mt5linux** / **pymt5linux** | Polling | Sync | Linux (Wine + RPyC) | Inactive / fork | Linux dev, not production |
 
-## Comparison with IBKR TWS API
+Avoid: `pymt5adapter` (deprecated), `pymt5` (gateway-only).
 
-The IB TWS API is **natively event-driven**: `EClient` for requests, `EWrapper` for callbacks (`tickPrice()`, `orderStatus()`, `execDetails()`). MT5 Python requires building the entire event system from scratch.
+## Comparison with IBKR TWS API (mental model)
 
 | Aspect | MT5 Python | IBKR TWS API |
 |--------|-----------|--------------|
-| Architecture | Synchronous polling | Event-driven callbacks |
-| Rate limits | None documented (local IPC) | 50 msg/sec, pacing rules |
+| Architecture | Sync polling | Event-driven callbacks |
+| Rate limits | None documented (local IPC, ~63us per call) | 50 msg/sec, pacing rules |
 | Data cost | Included with account | Paid exchange subscriptions |
-| Data source | Broker-dependent (varies) | Exchange-sourced (consistent) |
-| Cross-platform | Windows only | Windows, Linux, macOS |
-| Backtesting | External frameworks only | Not via API (external too) |
-| Thread safety | Not thread-safe | Thread-based (EReader pattern) |
-| Streaming | Polling only (or ZMQ bridge) | Native callbacks |
+| Data source | Broker-dependent | Exchange-sourced |
+| Cross-platform | Windows only | Windows / Linux / macOS |
+| Streaming | Polling (or ZMQ bridge) | Native callbacks |
+
+If you're coming from IBKR expecting `EWrapper` callbacks, **you build the entire event system from scratch on MT5** (see `event-system-polling.md`).
+
+## Official docs
+
+- Python API home: https://www.mql5.com/en/docs/python_metatrader5
+- Per-function reference: `https://www.mql5.com/en/docs/python_metatrader5/mt5{functionname}_py`
+- MetaEditor + Python integration: https://www.metatrader5.com/en/metaeditor/help/development/python
+- Release notes: https://www.metatrader5.com/en/releasenotes
+- aiomql: https://github.com/Ichinga-Samuel/aiomql
+- MQL5-JSON-API (ZMQ bridge): https://github.com/khramkov/MQL5-JSON-API
+
+## Related
+
+- `event-system-polling.md` -- how to build an event loop on top of polling
+- `data-feed-historical.md` -- the `copy_rates_*` and `copy_ticks_*` family
+- `order-execution.md` -- `order_send()`, fill modes, retcode handling
+- `production-resilience.md` -- Windows deployment, watchdog, weekend gate

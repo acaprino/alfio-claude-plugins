@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Custom development workflow agents and skills for code quality, Tauri/Rust development, frontend optimization, AI tooling, and constraint programming optimization",
-    "version": "5.42.0"
+    "version": "5.43.0"
   },
   "plugins": [
     {
@@ -1133,7 +1133,7 @@
       "name": "ibkr-trading",
       "source": "./plugins/ibkr-trading",
       "description": "Interactive Brokers algotrading -- TWS API architecture, ib_async event-driven programming, market data subscriptions, order execution with bracket orders, reconnection resilience, IBC automation, and Windows production deployment",
-      "version": "1.0.1",
+      "version": "1.1.0",
       "author": {
         "name": "Alfio"
       },
@@ -1167,7 +1167,7 @@
       "name": "mt5-trading",
       "source": "./plugins/mt5-trading",
       "description": "MetaTrader 5 Python algotrading -- official synchronous API, polling-based event systems, order execution with fill modes, historical data, aiomql async framework, ZeroMQ bridge, and Windows production deployment",
-      "version": "1.0.2",
+      "version": "1.1.0",
       "author": {
         "name": "Alfio"
       },

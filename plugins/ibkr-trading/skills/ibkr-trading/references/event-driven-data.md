@@ -1,132 +1,36 @@
 # Event-Driven Market Data and Historical Data
 
-## Subscription Types and Limits
+Subscriptions and historical pulls via TWS API. The choice of subscription type depends on resilience needs and bar size; the gotchas around pacing and reconnection are what bite production.
 
-### reqMktData -- Streaming Level 1 Quotes
+## When to use
 
-Provides time-sampled Level 1 data (not every individual tick). Supports continuous streaming or single snapshots. Snapshots do not consume market data lines and cost **$0.01** per snapshot for US equity. Additional tick types specified via `genericTickList` (e.g., `'233'` for Time & Sales with VWAP).
+Streaming Level 1 quotes, bar updates, individual ticks, or pulling historical OHLCV. For order monitoring (which uses similar event-driven patterns), see `order-execution.md`.
 
-```python
-ticker = ib.reqMktData(contract, genericTickList='233', snapshot=False)
-ib.pendingTickersEvent += on_tick
+## Subscription type cheat sheet
 
-def on_tick(tickers):
-    for t in tickers:
-        print(f"{t.contract.symbol}: bid={t.bid} ask={t.ask} last={t.last} volume={t.volume}")
-```
+| Function | Granularity | Resilience after reconnect | Limits |
+|----------|-------------|----------------------------|--------|
+| `reqMktData` | Time-sampled L1 ticks | Lost ticks not backfilled | 1 market data line |
+| `reqRealTimeBars` | 5-second bars **only** | **Backfilled automatically** | 1 line, list grows in memory |
+| `reqTickByTickData` | Every tick | Lost ticks not backfilled | **Max 3 subscriptions** per connection |
+| `reqHistoricalData` (`keepUpToDate=True`) | Any standard bar size | "Leaves the entire API inoperable after a network interruption" (per ib_insync docs) | 1 line per subscription |
 
-### reqRealTimeBars -- 5-Second Aggregated Bars
+**Production rule**: for real-time bars in production, **prefer `reqRealTimeBars` over `reqHistoricalData + keepUpToDate`** -- the second was officially flagged as unreliable across reconnections. For non-standard timeframes (7-min, etc.), aggregate from 5-sec bars locally.
 
-Produces **exclusively 5-second bars** -- the barSize parameter must be 5, no other value accepted. Critical advantage: after a network interruption, **missing bars are automatically backfilled** on reconnection. Disadvantage: the list grows indefinitely in memory -- must be trimmed periodically.
+## Gotchas
 
-```python
-bars = ib.reqRealTimeBars(contract, barSize=5, whatToShow='TRADES', useRTH=False)
-bars.updateEvent += on_realtime_bar
+- **`reqRealTimeBars` returns *only* 5-second bars** -- the `barSize` parameter must be 5; any other value is rejected. The bars list grows unbounded -- trim periodically: `if len(bars) > 2000: del bars[:len(bars)-1000]`.
+- **NBBO filtering on historical data.** IB historical excludes odd lots, combo legs, block trades. Historical volume is **lower** than unfiltered real-time. Don't compare them as if they're the same series.
+- **Forex has no `TRADES` data** -- always `whatToShow='MIDPOINT'` for FX. Indices have only `TRADES` (no BID/ASK/MIDPOINT). Stocks: `TRADES` for live, `ADJUSTED_LAST` for backtests with dividends.
+- **`BID_ASK` requests count double** toward the 60-per-10-min pacing limit.
+- **Futures daily-bar close = settlement price**, not last trade -- arrives hours after close, on Friday possibly Saturday.
+- **Pacing violation (error 162)** triggers when: identical request within 15 sec, 6+ requests for same contract/exchange/tick-type in 2 sec, **>60 requests in any 10-min window**, or >50 simultaneous open historical requests. Recovery: queue + rate limit, never blind-retry.
+- **Error 354 ("not subscribed")** vs **error 10197 ("using delayed data")** -- the second is informational, your code can keep working with the delayed feed; the first means you have nothing.
+- **Market data lines are shared with TWS** (default 100, expand with Quote Booster Pack). Each streaming sub consumes 1 line. Check current usage in TWS with **Ctrl+Alt+=**.
+- **`reqMarketDataType(3)`** = delayed (free, 15-20 min), `1` = live (paid). Forex and crypto don't need subscriptions.
+- **On disconnect: error 1101 ("data lost") and 1102 ("data restored")** -- use them as triggers to reconcile via historical request for the gap window (see `reconnection-resilience.md`).
 
-def on_realtime_bar(bars, hasNewBar):
-    if hasNewBar:
-        bar = bars[-1]
-        print(f"5s bar: O={bar.open} H={bar.high} L={bar.low} C={bar.close} V={bar.volume}")
-    # Trim memory for long runs
-    if len(bars) > 2000:
-        del bars[:len(bars) - 1000]
-```
-
-### reqTickByTickData -- Individual Ticks
-
-Provides every individual tick, but with a severe limitation: **max 3 simultaneous subscriptions** per connection. Available types: `'Last'`, `'AllLast'`, `'BidAsk'`, `'MidPoint'`.
-
-```python
-ticker = ib.reqTickByTickData(contract, tickType='AllLast')
-```
-
-### reqHistoricalData with keepUpToDate=True -- Live Tail
-
-The most versatile approach for real-time bars at any standard timeframe (5 sec, 1 min, 5 min, 1 hour, etc.). The `endDateTime` must be an empty string. Updates arrive approximately every 5 seconds.
-
-```python
-bars = await ib.reqHistoricalDataAsync(
-    contract, endDateTime='', durationStr='2 D',
-    barSizeSetting='5 mins', whatToShow='TRADES',
-    useRTH=False, keepUpToDate=True)
-bars.updateEvent += on_bar_update
-```
-
-**Critical caveat**: the ib_insync documentation itself warns that "reqHistoricalData + keepUpToDate will leave the entire API inoperable after a network interruption." **reqRealTimeBars is more resilient** for automatic reconnection.
-
-### Building on_new_candle
-
-```python
-def on_bar_update(bars, hasNewBar):
-    if hasNewBar:
-        completed_bar = bars[-2]  # Just-completed bar
-        # Execute strategy logic here
-    # Trim memory for long runs
-    if len(bars) > 1000:
-        del bars[:len(bars) - 500]
-```
-
-For non-standard timeframes (e.g., 7 minutes), aggregate from 5-second bars of `reqRealTimeBars` with a custom BarAggregator tracking the current period and emitting a callback on each aggregated bar close.
-
-## Market Data Lines
-
-Market data lines are shared between TWS and all API connections. Default: **100 lines**, expandable with Quote Booster Pack ($30/month per +100 lines, max 10 packs = 1,100 total) or based on account equity. Each streaming `reqMktData`, `reqRealTimeBars`, and `reqHistoricalData` with keepUpToDate consumes 1 line. Check current usage: **Ctrl+Alt+=** in TWS.
-
-## Market Data Types
-
-Call `ib.reqMarketDataType(1)` for live data (requires paid exchange subscriptions), `reqMarketDataType(3)` for delayed (free, 15-20 min delay). Forex and crypto **do not require subscriptions** for live data. Paper accounts can share market data from the associated live account.
-
-## Historical Data
-
-### Bar Sizes and Duration Limits
-
-| Bar Size | Max Duration | Notes |
-|----------|-------------|-------|
-| 1 secs - 30 secs | 6 months | Tick-level precision, high request count |
-| 1 min - 30 mins | 5-10+ years | Standard intraday analysis |
-| 1 hour | 5-10+ years | Swing trading |
-| 1 day - 1 month | Full history | End-of-day, weekly, monthly |
-
-Each bar contains: Open, High, Low, Close, Volume, WAP (Weighted Average Price), BarCount.
-
-### whatToShow Parameter
-
-| whatToShow | Volume | Typical Use |
-|-----------|--------|------------|
-| **TRADES** | Yes | Stocks, futures -- real trade data, split-adjusted |
-| **MIDPOINT** | No | **Forex** (TRADES unavailable), CFD |
-| **BID/ASK** | No | Spread analysis, execution price estimation |
-| **BID_ASK** | No | Average bid in Open, average ask in Close -- **counts as 2 requests** |
-| **ADJUSTED_LAST** | Yes | Backtesting total return (split + dividend adjusted) |
-
-- **Forex**: always use `MIDPOINT` -- no centralized trade tape exists
-- **Stocks**: `TRADES` for standard data, `ADJUSTED_LAST` for accurate backtesting with dividends
-- **Indices**: only `TRADES` available (no BID/ASK/MIDPOINT)
-
-**Data quality caveat**: IB historical data is **NBBO-filtered** -- excludes odd lots, combo legs, block trades. Historical volume will be **lower** than unfiltered real-time volume. For futures, the daily bar close may be the **settlement price**, available even hours after close (Friday possibly Saturday).
-
-### Extended Hours
-
-Set `useRTH=0` to include pre-market (4:00-9:30 ET) and after-hours (16:00-20:00 ET). Extended hours data typically has much lower volume, wider spreads, and potential gaps.
-
-## Pacing Violations
-
-Pacing violations (error **162**) occur when:
-
-- **Identical requests within 15 seconds** (same contract, same parameters)
-- **6+ requests** for the same contract/exchange/tick-type **in 2 seconds**
-- **More than 60 requests** in any **10-minute window**
-- **BID_ASK requests count double** toward the 60 limit
-- Max **50 simultaneous open historical requests**
-
-### Best Practices to Avoid Pacing
-
-- Space requests at least **10-15 seconds** apart
-- Cache data locally (SQLite, Parquet)
-- Use maximum duration per bar size to minimize request count
-- Use `reqHeadTimeStamp()` to know the available start point before requesting
-
-### Throttled Request Queue
+## Throttled request queue (the local pattern worth keeping)
 
 ```python
 import asyncio
@@ -147,22 +51,34 @@ class HistoricalDataThrottle:
             return await ib.reqHistoricalDataAsync(contract, **kwargs)
 ```
 
-## Building a Robust OHLCV Feed
+## Hybrid OHLCV feed (production-grade)
 
-The hybrid approach is most resilient for production:
+The pattern that survives disconnects:
 
-1. **Startup**: backfill from local database to last timestamp up to now
-2. **Live**: subscribe to `reqRealTimeBars` (more robust than keepUpToDate for reconnection)
-3. **Local aggregation**: aggregate 5-sec bars into the desired timeframe
-4. **Periodic reconciliation**: compare with historical data to identify gaps
-5. **Reconnection handling**: on error 1101/1102, request historical data for the disconnection period
+1. **Startup**: backfill from local cache to last timestamp, then to `now` via historical request.
+2. **Live**: subscribe to `reqRealTimeBars` (resilient across reconnects).
+3. **Local aggregation**: aggregate 5-sec bars into the strategy timeframe.
+4. **Periodic reconciliation**: compare with historical to detect gaps.
+5. **Reconnect handling**: on error 1101/1102, request historical data for the gap window.
 
-## Data Error Codes
+```python
+def on_bar_update(bars, hasNewBar):
+    if hasNewBar:
+        completed = bars[-2]   # the just-closed bar; bars[-1] is still forming
+        # strategy logic
+    if len(bars) > 1000:
+        del bars[:len(bars)-500]
+```
 
-| Code | Meaning | Recovery |
-|------|---------|----------|
-| 162 | Pacing violation or HMDS error | Implement rate limiting with queue |
-| 200 | Security definition not found | Verify contract specs |
-| 354 | Not subscribed to market data | Subscribe or switch to delayed data |
-| 321 | Bad tick type list | Check genericTickList parameter |
-| 10197 | Using delayed data | Informational, subscribe for real-time |
+## Official docs
+
+- Market data subscriptions: https://www.interactivebrokers.com/campus/ibkr-api-page/twsapi-doc/#market-data
+- Historical data + bar sizes + pacing: https://www.interactivebrokers.com/campus/ibkr-api-page/twsapi-doc/#historical-data
+- whatToShow values: https://www.interactivebrokers.com/campus/ibkr-api-page/twsapi-ref/#hist-bar-types
+- Error code reference: https://www.interactivebrokers.com/campus/ibkr-api-page/tws-api-error-codes/
+
+## Related
+
+- `tws-api-architecture.md` -- connection setup, clientId strategy
+- `order-execution.md` -- the same event-pattern applied to order updates
+- `reconnection-resilience.md` -- handling 1101/1102 and reconciling data gaps

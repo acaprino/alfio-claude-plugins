@@ -1,38 +1,38 @@
 # Order Execution and Management
 
-## order_send() and MqlTradeRequest
+`order_send()` takes a `MqlTradeRequest`-shaped dict and returns a result with a retcode. The hard parts: **fill mode is broker- and symbol-specific** (retcode 10030 is the most common production error), hedging-mode close requires the position ticket, and broker-specific values must be queried at runtime.
 
-`order_send()` accepts a dictionary with the fields of the `MqlTradeRequest` structure. Critical fields: `action` (operation type), `symbol`, `volume`, `type` (order type), `price`, `type_filling`, `deviation`, `magic`, `sl`, `tp`.
+## When to use
 
-### Action Types
+Submitting market/pending orders, modifying SL/TP, closing positions, or pre-checking with `order_check()`. For position monitoring (which is also polling), see `event-system-polling.md`.
+
+## Action shape
 
 | Action | Constant | Use |
 |--------|----------|-----|
 | Market order | `TRADE_ACTION_DEAL` | Immediate execution |
 | Pending order | `TRADE_ACTION_PENDING` | Place limit/stop |
 | Modify SL/TP | `TRADE_ACTION_SLTP` | Change stops on existing position |
-| Modify order | `TRADE_ACTION_MODIFY` | Change pending order parameters |
-| Remove order | `TRADE_ACTION_REMOVE` | Cancel pending order |
-| Close by | `TRADE_ACTION_CLOSE_BY` | Close against opposite position (hedging only) |
+| Modify pending | `TRADE_ACTION_MODIFY` | Change pending order params |
+| Remove pending | `TRADE_ACTION_REMOVE` | Cancel pending |
+| Close-by | `TRADE_ACTION_CLOSE_BY` | Close against opposite position (hedging only) |
 
-### Order Types
+Order types: BUY, SELL, BUY_LIMIT, SELL_LIMIT, BUY_STOP, SELL_STOP, BUY_STOP_LIMIT, SELL_STOP_LIMIT, CLOSE_BY.
 
-BUY, SELL, BUY_LIMIT, SELL_LIMIT, BUY_STOP, SELL_STOP, BUY_STOP_LIMIT, SELL_STOP_LIMIT, CLOSE_BY.
+## Gotchas
 
-## Fill Modes -- The Most Common Production Error
+- **Retcode 10030 (`TRADE_RETCODE_INVALID_FILL`) is the #1 production error.** Each symbol supports specific fill modes; **never hardcode** them. Detect at runtime via `symbol_info().filling_mode` (bit flag). Snippet below.
+- **Hedging-mode close requires `position` field with the ticket.** Forgetting it does NOT close -- it opens a new opposite position. Check `account_info().margin_mode`: 0=netting, 2=exchange, 3=hedging. Most retail forex brokers run hedging.
+- **`magic=0` is the convention for manual trades.** Always assign a non-zero magic to bot orders so you can filter `[p for p in positions if p.magic == MY_MAGIC]`. Multi-strategy: unique magic per strategy+symbol.
+- **`deviation` is in points, not pips.** Only effective with **Instant Execution** -- with Market Execution (most ECN/STP brokers) it's silently ignored. Recommended values: 10-20 normally, 50+ during news.
+- **Always `order_check()` before `order_send()`.** Validates fields, margin, fill mode, volume **without sending to the server.** Costs you nothing and catches most issues.
+- **Broker-specific values change between brokers AND between symbols.** Always query at runtime: `trade_exemode`, `trade_stops_level`, `trade_freeze_level`, `filling_mode`, `volume_min/max/step`. Hardcoding is the second most common production bug.
+- **Retcode 10027 (`CLIENT_DISABLES_AT`)** = autotrading disabled in terminal. Either Ctrl+E in MT5 or "Disable automatic trading via external Python API" was toggled. Check this first when a previously-working bot suddenly stops.
+- **Retcode 10024 (`TOO_MANY_REQUESTS`)** -- exponential backoff, min 100-200ms.
+- **Retcode 10016 (`INVALID_STOPS`)** = SL/TP too close to price. Check `symbol_info().trade_stops_level` and respect it.
+- **Server-side SL/TP on every position is non-negotiable.** Local-only stops disappear if the bot dies.
 
-**The most frequent production error is retcode 10030 (TRADE_RETCODE_INVALID_FILL).** Each symbol supports specific fill modes, verifiable via `symbol_info().filling_mode` (bit flag).
-
-| Mode | Behavior | Typical Use |
-|------|----------|-------------|
-| **Fill or Kill (FOK)** | Full volume or nothing | Standard for Instant Execution |
-| **Immediate or Cancel (IOC)** | Fill maximum available, cancel rest. Can give partial fills (retcode 10010) | Flexible execution |
-| **Return** | Partial fill leaves residual as active order | **Prohibited in Market Execution** (most ECN/STP brokers) |
-| **Book or Cancel (BOC)** | Passive orders only (limit/stop-limit), cancelled if would execute immediately | Maker-only strategies |
-
-### Dynamic Fill Mode Detection
-
-**Never hardcode fill modes.** They change between brokers and symbols.
+## Dynamic fill mode detection
 
 ```python
 import MetaTrader5 as mt5
@@ -41,53 +41,42 @@ def get_filling_type(symbol):
     info = mt5.symbol_info(symbol)
     if info is None:
         return None
-    filling = info.filling_mode
-    if filling & 1:
+    fm = info.filling_mode
+    if fm & 1:
         return mt5.ORDER_FILLING_FOK
-    elif filling & 2:
+    if fm & 2:
         return mt5.ORDER_FILLING_IOC
     return mt5.ORDER_FILLING_RETURN
 ```
 
-### Deviation (Slippage)
+Fill mode reference:
+- **FOK** (Fill or Kill) -- full volume or nothing. Standard for Instant Execution.
+- **IOC** (Immediate or Cancel) -- fill what's available, cancel rest. Can return retcode 10010 (partial fill).
+- **Return** -- partial fills leave residual as active order. **Prohibited in Market Execution** (most ECN/STP brokers).
+- **BOC** (Book or Cancel) -- passive only, cancelled if would execute immediately. Maker-only strategies.
 
-The `deviation` parameter specifies maximum acceptable slippage in **points** (not pips). **Only effective with Instant Execution** -- with Market Execution (ECN/STP) it is ignored. Recommended values: 10-20 points normally, 50+ during news.
-
-## Hedging vs Netting
-
-The mode is fixed at account creation (`account_info().margin_mode`): 0=netting, 2=exchange, 3=hedging.
-
-**Most forex retail brokers use hedging** (replicates MT4 behavior).
-
-| Aspect | Netting | Hedging |
-|--------|---------|---------|
-| Position model | Single net position per symbol | Multiple independent positions |
-| BUY 1.0 + BUY 0.5 | One position of 1.5 lots at average price | Two separate positions |
-| Close | Send opposite order | Must specify `position` field with ticket |
-| Common error | N/A | Forgetting ticket creates new position instead of closing |
-
-### Closing a Position in Hedging Mode
+## Hedging-mode close (the ticket gotcha)
 
 ```python
 def close_position(position):
     request = {
-        "action": mt5.TRADE_ACTION_DEAL,
-        "symbol": position.symbol,
-        "volume": position.volume,
-        "type": mt5.ORDER_TYPE_SELL if position.type == 0 else mt5.ORDER_TYPE_BUY,
-        "position": position.ticket,  # CRITICAL: must specify ticket in hedging
+        "action":       mt5.TRADE_ACTION_DEAL,
+        "symbol":       position.symbol,
+        "volume":       position.volume,
+        "type":         mt5.ORDER_TYPE_SELL if position.type == 0 else mt5.ORDER_TYPE_BUY,
+        "position":     position.ticket,            # CRITICAL in hedging mode
         "type_filling": get_filling_type(position.symbol),
-        "magic": position.magic,
-        "comment": "close",
+        "magic":        position.magic,
+        "comment":      "close",
     }
     return mt5.order_send(request)
 ```
 
-## Complete Market Order Example
+## Complete market order (the canonical recipe)
 
 ```python
 def market_buy(symbol, volume, sl_points=None, tp_points=None, magic=12345):
-    mt5.symbol_select(symbol, True)
+    mt5.symbol_select(symbol, True)         # Symbol must be in Market Watch
     tick = mt5.symbol_info_tick(symbol)
     info = mt5.symbol_info(symbol)
     if tick is None or info is None:
@@ -97,82 +86,65 @@ def market_buy(symbol, volume, sl_points=None, tp_points=None, magic=12345):
     point = info.point
 
     request = {
-        "action": mt5.TRADE_ACTION_DEAL,
-        "symbol": symbol,
-        "volume": volume,
-        "type": mt5.ORDER_TYPE_BUY,
-        "price": price,
-        "sl": round(price - sl_points * point, info.digits) if sl_points else 0.0,
-        "tp": round(price + tp_points * point, info.digits) if tp_points else 0.0,
-        "deviation": 20,
-        "magic": magic,
-        "comment": "python_bot",
-        "type_time": mt5.ORDER_TIME_GTC,
+        "action":       mt5.TRADE_ACTION_DEAL,
+        "symbol":       symbol,
+        "volume":       volume,
+        "type":         mt5.ORDER_TYPE_BUY,
+        "price":        price,
+        "sl":           round(price - sl_points * point, info.digits) if sl_points else 0.0,
+        "tp":           round(price + tp_points * point, info.digits) if tp_points else 0.0,
+        "deviation":    20,
+        "magic":        magic,
+        "comment":      "python_bot",
+        "type_time":    mt5.ORDER_TIME_GTC,
         "type_filling": get_filling_type(symbol),
     }
 
-    # Always check before sending
     check = mt5.order_check(request)
     if check is None or check.retcode != 0:
         print(f"Order check failed: {check}")
         return None
 
     result = mt5.order_send(request)
-    if result.retcode != mt5.TRADE_RETCODE_DONE:
+    if result.retcode != mt5.TRADE_RETCODE_DONE:        # 10009
         print(f"Order failed: retcode={result.retcode} comment={result.comment}")
     return result
 ```
 
-## Return Codes
+## Retcode quick reference (the ones you'll see)
 
-The result of `order_send()` contains `retcode`, `deal` (deal ticket), `order` (order ticket), `volume`, `price` (executed price), `bid`, `ask`, `comment`.
+| Code | Constant | Meaning |
+|------|----------|---------|
+| 10004 | REQUOTE | Price moved -- re-fetch and retry |
+| 10009 | DONE | Success |
+| 10010 | DONE_PARTIAL | Partial fill (IOC) |
+| 10013 | INVALID | Malformed request -- check fields |
+| 10016 | INVALID_STOPS | SL/TP inside `stops_level` |
+| 10019 | NO_MONEY | Insufficient margin |
+| 10024 | TOO_MANY_REQUESTS | Backoff (100-200ms) |
+| 10027 | CLIENT_DISABLES_AT | Autotrading disabled in terminal |
+| 10029 | FROZEN | In freeze zone, can't modify |
+| 10030 | INVALID_FILL | Wrong fill mode -- use dynamic detection |
 
-**Success check: `retcode == 10009` (TRADE_RETCODE_DONE).**
+## Broker mode differences
 
-| Code | Constant | Meaning | Recovery |
-|------|----------|---------|----------|
-| 10004 | REQUOTE | Price changed | Re-fetch price and retry |
-| 10009 | DONE | Success | Record fill |
-| 10010 | DONE_PARTIAL | Partial fill (IOC) | Check filled volume |
-| 10013 | INVALID | Invalid request | Check all fields |
-| 10016 | INVALID_STOPS | SL/TP too close to price | Check `stops_level` |
-| 10019 | NO_MONEY | Insufficient margin | Reduce volume or close positions |
-| 10024 | TOO_MANY_REQUESTS | Rate limited | Exponential backoff, min 100-200ms |
-| 10027 | CLIENT_DISABLES_AT | Autotrading disabled | Check terminal Ctrl+E |
-| 10029 | FROZEN | Order in freeze zone | Cannot modify, wait |
-| 10030 | INVALID_FILL | Wrong fill mode | Use dynamic fill mode detection |
-
-## Pre-Trade Risk Check
-
-**Always** use `order_check()` before `order_send()`. It validates fields, margin, fill mode, and volume **without sending to the server**. Returns `balance`, `equity`, `margin`, `margin_free`, `margin_level`, and `profit` post-operation.
-
-Combine with:
-- `order_calc_margin()` to calculate required margin
-- `order_calc_profit()` to estimate P&L
-
-## Magic Number
-
-The `magic` is a 64-bit integer that persists in orders and positions, survives terminal restarts. **`magic=0` conventionally indicates manual trades** -- always use non-zero values for bots. Filter positions: `[p for p in positions if p.magic == MY_MAGIC]`. For multi-strategy setups, assign unique magic per strategy+symbol.
-
-## Broker Differences: ECN vs Market Maker
-
-| Aspect | ECN/STP | Market Maker |
-|--------|---------|-------------|
-| Execution mode | Market Execution | Instant Execution |
+| Aspect | ECN / STP (Market Execution) | Market Maker (Instant Execution) |
+|--------|------------------------------|----------------------------------|
 | Requotes | None | Possible (10004) |
-| Deviation | Ignored | Respected |
-| Slippage | Bidirectional | Typically only negative |
-| stops_level | Often 0 (ideal for scalping) | Usually > 0 |
+| `deviation` | Ignored | Respected |
+| Slippage direction | Bidirectional | Typically negative only |
+| `stops_level` | Often 0 (good for scalping) | Usually > 0 |
 
-**Always query symbol properties at runtime**: `trade_exemode`, `trade_stops_level`, `trade_freeze_level`, `filling_mode`, `volume_min/max/step`. Never hardcode these values -- they change between brokers, between symbols, and over time.
+## Official docs
 
-## Best Practices
+- `order_send` reference: https://www.mql5.com/en/docs/python_metatrader5/mt5ordersend_py
+- `order_check` reference: https://www.mql5.com/en/docs/python_metatrader5/mt5ordercheck_py
+- `MqlTradeRequest` structure: https://www.mql5.com/en/docs/constants/structures/mqltraderequest
+- Trading constants (actions, types, fill modes, retcodes): https://www.mql5.com/en/docs/constants/tradingconstants
+- `symbol_info` (filling_mode, stops_level, trade_exemode): https://www.mql5.com/en/docs/python_metatrader5/mt5symbolinfo_py
 
-- Server-side SL/TP on every position -- non-negotiable safety net
-- `order_check()` before every `order_send()`
-- Dynamic fill mode detection per symbol, every time
-- Magic number for every bot order (never 0)
-- Specify position ticket when closing in hedging mode
-- Handle all retcodes, especially 10030 (fill mode) and 10016 (stops level)
-- Check `symbol_select()` before any trading or data operation
-- Never hardcode broker-specific values (stops_level, filling_mode, etc.)
+## Related
+
+- `api-architecture.md` -- why errors are silent and you must check every return
+- `event-system-polling.md` -- monitoring positions and trade transitions via polling
+- `production-resilience.md` -- weekend gate, watchdog, /portable flag
