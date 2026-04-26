@@ -1,111 +1,48 @@
 # Production Checklist
 
-OpenTelemetry Python production readiness reference. Covers critical configuration,
-common mistakes, resource detection, SDK maturity, package versions, and breaking changes.
+The do/don't rules and operational defaults for shipping OTel Python in production. Most of the version-specific detail (package versions, breaking changes per release) lives upstream and changes every minor release -- check the links below.
 
----
+## When to use
 
-## Do These
+Auditing a service for production-readiness, or before a first prod deploy. For instrumentation patterns (FastAPI, Celery, SQLAlchemy), see `instrumentation-patterns.md`.
 
-1. **Always set `service.name`** -- without it, every span appears as `unknown_service`
-   in your backend, making traces impossible to filter or route. Set it via
-   `Resource.create({"service.name": "my-service"})` or the
-   `OTEL_SERVICE_NAME` environment variable (env var takes precedence).
+## Do these (the non-negotiables)
 
-2. **Use `BatchSpanProcessor` exclusively** -- `SimpleSpanProcessor` calls the exporter
-   synchronously on every `span.end()`, adding network latency to every operation.
-   `BatchSpanProcessor` buffers spans and exports them on a background thread.
+1. **Always set `service.name`** -- without it everything appears as `unknown_service`. Set via `Resource.create({"service.name": "..."})` or `OTEL_SERVICE_NAME` env var (env wins).
+2. **`BatchSpanProcessor` exclusively in production.** `SimpleSpanProcessor` exports synchronously per `span.end()` -- catastrophic for throughput.
+3. **`ParentBased` sampling everywhere.** Mixing `ParentBased` in service A with raw `TraceIdRatioBased` in service B re-rolls sampling per-hop and produces partial traces. `ParentBased` only applies its delegate to root spans.
+4. **Register shutdown handlers.** Without `provider.shutdown()` on `atexit`/`SIGTERM`, the last batch in `BatchSpanProcessor` is lost on every restart.
+5. **`OTEL_SDK_DISABLED=true` as a kill switch.** Deploys with this env var return no-op for all signals -- instant rollback without code change.
+6. **`span.is_recording()` before expensive attribute computation.** API guarantees no-throw on non-recording spans, but JSON-serializing a 50KB object still wastes CPU.
+7. **Tune `OTEL_BSP_MAX_QUEUE_SIZE` for spiky workloads.** Default 2048; bump to 8192+ for bursts. Dropped spans are silent by default -- monitor `otel.bsp.spans.dropped` if available.
 
-3. **Use `ParentBased` sampling across all services** -- if Service A uses `ParentBased`
-   and Service B uses `TraceIdRatioBased` directly, B will re-roll the sampling decision
-   for incoming traces, producing partial traces with missing spans. `ParentBased` respects
-   the upstream decision and only applies its delegate sampler to root spans.
+## Don't do these
 
-4. **Register shutdown handlers** -- without explicit shutdown, the last batch of spans
-   in the `BatchSpanProcessor` queue is lost on every deployment or restart.
+1. **Don't init OTel before `fork()`** in Celery / Gunicorn prefork. `BatchSpanProcessor` threads don't survive fork. Init in `worker_process_init` (Celery) or `post_fork` (Gunicorn). See `instrumentation-patterns.md` for full Celery recipe.
+2. **Don't create spans in hot loops without sampling.** Even 1µs/span × 1M iter = 1s of overhead. Move outside the loop and record iteration count as an attribute.
+3. **Don't put PII or secrets in span attributes or baggage.** Baggage propagates to every downstream service. Attributes land in your tracing backend with broad read access. Scrub or hash.
+4. **Don't set attributes with `None` values.** Behavior is undefined -- some exporters drop, others raise. Guard with `if value is not None`.
+5. **Don't use `SimpleSpanProcessor` "just for staging."** Staging mirrors prod. Use `OTEL_LOG_LEVEL=debug` to diagnose locally.
+6. **Don't skip the Collector in production.** Buffering, retry-with-backoff, attribute enrichment, tail sampling, protocol translation -- all Collector-only. SDK-direct-to-backend is dev-only.
 
-   ```python
-   import atexit
-   import signal
+## Resource detection (boilerplate worth pasting)
 
-   atexit.register(provider.shutdown)
-   signal.signal(signal.SIGTERM, lambda *_: provider.shutdown())
-   ```
-
-5. **Set `OTEL_SDK_DISABLED=true` as a feature flag** -- deploy the ability to kill all
-   telemetry instantly without a code change. When set, the SDK returns no-op
-   implementations for all signals. Pair with a feature flag system for instant rollback.
-
-6. **Check `span.is_recording()` before computing expensive attributes** -- the API
-   guarantees no-throw behavior on non-recording spans, but expensive computation
-   (serialization, deep inspection) still wastes CPU on unsampled spans.
-
-   ```python
-   if span.is_recording():
-       span.set_attribute("order.items", json.dumps(serialize_items(order)))
-   ```
-
-7. **Configure `OTEL_BSP_MAX_QUEUE_SIZE`** higher than default (2048) for spiky workloads
-   -- dropped spans are silent by default. Set `OTEL_BSP_MAX_QUEUE_SIZE=8192` or higher.
-   Monitor `otel.bsp.spans.dropped` metrics if available in your SDK version.
-
----
-
-## Don't Do These
-
-1. **Don't initialize OTel before `fork()`** in Celery/Gunicorn prefork workers --
-   `BatchSpanProcessor` threads don't survive `fork()`, so export silently fails.
-   Initialize in the `post_fork` / `worker_process_init` hook instead.
-
-   ```python
-   # gunicorn.conf.py
-   def post_fork(server, worker):
-       from myapp.telemetry import init_otel
-       init_otel()
-   ```
-
-2. **Don't create spans in hot loops** without sampling -- even at 1us per span,
-   1M iterations adds 1 second of overhead. Use sampling or move the span outside
-   the loop and record iteration count as an attribute.
-
-3. **Don't put PII or secrets in span attributes or baggage** -- baggage propagates
-   to every downstream service automatically. Attributes are stored in your tracing
-   backend, often with broad read access. Scrub or hash sensitive values.
-
-4. **Don't set attributes with `None` values** -- behavior is undefined in the SDK.
-   Some exporters silently drop the attribute, others raise. Guard with a conditional.
-
-5. **Don't use `SimpleSpanProcessor` "just for testing in staging"** -- staging should
-   mirror production config. Use `OTEL_LOG_LEVEL=debug` or
-   `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://localhost:4317` to diagnose locally.
-
-6. **Don't skip the Collector** in production -- the Collector provides buffering, retry
-   with backoff, attribute enrichment, tail sampling, and protocol translation that the
-   SDK alone cannot offer. SDK-direct-to-backend is acceptable only for development.
-
----
-
-## Resource Detection
-
-Run once at startup. Resource attributes enrich every span, metric, and log record
-with infrastructure metadata.
+Run once at startup. Resource attributes enrich every span/metric/log.
 
 ```python
 from opentelemetry.sdk.resources import (
-    Resource,
-    get_aggregated_resources,
-    ProcessResourceDetector,
-    OTELResourceDetector,
+    Resource, get_aggregated_resources,
+    ProcessResourceDetector, OTELResourceDetector,
 )
 from opentelemetry.sdk.extension.aws.resource.ec2 import AwsEc2ResourceDetector
 from opentelemetry.sdk.extension.aws.resource.ecs import AwsEcsResourceDetector
 
 resource = get_aggregated_resources(
     detectors=[
-        OTELResourceDetector(),       # reads OTEL_RESOURCE_ATTRIBUTES env var
-        ProcessResourceDetector(),     # process.pid, process.runtime.*
-        AwsEc2ResourceDetector(),      # cloud.provider, cloud.region, host.id
-        AwsEcsResourceDetector(),      # aws.ecs.cluster.arn, aws.ecs.task.arn
+        OTELResourceDetector(),         # OTEL_RESOURCE_ATTRIBUTES env var
+        ProcessResourceDetector(),       # process.pid, process.runtime.*
+        AwsEc2ResourceDetector(),        # cloud.provider, cloud.region, host.id
+        AwsEcsResourceDetector(),        # aws.ecs.cluster.arn, aws.ecs.task.arn
     ],
     initial_resource=Resource.create({
         "service.name": "order-service",
@@ -115,83 +52,39 @@ resource = get_aggregated_resources(
 )
 ```
 
-As of v1.40.0: set `OTEL_EXPERIMENTAL_RESOURCE_DETECTORS=*` to auto-load all installed
-detectors without listing them explicitly.
+Since SDK 1.40.0: `OTEL_EXPERIMENTAL_RESOURCE_DETECTORS=*` auto-loads all installed detectors via entry points -- no Python listing needed.
 
-Collector-side alternative: use the `resourcedetection` processor with
-`detectors: [env, system, docker, ec2, ecs, eks, gcp, azure]` to enrich spans at the
-Collector rather than in the SDK.
+## Signal maturity (sanity check before adoption)
 
----
+| Signal | Status | Production ready? |
+|--------|--------|-------------------|
+| Traces | Stable | **Yes** |
+| Metrics | Stable | **Yes** |
+| Logs | Experimental (`opentelemetry._logs`) | Use bridge instrumentation, not direct SDK |
+| Baggage | Stable | **Yes** |
 
-## SDK Signal Maturity (March 2026)
+For log-trace correlation in production today, use `opentelemetry-instrumentation-logging` to inject `trace_id`/`span_id` into stdlib log records and ship through your existing log pipeline (CloudWatch, ELK, etc.). Adopt OTLP log export when the API stabilizes.
 
-| Signal  | API                | SDK                | Production ready? |
-|---------|--------------------|--------------------|-------------------|
-| Traces  | Stable (v1.40.0)   | Stable (v1.40.0)   | Yes               |
-| Metrics | Stable (v1.40.0)   | Stable (v1.40.0)   | Yes               |
-| Logs    | Experimental       | Experimental (`_logs`) | Use with caution  |
-| Baggage | Stable             | N/A                | Yes               |
+## Pinning policy
 
-Logs remain under the `opentelemetry._logs` namespace (leading underscore) to signal
-experimental status. Expect API changes between minor versions. For production log
-correlation, use `opentelemetry-instrumentation-logging` to inject `trace_id` and
-`span_id` into stdlib log records rather than the full OTel Logs SDK pipeline.
+- **Stable** (`opentelemetry-api`, `opentelemetry-sdk`, exporters): pin to **exact version** (e.g. `==1.40.0`).
+- **Instrumentation packages** (e.g. `opentelemetry-instrumentation-fastapi==0.61b0`): pin with `~=` to allow patch updates.
+- Track upstream release notes -- minor versions occasionally break instrumentation when the underlying library changes its internals.
 
----
+## Official docs
 
-## Key Packages and Versions
+- Python SDK GitHub: https://github.com/open-telemetry/opentelemetry-python
+- Python contrib (instrumentations): https://github.com/open-telemetry/opentelemetry-python-contrib
+- Python SDK readthedocs: https://opentelemetry-python.readthedocs.io/
+- Spec: https://opentelemetry.io/docs/specs/otel/
+- Collector contrib: https://github.com/open-telemetry/opentelemetry-collector-contrib
+- AWS ADOT: https://aws-otel.github.io/
+- X-Ray → OTel migration: https://docs.aws.amazon.com/xray/latest/devguide/migrate-xray-to-opentelemetry-python.html
+- Release notes (check before any upgrade): https://github.com/open-telemetry/opentelemetry-python/releases
 
-| Package | Version | Purpose |
-|---------|---------|---------|
-| `opentelemetry-api` | 1.40.0 | Core API (traces, metrics, context) |
-| `opentelemetry-sdk` | 1.40.0 | SDK implementation |
-| `opentelemetry-exporter-otlp-proto-grpc` | 1.40.0 | gRPC OTLP exporter |
-| `opentelemetry-exporter-otlp-proto-http` | 1.40.0 | HTTP OTLP exporter |
-| `opentelemetry-instrumentation-fastapi` | 0.61b0 | FastAPI auto-instrumentation |
-| `opentelemetry-instrumentation-celery` | 0.61b0 | Celery auto-instrumentation |
-| `opentelemetry-instrumentation-sqlalchemy` | 0.61b0 | SQLAlchemy (sync + async) |
-| `opentelemetry-instrumentation-httpx` | 0.61b0 | httpx client |
-| `opentelemetry-instrumentation-logging` | 0.61b0 | Log-trace correlation |
-| `opentelemetry-instrumentation-threading` | 0.61b0 | Thread pool context propagation |
-| `opentelemetry-propagator-aws-xray` | 1.0.2 | X-Ray propagator |
-| `opentelemetry-sdk-extension-aws` | latest | X-Ray ID gen + AWS resource detectors |
-| `aws-opentelemetry-distro` | 0.16.0 | Full AWS auto-instrumentation distro |
+## Related
 
-Pin stable packages (`opentelemetry-api`, `opentelemetry-sdk`, exporters) to exact
-versions. Pin instrumentation packages (`0.61b0`) with `~=` to allow patch updates.
-
----
-
-## Recent Breaking Changes
-
-### v1.40.0 (March 2026)
-
-- `LoggingHandler` deprecated -- use `opentelemetry-instrumentation-logging` combined
-  with `BatchLogRecordProcessor` for structured log export.
-- `ConcurrentMultiSpanProcessor` made fork-safe -- internal locks are re-initialized
-  after `os.fork()`. Previous versions required manual re-initialization.
-- Python 3.14 support added. Python 3.8 support dropped.
-
-### v1.39.0
-
-- `LogData` class removed -- use `ReadableLogRecord` for exporters and
-  `ReadWriteLogRecord` for processors. Direct migration: replace
-  `log_data.log_record` access with the record object itself.
-
-### v1.22.0 (earlier)
-
-- Jaeger exporter removed entirely -- use OTLP exporters instead. Jaeger backend
-  accepts OTLP natively since Jaeger v1.35. No protocol translation needed.
-
----
-
-## Essential References
-
-- opentelemetry-python (core SDK): `github.com/open-telemetry/opentelemetry-python`
-- opentelemetry-python-contrib (instrumentations): `github.com/open-telemetry/opentelemetry-python-contrib`
-- Python SDK docs: `opentelemetry-python.readthedocs.io`
-- AWS ADOT docs: `aws-otel.github.io`
-- OTel Collector contrib: `github.com/open-telemetry/opentelemetry-collector-contrib`
-- OTel specification: `opentelemetry.io/docs/specs/otel/`
-- X-Ray migration: `docs.aws.amazon.com/xray/latest/devguide/migrate-xray-to-opentelemetry-python.html`
+- `instrumentation-patterns.md` -- per-framework setup, decorators, error handling
+- `exporters-and-backends.md` -- BSP tuning details, propagation formats, custom processors
+- `aws-deployment.md` -- ADOT, X-Ray, ECS sidecar, collector-less direct export
+- `async-context-propagation.md` -- the crown jewel: thread/fork/asyncio context traps

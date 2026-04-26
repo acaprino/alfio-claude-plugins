@@ -1,51 +1,32 @@
 # AWS Deployment
 
-Deploying OpenTelemetry Python applications on AWS using the AWS Distro for
-OpenTelemetry (ADOT). Covers X-Ray integration, resource detectors, Lambda layers,
-ECS sidecar patterns, collector-less direct export, and migration from the legacy
-aws-xray-sdk.
+ADOT (AWS Distro for OpenTelemetry), X-Ray ID generator + propagator, ECS sidecar Collector pattern, Lambda layer, collector-less direct export, and migration from `aws-xray-sdk`. Most surface lives in AWS docs; this file is the production gotchas + the ECS YAML worth keeping local.
 
----
+## When to use
 
-## ADOT Overview
+Deploying an OTel-instrumented Python service on EC2/ECS/EKS/Lambda, or migrating off `aws-xray-sdk`. For the actual instrumentation patterns the AWS-side wraps, see `instrumentation-patterns.md`.
 
-AWS Distro for OpenTelemetry (ADOT) is NOT a fork -- it bundles the upstream OTel
-Collector with AWS-specific components for traces, metrics, and logs.
+## ADOT in one sentence
 
-Bundled components:
-- **Exporters**: `awsxray` (traces to X-Ray), `awsemf` (metrics to CloudWatch EMF)
-- **Receivers**: `awsxray` (UDP segment receiver), `awsecscontainermetrics`
-- **Resource detectors**: EC2, ECS, EKS, Lambda -- auto-populate cloud metadata
-- **Python SDK distro**: `aws-opentelemetry-distro` v0.16.0 (March 2026)
-
-What ADOT adds out of the box:
-- X-Ray propagation via `X-Amzn-Trace-Id` header
-- X-Ray remote sampling (centralized sampling rules from X-Ray console)
-- AWS resource detection (region, account, instance ID, task ARN, etc.)
-
-AWS officially recommends migrating from `aws-xray-sdk` to OpenTelemetry. The X-Ray
-SDK is in maintenance mode -- no new features, only critical patches.
+`aws-opentelemetry-distro` is **upstream OTel + AWS-bundled components** (`awsxray` + `awsemf` exporters, X-Ray propagator + ID generator, AWS resource detectors, X-Ray remote sampling). It's not a fork.
 
 ```bash
-pip install aws-opentelemetry-distro
+pip install aws-opentelemetry-distro opentelemetry-propagator-aws-xray
 ```
 
----
+## Gotchas
 
-## X-Ray Integration
+- **`memory_limiter` MUST be the first processor in every Collector pipeline** -- prevents OOM under load by dropping data when memory pressure spikes. After-the-fact ordering OOMs the sidecar.
+- **`resourcedetection: override: false`** so application-set Resource attributes win over Collector-side detection. Default is `true`, which silently overwrites your `service.name` with infrastructure metadata.
+- **Lambda Collector extension needs ~hundred-ms tail to flush** after handler returns. Function timeout < 3s = truncated traces. Set timeout ≥ 3s even for fast handlers.
+- **Lambda layer ARN is region-specific.** Substitute the right region or you get a generic "layer not found" error at deploy.
+- **Default Lambda layer enables only `botocore`/HTTP instrumentations** to minimize cold start. Set `OTEL_PYTHON_DISABLED_INSTRUMENTATIONS=none` to enable all -- accept the cold start hit, or use provisioned concurrency.
+- **X-Ray ID Generator vs standard W3C trace IDs**: X-Ray accepts W3C IDs since Oct 2023, but the X-Ray ID generator embeds a Unix timestamp in the first 32 bits, which gives you time-based filtering in the X-Ray console. Worth using if X-Ray is your primary backend.
+- **`AwsXRayPropagator` reads/writes `X-Amzn-Trace-Id` (`Root=...;Parent=...;Sampled=1`).** Without it, traces broken at any AWS-native hop (ALB → Lambda, API Gateway → Lambda, etc.).
+- **IAM permissions are easy to forget for the sidecar role**: `xray:PutTraceSegments`, `xray:PutTelemetryRecords`, plus CloudWatch Logs write perms if you ship EMF metrics. Missing them = silent export failures.
+- **Direct export to AWS OTLP endpoints** (`https://xray.us-east-1.amazonaws.com/v1/traces`) authenticates via the standard AWS credential chain -- no API keys. Useful for low-volume or prototyping; not for prod (no buffering/retry/tail sampling).
 
-Two key components bridge OpenTelemetry and X-Ray:
-
-1. **X-Ray ID Generator** -- embeds a Unix timestamp in the first 32 bits of the
-   trace ID. This was historically required for X-Ray compatibility, though standard
-   W3C trace IDs have been accepted since October 2023. Using the generator still
-   provides the best experience in the X-Ray console (time-based trace filtering).
-
-2. **X-Ray Propagator** -- reads and writes the `X-Amzn-Trace-Id` header format
-   (`Root=1-xxx;Parent=yyy;Sampled=1`), enabling trace continuity with other AWS
-   services that use native X-Ray propagation.
-
-Full initialization pattern:
+## Full X-Ray init pattern
 
 ```python
 from opentelemetry.sdk.extension.aws.trace import AwsXRayIdGenerator
@@ -65,77 +46,25 @@ resource = get_aggregated_resources(
 
 provider = TracerProvider(
     resource=resource,
-    id_generator=AwsXRayIdGenerator(),
+    id_generator=AwsXRayIdGenerator(),                      # X-Ray timestamp in trace ID
     sampler=ParentBased(TraceIdRatioBased(0.1)),
 )
 trace.set_tracer_provider(provider)
-
-# Enable X-Ray propagation alongside W3C tracecontext
-propagate.set_global_textmap(AwsXRayPropagator())
+propagate.set_global_textmap(AwsXRayPropagator())           # X-Ray header support
 ```
 
-Install the required packages:
-
-```bash
-pip install opentelemetry-sdk-extension-aws opentelemetry-propagator-aws-xray
-```
-
----
-
-## AWS Resource Detectors
-
-Resource detectors run once at startup -- results are cached and attached to every
-span, metric, and log record for the lifetime of the process. They enrich telemetry
-with infrastructure metadata without manual configuration.
-
-```python
-from opentelemetry.sdk.resources import (
-    Resource, get_aggregated_resources,
-    ProcessResourceDetector, OTELResourceDetector,
-)
-from opentelemetry.sdk.extension.aws.resource.ec2 import AwsEc2ResourceDetector
-from opentelemetry.sdk.extension.aws.resource.ecs import AwsEcsResourceDetector
-
-resource = get_aggregated_resources(
-    detectors=[
-        OTELResourceDetector(),       # reads OTEL_RESOURCE_ATTRIBUTES env var
-        ProcessResourceDetector(),     # process.pid, process.runtime.*
-        AwsEc2ResourceDetector(),      # cloud.provider, cloud.region, host.id
-        AwsEcsResourceDetector(),      # aws.ecs.cluster.arn, aws.ecs.task.arn
-    ],
-    initial_resource=Resource.create({
-        "service.name": "order-service",
-        "service.version": "2.1.0",
-    }),
-    timeout=5,
-)
-```
-
-Attributes populated by each detector:
+## AWS resource detectors (what each populates)
 
 | Detector | Attributes |
 |----------|-----------|
-| `AwsEc2ResourceDetector` | `cloud.provider`, `cloud.platform`, `cloud.region`, `cloud.availability_zone`, `cloud.account.id`, `host.id`, `host.type`, `host.name` |
+| `AwsEc2ResourceDetector` | `cloud.provider`, `cloud.region`, `cloud.availability_zone`, `cloud.account.id`, `host.id`, `host.type`, `host.name` |
 | `AwsEcsResourceDetector` | `aws.ecs.cluster.arn`, `aws.ecs.task.arn`, `aws.ecs.task.family`, `aws.ecs.task.revision`, `aws.ecs.container.arn`, `cloud.region` |
 | `AwsEksResourceDetector` | `k8s.cluster.name`, `cloud.provider`, `cloud.platform` |
 | `AwsLambdaResourceDetector` | `cloud.provider`, `cloud.region`, `faas.name`, `faas.version`, `faas.instance` |
 
-As of SDK v1.40.0, setting `OTEL_EXPERIMENTAL_RESOURCE_DETECTORS=*` auto-loads all
-installed detectors via entry points -- no explicit Python code needed.
+Since SDK 1.40.0, `OTEL_EXPERIMENTAL_RESOURCE_DETECTORS=*` auto-loads all installed detectors via entry points -- no Python listing.
 
-Collector-side detection is also available via the `resourcedetection` processor:
-`detectors: [env, system, docker, ec2, ecs, eks, gcp, azure]`. Use both app-side
-and collector-side detection when you want process-level and infrastructure-level
-attributes combined.
-
----
-
-## Lambda Setup
-
-ADOT provides a Lambda Layer that bundles the Python SDK and a lightweight Collector
-extension. The layer auto-instruments your handler -- no code changes required.
-
-SAM template:
+## Lambda setup (SAM)
 
 ```yaml
 Resources:
@@ -158,27 +87,11 @@ Resources:
             Resource: "*"
 ```
 
-Key considerations:
-- The Collector extension needs a few hundred milliseconds after the handler returns
-  to flush buffered spans. Set function timeout >= 3 seconds to avoid truncation.
-- Only AWS SDK (`botocore`) and HTTP (`urllib3`, `requests`) instrumentations are
-  enabled by default to minimize cold start impact.
-- Set `OTEL_PYTHON_DISABLED_INSTRUMENTATIONS=none` to enable all installed
-  instrumentations (accept the cold start cost).
-- For latency-sensitive functions, use provisioned concurrency to absorb cold starts.
-- Layer ARN region must match your function's region -- substitute accordingly.
+Layer ARN format: `arn:aws:lambda:<region>:901920570463:layer:aws-otel-python-amd64-ver-<version>:<revision>`. Latest ARN list: https://aws-otel.github.io/docs/getting-started/lambda/lambda-python.
 
----
+## ECS sidecar Collector YAML (the one worth keeping)
 
-## ECS Sidecar Pattern
-
-Run the ADOT Collector as a sidecar container alongside your application container.
-The app sends telemetry to `localhost:4317` (gRPC) or `localhost:4318` (HTTP).
-
-Store custom Collector configuration in SSM Parameter Store and reference it via the
-`AOT_CONFIG_CONTENT` environment variable or mount it as a secret.
-
-Production Collector config for ECS:
+Run the ADOT Collector as a sidecar; the app sends to `localhost:4317` (gRPC) or `localhost:4318` (HTTP).
 
 ```yaml
 receivers:
@@ -188,54 +101,34 @@ receivers:
       http: { endpoint: 0.0.0.0:4318 }
 
 processors:
-  batch:
-    timeout: 5s
-    send_batch_size: 256
-  memory_limiter:
-    check_interval: 1s
-    limit_mib: 400
-    spike_limit_mib: 100
-  resourcedetection:
-    detectors: [env, ec2, ecs]
-    timeout: 5s
-    override: false
+  batch:           { timeout: 5s, send_batch_size: 256 }
+  memory_limiter:  { check_interval: 1s, limit_mib: 400, spike_limit_mib: 100 }
+  resourcedetection: { detectors: [env, ec2, ecs], timeout: 5s, override: false }
 
 exporters:
-  awsxray:
-    region: us-east-1
-    indexed_attributes: [otel.resource.service.name]
-  awsemf:
-    region: us-east-1
-    namespace: MyApplication
-    log_group_name: /aws/otel/metrics
+  awsxray: { region: us-east-1, indexed_attributes: [otel.resource.service.name] }
+  awsemf:  { region: us-east-1, namespace: MyApplication, log_group_name: /aws/otel/metrics }
 
 service:
   pipelines:
     traces:
-      receivers: [otlp]
+      receivers:  [otlp]
       processors: [memory_limiter, resourcedetection, batch]
-      exporters: [awsxray]
+      exporters:  [awsxray]
     metrics:
-      receivers: [otlp]
+      receivers:  [otlp]
       processors: [memory_limiter, resourcedetection, batch]
-      exporters: [awsemf]
+      exporters:  [awsemf]
 ```
 
-Processor ordering matters -- `memory_limiter` must come first to prevent OOM under
-load. The `resourcedetection` processor adds ECS task metadata before `batch` groups
-spans for export.
-
-IAM permissions required on the sidecar task role:
+Sidecar IAM (the permissions easy to forget):
 - `xray:PutTraceSegments`
 - `xray:PutTelemetryRecords`
-- `logs:CreateLogGroup`, `logs:CreateLogStream`, `logs:PutLogEvents` (for EMF metrics)
+- `logs:CreateLogGroup`, `logs:CreateLogStream`, `logs:PutLogEvents` (EMF metrics)
 
----
+Store custom config in SSM Parameter Store and reference via `AOT_CONFIG_CONTENT` env var, or mount as a secret.
 
-## Collector-less Direct Export
-
-As of ADOT Python >= 0.10.0, applications can export directly to AWS OTLP endpoints
-without running a Collector process. X-Ray and CloudWatch now accept OTLP natively.
+## Collector-less direct export -- when to skip the sidecar
 
 ```bash
 OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=https://xray.us-east-1.amazonaws.com/v1/traces \
@@ -244,81 +137,47 @@ OTEL_EXPORTER_OTLP_TRACES_HEADERS="x-aws-xray-sampling-rule=Default" \
 opentelemetry-instrument python3 app.py
 ```
 
-Authentication uses the standard AWS credential chain (env vars, instance profile,
-ECS task role). No API keys needed.
+**Use direct export when**: simple deployments, low volume (< 100 spans/sec), prototyping, dev environments.
 
-**When to use direct export:**
-- Simpler deployments where Collector overhead is not justified
-- Small services with low trace volume (< 100 spans/second)
-- Quick prototyping and development environments
+**Don't use direct export when**: you need tail sampling, attribute enrichment, multi-backend routing, or buffering/retry under load. Those all require the Collector.
 
-**When NOT to use direct export:**
-- Need tail sampling, attribute enrichment, or multi-backend routing (requires Collector)
-- High throughput services (Collector provides buffering, retry, and backpressure)
-- Need to decouple app deployment from export configuration changes
+## Migration: `aws-xray-sdk` → OpenTelemetry
 
----
+X-Ray SDK is in maintenance mode. AWS officially recommends migrating.
 
-## Migration from aws-xray-sdk
-
-The AWS X-Ray SDK is in maintenance mode. OpenTelemetry is the recommended path for
-all new and existing Python services.
+1. Install: `pip install aws-opentelemetry-distro opentelemetry-propagator-aws-xray`.
+2. Replace decorators:
+   - `@xray_recorder.capture("name")` → `with tracer.start_as_current_span("name"):`
+3. Replace metadata:
+   - `subsegment.put_annotation("k", v)` → `span.set_attribute("k", v)`
+   - `subsegment.put_metadata("name", obj)` → multiple `span.set_attribute("name.field", val)` calls
+4. Add X-Ray ID generator + propagator (above) for trace continuity with services still on the X-Ray SDK.
+5. Test propagation across the boundary -- traces from X-Ray-instrumented callers must reach OTel-instrumented callees AND vice versa.
 
 | Feature | aws-xray-sdk | OpenTelemetry |
-|---------|-------------|---------------|
-| Status | Maintenance mode | Active development |
+|---------|--------------|---------------|
+| Status | Maintenance mode | Active |
 | Propagation | X-Ray header only | W3C + X-Ray + B3 + Jaeger |
-| Instrumentation | X-Ray-specific patches | 50+ library instrumentations |
-| Export destinations | X-Ray only | Any OTLP-compatible backend |
-| Sampling | X-Ray centralized rules | Local + remote + tail sampling |
-| Metrics | Not supported | Full metrics pipeline |
-| Community | AWS internal | CNCF open-source ecosystem |
+| Instrumentations | X-Ray-specific | 50+ libraries |
+| Export destinations | X-Ray only | Any OTLP backend |
+| Sampling | X-Ray centralized | Local + remote + tail |
+| Metrics | Not supported | Full pipeline |
 
-Migration steps:
+## Official docs
 
-1. Install the ADOT Python distro:
-   ```bash
-   pip install aws-opentelemetry-distro opentelemetry-propagator-aws-xray
-   ```
+- ADOT main: https://aws-otel.github.io/
+- ADOT Python distro: https://aws-otel.github.io/docs/getting-started/python-sdk
+- Lambda layer + ARNs: https://aws-otel.github.io/docs/getting-started/lambda/lambda-python
+- ECS sidecar guide: https://aws-otel.github.io/docs/setup/ecs
+- X-Ray remote sampling: https://docs.aws.amazon.com/xray/latest/devguide/xray-console-sampling.html
+- X-Ray → OTel migration: https://docs.aws.amazon.com/xray/latest/devguide/migrate-xray-to-opentelemetry-python.html
+- ADOT Collector contrib: https://github.com/aws-observability/aws-otel-collector
+- AWS X-Ray propagator package: https://github.com/open-telemetry/opentelemetry-python-contrib/tree/main/propagator/opentelemetry-propagator-aws-xray
+- AWS resource detectors: https://github.com/open-telemetry/opentelemetry-python-contrib/tree/main/sdk-extension/opentelemetry-sdk-extension-aws
 
-2. Replace X-Ray SDK imports with OTel equivalents:
-   ```python
-   # Before
-   from aws_xray_sdk.core import xray_recorder, patch_all
+## Related
 
-   # After
-   from opentelemetry import trace
-   tracer = trace.get_tracer(__name__)
-   ```
-
-3. Replace `@xray_recorder.capture()` with span creation:
-   ```python
-   # Before
-   @xray_recorder.capture("process_order")
-   def process_order(order_id): ...
-
-   # After
-   def process_order(order_id):
-       with tracer.start_as_current_span("process_order"):
-           ...
-   ```
-
-4. Replace segment/subsegment metadata with span attributes:
-   ```python
-   # Before
-   subsegment.put_metadata("order", order_data)
-   subsegment.put_annotation("order_id", order_id)
-
-   # After
-   span.set_attribute("order.id", order_id)
-   span.set_attribute("order.total", order_data["total"])
-   ```
-
-5. Add X-Ray ID generator and propagator for trace continuity with existing
-   X-Ray-instrumented services (see X-Ray Integration section above).
-
-6. Test trace continuity across services -- verify that traces initiated by
-   X-Ray-instrumented callers correctly propagate to OTel-instrumented callees
-   and vice versa.
-
-Reference: `docs.aws.amazon.com/xray/latest/devguide/migrate-xray-to-opentelemetry-python.html`
+- `instrumentation-patterns.md` -- the per-framework setup AWS-side wraps
+- `exporters-and-backends.md` -- the multi-backend Collector pipeline pattern
+- `production-checklist.md` -- shutdown, kill switch, BSP tuning
+- `async-context-propagation.md` -- Lambda + asyncio context gotchas
