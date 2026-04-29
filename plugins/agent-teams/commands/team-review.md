@@ -159,7 +159,12 @@ Skip this phase entirely if `--skip-interconnect` was passed. Mark `phase_1a_dee
 
 ### Phase 1a: Deep-Dive Analysis
 
-1. Invoke the `deep-dive-analysis:deep-dive-analysis` skill (or the command `/deep-dive-analysis:deep-dive-analysis`) against the target:
+> **CRITICAL: `deep-dive-analysis:deep-dive-analysis` is a SKILL, NOT an agent.**
+> There is no agent named `deep-dive-analysis`. Do NOT call the `Agent` tool with `subagent_type: "deep-dive-analysis:deep-dive-analysis"` -- it will fail with "Agent type not found".
+> Invoke it via the `Skill` tool: `Skill(skill: "deep-dive-analysis:deep-dive-analysis", args: "--depth=lite <target>")`.
+> The disambiguation matters because the rest of this command (Phase 1b, Phase 2) spawns many `subagent_type: plugin:name` teammates and the same `plugin:name` shape is reused for skill identifiers -- treat Phase 1a as a Skill invocation, full stop.
+
+1. Invoke the `deep-dive-analysis:deep-dive-analysis` **skill** via the `Skill` tool against the target:
    - Default mode: `--depth=lite` (structure + interfaces + risks only)
    - If `--deep` flag: full analysis
    - Target scope: the files from Phase 0
@@ -167,7 +172,7 @@ Skip this phase entirely if `--skip-interconnect` was passed. Mark `phase_1a_dee
 3. Verify on completion that at minimum `01-structure.md`, `02-interfaces.md`, and `05-risks.md` exist.
 4. Mark `phase_1a_deep_dive` complete.
 
-If deep-dive fails or produces no output, halt the pipeline and report the error. Do not proceed with an empty context (it would defeat the purpose of Phase 2's logic-integrity reviewer).
+If the skill is unavailable (not installed) or produces no output, halt the pipeline and report the error. Do **not** fall back to spawning a `general-purpose` agent to fake the deep-dive output -- the file naming and section anchors that Phase 1b/Phase 2 depend on come from the skill itself, and a freelance fallback breaks the contract for `logic-integrity-auditor`.
 
 ### Phase 1b: Semantic Interconnect Mapping
 

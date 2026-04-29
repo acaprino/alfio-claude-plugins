@@ -9,7 +9,7 @@ Debug complex issues using the Analysis of Competing Hypotheses (ACH) methodolog
 
 ## Skills to Load
 
-Before starting, invoke these skills to inform the debugging process:
+Before starting, invoke these skills (via the `Skill` tool) to inform the debugging process. They are **skills, not agents** -- never pass them as `subagent_type` to `Agent`/`TeamCreate`:
 - `agent-teams:parallel-debugging` -- hypothesis generation framework, evidence standards, arbitration protocol
 - `senior-review:defect-taxonomy` -- defect classification with CWE mappings for categorizing findings
 - `deep-dive-analysis:deep-dive-analysis` -- systematic codebase analysis for initial triage

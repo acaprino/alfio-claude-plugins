@@ -176,7 +176,7 @@ If "custom" is specified:
 
 ## Skills to Load
 
-Before spawning, invoke the relevant skills for the preset to inform team configuration:
+Before spawning, invoke the relevant skills for the preset to inform team configuration. Every entry below is a **skill** (load via the `Skill` tool), not an agent -- do not pass any of these `plugin:name` strings as `subagent_type` to `Agent` or `TeamCreate`. Agent identifiers for spawning are listed separately in the preset definitions above.
 
 | Preset | Skills to reference |
 |--------|-------------------|
