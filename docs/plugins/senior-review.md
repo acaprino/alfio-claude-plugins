@@ -1,6 +1,6 @@
 # Senior Review Plugin
 
-> Catch bugs before they ship. Eight specialized agents review code quality, security, UI timing, distributed flows, startup cycles, cross-component logic integrity, and formal API contracts in parallel -- plus a semantic interconnect mapper that turns codebases into a shared contract/invariant map consumable by every reviewer. Backed by a comprehensive defect taxonomy knowledge base with 140+ defect patterns and CWE/OWASP mappings.
+> Catch bugs before they ship. Nine specialized agents review code quality, security, UI timing, distributed flows, startup cycles, cross-component logic integrity, formal API contracts, and codebase hygiene in parallel. A semantic interconnect mapper turns codebases into a shared contract/invariant map consumable by every reviewer. Backed by a comprehensive defect taxonomy knowledge base with 140+ defect patterns and CWE/OWASP mappings.
 
 ## Agents
 
@@ -169,6 +169,30 @@ Use the api-contract-auditor agent to review [spec file or API boundary]
 - Every finding cites producer `file:line` AND consumer `file:line`
 - Handles OpenAPI 3.1, GraphQL SDL, gRPC, AsyncAPI, JSON Schema, Pydantic, TypeScript DTOs, Zod schemas
 - Fulfills the `semantic-interconnect-mapper` `## Contracts` (formal) anchor
+
+---
+
+### `cleanup-auditor`
+
+Adversarial codebase hygiene auditor. Detects dead code, orphan assets, generated artifacts tracked in VCS, phantom/unused dependencies, barrel-file bloat, eager-bundling anti-patterns, rebrand residue, and filesystem garbage. Report-only; the fix is delegated to `/cleanup-dead-code`.
+
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Tools** | Read, Glob, Grep, Bash |
+| **Use for** | Codebase cleanup review, technical-debt audit, dead-code detection with asset/VCS/dep coverage, monorepo dependency hygiene. Always-on dimension in `/team-review`. |
+
+**Invocation:**
+```
+Use the cleanup-auditor agent to scan [path]
+```
+Also spawned automatically by `/team-review` as the "Codebase hygiene" dimension.
+
+**Methodology:**
+- 4-dimension detection pipeline: dead code (delegates to Knip / vulture / ruff), asset hygiene (orphan images, fonts, build artifacts), VCS hygiene (generated files tracked, .gitignore gaps), dependency hygiene (phantom / unused / version drift in monorepo workspaces)
+- Every finding cites `file:line` or a concrete path; vague "consider cleaning up" advice is forbidden
+- False-positive candidates (module augmentation, side-effect imports, DI-registered classes, framework-convention files) flagged in a separate section, never auto-confirmed
+- Each finding ends with the exact `/cleanup-dead-code --phase=<phase>` command that would fix it
 
 ---
 

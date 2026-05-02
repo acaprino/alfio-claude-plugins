@@ -1,12 +1,37 @@
 # Browser Extensions Plugin
 
-> Build, debug, publish, and maintain Firefox WebExtensions. Covers Manifest V2 and V3, all 51 browser.* APIs, content scripts, background scripts, native messaging, cross-browser compatibility, AMO publishing, and web-ext CLI -- plus three commands for the full scaffold / lint / publish lifecycle.
+> Build, debug, publish, and maintain Firefox WebExtensions. Covers Manifest V2 and V3, all 51 browser.* APIs, content scripts, background scripts, native messaging, cross-browser compatibility, AMO publishing, and web-ext CLI. Includes a dedicated agent for hands-on development plus three commands for the full scaffold / lint / publish lifecycle.
+
+## Agents
+
+### `firefox-extension-dev`
+
+Hands-on Firefox WebExtension developer. Actively writes code, scaffolds projects, generates boilerplate, and fetches live MDN documentation via WebSearch/WebFetch. Use for any creating, debugging, or publishing task.
+
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Tools** | Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch |
+| **Use for** | Creating new extensions, debugging existing ones, AMO publishing prep, Manifest V3 migration, native messaging integration, cross-browser compatibility work |
+
+**Invocation:**
+```
+Use the firefox-extension-dev agent to [build/debug/publish] [extension feature]
+```
+
+**Documentation lookup strategy:**
+1. Check the local `firefox-extension-dev` skill reference files first (browser-api-reference, manifest-schema, amo-publishing, mdn-api-urls)
+2. WebFetch MDN page directly when reference files lack detail (URL pattern: `developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/<APIName>/<method>`)
+3. WebSearch fallback with `site:developer.mozilla.org` for newer/experimental APIs
+4. Extension Workshop for publishing policies and migration guides
+
+---
 
 ## Skills
 
 ### `firefox-extension-dev`
 
-Firefox WebExtension development guidance covering the full extension lifecycle.
+Firefox WebExtension development knowledge base covering the full extension lifecycle. Loaded by the agent of the same name; also usable standalone for documentation lookup without agent invocation.
 
 | | |
 |---|---|

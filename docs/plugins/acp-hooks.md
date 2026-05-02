@@ -1,8 +1,8 @@
 # ACP Hooks Plugin
 
-> Session lifecycle hooks for the ACP ecosystem -- startup branding, skill awareness, security enforcement, automatic context management, brainstorm gating, code review gating, and team spawn suggestions.
+> Session lifecycle hooks for the ACP ecosystem: skill awareness, security enforcement, automatic context management, brainstorm gating, code review gating, documentation gating, and team spawn suggestions.
 
-**Note:** This plugin uses `plugin.json` for hook configuration instead of marketplace registration. Hooks run automatically -- no manual invocation needed.
+**Note:** This plugin uses `plugin.json` for hook configuration instead of marketplace registration. Hooks run automatically; no manual invocation needed.
 
 ## Hooks
 
@@ -12,7 +12,6 @@ These run automatically when a Claude Code session starts:
 
 | Handler | Purpose |
 |---------|---------|
-| `acp-logo.js` | Displays ASCII logo on session startup |
 | `skill-awareness.js` | Injects skill awareness so Claude knows which skills are available |
 | `cleanup-builtins.js` | Removes duplicate built-in plugins that conflict with ACP |
 

@@ -5,11 +5,11 @@
 **39 specialized plugins for Claude Code -- so you spend less time prompting and more time shipping.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat)](LICENSE)
-[![Marketplace](https://img.shields.io/badge/marketplace-v5.35.1-green?style=flat)](.claude-plugin/marketplace.json)
+[![Marketplace](https://img.shields.io/badge/marketplace-v5.56.0-green?style=flat)](.claude-plugin/marketplace.json)
 [![Plugins](https://img.shields.io/badge/plugins-39-orange?style=flat)](#plugins)
-[![Agents](https://img.shields.io/badge/agents-65-purple?style=flat)](#plugins)
+[![Agents](https://img.shields.io/badge/agents-67-purple?style=flat)](#plugins)
 [![Skills](https://img.shields.io/badge/skills-66-teal?style=flat)](#plugins)
-[![Commands](https://img.shields.io/badge/commands-53-red?style=flat)](#plugins)
+[![Commands](https://img.shields.io/badge/commands-55-red?style=flat)](#plugins)
 
 </div>
 
@@ -55,12 +55,12 @@ That's it. Plugins activate automatically when relevant -- or invoke them direct
 | Plugin | Description | A | S | C |
 |--------|-------------|:-:|:-:|:-:|
 | **[python-development](docs/plugins/python-development.md)** | TDD, refactoring, async patterns, packaging, performance, dead code, Pydantic v2, /python-audit | 3 | 9 | 3 |
-| **[senior-review](docs/plugins/senior-review.md)** | 8 agents review architecture, security, patterns, distributed flows, logic integrity, API contracts, startup cycles, and UI races in parallel | 8 | 1 | 4 |
+| **[senior-review](docs/plugins/senior-review.md)** | 9 agents review architecture, security, patterns, distributed flows, logic integrity, API contracts, startup cycles, UI races, and codebase hygiene in parallel | 9 | 1 | 4 |
 | **[frontend](docs/plugins/frontend.md)** | UI polish, layout design, modern CSS, web strategy, Radix/shadcn/daisyUI | 3 | 5 | 1 |
 | **[codebase-mapper](docs/plugins/codebase-mapper.md)** | Generate 10 narrative docs with Mermaid diagrams from any codebase | 10 | 1 | 4 |
 | **[ai-tooling](docs/plugins/ai-tooling.md)** | Brainstorm, plan, execute, optimize prompts, Agent SDK | 1 | 5 | 1 |
 | **[tauri-development](docs/plugins/tauri-development.md)** | Tauri 2 desktop + mobile, Rust backend, IPC optimization | 3 | 1 | - |
-| **[digital-marketing](docs/plugins/digital-marketing.md)** | SEO + AEO (AI Overviews/Perplexity/ChatGPT Search), GA4/GTM with Consent Mode v2, content strategy, brand naming, domain hunting, text humanization | 5 | 5 | 6 |
+| **[digital-marketing](docs/plugins/digital-marketing.md)** | SEO + AEO (AI Overviews/Perplexity/ChatGPT Search), GA4/GTM with Consent Mode v2, content strategy, brand naming, domain hunting, text humanization | 5 | 5 | 7 |
 | **[react-development](docs/plugins/react-development.md)** | React 19 performance, state management, bundle optimization | 1 | 1 | 1 |
 | **[rag-development](docs/plugins/rag-development.md)** | RAG system design -- chunking, embeddings, vector DBs, advanced patterns | 2 | 1 | 1 |
 | **[marketplace-ops](docs/plugins/marketplace-ops.md)** | Audit, scaffold, review, and manage plugins in this ecosystem | 1 | 2 | 4 |
@@ -68,7 +68,7 @@ That's it. Plugins activate automatically when relevant -- or invoke them direct
 | **[deep-dive-analysis](docs/plugins/deep-dive-analysis.md)** | 7-phase systematic codebase analysis with pattern detection | - | 1 | 1 |
 | **[git-worktrees](docs/plugins/git-worktrees.md)** | Parallel development with git worktrees -- create, pause, resume, merge | 1 | 1 | 1 |
 | **[business](docs/plugins/business.md)** | Tech law, compliance, privacy docs, contracts, SaaS business planning | 3 | 1 | - |
-| **[stripe](docs/plugins/stripe.md)** | Stripe payments, subscriptions, Connect, revenue optimization | 2 | 1 | - |
+| **[stripe](docs/plugins/stripe.md)** | Stripe payments, subscriptions, Connect, revenue optimization, /audit-webhooks | 3 | 1 | 1 |
 | **[research](docs/plugins/research.md)** | Quick search and deep multi-source investigation with shared web-search techniques skill | 2 | 1 | - |
 | **[project-setup](docs/plugins/project-setup.md)** | Create and maintain CLAUDE.md with ground truth verification | 1 | - | 2 |
 | **[clean-code](docs/plugins/clean-code.md)** | Rewrite code for readability without changing behavior | 1 | - | 1 |
@@ -83,7 +83,7 @@ That's it. Plugins activate automatically when relevant -- or invoke them direct
 | **[playwright-skill](docs/plugins/playwright-skill.md)** | General-purpose browser automation with Playwright | - | 1 | - |
 | **[cc-usage](docs/plugins/cc-usage.md)** | Token usage, costs, and billing analysis | - | 1 | 1 |
 | **[prompt-improver](docs/plugins/prompt-improver.md)** | Enrich vague prompts with research-based questions | - | 1 | - |
-| **[acp-hooks](docs/plugins/acp-hooks.md)** | Session hooks -- startup branding, skill awareness, security gate | - | - | - |
+| **[acp-hooks](docs/plugins/acp-hooks.md)** | Session hooks: skill awareness, security gate, autocompact, brainstorm/review/docs/team gates | - | - | - |
 | **[docs](docs/plugins/docs.md)** | Craft top-tier README.md files | - | 1 | 1 |
 | **[testing](docs/plugins/testing.md)** | TDD methodology, E2E testing patterns, behavior-driven test generation | 1 | 2 | - |
 | **[platform-engineering](docs/plugins/platform-engineering.md)** | Cross-platform security (passkeys/WebAuthn, Electron Fuses), architecture, and performance rulebook + /platform-review | 1 | 1 | 1 |

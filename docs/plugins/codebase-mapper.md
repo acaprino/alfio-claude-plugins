@@ -1,16 +1,17 @@
 # Codebase Mapper Plugin
 
-> Generate a human-readable guide for any unfamiliar codebase. Explores the project in 3 phases -- automated discovery, parallel document writing, and cross-reference review -- producing 10 narrative documents with Mermaid diagrams.
+> Generate a human-readable guide for any unfamiliar codebase. The pipeline runs four phases (automated discovery, structured interconnect mapping, parallel document writing, cross-reference review) and produces 10 narrative documents with Mermaid diagrams.
 
 ## How it works
 
-The `/map-codebase` command orchestrates a 3-phase pipeline:
+The `/map-codebase` command orchestrates a 4-phase pipeline:
 
-1. **Phase 1 (Explore):** The `codebase-explorer` agent scans the project (README, configs, entry points, directory structure) and writes a context brief to `.codebase-map/_internal/`.
-2. **Phase 2 (Write):** Six writer agents run in parallel, each producing 1-2 documents from the context brief.
-3. **Phase 3 (Review):** The `guide-reviewer` agent reviews all documents for consistency, adds cross-references, and produces `INDEX.md`.
+1. **Phase 1 (Explore):** The `codebase-explorer` agent scans the project (README, configs, entry points, directory structure) and writes a context brief to `.codebase-map/_internal/context-brief.md`.
+2. **Phase 1b (Interconnect Map):** The `senior-review:semantic-interconnect-mapper` agent reads the context brief and produces `.codebase-map/_internal/interconnect.md`: a structured map of contracts, invariants, domain rules, assumptions, integration hot-spots, and call graph. Writers cite these structured facts instead of paraphrasing code. Skipped gracefully (degraded mode) if the senior-review plugin is not installed.
+3. **Phase 2 (Write):** Six writer agents run in parallel, each producing 1-2 documents from the context brief and (when present) the interconnect map.
+4. **Phase 3 (Review):** The `guide-reviewer` agent reviews all documents for consistency, adds cross-references, detects documentation-reality drift against the interconnect map's invariants and domain rules, and produces `INDEX.md`.
 
-**Output directory:** `.codebase-map/` in the project root, containing 10 numbered documents plus an index.
+**Output directory:** `.codebase-map/` in the project root, containing 10 numbered documents plus an index. Internal artifacts (context brief, interconnect map) live in `.codebase-map/_internal/`.
 
 **Target audience:** A smart colleague on their first day.
 

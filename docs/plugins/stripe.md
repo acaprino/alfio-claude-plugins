@@ -77,6 +77,34 @@ Use the revenue-optimizer agent to [analyze/design/project] [pricing|tiers|reven
 
 ---
 
+### `stripe-webhooks-auditor`
+
+Adversarial auditor for Stripe webhook integrations. Given a Stripe account plus a codebase, hunts for missing event coverage, signature verification pitfalls, missing idempotency, wrong runtime configuration, and stale endpoints. Report-only; never modifies code or Stripe state.
+
+| | |
+|---|---|
+| **Model** | `opus` |
+| **Tools** | Read, Bash, Glob, Grep, WebFetch |
+| **Use for** | Auditing an existing Stripe webhook setup, preparing for a production launch, after a webhook-related incident, or when adding Billing Meters / Entitlements and the event list needs to grow |
+
+**Invocation:**
+```
+Use the stripe-webhooks-auditor agent to audit webhook setup
+```
+Also runnable as `/audit-webhooks` (see Commands below).
+
+**Three surfaces to check:**
+1. **Stripe account state** -- configured endpoints, subscribed events, disabled endpoints, per-endpoint API version (via `webhook_audit.py`)
+2. **Codebase implementation** -- signature verification, raw body preservation, idempotency via `event.id`, runtime config, handler coverage
+3. **Pass criteria** -- canonical checklist in `skills/stripe/references/webhooks-production.md`
+
+**Inputs:**
+- `STRIPE_SECRET_KEY` or `STRIPE_RESTRICTED_KEY` (read-only scope is enough)
+- Optional `--account <acct_id>` for Connect platforms
+- Optional `--features <flags>` (e.g. `meters,entitlements,connect,trials`); inferred from codebase if omitted
+
+---
+
 ## Skills
 
 ### `stripe`
@@ -108,6 +136,28 @@ Stripe knowledge base -- API patterns, checkout optimization, subscription lifec
 - `stripe_utils.py` -- shared utilities
 
 **Key section:** webhook reliability checklist (signature verification, raw body preservation, idempotency via `event.id`, 10-second 2xx response, replay testing).
+
+---
+
+## Commands
+
+### `/audit-webhooks`
+
+Runs the `stripe-webhooks-auditor` agent against the current project. Enumerates Stripe-side state via `scripts/webhook_audit.py` (reads `STRIPE_SECRET_KEY`), greps the codebase for webhook handlers, verifies each against the pass criteria in `webhooks-production.md`, and produces a prioritized remediation report. Report-only.
+
+```
+/audit-webhooks --features meters,entitlements,trials
+/audit-webhooks --account acct_xxx
+```
+
+**When to invoke:**
+- Before a production launch
+- After adding Billing Meters or Entitlements (event list grows)
+- Quarterly webhook hygiene
+- During PR review of a webhook route
+- After a webhook-related incident
+
+**Prerequisites:** `STRIPE_SECRET_KEY` (or a read-only Restricted API Key) in env; Python with `stripe` installed.
 
 ---
 
