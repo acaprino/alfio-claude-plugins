@@ -15,7 +15,7 @@ subagent: project-setup:claude-md-auditor
 2. **Verify against codebase.** Every claim in CLAUDE.md must be checked against actual files, commands, and dependencies.
 3. **Show findings before changing.** Present the audit report and get approval before modifying anything.
 4. **Preserve existing content by default.** NEVER remove existing references, sections, paragraphs, bullets, or pointers from CLAUDE.md unless a cross-verification against the codebase, dependency manifests, or external sources proves them **false or obsolete**. Length, perceived redundancy, "old-style" formatting, or personal aesthetic preference are NOT valid reasons to remove content. Extraction to `docs/<topic>.md` with a pointer is acceptable (the information stays accessible); silent deletion is not.
-5. **ALWAYS ask the user about every drift identified.** For each drift (incorrect path, broken command, obsolete dependency, missing claim, stale code snippet, duplicated content, oversized section, anything else flagged by the audit), the agent MUST surface it to the user via `AskUserQuestion` and let the user decide the action. Do NOT batch-apply fixes autonomously, even for "obviously correct" critical issues. The audit report enumerates findings; the user chooses, per finding, among concrete options such as [fix as proposed / keep verbatim / extract to `docs/<topic>.md` with pointer / skip for now / other]. Default action on a finding the user has not yet decided is **leave unchanged**. The only edits the agent applies without per-item confirmation are the user's already-given answers, in the same session.
+5. **ALWAYS ask the user about every drift identified.** For each drift (incorrect path, broken command, obsolete dependency, missing claim, stale code snippet, internal duplication candidate flagged by Phase 4b, oversized section, anything else flagged by the audit), the agent MUST surface it to the user via `AskUserQuestion` and let the user decide the action. Do NOT batch-apply fixes autonomously, even for "obviously correct" critical issues. Dedup merges are deletions of the redundant occurrences and fall under the same per-item gate (rule 4 + rule 5). The audit report enumerates findings; the user chooses, per finding, among concrete options such as [fix as proposed / keep verbatim / extract to `docs/<topic>.md` with pointer / merge into the most actionable occurrence / replace with cross-reference / skip for now / other]. Default action on a finding the user has not yet decided is **leave unchanged**. The only edits the agent applies without per-item confirmation are the user's already-given answers, in the same session.
 6. **Never delete user preferences** unless the user explicitly approves. Preferences (coding style, workflow choices) are intentional.
 7. **Never enter plan mode.** Execute immediately.
 8. **Backfill the canonical Working Principles block.** Audit is not just *detection* - it is *active upgrade*. Maintain MUST always check and propose insertion of the canonical `## Working Principles` block, independent of other findings. Three states to handle, all severity **High**:
@@ -170,6 +170,42 @@ Agent: Applied. CLAUDE.md is now aligned with v1.14.0 conventions.
        Diff: +16 lines (principle #5: 4 lines; sub-bullets for 1-4: 12 lines).
 ```
 
+### Scenario 1c: Duplication Detection Pass
+
+```
+Agent: I've audited CLAUDE.md. All claims verified, Working Principles block intact.
+
+       Phase 4b found one internal duplication candidate:
+
+       [MED] docs/wire-payload.md is referenced 3 times:
+             - line 41 (PROJECT CONTEXT pointers block): path + scope tag
+               "Mandatory reference before adding or renaming any wire field"
+             - line 155 (CODE STANDARDS rule #6): path + scope + full rule
+               (Pydantic name = wire JSON key, anti-pattern example)
+             - line 312 (CONTRIBUTING checklist): one-line bullet "see wire-payload.md"
+
+             Peer comparison: SEARCH_INDEX, ADR README, JUPITER_CONTEXT each
+             appear 1x in the PROJECT CONTEXT block; docs/wire-payload.md is
+             the only outlier.
+
+             Self-sufficiency test: the line 155 occurrence already contains
+             path + scope + rule + anti-pattern. Line 41 repeats path + scope
+             with different wording. Line 312 is a thin pointer.
+
+             Options:
+               (a) Keep all 3 - each carries a distinct directive
+               (b) Merge: remove line 41 (line 155 is self-sufficient), keep 312
+               (c) Replace line 41 with cross-reference: "see CODE STANDARDS #6"
+               (d) Skip / decide later
+
+You:   b
+
+Agent: Removed line 41. Diff:
+       - 1 line removed (PROJECT CONTEXT pointer)
+       - 0 lines changed at line 155 (rule already self-sufficient)
+       - 0 lines changed at line 312 (thin pointer kept)
+```
+
 ### Scenario 2: Audit Only (No Changes)
 
 ```
@@ -222,6 +258,7 @@ The agent verifies:
 - **Project structure completeness**: Verifies all significant directories and files are mapped with descriptions
 - **Working Principles block**: Checks presence of the canonical `## Working Principles` section (5 principles: 4 inspired by upstream agentic-coding meta-rules plus Centralize Shared Logic for DRY / Single Source of Truth), AND the presence of 3 deeper-meta-rule sub-bullets under each of principles 1-4. Flags as High if the block is missing, gutted, or stripped of sub-bullets, and offers to insert what's missing via surgical Edit. Centralize Shared Logic (#5) and the sub-bullets are locally authored and easy to lose on paraphrase - audit each explicitly. Never substitute with an external link or `docs/` pointer
 - **External reference fix pattern**: For any OTHER section that bloats CLAUDE.md or duplicates other docs, proposes extracting to `docs/<topic>.md` and replacing with a thin `Read docs/<topic>.md` pointer. The Working Principles block itself is exempt - it always stays inline
+- **Internal duplication detection (Phase 4b)**: Counts how often each file path, pointer, and external resource appears in CLAUDE.md. Flags outliers (a reference appearing N>1 times while peer references in the same block appear once), conceptual restatements of the same fact across sections, and cases where the only justification for keeping a duplicate is a weak argument (e.g., "scannability for readers who jump"). Each candidate is surfaced as its own per-drift question with all N occurrences, line numbers, peer-group comparison, and concrete options (keep all / merge / cross-reference / extract to docs/ / skip). Dedup is treated as deletion: no occurrence is removed without explicit per-item user approval
 - **Best practices**: Assesses proportional sizing, progressive disclosure, structure detail
 
 ## Improvement Categories
@@ -247,6 +284,7 @@ The agent verifies:
 - Condensing verbose sections
 - Adding helpful pointers
 - Extracting bloated sections (OTHER than the Working Principles block, which always stays inline) to `docs/<topic>.md` files referenced via `Read docs/<topic>.md` pointers - the primary fix for an oversized CLAUDE.md
+- Internal duplication candidates flagged by Phase 4b (reference outliers, conceptual restatements). Escalate to High if the two occurrences have already drifted out of sync and state contradictory facts
 
 ### Low Priority (Nice to Have)
 - Formatting consistency

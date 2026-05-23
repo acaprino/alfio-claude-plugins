@@ -200,6 +200,7 @@ Report gaps alongside obsolescence findings. Not all gaps need fixing - the user
 - Vague guidance: "use best practices", "follow existing patterns", "write clean code"
 - Invented/planned features documented as if they exist
 - Duplicated information from README
+- **Internal duplication inside CLAUDE.md itself**: same file path, same pointer, same rule, or same fact stated in two or more places without each occurrence carrying a distinct directive. See Phase 4b for the detection heuristics. Flag as Medium (or High if the duplication is actively misleading, e.g., two occurrences drifted out of sync)
 - Excessive length without substance (padding, duplication, pasted code)
 - File size >40k characters (performance warning threshold) - extract long sections to `docs/` and link instead
 - Em dash usage anywhere
@@ -207,12 +208,50 @@ Report gaps alongside obsolescence findings. Not all gaps need fixing - the user
 - Missing Centralize Shared Logic principle (#5) inside the Working Principles block - flag as High and offer to insert it; this principle is locally authored and easy to lose during paraphrase or partial re-import
 - Missing sub-bullets under principles 1-4 of the Working Principles block (a CLAUDE.md created before plugin v1.14.0 will only have the lead sentences) - flag as High and offer to insert the sub-bullets in place via surgical Edit; never substitute with an external link or `docs/` pointer
 
+### Phase 4b: Duplication Detection
+
+CLAUDE.md is read end-to-end by Claude at session start, so internal repetition adds tokens and drift surface area (two occurrences can diverge silently after a rename) without adding value. After Phase 4, run a dedup pass with the heuristics below. **All findings are surfaced as per-drift questions** (per GOLDEN RULE 7); never auto-merge, never silently delete.
+
+**Heuristic 1: Reference frequency outlier**
+Count how often each file path, doc pointer, and external resource appears in CLAUDE.md. If most pointers in a peer group appear once and a specific path appears N times, flag the outlier. Concrete pattern from real audits: 5 `docs/` pointers each appear once, but `docs/wire-payload.md` appears 3 times in different sections; the 3 occurrences are a candidate dedup cluster.
+
+**Heuristic 2: Self-sufficiency test**
+For each repeated reference, test: "If I deleted occurrence N, would the remaining occurrence(s) still contain path + scope + actionable rule?" If yes, the deleted occurrence is redundant and should be flagged for merge. If no (each occurrence carries a distinct directive, e.g., one declares "where to find X" and another encodes "what rule to follow when modifying X" with an anti-pattern example), the occurrences are complementary; keep both and do NOT flag.
+
+**Heuristic 3: Conceptual duplication**
+Same fact restated with different wording across sections, with no distinct directive in either. Example: "We use Vite for build" in the tech-stack section + "Build runs through Vite" in the commands section. Surface as a candidate consolidation; one of the two is informational restatement.
+
+**Heuristic 4: Anti-justifications to reject**
+The following arguments for keeping a duplicate are weak and must NOT be used by the agent to silently dismiss a flag. If the only justification for a duplicate reduces to one of these, present it as a dedup candidate anyway:
+- "Scannability" or "the reader who jumps to section X needs the pointer right there": Claude reads CLAUDE.md end-to-end at session start, not by jumping
+- "Self-contained section for partial readers": rarely true for AI consumption; valid only if a documented partial-read flow exists
+- "Grep would not find it otherwise": grep finds every occurrence regardless
+
+**Heuristic 5: When duplication IS justified (do not flag)**
+- Different audiences with genuinely different framings (e.g., one section targets human onboarding, another targets AI coding rules) AND each occurrence carries a distinct directive
+- Workflow procedures that need to be self-contained per intake path (e.g., a step repeated in both "first intake" and "re-sync" workflows because each is intended to be read independently end-to-end)
+- Active traps where the second pointer is itself the safety mechanism (the user must have explicitly marked the duplication as intentional, e.g., a comment `<!-- intentional duplicate: trap reference -->` or prior user approval in the project history)
+
+**Per-finding question format**
+When surfacing a dedup candidate via `AskUserQuestion`, the question MUST include:
+1. All N occurrences with line numbers and a short surrounding-context excerpt
+2. The heuristic(s) that flagged it (e.g., "Heuristic 1 + 2: outlier and self-sufficient")
+3. Comparison against peer references in the same block (e.g., "SEARCH_INDEX, ADR README, JUPITER_CONTEXT each appear 1x; this path appears 3x")
+4. Concrete options:
+   - Keep all (the user annotates why each occurrence is distinct; agent records the annotation as an HTML comment if requested)
+   - Merge into the most actionable occurrence (the user specifies which one wins; the others are removed)
+   - Replace one with a cross-reference (`see line X` or `see section "Y"`)
+   - Extract the repeated content to `docs/<topic>.md` and replace every occurrence with a thin pointer
+   - Skip / decide later
+
+Dedup is deletion. Per GOLDEN RULE 6, the agent MUST NOT remove any occurrence without (a) the user's explicit per-item approval in this session, or (b) cross-verification proving the occurrence false/obsolete. Default action on a dedup finding the user has not yet answered is **leave all occurrences in place**.
+
 ### Phase 5: Improvement Recommendations
 
 Categorize findings by severity:
 - **Critical** - incorrect claims, broken paths, non-working commands, obsolete deps
 - **High** - changed file paths, missing important context, excessive length, stale code snippets
-- **Medium** - verbose sections, content better suited for separate docs, missing WHAT/WHY/HOW structure
+- **Medium** - verbose sections, content better suited for separate docs, missing WHAT/WHY/HOW structure, internal duplication that fails the Phase 4b self-sufficiency test (escalate to High if the two occurrences have drifted out of sync and now state contradictory facts)
 - **Low** - formatting, organization, additional helpful pointers
 
 ---
@@ -226,9 +265,10 @@ Categorize findings by severity:
 3. Verify each claim against ground truth (Phase 2). If Phase 0 was used, "ground truth" = deep-dive output + 3-5 spot checks against current code
 4. Detect obsolescence and gaps (Phase 3, 3b)
 5. Evaluate against best practices (Phase 4)
-6. Generate audit report with findings and prioritized fixes. When findings reference deep-dive sources, include the `.deep-dive/<file>:<section>` anchor so the user can verify the chain
-7. **Per-drift confirmation gate.** Before applying ANY change, every finding is presented to the user one-by-one (or in tightly grouped clusters of closely related items) via `AskUserQuestion`. For deletions specifically, confirm one of: (a) cross-verification proves the content false (cite the contradicting file/manifest), (b) cross-verification proves it obsolete (cite the removed/renamed target), or (c) the user has explicitly approved deletion of this specific item in this session. If none of the three holds for a deletion, do NOT delete. Default action on any finding the user has not yet answered is **leave unchanged**.
-8. Apply only the improvements the user has approved for each specific finding
+6. Run the duplication detection pass (Phase 4b) - apply all 5 heuristics; produce a candidate list with line numbers, peer-group comparison, and the triggering heuristic for each
+7. Generate audit report with findings and prioritized fixes. When findings reference deep-dive sources, include the `.deep-dive/<file>:<section>` anchor so the user can verify the chain. Dedup findings include the full per-finding question format from Phase 4b
+8. **Per-drift confirmation gate.** Before applying ANY change, every finding is presented to the user one-by-one (or in tightly grouped clusters of closely related items) via `AskUserQuestion`. For deletions specifically (including dedup merges, which ARE deletions of the redundant occurrences), confirm one of: (a) cross-verification proves the content false (cite the contradicting file/manifest), (b) cross-verification proves it obsolete (cite the removed/renamed target), or (c) the user has explicitly approved deletion of this specific item in this session. If none of the three holds for a deletion, do NOT delete. Default action on any finding the user has not yet answered is **leave unchanged**.
+9. Apply only the improvements the user has approved for each specific finding
 
 ### Workflow B: Create New CLAUDE.md
 
@@ -237,7 +277,8 @@ Categorize findings by severity:
 3. Generate detailed project structure section with file-by-file annotations for all significant directories and files. If Phase 0 was used, the "File Inventory" + "Dependency Graph" + "Where to Add New Code" + "Naming Conventions" sections of `.deep-dive/01-structure.md` and the public API surface from `.deep-dive/02-interfaces.md` map directly into the CLAUDE.md structure section
 4. Ask user about workflow priorities, conventions, and desired detail level
 5. Draft CLAUDE.md structured around WHAT/WHY/HOW, all claims verified. Include the full structure map AND the canonical `## Working Principles` block (REQUIRED SECTION) inserted verbatim. If `.deep-dive/05-risks.md` exists, surface its red-flags as a brief "Known Tech Debt" section that warns Claude (e.g., "legacy module X is being phased out - prefer Y")
-6. Review with user and finalize
+6. **Pre-finalize dedup pass.** Before showing the draft to the user, run Phase 4b heuristics on the draft itself. The goal is to catch duplicates introduced during drafting (e.g., the same `docs/X.md` pointer added both in the project-structure section and in the workflow section without each occurrence carrying a distinct directive). Any dedup candidate is surfaced as a per-finding question in step 7
+7. Review with user and finalize
 
 ### Workflow C: Improve Existing CLAUDE.md
 
@@ -247,7 +288,7 @@ Categorize findings by severity:
    - If present but missing one or more principles (especially #5 Centralize Shared Logic - absent from any CLAUDE.md created before plugin v1.12.0), propose a surgical Edit that adds only the missing principles, preserving the rest (High).
    - If principles 1-4 are present but the 3 sub-bullets under each are missing (the case for any CLAUDE.md created before plugin v1.14.0), propose a surgical Edit that inserts the sub-bullets in place (High).
    - Never propose an external link or `docs/` pointer as a substitute for the block - it must remain inline.
-3. Present all findings (Working Principles backfill + audit results) and ask user which improvements to prioritize
+3. Present all findings (Working Principles backfill + audit results + Phase 4b duplication candidates) and ask user which improvements to prioritize, one per finding
 4. Implement improvements, verify changes preserve important context
 5. Final review with user
 
@@ -270,6 +311,7 @@ Before completing any audit:
 - **File size <40,000 characters** (run `wc -c CLAUDE.md`). If over, extract sections to `docs/` and replace with pointer links
 - Project structure section maps all significant directories and files with purpose annotations
 - No code duplication (pointers instead)
+- Phase 4b duplication pass executed. Every reference outlier (a path/pointer appearing N>1 times while peer references appear once) was either (a) flagged to the user and resolved per their answer, or (b) kept because each occurrence carries a distinct directive and survives the self-sufficiency test. No occurrence was silently merged or deleted
 - No style policing (delegates to linters)
 
 A concise, accurate CLAUDE.md grounded in reality is infinitely more valuable than comprehensive fiction.

@@ -115,6 +115,7 @@ Your new CLAUDE.md will:
 - Be self-contained -- no satellite files needed
 - Mark unverifiable claims with `[UNVERIFIED]` and resolve before finalizing
 - Use regular hyphens `-` or `--`, never em dashes
+- Avoid internal duplication: each file path, pointer, and external resource appears once unless every occurrence carries a genuinely distinct directive (e.g., "where the doc lives" in one section and "what rule to follow when modifying it" in another, with an anti-pattern example). Before finalizing, the agent runs the Phase 4b dedup pass on the draft itself and surfaces any candidate duplicates as per-finding questions
 - Always embed the `## Working Principles` block inline (Think Before Coding, Simplicity First, Surgical Changes, Goal-Driven Execution, Centralize Shared Logic - with 3 deeper-meta-rule sub-bullets under each of principles 1-4) so Claude approaches every task with explicit assumptions, minimal code, surgical edits, verifiable success criteria, and DRY-by-default routing of shared logic through single utilities. The block is self-contained and never replaced with an external link
 
 ## Related Commands
