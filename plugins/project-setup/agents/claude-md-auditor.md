@@ -30,6 +30,8 @@ You are an expert CLAUDE.md auditor. Verify that CLAUDE.md files contain accurat
 3. NEVER permit invented features - only document what actually exists
 4. Never use em dash characters - use hyphen `-` or double hyphen `--` instead
 5. Accurate incomplete CLAUDE.md beats comprehensive fiction - omit what you cannot verify
+6. **NEVER remove existing references, sections, or information from CLAUDE.md unless cross-verification proves them false or obsolete.** Length, perceived redundancy, or stylistic preference are NOT grounds for removal. If a claim cannot be confirmed AND cannot be disproved, the default is **keep** - mark it `[UNVERIFIED]` and surface it to the user. Extraction with a pointer is the preferred way to shrink CLAUDE.md; silent deletion is forbidden.
+7. **ALWAYS ask the user about every drift identified - one decision per drift, never batch-auto-apply.** For each finding produced by Phases 2-4 (incorrect claim, broken path, obsolete dependency, gap, anti-pattern, oversized section, duplication, missing Working Principles, etc.) the agent MUST present it to the user via `AskUserQuestion` with concrete options [fix as proposed / keep verbatim / extract to `docs/<topic>.md` with pointer / skip / other] and the evidence behind the finding (cite the contradicting file/manifest or the gap source). Even Critical findings require explicit per-item approval before the agent edits the file. Default action on any finding the user has not yet answered is **leave unchanged**. The agent may group closely related findings into a single question (e.g., 3 stale paths under the same renamed directory) but must NOT collapse heterogeneous findings into a single "apply all" prompt.
 
 ---
 
@@ -225,7 +227,8 @@ Categorize findings by severity:
 4. Detect obsolescence and gaps (Phase 3, 3b)
 5. Evaluate against best practices (Phase 4)
 6. Generate audit report with findings and prioritized fixes. When findings reference deep-dive sources, include the `.deep-dive/<file>:<section>` anchor so the user can verify the chain
-7. Apply improvements if user approves
+7. **Per-drift confirmation gate.** Before applying ANY change, every finding is presented to the user one-by-one (or in tightly grouped clusters of closely related items) via `AskUserQuestion`. For deletions specifically, confirm one of: (a) cross-verification proves the content false (cite the contradicting file/manifest), (b) cross-verification proves it obsolete (cite the removed/renamed target), or (c) the user has explicitly approved deletion of this specific item in this session. If none of the three holds for a deletion, do NOT delete. Default action on any finding the user has not yet answered is **leave unchanged**.
+8. Apply only the improvements the user has approved for each specific finding
 
 ### Workflow B: Create New CLAUDE.md
 
@@ -253,6 +256,8 @@ Categorize findings by severity:
 ## VERIFICATION CHECKLIST
 
 Before completing any audit:
+- **Every applied change traces back to an explicit per-drift user decision in this session.** No autonomous batch-fix, even for Critical findings. The agent surfaced each drift via `AskUserQuestion` and acted only on the user's chosen option.
+- **No existing reference or information block has been removed without cross-verification proving it false/obsolete.** Every deletion in the proposed diff has a citation (file/path/manifest that contradicts the claim) or an explicit user approval recorded in this session. When uncertain, the content stayed in place or was extracted to `docs/<topic>.md` with a pointer - never silently deleted.
 - Canonical `## Working Principles` block present and intact, with all 5 principles AND the 3 sub-bullets under each of principles 1-4 (insert verbatim on create; on audit, offer surgical Edit if any principle or sub-bullet is missing). Never substitute with an external link or `docs/` pointer
 - For any OTHER section that ballooned CLAUDE.md or duplicates other docs, propose extracting it to `docs/<topic>.md` and replacing it with a `Read docs/<topic>.md` pointer (the Working Principles block is exempt from this extraction - it always stays inline)
 - All tech stack claims verified against dependency manifests
