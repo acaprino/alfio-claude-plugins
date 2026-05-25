@@ -5,8 +5,8 @@
     "email": ""
   },
   "metadata": {
-    "description": "Claude Code Daodan -- 43 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, frontend, AI tooling, scraping, trading, observability, reverse engineering, constraint programming, libGDX game development, and Kotlin (coroutines, KMP, Compose, Ktor).",
-    "version": "6.22.0"
+    "description": "Claude Code Daodan -- 45 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, frontend, AI tooling, scraping, trading, observability, reverse engineering, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), Progressive Web Apps, and pure-architecture audits (missed unification, wrong abstractions).",
+    "version": "6.23.0"
   },
   "plugins": [
     {
@@ -1559,6 +1559,44 @@
         "./commands/pwa-audit.md",
         "./commands/pwa-scaffold.md",
         "./commands/pwa-checklist.md"
+      ]
+    },
+    {
+      "name": "abstraction-architect",
+      "source": "./plugins/abstraction-architect",
+      "description": "Pure-architecture auditor. Finds missed unification opportunities (cross-cutting concerns scattered across call sites that should be a single layer) and wrong abstractions (god services, flag-soup functions, premature interfaces, leaky abstractions that should be inlined or decomposed). Reads .deep-dive/ output and produces report-only findings grounded in canonical theory (Metz's Wrong Abstraction, Beck's Tidy First, Fowler's bounded contexts, Gross's Locality of Behaviour).",
+      "version": "1.0.0",
+      "author": {
+        "name": "Alfio"
+      },
+      "license": "MIT",
+      "keywords": [
+        "architecture",
+        "abstraction",
+        "refactoring",
+        "dry",
+        "wet",
+        "aha",
+        "wrong-abstraction",
+        "god-service",
+        "code-quality",
+        "audit",
+        "metz",
+        "bounded-context"
+      ],
+      "category": "code-quality",
+      "strict": false,
+      "dependencies": [
+        "deep-dive-analysis"
+      ],
+      "agents": [
+        "./agents/abstraction-architect.md"
+      ],
+      "skills": [
+        "./skills/abstraction-architect"
+      ],
+      "commands": [
+        "./commands/audit.md"
       ]
     }
   ]
