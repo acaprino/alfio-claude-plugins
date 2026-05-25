@@ -74,7 +74,7 @@ plugins/pwa-expert/
         production-checklist.md
 ```
 
-14 files in the skill folder (SKILL.md + 13 references). One agent, three commands. Total new files: 18.
+15 files in the skill folder (SKILL.md + 14 references). One agent, three commands. Total new files: 19.
 
 ## Component specifications
 
@@ -104,7 +104,7 @@ SKILL.md body (router):
 - `## References Library` table indexing every reference file with a one-line topic summary
 - `## How to use this skill` paragraph stating that references are read on-demand based on the active task, never preloaded all upfront
 
-Reference files (13), each a focused document of approximately 300 to 700 lines:
+Reference files (14), each a focused document of approximately 300 to 700 lines (the production-checklist is shorter, around 110 to 130 lines, since it is a structured checklist rather than narrative prose):
 
 1. **`manifest.md`** — every manifest member, the modern 2024-2025 members (`scope_extensions`, `handle_links`, `launch_handler`, `file_handlers`, `protocol_handlers`, `share_target`, `edge_side_panel`), icon strategy (192 + 512 PNG `any` and `maskable` as separate assets, the 40 percent safe-zone rule, iOS `apple-touch-icon` precedence), splash screen across Android and iOS, the iOS meta tag block. Includes the complete worked example from source section 1.2.
 2. **`service-workers.md`** — lifecycle events, registration with scope rules, the five Offline Cookbook strategies in a decision table, Workbox 7 worked example, update flow with `workbox-window`, cache busting and breaking changes, propagation timing per browser, `skipWaiting` / `clients.claim` pitfalls per Jake Archibald.
@@ -215,10 +215,10 @@ The source markdown file is user-provided material (lives on the user's desktop,
 
 The implementation phase is complete when:
 
-1. `plugins/pwa-expert/` exists with the file layout above (1 agent + 3 commands + 1 skill with 14 files).
+1. `plugins/pwa-expert/` exists with the file layout above (1 agent + 3 commands + 1 skill with 15 files: SKILL.md plus 14 references).
 2. `.claude-plugin/marketplace.json` registers `pwa-expert` and bumps `metadata.version`.
 3. Agent and SKILL.md both have multiline `description: >` with TRIGGER WHEN / DO NOT TRIGGER WHEN.
-4. Every reference file is between approximately 300 and 700 lines, focused on its topic, with at least one worked code example per major sub-topic.
+4. Every narrative reference file is between approximately 300 and 700 lines, focused on its topic, with at least one worked code example per major sub-topic. The `production-checklist.md` reference is the one exception (a structured checklist around 110 to 130 lines).
 5. No dash-aside construct anywhere in the plugin. No emojis.
 6. `pwa-scaffold` correctly detects Vite, Next.js, Angular, and Nuxt, and falls back to vanilla. Generates the right SW pattern per framework.
 7. `pwa-audit` correctly distinguishes path-arg from URL-arg and dispatches to local-mode or live-mode.
