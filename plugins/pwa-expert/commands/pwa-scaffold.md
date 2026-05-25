@@ -1,0 +1,84 @@
+---
+description: Scaffold a complete PWA into the current project. Detects framework (Vite, Next.js, Angular, Nuxt, vanilla) and generates manifest, service worker, iOS meta tags, registration code, icon stubs, and recommended security headers documentation.
+argument-hint: "[framework]"
+---
+
+# /pwa-expert:pwa-scaffold
+
+Scaffold a production-ready PWA into the current project. Delegate execution to `pwa-architect`. The agent reads the relevant references (`manifest.md`, `service-workers.md`, `frameworks-tooling.md`) on-demand.
+
+## Framework detection
+
+1. Parse `package.json` if present.
+2. Look for `vite.config.*`, `next.config.*`, `angular.json`, `nuxt.config.*` in the project root.
+3. If `$ARGUMENTS` is provided, use it (one of: `vite`, `next`, `angular`, `nuxt`, `vanilla`).
+4. If detection is ambiguous, ask the user via `AskUserQuestion` which framework to target.
+
+## Inputs to collect
+
+Before generating files, use `AskUserQuestion` to gather:
+
+1. App name (full): used for manifest `name`. Example: "Acme Productivity Suite".
+2. App name (short): used for manifest `short_name` and the iOS meta `apple-mobile-web-app-title`. Example: "Acme".
+3. Description: used for manifest `description`.
+4. Theme color (hex): used for manifest `theme_color` and the `<meta name="theme-color">`. Default: `#0f172a`.
+5. Background color (hex): used for manifest `background_color` and Android splash. Default: `#ffffff`.
+6. Two primary shortcuts (name + URL each): for manifest `shortcuts`. Defaults can be skipped if the user does not have them yet.
+
+## Idempotency
+
+Before writing each file, check if it exists. If it does, show a diff and ask via `AskUserQuestion` whether to overwrite, merge, or skip. Never silently overwrite an existing manifest or SW.
+
+## Generated artifacts (per framework)
+
+### Vite (vite-plugin-pwa)
+
+- `public/manifest.webmanifest` with the full set of members per `manifest.md` (id, display_override, icons any+maskable, screenshots wide+narrow, shortcuts).
+- `vite.config.ts` (or `.js`): add the `VitePWA` plugin from `vite-plugin-pwa` with `registerType: 'prompt'`, `strategies: 'generateSW'`, manifest reference, `workbox.runtimeCaching` with the four canonical strategies (CacheFirst for hashed assets, NetworkFirst for navigation with `networkTimeoutSeconds: 3`, StaleWhileRevalidate for low-criticality data, NetworkOnly + BackgroundSyncPlugin for POST mutations). If `vite.config.*` already exists, modify it in-place via Edit. Never overwrite.
+- `index.html`: insert the iOS meta tag block plus `<link rel="manifest" href="/manifest.webmanifest" crossorigin="use-credentials">` and `<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">`.
+- Registration: `vite-plugin-pwa` provides `virtual:pwa-register`. Add `import { registerSW } from 'virtual:pwa-register'` and the workbox-window banner pattern (see `service-workers.md`) in `src/main.ts(x)`.
+- `public/icons/README.md`: explain the icon requirements (192+512 PNG `any`, 192+512 PNG `maskable`, 180x180 opaque `apple-touch-icon.png`, optional SVG `any`). Include the 40 percent safe-zone rule for maskable icons.
+- `public/icons/`: empty stub files (`icon-192.png`, `icon-512.png`, `icon-maskable-192.png`, `icon-maskable-512.png`, `apple-touch-icon.png`) as 0-byte placeholders to make the manifest valid before real icons are supplied.
+
+### Next.js (@serwist/next)
+
+- `app/manifest.ts` (Next.js 14+) returning a `MetadataRoute.Manifest` with the full member set.
+- `app/sw.ts` using Serwist (full example from `frameworks-tooling.md` §"Next.js via @serwist/next").
+- `next.config.*`: add the `@serwist/next` plugin wrapper.
+- `app/layout.tsx`: add the iOS meta tag block via the `<head>` (using `<meta name="apple-mobile-web-app-capable" content="yes" />` etc.). Add `<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />`.
+- Registration: Serwist exposes the `@serwist/next` registration helper. Wire it in `app/layout.tsx`.
+- `public/icons/` stubs and `README.md` as above.
+
+### Angular (ng add @angular/pwa)
+
+- Run `ng add @angular/pwa --project <project-name>` via Bash. This schematic creates the manifest, the SW, registration, and `ngsw-config.json`.
+- After the schematic completes, edit `src/manifest.webmanifest` to include the modern members (id, display_override, icons any+maskable, screenshots, shortcuts) that the schematic does not generate by default.
+- Edit `src/index.html` to add the iOS meta tag block plus `apple-touch-icon`.
+- Edit `ngsw-config.json` to add a `dataGroups` entry with strategy `freshness` for API origins.
+
+### Nuxt (@vite-pwa/nuxt)
+
+- Install `@vite-pwa/nuxt` and add it to `nuxt.config.ts` `modules`.
+- Configure the module with the same manifest and workbox config as the Vite case.
+- Add the iOS meta tag block via `app.head` in `nuxt.config.ts`.
+- `public/icons/` stubs and `README.md`.
+
+### Vanilla
+
+- `manifest.webmanifest` in the project root.
+- `sw.js` in the project root (Workbox 7 patterns hand-written, full example from `service-workers.md`).
+- `index.html` updated with the manifest link, the iOS meta tag block, and an inline registration script.
+- `icons/` stubs.
+
+## Always-emitted documentation
+
+In addition to the framework artifacts, always create:
+
+- `headers-recommendations.md` in the project root. Documents recommended HSTS, CSP (the example from `security.md`), Permissions-Policy, COOP, COEP, plus `Cache-Control: no-cache` for the service worker file. Each header is explained with a one-line rationale. This file is NOT auto-applied to deploy config given framework and host variance.
+- A short "Next steps" message in the chat: open the manifest in DevTools Application panel, replace the icon stubs with real icons, generate `apple-touch-startup-image` for the target devices (suggest `pwa-asset-generator`), run `/pwa-expert:pwa-checklist` once the app is wired up.
+
+## What this command does NOT do
+
+- Does not generate Capacitor or Cordova projects. Out of scope; documented in `distribution.md`.
+- Does not generate a push notification server. The `push-notifications.md` reference contains a full Node example; users copy it into their own backend.
+- Does not auto-apply security headers to deploy config. Too framework-specific and host-specific to do safely; documented in `headers-recommendations.md` instead.
