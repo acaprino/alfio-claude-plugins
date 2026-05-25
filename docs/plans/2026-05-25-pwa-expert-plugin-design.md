@@ -206,7 +206,7 @@ The source markdown file is user-provided material (lives on the user's desktop,
 
 ## Out of scope (deferred or rejected)
 
-- Server-side push delivery (covered by reference, but no command generates server code beyond a Node `web-push` example in the scaffold's `push-server-example.md`).
+- Server-side push delivery as a generated artifact. The `push-notifications.md` reference includes a complete Node + `web-push` server example as a documentation snippet, but `pwa-scaffold` does NOT emit a server file. Users copy the example into their own backend.
 - Capacitor scaffolding for App Store distribution. Capacitor is a separate ecosystem; the reference documents the option, but `pwa-scaffold` does not generate Capacitor projects (route the user to standalone Capacitor docs).
 - Full Lighthouse CI integration. The audit command runs PWA-relevant checks itself; users who want CI Lighthouse should add Lighthouse CI to their pipeline directly.
 - Storybook / component-library tooling. Out of PWA scope.
@@ -223,5 +223,6 @@ The implementation phase is complete when:
 6. `pwa-scaffold` correctly detects Vite, Next.js, Angular, and Nuxt, and falls back to vanilla. Generates the right SW pattern per framework.
 7. `pwa-audit` correctly distinguishes path-arg from URL-arg and dispatches to local-mode or live-mode.
 8. `pwa-checklist` walks the source guide's section 17 checklist verbatim and produces a per-category dashboard.
-9. The CLAUDE.md "Custom plugin maintenance" rubric records `pwa-expert` in the appropriate freshness class (Fast, 6-month cadence).
-10. One commit bundles all new files, the marketplace.json update, and the CLAUDE.md maintenance-rubric note; commit message follows the marketplace-update workflow.
+9. The CLAUDE.md "Custom plugin maintenance" section explicitly lists `pwa-expert` in the "Fast" freshness-class row of the example table (alongside `libgdx-development`, `opentelemetry`, `tauri-development`, `stripe`, `grabber-development`, `browser-extensions`), so the 6-month refresh cadence is discoverable from a single grep.
+10. The plugin count in the CLAUDE.md "Project structure" paragraph is updated from 43 to 44, and `pwa-expert` is appended to the comma-separated plugin list there.
+11. One commit bundles all new files, the marketplace.json update, and both CLAUDE.md edits; commit message follows the marketplace-update workflow.
