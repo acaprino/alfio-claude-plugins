@@ -4,7 +4,7 @@ description: >
   Phase 1b for pipelines that need a structured map of the code's contracts, invariants, domain rules, and integration hot-spots. Used by /team-review (fed by deep-dive-analysis) and by /map-codebase (fed by codebase-explorer's context brief). Output drives downstream reviewers, writers, and reviewers hunting documentation drift.
   TRIGGER WHEN: the user runs /team-review or /map-codebase, or explicitly asks to map contracts, invariants, call graphs, or integration boundaries.
   DO NOT TRIGGER WHEN: no prior context artifact exists (neither .deep-dive/ nor a context-brief.md), or the task is a surface-level operation that does not need the map.
-tools: Read, Grep, Glob
+tools: Read, Write, Glob, Grep
 model: opus
 color: cyan
 ---
