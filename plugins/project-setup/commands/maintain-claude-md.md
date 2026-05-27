@@ -255,7 +255,7 @@ The agent verifies:
 - **Architecture**: Validates architectural claims against actual structure
 - **Uncertainty**: Flags claims that cannot be verified from codebase alone
 - **Gaps**: Identifies undocumented commands, dependencies, configs, and patterns
-- **Project structure completeness**: Verifies all significant directories and files are mapped with descriptions
+- **Project structure shape (evergreen, not exhaustive)**: Verifies the top-level layout, repeating structural patterns, and role of each top-level category are documented. Does NOT require file-by-file annotation - that level of detail is justified only where names alone are ambiguous, where a file is itself a key entry point, or to disambiguate sibling names. Flags missing whole categories (an entire top-level dir undocumented) as a gap, and flags overly exhaustive file-by-file trees as a Medium consolidation candidate (high decay risk, tokens without evergreen value)
 - **Working Principles block**: Checks presence of the canonical `## Working Principles` section (5 principles: 4 inspired by upstream agentic-coding meta-rules plus Centralize Shared Logic for DRY / Single Source of Truth), AND the presence of 3 deeper-meta-rule sub-bullets under each of principles 1-4. Flags as High if the block is missing, gutted, or stripped of sub-bullets, and offers to insert what's missing via surgical Edit. Centralize Shared Logic (#5) and the sub-bullets are locally authored and easy to lose on paraphrase - audit each explicitly. Never substitute with an external link or `docs/` pointer
 - **External reference fix pattern**: For any OTHER section that bloats CLAUDE.md or duplicates other docs, proposes extracting to `docs/<topic>.md` and replacing with a thin `Read docs/<topic>.md` pointer. The Working Principles block itself is exempt - it always stays inline
 - **Internal duplication detection (Phase 4b)**: Counts how often each file path, pointer, and external resource appears in CLAUDE.md. Flags outliers (a reference appearing N>1 times while peer references in the same block appear once), conceptual restatements of the same fact across sections, and cases where the only justification for keeping a duplicate is a weak argument (e.g., "scannability for readers who jump"). Each candidate is surfaced as its own per-drift question with all N occurrences, line numbers, peer-group comparison, and concrete options (keep all / merge / cross-reference / extract to docs/ / skip). Dedup is treated as deletion: no occurrence is removed without explicit per-item user approval
@@ -274,7 +274,7 @@ The agent verifies:
 - Excessive length without substance (padding, duplication, pasted code snippets)
 - Code duplication
 - Missing important context
-- Incomplete project structure map (missing file/directory descriptions)
+- Missing structural categories (a top-level directory or repeating structural pattern is entirely undocumented in the structure section). File-by-file omissions are NOT flagged here - they belong in Medium as consolidation candidates only when the existing map is already exhaustive
 - Missing or gutted `## Working Principles` block (insert the canonical 5 meta-rules: 4 inspired by upstream agentic-coding meta-rules plus Centralize Shared Logic; preserve any coexisting project-specific principles)
 - Missing 3 deeper-meta-rule sub-bullets under any of Working Principles 1-4 (the case for any CLAUDE.md created before plugin v1.14.0) - insert the sub-bullets in place via surgical Edit; the block is always delivered inline, never as an external link
 
@@ -285,6 +285,7 @@ The agent verifies:
 - Adding helpful pointers
 - Extracting bloated sections (OTHER than the Working Principles block, which always stays inline) to `docs/<topic>.md` files referenced via `Read docs/<topic>.md` pointers - the primary fix for an oversized CLAUDE.md
 - Internal duplication candidates flagged by Phase 4b (reference outliers, conceptual restatements). Escalate to High if the two occurrences have already drifted out of sync and state contradictory facts
+- **Exhaustive file-by-file project-structure tree (consolidation candidate)**: the structure section enumerates every file with a per-file description and requires an update on every add/rename. High decay risk, tokens without evergreen value. Proposes consolidation into categorical shape (top-level layout + structural pattern + role per category), keeping file-level annotation only where names alone are ambiguous, where a file is itself a key entry point, or to disambiguate siblings. Per GOLDEN RULE 6, the agent NEVER collapses an exhaustive map autonomously: surfaces it as a per-finding question with options [consolidate as proposed / extract full map to `docs/<topic>.md` with pointer / keep verbatim / skip]. Default on unanswered = leave unchanged
 
 ### Low Priority (Nice to Have)
 - Formatting consistency

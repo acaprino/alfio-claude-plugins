@@ -95,7 +95,7 @@ Agent: Done! Created CLAUDE.md (87 lines, all claims verified)
 
 You'll receive:
 - New `CLAUDE.md` file sized to project complexity (simple <100, medium <300, complex 500+)
-- Detailed project structure with file/directory purpose annotations
+- Evergreen project-structure map: top-level layout, repeating structural patterns, role per category. File-by-file annotation only where names alone do not reveal purpose, where the file is itself a key entry point, or to disambiguate sibling names with overlapping roles. No exhaustive trees
 - Tailored to your specific project and preferences
 - All claims verified against codebase
 - Verification commands to confirm accuracy
@@ -106,7 +106,7 @@ You'll receive:
 ## Best Practices Built In
 
 Your new CLAUDE.md will:
-- Include detailed project structure mapping files/directories to their purpose
+- Include an evergreen project-structure map: top-level layout, repeating structural patterns, role of each category. Avoid exhaustive file-by-file trees (they decay on every add/rename and add tokens without evergreen value); Claude recovers transient details via Glob on demand. File-by-file annotation only where the name alone is ambiguous, where the file is a key entry point, or to disambiguate sibling names
 - Scale length to project complexity, but stay under ~40k characters (Claude Code performance warning threshold). If the project needs more, link out to `docs/` instead of inlining
 - Reference files instead of duplicating code
 - Delegate style enforcement to linters

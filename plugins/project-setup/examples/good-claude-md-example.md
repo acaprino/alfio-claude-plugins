@@ -5,11 +5,32 @@ This is an example of a well-structured `CLAUDE.md` file following best practice
 ## Key Characteristics
 
 - **Single entry point**: Structure and overview in one file, references existing docs for deep dives
-- **Detailed structure**: File-by-file mapping so Claude knows where to look
+- **Evergreen structure shape**: top-level layout + repeating patterns + role per category. File-by-file annotation is used here for *specific* reasons (see note below), not as the default
 - **Grounded**: All claims verifiable in codebase
 - **Proportional**: Length scales with project complexity (this example: ~140 lines)
 - **Pointers not copies**: References files, doesn't duplicate code
 - **Universal applicability**: Only always-relevant guidance
+
+## A note on the file-by-file detail shown below
+
+The structure block in the example annotates every file. **This is not the default.** The level of detail is justified here because:
+
+- Sibling files have overlapping naming patterns that do not self-disambiguate (e.g., `TaskList.tsx`, `TaskCard.tsx`, `TaskForm.tsx` are three distinct components whose roles cannot be inferred from the name alone)
+- Some files are key entry points with non-obvious behavior (e.g., `client.ts` carries auth interceptors; `useApi.ts` is the React Query wrapper consumers must follow)
+- The project is small enough that the full enumeration fits in the evergreen budget without ballooning the file
+
+In a project with self-explanatory names, no naming collisions among siblings, or a directory count that would make full enumeration churn-prone, the same shape would be documented **categorically only**: top-level dirs + the structural pattern + the role of each category, with no per-file annotation. Example of the categorical-only style for the same project:
+
+```
+src/
+  components/       # React UI components (functional + hooks). Naming: <Domain><Role>.tsx
+  hooks/            # Custom React hooks (ALWAYS follow patterns here)
+  store/            # Zustand state slices, one file per slice
+  api/              # API client (axios) + endpoint definitions
+  utils/            # Pure helpers, no React dependencies
+```
+
+The principle is **evergreen shape, not exhaustive enumeration**. File-by-file annotation belongs where name alone is ambiguous, where the file is a key entry point with non-obvious behavior, or to disambiguate siblings - never as the default for every project.
 
 ---
 
@@ -313,7 +334,7 @@ We plan to use Jest for testing
 Before accepting a CLAUDE.md, verify:
 
 - [ ] Length proportional to project complexity (no padding or duplication)
-- [ ] Project structure maps all significant directories and files with descriptions
+- [ ] Project structure documents the evergreen shape (top-level layout + structural patterns + role per category); file-by-file annotation only where names alone are ambiguous, where the file is a key entry point, or to disambiguate siblings - no exhaustive trees
 - [ ] All file paths exist
 - [ ] All commands work
 - [ ] All dependencies are accurate
