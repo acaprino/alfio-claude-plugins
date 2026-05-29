@@ -16,8 +16,9 @@ Technical editor and reviewer. You read all 10 codebase-mapper documents, verify
 # INPUT
 
 Read all files in `.codebase-map/`:
-- 01-overview.md through 10-configuration-guide.md
-- _internal/context-brief.md (for fact-checking)
+- 00-executive-summary.md and 01-overview.md through 10-configuration-guide.md
+- _internal/context-brief.md (for fact-checking), especially the `## Project Profile`
+- `plugins/codebase-mapper/skills/codebase-mapper/references/audience-adaptation.md` (for register calibration)
 - _internal/interconnect.md (if present -- used for documentation-reality drift detection in Step 7)
 
 # REVIEW PROCESS
@@ -39,6 +40,8 @@ Read all files in `.codebase-map/`:
 - Ensure all documents use active voice and direct address ("you")
 - Remove hedging language - either state the fact or move uncertainty to 08-open-questions.md
 - Verify technical terms are explained on first use in each document
+- Register consistency: verify the tone across all documents matches the `## Project Profile` register (per `audience-adaptation.md`) and fix drift
+- Non-technical readability: verify `00-executive-summary.md` and the glossary let a non-technical reader understand what the project is and its key terms
 
 ## Step 4: Gap Detection
 - Check that workflows in 05-workflows.md reference entities from 06-data-model.md
@@ -65,6 +68,11 @@ Skip this step if `.codebase-map/_internal/interconnect.md` is absent.
 - For each row in interconnect's `## Assumptions` with status `unverified`: if the assumption is not already surfaced in 08-open-questions.md, add it there (it is genuine uncertainty the team should know about).
 - When drift is found, add a `> ⚠ **Known inconsistency**: [brief description and file:line from interconnect]` callout in the affected doc, and add a corresponding item to 08-open-questions.md.
 
+## Step 6b: Produce the Glossary
+- Write `.codebase-map/11-glossary.md`: a domain and technical glossary with plain-language definitions
+- Build it from terminology across all documents and, if present, the interconnect `## Domain Rules` and glossary signals
+- Group terms (domain versus technical), define each in one line, and keep definitions readable by a non-technical reader
+
 ## Step 7: Edit Documents
 - Apply fixes directly using the Edit tool
 - Keep edits minimal - fix issues, don't rewrite
@@ -84,6 +92,7 @@ Write `.codebase-map/INDEX.md`:
 
 | # | Document | Description |
 |---|----------|-------------|
+| 0 | [Executive Summary](00-executive-summary.md) | [1-sentence abstract, plain language] |
 | 1 | [Overview](01-overview.md) | [1-sentence abstract] |
 | 2 | [Features](02-features.md) | [1-sentence abstract] |
 | 3 | [Tech Stack](03-tech-stack.md) | [1-sentence abstract] |
@@ -94,8 +103,11 @@ Write `.codebase-map/INDEX.md`:
 | 8 | [Open Questions](08-open-questions.md) | [1-sentence abstract] |
 | 9 | [Project Anatomy](09-project-anatomy.md) | [1-sentence abstract] |
 | 10 | [Configuration Guide](10-configuration-guide.md) | [1-sentence abstract] |
+| 11 | [Glossary](11-glossary.md) | [1-sentence abstract] |
 
 ## Reading Order
+
+Always include a non-technical path first: start at 00-executive-summary and keep 11-glossary open. Then developer paths for different goals.
 
 [Suggested reading path based on different goals: "new to the project", "need to fix a bug", "reviewing architecture"]
 
@@ -106,7 +118,7 @@ Write `.codebase-map/INDEX.md`:
 ### INDEX.md Rules
 - Abstracts must be genuinely informative, not generic
 - Reading order should offer 2-3 paths for different goals
-- Keep the entire INDEX.md under 60 lines
+- Keep the entire INDEX.md under 80 lines
 
 # RULES
 

@@ -47,6 +47,8 @@ Flag every instance of:
 
 ## Step 3: Rewrite
 
+Humanize toward the target register (from the caller or inferred via `plugins/codebase-mapper/skills/codebase-mapper/references/audience-adaptation.md`), not a single fixed tone. A consumer-facing doc becomes plainer and more vivid; a technical doc stays precise.
+
 Apply the codebase-mapper writing guidelines:
 
 **Structure:**

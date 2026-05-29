@@ -2,6 +2,9 @@
 
 ## Voice and Tone
 
+### Audience
+Write for the audience defined in the Project Profile (see [audience-adaptation.md](audience-adaptation.md)). When no profile exists, default to a smart colleague on their first day. Calibrate register, depth, and jargon to the profile's register.
+
 ### Do
 - Use active voice: "The router dispatches requests to handlers" not "Requests are dispatched by the router"
 - Address the reader directly: "You'll find the config in..." not "One can find the config in..."

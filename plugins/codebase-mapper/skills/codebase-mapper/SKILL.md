@@ -19,6 +19,7 @@ All output goes to `.codebase-map/` in the project root:
 ```
 .codebase-map/
   INDEX.md                    # Entry point with navigable summary
+  00-executive-summary.md     # Plain-language summary for anyone (non-technical)
   01-overview.md              # What is this project, who is it for
   02-features.md              # Functional capabilities
   03-tech-stack.md            # Technologies and dependencies
@@ -29,6 +30,7 @@ All output goes to `.codebase-map/` in the project root:
   08-open-questions.md        # Gaps, unknowns, things to ask the team
   09-project-anatomy.md       # Config files, env vars, scripts, directory tree
   10-configuration-guide.md   # Configuration recipes, operations, troubleshooting
+  11-glossary.md              # Domain and technical glossary (plain definitions)
   _internal/
     context-brief.md          # Phase 1 exploration output (internal reference)
     interconnect.md           # Phase 1b structured map: contracts, invariants, domain rules (optional)
@@ -38,7 +40,7 @@ All output goes to `.codebase-map/` in the project root:
 
 ### Tone
 - Narrative, conversational, didactic
-- Write as if explaining to a smart colleague on their first day
+- Write for the audience in the Project Profile (see references/audience-adaptation.md); default to a smart colleague on their first day when no profile exists
 - Progressive disclosure: big picture first, then details
 - Honest about gaps - never fabricate or speculate
 
@@ -58,14 +60,17 @@ All output goes to `.codebase-map/` in the project root:
 ## Agent Coordination
 
 ### Phase 1 - Explore
-Single `codebase-explorer` agent reads the project and writes `_internal/context-brief.md`.
+Single `codebase-explorer` agent reads the project and writes `_internal/context-brief.md`, which leads with a `## Project Profile` (type, audience, register) and a `## Why / Context` dossier.
+
+### Phase 1.5 - Confirm Profile
+The `map-codebase` command surfaces the inferred Project Profile and lets the user confirm or adjust it before the writers run. The confirmed profile drives register and depth across all documents.
 
 ### Phase 1b - Interconnect Map
 Single `senior-review:semantic-interconnect-mapper` agent reads the context brief and writes `_internal/interconnect.md` (contracts, invariants, domain rules, integration hot-spots). Optional: if it fails, the pipeline continues in degraded mode. The `tech-writer`, `flow-writer`, `ops-writer`, and `guide-reviewer` cite this map instead of paraphrasing code.
 
 ### Phase 2 - Write
 Six parallel writer agents, each reading context-brief.md:
-- `overview-writer` - 01-overview.md, 02-features.md (mindmap)
+- `overview-writer` - 00-executive-summary.md (plain-language), 01-overview.md, 02-features.md (mindmap)
 - `tech-writer` - 03-tech-stack.md, 04-architecture.md (component diagram)
 - `flow-writer` - 05-workflows.md, 06-data-model.md (flowcharts, sequence, ER)
 - `onboarding-writer` - 07-getting-started.md, 08-open-questions.md
@@ -73,7 +78,14 @@ Six parallel writer agents, each reading context-brief.md:
 - `config-writer` - 10-configuration-guide.md (config recipes, operations, troubleshooting)
 
 ### Phase 3 - Review
-Single `guide-reviewer` agent reads all 10 documents, adds cross-references, fixes consistency, and produces INDEX.md.
+Single `guide-reviewer` agent reads all documents, adds cross-references, fixes consistency, checks register consistency against the Project Profile, writes `11-glossary.md`, and produces INDEX.md with per-audience reading paths.
+
+## References
+
+Read on demand, not upfront:
+- `references/writing-guidelines.md` - voice, tone, structure, audience as a parameter
+- `references/audience-adaptation.md` - Project Profile schema, register matrix, archetypes, the "for everyone" rule
+- `references/diagram-patterns.md` - Mermaid templates for each document
 
 ## Standalone Documentation
 

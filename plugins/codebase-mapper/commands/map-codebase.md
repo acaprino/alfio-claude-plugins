@@ -37,6 +37,17 @@ Spawn a single `codebase-explorer` agent:
 
 If the context brief is missing or empty, stop and report the error.
 
+## Phase 1.5: Confirm Project Profile (sequential)
+
+The `codebase-explorer` wrote a `## Project Profile` section as the first section of `.codebase-map/_internal/context-brief.md`. Surface it for a quick confirmation before the writers run.
+
+1. Read the `## Project Profile` section from `.codebase-map/_internal/context-brief.md`.
+2. Present a compact summary to the user: project type and domain, primary audience, register, scope, and any items the explorer marked low-confidence.
+3. Ask the user to confirm or adjust (use AskUserQuestion). The default is the inferred profile; the user only corrects.
+4. If the user adjusts anything, overwrite the `## Project Profile` section in `context-brief.md` with the corrected values, so the writers read the confirmed profile.
+
+This is the only interactive checkpoint. Profiling itself is autonomous; this step is a light safety net, not a questionnaire. Keep it to one question.
+
 ## Phase 1b: Interconnect Map (sequential)
 
 Spawn a single `senior-review:semantic-interconnect-mapper` agent. This produces structured facts (contracts, invariants, domain rules, integration hot-spots) that the writer agents cite instead of paraphrasing code.
@@ -58,10 +69,10 @@ If the file is missing, skip it and continue to Phase 2 in degraded mode -- writ
 
 ## Phase 2: Write (parallel - 6 agents)
 
-Spawn all 6 writer agents simultaneously:
+Spawn all 6 writer agents simultaneously. Every writer first reads the `## Project Profile` and `## Why / Context` sections of `.codebase-map/_internal/context-brief.md` and `plugins/codebase-mapper/skills/codebase-mapper/references/audience-adaptation.md`, then calibrates register, depth, and vocabulary to the confirmed profile (a consumer-app guide favors plain language and user value; a technical-tool guide favors precision and depth).
 
 ### Agent 1: `overview-writer`
-> Read `.codebase-map/_internal/context-brief.md`, then write `.codebase-map/01-overview.md` and `.codebase-map/02-features.md`. Include a Mermaid mindmap in the overview. Follow the writing guidelines - narrative tone, no AI boilerplate, file paths for every claim.
+> Read `.codebase-map/_internal/context-brief.md` (especially `## Project Profile` and `## Why / Context`), then write `.codebase-map/00-executive-summary.md` (plain-language, for anyone, zero jargon), `.codebase-map/01-overview.md`, and `.codebase-map/02-features.md`. Put a "Why this exists / Context" section and a "Scope and Non-Goals" section in 01-overview. Include a Mermaid mindmap in the overview. Follow the writing guidelines - narrative tone, no AI boilerplate, file paths for every claim.
 
 ### Agent 2: `tech-writer`
 > Read `.codebase-map/_internal/context-brief.md`, then write `.codebase-map/03-tech-stack.md` and `.codebase-map/04-architecture.md`. Include a Mermaid component/layer diagram in the architecture doc. If `.codebase-map/_internal/interconnect.md` exists, read its `## Call Graph`, `## Contracts`, and `## Integration Hot-Spots` anchors and cite those structured facts in the architecture doc instead of paraphrasing code. Follow the writing guidelines - narrative tone, no AI boilerplate, file paths for every claim.
@@ -78,19 +89,19 @@ Spawn all 6 writer agents simultaneously:
 ### Agent 6: `config-writer`
 > Read `.codebase-map/_internal/context-brief.md`, then write `.codebase-map/10-configuration-guide.md`. Write a practical guide covering configuration walkthrough, environment profiles, configuration recipes, common day-to-day operations with exact commands, troubleshooting with real error messages from the codebase, and a quick-reference cheat sheet. Verify by reading actual config files and grepping for error messages. Follow the writing guidelines - narrative tone, no AI boilerplate, file paths for every claim.
 
-**Verify:** Check that all 10 documents exist:
+**Verify:** Check that `00-executive-summary.md` and the 10 numbered documents (01-10) exist:
 ```bash
 ls -la .codebase-map/0*.md .codebase-map/10*.md
 ```
 
-If any documents are missing, report which ones failed and stop.
+(`11-glossary.md` is produced in Phase 3.) If any are missing, report which ones failed and stop.
 
 ## Phase 3: Review (sequential)
 
 Spawn a single `guide-reviewer` agent:
 
 **Agent task:**
-> Read all 10 documents in `.codebase-map/` (01 through 10) and the context brief in `_internal/`. If `.codebase-map/_internal/interconnect.md` exists, also read its `## Invariants` and `## Domain Rules` anchors, and use the `senior-review:defect-taxonomy` skill's `logic-integrity.md` reference to detect documentation-reality drift (docs that describe behavior contradicting documented invariants/contracts). Flag any drift as a "⚠ known inconsistency" note in the relevant doc and add a corresponding item to 08-open-questions.md. Review for terminology consistency, add cross-references between documents, fix any AI boilerplate in tone, validate Mermaid diagram syntax, and detect gaps. Apply edits directly. Then write `.codebase-map/INDEX.md` as the entry point with a navigable summary table and suggested reading paths.
+> Read all documents in `.codebase-map/` (00 and 01 through 10) and the context brief in `_internal/`. If `.codebase-map/_internal/interconnect.md` exists, also read its `## Invariants` and `## Domain Rules` anchors, and use the `senior-review:defect-taxonomy` skill's `logic-integrity.md` reference to detect documentation-reality drift (docs that describe behavior contradicting documented invariants/contracts). Flag any drift as a "⚠ known inconsistency" note in the relevant doc and add a corresponding item to 08-open-questions.md. Review for terminology consistency, add cross-references between documents, fix any AI boilerplate in tone, validate Mermaid diagram syntax, and detect gaps. Apply edits directly. Also read the `## Project Profile` from the context brief and `plugins/codebase-mapper/skills/codebase-mapper/references/audience-adaptation.md`, then: (a) verify register consistency, so the tone across all docs matches the profile's register, and fix drift; (b) verify the plain-language layer serves a non-technical reader; (c) write `.codebase-map/11-glossary.md`, a domain and technical glossary with plain definitions, built from terminology across all docs and the interconnect glossary and domain-rule signals. Then write `.codebase-map/INDEX.md` as the entry point with a navigable summary table that includes 00-executive-summary and 11-glossary, plus per-audience reading paths (a non-technical path starting at 00 and 11, and a developer path).
 
 **Verify:** Check that `.codebase-map/INDEX.md` exists.
 
@@ -102,6 +113,7 @@ Print a summary:
 Codebase map generated in .codebase-map/
 
   INDEX.md              - Entry point and navigation
+  00-executive-summary.md - Plain-language summary for anyone
   01-overview.md        - Project overview with concept mindmap
   02-features.md        - Feature catalog
   03-tech-stack.md      - Technologies and dependencies
@@ -112,6 +124,7 @@ Codebase map generated in .codebase-map/
   08-open-questions.md  - Knowledge gaps to clarify
   09-project-anatomy.md - Config files, env vars, scripts, directory tree
   10-configuration-guide.md - Configuration recipes, operations, troubleshooting
+  11-glossary.md        - Domain and technical glossary
 
 Start reading from INDEX.md
 ```

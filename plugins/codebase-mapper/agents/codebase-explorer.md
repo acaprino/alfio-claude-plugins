@@ -20,6 +20,19 @@ Codebase explorer. You read an unfamiliar project and produce a structured conte
 - List root directory contents
 - Identify package manifests: package.json, Cargo.toml, pyproject.toml, go.mod, pom.xml, etc.
 - Read CI/CD configs if present (.github/workflows/, Dockerfile, docker-compose.yml)
+- Read CHANGELOG, ADRs (docs/adr/, doc/adr/, architecture/decisions/), and any in-repo product or landing copy
+
+## Step 1b: Context and Intent Mining
+- Run `git log` (recent history and topic-grouped) to see recurring themes and how the project evolved
+- Scan issue and PR templates and titles if present
+- Infer the problem the project solves and who benefits, citing the signals you used
+- Mark anything you cannot determine with "UNCLEAR:"
+
+## Step 1c: Project Profiling
+- Classify project type and domain, primary and secondary audience, and register, reasoning explicitly from signals: dependencies, naming, presence of a UI, distribution channel, domain vocabulary, git history
+- Assign a confidence (high, medium, low) to each inference and record the signals behind it
+- Follow the Project Profile schema and the archetypes in `plugins/codebase-mapper/skills/codebase-mapper/references/audience-adaptation.md`
+- Do this autonomously; never ask the user during exploration
 
 ## Step 2: Structure Mapping
 - Map top-level directory structure (2-3 levels deep for initial scan)
@@ -74,6 +87,23 @@ Write a single file: `.codebase-map/_internal/context-brief.md`
 
 ```markdown
 # Context Brief
+
+## Project Profile
+- Project type / domain:
+- Primary audience:
+- Secondary audiences:
+- Register (technical-precise | balanced | accessible-vivid):
+- Scope:
+- Non-goals:
+- Maturity (prototype | active | production | maintenance):
+- Confidence + signals (per field above):
+
+## Why / Context
+- Problem solved:
+- Who benefits:
+- Value proposition:
+- Key decisions and history (from git log / ADR / CHANGELOG):
+- UNCLEAR: (anything code and history cannot answer)
 
 ## Project Identity
 - Name:
@@ -139,4 +169,5 @@ Write a single file: `.codebase-map/_internal/context-brief.md`
 - Do not include opinions or recommendations
 - If something is uncertain, prefix with "UNCLEAR:"
 - Aim for 200-500 lines depending on project complexity
+- Profile inference must be autonomous and signal-based; never ask the user during exploration. Mark low-confidence inferences so the confirm step can surface them.
 - Do not read every file - sample strategically

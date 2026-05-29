@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Claude Code Daodan -- 45 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, frontend, AI tooling, scraping, trading, observability, reverse engineering, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), Progressive Web Apps, and pure-architecture audits (missed unification, wrong abstractions).",
-    "version": "6.23.4"
+    "version": "6.24.0"
   },
   "plugins": [
     {
@@ -936,8 +936,8 @@
     {
       "name": "codebase-mapper",
       "source": "./plugins/codebase-mapper",
-      "description": "Human-readable codebase guide generator: explores unfamiliar projects, builds a structured interconnect map (contracts, invariants, domain rules, integration hot-spots) via the senior-review semantic-interconnect-mapper, then produces 10 narrative documents with Mermaid diagrams that cite the map. Includes documentation-reality drift detection in the review phase, plus standalone documentation creation, maintenance, and humanization with bottom-up code analysis. Both docs-create and docs-maintain cover 20 documentation dimensions (interfaces, config, integrations, architecture, data model and schema, data flows, state machines, internal and external dependencies, concurrency, glossary, auth and security, error handling, observability, deployment, testing, build-release, migrations, performance, compliance, component); docs-maintain runs a structured per-dimension drift audit (added/removed/renamed/retyped) instead of generic outdated-text matching.",
-      "version": "2.6.1",
+      "description": "Human-readable codebase guide generator: explores unfamiliar projects, builds a structured interconnect map (contracts, invariants, domain rules, integration hot-spots) via the senior-review semantic-interconnect-mapper, then autonomously profiles the project (type, audience, register) and produces audience-adaptive narrative documents with Mermaid diagrams that cite the map, including a plain-language executive summary and a domain glossary so the guide is comprehensible by everyone. Includes documentation-reality drift detection in the review phase, plus standalone documentation creation, maintenance, and humanization with bottom-up code analysis. Both docs-create and docs-maintain cover 20 documentation dimensions; docs-maintain runs a structured per-dimension drift audit (added/removed/renamed/retyped) instead of generic outdated-text matching.",
+      "version": "2.7.0",
       "author": {
         "name": "Alfio"
       },

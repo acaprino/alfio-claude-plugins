@@ -91,6 +91,7 @@ Read `.codebase-map/_internal/context-brief.md` first. Then verify and expand by
 # WRITING RULES
 
 - Follow the writing guidelines in the codebase-mapper skill references
+- Read the `## Project Profile` and `## Why / Context` sections of the context brief and `plugins/codebase-mapper/skills/codebase-mapper/references/audience-adaptation.md`; calibrate register, vocabulary, depth, and which parts to expand or compress to the profile (a consumer-app guide favors plain language and user value; a technical-tool guide favors precision and depth)
 - No AI boilerplate openings or closings
 - Practical and recipe-oriented - this document is for developers with their hands on the keyboard
 - File paths for every code reference
