@@ -25,3 +25,8 @@ Thumbs.db
 
 # Upstream sync scratch (local-only, never committed)
 .upstream-scratch/
+
+# Analysis / review command output (transient, local-only)
+.deep-dive/
+.team-review/
+.marketplace-review/
