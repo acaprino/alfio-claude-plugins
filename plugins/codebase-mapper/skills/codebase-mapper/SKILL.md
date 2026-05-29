@@ -31,6 +31,7 @@ All output goes to `.codebase-map/` in the project root:
   10-configuration-guide.md   # Configuration recipes, operations, troubleshooting
   _internal/
     context-brief.md          # Phase 1 exploration output (internal reference)
+    interconnect.md           # Phase 1b structured map: contracts, invariants, domain rules (optional)
 ```
 
 ## Core Principles
@@ -58,6 +59,9 @@ All output goes to `.codebase-map/` in the project root:
 
 ### Phase 1 - Explore
 Single `codebase-explorer` agent reads the project and writes `_internal/context-brief.md`.
+
+### Phase 1b - Interconnect Map
+Single `senior-review:semantic-interconnect-mapper` agent reads the context brief and writes `_internal/interconnect.md` (contracts, invariants, domain rules, integration hot-spots). Optional: if it fails, the pipeline continues in degraded mode. The `tech-writer`, `flow-writer`, `ops-writer`, and `guide-reviewer` cite this map instead of paraphrasing code.
 
 ### Phase 2 - Write
 Six parallel writer agents, each reading context-brief.md:

@@ -5,7 +5,7 @@ description: >
   TRIGGER WHEN: spawned by the /codebase-mapper:map-codebase command during Phase 1 to build the context brief that downstream writer agents consume.
   DO NOT TRIGGER WHEN: invoked outside the map-codebase pipeline -- for direct exploration use the built-in Explore subagent.
 model: opus
-tools: Read, Bash, Glob, Grep
+tools: Read, Write, Bash, Glob, Grep
 color: cyan
 ---
 

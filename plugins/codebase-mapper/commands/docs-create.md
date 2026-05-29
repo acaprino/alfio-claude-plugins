@@ -149,7 +149,7 @@ Before saving, pass the generated documentation through the `text-humanizer` age
 ```
 Task:
   subagent_type: "digital-marketing:text-humanizer"
-  description: "Remove AI writing traces from generated documentation (use codebase-mapper:doc-humanizer or digital-marketing:text-humanizer)"
+  description: "Remove AI writing traces from generated documentation"
   prompt: |
     Humanize this technical documentation. Remove AI patterns while preserving
     all factual content, code examples, and technical accuracy. Focus on:
