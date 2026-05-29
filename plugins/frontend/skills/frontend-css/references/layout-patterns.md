@@ -118,14 +118,13 @@ Classic two-column: fixed sidebar, fluid content area.
 
 ## Masonry
 
-Variable-height cards in aligned columns. CSS-native (Chrome 117+) or column-count fallback.
+Variable-height cards packed into the shortest lane. CSS-native via `display: grid-lanes` (Safari 26; behind a flag in Chrome and Firefox) with a `columns` fallback.
 ```css
-/* Native masonry (progressive enhancement) */
-@supports (grid-template-rows: masonry) {
+/* Native masonry / grid-lanes (progressive enhancement) */
+@supports (display: grid-lanes) {
   .masonry {
-    display: grid;
+    display: grid-lanes;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    grid-template-rows: masonry;
     gap: 1.5rem;
   }
 }

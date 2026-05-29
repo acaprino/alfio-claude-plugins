@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Claude Code Daodan -- 45 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, frontend, AI tooling, scraping, trading, observability, reverse engineering, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), Progressive Web Apps, and pure-architecture audits (missed unification, wrong abstractions).",
-    "version": "6.23.2"
+    "version": "6.23.3"
   },
   "plugins": [
     {
@@ -107,7 +107,7 @@
       "name": "frontend",
       "source": "./plugins/frontend",
       "description": "Unified frontend toolkit: frontend-design (CSS, motion, UX), frontend-layout (grid, breakpoints), frontend-engineer (build), frontend-strategy (consulting workflow), frontend-css (modern CSS reference with typography, color/contrast, motion, heuristics scoring, cognitive load, personas, merged spatial/interaction/responsive/UX-writing sections from pbakaus/impeccable, and design-system deliverables from nextlevelbuilder/ui-ux-pro-max-skill: token architecture plus primitive/semantic/component token references, component specs, states/variants, Tailwind integration), and component-library skills (shadcn-ui, daisyUI, Radix UI). /review-design and the design/layout agents now actively load these references during audits.",
-      "version": "3.15.1",
+      "version": "3.15.2",
       "author": {
         "name": "Alfio"
       },
@@ -885,7 +885,7 @@
       "name": "prompt-improver",
       "source": "./plugins/prompt-improver",
       "description": "Intelligent prompt optimization -- enriches vague prompts with research-based clarifying questions before Claude Code executes them",
-      "version": "0.7.3",
+      "version": "0.8.0",
       "author": {
         "name": "severity1"
       },

@@ -11,6 +11,19 @@
           }
         ]
       }
+    ],
+    "PreToolUse": [
+      {
+        "description": "Injects plan readability guidance when entering plan mode",
+        "matcher": "EnterPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/handlers/plan-guidance.js\"",
+            "timeout": 15
+          }
+        ]
+      }
     ]
   }
 }

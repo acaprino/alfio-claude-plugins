@@ -63,18 +63,23 @@ Several references and merged sections are derived from `pbakaus/impeccable` (Ap
 
 **Container units:** `cqi`, `cqb`, `cqw`, `cqh` - size relative to container dimensions
 
-**Anchored container queries:** Style positioned elements based on anchor fallback state
+**Anchored container queries:** Style an anchored element (and its descendants) based on which `position-try` fallback is currently active
 ```css
-/* Anchor positioning (CSS Anchor Positioning API - Chrome 125+, behind flag elsewhere) */
+/* Anchored container queries (newest container-type, 2026) */
 .tooltip {
   position: absolute;
-  position-anchor: --my-anchor;
-  top: anchor(bottom);
-  left: anchor(center);
+  position-anchor: --trigger;
+  position-try-fallbacks: flip-inline; /* flip side if it overflows */
+  container-type: anchored;
 }
 
-.anchor-element {
-  anchor-name: --my-anchor;
+/* When the inline-flip fallback is in use, flip the caret to match */
+@container anchored(fallback: flip-inline) {
+  .tooltip__caret { translate: 100%; }
+}
+
+.trigger {
+  anchor-name: --trigger;
 }
 ```
 
@@ -87,7 +92,7 @@ Several references and merged sections are derived from `pbakaus/impeccable` (Ap
 
 ### Grid Enhancements
 - **Subgrid:** Inherit parent grid lines for nested layouts
-- **Masonry:** Pinterest-style layouts. Two proposals are active: (1) `grid-template-rows: masonry` (shipping in Safari 17.4+), (2) Chromium's `item-flow` / `item-pack` (under active development). Standards body still deciding between them; use `@supports` for progressive enhancement.
+- **Masonry:** Pinterest-style layouts via `display: grid-lanes` (CSS Grid Level 3), which packs items into the shortest lane while keeping logical tab order. This is the resolved syntax (previously proposed as `grid-template-rows: masonry`). Safari 26 ships it; Chrome and Firefox keep it behind a flag, so gate with `@supports` for progressive enhancement.
 
 ---
 
