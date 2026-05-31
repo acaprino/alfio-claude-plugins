@@ -1,6 +1,6 @@
 ---
 description: "Launch a multi-reviewer parallel code review with specialized review dimensions, preceded by a context-building pipeline (deep-dive + interconnect map) so reviewers can hunt cross-component logic bugs, not just local issues"
-argument-hint: "<target> [--reviewers auto|security,performance,...] [--base-branch main] [--all] [--deep] [--skip-interconnect]"
+argument-hint: "<target> [--reviewers auto|security,performance,...] [--base-branch main] [--all] [--deep] [--skip-interconnect] [--fast] [--rigorous]"
 ---
 
 # Team Review (Pipeline)
@@ -33,6 +33,8 @@ Before starting, invoke these skills to inform the review process:
    - `--all`: force all dimensions regardless of auto-detection
    - `--deep`: run Phase 1a `deep-dive-analysis` in full mode (default: `--depth=lite`)
    - `--skip-interconnect`: skip Phase 1 entirely and run reviewers with raw code only (backward-compat mode; `logic-integrity-auditor` is also skipped)
+   - `--fast`: skip the verification + completeness-critic gate entirely (Phase 4b and 4c)
+   - `--rigorous`: verify every finding above the confidence floor, ignoring the cost-guard cap
 3. Check for existing `.team-review/state.json`:
    - If present with `status: "in_progress"`: ask user whether to resume or start fresh (archive to `.team-review-<ISO-timestamp>/`).
    - If present with `status: "complete"`: ask whether to archive and start fresh.
@@ -47,7 +49,9 @@ Before starting, invoke these skills to inform the review process:
        "reviewers": "auto",
        "all": false,
        "deep": false,
-       "skip_interconnect": false
+       "skip_interconnect": false,
+       "fast": false,
+       "rigorous": false
      },
      "current_phase": 0,
      "phases": {
@@ -57,6 +61,8 @@ Before starting, invoke these skills to inform the review process:
        "phase_1b_interconnect": "pending",
        "phase_2_review": "pending",
        "phase_3_consolidation": "pending",
+       "phase_4b_verification": "pending",
+       "phase_4c_critic": "pending",
        "phase_4_report": "pending"
      },
      "files_created": [],
@@ -278,6 +284,30 @@ Apply the deduplication and calibration rules from the `agent-teams:multi-review
 
 Write `.team-review/99-consolidated.md`. Mark `phase_3_consolidation` complete.
 
+## Phase 4b: Adversarial Verification
+
+Skip this phase if `--fast` was passed (mark `phase_4b_verification` as `skipped`). Otherwise drive the panel exactly per the `agent-teams:multi-reviewer-patterns` skill, section `## Adversarial Verification Panel`.
+
+1. Apply the confidence floor: select consolidated findings with confidence `>= 50%`. team-review reviewers emit confidence in their findings; if a finding lacks a score, treat it as 60% (in-band) so it is not silently skipped.
+2. Apply the selection rule from the skill:
+   - If `--rigorous`, or 25 or fewer findings survive: verify all selected findings.
+   - Otherwise (more than 25 findings, no `--rigorous`): narrow to stakes + uncertainty band per the skill, and record the count of findings left `unverified (cost-guard)`.
+3. For each finding to verify, spawn the 3 lenses in parallel using the three lens prompts from the skill (`general-purpose`; `opus` for lenses 1-2, `sonnet` for lens 3; `run_in_background: true`). Substitute the finding, diff, and full file content into each prompt.
+4. Apply the survival rule from the skill: survive if `>= 2` of lenses 1-2 vote REAL; discard (`filtered`) if `>= 2` vote FALSE_POSITIVE; tie or fewer-than-2-verdicts means survive and mark `contested`. Final severity is the lens-3 vote when confirmed real, else the original.
+5. Write `.team-review/98-verification.md`: one row per verified finding with the per-lens verdicts, final severity, and flag (`verified` / `contested` / `filtered`), plus a trailing count of `unverified (cost-guard)` findings.
+6. Update `99-consolidated.md` to drop `filtered` findings, apply recalibrated severities, and tag `contested` and `unverified (cost-guard)` findings.
+7. Mark `phase_4b_verification` complete.
+
+## Phase 4c: Completeness Critic
+
+Skip this phase if `--fast` was passed (mark `phase_4c_critic` as `skipped`). Otherwise drive the critic exactly per the `agent-teams:multi-reviewer-patterns` skill, section `## Completeness Critic`.
+
+1. Spawn one critic agent (`general-purpose`) with the critic prompt from the skill. Pass the verified findings (post-4b), `.team-review/00-scope.md`, the dimensions that ran, and the context paths (`.deep-dive/` and `.team-review/02-interconnect.md`, or "none" under `--skip-interconnect`).
+2. Write the critic output to `.team-review/97-coverage-gaps.md`.
+3. If the critic names a single high-risk uncovered area under `## Recommended follow-up` AND neither the cost guard nor `--fast` applies: spawn ONE targeted reviewer (the most specialized agent for that area, per the Phase 2 dimension-to-agent table) for one round, scoped to the files the critic named. Route its findings back through Phase 4 (dedup) and Phase 4b (verification). Do this at most once.
+4. If the cost guard applies, degrade to report-only: keep `97-coverage-gaps.md`, spawn no follow-up, and note the skip.
+5. Mark `phase_4c_critic` complete.
+
 ## Phase 5: Report and Cleanup
 
 1. Present the consolidated report to the user:
@@ -289,6 +319,7 @@ Write `.team-review/99-consolidated.md`. Mark `phase_3_consolidation` complete.
    Context: deep-dive ({lite|full}) + interconnect map ({anchor count} anchors)
    Reviewed by: {dimensions} ({N} reviewers)
    Files reviewed: {count}
+   Verification: {verified} verified, {filtered} false positives, {contested} contested{cost_guard_note}
 
    ### Critical ({count})
    [findings with file:line + category + map anchor where applicable]
@@ -304,9 +335,15 @@ Write `.team-review/99-consolidated.md`. Mark `phase_3_consolidation` complete.
 
    ### Summary
    Total findings: {count} (Critical: N, High: N, Medium: N, Low: N)
+   Coverage gaps: see .team-review/97-coverage-gaps.md ({gap_count} gaps, {followup} follow-up round)
    Findings citing interconnect anchors: {count} ({pct}%) <- quality metric
    Pipeline time: Phase 1: {t1}, Phase 2: {t2}, total: {total}
+
+   ### Coverage Gaps
+   [paste the ## Coverage Gaps list from .team-review/97-coverage-gaps.md]
    ```
+
+   Where `{cost_guard_note}` is `, narrowed to stakes+band (N unverified)` when the cost guard fired, else empty.
 
 2. Send `shutdown_request` to all reviewers.
 3. Call `TeamDelete` to remove team resources.

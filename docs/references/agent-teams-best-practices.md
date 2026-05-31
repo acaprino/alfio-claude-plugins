@@ -122,6 +122,15 @@ Native hooks let you enforce rules without changing agent prompts:
 
 Pattern: use `TaskCompleted` to run lint / type-check / test before allowing a task to close. Converts "trust and hope" into "trust and verify".
 
+## Verification panel + completeness critic (review pipelines)
+
+Review pipelines (`/agent-teams:team-review`, `/senior-review:code-review`) close with two quality gates whose canonical definition lives in the `agent-teams:multi-reviewer-patterns` skill (`## Adversarial Verification Panel`, `## Completeness Critic`):
+
+- **3-lens panel.** Each surviving finding is judged by three parallel verifiers with distinct mandates (reachability/correctness, false-positive causes, severity calibration). A finding survives on a 2-of-2 REAL vote from lenses 1-2; a tie leaves it `contested` rather than killing a possibly-real bug.
+- **Completeness critic.** A final agent reports coverage gaps (dimensions not run, in-scope files no reviewer cited, unverified assumptions, uncovered high-risk hot-spots) and, for a high-risk uncovered area, triggers one bounded follow-up round.
+
+The gate is default-on with a finding-count cost guard (threshold 25), a `--fast` opt-out, and a `--rigorous` force-full flag. In the prose/Agent substrate the cost guard is a finding-count proxy, not a token budget. A future Workflow-tool rewire replaces the proxy with a real budget and makes the majority vote and degradation deterministic.
+
 ## Hard limits (as of 2026-05)
 
 - **One team per lead.** A lead can manage only one team at a time. Clean up before creating the next.

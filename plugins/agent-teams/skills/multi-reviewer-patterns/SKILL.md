@@ -5,7 +5,7 @@ description: >
   deduplication, severity calibration, and consolidated reporting. Use this skill
   when organizing multi-reviewer code reviews, calibrating finding severity, or
   consolidating review results.
-version: 1.2.0
+version: 1.3.0
 ---
 
 # Multi-Reviewer Patterns
@@ -210,3 +210,180 @@ For each finding in all reviewer reports:
 
 {Overall assessment and prioritized action items}
 ```
+
+## Adversarial Verification Panel
+
+After findings are consolidated (deduplicated), each selected finding is judged by a **panel of 3 verifiers run in parallel**, each with a distinct lens. This replaces single-judge validation: three independent mandates catch more failure modes than three identical refuters.
+
+This section is the source of truth. `/agent-teams:team-review` (Phase 4b) and `/senior-review:code-review` (Step 4b) both drive the panel from here.
+
+### The three lenses
+
+Spawn one `Agent` per lens per finding. Use `subagent_type: general-purpose`. Use `model: opus` for lenses 1 and 2 (reasoning-heavy), `model: sonnet` for lens 3 (calibration). Run all three (and across findings) in parallel via `run_in_background: true`.
+
+**Lens 1 prompt (Reachability / Correctness):**
+
+```
+You are verifier LENS 1 of 3 (Reachability / Correctness) for one code-review finding.
+Your job: determine whether the described defect REALLY exists and is reachable.
+
+## The Finding
+[severity, file:line, description, suggested fix]
+
+## The Diff
+[diff for the relevant file]
+
+## Full File Content
+[full content of the file containing the finding]
+
+## Instructions
+1. Locate the exact file:line. Is the citation correct?
+2. Trace the control/data flow: is the buggy path actually reachable in normal or error execution?
+3. Does the code truly exhibit the described problem, or is the description a misread?
+Return REAL only if you can point to the concrete lines and the path that triggers the defect.
+
+Respond with EXACTLY:
+- Verdict: REAL or FALSE_POSITIVE
+- Confidence: 0-100
+- Reason: 1-2 sentences citing file:line
+```
+
+**Lens 2 prompt (False-Positive Causes):**
+
+```
+You are verifier LENS 2 of 3 (False-Positive Causes) for one code-review finding.
+Your job: actively try to REFUTE the finding. Default to FALSE_POSITIVE if uncertain.
+
+## The Finding
+[severity, file:line, description, suggested fix]
+
+## The Diff
+[diff for the relevant file]
+
+## Full File Content
+[full content of the file containing the finding]
+
+## Instructions
+Try to explain the flagged code away as one of:
+1. Framework convention (Django/FastAPI/pytest/etc. idiom that is correct by design)
+2. Intentional design choice consistent with surrounding code or CLAUDE.md
+3. Pre-existing code not introduced or made newly relevant by the diff
+4. A misunderstanding of the code's actual behavior or context
+Return REAL only if the finding survives refutation on all four counts.
+
+Respond with EXACTLY:
+- Verdict: REAL or FALSE_POSITIVE
+- Confidence: 0-100
+- Reason: 1-2 sentences citing file:line; if FALSE_POSITIVE, name the refutation category
+```
+
+**Lens 3 prompt (Severity Calibration):**
+
+```
+You are verifier LENS 3 of 3 (Severity Calibration) for one code-review finding.
+Assume the finding is REAL. Your only job is to vote the correct severity.
+
+## The Finding
+[severity, file:line, description, suggested fix]
+
+## The Diff
+[diff for the relevant file]
+
+## Full File Content
+[full content of the file containing the finding]
+
+## Calibration criteria
+- Critical: data loss, security breach, complete failure; certain or very likely
+- High: significant functionality impact or degradation; likely
+- Medium: partial impact, workaround exists; possible
+- Low: minimal or cosmetic; unlikely
+
+Respond with EXACTLY:
+- Verdict: REAL
+- Severity_vote: Critical or High or Medium or Low
+- Confidence: 0-100
+- Reason: 1-2 sentences citing file:line
+```
+
+### Verdict schema
+
+Each verifier returns: `verdict` (REAL or FALSE_POSITIVE; lens 3 always REAL), `confidence` (0-100), `severity_vote` (lens 3 only), `reason` (with a file:line citation).
+
+### Survival rule
+
+- A finding **survives** if **at least 2 of lenses 1-2 vote REAL**.
+- If **>= 2 of lenses 1-2 vote FALSE_POSITIVE**, the finding is **discarded** and counted as `filtered` (never silently dropped: the count appears in the report).
+- **Tie or inconclusive** (1 REAL / 1 FALSE on lenses 1-2, or fewer than 2 valid verdicts returned) means the finding **survives, marked `contested`**. A flagged false positive is cheaper than a killed real bug.
+- **Final severity** = lens-3 `severity_vote` when the finding is confirmed real; otherwise the original reviewer severity.
+
+### Fail-open
+
+If a verifier errors or returns a malformed verdict, treat it as an abstention. If fewer than 2 valid verdicts return for a finding, apply the tie rule (survives, `contested`). The panel never crashes the pipeline and never silently drops a finding.
+
+### Selection: what enters the panel
+
+- **Normal (default-on):** every finding with confidence `>= 50%` that survived deduplication, regardless of severity.
+- **Under cost guard** (more than 25 surviving findings AND `--rigorous` not set): narrow to **stakes + uncertainty band**, which is all Critical/High findings plus any Medium/Low in the 50-75% confidence band or with a severity that conflicted between reviewers. The remaining findings pass through unverified, tagged `unverified (cost-guard)`. **Declare the narrowing in the report.**
+- **`--rigorous`:** ignore the cap; verify everything above the floor.
+- **`--fast`:** skip the entire gate (panel + critic).
+
+### Cost guard is a finding-count proxy
+
+In the prose/Agent substrate there is no token-budget API. The guard triggers on the **number of surviving findings (threshold 25)**, not on real token consumption. State this wherever the guard is documented so no false precision is implied.
+
+## Completeness Critic
+
+After verification, one critic agent asks what the review failed to cover. It turns blind spots from passive side effects into active output and, when warranted, into one more round of work.
+
+This section is the source of truth. `/agent-teams:team-review` (Phase 4c) and `/senior-review:code-review` (Step 4c) both drive the critic from here.
+
+### Inputs
+
+The critic reads: the verified findings, the review scope, the list of dimensions that ran, and whatever context exists (deep-dive output and the interconnect map for team-review; `.deep-dive/` if present for code-review).
+
+### Gap taxonomy
+
+The critic evaluates coverage against a fixed taxonomy and writes a `## Coverage Gaps` block:
+
+1. **Dimensions not run** that the scope warranted (e.g. security skipped on auth code; no distributed-flows despite messaging signals).
+2. **Files in scope cited by no reviewer** (cross-check the changed-file list against files referenced in findings).
+3. **Unverified assumptions** in the interconnect map that no finding addressed.
+4. **High-risk hot-spots** (from deep-dive `05-risks.md` or the map's Integration Hot-Spots) with zero findings.
+
+### Critic prompt
+
+```
+You are the completeness critic for a multi-dimensional code review. Your job is NOT
+to find new bugs directly. It is to find what the review did not examine.
+
+## Verified findings
+[the consolidated, verified findings]
+
+## Scope
+[changed files / target]
+
+## Dimensions that ran
+[list]
+
+## Context available
+[deep-dive paths and interconnect map path, or "none"]
+
+## Instructions
+Produce a "## Coverage Gaps" list across these categories, each item actionable and specific:
+1. Dimensions warranted by the scope but not run
+2. In-scope files cited by no finding
+3. Interconnect-map assumptions marked unverified that no finding addressed
+4. High-risk hot-spots (05-risks.md / Integration Hot-Spots) with zero findings
+
+Then, if and ONLY if one gap is a high-risk uncovered area, name the single most valuable
+follow-up: which dimension/agent should review which files. Output it under
+"## Recommended follow-up" with one entry, or "## Recommended follow-up: none".
+```
+
+### Bounded follow-up round
+
+If the critic names a high-risk uncovered area, spawn **one** targeted reviewer (the most specialized agent for that area) for a **single** round. Its findings re-enter deduplication and then the verification panel. One round only: the critic does not run again on the follow-up output.
+
+### Degradation
+
+Under the cost guard or budget pressure, the critic degrades to **report-only**: it emits the `## Coverage Gaps` list with no follow-up spawn, and the report states that the follow-up was skipped. `--fast` skips the critic entirely.
