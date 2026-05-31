@@ -3,7 +3,7 @@ description: >
   Unified code review -- auto-detects scope and runs architecture, security, and pattern analysis agents in parallel. Automatically uses deep-dive context if available.
   TRIGGER WHEN: the user asks for a code review, PR review, branch audit, or security/architecture analysis of recent changes.
   DO NOT TRIGGER WHEN: a full multi-phase pipeline is needed (use /agent-teams:team-review) or reviewing a single file for style (use clean-code).
-argument-hint: "[PR number | --branch <name> | --commits N] [--auto-comment] [--strict] [--security-focus]"
+argument-hint: "[PR number | --branch <name> | --commits N] [--auto-comment] [--strict] [--security-focus] [--fast] [--rigorous]"
 ---
 
 # Code Review
@@ -787,57 +787,42 @@ Pull out findings with `[PRE-EXISTING]` prefix into a separate list. These are r
 - Sort by severity (Critical first) -> confidence (descending) -> file path -> line number
 - Extract the Code Quality Score from code-auditor (Agent A) directly
 
-## Step 4b: Validate Critical & High Findings
+## Step 4b: Adversarial Verification Panel
 
-Before producing the final report, re-verify every **Critical** and **High** severity finding to filter false positives. This reduces noise and ensures only high-signal issues reach the output.
+Skip this step if `--fast` was passed. Otherwise verify findings with the 3-lens panel defined in the `agent-teams:multi-reviewer-patterns` skill, section `## Adversarial Verification Panel`. This replaces the former single-validator step: three independent lenses (reachability/correctness, false-positive causes, severity) catch more failure modes than one judge, and the scope widens from Critical/High only to every finding above the confidence floor.
 
-For each Critical/High finding, launch a validation agent **in parallel**:
+If the `agent-teams` plugin is not installed, fall back to the legacy behavior: one `general-purpose` validator per Critical/High finding returning VALID/FALSE_POSITIVE (opus for bug/logic/architecture findings, sonnet for style/CLAUDE.md findings).
 
-- **Bug, logic, architecture, failure flow findings** -- use **opus** model
-- **CLAUDE.md compliance, style, pattern findings** -- use **sonnet** model
+### Selection
 
-```
-Agent tool call (one per finding):
-  - description: "Validate finding: [brief finding title]"
-  - subagent_type: "general-purpose"
-  - model: opus  # or sonnet for CLAUDE.md/style findings
-  - run_in_background: true
-  - prompt: |
-    You are a finding validator. Your ONLY job is to verify whether
-    a code review finding is real or a false positive.
+- **Default:** every finding with confidence `>= 50%` that survived Step 4b deduplication, regardless of severity.
+- **Cost guard** (more than 25 surviving findings AND `--rigorous` not set): narrow to all Critical/High plus any Medium/Low in the 50-75% confidence band or with conflicting reviewer severity. The rest pass through tagged `unverified (cost-guard)`. Note the narrowing in the report.
+- **`--rigorous`:** verify everything above the floor, ignoring the cap.
 
-    ## The Finding
-    [severity, file:line, description, and suggested fix from the original agent]
+The cost-guard threshold is a finding-count proxy (no token budget exists in this substrate).
 
-    ## The Diff
-    [git diff output for the relevant file]
+### Panel
 
-    ## Full File Content
-    [full content of the file containing the finding]
+For each selected finding, spawn the three lenses in parallel using the lens prompts from the skill (`general-purpose`; `opus` for lenses 1-2, `sonnet` for lens 3; `run_in_background: true`), substituting the finding, the diff, and the full file content.
 
-    ## PR Context
-    [PR title, description, or branch context]
+### Survival rule
 
-    ## Instructions
-    Verify this finding by checking the actual code:
-    1. Does the code actually have the described problem?
-    2. Is the file:line reference correct?
-    3. Could this be a false positive (pre-existing issue, framework convention,
-       intentional design choice, or misunderstanding of the code)?
-    4. Is the severity appropriate?
+Apply the skill's rule: survive on `>= 2` of lenses 1-2 voting REAL; discard (`filtered`, counted) on `>= 2` FALSE_POSITIVE; tie or fewer-than-2-verdicts means survive and mark `contested`. Final severity is the lens-3 vote when confirmed real, else the original.
 
-    Respond with EXACTLY:
-    - **Verdict:** VALID or FALSE_POSITIVE
-    - **Confidence:** 0-100
-    - **Reasoning:** 1-2 sentences explaining why
-```
+**After the panel completes:**
+- Drop `filtered` findings; apply recalibrated severities; tag `contested` and `unverified (cost-guard)` findings.
+- Add to the report: `Verification: X of Y (3-lens panel), Z false positives, W contested`.
 
-**After all validators complete:**
-- Discard findings with verdict `FALSE_POSITIVE`
-- Keep findings with verdict `VALID`
-- Add a line to the final report: `Validation: X of Y Critical/High findings validated (Z filtered as false positives)`
+Medium and Low findings are no longer skipped by default: they enter the panel like any other finding above the floor (subject to the cost guard).
 
-Medium and Low findings skip validation -- they appear in the report as-is with their original confidence scores.
+## Step 4c: Completeness Critic
+
+Skip this step if `--fast` was passed. Otherwise run the critic defined in the `agent-teams:multi-reviewer-patterns` skill, section `## Completeness Critic` (if `agent-teams` is not installed, skip this step).
+
+1. Spawn one `general-purpose` critic with the skill's critic prompt. Pass the verified findings, the changed-file scope, the agents that ran, and the deep-dive context paths if `.deep-dive/` exists (else "none").
+2. If the critic names a single high-risk uncovered area under `## Recommended follow-up` AND the cost guard did not fire: spawn ONE targeted reviewer (the most specialized agent for that area) scoped to the files named, then route its findings back through Step 4 (dedup) and Step 4b (panel). At most one round.
+3. Otherwise degrade to report-only.
+4. Carry the critic's `## Coverage Gaps` list into the Step 5 report.
 
 ## Step 5: Final Review Output
 
@@ -853,7 +838,7 @@ After validation completes, synthesize everything into the final structured revi
 - Files reviewed: [N]
 - Lines changed: +X / -Y
 - CLAUDE.md compliance: [checked / not found]
-- Validation: X of Y Critical/High findings validated (Z filtered as false positives)
+- Verification: X of Y findings verified (3-lens panel), Z false positives, W contested{cost_guard_note}
 
 ### Overall Score: X/10 (confidence: X%)
 
@@ -908,6 +893,9 @@ After validation completes, synthesize everything into the final structured revi
 - Residual risks: [risks noticed but not confirmed as findings]
 - Testing gaps: [missing test coverage identified]
 
+### Coverage Gaps
+[paste the ## Coverage Gaps list from the completeness critic, or "None identified"]
+
 ### Pattern Consistency
 - [pattern deviations found, or "Changes follow established patterns"]
 
@@ -927,6 +915,8 @@ After validation completes, synthesize everything into the final structured revi
 >
 > **Fix order:** [severity-ordered list of what to fix first, if applicable]
 ```
+
+Where `{cost_guard_note}` is `, narrowed to stakes+band (N unverified)` when the cost guard fired, else empty.
 
 If `--strict` and there are Critical findings:
 
@@ -1000,7 +990,7 @@ cat > .full-review/temp_summary_comment.md << 'SUMMARY_EOF'
 [top 3 recommended actions]
 
 ---
-*Reviewed by: code-auditor, security-auditor, dead-code-and-lint-detector, ui-race-auditor, git-history-analyzer | Findings validated before posting*
+*Reviewed by: code-auditor, security-auditor, dead-code-and-lint-detector, ui-race-auditor, git-history-analyzer | Findings verified by 3-lens panel*
 SUMMARY_EOF
 
 gh pr comment {number} -F .full-review/temp_summary_comment.md
