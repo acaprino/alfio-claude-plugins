@@ -1,8 +1,8 @@
 ---
 description: >
-  Comprehensive technical SEO audit with Playwright-powered analysis, scoring, prioritized fixes, and a persistent markdown report.
-  TRIGGER WHEN: the user asks for a technical SEO audit, Core Web Vitals check, structured data review, or search visibility analysis of a site.
-  DO NOT TRIGGER WHEN: the audit is about conversion/CTA/copy (use /digital-marketing:content-strategy) or GA4 tracking (use ga4-implementation-expert).
+  Technical SEO audit for traditional search-engine ranking (Google and Bing SERP positioning): Core Web Vitals, meta tags, sitemap, redirects, structured data, mobile, and crawlability. Playwright-powered, scored 0-100, with prioritized fixes and a persistent markdown report. To optimize for being cited inside AI answers (ChatGPT, Perplexity, Google AI Overviews) use /digital-marketing:llm-seo-audit instead.
+  TRIGGER WHEN: the user asks for a technical SEO audit, Core Web Vitals check, structured data review, or search visibility / SERP ranking analysis of a site.
+  DO NOT TRIGGER WHEN: the goal is being cited by AI answer engines (use /digital-marketing:llm-seo-audit), conversion/CTA/copy (use /digital-marketing:content-strategy), or GA4 tracking (use ga4-implementation-expert).
 argument-hint: "<url or local path> [--focus <categories>] [--competitor <url>] [--local] [--strict-mode]"
 ---
 
