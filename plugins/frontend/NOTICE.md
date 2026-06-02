@@ -44,10 +44,13 @@ https://github.com/pbakaus/impeccable.
 ### Local impact of this NOTICE
 
 The Anthropic `frontend-design` lineage applies to all Impeccable-derived files
-listed in the sync table: the 7 reference files (typography, color-and-contrast,
-motion-design, heuristics-scoring, cognitive-load, personas, brand-register)
-plus the 4 appended sections inside `layout-patterns.md`, `ui-pattern-guide.md`,
-`css-patterns.md`, and `ux-patterns.md`.
+listed in the sync table: the 10 reference files (typography, color-and-contrast,
+motion-design, heuristics-scoring, cognitive-load, personas, brand-register,
+visual-intensity, delight-and-microinteractions, production-hardening) plus the
+4 appended sections inside `layout-patterns.md`, `ui-pattern-guide.md`,
+`css-patterns.md`, and `ux-patterns.md`. The last three reference files were
+vendored in the 2026-06-02 refresh (derived from Impeccable's `bolder.md` +
+`quieter.md`, `delight.md`, and `harden.md` respectively).
 
 The `ehmo/typecraft-guide-skill` lineage applies specifically to
 `plugins/frontend/skills/frontend-css/references/typography.md`. Its attribution

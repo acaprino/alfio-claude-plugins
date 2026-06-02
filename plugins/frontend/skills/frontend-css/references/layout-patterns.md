@@ -183,7 +183,7 @@ Auto-fill cards; subgrid aligns internals (title, body, CTA) across rows.
 
 ---
 
-<!-- Section below derived from pbakaus/impeccable (Apache-2.0), snapshot 2026-05-11. -->
+<!-- Section below derived from pbakaus/impeccable (Apache-2.0), snapshot 2026-06-02. -->
 
 # Spatial Design Principles
 
@@ -199,7 +199,15 @@ The patterns above are recipes; the principles below explain how to combine spac
 
 Name by relationship (`--space-sm`, `--space-lg`), not value (`--spacing-8`). Use `gap` instead of margins for sibling spacing; it eliminates margin collapse and cleanup hacks.
 
+### Rhythm Through Contrast
+
+Equal spacing everywhere reads as no rhythm. Group related elements tightly (8-12px between siblings) and separate distinct sections generously (48-96px). Vary spacing within a section rather than repeating one gap. Apply `clamp()` for fluid spacing that breathes on larger screens.
+
 ## Grid Systems
+
+### Flexbox for 1D, Grid for 2D
+
+Use Flexbox for one-dimensional layouts: nav bars, button groups, card internals, most component interiors. Use Grid for two-dimensional structure: page layouts, dashboards, and anything where rows *and* columns need coordinated control.
 
 ### The Self-Adjusting Grid
 
@@ -286,4 +294,4 @@ Create semantic z-index scales (dropdown → sticky → modal-backdrop → modal
 
 ---
 
-**Avoid**: Arbitrary spacing values outside your scale. Making all spacing equal (variety creates hierarchy). Creating hierarchy through size alone; combine size, weight, color, and space.
+**Avoid**: Arbitrary spacing values outside your scale. Making all spacing equal (variety creates hierarchy). Creating hierarchy through size alone; combine size, weight, color, and space. Defaulting to the hero-metric template (big number, small label, stat row, gradient) when there is no real data behind it; a prominent metric only works when it shows actual data.

@@ -30,6 +30,9 @@ For deeper coverage of specific topics, consult the files under `references/`:
 | `layout-patterns.md` | Holy Grail, Split, Bento, Editorial Asymmetry, Masonry, Card Grid recipes, plus a **Spatial Design Principles** section (4pt spacing, hierarchy, container queries, optical adjustments) |
 | `ui-pattern-guide.md` | Cards/list/table/gallery decisions, navigation, pagination, modals, blank slate, plus an **Interaction Design** section (8 states, focus rings, Popover API, anchor positioning, keyboard nav) |
 | `ux-patterns.md` | Onboarding, trust/social proof, persuasion, paywalls, chunking, plus a **UX Writing** section (button labels, error messages, voice/tone, i18n, terminology) |
+| `visual-intensity.md` | Amplify (bolder) vs restrain (quieter) on one axis: scale/weight/color/space moves, anti-AI-slop "bold", easing rules |
+| `delight-and-microinteractions.md` | Where/when delight is earned, micro-interactions, copy personality, loading-state copy (anti-slop), celebrations, easter eggs, libraries |
+| `production-hardening.md` | Edge-case resilience: text overflow, i18n/RTL logical properties, error/empty/loading states, validation, a11y and performance resilience |
 | `flow-patterns.md` | User flow recipes |
 | `argyle-cacadia-2025-deck.md` | Adam Argyle CSS Wrapped 2025 deck (offline copy) |
 | `token-architecture.md` | Three-layer token system (primitive -> semantic -> component), naming convention, file organization, W3C DTCG alignment |
