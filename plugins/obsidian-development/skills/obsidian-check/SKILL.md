@@ -1,18 +1,18 @@
 ---
 name: obsidian-check
 description: >
-  Reviews code against all ObsidianReviewBot rules and reports violations with fixes. Use PROACTIVELY before any git push on an Obsidian plugin project.
+  Reviews code against all Obsidian automated plugin review rules and reports violations with fixes. Use PROACTIVELY before any git push on an Obsidian plugin project.
   TRIGGER WHEN: preparing an Obsidian plugin for submission or before pushing code
   DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
 ---
 
 # Obsidian Check
 
-Review code against all ObsidianReviewBot rules before pushing. Reports violations grouped by severity with exact file locations and fixes.
+Review code against all Obsidian automated plugin review rules before pushing. Since May 2026 the review runs on the Community hub (community.obsidian.md) and scans every GitHub release; a failing version is removed from directory search within 24 hours. Reports violations grouped by severity with exact file locations and fixes.
 
 ## Usage
 
-`/obsidian-check` -- scans the current Obsidian plugin project for all bot violations.
+`/obsidian-check` -- scans the current Obsidian plugin project for all automated review violations.
 
 ## Procedure
 

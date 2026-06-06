@@ -1,7 +1,7 @@
 ---
 name: obsidian-plugin-development
 description: >
-  Ensures compliance with ObsidianReviewBot automated checks, eslint-plugin-obsidianmd rules, and official Obsidian plugin guidelines.
+  Ensures compliance with Obsidian's automated plugin review (community.obsidian.md), eslint-plugin-obsidianmd rules, and official Obsidian plugin guidelines.
   TRIGGER WHEN: writing, reviewing, or fixing Obsidian community plugin code
   DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
 ---
@@ -10,13 +10,13 @@ description: >
 
 ## Overview
 
-Write Obsidian plugin code that passes the ObsidianReviewBot automated review on first submission. All rules below are enforced by the bot via `eslint-plugin-obsidianmd` and `@typescript-eslint`. Violations labeled "Required" block merging.
+Write Obsidian plugin code that passes Obsidian's automated plugin review on first submission. Since May 2026, plugins are submitted and reviewed through the Community hub at community.obsidian.md (the old PR workflow to `obsidianmd/obsidian-releases`, gated by ObsidianReviewBot, is retired); every GitHub release is scanned automatically. All rules below are enforced via `eslint-plugin-obsidianmd` and `@typescript-eslint`. Violations labeled "Required" block approval, and a failing version of an already-listed plugin is removed from directory search within 24 hours.
 
 ## When to Use
 
 - Writing or editing TypeScript in an Obsidian plugin
-- Preparing a plugin PR to `obsidianmd/obsidian-releases`
-- Fixing ObsidianReviewBot violations
+- Preparing a plugin submission on the community.obsidian.md dashboard
+- Fixing automated review violations
 - Adding UI text, commands, settings tabs, or DOM manipulation
 
 ## Quick Reference: Required Rules

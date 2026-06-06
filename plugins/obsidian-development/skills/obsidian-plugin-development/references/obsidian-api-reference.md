@@ -68,7 +68,9 @@ Static `Platform` namespace: `isDesktop`, `isMobile`, `isDesktopApp`, `isMobileA
 - API source (.d.ts): https://github.com/obsidianmd/obsidian-api/blob/master/obsidian.d.ts
 - Plugin guidelines (review checklist): https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines
 - Releasing a plugin: https://docs.obsidian.md/Plugins/Releasing/Submit+your+plugin
+- Community hub (submission dashboard, replaces the PR workflow since May 2026): https://community.obsidian.md
+- Workflow change announcement: https://obsidian.md/blog/future-of-plugins/
 
 ## Related
 
-- The plugin's main `SKILL.md` -- ObsidianReviewBot rules consolidated as a checklist with bad/good code examples
+- The plugin's main `SKILL.md` -- automated review rules consolidated as a checklist with bad/good code examples

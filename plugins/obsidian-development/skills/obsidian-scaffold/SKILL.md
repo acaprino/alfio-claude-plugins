@@ -1,14 +1,14 @@
 ---
 name: obsidian-scaffold
 description: >
-  Scaffolds project structure, manifest, tsconfig, esbuild config, and a minimal plugin class that passes ObsidianReviewBot checks.
+  Scaffolds project structure, manifest, tsconfig, esbuild config, and a minimal plugin class that passes Obsidian's automated plugin review.
   TRIGGER WHEN: the user asks to start, create, bootstrap, or initialize a new Obsidian community plugin
   DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
 ---
 
 # Obsidian Plugin Scaffold
 
-Scaffold a new Obsidian community plugin project that is bot-compliant from day one.
+Scaffold a new Obsidian community plugin project that is review-compliant from day one.
 
 ## Usage
 
@@ -21,7 +21,7 @@ my-plugin/
   src/
     main.ts           # Plugin class with onload/onunload
   styles.css          # Empty, scoped styles
-  manifest.json       # Valid manifest (bot-compliant)
+  manifest.json       # Valid manifest (review-compliant)
   package.json        # Dependencies: obsidian, typescript, esbuild, @types/node, builtin-modules
   tsconfig.json       # strict: true, target ES2018, moduleResolution node
   esbuild.config.mjs  # CJS bundle, externalizes obsidian + electron
@@ -41,7 +41,7 @@ my-plugin/
    - Author URL (optional)
    - Desktop only? (default: false)
 
-2. **Validate inputs** against ObsidianReviewBot rules:
+2. **Validate inputs** against Obsidian automated review rules:
    - ID: `/^[a-z0-9-]+$/`, not containing "obsidian", not ending with "plugin"
    - Name: not containing "Obsidian", not ending with "Plugin"
    - Description: not starting with "This plugin", not containing "Obsidian", ending with `.?!)`
@@ -200,6 +200,8 @@ export default [
 After creation, remind the user:
 - Run `npm run dev` for watch mode during development
 - Run `npm run build` for production build
-- Run `npm run lint` to check against ObsidianReviewBot rules locally
+- Run `npm run lint` to check against the automated review rules locally
 - Create a GitHub release with `main.js`, `manifest.json`, and `styles.css` as individual assets
 - Release tag must match version in manifest.json exactly (no `v` prefix)
+- Submit the new plugin on community.obsidian.md: sign in with an Obsidian account, link GitHub, then "Plugins" > "New plugin" with the repo URL. The old PR workflow to `obsidianmd/obsidian-releases` was retired in May 2026
+- Updates need no dashboard action: every new GitHub release is scanned automatically by the review system
