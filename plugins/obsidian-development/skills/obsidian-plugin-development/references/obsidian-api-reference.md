@@ -9,7 +9,7 @@ Looking up a class, method, or event signature while writing a plugin. For deepe
 ## The classes you'll touch in 95% of plugins
 
 - `Plugin` (extends `Component`) -- `onload()`, `onunload()`, `addCommand()`, `addSettingTab()`, `addRibbonIcon()`, `registerView()`, `registerMarkdownPostProcessor()`, `loadData()`/`saveData()`, plus `app: App` and `manifest: PluginManifest`
-- `App` -- the root: `vault`, `workspace`, `metadataCache`, `fileManager`, `keymap`, `scope`, `isDarkMode()`
+- `App` -- the root: `vault`, `workspace`, `metadataCache`, `fileManager`, `keymap`, `scope`, `isDarkMode()`, `loadLocalStorage(key)`/`saveLocalStorage(key, data)` (device-local key-value store scoped to the current vault; use instead of raw `localStorage`)
 - `Vault` (extends `Events`) -- file operations: `read()`/`cachedRead()`, `create()`, `modify()`, `process()` (the safer modify), `delete()`/`trash()`, plus events `create`/`delete`/`rename`/`modify`
 - `Workspace` (extends `Events`) -- panes/leaves: `getLeaf()`, `getActiveFile()`, `openLinkText()`, `onLayoutReady()`, plus events `active-leaf-change`, `file-open`, `layout-change`
 - `MetadataCache` -- `getFileCache()`, `resolvedLinks`, `unresolvedLinks`, plus events `changed`, `resolve`, `resolved`

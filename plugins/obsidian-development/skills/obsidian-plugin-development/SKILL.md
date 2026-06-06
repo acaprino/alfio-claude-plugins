@@ -305,6 +305,7 @@ Enforced platform-side via `@eslint-community/eslint-comments/require-descriptio
 
 - Remove unused variables and imports
 - Use `AbstractInputSuggest` instead of copied `TextInputSuggest`
+- Don't persist data in `localStorage` or `sessionStorage`. Use `Plugin.loadData()`/`saveData()` for plugin data (stored in the plugin's `data.json`, synced with the vault). For device-specific per-vault values (window positions, device caches), use `App.loadLocalStorage()`/`App.saveLocalStorage()`, which scope keys to the current vault. Raw `localStorage` is shared across all vaults on the device and never synced; `sessionStorage` does not survive a restart.
 
 ## Additional Best Practices
 
@@ -350,3 +351,4 @@ Configure ESLint with the obsidianmd recommended config plus the eslint-comments
 | `el.createEl('span', {...})` | `el.createSpan({...})` |
 | Bare `// eslint-disable-next-line` | Append ` -- reason` description |
 | New API with old `minAppVersion` | Raise `minAppVersion` to the API's version |
+| `localStorage.setItem('key', v)` | `this.app.saveLocalStorage('key', v)` or `this.saveData(...)` |

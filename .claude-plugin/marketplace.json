@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Claude Code Daodan -- 45 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, frontend, AI tooling, scraping, trading, observability, reverse engineering, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), Progressive Web Apps, and pure-architecture audits (missed unification, wrong abstractions).",
-    "version": "6.24.6"
+    "version": "6.24.7"
   },
   "plugins": [
     {
@@ -694,7 +694,7 @@
       "name": "obsidian-development",
       "source": "./plugins/obsidian-development",
       "description": "Obsidian community plugin development with automated review compliance (community.obsidian.md), project scaffolding, and pre-submission checks",
-      "version": "1.4.0",
+      "version": "1.4.1",
       "author": {
         "name": "Alfio"
       },

@@ -104,6 +104,7 @@ These checks catch issues NOT covered by eslint-plugin-obsidianmd. Run by readin
 | 2 | **Unused variables** | TypeScript check catches these |
 | 3 | **console.log in lifecycle** | Search for `console.log` in `onload()`/`onunload()` |
 | 4 | **createEl helpers** | Search for `document.createElement(`, `document.createDocumentFragment(`, `createEl('span'`, `createEl('div'` -- replace with `createEl()`, `createFragment()`, `createSpan()`, `createDiv()`. Covers `obsidianmd/prefer-create-el`: the review platform enforces it, but the rule is not yet in the npm release, so local ESLint misses it |
+| 5 | **Local storage** | Search for `localStorage` and `sessionStorage` -- persist plugin data with `Plugin.loadData()`/`saveData()`; for device-specific per-vault values use `App.loadLocalStorage()`/`App.saveLocalStorage()`. Raw `localStorage` is shared across all vaults on the device and `sessionStorage` does not survive a restart |
 
 ### Step 6: Check manifest.json
 
