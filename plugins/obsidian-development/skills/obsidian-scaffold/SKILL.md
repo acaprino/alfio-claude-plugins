@@ -22,10 +22,10 @@ my-plugin/
     main.ts           # Plugin class with onload/onunload
   styles.css          # Empty, scoped styles
   manifest.json       # Valid manifest (review-compliant)
-  package.json        # Dependencies: obsidian, typescript, esbuild, @types/node, builtin-modules
+  package.json        # Dependencies: obsidian, typescript, esbuild, @types/node
   tsconfig.json       # strict: true, target ES2018, moduleResolution node
   esbuild.config.mjs  # CJS bundle, externalizes obsidian + electron
-  .eslintrc.json      # eslint-plugin-obsidianmd recommended config
+  eslint.config.mjs   # eslint-plugin-obsidianmd + eslint-comments flat config
   LICENSE             # MIT with current year
   README.md           # Minimal description
   .gitignore          # node_modules, main.js, data.json
@@ -78,12 +78,12 @@ my-plugin/
   "scripts": {
     "dev": "node esbuild.config.mjs",
     "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
-    "lint": "eslint src/"
+    "lint": "eslint src/ package.json"
   },
   "devDependencies": {
+    "@eslint-community/eslint-plugin-eslint-comments": "^4.0.0",
     "@eslint/js": "^9.0.0",
     "@types/node": "^22.0.0",
-    "builtin-modules": "^4.0.0",
     "esbuild": "^0.24.0",
     "eslint": "^9.0.0",
     "eslint-plugin-obsidianmd": "latest",
@@ -120,7 +120,7 @@ my-plugin/
 ```javascript
 import esbuild from "esbuild";
 import process from "process";
-import builtins from "builtin-modules";
+import { builtinModules as builtins } from "node:module";
 
 const prod = process.argv[2] === "production";
 
@@ -176,15 +176,30 @@ data.json
 ```
 
 ### eslint.config.mjs (ESLint 9+ flat config)
+
+The eslint-comments block mirrors checks that Obsidian's review platform adds on top of the obsidianmd recommended config.
+
 ```javascript
 import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import obsidianmd from 'eslint-plugin-obsidianmd';
+import comments from '@eslint-community/eslint-plugin-eslint-comments/configs';
 
 export default [
   js.configs.recommended,
   ...tseslint.configs.recommended,
   ...obsidianmd.configs.recommended,
+  comments.recommended,
+  {
+    rules: {
+      '@eslint-community/eslint-comments/require-description': 'error',
+      '@eslint-community/eslint-comments/no-restricted-disable': [
+        'error',
+        'obsidianmd/no-static-styles-assignment',
+        'obsidianmd/ui/sentence-case',
+      ],
+    },
+  },
   {
     languageOptions: {
       parserOptions: {

@@ -22,23 +22,35 @@ Check that `manifest.json`, `package.json`, and `src/` exist. If not, abort with
 
 ### Step 2: Ensure eslint-plugin-obsidianmd is installed
 
-Check if `eslint-plugin-obsidianmd` is in `package.json` devDependencies. If NOT installed:
+Check if `eslint-plugin-obsidianmd` and `@eslint-community/eslint-plugin-eslint-comments` are in `package.json` devDependencies. If NOT installed:
 
-1. Install it and its peer dependencies:
+1. Install them and the peer dependencies:
 
 ```bash
-npm install --save-dev eslint eslint-plugin-obsidianmd @typescript-eslint/parser typescript-eslint @eslint/js
+npm install --save-dev eslint eslint-plugin-obsidianmd @eslint-community/eslint-plugin-eslint-comments @typescript-eslint/parser typescript-eslint @eslint/js
 ```
 
-2. If no ESLint config file exists (`eslint.config.mjs`, `.eslintrc.*`), create `eslint.config.mjs`:
+2. If no ESLint config file exists (`eslint.config.mjs`, `.eslintrc.*`), create `eslint.config.mjs`. The eslint-comments block mirrors checks that Obsidian's review platform adds on top of the obsidianmd recommended config:
 
 ```javascript
 import tsparser from "@typescript-eslint/parser";
 import { defineConfig } from "eslint/config";
 import obsidianmd from "eslint-plugin-obsidianmd";
+import comments from "@eslint-community/eslint-plugin-eslint-comments/configs";
 
 export default defineConfig([
   ...obsidianmd.configs.recommended,
+  comments.recommended,
+  {
+    rules: {
+      "@eslint-community/eslint-comments/require-description": "error",
+      "@eslint-community/eslint-comments/no-restricted-disable": [
+        "error",
+        "obsidianmd/no-static-styles-assignment",
+        "obsidianmd/ui/sentence-case",
+      ],
+    },
+  },
   {
     files: ["**/*.ts"],
     languageOptions: {
@@ -49,7 +61,7 @@ export default defineConfig([
 ]);
 ```
 
-3. Inform the user that `eslint-plugin-obsidianmd` was installed and configured.
+3. Inform the user that the ESLint plugins were installed and configured.
 
 ### Step 3: Run TypeScript check
 
@@ -62,10 +74,12 @@ Report any type errors.
 ### Step 4: Run eslint-plugin-obsidianmd
 
 ```bash
-npx eslint src/ 2>&1
+npx eslint src/ package.json 2>&1
 ```
 
-This covers sentence case (`ui/sentence-case`), inline styles, command rules, manifest validation, TFile/TFolder casts, forbidden elements, and more. Report all ESLint errors and warnings.
+Lint `package.json` too, not just `src/`: the recommended config runs `depend/ban-dependencies` on it (flags deprecated packages like `builtin-modules`, replaced by `node:module`'s `builtinModules`).
+
+This covers sentence case (`ui/sentence-case`), inline styles, command rules, manifest validation, TFile/TFolder casts, forbidden elements, popout-window compatibility (`prefer-active-doc`, `prefer-window-timers`, `no-global-this`), API availability vs `minAppVersion` (`no-unsupported-api`), undescribed or forbidden `eslint-disable` directives, and more. Report all ESLint errors and warnings.
 
 ### Step 5: Manual checks (scan all .ts files in src/)
 
@@ -89,6 +103,7 @@ These checks catch issues NOT covered by eslint-plugin-obsidianmd. Run by readin
 | 1 | **Unused imports** | TypeScript check catches these |
 | 2 | **Unused variables** | TypeScript check catches these |
 | 3 | **console.log in lifecycle** | Search for `console.log` in `onload()`/`onunload()` |
+| 4 | **createEl helpers** | Search for `document.createElement(`, `document.createDocumentFragment(`, `createEl('span'`, `createEl('div'` -- replace with `createEl()`, `createFragment()`, `createSpan()`, `createDiv()`. Covers `obsidianmd/prefer-create-el`: the review platform enforces it, but the rule is not yet in the npm release, so local ESLint misses it |
 
 ### Step 6: Check manifest.json
 
@@ -97,6 +112,7 @@ These checks catch issues NOT covered by eslint-plugin-obsidianmd. Run by readin
 - `description`: no "Obsidian", no "This plugin", must end with `. ? ! )`, under 250 chars
 - All required fields present: `id`, `name`, `version`, `minAppVersion`, `description`, `author`
 - `version` matches latest git tag (if any)
+- `minAppVersion` covers every API the code calls (`obsidianmd/no-unsupported-api` flags APIs newer than it, e.g. `Workspace.revealLeaf` needs 1.7.2)
 
 ### Step 7: Check LICENSE
 

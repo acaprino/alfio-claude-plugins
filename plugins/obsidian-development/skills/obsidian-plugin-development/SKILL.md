@@ -241,6 +241,66 @@ Don't use `Object.assign(this.settings, data)` to mutate defaults.
 - Plugin ID: alphanumeric + dashes, no "obsidian", no "plugin" suffix
 - Description: no "Obsidian", no "This plugin", must end with `. ? ! )`
 
+### 22. Popout Window Compatibility
+
+Use the popout-safe globals. Bare `document` and global timers target the main window only and break in popout windows.
+
+```typescript
+// NO
+document.body.appendChild(el);
+const t = setTimeout(cb, 500);
+clearTimeout(t);
+globalThis.myFlag = true;
+
+// YES
+activeDocument.body.appendChild(el);
+const t = activeWindow.setTimeout(cb, 500);
+activeWindow.clearTimeout(t);
+```
+
+Rules: `obsidianmd/prefer-active-doc` (warn), `obsidianmd/prefer-window-timers` (error, also covers `setInterval` and `requestAnimationFrame`), `obsidianmd/no-global-this` (error).
+
+### 23. API Availability vs minAppVersion
+
+Every API the code calls must exist in the Obsidian version declared as `minAppVersion`. `obsidianmd/no-unsupported-api` cross-checks usage against the manifest.
+
+```typescript
+// NO -- revealLeaf needs v1.7.2 but manifest says minAppVersion 1.5.0
+await this.app.workspace.revealLeaf(leaf);
+
+// YES -- raise minAppVersion to 1.7.2, or gate the call behind a version check
+```
+
+### 24. Use createEl Helpers
+
+```typescript
+// NO
+document.createElement('iframe');
+document.createDocumentFragment();
+el.createEl('span', { text: file.path });
+
+// YES
+createEl('iframe');
+createFragment();
+el.createSpan({ text: file.path });
+```
+
+Rule `obsidianmd/prefer-create-el`. The review platform enforces it, but the rule is not yet in the npm release, so local ESLint misses it: check these patterns manually.
+
+### 25. ESLint Directive Comments
+
+Every `eslint-disable` directive needs a description, and some rules cannot be disabled at all (`obsidianmd/no-static-styles-assignment`, `obsidianmd/ui/sentence-case`).
+
+```typescript
+// NO
+// eslint-disable-next-line obsidianmd/prefer-active-doc
+
+// YES
+// eslint-disable-next-line obsidianmd/prefer-active-doc -- main-window-only startup code
+```
+
+Enforced platform-side via `@eslint-community/eslint-comments/require-description` and `no-restricted-disable`; add the same plugin locally to catch them before release.
+
 ## Optional (Non-blocking)
 
 - Remove unused variables and imports
@@ -268,10 +328,10 @@ For the full type definitions, read `node_modules/obsidian/obsidian.d.ts` in the
 ## Running Checks Locally
 
 ```bash
-npm install eslint-plugin-obsidianmd --save-dev
+npm install --save-dev eslint-plugin-obsidianmd @eslint-community/eslint-plugin-eslint-comments
 ```
 
-Configure ESLint with the plugin's recommended config. Run before submitting PR.
+Configure ESLint with the obsidianmd recommended config plus the eslint-comments rules (`require-description`, `no-restricted-disable`). Lint `src/` AND `package.json` (the dependency rules only fire when `package.json` is linted). Run before publishing a release: the platform scans every GitHub release automatically.
 
 ## Common Mistakes
 
@@ -285,3 +345,8 @@ Configure ESLint with the plugin's recommended config. Run before submitting PR.
 | Unhandled promise | Add `void`, `await`, or `.catch()` |
 | `detachLeavesOfType` in onunload | Remove -- Obsidian handles it |
 | `abstractFile as TFile` | `if (x instanceof TFile)` |
+| `setTimeout(cb, ms)` | `activeWindow.setTimeout(cb, ms)` |
+| `document.body` | `activeDocument.body` |
+| `el.createEl('span', {...})` | `el.createSpan({...})` |
+| Bare `// eslint-disable-next-line` | Append ` -- reason` description |
+| New API with old `minAppVersion` | Raise `minAppVersion` to the API's version |
