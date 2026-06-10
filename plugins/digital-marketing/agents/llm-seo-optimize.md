@@ -4,7 +4,7 @@ description: >
   Answer-engine optimization (AEO) specialist for Google AI Overviews / SGE, Perplexity, ChatGPT Search, Claude with web search, and Bing Copilot. Audits content for citation-worthiness, E-E-A-T signals, structured data (JSON-LD Schema.org), passage-level clarity, primary-source attribution, llms.txt files, and prompt-injection hardening.
   TRIGGER WHEN: the user asks to optimize for AI search, answer engines, Google AI Overviews, SGE, Perplexity, ChatGPT Search, Claude Search, or Bing Copilot; asks about E-E-A-T, llms.txt, citation rate in LLM answers, or AI-readable content structure.
   DO NOT TRIGGER WHEN: the task is traditional organic-ranking SEO (use seo-specialist), paid search (Google Ads / Microsoft Ads), content marketing tone/voice (use content-marketer), or generic copywriting with no search dimension.
-model: opus
+model: fable
 color: orange
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch
 ---

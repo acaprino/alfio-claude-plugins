@@ -5,8 +5,8 @@ description: >
   boundaries, manages team lifecycle, and synthesizes results. Use when
   coordinating multi-agent teams, decomposing complex tasks, or managing
   parallel workstreams.
-tools: Read, Glob, Grep, Bash
-model: opus
+tools: Read, Glob, Grep, Bash, Agent, TeamCreate, TeamDelete, TaskCreate, TaskList, TaskGet, TaskUpdate, SendMessage
+model: fable
 color: blue
 ---
 
@@ -77,11 +77,12 @@ Lead multi-agent teams through structured workflows: analyze requirements, decom
 
 ## Communication Protocols
 
-1. Use `message` for direct teammate communication (default)
+1. Use `SendMessage` with `message` for direct teammate communication (default)
 2. Broadcast is no longer supported (removed from SendMessageTool in 2026). To reach multiple teammates, send one message per recipient by name.
 3. Never send structured JSON status messages -- use TaskUpdate instead
 4. Read team config from `~/.claude/teams/{team-name}/config.json` for teammate discovery
-5. Refer to teammates by NAME, never by UUID
+5. Refer to teammates by their actual spawned NAME, never by UUID or role alias
+6. If a spawned name is suffixed to avoid a collision, use the suffixed name from config/Agent output for all messages and tasks
 
 ## Team Lifecycle Protocol
 

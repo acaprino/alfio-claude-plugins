@@ -4,7 +4,7 @@ description: >
   Lead architect for production Python web scraping systems. Handles target assessment, discovery workflow, framework selection (Scrapy, Crawlee, Crawl4AI, Firecrawl), rate limiting and observability, cost modelling, and routing to the three specialist agents: stealth-browser-expert (browser stealth + CAPTCHA), http-fingerprint-expert (TLS/HTTP impersonation + proxies), ai-scraping-expert (LLM extraction + schema-driven pipelines).
   TRIGGER WHEN: designing, building, implementing, writing, coding, or creating a new scraping pipeline end-to-end, assessing target protection before tool choice, reverse-engineering APIs via network interception, picking a framework (Scrapy / Crawlee / Crawl4AI / Firecrawl), setting up rate limits and observability, estimating pipeline cost, or routing to a specialist.
   DO NOT TRIGGER WHEN: the task is purely within a single specialist's domain (browser stealth, HTTP fingerprint, or LLM extraction) -- use the specialist directly.
-model: opus
+model: fable
 color: pink
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch
 ---

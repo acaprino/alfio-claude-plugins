@@ -5,7 +5,7 @@ description: >
   TRIGGER WHEN: creating, reviewing, or improving CLAUDE.md files
   DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
 tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch
-model: opus
+model: fable
 color: yellow
 ---
 

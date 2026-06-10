@@ -5,7 +5,7 @@ description: >
   TRIGGER WHEN: writing system prompts, designing agent instructions, or optimizing prompt performance for reliability and token efficiency.
   DO NOT TRIGGER WHEN: the user is asking for general coding tasks unrelated to prompt engineering.
 tools: Read, Write, Edit, Bash, Glob, Grep
-model: opus
+model: fable
 color: pink
 ---
 

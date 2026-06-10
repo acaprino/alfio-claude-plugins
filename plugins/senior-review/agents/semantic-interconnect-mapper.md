@@ -5,7 +5,7 @@ description: >
   TRIGGER WHEN: the user runs /team-review or /map-codebase, or explicitly asks to map contracts, invariants, call graphs, or integration boundaries.
   DO NOT TRIGGER WHEN: no prior context artifact exists (neither .deep-dive/ nor a context-brief.md), or the task is a surface-level operation that does not need the map.
 tools: Read, Write, Glob, Grep
-model: opus
+model: fable
 color: cyan
 ---
 

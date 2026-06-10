@@ -45,7 +45,7 @@ description: >
   {{ONE_SENTENCE_ROLE}}
   TRIGGER WHEN: {{concrete triggers, comma-separated}}
   DO NOT TRIGGER WHEN: {{sibling-conflict exclusions}}
-model: opus
+model: fable
 color: {{red | blue | green | yellow | purple | orange | pink | cyan}}
 ---
 

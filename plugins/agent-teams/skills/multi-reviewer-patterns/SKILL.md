@@ -5,7 +5,7 @@ description: >
   deduplication, severity calibration, and consolidated reporting. Use this skill
   when organizing multi-reviewer code reviews, calibrating finding severity, or
   consolidating review results.
-version: 1.3.0
+version: 1.3.1
 ---
 
 # Multi-Reviewer Patterns
@@ -219,7 +219,7 @@ This section is the source of truth. `/agent-teams:team-review` (Phase 4b) and `
 
 ### The three lenses
 
-Spawn one `Agent` per lens per finding. Use `subagent_type: general-purpose`. Use `model: opus` for lenses 1 and 2 (reasoning-heavy), `model: sonnet` for lens 3 (calibration). Run all three (and across findings) in parallel via `run_in_background: true`.
+Spawn one `Agent` per lens per finding. Use `subagent_type: general-purpose`. Use `model: fable` for lenses 1 and 2 (reasoning-heavy), `model: sonnet` for lens 3 (calibration). Run all three (and across findings) in parallel via `run_in_background: true`.
 
 **Lens 1 prompt (Reachability / Correctness):**
 

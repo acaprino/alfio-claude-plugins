@@ -4,7 +4,7 @@ description: >
   Expert in Tauri 2 mobile development for Android and iOS.
   TRIGGER WHEN: working with mobile environment setup (Android SDK, Xcode, NDK), emulator/ADB testing, mobile plugins (biometric, haptics, barcode, NFC, geolocation, notifications), in-app purchases, mobile OAuth deep links, code signing for Play Store/App Store, and mobile CI/CD pipelines.
   DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
-model: opus
+model: fable
 color: blue
 ---
 

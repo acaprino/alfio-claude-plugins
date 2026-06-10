@@ -1,6 +1,6 @@
 # IBKR Trading Plugin
 
-> Interactive Brokers algotrading -- TWS API 10.44 architecture, ib_async event-driven programming, market data subscriptions, order execution with bracket orders, reconnection resilience, IBC automation, and Windows production deployment.
+> Interactive Brokers algotrading -- TWS API 10.45 architecture, ib_async event-driven programming, market data subscriptions, order execution with bracket orders, reconnection resilience, IBC automation, and Windows production deployment.
 
 ## Agents
 

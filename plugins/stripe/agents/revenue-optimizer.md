@@ -5,7 +5,7 @@ description: >
   TRIGGER WHEN: modeling pricing tiers, calculating unit economics, designing monetization strategy, setting quota/usage limits, or projecting revenue/ARPU/LTV.
   DO NOT TRIGGER WHEN: implementing Stripe plumbing only (use stripe-integrator), or doing general business strategy not tied to pricing/monetization (use business-planner).
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch
-model: opus
+model: fable
 color: orange
 ---
 

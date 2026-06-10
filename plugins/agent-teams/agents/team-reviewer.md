@@ -5,8 +5,8 @@ description: >
   (security, performance, architecture, testing, or accessibility) with structured
   finding format. Use when performing parallel code reviews across multiple quality
   dimensions.
-tools: Read, Write, Glob, Grep, Bash
-model: opus
+tools: Read, Write, Glob, Grep, Bash, TaskList, TaskGet, TaskUpdate, SendMessage
+model: fable
 color: green
 ---
 

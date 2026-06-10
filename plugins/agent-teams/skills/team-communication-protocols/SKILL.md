@@ -9,7 +9,7 @@ description: >
   implementer's plan before work begins, when
   orchestrating a graceful team shutdown after all tasks are complete, or when
   debugging why teammates are not coordinating correctly at integration points.
-version: 1.1.0
+version: 1.1.1
 ---
 
 # Team Communication Protocols
@@ -152,12 +152,15 @@ Find team members by reading the config file:
 }
 ```
 
-**Always use `name`** for messaging and task assignment. Never use `agentId` directly.
+**Always use `name`** for messaging and task assignment. Never use `agentId`, role names, or unsuffixed aliases directly. If a teammate was spawned as `team-lead-2`, send to `team-lead-2`, not `team-lead`.
 
 ## Troubleshooting
 
 **A teammate is not responding to messages.**
 Check the teammate's task status. If it is idle, it may have completed its task and is waiting to be assigned new work or shut down. If it is still active, it may be mid-execution and will process messages once the current operation finishes.
+
+**A teammate says it cannot see SendMessage.**
+Check the teammate agent's `tools:` frontmatter. Agent Teams communication tools such as `SendMessage`, `TaskList`, `TaskGet`, and `TaskUpdate` must be listed explicitly when an agent uses a restricted tool allowlist.
 
 **The lead is trying to use `broadcast` and getting tool errors.**
 Broadcast was removed from `SendMessageTool` in 2026. Update the lead's instructions to address recipients individually. For shared-resource updates, iterate the team config and emit one `message` per teammate name.

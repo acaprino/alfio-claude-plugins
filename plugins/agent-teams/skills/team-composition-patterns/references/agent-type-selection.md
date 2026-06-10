@@ -35,10 +35,10 @@ RULE: Always prefer a marketplace specialist over a generic team agent.
 | general-purpose              | Yes      | Yes       | Yes      | Yes      | No                 |
 | Explore                      | Yes      | No        | No       | No       | Search/explore     |
 | Plan                         | Yes      | No        | No       | No       | Architecture       |
-| agent-teams:team-lead        | Yes      | Yes       | Yes      | Yes      | Team orchestration |
-| agent-teams:team-reviewer    | Yes      | Yes       | Yes      | Yes      | Code review        |
-| agent-teams:team-debugger    | Yes      | Yes       | Yes      | Yes      | Bug investigation  |
-| agent-teams:team-implementer | Yes      | Yes       | Yes      | Yes      | Feature building   |
+| agent-teams:team-lead        | Yes      | No        | No       | Yes      | Team orchestration (plus Agent/TeamCreate/TeamDelete/Task*/SendMessage) |
+| agent-teams:team-reviewer    | Yes      | Yes       | No       | Yes      | Code review (plus Task*/SendMessage) |
+| agent-teams:team-debugger    | Yes      | Yes       | No       | Yes      | Bug investigation (plus Task*/SendMessage) |
+| agent-teams:team-implementer | Yes      | Yes       | Yes      | Yes      | Feature building (plus Task*/SendMessage) |
 
 ### Specialized Marketplace Agents (preferred)
 

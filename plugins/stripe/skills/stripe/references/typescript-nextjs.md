@@ -8,7 +8,7 @@ Canonical TypeScript reference. Counterweight to the Python-heavy rest of this s
 pnpm add stripe @stripe/stripe-js @stripe/react-stripe-js
 ```
 
-Pin the API version on the server client: `new Stripe(key, { apiVersion: '2026-04-22.dahlia', typescript: true })`.
+Pin the API version on the server client: `new Stripe(key, { apiVersion: '2026-05-27.dahlia', typescript: true })`.
 
 Env var hygiene: `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` server-only; `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` is the *only* key prefixed with `NEXT_PUBLIC_`. Never prefix a secret this way -- it ships to the browser.
 

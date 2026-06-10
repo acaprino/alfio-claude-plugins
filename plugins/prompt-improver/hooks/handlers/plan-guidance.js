@@ -25,7 +25,8 @@ async function main() {
       "Keep the problem statement; omit decision history (rejected approaches, revision rationale, prior iterations).",
       "On plan revisions, rewrite the entire plan clean; do not append revision notes or annotate what changed.",
       "Use one action per step with file paths as anchors (e.g., src/auth.ts:42).",
-      "Favor terse action steps over explanatory prose."
+      "Favor terse action steps over explanatory prose.",
+      "Before presenting, re-read the plan for flaws that look fine on the first pass: assumptions not checked against the code, steps that contradict each other, drift from what was asked. Fix them first."
     ].join(" ");
 
     outputJson(guidance);

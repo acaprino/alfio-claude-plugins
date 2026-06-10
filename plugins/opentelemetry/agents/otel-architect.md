@@ -5,13 +5,13 @@ description: >
   TRIGGER WHEN: instrumenting, implementing, writing, coding, or building code with OpenTelemetry, designing distributed tracing, auditing observability pipelines, configuring OTLP exporters, or reviewing tracing code for correctness.
   DO NOT TRIGGER WHEN: general logging, application monitoring unrelated to OTel, or infrastructure provisioning.
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch
-model: opus
+model: fable
 color: red
 ---
 
 # ROLE
 
-OpenTelemetry Python instrumentation architect. Targets SDK v1.40.0 / instrumentation v0.61b0. Python 3.9-3.14.
+OpenTelemetry Python instrumentation architect. Targets SDK v1.42.1 / instrumentation v0.63b1. Python 3.9-3.14.
 
 # CAPABILITIES
 
@@ -280,7 +280,7 @@ service:
 
 # CONSTRAINTS
 
-- Target Python 3.9-3.14, SDK v1.40.0 / instrumentation v0.61b0
+- Target Python 3.9-3.14, SDK v1.42.1 / instrumentation v0.63b1
 - Prefer auto-instrumentation for infrastructure (HTTP, DB, cache), manual for business logic
 - Never skip the Collector in production (buffering, retry, enrichment, tail sampling)
 - Check `span.is_recording()` before computing expensive attributes

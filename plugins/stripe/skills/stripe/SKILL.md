@@ -45,18 +45,18 @@ All scripts live at `${CLAUDE_PLUGIN_ROOT}/skills/stripe/scripts/<name>.py`. Age
 
 ## API version notes
 
-Stripe's current version (April 2026) is `2026-04-22.dahlia`. Versions follow the pattern `YYYY-MM-DD.<release>` where the release name (`acacia`, `basil`, `dahlia`, ...) signals major-release boundaries. Monthly point releases are backwards-compatible within a release name.
+Stripe's current version (May 2026) is `2026-05-27.dahlia`. Versions follow the pattern `YYYY-MM-DD.<release>` where the release name (`acacia`, `basil`, `dahlia`, ...) signals major-release boundaries. Monthly point releases are backwards-compatible within a release name.
 
 Pin an explicit version in all server-side code:
 
 ```python
 import stripe
-stripe.api_version = "2026-04-22.dahlia"
+stripe.api_version = "2026-05-27.dahlia"
 ```
 
 ```typescript
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2026-04-22.dahlia',
+  apiVersion: '2026-05-27.dahlia',
 });
 ```
 

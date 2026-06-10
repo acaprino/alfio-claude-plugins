@@ -5,7 +5,7 @@ description: >
   TRIGGER WHEN: auditing an existing Stripe webhook setup, preparing for a production launch, after a webhook-related incident, or when adding Billing Meters / Entitlements and the event list needs to grow.
   DO NOT TRIGGER WHEN: implementing webhooks from scratch (use stripe-integrator), doing general code review (use senior-review:code-auditor), or auditing non-Stripe webhook providers.
 tools: Read, Bash, Glob, Grep, WebFetch
-model: opus
+model: fable
 color: orange
 ---
 

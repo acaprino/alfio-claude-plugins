@@ -4,8 +4,8 @@ description: >
   Parallel feature builder that implements components within strict file ownership
   boundaries, coordinating at integration points via messaging. Use when building
   features in parallel across multiple agents with file ownership coordination.
-tools: Read, Write, Edit, Glob, Grep, Bash
-model: opus
+tools: Read, Write, Edit, Glob, Grep, Bash, TaskList, TaskGet, TaskUpdate, SendMessage
+model: fable
 color: yellow
 ---
 

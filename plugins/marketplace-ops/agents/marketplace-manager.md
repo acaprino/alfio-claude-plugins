@@ -5,7 +5,7 @@ description: >
   TRIGGER WHEN: adding, auditing, reorganizing, versioning, or syncing plugins, skills, agents, and commands in any Claude Code plugin marketplace.
   DO NOT TRIGGER WHEN: working on an individual plugin's internal logic (route to the plugin's own agents/skills) or on a non-Claude-Code project.
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch
-model: opus
+model: fable
 color: yellow
 ---
 

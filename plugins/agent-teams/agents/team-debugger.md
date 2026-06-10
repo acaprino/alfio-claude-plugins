@@ -5,8 +5,8 @@ description: >
   hypothesis, gathering evidence to confirm or falsify it with file:line
   citations and confidence levels. Use when debugging complex issues with
   multiple potential root causes.
-tools: Read, Write, Glob, Grep, Bash
-model: opus
+tools: Read, Write, Glob, Grep, Bash, TaskList, TaskGet, TaskUpdate, SendMessage
+model: fable
 color: red
 ---
 

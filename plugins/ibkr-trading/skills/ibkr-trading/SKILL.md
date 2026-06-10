@@ -1,7 +1,7 @@
 ---
 name: ibkr-trading
 description: >
-  Comprehensive Interactive Brokers algotrading knowledge base covering TWS API 10.44 architecture,
+  Comprehensive Interactive Brokers algotrading knowledge base covering TWS API 10.45 architecture,
   ib_async event-driven programming, market data subscriptions, order execution with bracket orders,
   historical data with pacing rules, reconnection resilience, IBC automation, and Windows production deployment.
   TRIGGER WHEN: building, implementing, writing, coding, creating, optimizing, or debugging IB trading systems with Python.
@@ -40,7 +40,7 @@ Then harden incrementally:
 
 ## Reference Materials
 
-- `tws-api-architecture.md` -- TWS API 10.44, Gateway vs TWS, Client Portal, ib_async setup, clientId strategy, official docs
+- `tws-api-architecture.md` -- TWS API 10.45, Gateway vs TWS, Client Portal, ib_async setup, clientId strategy, official docs
 - `event-driven-data.md` -- reqMktData, reqRealTimeBars, reqTickByTickData, keepUpToDate, OHLCV construction, pacing violations, historical data
 - `order-execution.md` -- order types, bracket orders, lifecycle states, execDetails monitoring, race conditions, error codes
 - `reconnection-resilience.md` -- daily reset, IBC automation, reconnect patterns, heartbeat, Windows deployment, community resources

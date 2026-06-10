@@ -10,7 +10,7 @@ description: >
   deploying MT5 bots on Windows, working with MetaTrader5/aiomql/MQL5-JSON-API code, or
   comparing MT5 vs IBKR approaches
   DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
-model: opus
+model: fable
 color: red
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch
 ---
@@ -22,7 +22,7 @@ Expert architect for MetaTrader 5 algorithmic trading systems in Python. Officia
 ## Core Knowledge
 
 ### MT5 Python API Architecture
-- Package: `MetaTrader5` on PyPI (MetaQuotes, MIT, v5.0.5640, Python 3.6-3.13)
+- Package: `MetaTrader5` on PyPI (MetaQuotes, MIT, v5.0.5735, Python 3.6-3.14)
 - Communication: Windows named pipes IPC (local only, synchronous request-response)
 - 32 functions: connection, account/terminal info, symbols, market depth, historical data, orders, history
 - NO callbacks, NO streaming, NO exceptions (silent None returns)

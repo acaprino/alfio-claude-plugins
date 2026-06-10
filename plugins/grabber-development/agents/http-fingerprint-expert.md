@@ -4,7 +4,7 @@ description: >
   Expert in HTTP/TLS fingerprinting and impersonation for scraping: curl_cffi, primp, async-tls-client, JA3 / JA4 / JA4+ suite, HTTP/2 fingerprinting, proxy tier selection (datacenter / ISP / residential / mobile), and managed Web Unlocker APIs.
   TRIGGER WHEN: picking an HTTP client that impersonates a browser TLS fingerprint, debugging why httpx/requests gets blocked on a protected target, reverse-engineering an API for curl_cffi replay, choosing a proxy tier, or integrating a Web Unlocker API.
   DO NOT TRIGGER WHEN: the task needs a rendered browser (use stealth-browser-expert), the target has no TLS fingerprinting (plain httpx is fine), or the task is LLM extraction (use ai-scraping-expert).
-model: opus
+model: fable
 color: pink
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch
 ---

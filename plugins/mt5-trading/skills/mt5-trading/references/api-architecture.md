@@ -1,6 +1,6 @@
 # MT5 Python API Architecture
 
-The official `MetaTrader5` PyPI package (by MetaQuotes) talks to the MT5 terminal via **Windows named pipes** (local IPC). Synchronous request-response only, no callbacks, no streaming. Polling is the only pattern. Current version mirrors the platform build (e.g. 5.0.5640), Python 3.6-3.13.
+The official `MetaTrader5` PyPI package (by MetaQuotes) talks to the MT5 terminal via **Windows named pipes** (local IPC). Synchronous request-response only, no callbacks, no streaming. Polling is the only pattern. Current version mirrors the platform build (e.g. 5.0.5735), Python 3.6-3.14.
 
 ## When to use
 

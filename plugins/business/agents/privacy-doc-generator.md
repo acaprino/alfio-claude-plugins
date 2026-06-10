@@ -5,7 +5,7 @@ description: >
   TRIGGER WHEN: the user needs to draft or audit privacy/data protection documents for websites, apps, or SaaS products
   DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch
-model: opus
+model: fable
 color: yellow
 ---
 

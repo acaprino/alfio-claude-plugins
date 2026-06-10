@@ -110,7 +110,7 @@ asyncio.run(main())
 | `disallowedTools` / `disallowed_tools` | `string[]` | Tools to always deny |
 | `permissionMode` / `permission_mode` | `string` | Permission strategy (see Permissions section) |
 | `systemPrompt` / `system_prompt` | `string` | Custom system prompt or `"claude_code"` for default |
-| `model` | `string` | Model ID (e.g., `"claude-sonnet-4-7"`, `"claude-opus-4-7"`, `"claude-haiku-4-5"`) -- short aliases resolve to the latest date-slugged release (e.g., `"claude-sonnet-4-5-20250929"`); pin a full slug for reproducibility |
+| `model` | `string` | Model ID (e.g., `"claude-fable-5"`, `"claude-opus-4-8"`, `"claude-sonnet-4-6"`) -- short aliases resolve to the latest date-slugged release (e.g., `"claude-haiku-4-5"` resolves to `"claude-haiku-4-5-20251001"`); pin a full slug for reproducibility |
 | `maxTurns` / `max_turns` | `number` | Maximum agentic loop iterations |
 | `maxBudgetUsd` / `max_budget_usd` | `number` | Spending cap in USD |
 | `effort` | `string` | `"low"`, `"medium"`, `"high"`, `"max"` |
@@ -142,7 +142,7 @@ import { query } from "@anthropic-ai/claude-agent-sdk";
 for await (const msg of query({
   prompt: "Refactor the auth module to use JWT tokens",
   options: {
-    model: "claude-sonnet-4-7",
+    model: "claude-sonnet-4-6",
     allowedTools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep"],
     disallowedTools: ["WebSearch", "WebFetch"],
     permissionMode: "bypassPermissions",

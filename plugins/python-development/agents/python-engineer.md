@@ -5,7 +5,7 @@ description: >
   TRIGGER WHEN: planning a new Python project, designing architecture, making tech stack decisions, or implementing Python features.
   DO NOT TRIGGER WHEN: the user is asking for simple bug fixes, writing tests only, or isolated refactoring.
 tools: Read, Write, Edit, Bash, Glob
-model: opus
+model: fable
 color: green
 ---
 

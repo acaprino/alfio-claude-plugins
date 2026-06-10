@@ -4,7 +4,7 @@ description: >
   Expert in stealth browser automation for scraping: Patchright, Camoufox, Nodriver, rebrowser-patches, selenium-driverless, behavioral biometrics, and browser-level CAPTCHA solver integration.
   TRIGGER WHEN: selecting or configuring a stealth browser driver (Patchright, Camoufox, Nodriver), bypassing Cloudflare Bot Management, DataDome, PerimeterX/HUMAN behavioral detection; extracting cf_clearance for HTTP replay; integrating ghost-cursor / playwright-captcha / playwright-recaptcha; designing a persistent browser context strategy.
   DO NOT TRIGGER WHEN: the target has no anti-bot (use plain Playwright or httpx), the task is pure HTTP fingerprint work (use http-fingerprint-expert), or the task is LLM-based extraction (use ai-scraping-expert).
-model: opus
+model: fable
 color: pink
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch
 ---

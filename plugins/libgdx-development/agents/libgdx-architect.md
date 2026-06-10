@@ -13,7 +13,7 @@ description: >
   deciding Kotlin vs Java for a libGDX project, or producing libGDX code.
   DO NOT TRIGGER WHEN: the task is general Java/Kotlin development unrelated to libGDX, pure Android
   UI work without a game loop, or non-libGDX game engines like jMonkey, KorGE, Godot, or Unity.
-model: opus
+model: fable
 color: orange
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch
 ---

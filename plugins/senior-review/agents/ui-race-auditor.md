@@ -4,7 +4,7 @@ description: >
   Adversarial UI race condition analyst. Detects timing bugs between async data loading, DOM/widget layout, event handlers, and programmatic UI manipulation (scroll, focus, resize). Framework-agnostic: works with React, Angular, Vue, Qt, GTK, Flutter, SwiftUI, Electron, Tauri. Hunts for layout-dependent reads racing against incomplete renders, scroll position corruption, sticky/auto-scroll breakage, focus theft, and stale measurement closures.
   TRIGGER WHEN: the user requires assistance with UI race conditions, scroll bugs, layout shift issues, focus timing problems, or async rendering bugs.
   DO NOT TRIGGER WHEN: the task involves pure backend logic, API design, or database operations with no UI component.
-model: opus
+model: fable
 color: purple
 tools: Read, Write, Glob, Grep, Bash
 ---

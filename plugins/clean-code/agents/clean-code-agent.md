@@ -5,7 +5,7 @@ description: >
   TRIGGER WHEN: the user asks to clean up code, improve naming, remove AI-generated boilerplate, simplify structure, reduce complexity, or make code more maintainable
   DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
 tools: Read, Edit, Write, Glob, Grep, Bash, Task
-model: opus
+model: fable
 color: blue
 ---
 

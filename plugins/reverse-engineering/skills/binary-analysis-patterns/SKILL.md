@@ -13,6 +13,14 @@ Snapshot 2026-05-12.
 
 Comprehensive patterns and techniques for analyzing compiled binaries, understanding assembly code, and reconstructing program logic.
 
+## When to Use This Skill
+
+- Reverse-engineering an unknown executable to understand its behavior
+- Analyzing malware or obfuscated binaries with Ghidra / IDA Pro / Binary Ninja
+- Recognizing common assembly idioms (function prologues, switch tables, vtable dispatch)
+- Reconstructing high-level control flow from compiled code
+- Identifying compiler-introduced patterns (stack canaries, PIC trampolines)
+
 ## Disassembly Fundamentals
 
 ### x86-64 Instruction Patterns

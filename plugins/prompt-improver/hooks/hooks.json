@@ -23,6 +23,29 @@
             "timeout": 15
           }
         ]
+      },
+      {
+        "description": "Encourages background execution for long-running Bash commands (dev servers, watchers, tail)",
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/handlers/background-exec.js\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "description": "Token-efficiency guidance for Explore/Plan research subagents",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/handlers/subagent-routing.js\"",
+            "timeout": 15
+          }
+        ]
       }
     ]
   }

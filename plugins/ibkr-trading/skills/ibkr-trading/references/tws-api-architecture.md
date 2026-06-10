@@ -1,6 +1,6 @@
 # TWS API Architecture and ib_async
 
-The TWS API is a local TCP socket protocol (Protocol Buffers since 10.40) between Python and TWS or IB Gateway. Current production version: **10.44** (Feb 2026), minimum supported 10.30. Use `ib_async` (the maintained successor to ib_insync) for all new code unless you have a specific reason to use the official ibapi.
+The TWS API is a local TCP socket protocol (Protocol Buffers since 10.40) between Python and TWS or IB Gateway. Current production version: **10.45** (March 2026), minimum supported 10.30. Use `ib_async` (the maintained successor to ib_insync) for all new code unless you have a specific reason to use the official ibapi.
 
 ## When to use
 

@@ -67,8 +67,8 @@ For log-trace correlation in production today, use `opentelemetry-instrumentatio
 
 ## Pinning policy
 
-- **Stable** (`opentelemetry-api`, `opentelemetry-sdk`, exporters): pin to **exact version** (e.g. `==1.40.0`).
-- **Instrumentation packages** (e.g. `opentelemetry-instrumentation-fastapi==0.61b0`): pin with `~=` to allow patch updates.
+- **Stable** (`opentelemetry-api`, `opentelemetry-sdk`, exporters): pin to **exact version** (e.g. `==1.42.1`).
+- **Instrumentation packages** (e.g. `opentelemetry-instrumentation-fastapi==0.63b1`): pin with `~=` to allow patch updates.
 - Track upstream release notes -- minor versions occasionally break instrumentation when the underlying library changes its internals.
 
 ## Official docs

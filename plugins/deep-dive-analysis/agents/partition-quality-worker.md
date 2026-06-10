@@ -5,7 +5,7 @@ description: >
   TRIGGER WHEN: spawned by the /agent-teams:team-deep-dive command during Phase 1 Wave 2 to handle one partition's risk and documentation audit.
   DO NOT TRIGGER WHEN: invoked outside the team-deep-dive pipeline.
 tools: Read, Glob, Grep, Bash, Write
-model: opus
+model: fable
 color: cyan
 ---
 

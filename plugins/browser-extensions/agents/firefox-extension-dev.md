@@ -5,7 +5,7 @@ description: >
   TRIGGER WHEN: creating, debugging, or publishing any Firefox extension or browser add-on
   DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch
-model: opus
+model: fable
 color: orange
 ---
 

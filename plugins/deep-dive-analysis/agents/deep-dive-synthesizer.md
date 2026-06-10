@@ -5,7 +5,7 @@ description: >
   TRIGGER WHEN: spawned by the /agent-teams:team-deep-dive command during Phase 2 to consolidate partition outputs.
   DO NOT TRIGGER WHEN: invoked outside the team-deep-dive pipeline -- the classic /deep-dive-analysis writes phase files directly.
 tools: Read, Glob, Grep, Write
-model: opus
+model: fable
 color: purple
 ---
 

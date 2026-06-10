@@ -4,7 +4,7 @@ description: >
   Adversarial code quality auditor combining architecture review, failure flow tracing, pattern consistency analysis, and quantitative scoring into a single comprehensive agent. Hunts for coupling violations, broken abstractions, failure-path bugs, resource leaks, stale caches, pattern deviations, and anti-patterns. Produces a calibrated Code Quality Score. Replaces architect-review + failure-flow-tracer + pattern-quality-scorer.
   TRIGGER WHEN: the user asks for a code review, architecture audit, quality scoring, failure analysis, or pattern consistency check.
   DO NOT TRIGGER WHEN: the task involves writing tests, simple code formatting, or security-specific auditing (use security-auditor instead).
-model: opus
+model: fable
 color: purple
 tools: Read, Write, Glob, Grep, Bash
 ---

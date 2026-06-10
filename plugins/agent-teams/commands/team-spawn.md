@@ -199,9 +199,10 @@ Before spawning, invoke the relevant skills for the preset to inform team config
 1. Use the `TeamCreate` tool to create the team with `team_name` and `description`
 2. For each team member, use the `Agent` tool with:
    - `team_name`: the team name
-   - `name`: descriptive member name (e.g., "security-reviewer", "hypothesis-1")
+   - `name`: unique descriptive member name (e.g., "fullstack-lead", "frontend-impl", "security-reviewer")
    - `subagent_type`: the specialized agent type matching the role (see table below)
    - `prompt`: Role-specific instructions referencing the appropriate agent definition
+3. Do not use the role name `team-lead` as the spawned member name. Team creation can reserve role-like names, so use a unique member name and address the teammate by the actual name returned by `Agent` or listed in `~/.claude/teams/{team-name}/config.json`.
 
 ### Subagent Types by Preset
 

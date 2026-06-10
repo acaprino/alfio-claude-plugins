@@ -145,7 +145,7 @@ Generate production-ready files with real content -- not [FILL] placeholders.
 
 1. Create file: `plugins/<plugin>/agents/<agent-name>.md`
 2. Write with frontmatter and body following these rules:
-   - Frontmatter fields: `name`, `description` (use YAML `>` for multiline), `model: opus`, `color`, optionally `tools`
+   - Frontmatter fields: `name`, `description` (use YAML `>` for multiline), `model: fable`, `color`, optionally `tools`
    - **Description format** -- same directive template as skills:
      - Include `TRIGGER WHEN:` and `DO NOT TRIGGER WHEN:` lines
      - Third person, specific triggers
@@ -203,7 +203,7 @@ After registration:
 
 - All names: kebab-case
 - Never use em dash -- use hyphen `-` or double hyphen `--`
-- Default model for agents: `opus`
+- Default model for agents: `fable`
 - Agent filename must match frontmatter `name` field
 - Skill directory name must match frontmatter `name` field
 - Always bump both plugin version AND metadata.version

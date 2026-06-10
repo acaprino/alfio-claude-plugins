@@ -4,7 +4,7 @@ description: >
   Rewrites existing documentation to follow human-centered writing guidelines. Takes dense, AI-style, or poorly structured docs and transforms them into clear, scannable, narrative documentation.
   TRIGGER WHEN: documentation exists but reads like a wall of text or AI output.
   DO NOT TRIGGER WHEN: humanizing prose or articles rather than technical docs (use digital-marketing:text-humanizer), or generating new documentation from source code (use codebase-mapper:documentation-engineer).
-model: opus
+model: fable
 tools: Read, Write, Edit, Glob, Grep
 color: cyan
 ---

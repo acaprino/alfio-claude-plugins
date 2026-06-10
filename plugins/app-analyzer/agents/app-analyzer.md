@@ -4,7 +4,7 @@ description: >
   Comprehensive app analysis agent for Android (ADB) and web (Playwright MCP) applications. Auto-detects platform. Phase 1 maps the full navigation structure with exhaustive BFS exploration. Phase 2 analyzes design system, UX patterns, psychology, business model, and generates competitive intelligence reports.
   TRIGGER WHEN: analyzing competitor apps, mapping app navigation, extracting design systems, or conducting UX audits.
   DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
-model: opus
+model: fable
 color: cyan
 ---
 

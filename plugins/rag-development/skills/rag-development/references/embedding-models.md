@@ -50,6 +50,8 @@ High-dimensional vectors where each dimension = vocabulary term. BM25 or neural 
 One vector per token. At search time, MaxSim operator finds passages with contextually matching tokens. More nuanced than single-vector but higher storage cost.
 
 ```python
+# Note: ragatouille (0.1.x) is no longer actively maintained. For production
+# ColBERT, consider the colbert-ir reference implementation or a managed late-interaction stack.
 from ragatouille import RAGPretrainedModel
 
 RAG = RAGPretrainedModel.from_pretrained("colbert-ir/colbertv2.0")

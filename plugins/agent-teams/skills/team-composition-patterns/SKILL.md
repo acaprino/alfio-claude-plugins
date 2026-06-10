@@ -9,7 +9,7 @@ description: >
   iTerm2, in-process) for a CI or local environment, or when building a custom
   team composition for a non-standard workflow such as a migration or security
   audit.
-version: 1.1.0
+version: 1.1.1
 ---
 
 # Team Composition Patterns
@@ -148,10 +148,10 @@ When spawning teammates with the `Agent` tool, choose `subagent_type` based on w
 | `general-purpose`              | All tools (Read, Write, Edit, Bash, etc.) | Implementation, debugging, any task requiring file changes |
 | `Explore`                      | Read-only tools (Read, Grep, Glob)        | Research, code exploration, analysis                       |
 | `Plan`                         | Read-only tools                           | Architecture planning, task decomposition                  |
-| `agent-teams:team-reviewer`    | All tools                                 | Code review with structured findings                       |
-| `agent-teams:team-debugger`    | All tools                                 | Hypothesis-driven investigation                            |
-| `agent-teams:team-implementer` | All tools                                 | Building features within file ownership boundaries         |
-| `agent-teams:team-lead`        | All tools                                 | Team orchestration and coordination                        |
+| `agent-teams:team-reviewer`    | Read/Write/search/Bash plus TaskList/TaskGet/TaskUpdate/SendMessage | Code review with structured findings                       |
+| `agent-teams:team-debugger`    | Read/Write/search/Bash plus TaskList/TaskGet/TaskUpdate/SendMessage | Hypothesis-driven investigation                            |
+| `agent-teams:team-implementer` | Read/Write/Edit/search/Bash plus team tools | Building features within file ownership boundaries         |
+| `agent-teams:team-lead`        | Read/search/Bash plus Agent Teams coordination tools (Agent, TeamCreate, TeamDelete, TaskCreate/List/Get/Update, SendMessage) | Team orchestration and coordination                        |
 
 **Key distinction**: Read-only agents (Explore, Plan) cannot modify files. Never assign implementation tasks to read-only agents.
 

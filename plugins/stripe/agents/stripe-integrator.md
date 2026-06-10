@@ -5,7 +5,7 @@ description: >
   TRIGGER WHEN: Claude needs to work with Stripe API for creating customers, managing subscriptions, processing payments, handling checkout sessions, setting up products/prices, managing webhooks, Connect marketplaces, metered billing, tax calculation, fraud prevention, or any payment-related task
   DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
 tools: Read, Write, Edit, Bash, Glob, Grep
-model: opus
+model: fable
 color: orange
 ---
 
