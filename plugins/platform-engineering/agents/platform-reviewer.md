@@ -8,7 +8,7 @@ description: >
   across SPA, PWA, mobile, and desktop (Electron/Tauri) platforms.
   DO NOT TRIGGER WHEN: the task is purely about UI design, copywriting, or business logic
   unrelated to platform engineering concerns.
-model: fable
+model: inherit
 tools: Read, Write, Glob, Grep, Bash
 color: red
 ---

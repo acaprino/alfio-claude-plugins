@@ -6,7 +6,7 @@ description: >
   citations and confidence levels. Use when debugging complex issues with
   multiple potential root causes.
 tools: Read, Write, Glob, Grep, Bash, TaskList, TaskGet, TaskUpdate, SendMessage
-model: fable
+model: inherit
 color: red
 ---
 

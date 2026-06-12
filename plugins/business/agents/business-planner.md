@@ -9,7 +9,7 @@ description: >
   DO NOT TRIGGER WHEN: the task is about legal/compliance (use legal-advisor), privacy documents
   (use privacy-doc-generator), or tactical marketing execution (use digital-marketing agents).
 tools: Read, Write, Edit, Glob, Grep, WebFetch, WebSearch, Agent
-model: fable
+model: inherit
 color: yellow
 ---
 

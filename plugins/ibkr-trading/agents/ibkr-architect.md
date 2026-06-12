@@ -8,7 +8,7 @@ description: >
   designing order execution logic, handling IB reconnection, debugging TWS API errors, deploying IB trading
   systems on Windows, or working with ib_async/ib_insync code
   DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
-model: fable
+model: inherit
 color: green
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch
 ---

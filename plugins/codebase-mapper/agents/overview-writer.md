@@ -4,7 +4,7 @@ description: >
   Phase 2 writer for codebase-mapper. Produces 01-overview.md and 02-features.md from the context brief. Writes narrative project overview with mindmap diagram and detailed feature catalog. Spawned in parallel with other writer agents.
   TRIGGER WHEN: spawned by the /codebase-mapper:map-codebase command during Phase 2 to produce 01-overview.md and 02-features.md.
   DO NOT TRIGGER WHEN: invoked outside the map-codebase pipeline -- this agent expects a context brief in .codebase-map/_internal/.
-model: fable
+model: inherit
 tools: Read, Write, Glob, Grep
 color: cyan
 ---

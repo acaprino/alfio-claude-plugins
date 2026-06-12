@@ -5,7 +5,7 @@ description: >
   TRIGGER WHEN: spawned by /abstraction-architect:audit after .deep-dive/ output is ready; the user asks to audit a codebase for missed unification, wrong abstractions, god services, or bounded-context violations.
   DO NOT TRIGGER WHEN: the task is implementation, code formatting, security-only review (use senior-review:security-auditor), distributed-flow tracing (use senior-review:distributed-flow-auditor), or pattern-consistency review without an architecture lens (use senior-review:code-auditor).
 tools: Read, Glob, Grep, Write
-model: fable
+model: inherit
 color: orange
 ---
 

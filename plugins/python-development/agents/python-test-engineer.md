@@ -5,7 +5,7 @@ description: >
   TRIGGER WHEN: writing tests, improving test coverage, fixing broken tests, setting up pytest configurations, or practicing red-green-refactor workflows.
   DO NOT TRIGGER WHEN: building new features from scratch or designing system architecture.
 tools: Read, Write, Edit, Bash, Glob
-model: fable
+model: inherit
 color: green
 ---
 

@@ -14,7 +14,7 @@ description: >
   react-development:review-react), cross-platform security unrelated to PWAs (use
   platform-engineering), Tauri or Electron wrappers (use tauri-development), or
   GA4 / analytics (use digital-marketing).
-model: fable
+model: inherit
 color: cyan
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch
 ---

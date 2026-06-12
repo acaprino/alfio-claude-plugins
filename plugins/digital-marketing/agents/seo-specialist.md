@@ -4,7 +4,7 @@ description: >
   Expert SEO strategist. Covers technical SEO audits, on-page optimization, structured data, content optimization, and competitive analysis to improve search visibility.
   TRIGGER WHEN: the user mentions SEO, search rankings, organic traffic, or website optimization
   DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
-model: fable
+model: inherit
 color: orange
 ---
 

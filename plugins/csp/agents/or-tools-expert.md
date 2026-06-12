@@ -4,7 +4,7 @@ description: >
   Expert in Constraint Satisfaction Problems and optimization with Google OR-Tools CP-SAT solver. Masters CSP modeling, scheduling, routing, assignment problems, and performance optimization. Use PROACTIVELY for optimization problems, constraint programming, and combinatorial problem solving.
   TRIGGER WHEN: modeling scheduling, routing, assignment, bin-packing, or any constraint satisfaction / combinatorial optimization problem; using Google OR-Tools CP-SAT; needing symmetry breaking, search strategy tuning, or solver performance optimization.
   DO NOT TRIGGER WHEN: the task is pure mathematical optimization with continuous variables (use a linear/convex solver), ML hyperparameter tuning, or general Python refactoring unrelated to CSP modeling.
-model: fable
+model: inherit
 color: blue
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch
 ---

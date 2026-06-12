@@ -5,7 +5,7 @@ description: >
   TRIGGER WHEN: instrumenting, implementing, writing, coding, or building code with OpenTelemetry, designing distributed tracing, auditing observability pipelines, configuring OTLP exporters, or reviewing tracing code for correctness.
   DO NOT TRIGGER WHEN: general logging, application monitoring unrelated to OTel, or infrastructure provisioning.
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch
-model: fable
+model: inherit
 color: red
 ---
 

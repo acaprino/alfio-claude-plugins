@@ -6,7 +6,7 @@ description: >
   coordinating multi-agent teams, decomposing complex tasks, or managing
   parallel workstreams.
 tools: Read, Glob, Grep, Bash, Agent, TeamCreate, TeamDelete, TaskCreate, TaskList, TaskGet, TaskUpdate, SendMessage
-model: fable
+model: inherit
 color: blue
 ---
 

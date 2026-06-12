@@ -5,7 +5,7 @@ description: >
   TRIGGER WHEN: contracts, NDAs, IP/copyright, employment law, M&A, corporate governance, regulatory compliance, legal risk assessment, or advisory memos.
   DO NOT TRIGGER WHEN: drafting Privacy Policies / Cookie Policies / DPAs / DPIA reports (use privacy-doc-generator), or business plan / GTM strategy (use business-planner).
 tools: Read, Write, Edit, Glob, Grep, WebFetch, WebSearch
-model: fable
+model: inherit
 color: yellow
 ---
 

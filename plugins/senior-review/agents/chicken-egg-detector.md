@@ -4,7 +4,7 @@ description: >
   Detects chicken-and-egg problems, circular initialization dependencies, and bootstrap deadlocks across services, modules, and infrastructure. Traces startup ordering, init sequences, config bootstrapping, and migration dependencies to find cases where component A requires B to be ready but B requires A -- creating deadlocks, flaky startups, or hidden temporal coupling.
   TRIGGER WHEN: the user needs startup dependency analysis, circular initialization detection, bootstrap cycle auditing, or service startup ordering review.
   DO NOT TRIGGER WHEN: the task involves runtime flow analysis without startup/initialization concerns (use distributed-flow-auditor instead).
-model: fable
+model: inherit
 color: orange
 tools: Read, Write, Glob, Grep, Bash
 ---

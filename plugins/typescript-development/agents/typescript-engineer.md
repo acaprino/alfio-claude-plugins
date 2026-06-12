@@ -5,7 +5,7 @@ description: >
   TRIGGER WHEN: planning a new TypeScript project, designing architecture, making tech-stack decisions, implementing TS features, migrating JavaScript to TypeScript, or setting up a monorepo.
   DO NOT TRIGGER WHEN: the task is React-specific performance optimization (use react-development:react-performance-optimizer), Node.js simple bug fixes, or pure frontend styling (use frontend plugin).
 tools: Read, Write, Edit, Bash, Glob
-model: fable
+model: inherit
 color: blue
 ---
 

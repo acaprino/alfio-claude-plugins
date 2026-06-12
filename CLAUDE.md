@@ -22,7 +22,7 @@ plugins/
 **Agents** - Markdown files with YAML frontmatter:
 - `name`: agent identifier (kebab-case)
 - `description`: when/how to use the agent (use YAML multiline `>` for long descriptions)
-- `model`: LLM model (default: `fable`)
+- `model`: LLM model (default: `inherit`, the agent follows the session model)
 - `tools` (optional): comma-separated tool list (e.g. `Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch, Task`); omit to allow all tools
 - `color`: UI accent color (one of: `red`, `blue`, `green`, `yellow`, `purple`, `orange`, `pink`, `cyan`)
 - Body: terse keyword-list style system prompt; simple agents ~50-200 lines, complex agents up to ~700 lines
@@ -37,7 +37,7 @@ plugins/
 
 - Agent names: kebab-case matching the filename (e.g. `quick-searcher.md`)
 - Plugin names: kebab-case directory names
-- Default model: `fable` (latest Claude Fable, the current top model); exceptions noted per-agent (e.g. `quick-searcher` uses `sonnet`)
+- Default model: `inherit` (agents follow the session model instead of pinning one); exceptions noted per-agent (e.g. `quick-searcher` uses `sonnet`)
 - Agent body style: terse keyword lists, imperative tone, structured with markdown headers
 - Skills supplementary subdirs: `references/`, `scripts/`, `templates/`, `assets/`, `lib/` as needed
 - No build step or runtime framework - plugins are markdown with optional helper scripts (Python, JS) in skills' `scripts/` subdirs

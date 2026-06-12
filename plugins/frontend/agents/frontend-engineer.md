@@ -5,7 +5,7 @@ description: >
   TRIGGER WHEN: the user wants to build, implement, write, code, or create a new frontend feature, component, or application, or requests a frontend architecture plan.
   DO NOT TRIGGER WHEN: the user is asking for a simple CSS fix or a highly specific bug fix that a specialized agent can handle directly.
 tools: Read, Write, Edit, Bash, Glob
-model: fable
+model: inherit
 color: purple
 ---
 

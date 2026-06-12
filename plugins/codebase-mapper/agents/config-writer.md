@@ -4,7 +4,7 @@ description: >
   Phase 2 writer for codebase-mapper. Produces 10-configuration-guide.md from the context brief. Documents how to configure and use the project in practice - environment setup, configuration scenarios, common operations, and troubleshooting. Spawned in parallel with other writer agents.
   TRIGGER WHEN: spawned by the /codebase-mapper:map-codebase command during Phase 2 to produce 10-configuration-guide.md.
   DO NOT TRIGGER WHEN: invoked outside the map-codebase pipeline -- this agent expects a context brief in .codebase-map/_internal/.
-model: fable
+model: inherit
 tools: Read, Write, Glob, Grep
 color: cyan
 ---

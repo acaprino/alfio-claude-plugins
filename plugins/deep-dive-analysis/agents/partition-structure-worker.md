@@ -5,7 +5,7 @@ description: >
   TRIGGER WHEN: spawned by the /agent-teams:team-deep-dive command during Phase 1 Wave 1 to handle one partition's structural extraction.
   DO NOT TRIGGER WHEN: invoked outside the team-deep-dive pipeline -- the classic /deep-dive-analysis command runs structure extraction inline without an agent.
 tools: Read, Glob, Grep, Bash, Write
-model: fable
+model: inherit
 color: cyan
 ---
 

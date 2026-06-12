@@ -4,7 +4,7 @@ description: >
   Phase 2 writer for codebase-mapper. Produces 07-getting-started.md and 08-open-questions.md from the context brief. Documents developer onboarding steps and flags knowledge gaps. Spawned in parallel with other writer agents.
   TRIGGER WHEN: spawned by the /codebase-mapper:map-codebase command during Phase 2 to produce 07-getting-started.md and 08-open-questions.md.
   DO NOT TRIGGER WHEN: invoked outside the map-codebase pipeline -- this agent expects a context brief in .codebase-map/_internal/.
-model: fable
+model: inherit
 tools: Read, Write, Glob, Grep
 color: cyan
 ---

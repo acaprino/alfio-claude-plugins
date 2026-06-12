@@ -5,7 +5,7 @@ description: >
   TRIGGER WHEN: documenting APIs / data models / data flows / dependencies / any of the 20 dimensions, restructuring existing docs, creating tutorials, or auditing documentation drift against the codebase
   DO NOT TRIGGER WHEN: the task is pure prose or style rewriting of existing docs (use codebase-mapper:doc-humanizer), a full multi-document narrative project guide (use /codebase-mapper:map-codebase), or a public-facing README (use docs:readme-craft).
 tools: Read, Write, Edit, Glob, Grep, WebFetch, WebSearch
-model: fable
+model: inherit
 color: cyan
 ---
 

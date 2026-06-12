@@ -6,7 +6,7 @@ description: >
   finding format. Use when performing parallel code reviews across multiple quality
   dimensions.
 tools: Read, Write, Glob, Grep, Bash, TaskList, TaskGet, TaskUpdate, SendMessage
-model: fable
+model: inherit
 color: green
 ---
 

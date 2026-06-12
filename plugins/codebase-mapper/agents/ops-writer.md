@@ -4,7 +4,7 @@ description: >
   Phase 2 writer for codebase-mapper. Produces 09-project-anatomy.md from the context brief. Documents configuration files, environment variables, startup scripts, directory tree with folder meanings, and everything needed for hands-on work. Spawned in parallel with other writer agents.
   TRIGGER WHEN: spawned by the /codebase-mapper:map-codebase command during Phase 2 to produce 09-project-anatomy.md.
   DO NOT TRIGGER WHEN: invoked outside the map-codebase pipeline -- this agent expects a context brief in .codebase-map/_internal/.
-model: fable
+model: inherit
 tools: Read, Write, Glob, Grep
 color: cyan
 ---

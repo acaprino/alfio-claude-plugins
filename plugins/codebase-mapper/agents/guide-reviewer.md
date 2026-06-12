@@ -4,7 +4,7 @@ description: >
   Phase 3 of codebase-mapper. Reviews all 10 generated documents for consistency, adds cross-references, uniformizes tone, and produces INDEX.md. Flags gaps and contradictions. Spawned by the map-codebase command after all writer agents complete.
   TRIGGER WHEN: spawned by the /codebase-mapper:map-codebase command in Phase 3 after all writer agents produce their documents.
   DO NOT TRIGGER WHEN: invoked outside the map-codebase pipeline -- this agent expects the 10 writer outputs in .codebase-map/.
-model: fable
+model: inherit
 tools: Read, Write, Edit, Glob, Grep
 color: cyan
 ---

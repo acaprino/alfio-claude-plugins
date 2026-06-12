@@ -10,7 +10,7 @@ description: >
   deploying MT5 bots on Windows, working with MetaTrader5/aiomql/MQL5-JSON-API code, or
   comparing MT5 vs IBKR approaches
   DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
-model: fable
+model: inherit
 color: red
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch
 ---

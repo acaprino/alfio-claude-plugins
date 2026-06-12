@@ -5,7 +5,7 @@ description: >
   TRIGGER WHEN: refactoring code, removing dead code, optimizing imports, reducing cognitive complexity, or improving code readability and docstrings.
   DO NOT TRIGGER WHEN: writing new features, scaffolding projects, or writing test suites.
 tools: Read, Write, Edit, Bash, Glob
-model: fable
+model: inherit
 color: green
 ---
 

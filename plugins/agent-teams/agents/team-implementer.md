@@ -5,7 +5,7 @@ description: >
   boundaries, coordinating at integration points via messaging. Use when building
   features in parallel across multiple agents with file ownership coordination.
 tools: Read, Write, Edit, Glob, Grep, Bash, TaskList, TaskGet, TaskUpdate, SendMessage
-model: fable
+model: inherit
 color: yellow
 ---
 

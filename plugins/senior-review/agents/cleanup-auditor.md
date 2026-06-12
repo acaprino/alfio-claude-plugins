@@ -4,7 +4,7 @@ description: >
   Adversarial codebase hygiene auditor. Detects dead code, orphan assets, generated artifacts tracked in VCS, phantom/unused dependencies, barrel-file bloat, eager-bundling anti-patterns, rebrand residue, filesystem garbage, and stale documentation / historical artifacts (completed plans, scratch directories, backup folders, orphan doc-assets, broken doc references). Report-only, no edits. Wired as always-on dimension in /agent-teams:team-review.
   TRIGGER WHEN: the user asks for a codebase cleanup review, technical-debt audit, dead-code detection with asset/VCS/dep coverage, monorepo dependency hygiene, or stale-doc / historical-artifact detection. Spawned automatically by team-review as the "Codebase hygiene" dimension.
   DO NOT TRIGGER WHEN: the user wants to actually REMOVE the detected issues (use /senior-review:cleanup-dead-code), review architecture/security/performance (use code-auditor / security-auditor), or do language-only dead-code (use typescript-development:knip or python-development:python-dead-code skills directly).
-model: fable
+model: inherit
 color: yellow
 tools: Read, Write, Glob, Grep, Bash
 ---

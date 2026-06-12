@@ -5,7 +5,7 @@ description: >
   TRIGGER WHEN: text sounds AI-generated and needs humanization, or the user asks to humanize prose/text.
   DO NOT TRIGGER WHEN: the task involves refactoring source code (use clean-code:clean-code instead).
 tools: Read, Write, Edit, AskUserQuestion
-model: fable
+model: inherit
 color: orange
 ---
 

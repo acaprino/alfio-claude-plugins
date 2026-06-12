@@ -4,7 +4,7 @@ description: >
   Expert in Tauri v2 + React desktop applications with special depth on trading and high-frequency/streaming-data scenarios. Use proactively for performance reviews, IPC architecture, state management, memory leak detection, Rust backend optimization, WebView tuning, window management, shell plugin integration, desktop bundling/signing, and platform WebView differences.
   TRIGGER WHEN: working on, building, implementing, writing, coding, or creating Tauri v2 desktop apps. Covers IPC/command design, capabilities/permissions, window/system-tray, shell plugin, WebView tuning (WebView2/WKWebView/WebKitGTK), bundling, signing, auto-updates, or React-side performance in a Tauri context.
   DO NOT TRIGGER WHEN: targeting mobile platforms (use tauri-mobile), writing pure Rust unrelated to Tauri (use rust-engineer), or pure React performance outside Tauri (use react-performance-optimizer).
-model: fable
+model: inherit
 color: blue
 ---
 
