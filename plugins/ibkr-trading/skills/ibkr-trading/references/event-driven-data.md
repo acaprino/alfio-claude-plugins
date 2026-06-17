@@ -29,6 +29,9 @@ Streaming Level 1 quotes, bar updates, individual ticks, or pulling historical O
 - **Market data lines are shared with TWS** (default 100, expand with Quote Booster Pack). Each streaming sub consumes 1 line. Check current usage in TWS with **Ctrl+Alt+=**.
 - **`reqMarketDataType(3)`** = delayed (free, 15-20 min), `1` = live (paid). Forex and crypto don't need subscriptions.
 - **On disconnect: error 1101 ("data lost") and 1102 ("data restored")** -- use them as triggers to reconcile via historical request for the gap window (see `reconnection-resilience.md`).
+- **ib_async initializes `Ticker.bid` / `Ticker.ask` to `NaN`, not `None`.** A price-readiness check of `if price is None` passes immediately and hands a `NaN`/`0.0` placeholder to whatever consumes it (position sizing especially). Validate with `value is not None and not math.isnan(value) and value > 0`. This single wrong assumption seeded a whole family of sizing bugs: see `venue-boundary-failure-modes.md`.
+- **A snapshot/price wait must abort on terminal market-data codes** for the contract: `{200, 354, 10089, 10090, 10197}`, tracked per `conId`. Otherwise the wait exits instantly (on the NaN-vs-None bug above) and returns a placeholder instead of a real price.
+- **Forex CFDs serve no market or historical data** (error 2127 then 366). Pull data from the underlying spot Forex (IDEALPRO) contract while keeping the CFD for orders. See `venue-boundary-failure-modes.md`.
 
 ## Throttled request queue (the local pattern worth keeping)
 
@@ -79,6 +82,7 @@ def on_bar_update(bars, hasNewBar):
 
 ## Related
 
+- `venue-boundary-failure-modes.md` -- NaN-safe price reads, terminal-code aborts, data-contract vs order-contract split
 - `tws-api-architecture.md` -- connection setup, clientId strategy
 - `order-execution.md` -- the same event-pattern applied to order updates
 - `reconnection-resilience.md` -- handling 1101/1102 and reconciling data gaps

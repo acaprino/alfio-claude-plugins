@@ -20,7 +20,9 @@ Knowledge base for building production-grade algorithmic trading systems with In
 - Handling pacing violations for historical data requests
 - Building reconnection resilience for 24/7 production bots
 - Deploying IB trading systems on Windows with IBC + Task Scheduler
-- Debugging TWS API error codes (162, 200, 201, 354, 1100-1102)
+- Debugging TWS API error codes (110, 135, 162, 200, 201, 354, 366, 1100-1102)
+- Translating FX/metals symbols into the right contract type (spot vs CFD) for the account's entity
+- Sizing orders from prices without the `NaN`/`0.0`/unit/tick traps that silently mis-size or reject
 
 ## Quick Start
 
@@ -37,6 +39,7 @@ Then harden incrementally:
 - Pacing violations -- add asyncio.Semaphore throttled request queue
 - Overnight crashes -- add IBC auto-restart + heartbeat monitoring
 - State drift -- add periodic position/order reconciliation via `reqPositions()`
+- Orders FIRED but never live, mis-sized, or rejected with no error -- read `venue-boundary-failure-modes.md` (async rejection ingress, tick conformance, FX-as-CFD routing, `NaN`-safe sizing)
 
 ## Reference Materials
 
@@ -44,6 +47,7 @@ Then harden incrementally:
 - `event-driven-data.md` -- reqMktData, reqRealTimeBars, reqTickByTickData, keepUpToDate, OHLCV construction, pacing violations, historical data
 - `order-execution.md` -- order types, bracket orders, lifecycle states, execDetails monitoring, race conditions, error codes
 - `reconnection-resilience.md` -- daily reset, IBC automation, reconnect patterns, heartbeat, Windows deployment, community resources
+- `venue-boundary-failure-modes.md` -- the silent-failure layer: async rejection ingress (`errorEvent` -> lifecycle), price/tick conformance (110/135, `minTick` from `ContractDetails`), FX-as-CFD routing for retail EU entities (201/200/2127/366), data-contract vs order-contract split, and `NaN`-safe sizing with canonical lot units and conversion-rate fallback
 
 ## Key Decision Points
 

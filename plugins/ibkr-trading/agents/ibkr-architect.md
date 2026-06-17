@@ -82,9 +82,19 @@ Expert architect for Interactive Brokers algorithmic trading systems in Python. 
 ### Error Codes
 - Connectivity: 1100 (lost), 1101 (restored, data lost), 1102 (restored, data ok)
 - Farm status: 2103/2105 (disconnected), 2104/2106/2158 (connected, informational)
-- Data: 162 (pacing), 200 (no security), 354 (no subscription)
-- Orders: 103 (duplicate ID), 201 (rejected, never auto-retry), 202 (cancelled)
+- Data: 162 (pacing), 200 (no security definition), 354 (no subscription), 2127->366 (no data on Forex CFD)
+- Orders: 103 (duplicate ID), 110 (price not a multiple of minTick), 135 (bracket child cancelled by parent 110), 201 (rejected: margin, price check, or FX currency-leverage), 202 (cancelled), 399 (order warning/reject, often sizing)
 - Connection: 326 (clientId in use), 502 (connect failed), 100 (message rate exceeded)
+- Terminal market-data codes that must abort a snapshot wait: {200, 354, 10089, 10090, 10197}
+- Async rejection codes to route into the order lifecycle: {103, 105, 110, 135, 161, 201, 202, 388, 478, 503, 504, 10148, 10318}
+
+### Venue Boundary: Contracts, Ticks, Sizing, Async Rejections
+The silent-failure layer. `placeOrder`/`reqMktData` return success; IBKR accepts or rejects later via `errorEvent`. See skill reference `venue-boundary-failure-modes.md` for the full treatment.
+- **Async rejection ingress**: subscribe `ib.errorEvent`; map rejection codes to an `order_cancelled`/failed lifecycle event; de-duplicate against `orderStatusEvent` (both fire for one TWS rejection). A successful `placeOrder` is not an accepted order.
+- **Tick conformance (110->135)**: snap entry/SL/TP to `minTick` before `placeOrder`. Read `minTick` from `ContractDetails` (`reqContractDetailsAsync`), NOT the `Contract` (the attribute is unpopulated there, so rounding becomes a silent no-op). Round bracket SL/TP *away* from entry, at least one tick clear; validate raw -> round -> re-validate; integer tick-steps via `Decimal`.
+- **Contract type for retail EU entities (IBIE)**: leveraged spot FX is hard-rejected (201 "currency leverage"). Route FX through CFDs (bypassable in code, not account-side-only). FX CFD needs the split form `CFD(symbol="EUR", currency="USD")`; the 6-letter form fails 200. Gate the split on a real FX-pair check.
+- **Data contract vs order contract**: FX CFDs trade but serve no market/historical data (2127->366). Resolve the underlying spot Forex (IDEALPRO) for every data path; keep the CFD for orders. Metals serve their own data.
+- **Sizing**: ib_async initializes `Ticker.bid`/`ask` to `NaN` (not `None`). Guard with `not (x > 0)`, never `x <= 0` (NaN comparisons are False). `get_symbol_price` returns strictly-positive-or-raises. A `volume_min` floor must ABORT a degenerate input, never round it up into a live venue-minimum order. Keep all volume in lots to the wire edge. Conversion rate: try direct `{base}{counter}` then inverse `{counter}{base}` (1/rate); reject `USDUSD`.
 
 ### IBC Automation
 - Login automation, 2FA handling, dialog management
@@ -153,6 +163,12 @@ Expert architect for Interactive Brokers algorithmic trading systems in Python. 
 - Design assuming every cancel can fail (cancel-fill race)
 - Cache historical data locally to minimize pacing violations
 - Trim in-memory bar/ticker lists for long-running bots
+- Treat a successful `placeOrder` as "submitted", never "accepted" -- accept/reject arrives async via `errorEvent`; wire it to the lifecycle or rejections are invisible
+- Snap every order price to the contract `minTick` (from `ContractDetails`) before placing; round bracket legs away from entry
+- Honour the library's failure contract literally: ib_async returns `NaN` for an absent quote, not `None`; pin "positive-finite or raise" at the broker boundary and assert it in tests
+- Never let a `volume_min` floor rescue a degenerate (0/NaN) sizing input -- abort it
+- Keep canonical units (lots) to the very edge; convert to venue units (oz, base units) only on the wire and back on the way out
+- For retail EU entities, route leveraged FX through CFDs, and resolve data from the underlying spot contract (FX CFDs serve no data)
 
 ## Common Patterns
 

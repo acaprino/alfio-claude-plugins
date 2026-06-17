@@ -14,11 +14,13 @@ Analyze an existing IB trading system and produce an actionable audit report.
 
 1. **Identify IB components** in the codebase:
    - Connection setup (TWS/Gateway, port, clientId)
-   - Contract definitions and qualification
-   - Market data subscriptions
-   - Order execution logic
+   - Contract definitions and qualification (and contract *type* per account entity: spot vs CFD)
+   - The adapter boundary that translates internal prices/volumes into `Contract`/`Order` objects
+   - Market data subscriptions and price-snapshot reads used for sizing
+   - Order execution logic (including price/tick snapping and bracket rounding)
+   - Position sizing / volume calculation and conversion-rate lookup
    - Reconnection handling
-   - Error handling
+   - Error handling (especially async rejection routing)
    - Logging
 
 2. **Audit each component** against best practices:
@@ -51,12 +53,36 @@ Analyze an existing IB trading system and produce an actionable audit report.
 
 ### Error Handling
 - [ ] errorEvent handler registered
+- [ ] Async rejection codes routed into the order lifecycle (a successful `placeOrder` is "submitted", not "accepted")
+- [ ] Rejection codes mapped to a cancelled/failed event ({103, 105, 110, 135, 161, 201, 202, 388, 478, 503, 504, 10148, 10318})
+- [ ] Rejection events de-duplicated against orderStatusEvent (both fire for one TWS rejection)
 - [ ] Connectivity codes handled (1100, 1101, 1102)
-- [ ] Data codes handled (162 pacing, 200, 354)
-- [ ] Order codes handled (103 duplicate ID, 201 rejected, 202 cancelled)
+- [ ] Data codes handled (162 pacing, 200 no security, 354 not subscribed, 2127->366 no data on Forex CFD)
+- [ ] Order codes handled (103 duplicate ID, 110 tick conformance, 135 bracket child, 201 rejected, 202 cancelled, 399 sizing)
 - [ ] Farm status codes logged but not alarmed (2104, 2106, 2158)
 - [ ] WinError 10038 handled (Windows socket close)
 - [ ] Errors logged with context (orderId, contract, timestamp)
+- [ ] Per-dispatch logging kept at DEBUG, not INFO (INFO scales ingest cost with event volume)
+
+### Venue Boundary: Contracts, Ticks, Sizing
+Audits the silent-failure layer where canonical intent becomes IBKR contracts/orders. See `venue-boundary-failure-modes.md`.
+- [ ] Order prices snapped to the contract `minTick` before `placeOrder` (entry, SL, TP)
+- [ ] `minTick` read from `ContractDetails` (`reqContractDetailsAsync`), NOT off the `Contract` object
+- [ ] Bracket SL/TP rounded *away* from entry and forced at least one tick clear (no `sl == entry` collapse)
+- [ ] Tick rounding ordered validate-raw -> round -> re-validate (incoherent input rejected, not nudged)
+- [ ] Contract type matches the account entity: retail EU (IBIE) routes leveraged FX through CFDs, not spot (else 201 currency leverage)
+- [ ] FX CFDs use the split base/quote form `CFD(symbol="EUR", currency="USD")` (6-letter form fails 200)
+- [ ] FX-pair split is gated on a real FX check (non-FX 6-letter ticker not blindly split)
+- [ ] Data requests use a data-capable contract: underlying spot Forex for FX CFDs (FX CFDs serve no data; 2127->366)
+- [ ] `symbol_types` config validated at startup (no silent default to spot)
+- [ ] Price readiness check treats `NaN` as invalid (ib_async inits bid/ask to `NaN`, not `None`)
+- [ ] `get_symbol_price` returns strictly positive or raises (no 0.0/NaN placeholder)
+- [ ] Sizing guards use `not (x > 0)`, never `x <= 0` (NaN comparisons are False)
+- [ ] Non-finite computed volume collapses to 0.0 and aborts at the `volume < volume_min` gate
+- [ ] `volume_min` is an abort threshold, NOT a floor that rounds sub-minimum input up into a live order
+- [ ] All `volume_*` fields in one canonical unit (lots); venue units only on the wire, converted back on trade events
+- [ ] Conversion rate tries direct `{base}{counter}` then inverse `{counter}{base}` (1/rate); rejects `USDUSD`
+- [ ] Market-open re-checked under the execution lock (check-then-act is a race)
 
 ### Reconnection
 - [ ] disconnectedEvent handler with reconnection logic

@@ -33,7 +33,9 @@ IB algos available too: Adaptive (Urgent/Normal/Patient), TWAP, VWAP, ArrivalPx,
   ib.client.setConnectOptions('+PACEAPI')
   ```
 - **`placeOrder()` with the same orderId = modify** -- not a new order. Cannot modify already-filled portions; cancellation may fail mid-fill.
-- **Error 201 ("Order rejected") -- never auto-retry.** Always investigate. Common causes: price check failure, margin, exchange-specific rules. Blind retry generates more 201s and burns through OER budget.
+- **Error 201 ("Order rejected") -- never auto-retry.** Always investigate. Common causes: price check failure, margin, exchange-specific rules, and (on retail EU entities) FX currency-leverage on a leveraged spot cross. Blind retry generates more 201s and burns through OER budget. The FX currency-leverage case is fixable by routing through CFDs: see `venue-boundary-failure-modes.md`.
+- **A successful `placeOrder` is "submitted", not "accepted".** IBKR accepts or rejects asynchronously via `errorEvent`. If you do not subscribe `errorEvent` and route rejection codes into your order lifecycle, a rejected order silently dies while your system thinks it is live. De-duplicate the rejection against `orderStatusEvent`. See `venue-boundary-failure-modes.md`.
+- **Error 110 ("price does not conform to minimum price variation") -> 135 on bracket children.** Snap every price to the contract `minTick` (read from `ContractDetails`, not the `Contract`) before placing, and round bracket SL/TP *away* from entry. Covered in `venue-boundary-failure-modes.md`.
 - **Partial fills** populate `trade.fills` (each individual execution) and increment cumulative quantity -- adjust bracket child quantities if a parent partially fills before children become live.
 
 ## Bracket order skeleton (the pattern)
@@ -108,6 +110,7 @@ ib.execDetailsEvent += on_exec_details
 
 ## Related
 
+- `venue-boundary-failure-modes.md` -- async rejection ingress, tick conformance, FX-as-CFD routing, NaN-safe sizing
 - `event-driven-data.md` -- the same event pattern for market data
 - `reconnection-resilience.md` -- handling disconnect during open orders
 - `tws-api-architecture.md` -- clientId strategy and PACEAPI option
