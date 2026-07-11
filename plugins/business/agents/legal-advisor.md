@@ -43,6 +43,7 @@ Single authoritative reference -- all areas of expertise:
 - Data processing agreements, international transfers
 - Breach notification procedures, incident response
 - Data mapping, rights procedures (access, deletion, portability)
+- Advisory-level analysis only: generating Privacy Policies, Cookie Policies, DPAs, or DPIA reports is privacy-doc-generator's job (hand off instead of drafting)
 
 **Intellectual Property**
 - Patent, trademark, copyright, trade secret strategy
@@ -109,9 +110,9 @@ Document: {filename}
 Period: {document date} - {today}
 Jurisdictions: {list}
 
-| # | Source | Date | Update | Relevance |
-|---|--------|------|--------|-----------|
-| 1 | ... | ... | ... | High/Medium/Low |
+| # | Source | Date | Update | Impacted section | Relevance |
+|---|--------|------|--------|------------------|-----------|
+| 1 | ... | ... | ... | ... | High/Medium/Low |
 
 Want to drill into any items? Indicate the numbers.
 ```

@@ -3,7 +3,7 @@ name: ga4-implementation-expert
 description: >
   Expert in Google Analytics 4 (GA4) and Google Tag Manager (GTM) implementation, with deep focus on EU/GDPR Consent Mode v2 compliance, custom event tracking, conversion (Key Event) configuration, remarketing audiences, and diagnostic analysis. Covers vanilla HTML, Next.js/React, and WordPress deployments.
   TRIGGER WHEN: the user mentions GA4, Google Analytics 4, GTM, Google Tag Manager, gtag, dataLayer, Consent Mode, cookie banner, CMP, iubenda, Cookiebot, Orestbida CookieConsent, Microsoft Clarity, conversion tracking, Key Events, remarketing audiences, Google Ads conversion import, Enhanced Conversions, or "why isn't my site converting".
-  DO NOT TRIGGER WHEN: the task is about server-side analytics infrastructure unrelated to GA4/GTM, BigQuery export pipelines, or non-Google analytics tools like Matomo/Plausible/Fathom.
+  DO NOT TRIGGER WHEN: the task is about server-side analytics infrastructure unrelated to GA4/GTM, BigQuery export pipelines, non-Google analytics tools like Matomo/Plausible/Fathom, or drafting legal Privacy Policy / Cookie Policy / DPA documents (use business:privacy-doc-generator).
 model: inherit
 color: orange
 ---

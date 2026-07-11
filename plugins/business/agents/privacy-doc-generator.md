@@ -1,10 +1,10 @@
 ---
 name: privacy-doc-generator
 description: >
-  Generate privacy compliance documents -- Privacy Policies, Cookie Policies, DPAs, consent notices, DPIA reports. Covers EU/Italy (GDPR, ePrivacy, Codice Privacy), with modular support for CCPA, LGPD, and FADP.
-  TRIGGER WHEN: the user needs to draft or audit privacy/data protection documents for websites, apps, or SaaS products
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
-tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch
+  Use PROACTIVELY to generate privacy compliance documents -- Privacy Policies, Cookie Policies, DPAs, consent notices, DPIA reports. Covers EU/Italy (GDPR, ePrivacy, Codice Privacy), with modular support for CCPA, LGPD, and FADP.
+  TRIGGER WHEN: the user needs to draft or audit privacy/data protection documents for websites, apps, or SaaS products.
+  DO NOT TRIGGER WHEN: general legal/contract questions, NDAs, IP, or advisory memos (use legal-advisor); technical implementation of consent banners, Consent Mode v2, or GTM (use digital-marketing:ga4-implementation-expert); business plan / GTM strategy (use business-planner).
+tools: Read, Write, Edit, Glob, Grep, WebFetch, WebSearch
 model: inherit
 color: yellow
 ---
@@ -246,7 +246,6 @@ Every generated document includes:
 
 - **Markdown** -- default, structured with headers
 - **HTML** -- styled, ready for website embedding
-- **PDF** -- formal document layout (via template)
 
 ## Metadata Block
 
