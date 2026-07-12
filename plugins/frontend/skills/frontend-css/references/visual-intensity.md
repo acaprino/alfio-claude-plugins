@@ -1,7 +1,7 @@
 <!--
 Portions of this file are derived from pbakaus/impeccable
 (https://github.com/pbakaus/impeccable), Apache License 2.0.
-Snapshot 2026-06-02.
+Snapshot 2026-07-12.
 
 See plugins/frontend/NOTICE.md for the full upstream attribution chain.
 -->
@@ -15,6 +15,8 @@ A note on register before either move: on product surfaces, "bolder" rarely mean
 ## Amplifying (bolder)
 
 When asked for "bolder," the AI reflex is the tired set: cyan/purple gradients, glassmorphism, neon accents on dark, gradient text on metrics. Those are the *opposite* of bold; they are the saturated default. Reject them first, then increase impact through structure.
+
+**Amplify within the existing system first.** If the project has a DESIGN.md, tokens, theme variables, or established components, treat that system as the boundary. A bolder pass changes emphasis, proportion, rhythm, density, contrast, and copy while staying inside the documented language: use the existing palette and type more decisively before adding new colors or fonts. Treat any new color, gradient, radius, shadow, or typeface as a design-system expansion that needs explicit user approval. If the system is genuinely too limited to express the direction, stop and name the exact additions and the role each would play before proceeding.
 
 - **Typography**: dramatic size jumps (3-5x, not 1.5x); weight contrast that means it (900 paired with 200, not 600 with 400); distinctive families over system defaults; monospace as an intentional accent, never a lazy "dev tool" default.
 - **Color**: let one bold color own ~60% of the design; raise saturation toward vibrant (not neon); sharp high-contrast accents; intentional multi-stop gradients that are not purple-to-blue.

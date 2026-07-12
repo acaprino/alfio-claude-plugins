@@ -33,6 +33,8 @@ For deeper coverage of specific topics, consult the files under `references/`:
 | `visual-intensity.md` | Amplify (bolder) vs restrain (quieter) on one axis: scale/weight/color/space moves, anti-AI-slop "bold", easing rules |
 | `delight-and-microinteractions.md` | Where/when delight is earned, micro-interactions, copy personality, loading-state copy (anti-slop), celebrations, easter eggs, libraries |
 | `production-hardening.md` | Edge-case resilience: text overflow, i18n/RTL logical properties, error/empty/loading states, validation, a11y and performance resilience |
+| `android-platform.md` | Native Android (Material Design 3): adaptive navigation, system Back, window insets, 48dp targets, type scale, color roles, Dynamic Color, tonal elevation, Material motion |
+| `ios-platform.md` | Native iOS/iPadOS (HIG): safe areas, tab-bar navigation, edge-swipe back, large titles, 44pt targets, Dynamic Type, semantic colors, SF Symbols, system transitions, Reduce Motion |
 | `flow-patterns.md` | User flow recipes |
 | `argyle-cacadia-2025-deck.md` | Adam Argyle CSS Wrapped 2025 deck (offline copy) |
 | `token-architecture.md` | Three-layer token system (primitive -> semantic -> component), naming convention, file organization, W3C DTCG alignment |

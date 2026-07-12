@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Claude Code Daodan -- 45 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, frontend, AI tooling, scraping, trading, observability, reverse engineering, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), Progressive Web Apps, and pure-architecture audits (missed unification, wrong abstractions).",
-    "version": "6.26.2"
+    "version": "6.27.0"
   },
   "plugins": [
     {
@@ -106,8 +106,8 @@
     {
       "name": "frontend",
       "source": "./plugins/frontend",
-      "description": "Unified frontend toolkit: frontend-design (CSS, motion, UX), frontend-layout (grid, breakpoints), frontend-engineer (build), frontend-strategy (consulting workflow), frontend-css (modern CSS reference with typography, color/contrast, motion, heuristics scoring, cognitive load, personas, merged spatial/interaction/responsive/UX-writing sections from pbakaus/impeccable, and design-system deliverables from nextlevelbuilder/ui-ux-pro-max-skill: token architecture plus primitive/semantic/component token references, component specs, states/variants, Tailwind integration), and component-library skills (shadcn-ui, daisyUI, Radix UI). /review-design and the design/layout agents now actively load these references during audits.",
-      "version": "3.17.1",
+      "description": "Unified frontend toolkit: frontend-design (CSS, motion, UX), frontend-layout (grid, breakpoints), frontend-engineer (build), frontend-strategy (consulting workflow), frontend-css (modern CSS reference with typography, color/contrast, motion, heuristics scoring, cognitive load, personas, native iOS/Android platform design, merged spatial/interaction/responsive/UX-writing sections from pbakaus/impeccable, and design-system deliverables from nextlevelbuilder/ui-ux-pro-max-skill: token architecture plus primitive/semantic/component token references, component specs, states/variants, Tailwind integration), and component-library skills (shadcn-ui, daisyUI, Radix UI). /review-design and the design/layout agents now actively load these references during audits.",
+      "version": "3.18.0",
       "author": {
         "name": "Alfio"
       },
@@ -215,7 +215,7 @@
       "name": "ai-tooling",
       "source": "./plugins/ai-tooling",
       "description": "AI development workflow -- prompt engineering and optimization, structured brainstorming with design approval gates, implementation planning with TDD execution, and Claude Agent SDK integration guide",
-      "version": "2.10.3",
+      "version": "2.11.0",
       "author": {
         "name": "Alfio"
       },
@@ -1092,7 +1092,7 @@
       "name": "testing",
       "source": "./plugins/testing",
       "description": "Language-agnostic testing toolkit -- TDD methodology with red-green-refactor loop, E2E testing patterns with Playwright and Cypress, and a test-writer agent that generates behavior-driven test suites",
-      "version": "1.2.6",
+      "version": "1.2.7",
       "author": {
         "name": "Alfio"
       },
