@@ -54,4 +54,4 @@ Shared knowledge base for web search: query techniques, source ranking, WebFetch
 
 ---
 
-**Related:** [digital-marketing](digital-marketing.md) (SEO research and content strategy) | [ai-tooling](ai-tooling.md) (brainstorming skill for design research)
+**Related:** [digital-marketing](digital-marketing.md) (SEO research and content strategy) | [learning](learning.md) (turn findings into a mind map)

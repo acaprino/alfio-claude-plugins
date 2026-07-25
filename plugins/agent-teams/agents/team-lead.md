@@ -110,10 +110,7 @@ The lead MUST select specialized marketplace agents over generic team agents whe
 
 ### Planning Phase
 
-Before decomposing work, load the relevant planning skills:
-- `ai-tooling:brainstorming` -- explore requirements and design before implementation
-- `ai-tooling:writing-plans` -- create bite-sized implementation plans with file-level detail
-- `ai-tooling:executing-plans` -- execute plans task-by-task with validation
+Before decomposing work, settle requirements and design, then write a bite-sized plan with file-level detail. This marketplace ships no design or planning skill: if [obra/superpowers](https://github.com/obra/superpowers) is installed, load its `brainstorming`, `writing-plans`, and `executing-plans` skills here. Otherwise do the same work inline, and do not decompose until the design is agreed.
 
 ### Agent Selection by Task Type
 

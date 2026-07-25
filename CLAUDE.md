@@ -76,7 +76,7 @@ None. No tests, no build step, no CI pipeline. All content is static markdown.
 
 ## Documentation
 
-`docs/plugins/` contains per-plugin documentation. `docs/plans/` holds implementation plans used by planning skills. `docs/references/` holds cross-cutting knowledge bases that inform changes across multiple plugins — notably [`agent-teams-best-practices.md`](docs/references/agent-teams-best-practices.md), the source of truth when restructuring any plugin that spawns multi-agent teams or pipeline reviewers (`agent-teams`, `senior-review`, `codebase-mapper`, `research`).
+`docs/plugins/` contains per-plugin documentation. `docs/references/` holds cross-cutting knowledge bases that inform changes across multiple plugins — notably [`agent-teams-best-practices.md`](docs/references/agent-teams-best-practices.md), the source of truth when restructuring any plugin that spawns multi-agent teams or pipeline reviewers (`agent-teams`, `senior-review`, `codebase-mapper`, `research`).
 
 ## External-repository intake
 
@@ -136,7 +136,7 @@ Before saving any derived file, scan for and rewrite:
 - **Dash-aside construct** ("X — Y — Z" / "X -- Y -- Z" / "X - Y - Z" bracketing a clause): replace with sentences, parentheses, or colons. Never substitute one dash form for another.
 - **Emoji**: remove if the destination plugin's existing files have none.
 - **Upstream-specific cross-references**: rewrite `[reference/foo.md](foo.md)` style links to point at the local destination path (or remove if the target was not imported). Rewrite `{{template_vars}}` and references to upstream-only commands.
-- **Namespace prefixes**: rewrite `superpowers:X` -> `ai-tooling:X` and similar local namespace conventions.
+- **Namespace prefixes**: rewrite upstream `<their-plugin>:X` skill references to the local `<our-plugin>:X` equivalent, or drop them when we vendor no equivalent.
 - **Stale tool names** in agent-teams imports: `Teammate` -> `TeamCreate`, `Task tool to spawn` -> `Agent tool`.
 
 ### 6. Wire the new content into existing agents and commands
@@ -188,13 +188,13 @@ When the user asks for "upstream updates" (or similar), this is the default work
    - **Clear win** - new upstream file missing locally, or a bug/fact fix with no local conflict. Pull directly.
    - **Minor refinement** - small wording/metadata changes. Pull if no local frontmatter or content conflicts.
    - **Hard merge** - upstream rewrote a section we also evolved locally. Layer upstream changes onto local; do not overwrite.
-   - **Intentional drift** (do not touch) - local namespace rewrites (`superpowers:` -> `ai-tooling:`), local polish (typo fixes, expanded triggers), style conventions (no dash-aside construct per CLAUDE.md; no emojis in some plugins), local-only additions (custom presets, Ecosystem Integration sections, Context Sharing Pattern in `multi-reviewer-patterns`), upstream dash-asides rewritten to sentences/parens/colons.
+   - **Intentional drift** (do not touch) - local namespace rewrites (upstream `<their-plugin>:` -> local `<our-plugin>:`), local polish (typo fixes, expanded triggers), style conventions (no dash-aside construct per CLAUDE.md; no emojis in some plugins), local-only additions (custom presets, Ecosystem Integration sections, Context Sharing Pattern in `multi-reviewer-patterns`), upstream dash-asides rewritten to sentences/parens/colons.
 
 3. **Preserve these local customizations** on every merge:
    - Source attribution lines at the top of files
    - Frontmatter: localized `description` (often multiline with `>`), `tools`, `color`, `version`, `model`
    - Plugin-specific style: no dash-aside construct (rewrite "X — Y — Z" / "X -- Y -- Z" / "X - Y - Z" asides into sentences, parens, or colons), no emojis in some plugins
-   - Namespace replacements (`superpowers:X` -> `ai-tooling:X`)
+   - Namespace replacements (upstream `<their-plugin>:X` -> local `<our-plugin>:X`)
    - Local-only sections (e.g., `## Ecosystem Integration` in agent-teams agents)
 
 4. **For judgment calls**, ask the user via `AskUserQuestion`:
@@ -213,9 +213,6 @@ When the user asks for "upstream updates" (or similar), this is the default work
 
 | Plugin | Upstream source | Files to sync |
 |--------|----------------|---------------|
-| `ai-tooling` (brainstorming) | `obra/superpowers` - `skills/brainstorming/SKILL.md` | `plugins/ai-tooling/skills/brainstorming/SKILL.md` |
-| `ai-tooling` (writing-plans) | `obra/superpowers` - `skills/writing-plans/SKILL.md` | `plugins/ai-tooling/skills/writing-plans/SKILL.md` |
-| `ai-tooling` (executing-plans) | `obra/superpowers` - `skills/executing-plans/SKILL.md` | `plugins/ai-tooling/skills/executing-plans/SKILL.md` |
 | `deep-dive-analysis` (inspiration) | `gsd-build/get-shit-done` - `agents/gsd-codebase-mapper.md` | `plugins/deep-dive-analysis/commands/deep-dive-analysis.md` (patterns adopted, not direct copy) |
 | `playwright-skill` | `lackeyjb/playwright-skill` - `skills/playwright-skill/` | `plugins/playwright-skill/skills/playwright-skill/SKILL.md`, `plugins/playwright-skill/skills/playwright-skill/API_REFERENCE.md`, `plugins/playwright-skill/skills/playwright-skill/run.js`, `plugins/playwright-skill/skills/playwright-skill/package.json`, `plugins/playwright-skill/skills/playwright-skill/lib/helpers.js` |
 | `react-development` (react-best-practices) | `vercel-labs/agent-skills` - `skills/react-best-practices/` | `plugins/react-development/skills/react-best-practices/SKILL.md`, `plugins/react-development/skills/react-best-practices/references.md`, `plugins/react-development/skills/react-best-practices/rules/*.md` |
@@ -231,6 +228,17 @@ When the user asks for "upstream updates" (or similar), this is the default work
 | `codebase-cleanup` (cherry-pick, MIT) | `wshobson/agents` - `plugins/codebase-cleanup/commands/` | `plugins/codebase-cleanup/commands/deps-audit.md`, `plugins/codebase-cleanup/commands/refactor-clean.md`, `plugins/codebase-cleanup/commands/tech-debt.md`. Upstream `agents/code-reviewer.md` and `agents/test-automator.md` intentionally NOT vendored (heavy overlap with local `senior-review/*` and `testing/*` coverage). Frontmatters rewritten to local style with TRIGGER WHEN / DO NOT TRIGGER WHEN routing notes, emojis stripped from `deps-audit.md`, license-description strings normalized to colon-separated form. |
 | `kotlin-development` (full vendor, MIT) | `Jeffallan/claude-skills` - `skills/kotlin-specialist/` | `plugins/kotlin-development/skills/kotlin-specialist/SKILL.md`, `plugins/kotlin-development/skills/kotlin-specialist/references/{coroutines-flow,multiplatform-kmp,android-compose,ktor-server,dsl-idioms}.md`. Adaptation on sync: strip upstream extra frontmatter fields (`license`, `metadata.author`, `version`, `domain`, `triggers`, `role`, `scope`, `output-format`, `related-skills`); keep only `name` and `description` in local frontmatter; rewrite upstream single-paragraph `description` into local `description: >` multiline form with TRIGGER WHEN / DO NOT TRIGGER WHEN. Add MIT attribution header comment immediately after the frontmatter on SKILL.md and at the top of every reference file. Drop the upstream `[Documentation](https://jeffallan.github.io/...)` link at the bottom of SKILL.md. Single-connector em-dashes ("X — Y") in code comments are preserved as-is (they are NOT bracketed asides). |
 | `project-setup` (Karpathy Working Principles distillation, MIT) | `multica-ai/andrej-karpathy-skills` - `skills/karpathy-guidelines/SKILL.md` | Canonical `## Working Principles` block embedded in `plugins/project-setup/agents/claude-md-auditor.md` (REQUIRED SECTION) and in `plugins/project-setup/examples/good-claude-md-example.md`. The plugin's `create-claude-md` always inserts the block into generated CLAUDE.md files inline; `maintain-claude-md` flags absence, missing principles, or missing sub-bullets as High findings and offers surgical Edits. Adaptation: principles 1-4 are a tighter distillation of upstream's 4 principles (title + 2 lead sentences + 3 locally authored sub-bullets per principle covering the deeper meta-rules: root-cause analysis, evergreen tests, surgical diffs); principle #5 (Centralize Shared Logic) is locally authored. The block is always delivered inline and is never linked out to an external file or `docs/` pointer - this replaces the older optional deep-dive reference pattern (removed in plugin v1.14.0). Attribution comment preserved at the REQUIRED SECTION header in the auditor agent. Upstream is the source of truth for the lead sentences of principles 1-4; if upstream evolves the principle set or wording, update the auditor's canonical block and re-bump `project-setup`. The locally authored sub-bullets and principle #5 are NOT subject to upstream sync. |
+
+### Deliberately not vendored
+
+Two areas were vendored, then handed back to their upstreams because maintaining the copy cost more than it returned. Do NOT re-import them, and do not add sync-table rows for them on a future "upstream updates" pass. The README documents both for users.
+
+| Area | Upstream | Removed in |
+|---|---|---|
+| Frontend and design (`frontend` plugin: 3 agents, 5 skills, 1 command) | `pbakaus/impeccable`, `nextlevelbuilder/ui-ux-pro-max-skill`, `paulirish/dotfiles` | marketplace 7.0.0 |
+| Brainstorming, planning, execution (`ai-tooling` skills `brainstorming`, `writing-plans`, `executing-plans`) | `obra/superpowers` | marketplace 8.0.0, ai-tooling 3.0.0 |
+
+Places that used to invoke the removed planning skills now tell the reader to settle design and plan first, and point at `obra/superpowers` as the optional provider: `acp-loader` (Skill Priority), `agent-teams:team-lead` (Planning Phase), `/agent-teams:team-feature` (Skills to Load). Keep that phrasing conditional. Never make a superpowers skill a hard requirement, since it is a separate install.
 
 ### How to sync a plugin
 
@@ -259,13 +267,12 @@ After fetching, compare with the local file, apply changes while preserving loca
 - **`wshobson/agents` (codebase-cleanup)**: commands only. `agents/code-reviewer.md` and `agents/test-automator.md` are intentionally NOT vendored (overlap with `senior-review/*` and `testing/*`).
 - **`wshobson/agents` (agent-teams / reverse-engineering / codebase-cleanup)**: upstream `description:` is a single line. Rewrite into local `description: >` multiline with TRIGGER WHEN / DO NOT TRIGGER WHEN. Strip emojis where the destination plugin has none. Normalize ``'Copyleft - requires...'`` to ``'Copyleft: requires...'``.
 - **`Jeffallan/claude-skills` (kotlin)**: strip extra upstream frontmatter fields (`license`, `metadata.author`, `version`, `domain`, `triggers`, `role`, `scope`, `output-format`, `related-skills`). Drop the trailing `[Documentation](https://jeffallan.github.io/...)` link. Preserve single-connector em-dashes (`X — Y`) inside code comments; they are not bracketed asides.
-- **Superpowers cross-references**: upstream references skills we do not vendor (e.g. `superpowers:using-git-worktrees`, `superpowers:finishing-a-development-branch`, `superpowers:subagent-driven-development`). Replace with local `ai-tooling:` equivalents or generic guidance. Keep `docs/plans/` (not upstream's `docs/superpowers/plans/`).
 
 ---
 
 ## Custom plugin maintenance
 
-A "custom plugin" is any plugin NOT listed in the "Upstream-synced plugins" table above. Its content is hand-authored or research-grounded and has no upstream source to re-pull. The list is large (libgdx-development, ibkr-trading, mt5-trading, rag-development, opentelemetry, stripe, csp, grabber-development, browser-extensions, obsidian-development, business, research, codebase-mapper, python-development, typescript-development, senior-review, digital-marketing, docs, learning, app-analyzer, project-setup, marketplace-ops, system-utils, cc-usage, git-worktrees, platform-engineering, testing, react-development, tauri-development, messaging, xterm, clean-code, deep-dive-analysis, ai-tooling agents/skills not from upstream, acp-hooks). If a plugin is not in the sync table, it falls under this section.
+A "custom plugin" is any plugin NOT listed in the "Upstream-synced plugins" table above. Its content is hand-authored or research-grounded and has no upstream source to re-pull. The list is large (libgdx-development, ibkr-trading, mt5-trading, rag-development, opentelemetry, stripe, csp, grabber-development, browser-extensions, obsidian-development, business, research, codebase-mapper, python-development, typescript-development, senior-review, digital-marketing, docs, learning, app-analyzer, project-setup, marketplace-ops, system-utils, cc-usage, git-worktrees, platform-engineering, testing, react-development, tauri-development, messaging, xterm, clean-code, deep-dive-analysis, ai-tooling, acp-hooks). If a plugin is not in the sync table, it falls under this section.
 
 Custom plugins decay differently than vendored ones. There is no upstream commit to diff against. Versions, framework recommendations, breaking-change notes, and "current as of 2026" claims become stale silently. The maintenance protocol below is the antidote.
 

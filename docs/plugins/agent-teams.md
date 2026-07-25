@@ -379,7 +379,7 @@ A defining feature of this plugin is its deep integration with the broader marke
 
 **Documentation tasks** delegate to `codebase-mapper:documentation-engineer`.
 
-**Planning phases** use `ai-tooling:brainstorming`, `ai-tooling:writing-plans`, and `ai-tooling:executing-plans`.
+**Planning phases** settle requirements and design before decomposition. This marketplace ships no design or planning skill: with [obra/superpowers](https://github.com/obra/superpowers) installed, its `brainstorming`, `writing-plans`, and `executing-plans` skills cover that phase.
 
 The generic team-reviewer, team-implementer, and team-debugger agents are used only when no specialized agent matches the task context.
 
@@ -394,4 +394,4 @@ The generic team-reviewer, team-implementer, and team-debugger agents are used o
 
 ---
 
-**Related:** [senior-review](senior-review.md) (specialized review agents) | [ai-tooling](ai-tooling.md) (brainstorming, planning, execution skills) | [typescript-development](typescript-development.md) (typescript-engineer) | [research](research.md) (deep-researcher, quick-searcher)
+**Related:** [senior-review](senior-review.md) (specialized review agents) | [ai-tooling](ai-tooling.md) (prompt engineering, skill activation) | [typescript-development](typescript-development.md) (typescript-engineer) | [research](research.md) (deep-researcher, quick-searcher)

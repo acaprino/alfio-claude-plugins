@@ -2,16 +2,16 @@
 
 # Claude Code Daodan
 
-**43 specialized plugins that augment Claude Code into a specialized toolkit -- so you spend less time prompting and more time shipping.**
+**44 specialized plugins that augment Claude Code into a specialized toolkit -- so you spend less time prompting and more time shipping.**
 
 > The Daodan is the symbiote that enhances its host. This marketplace is the Daodan of Claude Code.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat)](LICENSE)
-[![Marketplace](https://img.shields.io/badge/marketplace-v6.7.1-green?style=flat)](.claude-plugin/marketplace.json)
-[![Plugins](https://img.shields.io/badge/plugins-43-orange?style=flat)](#plugins)
-[![Agents](https://img.shields.io/badge/agents-71-purple?style=flat)](#plugins)
-[![Skills](https://img.shields.io/badge/skills-72-teal?style=flat)](#plugins)
-[![Commands](https://img.shields.io/badge/commands-59-red?style=flat)](#plugins)
+[![Marketplace](https://img.shields.io/badge/marketplace-v8.0.0-green?style=flat)](.claude-plugin/marketplace.json)
+[![Plugins](https://img.shields.io/badge/plugins-44-orange?style=flat)](#plugins)
+[![Agents](https://img.shields.io/badge/agents-74-purple?style=flat)](#plugins)
+[![Skills](https://img.shields.io/badge/skills-66-teal?style=flat)](#plugins)
+[![Commands](https://img.shields.io/badge/commands-62-red?style=flat)](#plugins)
 
 </div>
 
@@ -21,7 +21,7 @@
 
 - **Domain experts, not generic prompts** -- each plugin encodes months of specialized knowledge (Python, Rust, React, security, SEO, legal...)
 - **Multi-agent orchestration** -- code review fires architecture, security, and pattern analysis in parallel
-- **End-to-end workflows** -- chain brainstorming, planning, implementation, review, and cleanup into single commands
+- **End-to-end workflows** -- chain analysis, implementation, review, and cleanup into single commands
 - **Install only what you need** -- every plugin is independent, no runtime dependencies
 - **Community-driven** -- MIT licensed, upstream-synced with projects from Anthropic, Vercel, and others
 
@@ -59,7 +59,7 @@ That's it. Plugins activate automatically when relevant -- or invoke them direct
 | **[python-development](docs/plugins/python-development.md)** | TDD, refactoring, async patterns, packaging, performance, dead code, Pydantic v2, /python-audit | 3 | 9 | 3 |
 | **[senior-review](docs/plugins/senior-review.md)** | 9 agents review architecture, security, patterns, distributed flows, logic integrity, API contracts, startup cycles, UI races, and codebase hygiene in parallel | 9 | 1 | 4 |
 | **[codebase-mapper](docs/plugins/codebase-mapper.md)** | Generate 10 narrative docs with Mermaid diagrams from any codebase | 10 | 1 | 4 |
-| **[ai-tooling](docs/plugins/ai-tooling.md)** | Brainstorm, plan, execute, optimize prompts, Agent SDK | 1 | 5 | 1 |
+| **[ai-tooling](docs/plugins/ai-tooling.md)** | Prompt engineering and optimization, skill activation, Agent SDK | 1 | 2 | 1 |
 | **[tauri-development](docs/plugins/tauri-development.md)** | Tauri 2 desktop + mobile, Rust backend, IPC optimization | 3 | 1 | - |
 | **[digital-marketing](docs/plugins/digital-marketing.md)** | SEO + AEO (AI Overviews/Perplexity/ChatGPT Search), GA4/GTM with Consent Mode v2, content strategy, brand naming, domain hunting, text humanization | 5 | 5 | 7 |
 | **[react-development](docs/plugins/react-development.md)** | React 19 performance, state management, bundle optimization | 1 | 1 | 1 |
@@ -84,7 +84,7 @@ That's it. Plugins activate automatically when relevant -- or invoke them direct
 | **[playwright-skill](docs/plugins/playwright-skill.md)** | General-purpose browser automation with Playwright | - | 1 | - |
 | **[cc-usage](docs/plugins/cc-usage.md)** | Token usage, costs, and billing analysis | - | 1 | 1 |
 | **[prompt-improver](docs/plugins/prompt-improver.md)** | Enrich vague prompts with research-based questions | - | 1 | - |
-| **[acp-hooks](docs/plugins/acp-hooks.md)** | Session hooks: skill awareness, security gate, autocompact, brainstorm/review/docs/team gates | - | - | - |
+| **[acp-hooks](docs/plugins/acp-hooks.md)** | Session hooks: skill awareness, security gate, autocompact, review/docs/team gates | - | - | - |
 | **[docs](docs/plugins/docs.md)** | Craft top-tier README.md files | - | 1 | 1 |
 | **[testing](docs/plugins/testing.md)** | TDD methodology, E2E testing patterns, behavior-driven test generation | 1 | 2 | - |
 | **[platform-engineering](docs/plugins/platform-engineering.md)** | Cross-platform security (passkeys/WebAuthn, Electron Fuses), architecture, and performance rulebook + /platform-review | 1 | 1 | 1 |
@@ -119,6 +119,22 @@ claude plugin marketplace add nextlevelbuilder/ui-ux-pro-max-skill
 ```
 
 Framework-specific frontend work stays here: [react-development](docs/plugins/react-development.md) for React 19 performance, `pwa-expert` for Progressive Web Apps, [browser-extensions](docs/plugins/browser-extensions.md) for Firefox add-ons, and [xterm](docs/plugins/xterm.md) for terminal UIs.
+
+### Brainstorming, planning, and execution
+
+Same story for the design-first workflow. The `brainstorming`, `writing-plans`, and `executing-plans` skills shipped in `ai-tooling` were ports of [obra/superpowers](https://github.com/obra/superpowers), which maintains them upstream inside a much larger methodology. Carrying three stale copies stopped paying for itself, so they are gone as of ai-tooling 3.0.0.
+
+| Upstream | License | Covers |
+|----------|---------|--------|
+| [obra/superpowers](https://github.com/obra/superpowers) | MIT | Design-first development: brainstorming a spec you actually sign off on, bite-sized implementation plans, subagent-driven execution, TDD, systematic debugging, worktree workflows |
+
+Install it from Anthropic's official marketplace:
+
+```bash
+claude plugin install superpowers@claude-plugins-official
+```
+
+Everything downstream of the plan stays here: [agent-teams](docs/plugins/agent-teams.md) for parallel implementation, [senior-review](docs/plugins/senior-review.md) for multi-agent review, [testing](docs/plugins/testing.md) for TDD methodology, and the per-language plugins for domain execution. Where a workflow used to invoke the removed skills, it now says to settle design and plan first and names superpowers as the provider if you have it installed.
 
 ---
 
@@ -169,7 +185,7 @@ claude plugin install ./claude-code-daodan/plugins/python-development
 <details>
 <summary><b>Recommended Settings (skill visibility)</b></summary>
 
-With 43 plugins installed, Claude Code's default skill-listing budget can truncate the list of available skills shown at conversation start. Raise the fraction of context allocated to the skill listing in `~/.claude/settings.json`:
+With 44 plugins installed, Claude Code's default skill-listing budget can truncate the list of available skills shown at conversation start. Raise the fraction of context allocated to the skill listing in `~/.claude/settings.json`:
 
 ```json
 {

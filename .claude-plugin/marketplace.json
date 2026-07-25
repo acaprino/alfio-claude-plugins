@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Claude Code Daodan -- 44 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, reverse engineering, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), and pure-architecture audits (missed unification, wrong abstractions).",
-    "version": "7.0.0"
+    "version": "8.0.0"
   },
   "plugins": [
     {
@@ -164,8 +164,8 @@
     {
       "name": "ai-tooling",
       "source": "./plugins/ai-tooling",
-      "description": "AI development workflow -- prompt engineering and optimization, structured brainstorming with design approval gates, implementation planning with TDD execution, and Claude Agent SDK integration guide",
-      "version": "2.12.0",
+      "description": "AI development workflow -- prompt engineering and optimization, proactive skill activation across the marketplace, and Claude Agent SDK integration guide",
+      "version": "3.0.0",
       "author": {
         "name": "Alfio"
       },
@@ -175,8 +175,7 @@
         "llm",
         "ai",
         "optimization",
-        "planning",
-        "brainstorming",
+        "skill-activation",
         "agent-sdk",
         "claude-code-sdk",
         "subagents",
@@ -188,9 +187,6 @@
         "./agents/prompt-engineer.md"
       ],
       "skills": [
-        "./skills/brainstorming",
-        "./skills/writing-plans",
-        "./skills/executing-plans",
         "./skills/acp-loader",
         "./skills/agent-sdk-builder"
       ],
@@ -803,8 +799,8 @@
     {
       "name": "acp-hooks",
       "source": "./plugins/acp-hooks",
-      "description": "Claude Code Daodan session hooks -- skill awareness injection, PreToolUse security gate that BLOCKS hardcoded secrets before they reach disk, autocompact when context is high, cleanup of duplicate built-in plugins, brainstorm gate for creative/building prompts, review gate for PR/merge operations, docs gate for documentation auditing, and team spawn gate with runtime-generated agent catalog from marketplace.json (no more drift from hardcoded lists)",
-      "version": "3.0.1",
+      "description": "Claude Code Daodan session hooks -- skill awareness injection, PreToolUse security gate that BLOCKS hardcoded secrets before they reach disk, autocompact when context is high, cleanup of duplicate built-in plugins, review gate for PR/merge operations, docs gate for documentation auditing, and team spawn gate with runtime-generated agent catalog from marketplace.json (no more drift from hardcoded lists)",
+      "version": "4.0.0",
       "author": {
         "name": "Alfio"
       },
@@ -818,7 +814,6 @@
         "guard",
         "autocompact",
         "context",
-        "brainstorm",
         "gate",
         "review",
         "docs",
@@ -832,7 +827,6 @@
       "strict": false,
       "optionalDependencies": [
         "ai-tooling",
-        "git-worktrees",
         "senior-review",
         "agent-teams"
       ]
@@ -1363,7 +1357,7 @@
       "name": "agent-teams",
       "source": "./plugins/agent-teams",
       "description": "Orchestrate multi-agent teams for parallel code review, hypothesis-driven debugging, and coordinated feature development using Claude Code Agent Teams. Includes the team-review pipeline (deep-dive + interconnect map + parallel reviewers + codebase-hygiene auditor + consolidation) for finding cross-component logic bugs plus dead code / orphan assets / VCS cruft / phantom deps, the team-codebase-map pipeline (context brief + interconnect map + parallel writers + drift-aware review) for producing accurate codebase documentation, and the team-deep-dive pipeline (partition detection + parallel per-partition workers + synthesis + global interconnect map) for monorepo-scale deep-dive analysis.",
-      "version": "3.0.0",
+      "version": "3.0.1",
       "author": {
         "name": "Seth Hobson"
       },

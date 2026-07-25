@@ -38,7 +38,7 @@ If CLAUDE.md says "don't use TDD" and a skill says "always use TDD," follow the 
 
 Use the `Skill` tool. When you invoke a skill, its content is loaded and presented to you -- follow it directly. Never use the Read tool on skill files.
 
-Skills are namespaced by plugin: `plugin-name:skill-name` (e.g., `ai-tooling:brainstorming`, `python-development:python-tdd`).
+Skills are namespaced by plugin: `plugin-name:skill-name` (e.g., `ai-tooling:agent-sdk-builder`, `python-development:python-tdd`).
 
 ---
 
@@ -52,37 +52,31 @@ Before responding to ANY user message, run this check:
 
 ```
 1. Is the user about to BUILD something new?
-   --> ai-tooling:brainstorming FIRST, then implementation skills
+   --> Settle requirements and design BEFORE code, then apply the domain skills below
 
 2. Is the user asking to FIX a bug?
    --> Investigate root cause before fixing (no blind patches)
 
-3. Does a written plan or spec exist?
-   --> ai-tooling:executing-plans to implement it
-
-4. Is this a multi-step implementation task (3+ files)?
-   --> ai-tooling:writing-plans to create a plan first
-
-5. Is this React or PWA work?
+3. Is this React or PWA work?
    --> Check: react-development:react-best-practices, pwa-expert:pwa-development
 
-6. Is this a code review request?
+4. Is this a code review request?
    --> Check: senior-review:code-review, senior-review:full-review
 
-7. Is this Python work?
+5. Is this Python work?
    --> Check: python-development skills (python-tdd, python-refactor, etc.)
 
-8. Is this Tauri/Rust work?
+6. Is this Tauri/Rust work?
    --> Check: tauri-development skills, agent-teams:team-spawn tauri
 
-9. Is this about documentation?
+7. Is this about documentation?
    --> Check: codebase-mapper:docs-create
 
-10. Is this about prompts or AI tooling?
-    --> Check: ai-tooling:prompt-optimize
+8. Is this about prompts or AI tooling?
+   --> Check: ai-tooling:prompt-optimize
 
-11. Could any other installed skill apply?
-    --> Check the skill list in the system prompt
+9. Could any other installed skill apply?
+   --> Check the skill list in the system prompt
 ```
 
 ## Red Flags
@@ -99,21 +93,21 @@ These thoughts mean STOP -- you are rationalizing not using a skill:
 | "I'll just do this one thing first" | Check BEFORE doing anything. |
 | "The skill is overkill" | Overkill prevents underkill. Use it. |
 | "I know what that means" | Knowing the concept != using the skill. Invoke it. |
-| "Let me just write the code" | Did you brainstorm? Did you plan? Check first. |
+| "Let me just write the code" | Did you settle the requirements? Did you plan? Check first. |
 
 ## Skill Priority
 
 When multiple skills could apply, use this order:
 
-1. **Process skills first** (brainstorming, writing-plans) -- these determine HOW to approach the task
+1. **Process skills first** -- design and planning skills determine HOW to approach the task. This marketplace no longer ships them: if [obra/superpowers](https://github.com/obra/superpowers) is installed, its `brainstorming`, `writing-plans`, and `executing-plans` skills fill that slot.
 2. **Domain skills second** (react-best-practices, pwa-development, python-tdd) -- these guide execution
 3. **Review skills last** (code-review, full-review) -- these validate the result
 
 Examples:
-- "Build a new dashboard" --> brainstorming --> writing-plans --> react-best-practices --> review
+- "Build a new dashboard" --> design and plan --> react-best-practices --> review
 - "Fix a slow React re-render" --> react-development:react-best-practices directly
 - "Review this code" --> code-review or full-review
-- "Create a Python API" --> brainstorming --> python-tdd --> writing-plans --> executing-plans
+- "Create a Python API" --> design and plan --> python-tdd --> review
 
 ## Workflow Awareness
 
@@ -134,7 +128,7 @@ If the user's request matches a team scope, suggest the team command instead of 
 
 ## Skill Types
 
-**Rigid** (brainstorming, TDD): Follow exactly. Don't adapt away the discipline. The gates exist for a reason.
+**Rigid** (TDD, review checklists): Follow exactly. Don't adapt away the discipline. The gates exist for a reason.
 
 **Flexible** (react-best-practices, pwa-development): Adapt principles to context. Use judgment.
 

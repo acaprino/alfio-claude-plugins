@@ -1,6 +1,8 @@
 # AI Tooling Plugin
 
-> Think before you build. Structured brainstorming, planning, and execution workflows that prevent wasted effort and keep complex projects on track.
+> Prompt engineering, skill activation, and Agent SDK guidance. The layer that makes Claude Code use the right tool for the job.
+
+**Note:** the `brainstorming`, `writing-plans`, and `executing-plans` skills used to live here as ports of [obra/superpowers](https://github.com/obra/superpowers). They were removed in ai-tooling 3.0.0: superpowers maintains them upstream and ships the full methodology around them. See the [README](../../README.md#brainstorming-planning-and-execution) for install instructions.
 
 ## Agents
 
@@ -28,45 +30,6 @@ Use the prompt-engineer agent to optimize [prompt/system]
 ---
 
 ## Skills
-
-### `brainstorming`
-
-Explore user intent, requirements, and design before any creative or implementation work.
-
-| | |
-|---|---|
-| **Invoke** | Skill reference |
-| **Use for** | Feature design, requirements exploration, creative ideation |
-
-**Source:** Ported from [obra/superpowers](https://github.com/obra/superpowers).
-
----
-
-### `writing-plans`
-
-Create structured implementation plans from specs or requirements before touching code.
-
-| | |
-|---|---|
-| **Invoke** | Skill reference |
-| **Use for** | Multi-step task planning, spec-to-plan conversion |
-
-**Source:** Ported from [obra/superpowers](https://github.com/obra/superpowers).
-
----
-
-### `executing-plans`
-
-Execute written implementation plans in a separate session with review checkpoints.
-
-| | |
-|---|---|
-| **Invoke** | Skill reference |
-| **Use for** | Plan execution, checkpoint reviews, staged implementation |
-
-**Source:** Ported from [obra/superpowers](https://github.com/obra/superpowers).
-
----
 
 ### `acp-loader`
 
@@ -113,4 +76,4 @@ Analyze, score, and optimize prompts for LLMs -- evaluates clarity, specificity,
 
 ---
 
-**Related:** [agent-teams](agent-teams.md) (`/team-feature` uses brainstorming, writing-plans, executing-plans) | [acp-hooks](acp-hooks.md) (acp-loader skill awareness)
+**Related:** [agent-teams](agent-teams.md) (multi-agent orchestration) | [acp-hooks](acp-hooks.md) (acp-loader skill awareness)

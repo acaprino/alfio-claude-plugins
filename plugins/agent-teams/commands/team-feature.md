@@ -10,11 +10,11 @@ Orchestrate parallel feature development with multiple implementer agents. Decom
 ## Skills to Load
 
 Before starting, invoke these skills to inform the feature development process:
-- `ai-tooling:brainstorming` -- explore requirements and design before decomposition
-- `ai-tooling:writing-plans` -- create bite-sized implementation plans
 - `agent-teams:parallel-feature-development` -- file ownership strategies, conflict avoidance, integration patterns
 - `agent-teams:task-coordination-strategies` -- task decomposition, dependency graphs, workload monitoring
 - `agent-teams:team-communication-protocols` -- message type selection, plan approval workflow, shutdown protocol
+
+Requirements and design come first, before any decomposition. This marketplace ships no design or planning skill: if [obra/superpowers](https://github.com/obra/superpowers) is installed, load its `brainstorming` and `writing-plans` skills here. Otherwise settle the design with the user inline.
 
 ## Pre-flight Checks
 

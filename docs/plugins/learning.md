@@ -71,4 +71,4 @@ Generate a MarkMind mind map from any topic, text, or file. Chains `generate-min
 
 ---
 
-**Related:** [obsidian-development](obsidian-development.md) (Obsidian plugin development) | [ai-tooling](ai-tooling.md) (brainstorming skill for ideation)
+**Related:** [obsidian-development](obsidian-development.md) (Obsidian plugin development) | [research](research.md) (source material for a mind map)

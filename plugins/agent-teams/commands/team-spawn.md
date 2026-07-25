@@ -165,12 +165,12 @@ Before spawning, invoke the relevant skills for the preset to inform team config
 |--------|-------------------|
 | review | `agent-teams:multi-reviewer-patterns`, `senior-review:defect-taxonomy` |
 | debug | `agent-teams:parallel-debugging`, `deep-dive-analysis:deep-dive-analysis` |
-| feature | `agent-teams:parallel-feature-development`, `agent-teams:task-coordination-strategies`, `ai-tooling:writing-plans` |
-| fullstack | `agent-teams:parallel-feature-development`, `agent-teams:task-coordination-strategies`, `ai-tooling:writing-plans` |
+| feature | `agent-teams:parallel-feature-development`, `agent-teams:task-coordination-strategies` |
+| fullstack | `agent-teams:parallel-feature-development`, `agent-teams:task-coordination-strategies` |
 | research | `agent-teams:team-composition-patterns` |
 | deep-search | `agent-teams:team-composition-patterns`, `agent-teams:team-communication-protocols` |
 | security | `agent-teams:multi-reviewer-patterns`, `senior-review:defect-taxonomy`, `platform-engineering:platform-engineering` |
-| migration | `agent-teams:parallel-feature-development`, `agent-teams:task-coordination-strategies`, `ai-tooling:writing-plans` |
+| migration | `agent-teams:parallel-feature-development`, `agent-teams:task-coordination-strategies` |
 | docs | `codebase-mapper:codebase-mapper`, `agent-teams:team-composition-patterns` |
 | codebase-mapper | `codebase-mapper:codebase-mapper`, `agent-teams:task-coordination-strategies`, `agent-teams:team-communication-protocols` |
 | app-analysis | `agent-teams:team-composition-patterns` |

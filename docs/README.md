@@ -8,8 +8,8 @@ The augmentation symbiote for Claude Code. Agents, skills, and commands for deve
 
 | Plugin | Category | Description | Docs |
 |--------|----------|-------------|------|
-| [ai-tooling](plugins/ai-tooling.md) | ai-ml | Prompt engineering, brainstorming, planning, execution, Claude Agent SDK | 1 agent, 5 skills, 1 command |
-| [acp-hooks](plugins/acp-hooks.md) | security | Session hooks: skill awareness, security gate, autocompact, brainstorm gate, review gate, docs gate, team spawn gate | hooks only |
+| [ai-tooling](plugins/ai-tooling.md) | ai-ml | Prompt engineering, skill activation, Claude Agent SDK | 1 agent, 2 skills, 1 command |
+| [acp-hooks](plugins/acp-hooks.md) | security | Session hooks: skill awareness, security gate, autocompact, review gate, docs gate, team spawn gate | hooks only |
 | [agent-teams](plugins/agent-teams.md) | development | Orchestrate multi-agent teams for parallel code review, debugging, codebase mapping, and coordinated feature development | 4 agents, 6 skills, 10 commands |
 | [app-analyzer](plugins/app-analyzer.md) | analysis | Android app analysis via ADB and webapp exploration via Playwright | 1 agent |
 | [browser-extensions](plugins/browser-extensions.md) | development | Firefox WebExtension development: Manifest V2/V3, browser.* APIs, AMO publishing | 1 agent, 1 skill, 3 commands |

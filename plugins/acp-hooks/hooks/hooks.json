@@ -1,5 +1,5 @@
 {
-  "description": "Claude Code Daodan session hooks -- skill awareness, security gate, autocompact, brainstorm gate, review gate, docs gate, and team spawn gate",
+  "description": "Claude Code Daodan session hooks -- skill awareness, security gate, autocompact, review gate, docs gate, and team spawn gate",
   "hooks": {
     "PreToolUse": [
       {
@@ -34,15 +34,6 @@
       }
     ],
     "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/handlers/brainstorm-gate.js\"",
-            "timeout": 5
-          }
-        ]
-      },
       {
         "hooks": [
           {
