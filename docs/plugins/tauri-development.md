@@ -115,4 +115,4 @@ Unified Tauri 2 development knowledge base covering core, desktop, and mobile pa
 
 ---
 
-**Related:** [agent-teams](agent-teams.md) (`/team-spawn tauri` orchestrates these agents) | [frontend](frontend.md) (UI polish and layout for Tauri webviews) | [react-development](react-development.md) (React performance in Tauri)
+**Related:** [agent-teams](agent-teams.md) (`/team-spawn tauri` orchestrates these agents) | [react-development](react-development.md) (React performance in Tauri)

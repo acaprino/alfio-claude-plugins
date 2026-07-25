@@ -2,7 +2,7 @@
 description: >
   React performance and optimization review -- state management audit, bundle analysis, re-render detection, React 19 API adoption, and Vercel best practices checklist -- outputs an actionable markdown report.
   TRIGGER WHEN: the user asks to review React code for performance, re-renders, bundle size, or React 19 API adoption.
-  DO NOT TRIGGER WHEN: reviewing CSS/design (use /frontend:review-design) or non-React frontend code.
+  DO NOT TRIGGER WHEN: reviewing CSS/design or non-React frontend code.
 argument-hint: "[src-path] [--strict-mode]"
 ---
 

@@ -64,7 +64,7 @@ Before starting, invoke these skills:
 |--------|-------|
 | security | `senior-review:security-auditor` |
 | architecture | `senior-review:code-auditor` |
-| frontend | `frontend:frontend-engineer` |
+| frontend | `typescript-development:typescript-engineer` |
 | python | `python-development:python-engineer` |
 | tauri | `tauri-development:tauri-desktop` |
 | business | `business:business-planner` |

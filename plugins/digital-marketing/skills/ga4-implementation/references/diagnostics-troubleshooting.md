@@ -24,7 +24,7 @@ Reports → Engagement → Events. Sessions exist (>100/month) but Key Events co
 
 Check: build a **Funnel Exploration** (Explore → Funnel Exploration), find the drop-off step. Compare mobile vs desktop bounce (delta > 20pts = mobile UX problem). Reports → Engagement → Pages and Screens to see if visitors reach the conversion page. Reports → Engagement → Landing Page to see entry points. Install **Microsoft Clarity** for the "why" GA4 can't show.
 
-**Hand off to**: `content-marketer` (CTA, copy) and/or `frontend-strategy` skill in the `frontend` plugin (UX).
+**Hand off to**: `content-marketer` (CTA, copy) and/or `/digital-marketing:content-strategy` (UX and CRO audit).
 
 ## Funnel templates
 

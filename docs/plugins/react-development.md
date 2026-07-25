@@ -37,7 +37,7 @@ Use the react-performance-optimizer agent to analyze [component/app]
 | Render time | < 16ms | < 16ms |
 | Memory baseline | N/A | < 100MB |
 
-**Agent delegation:** Defers CSS issues and animation jank to `frontend-design`, layout to `frontend-layout`, and Tauri IPC/Rust to `tauri-desktop`.
+**Agent delegation:** Reports CSS issues, animation jank, and layout structure as styling problems it does not own. Defers Tauri IPC/Rust to `tauri-desktop`.
 
 ---
 
@@ -91,4 +91,4 @@ React performance and optimization review. Audits state management, analyzes bun
 
 ---
 
-**Related:** [frontend](frontend.md) (UI design, layout, CSS) | [agent-teams](agent-teams.md) (`/team-design` uses this agent)
+**Related:** [agent-teams](agent-teams.md) (`/team-spawn review` can use this agent) | [typescript-development](typescript-development.md) (TypeScript architecture and implementation)

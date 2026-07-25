@@ -289,7 +289,7 @@ migration-lead (plan) -> migrator-1 --+
 |-------|-------|
 | Security | `senior-review:security-auditor` |
 | Architecture | `senior-review:code-auditor` |
-| Frontend | `frontend:frontend-engineer` |
+| Frontend | `typescript-development:typescript-engineer` |
 | Python | `python-development:python-engineer` |
 | Tauri | `tauri-development:tauri-desktop` |
 | Business | `business:business-planner` |
@@ -346,8 +346,8 @@ explorer (context brief) -> tech-writer (docs) -> doc-verifier (accuracy check)
 
 ### Configuration
 
-- **Team Size**: 3
-- **Agent Types**: `app-analyzer:app-analyzer` + `research:deep-researcher` + `frontend:frontend-design`
+- **Team Size**: 2
+- **Agent Types**: `app-analyzer:app-analyzer` + `research:deep-researcher`
 - **Display Mode**: tmux recommended
 
 ### Members
@@ -356,7 +356,6 @@ explorer (context brief) -> tech-writer (docs) -> doc-verifier (accuracy check)
 | -------------- | ----------------- | --------------------------------------------- |
 | app-mapper     | app-analyzer      | Navigation mapping + UX audit via ADB/browser |
 | intel-researcher | deep-researcher | Competitive intelligence + market research    |
-| design-analyst | frontend-design   | Design system extraction + UI pattern catalog |
 
 ## Tauri Team Preset
 
@@ -365,7 +364,7 @@ explorer (context brief) -> tech-writer (docs) -> doc-verifier (accuracy check)
 ### Configuration
 
 - **Team Size**: 4 (1 lead + 3 specialists)
-- **Agent Types**: `agent-teams:team-lead` + `tauri-development:rust-engineer` + `frontend:frontend-engineer` + `tauri-development:tauri-desktop`
+- **Agent Types**: `agent-teams:team-lead` + `tauri-development:rust-engineer` + `typescript-development:typescript-engineer` + `tauri-development:tauri-desktop`
 - **Display Mode**: tmux recommended
 
 ### Members
@@ -374,7 +373,7 @@ explorer (context brief) -> tech-writer (docs) -> doc-verifier (accuracy check)
 | --------------- | ----------------- | ---------------------------------------------- |
 | tauri-lead      | team-lead         | Coordination, IPC contract design, integration |
 | rust-backend    | rust-engineer     | Rust commands, state management, plugins       |
-| frontend-dev    | frontend-engineer | React UI, components, performance             |
+| frontend-dev    | typescript-engineer | React UI, components, performance           |
 | platform-expert | tauri-desktop     | WebView tuning, window management, bundling    |
 
 ### Dependency Pattern

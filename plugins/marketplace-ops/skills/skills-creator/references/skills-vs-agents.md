@@ -46,16 +46,16 @@ If none of these apply, a skill is the right choice.
 - **After:** 1 unified skill (tauri2-mobile - knowledge/recipes) + 3 agents (rust-engineer, tauri-optimizer, tauri2-mobile - specialist workers)
 - **Why:** The skills were being invoked as isolated workers needing specific tools. Skills don't have tool restrictions or context isolation -- agents do.
 
-### frontend (4 agents -> 2 agents + skill restructure)
-- **Before:** 4 agents doing overlapping work, CSS knowledge buried in an agent prompt
-- **After:** 3 focused agents (frontend-design, frontend-layout, frontend-engineer) + frontend-strategy skill for consulting workflows + component library skills as separate alternatives (shadcn-ui, daisyui, radix-ui) + frontend-css skill for CSS knowledge
-- **Why:** CSS knowledge is recipes/conventions (skill territory). Component libraries are alternative knowledge bases (separate skills, not merged). Layout and UX design need isolation and specialist personas (agents).
+### python-development (1 mega-skill -> 9 skills + 3 agents)
+- **Before:** one broad skill trying to hold TDD discipline, refactoring recipes, async patterns, and packaging at once
+- **After:** 9 focused skills (python-tdd, python-refactor, async-python-patterns, uv-package-manager, pydantic-v2, and others) + 3 agents (python-engineer, python-test-engineer, python-perf-optimizer)
+- **Why:** recipes and conventions are skill territory, and they load only when the task matches. Work that needs tool restrictions and its own context window becomes an agent.
 
 ## Anti-patterns
 
 | Anti-pattern | Why it's wrong | Fix |
 |--------------|----------------|-----|
-| Merging alternative libraries into one skill | Bloats context, forces irrelevant knowledge | Separate skills per library (shadcn-ui, daisyui, radix-ui) |
+| Merging alternative libraries into one skill | Bloats context, forces irrelevant knowledge | One skill per library, never one skill covering all of them |
 | Splitting layers of same domain into separate skills | Fragments knowledge that belongs together | One unified skill with references/ for depth |
 | Skill that needs specific tool permissions | Skills inherit parent's tools, can't restrict | Make it an agent with explicit `tools` field |
 | Agent that's just a knowledge dump with no isolation need | Wastes a context window, adds latency | Convert to a skill |

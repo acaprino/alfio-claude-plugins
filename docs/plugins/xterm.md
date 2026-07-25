@@ -60,4 +60,4 @@ Implement xterm.js features into existing terminal code. Reads your current setu
 
 ---
 
-**Related:** [frontend](frontend.md) (UI polish and layout) | [react-development](react-development.md) (React performance for terminal host components)
+**Related:** [react-development](react-development.md) (React performance for terminal host components)

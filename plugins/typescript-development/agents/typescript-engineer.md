@@ -3,7 +3,7 @@ name: typescript-engineer
 description: >
   Hands-on TypeScript 5.x engineer. Designs system architecture and implements production-ready code using modern tooling (pnpm/bun, Vite/tsup, Vitest, ESLint 9 flat config, Zod/Valibot). Type-safe, strict-mode, well-tested.
   TRIGGER WHEN: planning a new TypeScript project, designing architecture, making tech-stack decisions, implementing TS features, migrating JavaScript to TypeScript, or setting up a monorepo.
-  DO NOT TRIGGER WHEN: the task is React-specific performance optimization (use react-development:react-performance-optimizer), Node.js simple bug fixes, or pure frontend styling (use frontend plugin).
+  DO NOT TRIGGER WHEN: the task is React-specific performance optimization (use react-development:react-performance-optimizer) or Node.js simple bug fixes.
 tools: Read, Write, Edit, Bash, Glob
 model: inherit
 color: blue

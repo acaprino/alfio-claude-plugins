@@ -34,7 +34,7 @@ claude plugin marketplace add acaprino/claude-code-daodan
 # Install the plugins you need
 claude plugin install python-development@claude-code-daodan
 claude plugin install senior-review@claude-code-daodan
-claude plugin install frontend@claude-code-daodan
+claude plugin install react-development@claude-code-daodan
 ```
 
 That's it. Plugins activate automatically when relevant -- or invoke them directly:
@@ -58,7 +58,6 @@ That's it. Plugins activate automatically when relevant -- or invoke them direct
 |--------|-------------|:-:|:-:|:-:|
 | **[python-development](docs/plugins/python-development.md)** | TDD, refactoring, async patterns, packaging, performance, dead code, Pydantic v2, /python-audit | 3 | 9 | 3 |
 | **[senior-review](docs/plugins/senior-review.md)** | 9 agents review architecture, security, patterns, distributed flows, logic integrity, API contracts, startup cycles, UI races, and codebase hygiene in parallel | 9 | 1 | 4 |
-| **[frontend](docs/plugins/frontend.md)** | UI polish, layout design, modern CSS, web strategy, Radix/shadcn/daisyUI | 3 | 5 | 1 |
 | **[codebase-mapper](docs/plugins/codebase-mapper.md)** | Generate 10 narrative docs with Mermaid diagrams from any codebase | 10 | 1 | 4 |
 | **[ai-tooling](docs/plugins/ai-tooling.md)** | Brainstorm, plan, execute, optimize prompts, Agent SDK | 1 | 5 | 1 |
 | **[tauri-development](docs/plugins/tauri-development.md)** | Tauri 2 desktop + mobile, Rust backend, IPC optimization | 3 | 1 | - |
@@ -102,6 +101,25 @@ That's it. Plugins activate automatically when relevant -- or invoke them direct
 
 **A** = Agents, **S** = Skills, **C** = Commands
 
+### Frontend and design
+
+This marketplace deliberately ships no general frontend/design plugin. That ground is covered better by the upstream projects it used to vendor from, so go straight to the source:
+
+| Upstream | License | Covers |
+|----------|---------|--------|
+| [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | Apache-2.0 | Design craft: typography, color and contrast, motion, cognitive load, delight, iOS/Android platform patterns |
+| [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) | MIT | Design-system deliverables: token architecture, component specs, states and variants, Tailwind integration |
+| [paulirish/dotfiles](https://github.com/paulirish/dotfiles/tree/main/agents/skills/modern-css) | MIT | Modern CSS reference. Not a marketplace: copy the skill folder by hand |
+
+The first two install as marketplaces:
+
+```bash
+claude plugin marketplace add pbakaus/impeccable
+claude plugin marketplace add nextlevelbuilder/ui-ux-pro-max-skill
+```
+
+Framework-specific frontend work stays here: [react-development](docs/plugins/react-development.md) for React 19 performance, `pwa-expert` for Progressive Web Apps, [browser-extensions](docs/plugins/browser-extensions.md) for Firefox add-ons, and [xterm](docs/plugins/xterm.md) for terminal UIs.
+
 ---
 
 <details>
@@ -131,8 +149,7 @@ claude-code-daodan/
 │   │   ├── skills/            # SKILL.md + optional references/
 │   │   └── commands/          # slash-command .md files
 │   ├── senior-review/
-│   ├── frontend/
-│   └── ...                    # 43 plugins total
+│   └── ...                    # 44 plugins total
 ├── LICENSE
 └── README.md
 ```

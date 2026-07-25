@@ -22,7 +22,7 @@ These run before Claude processes a user prompt:
 | Handler | Purpose |
 |---------|---------|
 | `brainstorm-gate.js` | Detects creative/building intent (add, create, build, implement, etc.) and reminds Claude to invoke brainstorming + worktree-manager skills before jumping into code |
-| `team-spawn-gate.js` | Detects team-worthy requests and suggests the matching agent team preset (review, security, debug, feature, fullstack, deep-search, research, migration, docs, app-analysis, tauri, ui-studio). Advisory only -- asks user before spawning |
+| `team-spawn-gate.js` | Detects team-worthy requests and suggests the matching agent team preset (review, security, debug, feature, fullstack, deep-search, research, migration, docs, app-analysis, tauri). Advisory only -- asks user before spawning |
 
 **Bypass conditions (brainstorm-gate):** slash commands, questions (ending with `?`), single-word prompts, bug fix/debug prompts, prompts starting with `*` (explicit bypass).
 

@@ -23,7 +23,6 @@ The augmentation symbiote for Claude Code. Agents, skills, and commands for deve
 | [digital-marketing](plugins/digital-marketing.md) | marketing | SEO + AEO audits, GA4/GTM with Consent Mode v2, content strategy, brand naming, domain hunting, text humanization, customer review replies | 5 agents, 5 skills, 7 commands |
 | [docker](plugins/docker.md) | development | Optimized multi-stage Dockerfiles for any language or framework | 1 skill |
 | [docs](plugins/docs.md) | documentation | Craft top-tier README.md files with progressive disclosure, badges, quick start | 1 skill, 1 command |
-| [frontend](plugins/frontend.md) | frontend | UI polish, UX design, CSS, layout, web consulting, Radix/shadcn/daisyUI | 3 agents, 5 skills, 1 command |
 | [git-worktrees](plugins/git-worktrees.md) | development-tools | Git worktree management -- create, pause, resume, merge parallel branches | 1 agent, 1 skill, 1 command |
 | [grabber-development](plugins/grabber-development.md) | development | Expert Python web scraping: stealth browsers, TLS impersonation, anti-bot bypass, proxy architecture, AI extraction | 4 agents, 1 skill |
 | [ibkr-trading](plugins/ibkr-trading.md) | algotrading | Interactive Brokers algotrading -- TWS API, ib_async, order execution | 1 agent, 1 skill, 1 command |

@@ -178,7 +178,7 @@ GA4 work intersects with other digital-marketing concerns:
 
 - **`seo-specialist`**: organic traffic gaps surface in Acquisition reports. Acquisition data alone cannot diagnose ranking problems - hand off to SEO when Search Console impressions are low.
 - **`content-marketer`**: conversion copy on landing pages drives `generate_lead` and `book_now_click` events. When a landing page has traffic but no conversions, the copy and CTA design are usually the cause.
-- **`frontend-strategy`** (in `frontend` plugin): UX issues that appear in Clarity heatmaps (rage clicks, dead clicks, scroll patterns) need a UX/CRO review beyond analytics.
+- **`/digital-marketing:content-strategy`**: UX issues that appear in Clarity heatmaps (rage clicks, dead clicks, scroll patterns) need a UX/CRO audit beyond analytics.
 - **`playwright-skill`**: when available, use browser MCP tools to verify tag firing in real conditions instead of trusting source-code inspection.
 
 ## OUTPUT FORMAT

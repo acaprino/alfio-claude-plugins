@@ -298,4 +298,4 @@ Delegates to the `llm-seo-optimize` agent (6-phase protocol). Output: `.aeo-audi
 
 ---
 
-**Related:** [research](research.md) (deep research for content strategy) | [frontend](frontend.md) (UI/UX for marketing pages) | [playwright-skill](playwright-skill.md) (browser automation for SEO / GA4 / AEO audits)
+**Related:** [research](research.md) (deep research for content strategy) | [playwright-skill](playwright-skill.md) (browser automation for SEO / GA4 / AEO audits)

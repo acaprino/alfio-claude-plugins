@@ -90,9 +90,7 @@ This agent is a **fallback** for implementation tasks without a specialized agen
 | Python tests | `python-development:python-test-engineer` | Generic test writing needed |
 | Python refactoring | `python-development:python-refactor-agent` | Generic refactoring needed |
 | Rust code | `tauri-development:rust-engineer` | Non-Rust implementation |
-| React/frontend | `frontend:frontend-engineer` | Non-frontend implementation |
-| CSS/UI design | `frontend:frontend-design` | No styling/design work |
-| Layout/grid | `frontend:frontend-layout` | No layout work |
+| React/frontend | `typescript-development:typescript-engineer` | Non-frontend implementation |
 | Tauri desktop | `tauri-development:tauri-desktop` | Non-Tauri desktop work |
 | Tauri mobile | `tauri-development:tauri-mobile` | Non-Tauri mobile work |
 | Any language tests | `testing:test-writer` | Test writing not primary task |
@@ -102,9 +100,8 @@ This agent is a **fallback** for implementation tasks without a specialized agen
 
 When working as a generic implementer, load relevant skills to match the codebase:
 - Python: `python-development:python-tdd`, `python-development:uv-package-manager`, `python-development:async-python-patterns`
-- React: `react-development:react-best-practices`, `frontend:frontend-css`
+- React: `react-development:react-best-practices`
 - Tauri: `tauri-development:tauri`
-- UI components: `frontend:shadcn-ui` or `frontend:daisyui` or `frontend:radix-ui` (match the project's library)
 - Testing: `testing:tdd`, `testing:e2e-testing-patterns`
 - Platform rules: `platform-engineering:platform-engineering`
 - Observability: `opentelemetry:opentelemetry`

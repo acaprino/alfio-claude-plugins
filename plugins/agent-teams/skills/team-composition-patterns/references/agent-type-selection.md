@@ -11,7 +11,7 @@ Does the teammate need to modify files?
 |          |         Examples:
 |          |         |-- Python code -> python-development:python-engineer
 |          |         |-- Security review -> senior-review:security-auditor
-|          |         |-- React frontend -> frontend:frontend-engineer
+|          |         |-- React frontend -> typescript-development:typescript-engineer
 |          |         |-- Rust code -> tauri-development:rust-engineer
 |          |         +-- Tests -> testing:test-writer
 |          +-- NO -> Does it need a generic team role?
@@ -53,8 +53,7 @@ RULE: Always prefer a marketplace specialist over a generic team agent.
 | `python-development:python-engineer` | team-implementer (Python) | Python architecture + implementation |
 | `python-development:python-test-engineer` | team-implementer (Python tests) | pytest TDD |
 | `tauri-development:rust-engineer` | team-implementer (Rust) | Rust ownership, async, FFI |
-| `frontend:frontend-engineer` | team-implementer (frontend) | Frontend design + implementation |
-| `frontend:frontend-design` | team-implementer (CSS/UI) | Styling, animations, design |
+| `typescript-development:typescript-engineer` | team-implementer (frontend) | TypeScript architecture + implementation |
 | `tauri-development:tauri-desktop` | team-implementer (Tauri) | Tauri IPC, WebView, bundling |
 | `tauri-development:tauri-mobile` | team-implementer (mobile) | Tauri mobile plugins, signing |
 | `testing:test-writer` | team-implementer (tests) | Language-agnostic test generation |

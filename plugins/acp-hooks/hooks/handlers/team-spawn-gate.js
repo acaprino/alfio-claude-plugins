@@ -177,19 +177,6 @@ const PRESETS = [
     keywords: ["tauri"],
     minWords: 15,
     scopeBoost: ["from scratch", "full", "desktop", "mobile", "da zero"]
-  },
-  {
-    name: "ui-studio",
-    command: "/agent-teams:team-design",
-    desc: "Parallel UI design and build pipeline (design + layout + UX + polish)",
-    phrases: [
-      "ui from scratch", "design from scratch", "redesign the ui",
-      "build the ui", "design system from scratch", "new design system",
-      "ui da zero", "redesign completo", "ridisegna la ui"
-    ],
-    keywords: ["redesign", "ridisegna"],
-    minWords: 15,
-    scopeBoost: ["from scratch", "complete", "entire", "da zero", "completo"]
   }
 ];
 

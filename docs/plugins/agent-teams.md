@@ -38,7 +38,7 @@ Use the team-lead agent to coordinate [task]
 - Builds dependency graphs using blockedBy/blocks relationships
 - Monitors progress at milestones, not every step
 
-**Ecosystem integration:** The lead always selects specialized marketplace agents over generic team agents when the task matches. Full mapping covers code review (security-auditor, code-auditor, distributed-flow-auditor, ui-race-auditor, platform-reviewer), implementation (python-engineer, rust-engineer, frontend-engineer, tauri-desktop, frontend-design), testing (test-writer, python-test-engineer), research (deep-researcher, quick-searcher, codebase-explorer), and documentation (documentation-engineer).
+**Ecosystem integration:** The lead always selects specialized marketplace agents over generic team agents when the task matches. Full mapping covers code review (security-auditor, code-auditor, distributed-flow-auditor, ui-race-auditor, platform-reviewer), implementation (python-engineer, rust-engineer, typescript-engineer, tauri-desktop), testing (test-writer, python-test-engineer), research (deep-researcher, quick-searcher, codebase-explorer), and documentation (documentation-engineer).
 
 ---
 
@@ -105,7 +105,7 @@ Use the team-implementer agent to build [component]
 - Creates new files only within assigned directories
 - Interface contracts are immutable without team lead approval
 
-**Fallback role:** This agent is a fallback for implementation tasks without a specialized agent. The team-lead spawns `python-development:python-engineer`, `frontend:frontend-engineer`, `tauri-development:rust-engineer`, or `testing:test-writer` when the task matches those contexts.
+**Fallback role:** This agent is a fallback for implementation tasks without a specialized agent. The team-lead spawns `python-development:python-engineer`, `typescript-development:typescript-engineer`, `tauri-development:rust-engineer`, or `testing:test-writer` when the task matches those contexts.
 
 ---
 
@@ -118,7 +118,7 @@ Spawn an agent team using preset configurations or custom composition.
 | | |
 |---|---|
 | **Invoke** | `/team-spawn <preset\|custom> [--name team-name] [--members N] [--delegate]` |
-| **Presets** | review, debug, feature, fullstack, research, deep-search, security, migration, docs, app-analysis, tauri, ui-studio, custom |
+| **Presets** | review, debug, feature, fullstack, research, deep-search, security, migration, docs, app-analysis, tauri, custom |
 
 ```
 /team-spawn review                  # 3-member review team (security + architecture + performance)
@@ -135,15 +135,14 @@ Spawn an agent team using preset configurations or custom composition.
 | `review` | 3 | security-auditor + code-auditor + team-reviewer (or react-performance-optimizer) |
 | `debug` | 3 | 3x team-debugger, each with a different hypothesis |
 | `feature` | 3 | team-lead + 2 specialized implementers (auto-detected) |
-| `fullstack` | 4 | team-lead + frontend-engineer + backend (python-engineer or team-implementer) + test-writer |
+| `fullstack` | 4 | team-lead + typescript-engineer + backend (python-engineer or team-implementer) + test-writer |
 | `research` | 3 | deep-researcher + quick-searcher + codebase-explorer |
 | `deep-search` | 4 | lead researcher + codebase analyst + web researcher + domain expert (auto-selected) |
 | `security` | 4 | security-auditor + platform-reviewer + distributed-flow-auditor + security-auditor (separate scope) |
 | `migration` | 4 | team-lead + 2 specialized implementers + code-auditor (verifier) |
 | `docs` | 3 | codebase-explorer + documentation-engineer + code-auditor (accuracy verifier) |
-| `app-analysis` | 3 | app-analyzer + deep-researcher + frontend-design |
-| `tauri` | 4 | team-lead + rust-engineer + frontend-engineer + tauri-desktop/tauri-mobile |
-| `ui-studio` | 3+3 | Design wave (frontend-design x2 + frontend-layout), then polish wave (frontend-design + react-performance-optimizer + code-auditor) |
+| `app-analysis` | 2 | app-analyzer + deep-researcher |
+| `tauri` | 4 | team-lead + rust-engineer + typescript-engineer + tauri-desktop/tauri-mobile |
 
 ---
 
@@ -201,7 +200,7 @@ Develop features in parallel with multiple agents using file ownership boundarie
 
 **Key features:**
 - `--plan-first` presents the decomposition (streams, file ownership, interface contracts, dependencies) for user approval before spawning agents
-- Auto-detects codebase language to select specialized implementers (python-engineer, frontend-engineer, rust-engineer, test-writer)
+- Auto-detects codebase language to select specialized implementers (python-engineer, typescript-engineer, rust-engineer, test-writer)
 - Integration verification runs build and tests after all streams complete
 
 ---
@@ -282,7 +281,7 @@ Deep multi-source research with parallel investigators covering codebase, web, a
 | `standard` | 3 | Codebase analyst + Web researcher + Context builder |
 | `deep` | 4 | Codebase analyst + Web researcher + Context builder + Domain expert (auto-selected) |
 
-Domain expert is auto-selected based on `--domain` flag or auto-detected from the topic: security-auditor, code-auditor, frontend-engineer, python-engineer, tauri-desktop, business-planner, or distributed-flow-auditor.
+Domain expert is auto-selected based on `--domain` flag or auto-detected from the topic: security-auditor, code-auditor, typescript-engineer, python-engineer, tauri-desktop, business-planner, or distributed-flow-auditor.
 
 ---
 
@@ -304,57 +303,6 @@ Parallel codebase mapping pipeline. Explores the project, runs 6 writer agents i
 **Parallel writers:** `overview-writer`, `tech-writer`, `flow-writer`, `onboarding-writer`, `ops-writer`, `config-writer` -- all from the `codebase-mapper` plugin. Produces human-readable narrative docs (not API reference).
 
 **Context sharing:** Phase 1b generates an interconnect map (contracts, invariants, domain rules) via `senior-review:semantic-interconnect-mapper`, which all writers reference so facts stay consistent across the 10 documents.
-
----
-
-### `/team-design`
-
-Parallel UI design and build pipeline -- brainstorm, then run design direction + layout + UX patterns in parallel, build, polish + perf + review in parallel.
-
-| | |
-|---|---|
-| **Invoke** | `/team-design <product-goal-or-feature> [--skip-brainstorm] [--skip-review] [--framework react\|vue\|svelte\|html]` |
-| **Pipeline** | Brainstorm -> Parallel design team (3 agents) -> Component architecture -> Plan -> Execute -> Parallel polish team (3-4 agents) |
-| **Checkpoints** | After brief, after design phase, after plan |
-| **Output** | `.ui-studio/` directory with 10 artifact files |
-
-```
-/team-design "SaaS dashboard with real-time analytics and team management"
-/team-design "Landing page for a developer tool" --skip-brainstorm --framework html
-/team-design "E-commerce product catalog with filters" --framework react
-```
-
-```mermaid
-graph TD
-    A["/team-design"] --> B["Phase 1: Brainstorm"]
-    B --> C{{"Checkpoint: Approve brief?"}}
-    C --> D["Phase 2-4: Parallel Design Team"]
-    D --> D1["Design Direction"]
-    D --> D2["Layout & Structure"]
-    D --> D3["UX Patterns"]
-    D1 & D2 & D3 --> E{{"Checkpoint: Approve designs?"}}
-    E --> F["Phase 5: Component Architecture"]
-    F --> G["Phase 6: Write Plan"]
-    G --> H{{"Checkpoint: Approve plan?"}}
-    H --> I["Phase 7: Execute Plan"]
-    I --> J["Phase 8-10: Parallel Polish Team"]
-    J --> J1["UI Polish"]
-    J --> J2["React Performance"]
-    J --> J3["Code Review"]
-    J1 & J2 & J3 --> K["Completion"]
-
-    style D1 fill:#4a9eff,color:#fff
-    style D2 fill:#4a9eff,color:#fff
-    style D3 fill:#4a9eff,color:#fff
-    style J1 fill:#4a9eff,color:#fff
-    style J2 fill:#4a9eff,color:#fff
-    style J3 fill:#4a9eff,color:#fff
-    style C fill:#f5a623,color:#fff
-    style E fill:#f5a623,color:#fff
-    style H fill:#f5a623,color:#fff
-```
-
-**Parallelism savings:** Design wave runs 3 agents simultaneously (~60% design time saved). Polish wave runs 3-4 agents simultaneously (~70% review time saved). Sequential phases (brainstorm, component architecture, plan, execute) remain sequential because they depend on prior output.
 
 ---
 
@@ -423,7 +371,7 @@ A defining feature of this plugin is its deep integration with the broader marke
 
 **Review tasks** delegate to `senior-review` agents (security-auditor, code-auditor, distributed-flow-auditor, ui-race-auditor) and `platform-engineering:platform-reviewer`.
 
-**Implementation tasks** delegate to `python-development:python-engineer`, `frontend:frontend-engineer`, `tauri-development:rust-engineer`, `tauri-development:tauri-desktop`, `frontend:frontend-design`, and `frontend:frontend-layout`.
+**Implementation tasks** delegate to `python-development:python-engineer`, `typescript-development:typescript-engineer`, `tauri-development:rust-engineer`, and `tauri-development:tauri-desktop`.
 
 **Testing tasks** delegate to `testing:test-writer` and `python-development:python-test-engineer`.
 
@@ -446,4 +394,4 @@ The generic team-reviewer, team-implementer, and team-debugger agents are used o
 
 ---
 
-**Related:** [senior-review](senior-review.md) (specialized review agents) | [ai-tooling](ai-tooling.md) (brainstorming, planning, execution skills) | [frontend](frontend.md) (frontend-design, frontend-layout, frontend-engineer) | [research](research.md) (deep-researcher, quick-searcher)
+**Related:** [senior-review](senior-review.md) (specialized review agents) | [ai-tooling](ai-tooling.md) (brainstorming, planning, execution skills) | [typescript-development](typescript-development.md) (typescript-engineer) | [research](research.md) (deep-researcher, quick-searcher)
