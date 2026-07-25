@@ -128,11 +128,20 @@ Same story for the design-first workflow. The `brainstorming`, `writing-plans`, 
 |----------|---------|--------|
 | [obra/superpowers](https://github.com/obra/superpowers) | MIT | Design-first development: brainstorming a spec you actually sign off on, bite-sized implementation plans, subagent-driven execution, TDD, systematic debugging, worktree workflows |
 
-Install it from Anthropic's official marketplace:
+Superpowers is listed on the [official Claude plugin marketplace](https://claude.com/plugins/superpowers):
 
 ```bash
 claude plugin install superpowers@claude-plugins-official
 ```
+
+Or from the [Superpowers marketplace](https://github.com/obra/superpowers-marketplace), which carries a few related plugins too:
+
+```bash
+claude plugin marketplace add obra/superpowers-marketplace
+claude plugin install superpowers@superpowers-marketplace
+```
+
+Upstream also documents installs for Antigravity, Codex, Cursor, Gemini CLI, Copilot CLI, Kimi, OpenCode, and Pi: see its [installation section](https://github.com/obra/superpowers#installation).
 
 Everything downstream of the plan stays here: [agent-teams](docs/plugins/agent-teams.md) for parallel implementation, [senior-review](docs/plugins/senior-review.md) for multi-agent review, [testing](docs/plugins/testing.md) for TDD methodology, and the per-language plugins for domain execution. Where a workflow used to invoke the removed skills, it now says to settle design and plan first and names superpowers as the provider if you have it installed.
 
