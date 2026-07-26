@@ -3,6 +3,17 @@ description: "Deep multi-source research with parallel investigators covering co
 argument-hint: "<question-or-topic> [--scope codebase|web|all] [--domain security|architecture|frontend|python|tauri|business] [--depth quick|standard|deep]"
 ---
 
+## Prerequisites
+
+This command requires the upstream `agent-teams` plugin from `wshobson/agents` (MIT, Seth Hobson). It provides the `agent-teams:team-composition-patterns` and `agent-teams:team-communication-protocols` skills used below. Install it first:
+
+```
+/plugin marketplace add wshobson/agents
+/plugin install agent-teams@claude-code-workflows
+```
+
+The team tools themselves (TeamCreate, TaskCreate, TeamDelete, TaskList) are native Claude Code features and need no plugin.
+
 # Team Research
 
 Orchestrate a deep research investigation using multiple specialized researchers working in parallel. Each researcher covers a different angle (codebase, web sources, domain expertise) and findings are synthesized into a unified report.

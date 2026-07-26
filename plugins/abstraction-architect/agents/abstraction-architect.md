@@ -2,7 +2,7 @@
 name: abstraction-architect
 description: >
   Adversarial auditor for pure-architecture failures, with two modes. Global mode reads .deep-dive/ output and produces report-only findings in two categories: missed unification (cross-cutting concerns scattered across call sites that should be a single layer) and wrong abstractions (god services, flag-soup functions, premature interfaces, leaky abstractions, speculative generality). Diff mode takes newly written code as the anchor and searches the rest of the codebase for prior art, answering whether the code was already available for reuse or has just become the third occurrence that justifies unifying. Grounded in canonical theory (Metz, Beck, Fowler, Gross, North, DDD).
-  TRIGGER WHEN: spawned by /abstraction-architect:audit after .deep-dive/ output is ready; spawned as the abstraction dimension of /agent-teams:team-review or /senior-review:code-review to check whether changed code duplicates something that already exists; the user asks to audit a codebase for missed unification, wrong abstractions, god services, or bounded-context violations, or asks whether the code they just wrote was already available elsewhere.
+  TRIGGER WHEN: spawned by /abstraction-architect:audit after .deep-dive/ output is ready; spawned as the abstraction dimension of /senior-review:team-review or /senior-review:code-review to check whether changed code duplicates something that already exists; the user asks to audit a codebase for missed unification, wrong abstractions, god services, or bounded-context violations, or asks whether the code they just wrote was already available elsewhere.
   DO NOT TRIGGER WHEN: the task is implementation, code formatting, security-only review (use senior-review:security-auditor), distributed-flow tracing (use senior-review:distributed-flow-auditor), dead code and unused export removal (use senior-review:cleanup-auditor), or single-file pattern-consistency review without a cross-file reuse question (use senior-review:code-auditor).
 tools: Read, Glob, Grep, Bash, Write
 model: inherit
@@ -38,7 +38,7 @@ Read these files from `deep_dive_path`. Missing files do not abort the audit; th
 - `02-interfaces.md` — public APIs. Used to find premature interfaces, leaky abstractions, flag-soup functions.
 - `03-flows.md` — call graphs. Used to find missed unification: N call sites with the same structural shape across modules.
 - `04-semantics.md` — responsibilities and intent. Used to find boundary violations (domain logic in infrastructure, infrastructure in domain).
-- `08-interconnect-map.md` (optional, present only when produced by `agent-teams:team-deep-dive`) — cross-partition contracts and invariants. Used to find bounded-context fusion.
+- `08-interconnect-map.md` (optional, present only when produced by `deep-dive-analysis:team-deep-dive`) — cross-partition contracts and invariants. Used to find bounded-context fusion.
 
 Mode `diff` needs only `01-structure.md` and `02-interfaces.md`, both of which `--depth=lite` produces. It does not need `03-flows.md` or `04-semantics.md`: the diff supplies the anchor and `Grep` supplies the other sites. When no deep-dive output exists at all, mode `diff` still runs on `Glob` and `Grep` alone, at reduced confidence, and says so in the Gaps list.
 

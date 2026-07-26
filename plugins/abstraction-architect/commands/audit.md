@@ -60,13 +60,13 @@ The directory is created automatically if missing. Re-running the command overwr
 
 - The `deep-dive-analysis` plugin must be installed (declared as a dependency in `marketplace.json`). `--diff` degrades gracefully without deep-dive output and reports the reduced confidence in its Gaps section.
 - `--diff` requires the target path to be a git repository.
-- For monorepos large enough to benefit from partitioned analysis, run `/agent-teams:team-deep-dive` first to produce `08-interconnect-map.md`; the auditor will then include bounded-context fusion findings.
+- For monorepos large enough to benefit from partitioned analysis, run `/deep-dive-analysis:team-deep-dive` first to produce `08-interconnect-map.md`; the auditor will then include bounded-context fusion findings.
 
 ## Related commands
 
 - `/deep-dive-analysis:deep-dive-analysis` — produces the `.deep-dive/` input this command consumes. Auto-launched by this command when missing.
-- `/agent-teams:team-deep-dive` — partitioned deep-dive for monorepos; adds `08-interconnect-map.md` to the output.
-- `/senior-review:code-review` and `/agent-teams:team-review` — both run this agent in diff mode as their abstraction dimension, so a review already answers the "was this already available?" question for the changed code. Use `--diff` here when you want that check on its own, without the rest of the review.
+- `/deep-dive-analysis:team-deep-dive` — partitioned deep-dive for monorepos; adds `08-interconnect-map.md` to the output.
+- `/senior-review:code-review` and `/senior-review:team-review` — both run this agent in diff mode as their abstraction dimension, so a review already answers the "was this already available?" question for the changed code. Use `--diff` here when you want that check on its own, without the rest of the review.
 - `/clean-code:clean-code` — style and readability cleanup. Different concern.
 
 ## Out of scope

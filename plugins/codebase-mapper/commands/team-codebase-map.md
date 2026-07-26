@@ -3,6 +3,17 @@ description: "Parallel codebase mapping pipeline -- explore project, run 6 write
 argument-hint: "[target-path] [--skip-review] [--writers N]"
 ---
 
+## Prerequisites
+
+This command requires the upstream `agent-teams` plugin from `wshobson/agents` (MIT, Seth Hobson). It provides the `agent-teams:task-coordination-strategies` and `agent-teams:team-communication-protocols` skills used below. Install it first:
+
+```
+/plugin marketplace add wshobson/agents
+/plugin install agent-teams@claude-code-workflows
+```
+
+The team tools themselves (TeamCreate, TeamDelete, TaskList) are native Claude Code features and need no plugin.
+
 # Team Codebase Map
 
 Orchestrate the codebase-mapper pipeline using parallel agent teams. Phase 2 runs 6 writers simultaneously, dramatically reducing total documentation time.

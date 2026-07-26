@@ -35,7 +35,7 @@ if (legacyFlag === "0" || legacyFlag === "false") process.exit(0);
 const PRESETS = [
   {
     name: "review",
-    command: "/agent-teams:team-spawn review",
+    command: "/senior-review:team-review",
     shortCommand: "/senior-review:code-review",
     desc: "Multi-dimensional code review (security + architecture + performance)",
     phrases: [
@@ -51,6 +51,7 @@ const PRESETS = [
   {
     name: "security",
     command: "/agent-teams:team-spawn security",
+    upstream: true,
     desc: "Security audit with OWASP, platform, and distributed flow analysis",
     phrases: [
       "security audit", "security scan", "vulnerability scan",
@@ -64,6 +65,7 @@ const PRESETS = [
   {
     name: "debug",
     command: "/agent-teams:team-debug",
+    upstream: true,
     desc: "Competing hypotheses debugging with parallel investigation",
     phrases: [
       "competing hypotheses", "multiple causes", "parallel debug",
@@ -78,6 +80,7 @@ const PRESETS = [
   {
     name: "feature",
     command: "/agent-teams:team-feature",
+    upstream: true,
     desc: "Parallel feature development with file ownership boundaries",
     phrases: [
       "build a feature", "implement the feature", "develop a feature",
@@ -92,6 +95,7 @@ const PRESETS = [
   {
     name: "fullstack",
     command: "/agent-teams:team-spawn fullstack",
+    upstream: true,
     desc: "Full-stack development with frontend, backend, and test agents",
     phrases: [
       "full stack", "fullstack", "frontend and backend",
@@ -103,33 +107,25 @@ const PRESETS = [
     scopeBoost: []
   },
   {
-    name: "deep-search",
-    command: "/agent-teams:team-research",
+    name: "research",
+    command: "/research:team-research",
     desc: "Deep multi-source research with parallel investigators",
     phrases: [
       "deep research", "thorough research", "comprehensive research",
       "systematic investigation", "deep dive research",
-      "ricerca approfondita", "ricerca sistematica"
-    ],
-    keywords: ["research", "investigate", "ricerca"],
-    minWords: 10,
-    scopeBoost: ["deep", "thorough", "comprehensive", "systematic", "approfondita"]
-  },
-  {
-    name: "research",
-    command: "/agent-teams:team-spawn research",
-    desc: "Parallel codebase, web, and documentation research",
-    phrases: [
+      "ricerca approfondita", "ricerca sistematica",
       "research this topic", "find out how", "research across",
       "parallel research"
     ],
-    keywords: [],
-    minWords: 12,
-    scopeBoost: ["parallel", "multiple sources", "codebase and web"]
+    keywords: ["research", "investigate", "ricerca"],
+    minWords: 10,
+    scopeBoost: ["deep", "thorough", "comprehensive", "systematic", "approfondita",
+                  "parallel", "multiple sources", "codebase and web"]
   },
   {
     name: "migration",
     command: "/agent-teams:team-spawn migration",
+    upstream: true,
     desc: "Large-scale migration or refactor with coordination",
     phrases: [
       "migrate from", "migration from", "port from", "upgrade from",
@@ -139,44 +135,6 @@ const PRESETS = [
     keywords: ["migrate", "migration", "migra", "migrazione"],
     minWords: 12,
     scopeBoost: ["entire", "all", "codebase", "large", "complete", "tutto", "intero"]
-  },
-  {
-    name: "docs",
-    command: "/agent-teams:team-spawn docs",
-    desc: "Parallel documentation generation with exploration + writing + review",
-    phrases: [
-      "document the codebase", "map the codebase", "generate documentation",
-      "write documentation for", "comprehensive docs",
-      "documenta il codice", "mappa il codebase"
-    ],
-    keywords: ["document", "documentation", "documenta", "documentazione"],
-    minWords: 15,
-    scopeBoost: ["entire", "full", "comprehensive", "codebase", "project", "completa"]
-  },
-  {
-    name: "app-analysis",
-    command: "/agent-teams:team-spawn app-analysis",
-    desc: "Competitive app analysis with UX audit + research + design extraction",
-    phrases: [
-      "analyze the app", "competitor app", "competitive analysis",
-      "reverse engineer the ui", "app audit", "ux audit",
-      "analizza l'app", "analisi competitiva"
-    ],
-    keywords: [],
-    minWords: 10,
-    scopeBoost: ["competitor", "competitive", "reverse engineer"]
-  },
-  {
-    name: "tauri",
-    command: "/agent-teams:team-spawn tauri",
-    desc: "Tauri desktop/mobile development with Rust + frontend + platform agents",
-    phrases: [
-      "tauri app", "tauri desktop", "tauri mobile",
-      "build with tauri", "create a tauri", "develop a tauri"
-    ],
-    keywords: ["tauri"],
-    minWords: 15,
-    scopeBoost: ["from scratch", "full", "desktop", "mobile", "da zero"]
   }
 ];
 
@@ -437,6 +395,7 @@ process.stdin.on("end", () => {
         `2. Invoke the skill: ${matched.command}`,
         ``,
         `Do NOT ask for confirmation -- just launch the team. The user expects proactive team usage.`,
+        ...(matched.upstream ? [`If the agent-teams plugin (wshobson/agents) is not installed, tell the user to install it (/plugin marketplace add wshobson/agents, /plugin install agent-teams@claude-code-workflows) instead of running the command.`] : []),
         `</IMPORTANT>`
       ].join("\n");
     } else if (detectComplexity(prompt)) {

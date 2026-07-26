@@ -21,9 +21,9 @@ These run before Claude processes a user prompt:
 
 | Handler | Purpose |
 |---------|---------|
-| `team-spawn-gate.js` | Detects team-worthy requests and suggests the matching agent team preset (review, security, debug, feature, fullstack, deep-search, research, migration, docs, app-analysis, tauri). Advisory only -- asks user before spawning |
+| `team-spawn-gate.js` | Detects team-worthy requests and suggests either a local pipeline command (`/senior-review:team-review`, `/research:team-research`) or an upstream `agent-teams` (wshobson/agents) preset (security, debug, feature, fullstack, migration). Advisory only: injects a suggestion into context, never blocks the prompt |
 
-**Bypass conditions (team-spawn-gate):** slash commands, questions (ending with `?`), single-word prompts, `#` or `*` prefix, `--no-team` flag. Requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` env var.
+**Bypass conditions (team-spawn-gate):** empty or single-word prompts, `/`, `#`, or `*` prefix, `--no-team` flag, `teamSpawnGate: false` in `~/.claude/acp-config.json`, or `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` set to `0`/`false`. Enabled by default otherwise.
 
 ### PreToolUse hooks
 
@@ -57,7 +57,7 @@ These run after specific tool invocations:
 - `reviewGate: false` - disable PR/merge review gating
 - `teamSpawnGate: false` - disable team preset suggestions
 
-**Optional dependencies:** `ai-tooling` (skill awareness injection), `senior-review` (review-gate `/code-review` command), `agent-teams` (team-spawn-gate presets).
+**Optional dependencies:** `ai-tooling` (skill awareness injection), `senior-review` (review-gate `/code-review` command, team-spawn-gate `/senior-review:team-review` preset), `research` (team-spawn-gate `/research:team-research` preset).
 
 ---
 

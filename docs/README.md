@@ -10,16 +10,15 @@ The augmentation symbiote for Claude Code. Agents, skills, and commands for deve
 |--------|----------|-------------|------|
 | [ai-tooling](plugins/ai-tooling.md) | ai-ml | Prompt engineering, skill activation, Claude Agent SDK | 1 agent, 2 skills, 1 command |
 | [acp-hooks](plugins/acp-hooks.md) | security | Session hooks: skill awareness, security gate, autocompact, review gate, docs gate, team spawn gate | hooks only |
-| [agent-teams](plugins/agent-teams.md) | development | Orchestrate multi-agent teams for parallel code review, debugging, codebase mapping, and coordinated feature development | 4 agents, 6 skills, 10 commands |
 | [app-analyzer](plugins/app-analyzer.md) | analysis | Android app analysis via ADB and webapp exploration via Playwright | 1 agent |
 | [browser-extensions](plugins/browser-extensions.md) | development | Firefox WebExtension development: Manifest V2/V3, browser.* APIs, AMO publishing | 1 agent, 1 skill, 3 commands |
 | [business](plugins/business.md) | business | Legal advisory, privacy policies, GDPR/ePrivacy/CCPA compliance, SaaS business planning | 3 agents, 1 skill |
 | [cc-usage](plugins/cc-usage.md) | utilities | Claude Code token usage, costs, billing blocks, and activity analysis | 1 skill, 1 command |
 | [clean-code](plugins/clean-code.md) | review | Rewrite source code for readability without changing behavior | 1 agent, 1 command |
 | [codebase-cleanup](plugins/codebase-cleanup.md) | review | Multi-language dependency security audits, SOLID-driven refactoring, and prioritized tech-debt remediation roadmaps | 3 commands |
-| [codebase-mapper](plugins/codebase-mapper.md) | documentation | Human-readable codebase guide generator with standalone doc creation, maintenance, and humanization | 10 agents, 1 skill, 4 commands |
+| [codebase-mapper](plugins/codebase-mapper.md) | documentation | Human-readable codebase guide generator with standalone doc creation, maintenance, and humanization | 10 agents, 1 skill, 5 commands |
 | [csp](plugins/csp.md) | optimization | Constraint programming with Google OR-Tools CP-SAT solver | 1 agent |
-| [deep-dive-analysis](plugins/deep-dive-analysis.md) | review | Systematic codebase analysis -- architecture, data flows, anti-patterns | 1 skill, 1 command |
+| [deep-dive-analysis](plugins/deep-dive-analysis.md) | review | Systematic codebase analysis -- architecture, data flows, anti-patterns | 4 agents, 1 skill, 2 commands |
 | [digital-marketing](plugins/digital-marketing.md) | marketing | SEO + AEO audits, GA4/GTM with Consent Mode v2, content strategy, brand naming, domain hunting, text humanization, customer review replies | 5 agents, 5 skills, 7 commands |
 | [docker](plugins/docker.md) | development | Optimized multi-stage Dockerfiles for any language or framework | 1 skill |
 | [docs](plugins/docs.md) | documentation | Craft top-tier README.md files with progressive disclosure, badges, quick start | 1 skill, 1 command |
@@ -41,9 +40,9 @@ The augmentation symbiote for Claude Code. Agents, skills, and commands for deve
 | [python-development](plugins/python-development.md) | development | TDD, refactoring, profiling, async, uv, dead code, Pydantic v2, scaffolding, /python-audit | 3 agents, 9 skills, 3 commands |
 | [rag-development](plugins/rag-development.md) | ai-ml | RAG system design and audit -- chunking, embeddings, Qdrant, advanced patterns | 2 agents, 1 skill, 1 command |
 | [react-development](plugins/react-development.md) | frontend | React 19 performance, state management, bundle optimization, Vercel best practices | 1 agent, 1 skill, 1 command |
-| [research](plugins/research.md) | research | Quick search (Sonnet) and deep multi-source research (Opus) with shared web-search-techniques skill | 2 agents, 1 skill |
+| [research](plugins/research.md) | research | Quick search (Sonnet) and deep multi-source research (Opus) with shared web-search-techniques skill | 2 agents, 1 skill, 1 command |
 | [reverse-engineering](plugins/reverse-engineering.md) | security | Binary reverse engineering, malware analysis, firmware security, and protocol research for authorized work | 3 agents, 4 skills |
-| [senior-review](plugins/senior-review.md) | review | Multi-agent code review: architecture, security, patterns, distributed flows, logic integrity, API contracts, startup cycles, UI races, codebase hygiene | 9 agents, 1 skill, 4 commands |
+| [senior-review](plugins/senior-review.md) | review | Multi-agent code review: architecture, security, patterns, distributed flows, logic integrity, API contracts, startup cycles, UI races, codebase hygiene | 9 agents, 2 skills, 5 commands |
 | [stripe](plugins/stripe.md) | payments | Stripe payments, subscriptions, Connect, revenue optimization, webhook auditing | 3 agents, 1 skill, 1 command |
 | [system-utils](plugins/system-utils.md) | utilities | File organization, duplicate detection, directory cleanup | 1 skill, 1 command |
 | [tauri-development](plugins/tauri-development.md) | development | Tauri 2 desktop/mobile -- IPC optimization, Rust backend, cross-platform | 3 agents, 1 skill |
@@ -53,12 +52,12 @@ The augmentation symbiote for Claude Code. Agents, skills, and commands for deve
 
 ## Quick Start Recipes
 
-**Build a feature end-to-end:**
+**Review code before shipping (full multi-reviewer pipeline):**
 ```
-/agent-teams:team-feature "add user authentication"
+/senior-review:team-review
 ```
 
-**Review code before shipping:**
+**Quick review of specific changes:**
 ```
 /code-review              # auto-detect scope
 /full-review src/         # deep analysis + multi-agent review
@@ -79,10 +78,10 @@ The augmentation symbiote for Claude Code. Agents, skills, and commands for deve
 /cc-usage 30d
 ```
 
-See the [agent-teams plugin](plugins/agent-teams.md) for multi-agent pipeline commands with Mermaid diagrams.
+The four relocated multi-agent pipeline commands (`/senior-review:team-review`, `/deep-dive-analysis:team-deep-dive`, `/codebase-mapper:team-codebase-map`, `/research:team-research`) live in their host plugins; each command file documents its own phases and team layout. For generic team orchestration (`/agent-teams:team-feature`, `/agent-teams:team-debug`, `/agent-teams:team-spawn` presets), install the upstream `wshobson/agents` plugin.
 
 ## References
 
 Cross-cutting knowledge bases that inform changes across multiple plugins.
 
-- [Agent Teams best practices](references/agent-teams-best-practices.md) — when to spawn a team vs a subagent vs a single Claude, sizing, ownership, hooks, hard limits, and operational do's and don'ts. Source of truth when restructuring `agent-teams`, `senior-review`, `codebase-mapper`, or `research`. Snapshot 2026-05-16.
+- [Agent Teams best practices](references/agent-teams-best-practices.md) — when to spawn a team vs a subagent vs a single Claude, sizing, ownership, hooks, hard limits, and operational do's and don'ts. Source of truth when restructuring `senior-review`, `codebase-mapper`, `research`, `deep-dive-analysis` (the team pipelines). Snapshot 2026-05-16.

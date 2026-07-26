@@ -67,7 +67,7 @@ Before responding to ANY user message, run this check:
    --> Check: python-development skills (python-tdd, python-refactor, etc.)
 
 6. Is this Tauri/Rust work?
-   --> Check: tauri-development skills, agent-teams:team-spawn tauri
+   --> Check: tauri-development skills
 
 7. Is this about documentation?
    --> Check: codebase-mapper:docs-create
@@ -115,14 +115,12 @@ These commands orchestrate multi-agent teams for complex tasks. Prefer them over
 
 | Task | Command |
 |------|---------|
-| Build a new feature end-to-end | `/agent-teams:team-feature` or `/agent-teams:team-spawn fullstack` |
-| Full codebase review (deep-dive + review) | `/senior-review:full-review` |
-| Mobile app from competitor analysis | `/agent-teams:team-spawn app-analysis` |
-| Mobile app with Tauri build + review | `/agent-teams:team-spawn tauri` |
-| Tauri desktop app review | `/agent-teams:team-spawn tauri` |
-| Debug with competing hypotheses | `/agent-teams:team-debug` |
-| Deep multi-source research | `/agent-teams:team-research` |
-| Map an unfamiliar codebase | `/agent-teams:team-codebase-map` |
+| Build a new feature end-to-end | `/agent-teams:team-feature` (requires the upstream wshobson/agents agent-teams plugin) |
+| Full codebase review (deep-dive + review) | `/senior-review:team-review` |
+| Debug with competing hypotheses | `/agent-teams:team-debug` (requires the upstream wshobson/agents agent-teams plugin) |
+| Deep multi-source research | `/research:team-research` |
+| Map an unfamiliar codebase | `/codebase-mapper:team-codebase-map` |
+| Deep-dive a monorepo or partitioned codebase | `/deep-dive-analysis:team-deep-dive` |
 
 If the user's request matches a team scope, suggest the team command instead of invoking individual skills.
 

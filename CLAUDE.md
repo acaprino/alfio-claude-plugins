@@ -15,7 +15,7 @@ plugins/
     hooks/                  # hook handlers (JS/Python) + hooks.json (acp-hooks, prompt-improver)
 ```
 
-44 plugins: clean-code, deep-dive-analysis, tauri-development, react-development, xterm, ai-tooling, python-development, stripe, system-utils, messaging, research, business, project-setup, app-analyzer, typescript-development, csp, digital-marketing, senior-review, obsidian-development, browser-extensions, learning, marketplace-ops, playwright-skill, acp-hooks, prompt-improver, cc-usage, codebase-mapper, git-worktrees, rag-development, docs, testing, platform-engineering, ibkr-trading, mt5-trading, opentelemetry, docker, grabber-development, agent-teams, reverse-engineering, codebase-cleanup, libgdx-development, kotlin-development, pwa-expert, abstraction-architect.
+43 plugins: clean-code, deep-dive-analysis, tauri-development, react-development, xterm, ai-tooling, python-development, stripe, system-utils, messaging, research, business, project-setup, app-analyzer, typescript-development, csp, digital-marketing, senior-review, obsidian-development, browser-extensions, learning, marketplace-ops, playwright-skill, acp-hooks, prompt-improver, cc-usage, codebase-mapper, git-worktrees, rag-development, docs, testing, platform-engineering, ibkr-trading, mt5-trading, opentelemetry, docker, grabber-development, reverse-engineering, codebase-cleanup, libgdx-development, kotlin-development, pwa-expert, abstraction-architect.
 
 ## Plugin anatomy
 
@@ -76,7 +76,7 @@ None. No tests, no build step, no CI pipeline. All content is static markdown.
 
 ## Documentation
 
-`docs/plugins/` contains per-plugin documentation. `docs/references/` holds cross-cutting knowledge bases that inform changes across multiple plugins — notably [`agent-teams-best-practices.md`](docs/references/agent-teams-best-practices.md), the source of truth when restructuring any plugin that spawns multi-agent teams or pipeline reviewers (`agent-teams`, `senior-review`, `codebase-mapper`, `research`).
+`docs/plugins/` contains per-plugin documentation. `docs/references/` holds cross-cutting knowledge bases that inform changes across multiple plugins — notably [`agent-teams-best-practices.md`](docs/references/agent-teams-best-practices.md), the source of truth when restructuring any plugin that spawns multi-agent teams or pipeline reviewers (`senior-review`, `codebase-mapper`, `research`, `deep-dive-analysis`).
 
 ## External-repository intake
 
@@ -93,7 +93,7 @@ We do not fork, submodule, or add runtime dependencies. The only intake mode for
 | **Hybrid merge** | Upstream covers ground that overlaps with a local file; append upstream content as a delimited section instead of creating a duplicate | `wshobson/agents` reverse-engineering `references/details.md` kept inline in the local SKILL.md sections |
 | **Inspiration only** | We adopt patterns or workflow ideas but write our own content from scratch; no upstream text copied | `deep-dive-analysis` from `gsd-build/get-shit-done` |
 
-Combinations are normal (the `wshobson/agents` intake used cherry-pick plus hybrid merge plus new files across codebase-cleanup, agent-teams, and reverse-engineering).
+Combinations are normal (the `wshobson/agents` intake used cherry-pick plus hybrid merge plus new files across codebase-cleanup, the multi-agent generic core later delegated upstream, and reverse-engineering).
 
 ### 2. Decide the four dimensions
 
@@ -137,7 +137,7 @@ Before saving any derived file, scan for and rewrite:
 - **Emoji**: remove if the destination plugin's existing files have none.
 - **Upstream-specific cross-references**: rewrite `[reference/foo.md](foo.md)` style links to point at the local destination path (or remove if the target was not imported). Rewrite `{{template_vars}}` and references to upstream-only commands.
 - **Namespace prefixes**: rewrite upstream `<their-plugin>:X` skill references to the local `<our-plugin>:X` equivalent, or drop them when we vendor no equivalent.
-- **Stale tool names** in agent-teams imports: `Teammate` -> `TeamCreate`, `Task tool to spawn` -> `Agent tool`.
+- **Stale tool names** in team-related imports: `Teammate` -> `TeamCreate`, `Task tool to spawn` -> `Agent tool`.
 
 ### 6. Wire the new content into existing agents and commands
 
@@ -188,14 +188,14 @@ When the user asks for "upstream updates" (or similar), this is the default work
    - **Clear win** - new upstream file missing locally, or a bug/fact fix with no local conflict. Pull directly.
    - **Minor refinement** - small wording/metadata changes. Pull if no local frontmatter or content conflicts.
    - **Hard merge** - upstream rewrote a section we also evolved locally. Layer upstream changes onto local; do not overwrite.
-   - **Intentional drift** (do not touch) - local namespace rewrites (upstream `<their-plugin>:` -> local `<our-plugin>:`), local polish (typo fixes, expanded triggers), style conventions (no dash-aside construct per CLAUDE.md; no emojis in some plugins), local-only additions (custom presets, Ecosystem Integration sections, Context Sharing Pattern in `multi-reviewer-patterns`), upstream dash-asides rewritten to sentences/parens/colons.
+   - **Intentional drift** (do not touch) - local namespace rewrites (upstream `<their-plugin>:` -> local `<our-plugin>:`), local polish (typo fixes, expanded triggers), style conventions (no dash-aside construct per CLAUDE.md; no emojis in some plugins), local-only additions (custom presets, Ecosystem Integration sections), upstream dash-asides rewritten to sentences/parens/colons.
 
 3. **Preserve these local customizations** on every merge:
    - Source attribution lines at the top of files
    - Frontmatter: localized `description` (often multiline with `>`), `tools`, `color`, `version`, `model`
    - Plugin-specific style: no dash-aside construct (rewrite "X — Y — Z" / "X -- Y -- Z" / "X - Y - Z" asides into sentences, parens, or colons), no emojis in some plugins
    - Namespace replacements (upstream `<their-plugin>:X` -> local `<our-plugin>:X`)
-   - Local-only sections (e.g., `## Ecosystem Integration` in agent-teams agents)
+   - Local-only sections (e.g., `## Ecosystem Integration` blocks added during earlier syncs)
 
 4. **For judgment calls**, ask the user via `AskUserQuestion`:
    - When upstream rewrote a section we also evolved (merge vs keep vs overwrite)
@@ -204,7 +204,7 @@ When the user asks for "upstream updates" (or similar), this is the default work
 
 5. **Apply targeted Edits, not Writes** - prefer surgical edits that fix specific bugs (stale tool names, added items in a list) over replacing whole files. Only use Write for new files or when the entire file is being replaced.
 
-6. **Watch for stale tool names** (common drift source): `` `Teammate` tool `` / `` `Task` tool to spawn `` / `` Call `Teammate` cleanup `` / `` operation: "spawnTeam" `` -> fix to `` `TeamCreate` tool `` / `` `Agent` tool `` / `` `TeamDelete` ``. Grep all agent-teams files after any sync to catch these.
+6. **Watch for stale tool names** (common drift source): `` `Teammate` tool `` / `` `Task` tool to spawn `` / `` Call `Teammate` cleanup `` / `` operation: "spawnTeam" `` -> fix to `` `TeamCreate` tool `` / `` `Agent` tool `` / `` `TeamDelete` ``. Grep team-related imports after any sync to catch these.
 
 7. **Version bump and commit** - bump each touched plugin's `version` in `.claude-plugin/marketplace.json`, bump `metadata.version`, and commit everything together with a descriptive message like "Sync upstream updates for X and Y (vN.N.N)". Push to master.
 
@@ -221,7 +221,6 @@ When the user asks for "upstream updates" (or similar), this is the default work
 | `testing` (tdd) | `mattpocock/skills` - `skills/engineering/tdd/` | `plugins/testing/skills/tdd/SKILL.md`, `plugins/testing/skills/tdd/references/tests.md`, `plugins/testing/skills/tdd/references/deep-modules.md`, `plugins/testing/skills/tdd/references/mocking.md`, `plugins/testing/skills/tdd/references/interface-design.md`, `plugins/testing/skills/tdd/references/refactoring.md`. Intentional drift (decided 2026-07-12): upstream 2026-06-30 reshaped the skill to a red->green reference-only framing with "pre-agreed seams", moved refactoring out to its code-review skill, DELETED deep-modules/interface-design/refactoring, and flattened tests.md/mocking.md to the tdd/ top level. Local keeps the red-green-refactor loop, the references/ subdir, and all three deleted files; do NOT re-propose the reshape on future syncs. Content-level additions to the surviving files (tests.md, mocking.md, e.g. the tautological-tests anti-pattern pulled 2026-07-12) ARE still synced. |
 | `docker` (multi-stage-dockerfile) | `github/awesome-copilot` - `skills/multi-stage-dockerfile/SKILL.md` | `plugins/docker/skills/multi-stage-dockerfile/SKILL.md` |
 | `testing` (e2e-testing-patterns) | `wshobson/agents` - `plugins/developer-essentials/skills/e2e-testing-patterns/` (upstream split SKILL.md into a slim tier + `references/details.md` in 2026 for Codex's 8 KB body cap) | `plugins/testing/skills/e2e-testing-patterns/SKILL.md`. Local intentionally keeps the detailed content INLINE in SKILL.md (well under the 5k-word ceiling); on future syncs diff upstream `references/details.md` against the local inline sections, not as a local-only gap. |
-| `agent-teams` | `wshobson/agents` - `plugins/agent-teams/` | `plugins/agent-teams/agents/*.md`, `plugins/agent-teams/commands/*.md`, `plugins/agent-teams/skills/*/SKILL.md`, `plugins/agent-teams/skills/*/references/*.md` |
 | `senior-review` (semantic-interconnect-mapper) | `wshobson/agents` - `plugins/agent-orchestration/agents/context-manager.md` (pattern cherry-picked, not a direct copy) | `plugins/senior-review/agents/semantic-interconnect-mapper.md` |
 | `typescript-development` (mastering-typescript) | `SpillwaveSolutions/mastering-typescript-skill` - `mastering-typescript/` | `plugins/typescript-development/skills/mastering-typescript/SKILL.md`, `plugins/typescript-development/skills/mastering-typescript/references/*.md`, `plugins/typescript-development/skills/mastering-typescript/scripts/validate-setup.sh`, `plugins/typescript-development/skills/mastering-typescript/assets/tsconfig-template.json`, `plugins/typescript-development/skills/mastering-typescript/assets/eslint-template.js`. Adaptation on sync: SKILL.md frontmatter is rewritten to local convention (keep only `name` and `description`; strip upstream `version`, `category`, `triggers`, `author`, `license`, `tags`). Description uses `description: >` multiline form with explicit TRIGGER WHEN / DO NOT TRIGGER WHEN routing, scoping this skill to enterprise/advanced TS work (advanced type system, JS-to-TS migration, toolchain bootstrap, Zod, deep React + TS, NestJS, LangChain.js) and routing routine TS/JS writes to `typescript-development:typescript-write`, React perf to `react-development:review-react`, and dead-code to `typescript-development:knip`. Without this rewrite the skill failed to auto-activate on its core scenarios because upstream's single-paragraph "Use when..." description loses the router race against `typescript-write` (added in v2.1.0). The local `Source: ...` attribution line at the top of SKILL.md and the body content are NOT subject to upstream-driven frontmatter changes on future syncs. |
 | `reverse-engineering` | `wshobson/agents` - `plugins/reverse-engineering/` | `plugins/reverse-engineering/agents/*.md` (firmware-analyst, malware-analyst, reverse-engineer), `plugins/reverse-engineering/skills/*/SKILL.md` (anti-reversing-techniques, binary-analysis-patterns, memory-forensics, protocol-reverse-engineering), `plugins/reverse-engineering/skills/anti-reversing-techniques/references/advanced-techniques.md`. Upstream split anti-reversing-techniques, binary-analysis-patterns, and memory-forensics SKILL.md bodies into `references/details.md` (Codex 8 KB cap); local keeps that content INLINE, so on future syncs diff upstream `details.md` against the local inline sections. |
@@ -231,14 +230,17 @@ When the user asks for "upstream updates" (or similar), this is the default work
 
 ### Deliberately not vendored
 
-Two areas were vendored, then handed back to their upstreams because maintaining the copy cost more than it returned. Do NOT re-import them, and do not add sync-table rows for them on a future "upstream updates" pass. The README documents both for users.
+Three areas were vendored, then handed back to their upstreams because maintaining the copy cost more than it returned. Do NOT re-import them, and do not add sync-table rows for them on a future "upstream updates" pass. The README documents all three for users.
 
 | Area | Upstream | Removed in |
 |---|---|---|
 | Frontend and design (`frontend` plugin: 3 agents, 5 skills, 1 command) | `pbakaus/impeccable`, `nextlevelbuilder/ui-ux-pro-max-skill`, `paulirish/dotfiles` | marketplace 7.0.0 |
 | Brainstorming, planning, execution (`ai-tooling` skills `brainstorming`, `writing-plans`, `executing-plans`) | `obra/superpowers` | marketplace 8.0.0, ai-tooling 3.0.0 |
+| Multi-agent generic core (`agent-teams` plugin: 6 commands, 4 agents, 6 skills) | `wshobson/agents` | marketplace 9.0.0 |
 
-Places that used to invoke the removed planning skills now load the superpowers skills directly: `acp-loader` (Skill Priority), `agent-teams:team-lead` (Planning Phase), `/agent-teams:team-feature` (Skills to Load). As of marketplace 8.2.0, superpowers is a declared hard dependency (`dependencies: ["superpowers"]` in `marketplace.json`) of `ai-tooling` and `agent-teams`, and the phrasing in those three places is unconditional: load the skills, and if they are unavailable stop and tell the user to install superpowers (`claude plugin install superpowers@claude-plugins-official`). This supersedes the earlier rule that kept superpowers references conditional; do not reintroduce conditional phrasing.
+Places that used to invoke the removed planning skills now load the superpowers skills directly: `acp-loader` (Skill Priority). As of marketplace 8.2.0, superpowers is a declared hard dependency (`dependencies: ["superpowers"]` in `marketplace.json`) of `ai-tooling`, and the phrasing in that place is unconditional: load the skills, and if they are unavailable stop and tell the user to install superpowers (`claude plugin install superpowers@claude-plugins-official`). This supersedes the earlier rule that kept superpowers references conditional; do not reintroduce conditional phrasing.
+
+The same policy applies to the team pipelines: `/senior-review:team-review`, `/deep-dive-analysis:team-deep-dive`, `/codebase-mapper:team-codebase-map`, and `/research:team-research` declare the upstream `agent-teams` plugin (wshobson/agents) as a hard prerequisite in their Prerequisites blocks. The upstream plugin keeps the same `agent-teams:*` namespace, so those references resolve as written once it is installed (`/plugin marketplace add wshobson/agents`, then `/plugin install agent-teams@claude-code-workflows`). The four pipelines and the `senior-review:review-quality-gates` skill are local content with no upstream sync.
 
 ### How to sync a plugin
 
@@ -263,9 +265,8 @@ After fetching, compare with the local file, apply changes while preserving loca
 - **`prompt-improver`**: upstream (v0.6+) ships a Python nudge engine (`scripts/engine.py` + `nudges/*.json`); the local handlers are flat JS files under `plugins/prompt-improver/hooks/handlers/`. Re-port logic per handler, never copy Python files as-is, and keep the not-vendored nudge list in the sync table row in mind.
 - **`domain-hunter`**: upstream Step 3 uses dedicated Twitter/Reddit Python scripts. Replace with `WebSearch` queries targeting `site:x.com` / `site:reddit.com`.
 - **`mattpocock/skills` (tdd)**: upstream restructured `tdd/` under `skills/engineering/tdd/` in 2026. Old top-level paths return 404.
-- **`agent-teams`**: after every sync, `Grep` all agent-teams files for stale tool names and rewrite: `` `Teammate` `` to `` `TeamCreate` ``, `Task tool to spawn` to `Agent tool`, `spawnTeam` to `TeamCreate`, cleanup `Teammate` reference to `TeamDelete`.
 - **`wshobson/agents` (codebase-cleanup)**: commands only. `agents/code-reviewer.md` and `agents/test-automator.md` are intentionally NOT vendored (overlap with `senior-review/*` and `testing/*`).
-- **`wshobson/agents` (agent-teams / reverse-engineering / codebase-cleanup)**: upstream `description:` is a single line. Rewrite into local `description: >` multiline with TRIGGER WHEN / DO NOT TRIGGER WHEN. Strip emojis where the destination plugin has none. Normalize ``'Copyleft - requires...'`` to ``'Copyleft: requires...'``.
+- **`wshobson/agents` (reverse-engineering / codebase-cleanup)**: upstream `description:` is a single line. Rewrite into local `description: >` multiline with TRIGGER WHEN / DO NOT TRIGGER WHEN. Strip emojis where the destination plugin has none. Normalize ``'Copyleft - requires...'`` to ``'Copyleft: requires...'``.
 - **`Jeffallan/claude-skills` (kotlin)**: strip extra upstream frontmatter fields (`license`, `metadata.author`, `version`, `domain`, `triggers`, `role`, `scope`, `output-format`, `related-skills`). Drop the trailing `[Documentation](https://jeffallan.github.io/...)` link. Preserve single-connector em-dashes (`X — Y`) inside code comments; they are not bracketed asides.
 
 ---
@@ -285,7 +286,7 @@ Classify each plugin into one of four classes. The class determines refresh cade
 | **Very fast** | Versions bump every few months; breaking changes are common; ecosystem reshuffles | Every 3 months | rag-development (embedding models, rerankers, vector DBs), digital-marketing/ga4-implementation (Consent Mode, GA4 events), react-development (React 19, Vercel guidance) |
 | **Fast** | Framework releases 2-3x per year; APIs evolve | Every 6 months | libgdx-development, opentelemetry, tauri-development, stripe (API additions, webhook event types), grabber-development (anti-bot vendor moves), browser-extensions, pwa-expert (browser version churn, WebKit feature rollout, framework PWA library churn) |
 | **Moderate** | Major releases ~yearly; breaking changes rare | Every 12 months | ibkr-trading, mt5-trading, csp (OR-Tools), python-development, typescript-development, messaging (RabbitMQ majors), obsidian-development, abstraction-architect (theory is stable; URL list in further-reading.md decays on a yearly cadence) |
-| **Slow** | Workflow knowledge that ages by behavior change, not version bumps | Opportunistic; review only when symptoms appear | senior-review, codebase-mapper, agent-teams workflows, ai-tooling skills, project-setup, marketplace-ops, system-utils, cc-usage, git-worktrees, learning, docs, research, business, clean-code, deep-dive-analysis, platform-engineering, testing methodology, xterm, app-analyzer, acp-hooks |
+| **Slow** | Workflow knowledge that ages by behavior change, not version bumps | Opportunistic; review only when symptoms appear | senior-review, codebase-mapper, team pipeline workflows, ai-tooling skills, project-setup, marketplace-ops, system-utils, cc-usage, git-worktrees, learning, docs, research, business, clean-code, deep-dive-analysis, platform-engineering, testing methodology, xterm, app-analyzer, acp-hooks |
 
 If unsure, default to "Fast" (6 months). Reclassify after the first refresh based on how much actually changed.
 

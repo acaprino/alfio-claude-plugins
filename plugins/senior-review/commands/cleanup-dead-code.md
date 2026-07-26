@@ -2,7 +2,7 @@
 description: >
   Remove technical debt across 5 dimensions: dead code (Knip / vulture / ruff), orphan assets, generated artifacts tracked in VCS + .gitignore gaps, phantom / unused dependencies in monorepo workspaces, and stale documentation / historical artifacts (completed plans, scratch directories, backup/legacy folders, orphan doc-assets, broken doc references). Incremental-phase workflow with commit-per-category and build+test gates between phases.
   TRIGGER WHEN: the user asks to find/remove unused code, dead exports, unused dependencies, orphan assets, generated files in git, phantom deps, stale plans, scratch folders, backup files, or run a codebase cleanup pass.
-  DO NOT TRIGGER WHEN: the task is code readability (use /clean-code:clean-code) or architectural refactoring (use /python-development:python-refactor). For detection only (no edits) as part of /agent-teams:team-review, the `senior-review:cleanup-auditor` agent is used instead.
+  DO NOT TRIGGER WHEN: the task is code readability (use /clean-code:clean-code) or architectural refactoring (use /python-development:python-refactor). For detection only (no edits) as part of /senior-review:team-review, the `senior-review:cleanup-auditor` agent is used instead.
 argument-hint: "[path] [--dry-run] [--phase=garbage|brand|assets|gitignore|deps|exports|docs] [--dependencies-only] [--exports-only] [--docs-only] [--apply] [--production]"
 ---
 

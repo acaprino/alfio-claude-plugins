@@ -22,10 +22,10 @@ Adversarial auditor with two modes. Global mode reads `.deep-dive/` output and h
 ```
 Use the abstraction-architect agent to audit [path] for missed unification and wrong abstractions
 ```
-Also spawned by `/abstraction-architect:audit` and, in diff mode, as the Abstraction dimension of `/agent-teams:team-review` and `/senior-review:code-review`.
+Also spawned by `/abstraction-architect:audit` and, in diff mode, as the Abstraction dimension of `/senior-review:team-review` and `/senior-review:code-review`.
 
 **Key behaviors (global mode):**
-- Reads `01-structure.md`, `02-interfaces.md`, `03-flows.md`, `04-semantics.md`, plus `08-interconnect-map.md` when `/agent-teams:team-deep-dive` produced it
+- Reads `01-structure.md`, `02-interfaces.md`, `03-flows.md`, `04-semantics.md`, plus `08-interconnect-map.md` when `/deep-dive-analysis:team-deep-dive` produced it
 - Three passes: missed unification (call-site clusters sharing a structural shape), wrong abstraction (god services, `utils` dumping grounds, flag-soup functions, premature interfaces), boundary violations (responsibility vs dependency mismatches, bounded-context fusion)
 - Applies the Rule of Three: clusters with fewer than three sites are downgraded or dropped
 - Writes the report to `.abstraction-architect/findings.md`
@@ -71,9 +71,9 @@ Without `--diff`, the command checks for `.deep-dive/` and auto-launches `/deep-
 
 ## Ecosystem integration
 
-- **`/agent-teams:team-review`** activates the agent in diff mode as the conditional Abstraction dimension whenever the review target resolves to a diff that adds code and this plugin is installed. Plain file/directory targets skip the dimension and point here instead.
+- **`/senior-review:team-review`** activates the agent in diff mode as the conditional Abstraction dimension whenever the review target resolves to a diff that adds code and this plugin is installed. Plain file/directory targets skip the dimension and point here instead.
 - **`/senior-review:code-review`** runs it as Agent J (Abstraction & Reuse Review) under the same conditions.
 - **`senior-review:code-auditor`** keeps the single-file abstraction smells (leaky abstractions, premature interfaces, god objects); this agent owns the cross-file reuse question. The dedup boundary is declared on both sides.
-- **`/agent-teams:team-deep-dive`** adds `08-interconnect-map.md` to the deep-dive output, which enables the bounded-context fusion findings in global mode.
+- **`/deep-dive-analysis:team-deep-dive`** adds `08-interconnect-map.md` to the deep-dive output, which enables the bounded-context fusion findings in global mode.
 
-**Related:** [deep-dive-analysis](deep-dive-analysis.md) (produces the `.deep-dive/` input) | [agent-teams](agent-teams.md) (`/team-review` Abstraction dimension) | [senior-review](senior-review.md) (code-review Agent J, code-auditor dedup boundary) | [clean-code](clean-code.md) (readability cleanup, different concern)
+**Related:** [deep-dive-analysis](deep-dive-analysis.md) (produces the `.deep-dive/` input) | [senior-review](senior-review.md) (`/team-review` Abstraction dimension, code-review Agent J, code-auditor dedup boundary) | [clean-code](clean-code.md) (readability cleanup, different concern)

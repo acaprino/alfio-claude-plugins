@@ -3,6 +3,17 @@ description: "Launch a multi-reviewer parallel code review with specialized revi
 argument-hint: "<target> [--reviewers auto|security,performance,...] [--base-branch main] [--all] [--deep] [--skip-interconnect] [--fast] [--rigorous]"
 ---
 
+## Prerequisites
+
+This command requires the upstream `agent-teams` plugin from `wshobson/agents` (MIT, Seth Hobson). It provides the `agent-teams:multi-reviewer-patterns` and `agent-teams:team-communication-protocols` skills and the `agent-teams:team-reviewer` fallback agent used below. Install it first:
+
+```
+/plugin marketplace add wshobson/agents
+/plugin install agent-teams@claude-code-workflows
+```
+
+The team tools themselves (TeamCreate, TaskCreate, TeamDelete) are native Claude Code features and need no plugin.
+
 # Team Review (Pipeline)
 
 Orchestrate a multi-dimensional code review as a **4-phase pipeline**:
@@ -19,7 +30,8 @@ The pipeline lets reviewers find problems that are invisible from local-only ins
 ## Skills to Load
 
 Before starting, invoke these skills to inform the review process:
-- `agent-teams:multi-reviewer-patterns` -- dimension allocation, deduplication rules, severity calibration, **context-sharing pattern**
+- `agent-teams:multi-reviewer-patterns` -- dimension allocation, deduplication rules, severity calibration
+- `senior-review:review-quality-gates` -- context-sharing pattern, adversarial verification panel, completeness critic
 - `senior-review:defect-taxonomy` -- 140+ defect subcategories with CWE/OWASP mappings (includes `logic-integrity.md`)
 - `agent-teams:team-communication-protocols` -- message type selection, shutdown protocol
 
@@ -305,7 +317,7 @@ Write `.team-review/99-consolidated.md`. Mark `phase_3_consolidation` complete.
 
 ## Phase 4b: Adversarial Verification
 
-Skip this phase if `--fast` was passed (mark `phase_4b_verification` as `skipped`). Otherwise drive the panel exactly per the `agent-teams:multi-reviewer-patterns` skill, section `## Adversarial Verification Panel`.
+Skip this phase if `--fast` was passed (mark `phase_4b_verification` as `skipped`). Otherwise drive the panel exactly per the `senior-review:review-quality-gates` skill, section `## Adversarial Verification Panel`.
 
 1. Apply the confidence floor: select consolidated findings with confidence `>= 50%`. team-review reviewers emit confidence in their findings; if a finding lacks a score, treat it as 60% (in-band) so it is not silently skipped.
 2. Apply the selection rule from the skill:
@@ -319,7 +331,7 @@ Skip this phase if `--fast` was passed (mark `phase_4b_verification` as `skipped
 
 ## Phase 4c: Completeness Critic
 
-Skip this phase if `--fast` was passed (mark `phase_4c_critic` as `skipped`). Otherwise drive the critic exactly per the `agent-teams:multi-reviewer-patterns` skill, section `## Completeness Critic`.
+Skip this phase if `--fast` was passed (mark `phase_4c_critic` as `skipped`). Otherwise drive the critic exactly per the `senior-review:review-quality-gates` skill, section `## Completeness Critic`.
 
 1. Spawn one critic agent (`general-purpose`) with the critic prompt from the skill. Pass the verified findings (post-4b), `.team-review/00-scope.md`, the dimensions that ran, and the context paths (`.deep-dive/` and `.team-review/02-interconnect.md`, or "none" under `--skip-interconnect`).
 2. Write the critic output to `.team-review/97-coverage-gaps.md`.

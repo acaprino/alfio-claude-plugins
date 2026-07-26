@@ -91,4 +91,4 @@ React performance and optimization review. Audits state management, analyzes bun
 
 ---
 
-**Related:** [agent-teams](agent-teams.md) (`/team-spawn review` can use this agent) | [typescript-development](typescript-development.md) (TypeScript architecture and implementation)
+**Related:** [senior-review](senior-review.md) (`/senior-review:team-review` can use this agent as a review dimension) | [typescript-development](typescript-development.md) (TypeScript architecture and implementation)

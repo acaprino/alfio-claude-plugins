@@ -57,4 +57,4 @@ Rewrite source code for readability with validation checkpoints.
 
 ---
 
-**Related:** [agent-teams](agent-teams.md) (`/team-feature` can include clean-code as a final step) | [senior-review](senior-review.md) (code review before cleaning)
+**Related:** the upstream agent-teams `/agent-teams:team-feature` (wshobson/agents) can include clean-code as a final step | [senior-review](senior-review.md) (code review before cleaning)

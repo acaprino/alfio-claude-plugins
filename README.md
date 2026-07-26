@@ -42,7 +42,7 @@ That's it. Plugins activate automatically when relevant -- or invoke them direct
 ```bash
 # Slash commands
 /code-review          # Multi-agent architecture + security + pattern review
-/agent-teams:team-feature  # Decompose -> spawn agents -> implement -> verify
+/senior-review:team-review  # Run a full multi-reviewer code review
 /python-scaffold      # Scaffold a production-ready Python project
 
 # Agents
@@ -52,7 +52,7 @@ That's it. Plugins activate automatically when relevant -- or invoke them direct
 
 ### Required dependencies
 
-`ai-tooling` and `agent-teams` declare [obra/superpowers](https://github.com/obra/superpowers) as a hard dependency (`dependencies: ["superpowers"]` in `marketplace.json`): their planning phases load its `brainstorming`, `writing-plans`, and `executing-plans` skills. If you install either plugin, install superpowers too, from the official Claude plugin marketplace:
+`ai-tooling` declares [obra/superpowers](https://github.com/obra/superpowers) as a hard dependency (`dependencies: ["superpowers"]` in `marketplace.json`): its planning phase loads the `brainstorming`, `writing-plans`, and `executing-plans` skills. If you install it, install superpowers too, from the official Claude plugin marketplace:
 
 ```bash
 claude plugin install superpowers@claude-plugins-official
@@ -74,8 +74,8 @@ More detail in [Brainstorming, planning, and execution](#brainstorming-planning-
 | Plugin | Description | A | S | C |
 |--------|-------------|:-:|:-:|:-:|
 | **[python-development](docs/plugins/python-development.md)** | TDD, refactoring, async patterns, packaging, performance, dead code, Pydantic v2, /python-audit | 3 | 9 | 3 |
-| **[senior-review](docs/plugins/senior-review.md)** | 9 agents review architecture, security, patterns, distributed flows, logic integrity, API contracts, startup cycles, UI races, and codebase hygiene in parallel | 9 | 1 | 4 |
-| **[codebase-mapper](docs/plugins/codebase-mapper.md)** | Generate 10 narrative docs with Mermaid diagrams from any codebase | 10 | 1 | 4 |
+| **[senior-review](docs/plugins/senior-review.md)** | 9 agents review architecture, security, patterns, distributed flows, logic integrity, API contracts, startup cycles, UI races, and codebase hygiene in parallel | 9 | 2 | 5 |
+| **[codebase-mapper](docs/plugins/codebase-mapper.md)** | Generate 10 narrative docs with Mermaid diagrams from any codebase | 10 | 1 | 5 |
 | **[ai-tooling](docs/plugins/ai-tooling.md)** | Prompt engineering and optimization, skill activation, Agent SDK | 1 | 2 | 1 |
 | **[tauri-development](docs/plugins/tauri-development.md)** | Tauri 2 desktop + mobile, Rust backend, IPC optimization | 3 | 1 | - |
 | **[digital-marketing](docs/plugins/digital-marketing.md)** | SEO + AEO (AI Overviews/Perplexity/ChatGPT Search), GA4/GTM with Consent Mode v2, content strategy, brand naming, domain hunting, text humanization | 5 | 5 | 7 |
@@ -83,11 +83,11 @@ More detail in [Brainstorming, planning, and execution](#brainstorming-planning-
 | **[rag-development](docs/plugins/rag-development.md)** | RAG system design -- chunking, embeddings, vector DBs, advanced patterns | 2 | 1 | 1 |
 | **[marketplace-ops](docs/plugins/marketplace-ops.md)** | Audit, scaffold, review, and manage plugins in this ecosystem | 1 | 2 | 4 |
 | **[learning](docs/plugins/learning.md)** | Mind maps in MarkMind format and interactive force-graphs | - | 3 | 1 |
-| **[deep-dive-analysis](docs/plugins/deep-dive-analysis.md)** | 7-phase systematic codebase analysis with pattern detection | - | 1 | 1 |
+| **[deep-dive-analysis](docs/plugins/deep-dive-analysis.md)** | 7-phase systematic codebase analysis with pattern detection | 4 | 1 | 2 |
 | **[git-worktrees](docs/plugins/git-worktrees.md)** | Parallel development with git worktrees -- create, pause, resume, merge | 1 | 1 | 1 |
 | **[business](docs/plugins/business.md)** | Tech law, compliance, privacy docs, contracts, SaaS business planning | 3 | 1 | - |
 | **[stripe](docs/plugins/stripe.md)** | Stripe payments, subscriptions, Connect, revenue optimization, /audit-webhooks | 3 | 1 | 1 |
-| **[research](docs/plugins/research.md)** | Quick search and deep multi-source investigation with shared web-search techniques skill | 2 | 1 | - |
+| **[research](docs/plugins/research.md)** | Quick search and deep multi-source investigation with shared web-search techniques skill | 2 | 1 | 1 |
 | **[project-setup](docs/plugins/project-setup.md)** | Create and maintain CLAUDE.md with ground truth verification | 1 | - | 2 |
 | **[clean-code](docs/plugins/clean-code.md)** | Rewrite code for readability without changing behavior | 1 | - | 1 |
 | **[app-analyzer](docs/plugins/app-analyzer.md)** | Analyze Android apps via ADB and webapps via Playwright | 1 | - | - |
@@ -110,7 +110,6 @@ More detail in [Brainstorming, planning, and execution](#brainstorming-planning-
 | **[opentelemetry](docs/plugins/opentelemetry.md)** | OpenTelemetry Python -- distributed tracing, context propagation, exporters, /otel-audit | 1 | 1 | 1 |
 | **[docker](docs/plugins/docker.md)** | Optimized multi-stage Dockerfiles for any language or framework | - | 1 | - |
 | **[grabber-development](docs/plugins/grabber-development.md)** | Python web scraping -- coordinator + 3 specialists (stealth browser, HTTP fingerprint, AI scraping), anti-bot bypass | 4 | 1 | - |
-| **[agent-teams](docs/plugins/agent-teams.md)** | Orchestrate multi-agent teams for parallel code review, debugging, codebase mapping, and coordinated feature development | 4 | 6 | 10 |
 | **[reverse-engineering](docs/plugins/reverse-engineering.md)** | Binary reverse engineering, malware analysis, firmware security, protocol research for authorized work | 3 | 4 | - |
 | **[codebase-cleanup](docs/plugins/codebase-cleanup.md)** | Multi-language dependency security audits, SOLID refactoring, prioritized tech-debt roadmaps | - | - | 3 |
 | **[libgdx-development](docs/plugins/libgdx-development.md)** | libGDX cross-platform game dev -- rendering pipeline, Scene2D + Ashley ECS, Box2D, AssetManager, deploy to Desktop/Android/iOS/HTML5, /libgdx-audit | 1 | 1 | 1 |
@@ -139,7 +138,7 @@ Framework-specific frontend work stays here: [react-development](docs/plugins/re
 
 ### Brainstorming, planning, and execution
 
-Same story for the design-first workflow. The `brainstorming`, `writing-plans`, and `executing-plans` skills shipped in `ai-tooling` were ports of [obra/superpowers](https://github.com/obra/superpowers), which maintains them upstream inside a much larger methodology. Carrying three stale copies stopped paying for itself, so they are gone as of ai-tooling 3.0.0. As of marketplace 8.2.0, superpowers is no longer an optional companion: `ai-tooling` and `agent-teams` declare it as a hard dependency in `marketplace.json`, so install it alongside this marketplace.
+Same story for the design-first workflow. The `brainstorming`, `writing-plans`, and `executing-plans` skills shipped in `ai-tooling` were ports of [obra/superpowers](https://github.com/obra/superpowers), which maintains them upstream inside a much larger methodology. Carrying three stale copies stopped paying for itself, so they are gone as of ai-tooling 3.0.0. As of marketplace 8.2.0, superpowers is no longer an optional companion: `ai-tooling` declares it as a hard dependency in `marketplace.json`, so install it alongside this marketplace.
 
 | Upstream | License | Covers |
 |----------|---------|--------|
@@ -160,7 +159,27 @@ claude plugin install superpowers@superpowers-marketplace
 
 Upstream also documents installs for Antigravity, Codex, Cursor, Gemini CLI, Copilot CLI, Kimi, OpenCode, and Pi: see its [installation section](https://github.com/obra/superpowers#installation).
 
-Everything downstream of the plan stays here: [agent-teams](docs/plugins/agent-teams.md) for parallel implementation, [senior-review](docs/plugins/senior-review.md) for multi-agent review, [testing](docs/plugins/testing.md) for TDD methodology, and the per-language plugins for domain execution. Where a workflow used to invoke the removed skills, it now loads the superpowers skills directly and expects them to be installed: superpowers is a declared hard dependency of `ai-tooling` and `agent-teams`.
+Everything downstream of the plan stays here: [senior-review](docs/plugins/senior-review.md) for multi-agent review, [deep-dive-analysis](docs/plugins/deep-dive-analysis.md) for partitioned deep-dive analysis, [codebase-mapper](docs/plugins/codebase-mapper.md) for codebase mapping, [research](docs/plugins/research.md) for multi-source research, [testing](docs/plugins/testing.md) for TDD methodology, and the per-language plugins for domain execution. Parallel feature implementation and other generic team workflows are delegated to the upstream `wshobson/agents` `agent-teams` plugin (see below). Where a workflow used to invoke the removed skills, it now loads the superpowers skills directly and expects them to be installed: superpowers remains a declared hard dependency of `ai-tooling`.
+
+### Agent teams (parallel implementation and generic orchestration)
+
+As of marketplace 9.0.0, the generic core of the old local `agent-teams` plugin (parallel feature implementation, competing-hypotheses debugging, and the generic `team-spawn` presets) is delegated to its upstream, since maintaining a fork of general-purpose team orchestration stopped paying for itself:
+
+| Upstream | License | Covers |
+|----------|---------|--------|
+| [wshobson/agents](https://github.com/wshobson/agents) | MIT | Generic multi-agent orchestration: `/agent-teams:team-feature`, `/agent-teams:team-debug`, `/agent-teams:team-spawn` presets |
+
+```bash
+claude plugin marketplace add wshobson/agents
+claude plugin install agent-teams@claude-code-workflows
+```
+
+The four pipelines this marketplace built on top of the old `agent-teams` plugin were relocated rather than removed, and keep working locally without the upstream install:
+
+- `/agent-teams:team-review` -> [`/senior-review:team-review`](docs/plugins/senior-review.md)
+- `/agent-teams:team-deep-dive` -> [`/deep-dive-analysis:team-deep-dive`](docs/plugins/deep-dive-analysis.md)
+- `/agent-teams:team-codebase-map` -> [`/codebase-mapper:team-codebase-map`](docs/plugins/codebase-mapper.md)
+- `/agent-teams:team-research` -> [`/research:team-research`](docs/plugins/research.md)
 
 ---
 
@@ -171,7 +190,7 @@ Everything downstream of the plan stays here: [agent-teams](docs/plugins/agent-t
 |------|-----------|------------|
 | **Agent** | A specialized AI persona with domain expertise | `Use the python-engineer agent to implement rate limiting` |
 | **Skill** | A knowledge module Claude references automatically | Activates when the task matches its trigger keywords |
-| **Command** | A slash command that kicks off a workflow | `/code-review`, `/python-scaffold`, `/agent-teams:team-feature` |
+| **Command** | A slash command that kicks off a workflow | `/code-review`, `/python-scaffold`, `/senior-review:team-review` |
 
 Plugins are pure Markdown with optional JS/Python helper scripts. No build step, no runtime framework.
 

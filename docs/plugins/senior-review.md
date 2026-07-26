@@ -120,11 +120,11 @@ Phase 1b context-builder that produces a structured map of a codebase's contract
 |---|---|
 | **Model** | `opus` |
 | **Tools** | Read, Grep, Glob |
-| **Use for** | Pre-review context building when running `/team-review` or `/map-codebase`; generating the `.team-review/02-interconnect.md` artifact that drives the logic-integrity and contract reviewers |
+| **Use for** | Pre-review context building when running `/senior-review:team-review` or `/map-codebase`; generating the `.team-review/02-interconnect.md` artifact that drives the logic-integrity and contract reviewers |
 
 **Invocation:**
 ```
-Used automatically by /team-review Phase 1b (after deep-dive analysis) and by /map-codebase pipelines; rarely invoked directly
+Used automatically by /senior-review:team-review Phase 1b (after deep-dive analysis) and by /map-codebase pipelines; rarely invoked directly
 ```
 
 **Output sections:** `## Contracts` (formal + implicit), `## Invariants` (temporal + structural), `## Assumptions` (unverified), `## Domain Rules`, `## Integration Hot-Spots` (HTTP, queue, IPC, env/config), `## Call Graph`. Each section is self-contained so reviewers can Grep a single heading and get full context.
@@ -138,11 +138,11 @@ Adversarial reviewer that hunts for violations of contracts, invariants, assumpt
 | | |
 |---|---|
 | **Model** | `opus` |
-| **Use for** | `/team-review` Phase 2 (always-on in the review preset); logic/contract/invariant audit of code with an associated interconnect map |
+| **Use for** | `/senior-review:team-review` Phase 2 (always-on in the review preset); logic/contract/invariant audit of code with an associated interconnect map |
 
 **Invocation:**
 ```
-Used automatically by /team-review; requires .team-review/02-interconnect.md (produced by semantic-interconnect-mapper)
+Used automatically by /senior-review:team-review; requires .team-review/02-interconnect.md (produced by semantic-interconnect-mapper)
 ```
 
 **Methodology:** Reads the interconnect map + target files, proves violations of documented contracts / invariants / domain rules / assumptions. Stops and reports if interconnect map is absent (precondition failure).
@@ -180,13 +180,13 @@ Adversarial codebase hygiene auditor. Detects dead code, orphan assets, generate
 |---|---|
 | **Model** | `opus` |
 | **Tools** | Read, Glob, Grep, Bash |
-| **Use for** | Codebase cleanup review, technical-debt audit, dead-code detection with asset/VCS/dep coverage, monorepo dependency hygiene. Always-on dimension in `/team-review`. |
+| **Use for** | Codebase cleanup review, technical-debt audit, dead-code detection with asset/VCS/dep coverage, monorepo dependency hygiene. Always-on dimension in `/senior-review:team-review`. |
 
 **Invocation:**
 ```
 Use the cleanup-auditor agent to scan [path]
 ```
-Also spawned automatically by `/team-review` as the "Codebase hygiene" dimension.
+Also spawned automatically by `/senior-review:team-review` as the "Codebase hygiene" dimension.
 
 **Methodology:**
 - 4-dimension detection pipeline: dead code (delegates to Knip / vulture / ruff), asset hygiene (orphan images, fonts, build artifacts), VCS hygiene (generated files tracked, .gitignore gaps), dependency hygiene (phantom / unused / version drift in monorepo workspaces)
@@ -283,4 +283,4 @@ Analyze current branch changes, generate a PR description with risk assessment a
 
 ---
 
-**Related:** [agent-teams](agent-teams.md) (`/team-review` and `/team-spawn security` use these agents) | [typescript-development](typescript-development.md) (Knip for dead code) | [python-development](python-development.md) (vulture/ruff for dead code)
+**Related:** `/senior-review:team-review` uses these agents directly; the upstream agent-teams `/agent-teams:team-spawn security` (wshobson/agents) also draws on them | [typescript-development](typescript-development.md) (Knip for dead code) | [python-development](python-development.md) (vulture/ruff for dead code)

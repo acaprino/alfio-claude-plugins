@@ -1,8 +1,8 @@
 ---
 name: partition-quality-worker
 description: >
-  Spawned by /agent-teams:team-deep-dive Phase 1 Wave 2 to execute Phase 5 (Pattern & Risk Detection) and Phase 6 (Documentation Health) of deep-dive analysis on a single partition. Writes ownership-restricted output to .deep-dive/partitions/<name>/05-risks.md and 06-documentation.md.
-  TRIGGER WHEN: spawned by the /agent-teams:team-deep-dive command during Phase 1 Wave 2 to handle one partition's risk and documentation audit.
+  Spawned by /deep-dive-analysis:team-deep-dive Phase 1 Wave 2 to execute Phase 5 (Pattern & Risk Detection) and Phase 6 (Documentation Health) of deep-dive analysis on a single partition. Writes ownership-restricted output to .deep-dive/partitions/<name>/05-risks.md and 06-documentation.md.
+  TRIGGER WHEN: spawned by the /deep-dive-analysis:team-deep-dive command during Phase 1 Wave 2 to handle one partition's risk and documentation audit.
   DO NOT TRIGGER WHEN: invoked outside the team-deep-dive pipeline.
 tools: Read, Glob, Grep, Bash, Write
 model: inherit

@@ -303,4 +303,4 @@ Consolidated Python code-quality audit. Runs ruff (lint + format) + mypy/pyright
 
 ---
 
-**Related:** [senior-review](senior-review.md) (`/cleanup-dead-code` uses python-dead-code skill) | [clean-code](clean-code.md) (post-refactor code cleanup) | [agent-teams](agent-teams.md) (`/team-feature` for end-to-end development)
+**Related:** [senior-review](senior-review.md) (`/cleanup-dead-code` uses python-dead-code skill) | [clean-code](clean-code.md) (post-refactor code cleanup) | the upstream agent-teams `/agent-teams:team-feature` (wshobson/agents) for end-to-end development

@@ -77,4 +77,4 @@ Git worktree management with subcommands for the full lifecycle.
 
 ---
 
-**Related:** [agent-teams](agent-teams.md) (multi-agent teams that can run in worktrees) | [senior-review](senior-review.md) (pre-merge review)
+**Related:** the local team pipelines (senior-review, deep-dive-analysis, codebase-mapper, research) and the upstream wshobson/agents agent-teams plugin (multi-agent teams that can run in worktrees) | [senior-review](senior-review.md) (pre-merge review)

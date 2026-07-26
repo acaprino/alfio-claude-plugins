@@ -1,8 +1,8 @@
 ---
 name: partition-behavior-worker
 description: >
-  Spawned by /agent-teams:team-deep-dive Phase 1 Wave 2 to execute Phase 3 (Flow Tracing) and Phase 4 (Semantic Understanding) of deep-dive analysis on a single partition. Reads all partitions' Wave 1 outputs to cite cross-partition flows and contracts. Writes ownership-restricted output to .deep-dive/partitions/<name>/03-flows.md and 04-semantics.md.
-  TRIGGER WHEN: spawned by the /agent-teams:team-deep-dive command during Phase 1 Wave 2 to handle one partition's behavioral and semantic analysis.
+  Spawned by /deep-dive-analysis:team-deep-dive Phase 1 Wave 2 to execute Phase 3 (Flow Tracing) and Phase 4 (Semantic Understanding) of deep-dive analysis on a single partition. Reads all partitions' Wave 1 outputs to cite cross-partition flows and contracts. Writes ownership-restricted output to .deep-dive/partitions/<name>/03-flows.md and 04-semantics.md.
+  TRIGGER WHEN: spawned by the /deep-dive-analysis:team-deep-dive command during Phase 1 Wave 2 to handle one partition's behavioral and semantic analysis.
   DO NOT TRIGGER WHEN: invoked outside the team-deep-dive pipeline.
 tools: Read, Glob, Grep, Bash, Write
 model: inherit

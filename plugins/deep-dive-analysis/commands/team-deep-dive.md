@@ -6,6 +6,17 @@ description: >
 argument-hint: "<target> [--critical] [--comments] [--depth=lite|full] [--partition <path>] [--partition-name <name>] [--skip-interconnect] [--skip-synthesis] [--yes]"
 ---
 
+## Prerequisites
+
+This command requires the upstream `agent-teams` plugin from `wshobson/agents` (MIT, Seth Hobson). It provides the `agent-teams:task-coordination-strategies`, `agent-teams:team-communication-protocols`, and `agent-teams:parallel-feature-development` skills used below. Install it first:
+
+```
+/plugin marketplace add wshobson/agents
+/plugin install agent-teams@claude-code-workflows
+```
+
+The team tools themselves (TeamDelete, TaskList, TaskUpdate) are native Claude Code features and need no plugin.
+
 # Team Deep-Dive
 
 Orchestrate a partitioned multi-agent deep-dive plus global interconnect map.
@@ -323,7 +334,7 @@ What would you like to do next?
    4a. CLAUDE.md (suggests /project-setup:create-claude-md or maintain-claude-md)
    4b. Codebase map (suggests /codebase-mapper:map-codebase)
    4c. API / interface docs (suggests /codebase-mapper:docs-create)
-5. Run code review — launch /agent-teams:team-review (will reuse this .deep-dive/ + 08-interconnect-map.md)
+5. Run code review — launch /senior-review:team-review (will reuse this .deep-dive/ + 08-interconnect-map.md)
 6. Export report
 7. Nothing for now
 ```
@@ -343,9 +354,9 @@ On pre-flight detection of `mode == "team"` and `status == "in_progress"`:
 
 ## Quick Examples
 
-- `/agent-teams:team-deep-dive .` — auto-detect, full depth
-- `/agent-teams:team-deep-dive . --depth=lite` — lite mode (2N+2 agents)
-- `/agent-teams:team-deep-dive . --critical` — prioritize security paths in Phase 3-4
-- `/agent-teams:team-deep-dive . --partition packages/api --partition packages/web --yes` — manual partitions, auto-accept
-- `/agent-teams:team-deep-dive . --skip-interconnect` — stop at Phase 2
-- `/agent-teams:team-deep-dive . --skip-synthesis` — only per-partition reports (no consolidation)
+- `/deep-dive-analysis:team-deep-dive .` — auto-detect, full depth
+- `/deep-dive-analysis:team-deep-dive . --depth=lite` — lite mode (2N+2 agents)
+- `/deep-dive-analysis:team-deep-dive . --critical` — prioritize security paths in Phase 3-4
+- `/deep-dive-analysis:team-deep-dive . --partition packages/api --partition packages/web --yes` — manual partitions, auto-accept
+- `/deep-dive-analysis:team-deep-dive . --skip-interconnect` — stop at Phase 2
+- `/deep-dive-analysis:team-deep-dive . --skip-synthesis` — only per-partition reports (no consolidation)

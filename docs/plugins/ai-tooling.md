@@ -76,4 +76,4 @@ Analyze, score, and optimize prompts for LLMs -- evaluates clarity, specificity,
 
 ---
 
-**Related:** [agent-teams](agent-teams.md) (multi-agent orchestration) | [acp-hooks](acp-hooks.md) (acp-loader skill awareness)
+**Related:** upstream wshobson/agents agent-teams (generic team orchestration); local team pipelines live in senior-review, deep-dive-analysis, codebase-mapper, research | [acp-hooks](acp-hooks.md) (acp-loader skill awareness)

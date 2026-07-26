@@ -1,6 +1,6 @@
 # Claude Code Agent Teams — Best Practices Reference
 
-> Cross-cutting knowledge base for designing, reviewing, and restructuring agentic teams in Claude Code. Used to inform changes to the `agent-teams`, `senior-review`, `codebase-mapper`, and `research` plugins, plus any agent that participates in a multi-agent pipeline.
+> Cross-cutting knowledge base for designing, reviewing, and restructuring agentic teams in Claude Code. Used to inform changes to the team pipelines in this marketplace (senior-review, deep-dive-analysis, codebase-mapper, research) and the upstream wshobson/agents agent-teams plugin they build on, plus any agent that participates in a multi-agent pipeline.
 >
 > **Snapshot date:** 2026-05-16. Re-verify when Claude Code crosses a minor version or when the agent-teams feature flag is graduated out of experimental.
 
@@ -124,7 +124,7 @@ Pattern: use `TaskCompleted` to run lint / type-check / test before allowing a t
 
 ## Verification panel + completeness critic (review pipelines)
 
-Review pipelines (`/agent-teams:team-review`, `/senior-review:code-review`) close with two quality gates whose canonical definition lives in the `agent-teams:multi-reviewer-patterns` skill (`## Adversarial Verification Panel`, `## Completeness Critic`):
+Review pipelines (`/senior-review:team-review`, `/senior-review:code-review`) close with two quality gates whose canonical definition lives in the `senior-review:review-quality-gates` skill (`## Adversarial Verification Panel`, `## Completeness Critic`):
 
 - **3-lens panel.** Each surviving finding is judged by three parallel verifiers with distinct mandates (reachability/correctness, false-positive causes, severity calibration). A finding survives on a 2-of-2 REAL vote from lenses 1-2; a tie leaves it `contested` rather than killing a possibly-real bug.
 - **Completeness critic.** A final agent reports coverage gaps (dimensions not run, in-scope files no reviewer cited, unverified assumptions, uncovered high-risk hot-spots) and, for a high-risk uncovered area, triggers one bounded follow-up round.
@@ -194,7 +194,7 @@ The gate is default-on with a finding-count cost guard (threshold 25), a `--fast
 
 This reference is the source of truth for any change to:
 
-- `plugins/agent-teams/` — agents, presets, command pipelines.
+- `plugins/deep-dive-analysis/` — partition worker and synthesizer agents that participate in `/team-deep-dive`.
 - `plugins/senior-review/` — every reviewer agent that participates in `/team-review` Phase 2.
 - `plugins/codebase-mapper/` — writer agents in the parallel-writers pipeline.
 - `plugins/research/` — `deep-researcher` (orchestrator) and `quick-searcher` (sub-agent worker).

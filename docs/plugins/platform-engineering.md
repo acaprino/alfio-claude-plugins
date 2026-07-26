@@ -73,4 +73,4 @@ Standalone cross-platform security, architecture, and performance review. Auto-d
 
 ---
 
-**Related:** [senior-review](senior-review.md) (code-level review) | [agent-teams](agent-teams.md) (team presets include platform review) | [tauri-development](tauri-development.md) (desktop/mobile platform)
+**Related:** [senior-review](senior-review.md) (code-level review; `/senior-review:team-review` includes platform review as a dimension) | [tauri-development](tauri-development.md) (desktop/mobile platform)
