@@ -92,7 +92,6 @@ Analyze changed files and codebase to determine which review dimensions are rele
 | Architecture | `senior-review:code-auditor` | Coupling, abstractions, failure flows, pattern consistency, scoring |
 | **Logic integrity** | `senior-review:logic-integrity-auditor` | **Hunts violations of contracts/invariants/domain rules surfaced in Phase 1b** (skipped if `--skip-interconnect`) |
 | Codebase hygiene | `senior-review:cleanup-auditor` | Dead code + orphan assets + generated artifacts tracked in VCS + phantom/unused deps + barrel-file and eager-bundle bloat |
-| **Abstraction** | `abstraction-architect:abstraction-architect` (mode `diff`) | **Was the changed code already available elsewhere?** Hunts prior art across the codebase for each added unit, and flags the diff that becomes the third occurrence of a duplicated shape (Rule of Three) |
 
 ### Conditional dimensions (auto-detected from context)
 
@@ -109,6 +108,7 @@ Run these checks against the changed files and codebase to decide which extra re
 | **Test files** | Changed files match `test_*`, `*_test.*`, `*.spec.*`, `*.test.*`, `conftest.py`, `__tests__/` | Testing quality | `agent-teams:team-reviewer` (testing dimension) |
 | **API files** | Changed files touch route definitions, serializers, OpenAPI/Swagger specs, GraphQL schemas | API contracts | `agent-teams:team-reviewer` (API dimension) |
 | **Migration files** | Changed files match database migration patterns (Alembic, Django, Rails, Prisma, SQL migrations) | Data migrations | `agent-teams:team-reviewer` (migration dimension) |
+| **Diff target adding code** | Target resolved to a diff in Phase 0 (git range, PR number, or uncommitted changes) AND the diff adds at least one function, method, class, module, constant table, or block longer than roughly five lines. Requires the `abstraction-architect` plugin: when it is not installed, skip and note it under Skipped instead of spawning (the spawn would fail). Never activated for plain file/directory targets: there is no diff to anchor on, and the whole-tree question belongs to `/abstraction-architect:audit` | Abstraction (**was the changed code already available elsewhere?** Prior art per added unit + Rule of Three on this diff) | `abstraction-architect:abstraction-architect` (mode `diff`) |
 
 ### Detection implementation
 
@@ -147,7 +147,7 @@ After detection, display the plan:
 ```
 Context detection complete:
   - Always: security, architecture, logic-integrity, dead-code
-  - Detected: ui-races (6 .tsx files), react-perf (React project), distributed-flows (API routes + RabbitMQ)
+  - Detected: ui-races (6 .tsx files), react-perf (React project), distributed-flows (API routes + RabbitMQ), abstraction (diff adds 4 units)
   - Skipped: platform (not fullstack), chicken-egg (no startup code), testing (no test files changed)
 
 Pipeline plan:
@@ -260,16 +260,17 @@ If `--skip-interconnect` was set, omit the "Context files" and "Reviewer Hints" 
 ```
 mode: diff
 codebase_path: {target root}
-deep_dive_path: .deep-dive/
+deep_dive_path: {.deep-dive/ when Phase 1a ran and produced output, otherwise "none"}
 changed_files: {the same file list used to build the diff above}
 report_path: .team-review/findings-abstraction.md
 severity_floor: medium
 ```
 
-Two things this reviewer must be told explicitly, because they invert the default reviewer contract:
+Three things about this reviewer, because they invert the default reviewer contract:
 
 - Its search space is the **whole codebase**, not the diff. The diff is only the anchor; the prior art it is hunting for is by definition in files that did not change. Do not scope it to the changed files.
 - It runs fine on `--depth=lite` output, since it consumes only `01-structure.md` and `02-interfaces.md`. Do not force `--deep` on its account.
+- `--skip-interconnect` does NOT skip it (that rule removes only `logic-integrity-auditor`). It runs with `deep_dive_path: none` and degrades to Glob plus Grep, reporting the reduced confidence in its Gaps section.
 
 ### Spawn and task creation
 

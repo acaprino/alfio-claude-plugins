@@ -25,7 +25,7 @@ Audit a codebase for the two failure modes of pure architecture: missed unificat
 - `--diff [<base-ref>]` (optional) — run the agent in diff-anchored mode instead of a whole-codebase audit. Takes the changed code as the anchor and searches the rest of the codebase for prior art, reporting whether an added unit duplicates something that already exists or has become the third occurrence that justifies unifying. Base ref defaults to the merge base with the default branch, falling back to `HEAD` for uncommitted work.
 - `--scope <subpath>` (optional) — limit findings to a subtree. Deep-dive is still run on the full codebase; the agent filters findings by scope.
 - `--severity-floor low|medium|high` (optional) — drop findings below this severity. Default: `medium`.
-- `--focus unification|wrong-abstraction|both` (optional) — restrict to one finding category. Default: `both`.
+- `--focus unification|wrong-abstraction|both` (optional) — restrict to one finding category. Default: `both`. Under `--diff`, `unification` maps to classes R1-R4 (prior art and Rule of Three) and `wrong-abstraction` to R5 (wrong abstraction introduced by the diff).
 
 ## What this command does
 

@@ -28,7 +28,7 @@ You will receive:
 - `report_path` (optional) — where to write the report. Defaults per mode, see PROCESS.
 - `scope` (optional) — a subpath. If set, only emit findings whose evidence falls inside the scope.
 - `severity_floor` (optional, default `medium`) — drop findings below this level from the report.
-- `focus` (optional, default `both`) — restrict to `unification`, `wrong-abstraction`, or `both`.
+- `focus` (optional, default `both`) — restrict to `unification`, `wrong-abstraction`, or `both`. In mode `diff`, `unification` covers classes R1-R4 (prior art and Rule of Three) and `wrong-abstraction` covers R5.
 
 # REQUIRED DEEP-DIVE FILES
 
@@ -78,7 +78,7 @@ This mode answers one question: **the code that was just written, was it already
    - **R1 Exact prior art.** An existing symbol already does this job. Direction: delete the new code and call the existing one.
    - **R2 Near prior art.** An existing symbol does it with a variation. Direction: extend the existing symbol with the variation, or state explicitly why the divergence is essential and the duplication should stand.
    - **R3 Third occurrence.** The new code is the third site of a shape already duplicated twice. The Rule of Three fires *now*, on this diff. Direction: unify the three.
-   - **R4 Second occurrence.** Exactly one pre-existing site. This is **not** a unification finding. Report at Low only when the divergence looks accidental, and say the Rule of Three has not been met.
+   - **R4 Second occurrence.** Exactly one pre-existing site. This is **not** a unification finding and carries no severity: it goes to the report's section D as a one-line note, exempt from `severity_floor`, so the next occurrence is recognisable. List it only when the divergence looks accidental; omit pairs whose divergence is clearly essential.
    - **R5 New wrong abstraction.** The added code is itself a premature interface, a flag-soup function, a speculative generic, or a new `utils` dumping ground. Route through `references/anti-patterns.md`.
 6. **Apply the decision frame.** Load `references/decision-frame.md` and run the same pre-flight questions as global mode. The essential-versus-accidental test carries the most weight here: two call sites that look identical today but sit in different bounded contexts must not be unified, however tempting the diff makes it look.
 7. **Calibrate severity.** Same scale as global mode, with one addition: R1 and R3 default to Medium and rise to High when the duplicated logic touches auth, money, or data correctness, because two copies of that logic will drift and only one will get the next fix.
@@ -140,6 +140,7 @@ This mode answers one question: **the code that was just written, was it already
 **Diff scope:** <base ref>..<head ref> (<N> files, <M> added units examined)
 **Deep-dive source:** <deep_dive_path | none>
 **Severity floor:** <medium | low | high>
+**Focus:** <both | unification (R1-R4) | wrong-abstraction (R5)>
 
 ## Summary
 - N findings total (H high, M medium, L low)

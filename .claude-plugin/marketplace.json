@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Claude Code Daodan -- 44 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, reverse engineering, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), and pure-architecture audits (missed unification, wrong abstractions).",
-    "version": "8.1.0"
+    "version": "8.1.1"
   },
   "plugins": [
     {
@@ -1356,7 +1356,7 @@
       "name": "agent-teams",
       "source": "./plugins/agent-teams",
       "description": "Orchestrate multi-agent teams for parallel code review, hypothesis-driven debugging, and coordinated feature development using Claude Code Agent Teams. Includes the team-review pipeline (deep-dive + interconnect map + parallel reviewers + codebase-hygiene auditor + consolidation) for finding cross-component logic bugs plus dead code / orphan assets / VCS cruft / phantom deps, the team-codebase-map pipeline (context brief + interconnect map + parallel writers + drift-aware review) for producing accurate codebase documentation, and the team-deep-dive pipeline (partition detection + parallel per-partition workers + synthesis + global interconnect map) for monorepo-scale deep-dive analysis.",
-      "version": "3.1.0",
+      "version": "3.1.1",
       "author": {
         "name": "Seth Hobson"
       },
@@ -1520,7 +1520,7 @@
       "name": "abstraction-architect",
       "source": "./plugins/abstraction-architect",
       "description": "Pure-architecture auditor with two modes. Global mode finds missed unification opportunities (cross-cutting concerns scattered across call sites that should be a single layer) and wrong abstractions (god services, flag-soup functions, premature interfaces, leaky abstractions that should be inlined or decomposed) from .deep-dive/ output. Diff mode anchors on newly written code and searches the rest of the codebase for prior art, answering whether the code was already available for reuse or has become the third occurrence that justifies unifying; it runs as the Abstraction dimension of /agent-teams:team-review and /senior-review:code-review. Report-only, grounded in canonical theory (Metz's Wrong Abstraction, Beck's Tidy First, Fowler's bounded contexts, Gross's Locality of Behaviour).",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "author": {
         "name": "Alfio"
       },

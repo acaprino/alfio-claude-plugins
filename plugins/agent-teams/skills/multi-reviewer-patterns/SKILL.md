@@ -31,6 +31,7 @@ Patterns for coordinating parallel code reviews across multiple quality dimensio
 | **Architecture**  | SOLID, coupling, patterns               | For structural changes or new modules       |
 | **Testing**       | Coverage, quality, edge cases           | When adding new functionality               |
 | **Accessibility** | WCAG, ARIA, keyboard nav               | For UI/frontend changes                     |
+| **Abstraction**   | Prior art for new code, Rule of Three   | When a diff-shaped target adds code; requires the `abstraction-architect` plugin (skip when absent) |
 
 ### Recommended Combinations
 
@@ -68,6 +69,7 @@ Default anchor routing:
 | chicken-egg | `## Assumptions` (initialization order), `## Integration Hot-Spots` (Env / config), `## Invariants` (cross-component) |
 | ui-races | `## Invariants` (temporal), `## Integration Hot-Spots` (UI state) |
 | api-contracts (future) | `## Contracts` (formal) |
+| abstraction (diff mode) | none. This reviewer does not consume the interconnect map: it reads `.deep-dive/01-structure.md` + `02-interfaces.md` and hunts prior art across the codebase with Grep. Omit the anchors block from its prompt; `/team-review` passes it a named-inputs addendum instead |
 
 ### Prompt template for context-aware reviewers
 
