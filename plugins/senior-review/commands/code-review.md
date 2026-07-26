@@ -750,7 +750,7 @@ Agent tool call:
     description, concrete fix with code example.
 ```
 
-### Agent J: Abstraction & Reuse Review
+### Agent J: Abstraction & Reuse Review (conditional)
 
 **Run this agent whenever the diff adds code**, meaning at least one added function, method, class, module, constant table, or block longer than roughly five lines. Skip it for diffs that are purely deletions, renames, formatting, or config edits.
 
