@@ -49,6 +49,10 @@ Expert architect for Interactive Brokers algorithmic trading systems in Python. 
 - whatToShow: TRADES (stocks/futures), MIDPOINT (forex), ADJUSTED_LAST (backtesting)
 - BID_ASK counts as 2 requests toward pacing limits
 - Data is NBBO-filtered: historical volume < real-time volume
+- FX historical bars contain session-anchored stub bars at the daily/weekly reopen (17:15 ET, off the :00/:30 grid) that the live stream never delivers; synthetic time_close mislabels them as full bars
+- Drop off-grid bars (intraday sizes only -- D1+ are date-labeled midnight venue time), over-fetch + bounded top-up to preserve requested count, log drop counts, escalate if ALL bars off-grid
+- Replay/bootstrap consuming historical bars must chronology-guard state transitions (bar closes after last state update; confirmation window not already elapsed)
+- Daily market open/close events resonate with dedup layers: a TTL >= the ~24h cycle suppresses genuine daily transitions arriving seconds early; dedup TTLs must bound only the real duplicate window (seconds-minutes)
 
 ### Pacing Violations (Error 162)
 - Identical requests within 15 seconds
@@ -61,6 +65,11 @@ Expert architect for Interactive Brokers algorithmic trading systems in Python. 
 - All TWS order types available via API: MKT, LMT, STP, STP LMT, TRAIL, MOC, LOC
 - IB algos: Adaptive, TWAP, VWAP, ArrivalPx, DarkIce, Accumulate/Distribute
 - Bracket orders: transmit=False on parent+first child, transmit=True on last child
+- Bracket TIF: parent DAY, children (SL/TP) ALWAYS GTC -- DAY children expire at session end and leave positions naked overnight
+- Residual-child reaper: on position-closed for a now-flat contract, cancel any bracket children still resting (protections live exactly as long as the position)
+- Staged transmit shows a transient `Cancelled` on children before `PreSubmitted` -- never emit a real cancellation on it; confirm via reqOpenOrders
+- Compliance 201s (e.g. FX currency-leverage) are NOT precautions (10xxx): no bypass config, no advancedErrorOverride -- non-retryable, fix contract type or account
+- whatIf=True orders: free empirical probe for margin/rejections (surfaces a 201 with zero market risk) -- prove capability before coding around assumptions
 - Order lifecycle: ApiPending -> PendingSubmit -> PreSubmitted -> Submitted -> Filled
 - execDetails is authoritative for fills, not orderStatus (not guaranteed per state change)
 - nextValidId for order IDs, must be unique positive integers
@@ -78,6 +87,19 @@ Expert architect for Interactive Brokers algorithmic trading systems in Python. 
 - Auto Restart (TWS 974+): weekly manual login only (Sunday)
 - ib_async has NO auto-reconnect: use disconnectedEvent + exponential backoff
 - After reconnect: reqPositions, reqOpenOrders, resubscribe data, reqExecutions
+- `isConnected()` can lie after a FAILED connectAsync (zombie client state): gate retries on an active probe (`reqCurrentTimeAsync` + timeout), never on the flag alone
+- Defensive `disconnect()` after every failed connect attempt resets zombie state
+- Decorrelate recovery layers: supervisor, heartbeat, and polled fallback must not all trust the same boolean
+- Escalate when the reconnect supervisor goes silent (no attempt logs after a disconnect) -- a supervisor that dies quietly is itself a failure mode
+- Gateway log = ground truth for which clientIds actually attempted/completed reconnection
+- Multi-client same account: openOrders visibility is per-clientId; health-gate snapshot publishes; never last-writer-wins replace shared position state (a dead client's empty snapshot wipes good data)
+
+### Event Listener Contracts
+- eventkit catches every listener exception and logs it to `logging.getLogger("eventkit.event")` -- the emission dies silently for your app
+- Wrong handler arity = handler fails on EVERY emission forever (positionEvent emits one Position namedtuple, not a 4-arg raw signature)
+- Pin handler signatures with contract tests that emit through the real event
+- Route `eventkit`/`ib_async` std loggers into the application log sink
+- Handler "never fires" + gateway log proves delivery => suspect a swallowed listener exception
 
 ### Error Codes
 - Connectivity: 1100 (lost), 1101 (restored, data lost), 1102 (restored, data ok)
@@ -169,6 +191,12 @@ The silent-failure layer. `placeOrder`/`reqMktData` return success; IBKR accepts
 - Never let a `volume_min` floor rescue a degenerate (0/NaN) sizing input -- abort it
 - Keep canonical units (lots) to the very edge; convert to venue units (oz, base units) only on the wire and back on the way out
 - For retail EU entities, route leveraged FX through CFDs, and resolve data from the underlying spot contract (FX CFDs serve no data)
+- Bracket children always GTC; reap residual children when the position closes -- protections live exactly as long as the position
+- Never gate reconnection on `isConnected()` alone -- active probe (`reqCurrentTimeAsync` + timeout), defensive `disconnect()` after failed attempts, alert on supervisor silence
+- Contract-test every ib_async event handler signature; route `eventkit`/`ib_async` std loggers to the app log sink -- a wrong-arity handler fails silently on every emission
+- Audit recovery paths against the silent-failure signature: lying health flag, correlated trust, swallowed errors, active harm (empty snapshots force-replacing shared state), no escalation
+- Drop off-grid session stub bars from intraday historical FX responses and chronology-guard any replay that can complete a state transition
+- Use whatIf orders and read-only reqContractDetails to prove account/contract capabilities empirically before designing around an assumption
 
 ## Common Patterns
 
@@ -227,15 +255,18 @@ def setup_reconnect(ib, host, port, client_id):
                 # ib_async connectAsync is non-blocking -- do NOT call ib.connect() (sync)
                 # inside disconnectedEvent; that would block the event loop.
                 await ib.connectAsync(host, port, clientId=client_id, timeout=5)
-                if ib.isConnected():
-                    log.info("Reconnected successfully")
-                    resubscribe_all()
-                    reconcile_state()
-                    return
+                # Active probe, NOT isConnected(): after a failed connectAsync the
+                # client can be a zombie whose isConnected() still returns True.
+                await asyncio.wait_for(ib.reqCurrentTimeAsync(), timeout=10)
+                log.info("Reconnected successfully")
+                resubscribe_all()
+                reconcile_state()
+                return
             except Exception as e:
+                ib.disconnect()   # reset zombie client state before the next attempt
                 log.error(f"Attempt {attempt+1} failed: {e}. Retry in {delay}s")
                 await asyncio.sleep(delay)
-        log.critical("All reconnect attempts failed")
+        log.critical("All reconnect attempts failed")  # escalate: alert here, not just log
 
     def on_disconnect():
         log.warning("Disconnected. Scheduling reconnect...")

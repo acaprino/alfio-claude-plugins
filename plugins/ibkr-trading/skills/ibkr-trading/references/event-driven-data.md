@@ -32,6 +32,37 @@ Streaming Level 1 quotes, bar updates, individual ticks, or pulling historical O
 - **ib_async initializes `Ticker.bid` / `Ticker.ask` to `NaN`, not `None`.** A price-readiness check of `if price is None` passes immediately and hands a `NaN`/`0.0` placeholder to whatever consumes it (position sizing especially). Validate with `value is not None and not math.isnan(value) and value > 0`. This single wrong assumption seeded a whole family of sizing bugs: see `venue-boundary-failure-modes.md`.
 - **A snapshot/price wait must abort on terminal market-data codes** for the contract: `{200, 354, 10089, 10090, 10197}`, tracked per `conId`. Otherwise the wait exits instantly (on the NaN-vs-None bug above) and returns a placeholder instead of a real price.
 - **Forex CFDs serve no market or historical data** (error 2127 then 366). Pull data from the underlying spot Forex (IDEALPRO) contract while keeping the CFD for orders. See `venue-boundary-failure-modes.md`.
+- **Historical FX bars contain session-anchored stub bars at the reopen** that the live stream never delivers. See the dedicated section below -- they corrupt any replay/bootstrap that consumes historical bars as if they were live ones.
+- **Daily market open/close transitions resonate with dedup layers.** Session transitions recur every ~24 h with seconds of polling jitter. Any downstream deduplication keyed on `(symbol, is_open)` with a TTL at or above the cycle period will suppress a *genuine* daily event that arrives a few seconds earlier than yesterday's -- and a swallowed CLOSE then makes the next real OPEN look like a duplicate too (cascading stale state: consumers stuck on "market closed", entry signals dropped). A dedup TTL must bound only the true duplicate window (seconds to minutes), never the daily cycle.
+
+## Session-Anchored Stub Bars (historical FX data off the bar grid)
+
+`reqHistoricalData` on spot FX (IDEALPRO) returns bars **anchored to the session open** around the daily/weekly reopen (17:15 ET). At that boundary the response contains bars time-stamped at :15/:45 instead of the clock-aligned :00/:30 grid of the requested bar size. Three properties make them dangerous:
+
+- **The live stream never delivers them.** Live aggregated bars stay on the :00/:30 grid, so any replay/bootstrap that walks historical bars evaluates bars the runtime path never saw -- and can latch state onto one of them.
+- **A synthetic `time_close = time_open + bar_size` mislabels them.** The stub covers less than a full bar (e.g. 15 minutes of a 30-min bar) but your close-time arithmetic silently stretches it to full width.
+- **They are frequent, not rare.** The reopen stub recurs daily; over a multi-week backfill window on larger bar sizes (e.g. 4-hour) off-grid bars can exceed 10% of the response.
+
+**Mitigations:**
+
+- **Drop off-grid bars** (bar `time_open` not an exact multiple of the bar size) from historical responses -- **intraday sizes only**: daily and larger bars are date-labeled at midnight venue time and legitimately sit off the UTC grid.
+- **Over-fetch and top up.** Dropping bars shortens the response below the requested count; inflate the request and run a bounded top-up loop (with a hard round cap) so consumers relying on "N bars" still get N. On exhaustion return short with an explicit error rather than raising.
+- **Escalate when *all* bars come back off-grid** -- that is a contract/timezone bug on your side, not stub noise.
+- **Log the drop counts** (raw fetched / on-grid kept / dropped / top-up rounds). Silent filtering reads as "full coverage" when it is not.
+- **Guard state reconciliation against replayed bars.** Before a bootstrap/replay bar is allowed to complete a state transition (confirm a pending setup, fill a slot in a state machine), validate its chronology: the bar must close *after* the state's last update, and any confirmation window derived from it must not already be elapsed. A weeks-old reopen stub passing as "the next bar" is exactly how a replay silently completes and instantly expires a live setup.
+
+## Event Listener Contracts (eventkit swallows your exceptions)
+
+ib_async dispatches events through **eventkit**, which catches every exception raised inside a listener and logs it via `logging.getLogger("eventkit.event")` -- the emission then dies, silently from your application's point of view. Two consequences bite production:
+
+- **A handler with the wrong signature fails on every single emission.** Example: `positionEvent` emits one `Position` namedtuple, but a handler declared with the raw-wrapper 4-argument signature raises `TypeError` inside eventkit on every position update -- position deltas simply "never fire", forever, with zero trace in your logs.
+- **If your logging pipeline only ships your own loggers** (a dedicated app logger to CloudWatch or similar), the `eventkit.event` and `ib_async` std-logger records land in stdout/stderr at best -- invisible to all remote debugging.
+
+**Rules:**
+
+- **Pin every handler signature with a contract test** that emits the real event object through the real event (`ib.positionEvent.emit(Position(...))`) and asserts the handler body executed. Arity bugs are permanent until tested.
+- **Route the third-party std loggers** (`eventkit`, `ib_async`) into the same sink as your application logs.
+- **Diagnostic heuristic:** if an event handler "never fires" but the Gateway log proves the server delivered the message, suspect a swallowed listener exception before suspecting the subscription.
 
 ## Throttled request queue (the local pattern worth keeping)
 

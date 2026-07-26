@@ -24,11 +24,12 @@ def reconnect_with_backoff():
     for attempt, delay in enumerate(delays):
         try:
             ib.connect("127.0.0.1", 4001, clientId=1, timeout=5)
-            if ib.isConnected():
-                resubscribe_all_data()
-                verify_positions_and_orders()
-                return
+            ib.reqCurrentTime()  # active probe -- isConnected() can lie after a failed connect
+            resubscribe_all_data()
+            verify_positions_and_orders()
+            return
         except Exception:
+            ib.disconnect()  # reset zombie client state before the next attempt
             log.error(f"Attempt {attempt+1} failed. Retry in {delay}s")
             time.sleep(delay)  # OK here, outside the event loop
 
@@ -43,6 +44,59 @@ After every reconnection:
 3. Re-subscribe all market data (especially after error **1101** -- data lost)
 4. Call `reqExecutions()` for fills that occurred during disconnection
 5. Resume strategy logic only after state is verified
+
+## The `isConnected()` Zombie Blind Spot
+
+**`isConnected()` can lie.** After a *failed* `connectAsync` (typical during a Gateway restart window), the ib_async client can be left in a zombie state where `isConnected()` returns `True` while no socket exists. Every recovery layer that trusts that flag then fails silently and simultaneously:
+
+- A reconnect supervisor whose retry loop is guarded by `if not ib.isConnected(): retry` makes attempt #1, fails, and never attempts again -- the zombie flag says "connected", so the guard exits with **zero log output**.
+- A periodic polled fallback that checks the same flag never re-arms the supervisor.
+- The process stays alive and healthy-looking for hours while completely disconnected.
+
+**Hardening rules:**
+
+- **Probe, don't trust the flag.** The authoritative liveness check is an active round-trip: `await asyncio.wait_for(ib.reqCurrentTimeAsync(), timeout=10)`. `isConnected()` is at best a fast-path hint, never the gate that decides whether to keep retrying.
+- **Defensive `disconnect()` after every failed connect attempt.** It resets the client state so the next attempt starts clean instead of inheriting a half-open zombie.
+- **Decorrelate the recovery layers.** If the supervisor, the heartbeat, and the polled fallback all read the same boolean, one lying flag defeats all three at once. At least one layer must be an independent active probe.
+- **Escalate on silence.** A reconnect supervisor that stops producing attempt logs is itself a failure mode. Alert when no attempt/success log has appeared within N seconds of a disconnect -- do not rely on the supervisor to report its own death.
+
+```python
+async def is_really_connected(ib, timeout=10):
+    if not ib.isConnected():          # fast-path hint only
+        return False
+    try:                              # authoritative active probe
+        await asyncio.wait_for(ib.reqCurrentTimeAsync(), timeout=timeout)
+        return True
+    except (asyncio.TimeoutError, Exception):
+        ib.disconnect()               # reset zombie client state
+        return False
+```
+
+### Forensics: the Gateway log is ground truth
+
+When diagnosing "which client actually reconnected" after a Gateway restart, read the **IB Gateway log**: it records every connection attempt per `clientId` with timestamps. A client with zero attempts in the Gateway log after the restart -- while its process logs nothing either -- is the zombie signature. Your own application logs cannot prove the absence of attempts; the Gateway log can.
+
+## Multi-Client State Hygiene (same account, many clientIds)
+
+Several clients on one account are **redundant monitors of the same account-level state**, with one asymmetry: `openOrders` visibility is **per-clientId** (each client sees its own orders unless it binds/requests all). Differing order counts across clients on the same account are visibility, not different accounts.
+
+The dangerous pattern: each client periodically publishes a full account snapshot (positions/orders) to shared state, and the consumer applies **last-writer-wins replace**. A single zombie-disconnected client then publishes *empty* snapshots from its empty local cache and wipes the good data written by healthy clients on every cycle -- a degraded component actively destroying shared state.
+
+- **Health-gate every snapshot publish**: a client that cannot pass the active liveness probe must not publish (especially not an empty snapshot -- "no positions" from a dead client is not information).
+- Prefer electing a **single account-state monitor** over N redundant publishers with replace semantics.
+- On the consumer side, treat "snapshot suddenly empty while another publisher reports non-empty" as a health signal, not data.
+
+## Reviewing Recovery Paths: the Silent-Failure Signature
+
+Audit every recovery/resilience path (reconnect, failover, fallback, retry) against five traits. A path with several of them will one day fail silently for hours:
+
+1. **Lying health flag** -- the path's gate is a cached boolean (`isConnected()`, `is_healthy`) rather than an active probe.
+2. **Correlated trust** -- multiple independent-looking layers all read that same flag, so they fail together.
+3. **Swallowed errors** -- exceptions inside handlers/listeners are caught by a framework and logged somewhere your pipeline does not ship (see the eventkit trap in `event-driven-data.md`).
+4. **Active harm** -- the degraded component keeps acting (publishing empty snapshots, force-replacing shared state) instead of going quiet.
+5. **No escalation** -- nothing alerts when the recovery path itself stops making progress.
+
+Fixing any single trait breaks the chain; fix the flag first (active probes), then the escalation.
 
 ## IBC: Essential for Windows Production
 
@@ -94,6 +148,8 @@ ib.errorEvent += on_error
 ## Heartbeat and Health Check
 
 Use `reqCurrentTime()` as heartbeat, calling every 30-60 seconds. In ib_async, `ib.setTimeout()` sets a timeout for incoming messages and emits `timeoutEvent` if no data arrives for too long. Monitor last tick timestamps per instrument -- during market hours, if no update for >60 seconds on a liquid instrument, data may be stale.
+
+The heartbeat's active round-trip is the **authoritative** liveness signal -- `isConnected()` is only a hint and can report `True` on a dead client (see the zombie blind spot above). Never gate the heartbeat's escalation on the flag.
 
 ```python
 async def heartbeat_loop(ib):

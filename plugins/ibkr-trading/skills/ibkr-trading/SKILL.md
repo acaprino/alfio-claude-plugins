@@ -23,6 +23,11 @@ Knowledge base for building production-grade algorithmic trading systems with In
 - Debugging TWS API error codes (110, 135, 162, 200, 201, 354, 366, 1100-1102)
 - Translating FX/metals symbols into the right contract type (spot vs CFD) for the account's entity
 - Sizing orders from prices without the `NaN`/`0.0`/unit/tick traps that silently mis-size or reject
+- Diagnosing a bot that looks connected but is dead (zombie `isConnected()`, reconnect supervisor silently stopped)
+- Event handlers that "never fire" (eventkit swallows listener exceptions; wrong handler arity)
+- Bracket TIF design: GTC children, positions left naked overnight, orphaned SL/TP on flat contracts
+- Historical FX bars off the bar grid (session-reopen stub bars) corrupting replays/bootstraps
+- Daily market open/close events swallowed by a dedup layer (TTL resonance)
 
 ## Quick Start
 
@@ -40,14 +45,18 @@ Then harden incrementally:
 - Overnight crashes -- add IBC auto-restart + heartbeat monitoring
 - State drift -- add periodic position/order reconciliation via `reqPositions()`
 - Orders FIRED but never live, mis-sized, or rejected with no error -- read `venue-boundary-failure-modes.md` (async rejection ingress, tick conformance, FX-as-CFD routing, `NaN`-safe sizing)
+- Connected-looking but dead for hours -- replace `isConnected()` gates with active probes (`reqCurrentTimeAsync` + timeout), defensive `disconnect()` after failed attempts, escalation on supervisor silence (`reconnection-resilience.md`)
+- Handlers that never fire / invisible listener crashes -- contract-test handler signatures, route `eventkit`/`ib_async` std loggers to your sink (`event-driven-data.md`)
+- Positions naked overnight or orphaned SL/TP -- GTC bracket children + residual-child reaper on position-closed (`order-execution.md`)
+- Replay/bootstrap corrupted by bars live never saw -- drop off-grid session stub bars, chronology-guard state transitions (`event-driven-data.md`)
 
 ## Reference Materials
 
 - `tws-api-architecture.md` -- TWS API 10.45, Gateway vs TWS, Client Portal, ib_async setup, clientId strategy, official docs
-- `event-driven-data.md` -- reqMktData, reqRealTimeBars, reqTickByTickData, keepUpToDate, OHLCV construction, pacing violations, historical data
-- `order-execution.md` -- order types, bracket orders, lifecycle states, execDetails monitoring, race conditions, error codes
-- `reconnection-resilience.md` -- daily reset, IBC automation, reconnect patterns, heartbeat, Windows deployment, community resources
-- `venue-boundary-failure-modes.md` -- the silent-failure layer: async rejection ingress (`errorEvent` -> lifecycle), price/tick conformance (110/135, `minTick` from `ContractDetails`), FX-as-CFD routing for retail EU entities (201/200/2127/366), data-contract vs order-contract split, and `NaN`-safe sizing with canonical lot units and conversion-rate fallback
+- `event-driven-data.md` -- reqMktData, reqRealTimeBars, reqTickByTickData, keepUpToDate, OHLCV construction, pacing violations, historical data, session-reopen stub bars (off-grid drop + top-up, replay chronology guards), eventkit listener contracts (swallowed exceptions, handler arity, std-logger routing), dedup TTL resonance with daily market events
+- `order-execution.md` -- order types, bracket orders (GTC children + residual-child reaper, phantom transient Cancelled), lifecycle states, execDetails monitoring, race conditions, error codes, compliance-201 non-overridability, whatIf probing, per-clientId order visibility
+- `reconnection-resilience.md` -- daily reset, IBC automation, reconnect patterns, the `isConnected()` zombie blind spot (active liveness probes, defensive disconnect, decorrelated recovery layers), Gateway-log forensics, multi-client snapshot hygiene, the silent-failure review signature, heartbeat, Windows deployment, community resources
+- `venue-boundary-failure-modes.md` -- the silent-failure layer: async rejection ingress (`errorEvent` -> lifecycle), price/tick conformance (110/135, `minTick` from `ContractDetails`), FX-as-CFD routing for retail EU entities (201/200/2127/366), CFD venue params vs spot (minTick, minSize-is-precision), data-contract vs order-contract split, and `NaN`-safe sizing with canonical lot units and conversion-rate fallback
 
 ## Key Decision Points
 

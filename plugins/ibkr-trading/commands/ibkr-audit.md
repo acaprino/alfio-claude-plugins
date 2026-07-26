@@ -50,6 +50,10 @@ Analyze an existing IB trading system and produce an actionable audit report.
 - [ ] Order ID management is collision-free (nextValidId or getReqId)
 - [ ] Cancel-fill race condition handled (never assume cancel succeeded)
 - [ ] Order efficiency ratio monitored (<=20:1)
+- [ ] Bracket children (SL/TP) are `tif='GTC'` (parent DAY) -- DAY children leave positions naked overnight
+- [ ] Residual bracket children reaped when the position closes (no live SL/TP resting on a flat contract)
+- [ ] Transient `Cancelled` during staged bracket transmit not treated as a real cancellation (confirm via reqOpenOrders)
+- [ ] Compliance 201s treated as non-retryable (no bypass-precautions / advancedErrorOverride attempts -- those only cover 10xxx precautions)
 
 ### Error Handling
 - [ ] errorEvent handler registered
@@ -83,6 +87,7 @@ Audits the silent-failure layer where canonical intent becomes IBKR contracts/or
 - [ ] All `volume_*` fields in one canonical unit (lots); venue units only on the wire, converted back on trade events
 - [ ] Conversion rate tries direct `{base}{counter}` then inverse `{counter}{base}` (1/rate); rejects `USDUSD`
 - [ ] Market-open re-checked under the execution lock (check-then-act is a race)
+- [ ] Venue params read per traded contract at runtime: CFD `minTick` differs from spot; CFD `minSize` is precision, not the venue minimum (no spot minimum tables applied to CFDs)
 
 ### Reconnection
 - [ ] disconnectedEvent handler with reconnection logic
@@ -90,6 +95,21 @@ Audits the silent-failure layer where canonical intent becomes IBKR contracts/or
 - [ ] Post-reconnect state recovery (positions, orders, subscriptions, executions)
 - [ ] Heartbeat monitoring (reqCurrentTime or setTimeout)
 - [ ] Handles daily reset window (~23:45-00:45 ET)
+- [ ] Retry loop gated on an ACTIVE probe (`reqCurrentTimeAsync` + timeout), not on `isConnected()` (zombie flag after a failed connectAsync)
+- [ ] Defensive `disconnect()` after every failed connect attempt (resets zombie client state)
+- [ ] Recovery layers decorrelated (supervisor, heartbeat, polled fallback do not all trust the same boolean)
+- [ ] Escalation/alert when the reconnect supervisor goes silent (no attempt logs after a disconnect)
+- [ ] Account snapshots health-gated (a disconnected client must not publish empty snapshots; no last-writer-wins replace of shared position state)
+
+### Event Listeners
+- [ ] Every ib_async event handler signature contract-tested (wrong arity = handler dies silently on every emission inside eventkit)
+- [ ] `eventkit` / `ib_async` std loggers routed to the application log sink (listener exceptions are otherwise invisible)
+
+### Historical Data Integrity
+- [ ] Off-grid session-reopen stub bars dropped from intraday FX historical responses (with drop-count logging; D1+ exempt)
+- [ ] Requested bar count preserved via over-fetch + bounded top-up after dropping
+- [ ] Replay/bootstrap paths chronology-guard state transitions (bar closes after last state update; confirmation window not elapsed)
+- [ ] Downstream dedup of market open/close events uses a TTL bounding only the real duplicate window (seconds-minutes, never >= the ~24h session cycle)
 
 ### Production Hardening
 - [ ] IBC configured for automated Gateway lifecycle

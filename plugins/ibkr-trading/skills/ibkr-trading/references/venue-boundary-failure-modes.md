@@ -70,13 +70,16 @@ def round_bracket_away_from_entry(entry, sl, tp, tick, is_long):
 
 A retail account under an EU entity (for example IBIE, IB Ireland) **cannot hold leveraged spot FX**. A non-base spot cross is hard-rejected with **error 201** "FX trade would expose account to currency leverage". The order never reaches the venue.
 
-This is **bypassable in code**, not an account-side-only limit: route FX through **CFD contracts**. The same order placed as a CFD is accepted with normal retail margin (for example ESMA 30:1), no 201.
+This is **bypassable in code**, not an account-side-only limit: route FX through **CFD contracts**. The same order placed as a CFD is accepted with normal retail margin (for example ESMA 30:1), no 201. Prove it cheaply before migrating: a `whatIf=True` order on the CFD form returns margin figures with no 201 and no market risk.
+
+Do NOT chase override paths for this 201: it is an account/compliance rejection, not an order precaution (precautions are the 10xxx series). "Bypass Order Precautions for API Orders" and `Order.advancedErrorOverride` have no effect on it.
 
 - Forex CFDs require the **split base/quote form**: `CFD(symbol="EUR", currency="USD")`. The 6-letter form `CFD(symbol="EURUSD")` is rejected with **error 200** "no security definition found".
 - **Gate the split on a real FX-pair check.** A non-FX 6-letter ticker must not be blindly split; fall back to the full ticker with a warning.
 - Metals (for example XAUUSD) route as a **full-ticker CFD** and serve their own market data. Forex CFDs do **not** (see section 4).
 - Qualify every contract before use and cache it by `(symbol, sec_type)`; reset the cache on reconnect.
 - Validate your `symbol_types` config at construction (values in a known set such as `{FOREX, CFD}`). A malformed map that silently defaults to spot reintroduces the 201.
+- **The CFD's venue parameters differ from the spot pair's -- never share tables across secTypes.** CFD `minTick` can be finer than the underlying spot's (e.g. EUR.USD CFD 1e-05 vs spot 5e-05): always read `minTick` from the *traded* contract's `ContractDetails` at runtime. And CFD `ContractDetails.minSize` is a display/precision value, NOT the venue order minimum -- do not apply spot (IDEALPRO) per-currency minimum-size tables to CFDs; CFD minimums are far smaller and must be derived separately.
 
 ```python
 FX_PAIRS = {"EURUSD", "USDJPY", "GBPUSD", "AUDUSD", "USDCHF", "USDCAD", "NZDUSD"}
