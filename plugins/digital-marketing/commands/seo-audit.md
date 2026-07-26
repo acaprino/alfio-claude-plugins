@@ -23,14 +23,16 @@ argument-hint: "<url or local path> [--focus <categories>] [--competitor <url>] 
 For live URL targets (not `--local`), this command uses Playwright MCP tools for browser-based analysis. If Playwright MCP tools (`browser_navigate`, `browser_snapshot`, etc.) are not available, warn the user:
 
 ```
-Optional plugin missing: playwright-skill
+Missing required plugin: playwright-skill
 
-Live site analysis works best with Playwright MCP tools for DOM inspection,
+Live site analysis needs Playwright MCP tools for DOM inspection,
 responsive testing, and network analysis. Without it, analysis will be
 limited to what can be fetched via WebFetch/curl.
 
-Install it with:
-  claude plugin marketplace add acaprino/claude-code-daodan --plugin playwright-skill
+playwright-skill is a declared dependency of digital-marketing, distributed
+by its own upstream marketplace. Install it with:
+  claude plugin marketplace add lackeyjb/playwright-skill
+  claude plugin install playwright-skill@playwright-skill
 ```
 
 If Playwright tools are unavailable, fall back to WebFetch for fetching pages and analyze the raw HTML instead. Skip browser-specific checks (console messages, network requests, responsive resize).

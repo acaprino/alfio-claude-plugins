@@ -46,11 +46,10 @@ Web mode requires the `playwright-skill` plugin for Playwright MCP tools (`brows
 Missing required plugin: playwright-skill
 
 The app-analyzer agent requires Playwright MCP tools for web app analysis.
-Install it with:
-  claude plugin marketplace add acaprino/claude-code-daodan --plugin playwright-skill
-
-Or install the full marketplace:
-  claude plugin marketplace add acaprino/claude-code-daodan
+playwright-skill is a declared dependency, distributed by its own upstream
+marketplace. Install it with:
+  claude plugin marketplace add lackeyjb/playwright-skill
+  claude plugin install playwright-skill@playwright-skill
 ```
 
 ### Initialize output

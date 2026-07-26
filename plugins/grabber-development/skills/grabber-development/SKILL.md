@@ -22,7 +22,7 @@ When this skill activates on a scraping task, **your next non-question tool call
 The default path is **user-driven navigation with live capture**, not Claude-clicks. The user knows their data and their portal better than you do, and authenticated SaaS sites need them anyway. Steps:
 
 1. Ask the bare minimum to start: target URL, what data is wanted, authenticated yes/no. One short batch of questions, then stop asking.
-2. Immediately invoke `playwright-skill` (preferred) or write an inline Patchright script via `Bash`. The script must run with `headless=False`, attach every handler in the Capture Surface below, and park on `input()` waiting for the user.
+2. Immediately invoke `playwright-skill` (preferred; it is a declared dependency of this plugin, installed from its upstream marketplace: `claude plugin marketplace add lackeyjb/playwright-skill`, then `claude plugin install playwright-skill@playwright-skill`) or write an inline Patchright script via `Bash`. The script must run with `headless=False`, attach every handler in the Capture Surface below, and park on `input()` waiting for the user.
 3. Tell the user verbatim: "Browser is open with full network capture (XHR + fetch + WebSocket + SSE + workers + cookies + main-frame navigations). Log in, navigate to the data, apply the filters you'd use day-to-day, then press Enter here so I can dump the capture and reason from real endpoints."
 4. While the user navigates, you watch the capture stream. When they press Enter you have: real URLs, real endpoint paths, real field names, real WebSocket frames, real auth cookies. *Now* you can scaffold.
 

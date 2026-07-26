@@ -40,4 +40,4 @@ Use the app-analyzer agent to analyze [app name or URL]
 
 ---
 
-**Related:** [playwright-skill](playwright-skill.md) (optional dependency for web app exploration) | [tauri-development](tauri-development.md) (scaffolds Tauri 2 mobile apps from analysis output)
+**Related:** [playwright-skill](https://github.com/lackeyjb/playwright-skill) (upstream plugin, required for web app exploration; install: `claude plugin marketplace add lackeyjb/playwright-skill`, then `claude plugin install playwright-skill@playwright-skill`) | [tauri-development](tauri-development.md) (scaffolds Tauri 2 mobile apps from analysis output)

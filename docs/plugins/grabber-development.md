@@ -107,4 +107,4 @@ Comprehensive Python web scraping knowledge base covering the full stack from ta
 
 ---
 
-**Related:** [python-development](python-development.md) (async patterns, system architecture) | [opentelemetry](opentelemetry.md) (distributed tracing for scraping observability) | [playwright-skill](playwright-skill.md) (browser automation)
+**Related:** [python-development](python-development.md) (async patterns, system architecture) | [opentelemetry](opentelemetry.md) (distributed tracing for scraping observability) | [playwright-skill](https://github.com/lackeyjb/playwright-skill) (upstream plugin, required for live-capture discovery; install: `claude plugin marketplace add lackeyjb/playwright-skill`, then `claude plugin install playwright-skill@playwright-skill`)

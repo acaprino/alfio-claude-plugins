@@ -2,15 +2,15 @@
 
 # Claude Code Daodan
 
-**42 specialized plugins that augment Claude Code into a specialized toolkit - so you spend less time prompting and more time shipping.**
+**41 specialized plugins that augment Claude Code into a specialized toolkit - so you spend less time prompting and more time shipping.**
 
 > The Daodan is the symbiote that enhances its host. This marketplace is the Daodan of Claude Code.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat)](LICENSE)
-[![Marketplace](https://img.shields.io/badge/marketplace-v10.0.2-green?style=flat)](.claude-plugin/marketplace.json)
-[![Plugins](https://img.shields.io/badge/plugins-42-orange?style=flat)](#plugins)
+[![Marketplace](https://img.shields.io/badge/marketplace-v11.0.0-green?style=flat)](.claude-plugin/marketplace.json)
+[![Plugins](https://img.shields.io/badge/plugins-41-orange?style=flat)](#plugins)
 [![Agents](https://img.shields.io/badge/agents-70-purple?style=flat)](#plugins)
-[![Skills](https://img.shields.io/badge/skills-60-teal?style=flat)](#plugins)
+[![Skills](https://img.shields.io/badge/skills-59-teal?style=flat)](#plugins)
 [![Commands](https://img.shields.io/badge/commands-55-red?style=flat)](#plugins)
 
 </div>
@@ -67,6 +67,15 @@ claude plugin install superpowers@superpowers-marketplace
 
 More detail in [Brainstorming, planning, and execution](#brainstorming-planning-and-execution).
 
+`app-analyzer`, `pwa-expert`, `digital-marketing`, and `grabber-development` declare [lackeyjb/playwright-skill](https://github.com/lackeyjb/playwright-skill) as a hard dependency (`dependencies: ["playwright-skill"]`): their browser-based workflows (web app exploration, live PWA audits, live SEO/GA4 checks, scraping discovery) run on its Playwright automation skill. Install it from its own marketplace:
+
+```bash
+claude plugin marketplace add lackeyjb/playwright-skill
+claude plugin install playwright-skill@playwright-skill
+```
+
+More detail in [Browser automation (Playwright)](#browser-automation-playwright).
+
 ---
 
 ## Plugins
@@ -98,7 +107,6 @@ More detail in [Brainstorming, planning, and execution](#brainstorming-planning-
 | **[messaging](docs/plugins/messaging.md)** | RabbitMQ queue design and AMQP patterns | 1 | - | - |
 | **[csp](docs/plugins/csp.md)** | Scheduling, routing, assignment with OR-Tools CP-SAT | 1 | - | - |
 | **[browser-extensions](docs/plugins/browser-extensions.md)** | Firefox extensions with Manifest V2/V3, /firefox-scaffold /firefox-lint /firefox-publish | 1 | 1 | 3 |
-| **[playwright-skill](docs/plugins/playwright-skill.md)** | General-purpose browser automation with Playwright | - | 1 | - |
 | **[prompt-improver](docs/plugins/prompt-improver.md)** | Enrich vague prompts with research-based questions | - | 1 | - |
 | **[acp-hooks](docs/plugins/acp-hooks.md)** | Session hooks: skill awareness, security gate, autocompact, review/docs/team gates | - | - | - |
 | **[docs](docs/plugins/docs.md)** | Craft top-tier README.md files | - | 1 | 1 |
@@ -180,6 +188,21 @@ The four pipelines this marketplace built on top of the old `agent-teams` plugin
 - `/agent-teams:team-codebase-map` -> [`/codebase-mapper:team-codebase-map`](docs/plugins/codebase-mapper.md)
 - `/agent-teams:team-research` -> [`/research:team-research`](docs/plugins/research.md)
 
+### Browser automation (Playwright)
+
+As of marketplace 11.0.0, the `playwright-skill` plugin is no longer vendored here. The local copy was byte-identical to its upstream (which installs directly as a marketplace), so it was handed back:
+
+| Upstream | License | Covers |
+|----------|---------|--------|
+| [lackeyjb/playwright-skill](https://github.com/lackeyjb/playwright-skill) | MIT | General-purpose browser automation with Playwright: auto-detects dev servers, writes and runs test scripts, screenshots, responsive checks, login flows, link checking |
+
+```bash
+claude plugin marketplace add lackeyjb/playwright-skill
+claude plugin install playwright-skill@playwright-skill
+```
+
+The plugins that build on it ([app-analyzer](docs/plugins/app-analyzer.md), [pwa-expert](docs/plugins/pwa-expert.md), [digital-marketing](docs/plugins/digital-marketing.md), [grabber-development](docs/plugins/grabber-development.md)) declare it as a hard dependency and keep referencing the same `playwright-skill:playwright-skill` namespace, which resolves as written once the upstream plugin is installed.
+
 ---
 
 <details>
@@ -209,7 +232,7 @@ claude-code-daodan/
 │   │   ├── skills/            # SKILL.md + optional references/
 │   │   └── commands/          # slash-command .md files
 │   ├── senior-review/
-│   └── ...                    # 44 plugins total
+│   └── ...                    # 41 plugins total
 ├── LICENSE
 └── README.md
 ```
@@ -229,7 +252,7 @@ claude plugin install ./claude-code-daodan/plugins/python-development
 <details>
 <summary><b>Recommended Settings (skill visibility)</b></summary>
 
-With 44 plugins installed, Claude Code's default skill-listing budget can truncate the list of available skills shown at conversation start. Raise the fraction of context allocated to the skill listing in `~/.claude/settings.json`:
+With 41 plugins installed, Claude Code's default skill-listing budget can truncate the list of available skills shown at conversation start. Raise the fraction of context allocated to the skill listing in `~/.claude/settings.json`:
 
 ```json
 {

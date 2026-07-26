@@ -94,4 +94,4 @@ Every **FAIL** links back to the matching reference file for self-service remedi
 
 ---
 
-**Related:** [platform-engineering](platform-engineering.md) (cross-platform security/architecture/performance beyond PWA mechanics) | [react-development](react-development.md) (React-specific performance) | [tauri-development](tauri-development.md) (desktop/mobile native wrappers) | [playwright-skill](playwright-skill.md) (optional dependency for live-URL audit mode)
+**Related:** [platform-engineering](platform-engineering.md) (cross-platform security/architecture/performance beyond PWA mechanics) | [react-development](react-development.md) (React-specific performance) | [tauri-development](tauri-development.md) (desktop/mobile native wrappers) | [playwright-skill](https://github.com/lackeyjb/playwright-skill) (upstream plugin, required for live-URL audit mode; install: `claude plugin marketplace add lackeyjb/playwright-skill`, then `claude plugin install playwright-skill@playwright-skill`)

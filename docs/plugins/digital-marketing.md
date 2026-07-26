@@ -298,4 +298,4 @@ Delegates to the `llm-seo-optimize` agent (6-phase protocol). Output: `.aeo-audi
 
 ---
 
-**Related:** [research](research.md) (deep research for content strategy) | [playwright-skill](playwright-skill.md) (browser automation for SEO / GA4 / AEO audits)
+**Related:** [research](research.md) (deep research for content strategy) | [playwright-skill](https://github.com/lackeyjb/playwright-skill) (upstream plugin, required for browser-based SEO / GA4 / AEO audits; install: `claude plugin marketplace add lackeyjb/playwright-skill`, then `claude plugin install playwright-skill@playwright-skill`)

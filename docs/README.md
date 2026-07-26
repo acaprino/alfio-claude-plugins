@@ -34,7 +34,6 @@ The augmentation symbiote for Claude Code. Agents, skills, and commands for deve
 | [obsidian-development](plugins/obsidian-development.md) | development | Obsidian community plugin development with ReviewBot compliance | 3 skills |
 | [opentelemetry](plugins/opentelemetry.md) | development | OpenTelemetry Python: distributed tracing, context propagation, exporters, /otel-audit | 1 agent, 1 skill, 1 command |
 | [platform-engineering](plugins/platform-engineering.md) | development | Cross-platform security, architecture, and performance rulebook with /platform-review | 1 agent, 1 skill, 1 command |
-| [playwright-skill](plugins/playwright-skill.md) | testing | Browser automation with Playwright - testing, screenshots, form filling | 1 skill |
 | [project-setup](plugins/project-setup.md) | utilities | CLAUDE.md creation and maintenance with ground truth validation | 1 agent, 2 commands |
 | [prompt-improver](plugins/prompt-improver.md) | ai-ml | Intelligent prompt optimization - enriches vague prompts with research-based clarifying questions | 1 skill, hooks |
 | [pwa-expert](plugins/pwa-expert.md) | frontend | Progressive Web Apps 2025-2026: manifest, service workers, Web Push, install flows, store distribution | 1 agent, 1 skill, 3 commands |

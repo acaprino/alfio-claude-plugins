@@ -38,7 +38,7 @@ If `$ARGUMENTS` is a URL, use the `playwright-skill` tools:
 7. Test offline behavior: route the page through `page.context().setOffline(true)`, reload, and confirm a non-broken response (offline page or cached navigation).
 8. Measure Core Web Vitals on the landing page (LCP, CLS at least; INP requires interaction). Compare against `performance.md` thresholds.
 
-If `playwright-skill` is unavailable, fall back to suggesting manual checks and explain what each would verify. In that fallback path, the audit should still produce a structured report with explicit "could not verify" markers for any item that required browser automation.
+If `playwright-skill` is unavailable, tell the user to install it from its upstream marketplace (`claude plugin marketplace add lackeyjb/playwright-skill`, then `claude plugin install playwright-skill@playwright-skill`), and meanwhile fall back to suggesting manual checks and explain what each would verify. In that fallback path, the audit should still produce a structured report with explicit "could not verify" markers for any item that required browser automation.
 
 Live-mode auth note: if the target URL is behind authentication, ask the user via `AskUserQuestion` whether to run the audit against a public route only, or whether the user can provide login steps. Never attempt to bypass auth.
 

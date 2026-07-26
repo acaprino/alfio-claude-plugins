@@ -5,8 +5,8 @@
     "email": ""
   },
   "metadata": {
-    "description": "Claude Code Daodan - 42 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, reverse engineering, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), and pure-architecture audits (missed unification, wrong abstractions).",
-    "version": "10.0.2"
+    "description": "Claude Code Daodan - 41 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, reverse engineering, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), and pure-architecture audits (missed unification, wrong abstractions).",
+    "version": "11.0.0"
   },
   "plugins": [
     {
@@ -431,7 +431,7 @@
       "name": "app-analyzer",
       "source": "./plugins/app-analyzer",
       "description": "Comprehensive app analysis for Android (ADB) and web (Playwright MCP) - navigation mapping, competitive analysis, design system extraction, UX flow analysis, and business model intelligence",
-      "version": "1.0.3",
+      "version": "1.1.0",
       "author": {
         "name": "Alfio"
       },
@@ -450,7 +450,7 @@
       ],
       "category": "analysis",
       "strict": false,
-      "optionalDependencies": [
+      "dependencies": [
         "playwright-skill"
       ],
       "agents": [
@@ -524,7 +524,7 @@
       "name": "digital-marketing",
       "source": "./plugins/digital-marketing",
       "description": "SEO optimization, content marketing, brand naming, domain hunting, text humanization, customer review response, GA4/GTM analytics implementation, and answer-engine optimization (Google AI Overviews / SGE, Perplexity, ChatGPT Search, Claude Search, Bing Copilot) - technical audits, keyword research, content strategy, brand naming, domain checks, trademark screening, AI text rewriting, professional review reply generation with sentiment analysis, Google Analytics 4 + Google Tag Manager deployment with EU/GDPR Consent Mode v2 compliance, /ga4-audit Playwright-powered verification, and /llm-seo-audit AEO command with crawler-access matrix, E-E-A-T, structured data, passage extractability",
-      "version": "1.33.6",
+      "version": "1.34.0",
       "author": {
         "name": "Alfio"
       },
@@ -565,7 +565,7 @@
       ],
       "category": "marketing",
       "strict": false,
-      "optionalDependencies": [
+      "dependencies": [
         "playwright-skill"
       ],
       "agents": [
@@ -777,31 +777,6 @@
         "./commands/marketplace-scaffold-plugin.md",
         "./commands/marketplace-review.md",
         "./commands/skills-validate.md"
-      ]
-    },
-    {
-      "name": "playwright-skill",
-      "source": "./plugins/playwright-skill",
-      "description": "General-purpose browser automation with Playwright - auto-detects dev servers, writes clean test scripts, supports responsive testing, login flows, form filling, link checking, and any browser task with visible or headless execution",
-      "version": "1.2.2",
-      "author": {
-        "name": "lackeyjb"
-      },
-      "license": "MIT",
-      "keywords": [
-        "playwright",
-        "browser",
-        "automation",
-        "testing",
-        "web-automation",
-        "screenshots",
-        "responsive",
-        "e2e"
-      ],
-      "category": "testing",
-      "strict": false,
-      "skills": [
-        "./skills/playwright-skill"
       ]
     },
     {
@@ -1298,7 +1273,7 @@
       "name": "grabber-development",
       "source": "./plugins/grabber-development",
       "description": "Expert Python web scraping - coordinator (grabber-architect) plus three specialists: stealth-browser-expert (Patchright/Camoufox/Nodriver + CAPTCHA), http-fingerprint-expert (JA4+/curl_cffi/primp + proxies/Web Unlocker), ai-scraping-expert (Crawl4AI/Firecrawl/ScrapeGraphAI + Pydantic + GraphQL RE)",
-      "version": "1.3.3",
+      "version": "1.4.0",
       "author": {
         "name": "Alfio"
       },
@@ -1324,6 +1299,9 @@
       ],
       "category": "development",
       "strict": false,
+      "dependencies": [
+        "playwright-skill"
+      ],
       "agents": [
         "./agents/grabber-architect.md",
         "./agents/stealth-browser-expert.md",
@@ -1400,7 +1378,7 @@
       "name": "pwa-expert",
       "source": "./plugins/pwa-expert",
       "description": "Progressive Web App expert for the 2025-2026 baseline. Covers Web App Manifest (id, display_override, scope_extensions, handle_links, file_handlers, share_target), Service Workers (Workbox 7 / Serwist), Web Push (VAPID, RFC 8030/8291/8292, Declarative Push for Safari 18.4+), install flows (beforeinstallprompt, Window Controls Overlay), OPFS storage, Project Fugu capabilities, Core Web Vitals 2025 (INP < 200ms), security (HTTPS, CSP, COOP/COEP), and distribution (Bubblewrap to Google Play, PWA Builder to Microsoft Store, Capacitor to App Store, PWA Builder to Meta Quest). Includes the pwa-architect agent and three commands: /pwa-audit (hybrid local-code + live-URL via Playwright), /pwa-scaffold (manifest + SW + iOS meta + framework wiring for Vite, Next.js, Angular, Nuxt, vanilla), /pwa-checklist (deterministic production-deploy checklist walk).",
-      "version": "1.0.2",
+      "version": "1.1.0",
       "author": {
         "name": "Alfio"
       },
@@ -1432,7 +1410,7 @@
       ],
       "category": "frontend",
       "strict": false,
-      "optionalDependencies": [
+      "dependencies": [
         "playwright-skill"
       ],
       "agents": [

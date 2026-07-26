@@ -15,7 +15,7 @@ plugins/
     hooks/                  # hook handlers (JS/Python) + hooks.json (acp-hooks, prompt-improver)
 ```
 
-42 plugins: clean-code, deep-dive-analysis, tauri-development, react-development, xterm, ai-tooling, python-development, stripe, system-utils, messaging, research, business, project-setup, app-analyzer, typescript-development, csp, digital-marketing, senior-review, obsidian-development, browser-extensions, learning, marketplace-ops, playwright-skill, acp-hooks, prompt-improver, codebase-mapper, git-worktrees, rag-development, docs, testing, platform-engineering, ibkr-trading, mt5-trading, opentelemetry, docker, grabber-development, reverse-engineering, codebase-cleanup, libgdx-development, kotlin-development, pwa-expert, abstraction-architect.
+41 plugins: clean-code, deep-dive-analysis, tauri-development, react-development, xterm, ai-tooling, python-development, stripe, system-utils, messaging, research, business, project-setup, app-analyzer, typescript-development, csp, digital-marketing, senior-review, obsidian-development, browser-extensions, learning, marketplace-ops, acp-hooks, prompt-improver, codebase-mapper, git-worktrees, rag-development, docs, testing, platform-engineering, ibkr-trading, mt5-trading, opentelemetry, docker, grabber-development, reverse-engineering, codebase-cleanup, libgdx-development, kotlin-development, pwa-expert, abstraction-architect.
 
 ## Plugin anatomy
 
@@ -88,7 +88,7 @@ We do not fork, submodule, or add runtime dependencies. The only intake mode for
 
 | Sub-mode | When to pick | Example |
 |---|---|---|
-| **Full vendoring** | Upstream is a complete drop-in (a single SKILL.md, a small set of references) and there is no local equivalent | `playwright-skill` |
+| **Full vendoring** | Upstream is a complete drop-in (a single SKILL.md, a small set of references) and there is no local equivalent | `kotlin-development` |
 | **Cherry-pick vendoring** | Upstream has many files but only a subset adds value, or the upstream commands collide with our existing namespace | `wshobson/agents` (3 codebase-cleanup commands imported, 2 agents skipped for overlap) |
 | **Hybrid merge** | Upstream covers ground that overlaps with a local file; append upstream content as a delimited section instead of creating a duplicate | `wshobson/agents` reverse-engineering `references/details.md` kept inline in the local SKILL.md sections |
 | **Inspiration only** | We adopt patterns or workflow ideas but write our own content from scratch; no upstream text copied | `deep-dive-analysis` from `gsd-build/get-shit-done` |
@@ -214,7 +214,6 @@ When the user asks for "upstream updates" (or similar), this is the default work
 | Plugin | Upstream source | Files to sync |
 |--------|----------------|---------------|
 | `deep-dive-analysis` (inspiration) | `gsd-build/get-shit-done` - `agents/gsd-codebase-mapper.md` | `plugins/deep-dive-analysis/commands/deep-dive-analysis.md` (patterns adopted, not direct copy) |
-| `playwright-skill` | `lackeyjb/playwright-skill` - `skills/playwright-skill/` | `plugins/playwright-skill/skills/playwright-skill/SKILL.md`, `plugins/playwright-skill/skills/playwright-skill/API_REFERENCE.md`, `plugins/playwright-skill/skills/playwright-skill/run.js`, `plugins/playwright-skill/skills/playwright-skill/package.json`, `plugins/playwright-skill/skills/playwright-skill/lib/helpers.js` |
 | `react-development` (react-best-practices) | `vercel-labs/agent-skills` - `skills/react-best-practices/` | `plugins/react-development/skills/react-best-practices/SKILL.md`, `plugins/react-development/skills/react-best-practices/references.md`, `plugins/react-development/skills/react-best-practices/rules/*.md` |
 | `digital-marketing` (domain-hunter) | `ReScienceLab/opc-skills` - `skills/domain-hunter/` | `plugins/digital-marketing/skills/domain-hunter/SKILL.md`, `plugins/digital-marketing/skills/domain-hunter/references/registrars.md`, `plugins/digital-marketing/skills/domain-hunter/references/spaceship-api.md`, `plugins/digital-marketing/skills/domain-hunter/examples/auto-video-editing-domain.md` |
 | `prompt-improver` | `severity1/claude-code-prompt-improver` (v0.6+: upstream replaced `scripts/improve-prompt.py` with a declarative nudge engine: `scripts/engine.py`, `scripts/rules.py`, `scripts/nudge_builtins.py`, `nudges/<Event>/*.json`) | `plugins/prompt-improver/skills/prompt-improver/SKILL.md`, `plugins/prompt-improver/skills/prompt-improver/references/*.md`, `plugins/prompt-improver/hooks/handlers/improve-prompt.js`, `plugins/prompt-improver/hooks/handlers/plan-guidance.js`, `plugins/prompt-improver/hooks/handlers/background-exec.js`, `plugins/prompt-improver/hooks/handlers/subagent-routing.js`. Local stays a flat-JS-handler port (cherry-pick adoption, 2026-06-10): improve + plan-guidance + background-exec + subagent-routing nudges are ported; the approach-assessment, output-readability, ask-user-question, plan-mode, and workflow nudges are intentionally NOT vendored (overlap with native Claude Code behavior; would inject context on nearly every prompt). |
@@ -230,17 +229,20 @@ When the user asks for "upstream updates" (or similar), this is the default work
 
 ### Deliberately not vendored
 
-Three areas were vendored, then handed back to their upstreams because maintaining the copy cost more than it returned. Do NOT re-import them, and do not add sync-table rows for them on a future "upstream updates" pass. The README documents all three for users.
+Four areas were vendored, then handed back to their upstreams because maintaining the copy cost more than it returned. Do NOT re-import them, and do not add sync-table rows for them on a future "upstream updates" pass. The README documents all four for users.
 
 | Area | Upstream | Removed in |
 |---|---|---|
 | Frontend and design (`frontend` plugin: 3 agents, 5 skills, 1 command) | `pbakaus/impeccable`, `nextlevelbuilder/ui-ux-pro-max-skill`, `paulirish/dotfiles` | marketplace 7.0.0 |
 | Brainstorming, planning, execution (`ai-tooling` skills `brainstorming`, `writing-plans`, `executing-plans`) | `obra/superpowers` | marketplace 8.0.0, ai-tooling 3.0.0 |
 | Multi-agent generic core (`agent-teams` plugin: 6 commands, 4 agents, 6 skills) | `wshobson/agents` | marketplace 9.0.0 |
+| Browser automation (`playwright-skill` plugin: 1 skill) | `lackeyjb/playwright-skill` | marketplace 11.0.0 |
 
 Places that used to invoke the removed planning skills now load the superpowers skills directly: `acp-loader` (Skill Priority). As of marketplace 8.2.0, superpowers is a declared hard dependency (`dependencies: ["superpowers"]` in `marketplace.json`) of `ai-tooling`, and the phrasing in that place is unconditional: load the skills, and if they are unavailable stop and tell the user to install superpowers (`claude plugin install superpowers@claude-plugins-official`). This supersedes the earlier rule that kept superpowers references conditional; do not reintroduce conditional phrasing.
 
 The same policy applies to the team pipelines: `/senior-review:team-review`, `/deep-dive-analysis:team-deep-dive`, `/codebase-mapper:team-codebase-map`, and `/research:team-research` declare the upstream `agent-teams` plugin (wshobson/agents) as a hard prerequisite in their Prerequisites blocks. The upstream plugin keeps the same `agent-teams:*` namespace, so those references resolve as written once it is installed (`/plugin marketplace add wshobson/agents`, then `/plugin install agent-teams@claude-code-workflows`). The four pipelines and the `senior-review:review-quality-gates` skill are local content with no upstream sync.
+
+Browser automation follows the same pattern as of marketplace 11.0.0: the vendored `playwright-skill` plugin was a byte-level copy of its upstream (only convention adaptations: TRIGGER WHEN frontmatter, temp-dir portability, emoji stripping), so it was removed and delegated. `app-analyzer`, `pwa-expert`, `digital-marketing`, and `grabber-development` declare `playwright-skill` as a hard dependency (`dependencies: ["playwright-skill"]` in `marketplace.json`). The upstream plugin keeps the same `playwright-skill:playwright-skill` namespace, so existing references resolve as written once it is installed (`claude plugin marketplace add lackeyjb/playwright-skill`, then `claude plugin install playwright-skill@playwright-skill`). Their commands and agents state this install path in their dependency-check blocks; do not point those blocks back at this marketplace.
 
 ### How to sync a plugin
 

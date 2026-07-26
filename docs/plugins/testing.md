@@ -69,4 +69,4 @@ End-to-end testing patterns with Playwright and Cypress. Covers test philosophy,
 
 ---
 
-**Related:** [python-development](python-development.md) (Python-specific TDD with pytest) | [senior-review](senior-review.md) (code review with test assessment) | [playwright-skill](playwright-skill.md) (browser automation with Playwright)
+**Related:** [python-development](python-development.md) (Python-specific TDD with pytest) | [senior-review](senior-review.md) (code review with test assessment) | [playwright-skill](https://github.com/lackeyjb/playwright-skill) (upstream plugin for browser automation with Playwright)
