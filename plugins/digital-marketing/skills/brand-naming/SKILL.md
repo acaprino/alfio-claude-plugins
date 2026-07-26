@@ -1,7 +1,7 @@
 ---
 name: brand-naming
 description: >
-  Brand naming strategist -- generates, filters, scores, and validates brand names through a lateral thinking workflow. Uses 4 lateral thinking techniques (semantic collision, vocabulary shift, invisible hinge, polarization) for creative generation, then filters with 7 naming archetypes, linguistic/phonotactic rules, weighted scoring, domain availability checks, market saturation analysis (existing apps, websites, businesses with same name), trademark pre-screening, and SEO analysis.
+  Brand naming strategist - generates, filters, scores, and validates brand names through a lateral thinking workflow. Uses 4 lateral thinking techniques (semantic collision, vocabulary shift, invisible hinge, polarization) for creative generation, then filters with 7 naming archetypes, linguistic/phonotactic rules, weighted scoring, domain availability checks, market saturation analysis (existing apps, websites, businesses with same name), trademark pre-screening, and SEO analysis.
   TRIGGER WHEN: "brand name", "naming", "name my app", "name my product", "product name", "startup name", "come up with a name", "nome del brand", "naming strategico".
   DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
 ---

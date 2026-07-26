@@ -1,6 +1,6 @@
 ---
 description: >
-  AI-powered quality review of plugin descriptions, trigger keywords, agent prompts, skill instructions, and command definitions in any Claude Code plugin marketplace -- evaluates activation accuracy, content quality, and cross-plugin coherence.
+  AI-powered quality review of plugin descriptions, trigger keywords, agent prompts, skill instructions, and command definitions in any Claude Code plugin marketplace - evaluates activation accuracy, content quality, and cross-plugin coherence.
   TRIGGER WHEN: the user asks to review plugin/agent/skill quality, audit triggers, or evaluate marketplace content.
   DO NOT TRIGGER WHEN: just validating marketplace.json structure (use /marketplace-ops:marketplace-health) or authoring new components (use /marketplace-ops:marketplace-scaffold-plugin).
 argument-hint: "[plugin-name] [--all] [--fix]"

@@ -33,20 +33,20 @@ Also delegated to by all three commands below.
 Knowledge base for building, auditing, and shipping PWAs in 2025-2026, loaded automatically by `pwa-architect` and referenced on-demand (never preloaded in bulk).
 
 **Reference files:**
-- `manifest.md` -- Web App Manifest members, icons, splash screens, iOS meta tags
-- `service-workers.md` -- SW lifecycle, caching strategies, Workbox 7, updates, debugging
-- `background-execution.md` -- Background Sync, Periodic Sync, Background Fetch, Wake Lock
-- `push-notifications.md` -- Web Push end-to-end: VAPID, RFCs, Declarative Push, Badge API
-- `install-flows.md` -- `beforeinstallprompt`, iOS manual install, Window Controls Overlay
-- `permissions.md` -- Permissions API, `Permissions-Policy` header, platform availability
-- `storage-persistence.md` -- IndexedDB, OPFS, quotas, persistent storage
-- `capabilities-fugu.md` -- Project Fugu API matrix and worked examples
-- `platform-constraints.md` -- iOS / Android / Desktop per-platform reality check
-- `performance.md` -- Core Web Vitals 2025, INP < 200ms, audit tooling
-- `security.md` -- HTTPS, CSP for service workers, COOP / COEP, secure contexts
-- `distribution.md` -- Bubblewrap / TWA, PWA Builder MSIX, Capacitor, Meta Quest
-- `frameworks-tooling.md` -- Vite, Next.js, Angular, Nuxt wiring plus debugging surface
-- `production-checklist.md` -- full deploy checklist consumed directly by `/pwa-checklist`
+- `manifest.md` - Web App Manifest members, icons, splash screens, iOS meta tags
+- `service-workers.md` - SW lifecycle, caching strategies, Workbox 7, updates, debugging
+- `background-execution.md` - Background Sync, Periodic Sync, Background Fetch, Wake Lock
+- `push-notifications.md` - Web Push end-to-end: VAPID, RFCs, Declarative Push, Badge API
+- `install-flows.md` - `beforeinstallprompt`, iOS manual install, Window Controls Overlay
+- `permissions.md` - Permissions API, `Permissions-Policy` header, platform availability
+- `storage-persistence.md` - IndexedDB, OPFS, quotas, persistent storage
+- `capabilities-fugu.md` - Project Fugu API matrix and worked examples
+- `platform-constraints.md` - iOS / Android / Desktop per-platform reality check
+- `performance.md` - Core Web Vitals 2025, INP < 200ms, audit tooling
+- `security.md` - HTTPS, CSP for service workers, COOP / COEP, secure contexts
+- `distribution.md` - Bubblewrap / TWA, PWA Builder MSIX, Capacitor, Meta Quest
+- `frameworks-tooling.md` - Vite, Next.js, Angular, Nuxt wiring plus debugging surface
+- `production-checklist.md` - full deploy checklist consumed directly by `/pwa-checklist`
 
 **Decision quick-reference table** answers common either/or questions inline (which caching strategy per route type, minimum icon sizes, whether to call `skipWaiting()` by default, iOS Web Push requirements) so the agent doesn't have to open a reference file for a one-line lookup.
 

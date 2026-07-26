@@ -3,7 +3,7 @@ name: flow-writer
 description: >
   Phase 2 writer for codebase-mapper. Produces 05-workflows.md and 06-data-model.md from the context brief. Documents user/system workflows with flowcharts and sequence diagrams, and data structures with ER diagrams. Spawned in parallel with other writer agents.
   TRIGGER WHEN: spawned by the /codebase-mapper:map-codebase command during Phase 2 to produce 05-workflows.md and 06-data-model.md.
-  DO NOT TRIGGER WHEN: invoked outside the map-codebase pipeline -- this agent expects a context brief in .codebase-map/_internal/.
+  DO NOT TRIGGER WHEN: invoked outside the map-codebase pipeline - this agent expects a context brief in .codebase-map/_internal/.
 model: inherit
 tools: Read, Write, Glob, Grep
 color: cyan

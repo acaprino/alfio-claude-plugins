@@ -1,6 +1,6 @@
 # Tauri Development Plugin
 
-> Build fast, secure cross-platform apps. Expert Rust engineering plus Tauri 2 optimization for desktop and mobile -- with concrete performance targets for startup time, memory, and IPC latency.
+> Build fast, secure cross-platform apps. Expert Rust engineering plus Tauri 2 optimization for desktop and mobile - with concrete performance targets for startup time, memory, and IPC latency.
 
 ## Agents
 

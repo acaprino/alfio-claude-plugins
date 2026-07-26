@@ -1,6 +1,6 @@
 ---
 description: >
-  Audit project dependencies for vulnerabilities, outdated packages, license conflicts, and supply chain risks -- then provide actionable remediation strategies. Multi-ecosystem (npm, pip, gem, maven, gradle, go, cargo, composer, nuget).
+  Audit project dependencies for vulnerabilities, outdated packages, license conflicts, and supply chain risks - then provide actionable remediation strategies. Multi-ecosystem (npm, pip, gem, maven, gradle, go, cargo, composer, nuget).
   TRIGGER WHEN: the user asks to audit dependencies, scan for CVEs, check license compatibility, find outdated packages, assess supply-chain risk (typosquatting, maintainer changes), or generate a dependency-update PR.
   DO NOT TRIGGER WHEN: the task is dead code or phantom-dependency cleanup only (use `/senior-review:cleanup-dead-code`), a Python-only lint/type/coverage audit (use `/python-development:python-audit`), or a Stripe-specific webhook event audit (use `/stripe:audit-webhooks`).
 argument-hint: "[path] [--ecosystem=npm|python|go|all] [--security-only] [--license-check] [--update-pr]"

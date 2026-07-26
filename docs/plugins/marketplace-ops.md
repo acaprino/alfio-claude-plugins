@@ -1,6 +1,6 @@
 # Marketplace Ops Plugin
 
-> Manage and maintain the Claude Code Daodan plugin ecosystem -- audit marketplace integrity, scaffold new plugins, create skills and agents, and review content quality.
+> Manage and maintain the Claude Code Daodan plugin ecosystem - audit marketplace integrity, scaffold new plugins, create skills and agents, and review content quality.
 
 ## Agents
 
@@ -67,7 +67,7 @@ Includes a conventions reference with color palette, categories, agent structure
 
 ### `/marketplace-health`
 
-Quick marketplace health check -- validates marketplace.json, checks file references, and reports plugin counts and version status.
+Quick marketplace health check - validates marketplace.json, checks file references, and reports plugin counts and version status.
 
 ### `/marketplace-scaffold-plugin`
 

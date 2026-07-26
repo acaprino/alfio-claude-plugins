@@ -1,6 +1,6 @@
 # Research Plugin
 
-> Search and research toolkit -- fast lookups and deep multi-source investigation with query optimization across codebases and web sources.
+> Search and research toolkit - fast lookups and deep multi-source investigation with query optimization across codebases and web sources.
 
 ## Agents
 

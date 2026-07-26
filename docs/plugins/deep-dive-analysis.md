@@ -1,6 +1,6 @@
 # Deep Dive Analysis Plugin
 
-> Understand any codebase in minutes. Seven-phase analysis maps structure, traces flows, identifies risks, and documents the WHY behind the code -- not just what it does.
+> Understand any codebase in minutes. Seven-phase analysis maps structure, traces flows, identifies risks, and documents the WHY behind the code - not just what it does.
 
 ## Agents
 

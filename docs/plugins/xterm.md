@@ -1,6 +1,6 @@
 # xterm Plugin
 
-> Build, debug, and extend xterm.js terminal emulators in web, Electron, and Tauri apps. Covers addons, PTY wiring, theming, high-performance data handling, and browser quirks -- plus two commands for debugging and implementing features.
+> Build, debug, and extend xterm.js terminal emulators in web, Electron, and Tauri apps. Covers addons, PTY wiring, theming, high-performance data handling, and browser quirks - plus two commands for debugging and implementing features.
 
 ## Skills
 
@@ -56,7 +56,7 @@ Implement xterm.js features into existing terminal code. Reads your current setu
 
 **Supported features:** FitAddon, WebglAddon, SearchAddon, WebLinksAddon, ClipboardAddon, Unicode11Addon, AttachAddon, node-pty backend wiring, theming, custom key handlers, decorations/markers, parser hooks, React/Vue integration, ResizeObserver.
 
-**Safety:** Reads all existing terminal code first. Checks for duplicate addon loads. Respects loading order (`open()` before WebGL, WebSocket open before AttachAddon). Matches existing code style. Surgical edits only -- does not rewrite entire components.
+**Safety:** Reads all existing terminal code first. Checks for duplicate addon loads. Respects loading order (`open()` before WebGL, WebSocket open before AttachAddon). Matches existing code style. Surgical edits only - does not rewrite entire components.
 
 ---
 

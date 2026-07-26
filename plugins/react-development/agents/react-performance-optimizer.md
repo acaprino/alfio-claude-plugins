@@ -2,7 +2,7 @@
 name: react-performance-optimizer
 description: >
   Expert in React 19 performance optimization including React Compiler, Server Components, bundle optimization, state management, and profiling. Fully compatible with tauri-desktop for desktop apps. Use proactively for React performance reviews, bundle analysis, state management decisions, or re-render optimization.
-  TRIGGER WHEN: reviewing or optimizing React 19 performance -- re-renders, React Compiler adoption, Server Components, bundle analysis, state management (Zustand/Redux/TanStack), or profiling.
+  TRIGGER WHEN: reviewing or optimizing React 19 performance - re-renders, React Compiler adoption, Server Components, bundle analysis, state management (Zustand/Redux/TanStack), or profiling.
   DO NOT TRIGGER WHEN: the task is CSS/design polish, Tauri IPC/Rust backend (use tauri-desktop), or general Next.js infrastructure (use react-best-practices skill directly).
 model: inherit
 color: purple

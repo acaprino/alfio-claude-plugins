@@ -1,8 +1,8 @@
 ---
 description: >
-  "[DEPRECATED -- prefer /senior-review:team-review] Legacy orchestrator for multi-dimensional code review with deep-dive structural and semantic analysis, multi-service distributed flow analysis, and resilience pattern auditing. Kept for backward compatibility; new work should use /senior-review:team-review which provides the same phased pipeline with better parallelism and context sharing." argument-hint: "<target path(s) or description> [--skip-deep-dive] [--distributed] [--security-focus] [--performance-critical] [--strict-mode] [--framework react|spring|django|rails]".
+  "[DEPRECATED - prefer /senior-review:team-review] Legacy orchestrator for multi-dimensional code review with deep-dive structural and semantic analysis, multi-service distributed flow analysis, and resilience pattern auditing. Kept for backward compatibility; new work should use /senior-review:team-review which provides the same phased pipeline with better parallelism and context sharing." argument-hint: "<target path(s) or description> [--skip-deep-dive] [--distributed] [--security-focus] [--performance-critical] [--strict-mode] [--framework react|spring|django|rails]".
   TRIGGER WHEN: the user explicitly invokes /senior-review:full-review.
-  DO NOT TRIGGER WHEN: the user asks for a generic code review, multi-dimensional audit, or uses /team-review -- prefer /senior-review:team-review.
+  DO NOT TRIGGER WHEN: the user asks for a generic code review, multi-dimensional audit, or uses /team-review - prefer /senior-review:team-review.
 deprecated: true
 ---
 

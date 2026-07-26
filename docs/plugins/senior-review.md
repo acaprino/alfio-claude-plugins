@@ -106,7 +106,7 @@ Use the chicken-egg-detector agent to analyze [system/infrastructure]
 
 **Methodology:**
 - 6-phase analysis: component inventory and init sequence discovery, dependency graph construction, bootstrap sequence analysis, temporal coupling detection, migration and schema dependency analysis, infrastructure dependency mapping
-- Finds cases where component A requires B to be ready but B requires A -- creating deadlocks, flaky startups, or hidden temporal coupling
+- Finds cases where component A requires B to be ready but B requires A - creating deadlocks, flaky startups, or hidden temporal coupling
 - Concrete evidence: every finding includes file:line references for both sides of the dependency cycle
 - References `defect-taxonomy` skill for integration error patterns
 
@@ -133,7 +133,7 @@ Used automatically by /senior-review:team-review Phase 1b (after deep-dive analy
 
 ### `logic-integrity-auditor`
 
-Adversarial reviewer that hunts for violations of contracts, invariants, assumptions, domain rules, ordering, idempotency, and state machines documented in the interconnect map. Catches bugs no local-only reviewer can see -- logic drift across components, implicit contracts silently broken, terminal states mutated, retry paths double-committing.
+Adversarial reviewer that hunts for violations of contracts, invariants, assumptions, domain rules, ordering, idempotency, and state machines documented in the interconnect map. Catches bugs no local-only reviewer can see - logic drift across components, implicit contracts silently broken, terminal states mutated, retry paths double-committing.
 
 | | |
 |---|---|
@@ -151,7 +151,7 @@ Used automatically by /senior-review:team-review; requires .team-review/02-inter
 
 ### `api-contract-auditor`
 
-Adversarial auditor for formal API contracts -- OpenAPI / Swagger, JSON Schema, GraphQL SDL, gRPC `.proto`, AsyncAPI for event schemas, TypeScript DTOs, Pydantic models. Hunts for contract-code drift, breaking changes hidden as minor version bumps, missing nullable markers, type mismatches between producer and consumer schemas, underspecified error responses.
+Adversarial auditor for formal API contracts - OpenAPI / Swagger, JSON Schema, GraphQL SDL, gRPC `.proto`, AsyncAPI for event schemas, TypeScript DTOs, Pydantic models. Hunts for contract-code drift, breaking changes hidden as minor version bumps, missing nullable markers, type mismatches between producer and consumer schemas, underspecified error responses.
 
 | | |
 |---|---|

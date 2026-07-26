@@ -1,6 +1,6 @@
 # Testing Plugin
 
-> Language-agnostic testing toolkit -- TDD methodology with red-green-refactor loop and behavior-driven test generation for any language.
+> Language-agnostic testing toolkit - TDD methodology with red-green-refactor loop and behavior-driven test generation for any language.
 
 ## Agents
 
@@ -18,7 +18,7 @@ Generates focused, behavior-driven test suites or guides interactive TDD session
 
 1. Reads the target code and existing tests
 2. Identifies behaviors to test (not implementation details)
-3. Generates tests following deep-module philosophy -- simple interfaces, comprehensive coverage
+3. Generates tests following deep-module philosophy - simple interfaces, comprehensive coverage
 4. Applies proper mocking boundaries (mock at architectural boundaries, not internals)
 
 ---
@@ -39,8 +39,8 @@ TDD methodology knowledge base ported from [mattpocock/skills](https://github.co
 | Reference | Content |
 |-----------|---------|
 | `tests.md` | Test structure, naming, behavioral focus, anti-patterns |
-| `deep-modules.md` | Deep module philosophy -- simple interfaces hiding complexity |
-| `mocking.md` | When and how to mock -- architectural boundaries, not internals |
+| `deep-modules.md` | Deep module philosophy - simple interfaces hiding complexity |
+| `mocking.md` | When and how to mock - architectural boundaries, not internals |
 | `interface-design.md` | Designing testable interfaces |
 | `refactoring.md` | Safe refactoring patterns with test coverage |
 

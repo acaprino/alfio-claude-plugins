@@ -122,7 +122,7 @@ Rewrites existing documentation to follow human-centered writing guidelines. Tra
 
 ### `/docs-create`
 
-Analyze code bottom-up and generate documentation -- API reference, architecture guides, or full project docs.
+Analyze code bottom-up and generate documentation - API reference, architecture guides, or full project docs.
 
 ```
 /docs-create src/api/ --api-only
@@ -142,7 +142,7 @@ Audit and refactor existing documentation for accuracy and completeness.
 
 ### `/humanize-docs`
 
-Rewrite existing documentation for readability -- strips AI-style density and applies progressive disclosure.
+Rewrite existing documentation for readability - strips AI-style density and applies progressive disclosure.
 
 ```
 /humanize-docs docs/

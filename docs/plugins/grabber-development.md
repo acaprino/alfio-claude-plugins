@@ -1,6 +1,6 @@
 # Grabber Development Plugin
 
-> Expert Python web scraping -- coordinator plus three specialists covering stealth browser automation, TLS/HTTP fingerprint impersonation, AI-assisted extraction, anti-bot bypass, proxy architecture, API discovery, and production observability.
+> Expert Python web scraping - coordinator plus three specialists covering stealth browser automation, TLS/HTTP fingerprint impersonation, AI-assisted extraction, anti-bot bypass, proxy architecture, API discovery, and production observability.
 
 ## Agents
 
@@ -103,7 +103,7 @@ Comprehensive Python web scraping knowledge base covering the full stack from ta
 
 | Reference | Content |
 |-----------|---------|
-| `field-guide.md` | Full 2025-2026 Python web scraping field guide -- browser stealth, TLS fingerprinting, behavioral biometrics, anti-bot bypass, CAPTCHA solving, proxy landscape, frameworks, AI-assisted scraping, GraphQL reverse engineering |
+| `field-guide.md` | Full 2025-2026 Python web scraping field guide - browser stealth, TLS fingerprinting, behavioral biometrics, anti-bot bypass, CAPTCHA solving, proxy landscape, frameworks, AI-assisted scraping, GraphQL reverse engineering |
 
 ---
 

@@ -3,7 +3,7 @@ name: rag-architect
 description: >
   Expert in RAG system design, implementation, and optimization. Covers the full pipeline from document ingestion to answer generation.
   TRIGGER WHEN: designing, building, implementing, writing, coding, or creating end-to-end RAG pipelines, choosing chunking strategies, selecting embedding models, designing hybrid search, configuring re-ranking, choosing vector databases, or optimizing RAG for production as a whole system.
-  DO NOT TRIGGER WHEN: the task is Qdrant-specific configuration (HNSW tuning, quantization, payload indexing, multi-tenancy) -- use qdrant-expert for those.
+  DO NOT TRIGGER WHEN: the task is Qdrant-specific configuration (HNSW tuning, quantization, payload indexing, multi-tenancy) - use qdrant-expert for those.
 model: inherit
 color: cyan
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch

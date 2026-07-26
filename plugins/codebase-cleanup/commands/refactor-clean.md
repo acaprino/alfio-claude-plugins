@@ -1,6 +1,6 @@
 ---
 description: >
-  Refactor provided code for cleanliness, maintainability, and alignment with SOLID principles and modern best practices -- no over-engineering. Multi-language (Python, TypeScript, Java, Go) examples and before/after metrics.
+  Refactor provided code for cleanliness, maintainability, and alignment with SOLID principles and modern best practices - no over-engineering. Multi-language (Python, TypeScript, Java, Go) examples and before/after metrics.
   TRIGGER WHEN: the user asks to refactor code with SOLID principles, decompose god classes, extract methods, apply design patterns (Strategy / Factory / Repository), reduce cyclomatic complexity across multiple languages, or produce a clean-architecture pass with before/after comparison.
   DO NOT TRIGGER WHEN: the task is Python-specific metrics-driven refactoring (use `/python-development:python-refactor`), pure readability cleanup with no structural changes (use `/clean-code:clean-code`), or dead-code/dependency removal (use `/senior-review:cleanup-dead-code`).
 argument-hint: "[path or code block] [--language=python|typescript|java|go] [--principles=solid|clean-code|all] [--with-tests]"

@@ -94,9 +94,9 @@ Use the stripe-webhooks-auditor agent to audit webhook setup
 Also runnable as `/audit-webhooks` (see Commands below).
 
 **Three surfaces to check:**
-1. **Stripe account state** -- configured endpoints, subscribed events, disabled endpoints, per-endpoint API version (via `webhook_audit.py`)
-2. **Codebase implementation** -- signature verification, raw body preservation, idempotency via `event.id`, runtime config, handler coverage
-3. **Pass criteria** -- canonical checklist in `skills/stripe/references/webhooks-production.md`
+1. **Stripe account state** - configured endpoints, subscribed events, disabled endpoints, per-endpoint API version (via `webhook_audit.py`)
+2. **Codebase implementation** - signature verification, raw body preservation, idempotency via `event.id`, runtime config, handler coverage
+3. **Pass criteria** - canonical checklist in `skills/stripe/references/webhooks-production.md`
 
 **Inputs:**
 - `STRIPE_SECRET_KEY` or `STRIPE_RESTRICTED_KEY` (read-only scope is enough)
@@ -109,7 +109,7 @@ Also runnable as `/audit-webhooks` (see Commands below).
 
 ### `stripe`
 
-Stripe knowledge base -- API patterns, checkout optimization, subscription lifecycle, pricing strategies, webhook reliability, Firebase integration, cost analysis, revenue modeling. Loaded by `stripe-integrator` and `revenue-optimizer`; also usable standalone when you need patterns without agent invocation.
+Stripe knowledge base - API patterns, checkout optimization, subscription lifecycle, pricing strategies, webhook reliability, Firebase integration, cost analysis, revenue modeling. Loaded by `stripe-integrator` and `revenue-optimizer`; also usable standalone when you need patterns without agent invocation.
 
 | | |
 |---|---|
@@ -138,12 +138,12 @@ Stripe knowledge base -- API patterns, checkout optimization, subscription lifec
 | `firebase-integration.md` | Firebase + Firestore integration |
 
 **Scripts** (`skills/stripe/scripts/`, reference via `${CLAUDE_PLUGIN_ROOT}/skills/stripe/scripts/`):
-- `setup_products.py` -- bootstrap Products and Prices
-- `webhook_handler.py` -- signature-verified receiver with idempotency
-- `webhook_audit.py` -- enumerate Stripe-side webhook endpoints and event coverage for `/audit-webhooks`
-- `sync_subscriptions.py` -- reconcile local DB vs Stripe subscription state
-- `simulate_subscription.py` -- drive a subscription through test clock scenarios
-- `stripe_utils.py` -- shared utilities
+- `setup_products.py` - bootstrap Products and Prices
+- `webhook_handler.py` - signature-verified receiver with idempotency
+- `webhook_audit.py` - enumerate Stripe-side webhook endpoints and event coverage for `/audit-webhooks`
+- `sync_subscriptions.py` - reconcile local DB vs Stripe subscription state
+- `simulate_subscription.py` - drive a subscription through test clock scenarios
+- `stripe_utils.py` - shared utilities
 
 **Key section:** webhook reliability checklist (signature verification, raw body preservation, idempotency via `event.id`, 10-second 2xx response, replay testing).
 

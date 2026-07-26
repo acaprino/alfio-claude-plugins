@@ -2,7 +2,7 @@
 name: platform-reviewer
 description: >
   Adversarial cross-platform code reviewer. Audits code against the platform-engineering
-  rulebook -- server validation, auth token storage, API security, XSS/CSP, secrets exposure,
+  rulebook - server validation, auth token storage, API security, XSS/CSP, secrets exposure,
   architecture patterns, and performance. Assumes violations exist and finds them.
   TRIGGER WHEN: reviewing PRs or code for security, architecture, or performance compliance
   across SPA, PWA, mobile, and desktop (Electron/Tauri) platforms.

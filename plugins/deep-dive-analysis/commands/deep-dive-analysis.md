@@ -1,6 +1,6 @@
 ---
 description: >
-  Systematic codebase analysis combining structure extraction with semantic understanding -- documents WHAT, WHY, HOW, and CONSEQUENCES of code with phased output.
+  Systematic codebase analysis combining structure extraction with semantic understanding - documents WHAT, WHY, HOW, and CONSEQUENCES of code with phased output.
   TRIGGER WHEN: the user asks for a deep analysis of an unfamiliar codebase, pre-review context, or a structure-plus-semantics snapshot.
   DO NOT TRIGGER WHEN: the user wants human-readable narrative docs (use /codebase-mapper:map-codebase) or a shallow overview.
 argument-hint: "<target path> [--critical] [--comments] [--docs-only] [--phase N] [--depth=lite|full]"

@@ -16,7 +16,7 @@ Write Obsidian plugin code that passes ObsidianReviewBot on first submission. Co
 
 ### `obsidian-scaffold`
 
-Scaffold a new Obsidian community plugin project -- bot-compliant from day one.
+Scaffold a new Obsidian community plugin project - bot-compliant from day one.
 
 | | |
 |---|---|

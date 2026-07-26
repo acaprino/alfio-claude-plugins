@@ -1,6 +1,6 @@
 # MT5 Trading Plugin
 
-> MetaTrader 5 Python algotrading -- official synchronous API, polling-based event systems, order execution with fill modes, historical data, aiomql async framework, ZeroMQ bridge, and Windows production deployment.
+> MetaTrader 5 Python algotrading - official synchronous API, polling-based event systems, order execution with fill modes, historical data, aiomql async framework, ZeroMQ bridge, and Windows production deployment.
 
 ## Agents
 

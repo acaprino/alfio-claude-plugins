@@ -1,6 +1,6 @@
 ---
 description: >
-  Diagnose and fix xterm.js terminal issues -- pitfall scan plus deep architectural analysis covering race conditions, error boundaries, fragile assumptions, performance, and edge cases.
+  Diagnose and fix xterm.js terminal issues - pitfall scan plus deep architectural analysis covering race conditions, error boundaries, fragile assumptions, performance, and edge cases.
   TRIGGER WHEN: the user reports a bug or asks to audit an existing xterm.js integration (render glitches, key handling, resize, PTY issues, addon conflicts).
   DO NOT TRIGGER WHEN: implementing a new xterm feature (use /xterm:xterm-implement).
 argument-hint: "[path] [--issue <description>] [--dry-run] [--shallow]"

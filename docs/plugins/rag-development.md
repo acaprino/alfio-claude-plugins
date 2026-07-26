@@ -6,7 +6,7 @@
 
 ### `rag-architect`
 
-Expert in RAG system design covering the full pipeline -- ingestion, chunking, embeddings, vector storage, retrieval, re-ranking, and answer generation.
+Expert in RAG system design covering the full pipeline - ingestion, chunking, embeddings, vector storage, retrieval, re-ranking, and answer generation.
 
 | | |
 |---|---|

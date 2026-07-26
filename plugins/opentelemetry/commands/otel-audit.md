@@ -1,7 +1,7 @@
 ---
 description: >
   Audit an existing OpenTelemetry Python instrumentation for correctness, performance, and production readiness.
-  TRIGGER WHEN: the user asks to review, audit, or validate OTel instrumentation -- span hygiene, context propagation, exporter config, sampling, async handling, attribute budgets, or AWS X-Ray / ADOT setup.
+  TRIGGER WHEN: the user asks to review, audit, or validate OTel instrumentation - span hygiene, context propagation, exporter config, sampling, async handling, attribute budgets, or AWS X-Ray / ADOT setup.
   DO NOT TRIGGER WHEN: building new instrumentation from scratch (use otel-architect agent directly), or reviewing non-OTel observability (Datadog APM, Sentry only, etc.).
 argument-hint: "[path-or-description]"
 ---

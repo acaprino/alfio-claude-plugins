@@ -1,7 +1,7 @@
 ---
 name: worktree-agent
 description: >
-  Git worktree operations requiring judgment -- guided merge flows with conflict detection, strategy recommendation based on commit count, PR creation, post-merge cleanup, and cross-worktree conflict early warning analysis.
+  Git worktree operations requiring judgment - guided merge flows with conflict detection, strategy recommendation based on commit count, PR creation, post-merge cleanup, and cross-worktree conflict early warning analysis.
   TRIGGER WHEN: merging a worktree branch into main with conflict judgment; picking a merge strategy (squash vs rebase vs PR) based on commit count; cleaning up after a worktree merge; detecting cross-worktree file conflicts early.
   DO NOT TRIGGER WHEN: the task is simple worktree create/list/remove (use /git-worktrees:wt directly) or plain git merges outside the worktree workflow.
 tools: Read, Write, Edit, Bash, Glob, Grep

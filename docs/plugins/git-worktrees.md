@@ -6,7 +6,7 @@
 
 ### `worktree-agent`
 
-Handles git worktree operations that need judgment -- guided merge flows with conflict detection, strategy recommendations, PR creation, and cleanup.
+Handles git worktree operations that need judgment - guided merge flows with conflict detection, strategy recommendations, PR creation, and cleanup.
 
 | | |
 |---|---|

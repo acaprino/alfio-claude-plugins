@@ -30,7 +30,7 @@ Use the business-planner agent to plan [business dimension] for [product]
 
 ### `privacy-doc-generator`
 
-Drafts privacy compliance documents -- Privacy Policies, Cookie Policies, DPAs, consent notices, DPIA reports. Covers EU/Italy (GDPR, ePrivacy, Codice Privacy) with modular support for CCPA, LGPD, and FADP.
+Drafts privacy compliance documents - Privacy Policies, Cookie Policies, DPAs, consent notices, DPIA reports. Covers EU/Italy (GDPR, ePrivacy, Codice Privacy) with modular support for CCPA, LGPD, and FADP.
 
 | | |
 |---|---|
@@ -45,7 +45,7 @@ Use the privacy-doc-generator agent to draft a [privacy policy/cookie policy/DPA
 **Workflow:** Context gathering (jurisdiction, business profile, processing activities, cookie assessment) -> Risk analysis (DPIA triggers, transfer risks, sector overlays) -> Document generation -> Validation -> Output with evidence pack.
 
 **Key features:**
-- ROPA-driven generation -- builds a structured processing model before drafting
+- ROPA-driven generation - builds a structured processing model before drafting
 - Normative references on every clause (article, guideline, recital)
 - Legal research phase with source verification against official texts
 - Uncertainty markers (`[NON SPECIFICATO]`, `[REQUIRES LEGAL REVIEW]`, `[ASSUMPTION]`)
@@ -54,7 +54,7 @@ Use the privacy-doc-generator agent to draft a [privacy policy/cookie policy/DPA
 
 ### `legal-advisor`
 
-Technology law advisor for advisory analysis and general legal documents -- contracts, NDAs, IP/copyright, employment law, M&A, corporate governance, regulatory compliance.
+Technology law advisor for advisory analysis and general legal documents - contracts, NDAs, IP/copyright, employment law, M&A, corporate governance, regulatory compliance.
 
 | | |
 |---|---|

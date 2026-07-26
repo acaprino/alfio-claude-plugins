@@ -1,6 +1,6 @@
 # Prompt Improver Plugin
 
-> Intelligent prompt optimization -- enriches vague prompts with research-based clarifying questions before Claude Code executes them. Runs automatically via a UserPromptSubmit hook.
+> Intelligent prompt optimization - enriches vague prompts with research-based clarifying questions before Claude Code executes them. Runs automatically via a UserPromptSubmit hook.
 
 **Upstream:** [severity1/claude-code-prompt-improver](https://github.com/severity1/claude-code-prompt-improver)
 

@@ -1,5 +1,5 @@
 ---
-description: "Parallel codebase mapping pipeline -- explore project, run 6 writers in parallel, then review and produce INDEX.md"
+description: "Parallel codebase mapping pipeline - explore project, run 6 writers in parallel, then review and produce INDEX.md"
 argument-hint: "[target-path] [--skip-review] [--writers N]"
 ---
 

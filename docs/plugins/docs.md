@@ -12,11 +12,11 @@ Produces polished README.md files following open-source best practices: progress
 |---|---|
 | **Trigger** | "readme", "write a readme", "create readme", "scrivi il readme" |
 | **Auto-detects** | Project name, tech stack, license, version, install commands, features, logo, CI/CD |
-| **Asks user for** | Only what it cannot infer -- logo, Discord link, demo GIF, badge style, copyright holder |
+| **Asks user for** | Only what it cannot infer - logo, Discord link, demo GIF, badge style, copyright holder |
 
 **How it works:**
 
-1. **Scans the project** silently -- reads manifests, LICENSE, README, source files, assets, CI config
+1. **Scans the project** silently - reads manifests, LICENSE, README, source files, assets, CI config
 2. **Presents a pre-filled brief** with everything it inferred
 3. **Asks only for missing metadata** (license, logo, community link, sponsor link)
 4. **Generates the README** following a strict progressive disclosure funnel
@@ -37,7 +37,7 @@ Produces polished README.md files following open-source best practices: progress
 | Footer | License link, author credit |
 
 **Quality rules:**
-- No placeholder images -- text-only hero if no logo exists
+- No placeholder images - text-only hero if no logo exists
 - Badges point to real URLs constructed from project metadata
 - All code blocks are copy-pasteable (no `$` prefix)
 - Collapsible `<details>` for anything over 15 lines
@@ -50,7 +50,7 @@ Produces polished README.md files following open-source best practices: progress
 
 ### `/maintain-readme`
 
-Audit, restructure, and improve an existing README.md -- verifies accuracy against the codebase, fixes stale links and stats, improves structure, and optionally rewrites sections.
+Audit, restructure, and improve an existing README.md - verifies accuracy against the codebase, fixes stale links and stats, improves structure, and optionally rewrites sections.
 
 | | |
 |---|---|

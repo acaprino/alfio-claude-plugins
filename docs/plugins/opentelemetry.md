@@ -1,6 +1,6 @@
 # OpenTelemetry Plugin
 
-> OpenTelemetry Python instrumentation -- distributed tracing, async context propagation, custom transport propagators (AMQP, ZMQ, gRPC), OTLP exporters, AWS ADOT/X-Ray integration, and production observability. Targets SDK v1.42.1.
+> OpenTelemetry Python instrumentation - distributed tracing, async context propagation, custom transport propagators (AMQP, ZMQ, gRPC), OTLP exporters, AWS ADOT/X-Ray integration, and production observability. Targets SDK v1.42.1.
 
 ## Agents
 
@@ -25,7 +25,7 @@ Use the otel-architect agent to [instrument/audit/design] [component or pipeline
 
 ### `opentelemetry`
 
-Knowledge base for instrumenting Python services with OpenTelemetry -- distributed tracing, metrics, and log correlation.
+Knowledge base for instrumenting Python services with OpenTelemetry - distributed tracing, metrics, and log correlation.
 
 | | |
 |---|---|

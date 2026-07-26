@@ -1,6 +1,6 @@
 ---
 description: >
-  End-to-end Google Analytics 4 + GTM audit with Playwright-powered verification of dataLayer events, Consent Mode v2 state, conversion (Key Event) configuration, remarketing audiences, and Ads linking -- outputs a prioritized fix list with concrete code.
+  End-to-end Google Analytics 4 + GTM audit with Playwright-powered verification of dataLayer events, Consent Mode v2 state, conversion (Key Event) configuration, remarketing audiences, and Ads linking - outputs a prioritized fix list with concrete code.
   TRIGGER WHEN: the user asks to audit GA4, verify GTM setup, check Consent Mode compliance, debug missing conversions, review remarketing audiences, validate dataLayer events, or check "why isn't my site converting".
   DO NOT TRIGGER WHEN: the task is general SEO (use /digital-marketing:seo-audit), content/CTA optimization (use /digital-marketing:content-strategy), or server-side analytics infrastructure unrelated to GA4/GTM.
 argument-hint: "<url or local path> [--gtm <container-id>] [--competitor <url>] [--strict-mode]"

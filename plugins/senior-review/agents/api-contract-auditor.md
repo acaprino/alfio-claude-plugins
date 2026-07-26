@@ -1,7 +1,7 @@
 ---
 name: api-contract-auditor
 description: >
-  Adversarial auditor for formal API contracts -- OpenAPI / Swagger specs, JSON Schema, GraphQL SDL, gRPC .proto files, AsyncAPI for event schemas, TypeScript DTOs, Pydantic models. Hunts for contract-code drift (spec says X, implementation returns Y), breaking changes hidden as minor version bumps, missing nullable markers that crash clients, type mismatches between producer and consumer schemas, and underspecified error responses.
+  Adversarial auditor for formal API contracts - OpenAPI / Swagger specs, JSON Schema, GraphQL SDL, gRPC .proto files, AsyncAPI for event schemas, TypeScript DTOs, Pydantic models. Hunts for contract-code drift (spec says X, implementation returns Y), breaking changes hidden as minor version bumps, missing nullable markers that crash clients, type mismatches between producer and consumer schemas, and underspecified error responses.
   TRIGGER WHEN: auditing OpenAPI/Swagger/GraphQL/gRPC specs for drift vs implementation; reviewing a PR that touches an API boundary; spec-first development audit; checking backwards compatibility before a release; when the interconnect map's ## Contracts (formal) section exists and needs adversarial review.
   DO NOT TRIGGER WHEN: the task is implementation-only with no contract file (use code-auditor), cross-service runtime flow only (use distributed-flow-auditor), or logic invariants beyond the contract surface (use logic-integrity-auditor).
 model: inherit

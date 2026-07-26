@@ -103,12 +103,12 @@ Use the llm-seo-optimize agent to audit [url or local path] for answer-engine op
 ```
 
 **6-phase audit:**
-1. **Crawler access** -- full robots.txt user-agent matrix for 12 AI bots (GPTBot, ChatGPT-User, OAI-SearchBot, PerplexityBot, Perplexity-User, Google-Extended, Googlebot, ClaudeBot, anthropic-ai, Applebot-Extended, Bytespider, CCBot) with train-vs-retrieve distinction
-2. **E-E-A-T signals** -- author bylines with credentials, publication + last-updated dates in ISO + JSON-LD, primary-source citations, first-hand experience markers, fact-check structure
-3. **Passage-level extractability** -- direct-answer first paragraphs, one-question-per-H2, bulleted fact lists, tables with captions, numbers with unit + date + source
-4. **Structured data** -- JSON-LD for Article / HowTo / FAQPage / Product / Dataset / ClaimReview / SoftwareApplication / Organization + sameAs
-5. **Citation readiness** -- canonical URL, section-anchor permalinks, cite-this-article block, clear licensing, downloadable data
-6. **Prompt-injection hardening** -- audit hidden text, invisible CSS, JSON-LD / alt-text / comment payloads that reach the LLM context
+1. **Crawler access** - full robots.txt user-agent matrix for 12 AI bots (GPTBot, ChatGPT-User, OAI-SearchBot, PerplexityBot, Perplexity-User, Google-Extended, Googlebot, ClaudeBot, anthropic-ai, Applebot-Extended, Bytespider, CCBot) with train-vs-retrieve distinction
+2. **E-E-A-T signals** - author bylines with credentials, publication + last-updated dates in ISO + JSON-LD, primary-source citations, first-hand experience markers, fact-check structure
+3. **Passage-level extractability** - direct-answer first paragraphs, one-question-per-H2, bulleted fact lists, tables with captions, numbers with unit + date + source
+4. **Structured data** - JSON-LD for Article / HowTo / FAQPage / Product / Dataset / ClaimReview / SoftwareApplication / Organization + sameAs
+5. **Citation readiness** - canonical URL, section-anchor permalinks, cite-this-article block, clear licensing, downloadable data
+6. **Prompt-injection hardening** - audit hidden text, invisible CSS, JSON-LD / alt-text / comment payloads that reach the LLM context
 
 **Also covers:** `llms.txt` / `llms-full.txt` proposed standards, AI-referral analytics setup (chatgpt.com / perplexity.ai / claude.ai / copilot.microsoft.com hostnames), weekly brand-mention citation-share tracking, GSC AI Overviews impression metrics.
 
@@ -280,7 +280,7 @@ Playwright-verified GA4 + GTM audit covering Consent Mode v2 compliance, Key Eve
 
 ### `/llm-seo-audit`
 
-Answer-engine optimization (AEO) audit. Different from `/seo-audit` -- optimizes for getting cited inside LLM-generated answers (Google AI Overviews, Perplexity, ChatGPT Search, Claude Search, Bing Copilot) rather than ranking on traditional SERPs.
+Answer-engine optimization (AEO) audit. Different from `/seo-audit` - optimizes for getting cited inside LLM-generated answers (Google AI Overviews, Perplexity, ChatGPT Search, Claude Search, Bing Copilot) rather than ranking on traditional SERPs.
 
 ```
 /llm-seo-audit https://example.com

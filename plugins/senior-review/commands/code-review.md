@@ -1,6 +1,6 @@
 ---
 description: >
-  Unified code review -- auto-detects scope and runs architecture, security, and pattern analysis agents in parallel. Automatically uses deep-dive context if available.
+  Unified code review - auto-detects scope and runs architecture, security, and pattern analysis agents in parallel. Automatically uses deep-dive context if available.
   TRIGGER WHEN: the user asks for a code review, PR review, branch audit, or security/architecture analysis of recent changes.
   DO NOT TRIGGER WHEN: a full multi-phase pipeline is needed (use /senior-review:team-review) or reviewing a single file for style (use clean-code).
 argument-hint: "[PR number | --branch <name> | --commits N] [--auto-comment] [--strict] [--security-focus] [--fast] [--rigorous]"

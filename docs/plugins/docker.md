@@ -1,6 +1,6 @@
 # Docker Plugin
 
-> Docker best practices -- optimized multi-stage Dockerfiles, layer caching, security hardening, and minimal base image selection for any language or framework.
+> Docker best practices - optimized multi-stage Dockerfiles, layer caching, security hardening, and minimal base image selection for any language or framework.
 
 ## Skills
 

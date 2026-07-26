@@ -2,16 +2,16 @@
 
 # Claude Code Daodan
 
-**44 specialized plugins that augment Claude Code into a specialized toolkit -- so you spend less time prompting and more time shipping.**
+**42 specialized plugins that augment Claude Code into a specialized toolkit - so you spend less time prompting and more time shipping.**
 
 > The Daodan is the symbiote that enhances its host. This marketplace is the Daodan of Claude Code.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat)](LICENSE)
-[![Marketplace](https://img.shields.io/badge/marketplace-v8.0.0-green?style=flat)](.claude-plugin/marketplace.json)
-[![Plugins](https://img.shields.io/badge/plugins-44-orange?style=flat)](#plugins)
-[![Agents](https://img.shields.io/badge/agents-74-purple?style=flat)](#plugins)
-[![Skills](https://img.shields.io/badge/skills-66-teal?style=flat)](#plugins)
-[![Commands](https://img.shields.io/badge/commands-62-red?style=flat)](#plugins)
+[![Marketplace](https://img.shields.io/badge/marketplace-v10.0.2-green?style=flat)](.claude-plugin/marketplace.json)
+[![Plugins](https://img.shields.io/badge/plugins-42-orange?style=flat)](#plugins)
+[![Agents](https://img.shields.io/badge/agents-70-purple?style=flat)](#plugins)
+[![Skills](https://img.shields.io/badge/skills-60-teal?style=flat)](#plugins)
+[![Commands](https://img.shields.io/badge/commands-55-red?style=flat)](#plugins)
 
 </div>
 
@@ -19,11 +19,11 @@
 
 ## Why Claude Code Daodan?
 
-- **Domain experts, not generic prompts** -- each plugin encodes months of specialized knowledge (Python, Rust, React, security, SEO, legal...)
-- **Multi-agent orchestration** -- code review fires architecture, security, and pattern analysis in parallel
-- **End-to-end workflows** -- chain analysis, implementation, review, and cleanup into single commands
-- **Install only what you need** -- every plugin is independent, no runtime dependencies
-- **Community-driven** -- MIT licensed, upstream-synced with projects from Anthropic, Vercel, and others
+- **Domain experts, not generic prompts** - each plugin encodes months of specialized knowledge (Python, Rust, React, security, SEO, legal...)
+- **Multi-agent orchestration** - code review fires architecture, security, and pattern analysis in parallel
+- **End-to-end workflows** - chain analysis, implementation, review, and cleanup into single commands
+- **Install only what you need** - every plugin is independent, no runtime dependencies
+- **Community-driven** - MIT licensed, upstream-synced with projects from Anthropic, Vercel, and others
 
 ## Quick Start
 
@@ -37,7 +37,7 @@ claude plugin install senior-review@claude-code-daodan
 claude plugin install react-development@claude-code-daodan
 ```
 
-That's it. Plugins activate automatically when relevant -- or invoke them directly:
+That's it. Plugins activate automatically when relevant - or invoke them directly:
 
 ```bash
 # Slash commands
@@ -80,11 +80,11 @@ More detail in [Brainstorming, planning, and execution](#brainstorming-planning-
 | **[tauri-development](docs/plugins/tauri-development.md)** | Tauri 2 desktop + mobile, Rust backend, IPC optimization | 3 | 1 | - |
 | **[digital-marketing](docs/plugins/digital-marketing.md)** | SEO + AEO (AI Overviews/Perplexity/ChatGPT Search), GA4/GTM with Consent Mode v2, content strategy, brand naming, domain hunting, text humanization | 5 | 5 | 7 |
 | **[react-development](docs/plugins/react-development.md)** | React 19 performance, state management, bundle optimization | 1 | 1 | 1 |
-| **[rag-development](docs/plugins/rag-development.md)** | RAG system design -- chunking, embeddings, vector DBs, advanced patterns | 2 | 1 | 1 |
+| **[rag-development](docs/plugins/rag-development.md)** | RAG system design - chunking, embeddings, vector DBs, advanced patterns | 2 | 1 | 1 |
 | **[marketplace-ops](docs/plugins/marketplace-ops.md)** | Audit, scaffold, review, and manage plugins in this ecosystem | 1 | 2 | 4 |
 | **[learning](docs/plugins/learning.md)** | Mind maps in MarkMind format and interactive force-graphs | - | 3 | 1 |
 | **[deep-dive-analysis](docs/plugins/deep-dive-analysis.md)** | 7-phase systematic codebase analysis with pattern detection | 4 | 1 | 2 |
-| **[git-worktrees](docs/plugins/git-worktrees.md)** | Parallel development with git worktrees -- create, pause, resume, merge | 1 | 1 | 1 |
+| **[git-worktrees](docs/plugins/git-worktrees.md)** | Parallel development with git worktrees - create, pause, resume, merge | 1 | 1 | 1 |
 | **[business](docs/plugins/business.md)** | Tech law, compliance, privacy docs, contracts, SaaS business planning | 3 | 1 | - |
 | **[stripe](docs/plugins/stripe.md)** | Stripe payments, subscriptions, Connect, revenue optimization, /audit-webhooks | 3 | 1 | 1 |
 | **[research](docs/plugins/research.md)** | Quick search and deep multi-source investigation with shared web-search techniques skill | 2 | 1 | 1 |
@@ -104,15 +104,15 @@ More detail in [Brainstorming, planning, and execution](#brainstorming-planning-
 | **[docs](docs/plugins/docs.md)** | Craft top-tier README.md files | - | 1 | 1 |
 | **[testing](docs/plugins/testing.md)** | TDD methodology, E2E testing patterns, behavior-driven test generation | 1 | 2 | - |
 | **[platform-engineering](docs/plugins/platform-engineering.md)** | Cross-platform security (passkeys/WebAuthn, Electron Fuses), architecture, and performance rulebook + /platform-review | 1 | 1 | 1 |
-| **[ibkr-trading](docs/plugins/ibkr-trading.md)** | Interactive Brokers algotrading -- TWS API, ib_async, order execution | 1 | 1 | 1 |
-| **[mt5-trading](docs/plugins/mt5-trading.md)** | MetaTrader 5 Python algotrading -- API, polling events, order execution | 1 | 1 | 1 |
-| **[opentelemetry](docs/plugins/opentelemetry.md)** | OpenTelemetry Python -- distributed tracing, context propagation, exporters, /otel-audit | 1 | 1 | 1 |
+| **[ibkr-trading](docs/plugins/ibkr-trading.md)** | Interactive Brokers algotrading - TWS API, ib_async, order execution | 1 | 1 | 1 |
+| **[mt5-trading](docs/plugins/mt5-trading.md)** | MetaTrader 5 Python algotrading - API, polling events, order execution | 1 | 1 | 1 |
+| **[opentelemetry](docs/plugins/opentelemetry.md)** | OpenTelemetry Python - distributed tracing, context propagation, exporters, /otel-audit | 1 | 1 | 1 |
 | **[docker](docs/plugins/docker.md)** | Optimized multi-stage Dockerfiles for any language or framework | - | 1 | - |
-| **[grabber-development](docs/plugins/grabber-development.md)** | Python web scraping -- coordinator + 3 specialists (stealth browser, HTTP fingerprint, AI scraping), anti-bot bypass | 4 | 1 | - |
+| **[grabber-development](docs/plugins/grabber-development.md)** | Python web scraping - coordinator + 3 specialists (stealth browser, HTTP fingerprint, AI scraping), anti-bot bypass | 4 | 1 | - |
 | **[reverse-engineering](docs/plugins/reverse-engineering.md)** | Binary reverse engineering, malware analysis, firmware security, protocol research for authorized work | 3 | 4 | - |
 | **[codebase-cleanup](docs/plugins/codebase-cleanup.md)** | Multi-language dependency security audits, SOLID refactoring, prioritized tech-debt roadmaps | - | - | 3 |
-| **[libgdx-development](docs/plugins/libgdx-development.md)** | libGDX cross-platform game dev -- rendering pipeline, Scene2D + Ashley ECS, Box2D, AssetManager, deploy to Desktop/Android/iOS/HTML5, /libgdx-audit | 1 | 1 | 1 |
-| **[kotlin-development](docs/plugins/kotlin-development.md)** | Idiomatic Kotlin -- coroutines, Flow/StateFlow, Kotlin Multiplatform (KMP), Jetpack Compose, Ktor server, type-safe DSLs | - | 1 | - |
+| **[libgdx-development](docs/plugins/libgdx-development.md)** | libGDX cross-platform game dev - rendering pipeline, Scene2D + Ashley ECS, Box2D, AssetManager, deploy to Desktop/Android/iOS/HTML5, /libgdx-audit | 1 | 1 | 1 |
+| **[kotlin-development](docs/plugins/kotlin-development.md)** | Idiomatic Kotlin - coroutines, Flow/StateFlow, Kotlin Multiplatform (KMP), Jetpack Compose, Ktor server, type-safe DSLs | - | 1 | - |
 
 **A** = Agents, **S** = Skills, **C** = Commands
 
@@ -239,9 +239,9 @@ With 44 plugins installed, Claude Code's default skill-listing budget can trunca
 
 Guideline values:
 
-- `0.15` -- moderate bump, recommended starting point
-- `0.25` -- high, useful if you keep most plugins enabled
-- `0.40` -- maximum visibility, reduces tokens available to the conversation
+- `0.15` - moderate bump, recommended starting point
+- `0.25` - high, useful if you keep most plugins enabled
+- `0.40` - maximum visibility, reduces tokens available to the conversation
 
 Restart Claude Code (or open a new session) after editing.
 

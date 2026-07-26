@@ -1,6 +1,6 @@
 # Clean Code Plugin
 
-> Rewrite source code to be more readable and human-friendly without changing behavior. Improves naming, removes AI boilerplate, simplifies structure, and adds clarity comments -- with mandatory validation before and after.
+> Rewrite source code to be more readable and human-friendly without changing behavior. Improves naming, removes AI boilerplate, simplifies structure, and adds clarity comments - with mandatory validation before and after.
 
 ## Agents
 
@@ -25,7 +25,7 @@ Use the clean-code-agent to clean up [file/module]
 - Adds brief why-comments for non-obvious business logic
 - Simplifies overly complex expressions and control flow
 
-**Safety rules -- what it must never touch:**
+**Safety rules - what it must never touch:**
 - Error handling (try/catch, try/except, error callbacks)
 - Validations and type-checks (guard clauses, assertions)
 - Import statements (may have side effects)

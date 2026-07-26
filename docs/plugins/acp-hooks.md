@@ -32,7 +32,7 @@ These run before specific tool invocations:
 | Handler | Matcher | Purpose |
 |---------|---------|---------|
 | `review-gate.js` | `Bash` | Blocks `gh pr create` and `git merge` targeting main/master until `/code-review` is run |
-| `docs-gate.js` | `Bash` | Blocks PR/merge when documentation may need auditing -- detects changes to plugin files and reminds to update docs |
+| `docs-gate.js` | `Bash` | Blocks PR/merge when documentation may need auditing - detects changes to plugin files and reminds to update docs |
 
 **Bypass conditions:**
 - Set `reviewGate` to `false` in `~/.claude/acp-config.json`

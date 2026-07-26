@@ -1,7 +1,7 @@
 ---
 name: defect-taxonomy
 description: >
-  Comprehensive defect taxonomy knowledge base -- 16 macro-categories, 140+ subcategories of source code defects with CWE/OWASP mappings, detection strategies, fix patterns, and review frameworks. Used by senior-review agents (code-auditor, security-auditor, ui-race-auditor) to enrich analysis with structured defect knowledge.
+  Comprehensive defect taxonomy knowledge base - 16 macro-categories, 140+ subcategories of source code defects with CWE/OWASP mappings, detection strategies, fix patterns, and review frameworks. Used by senior-review agents (code-auditor, security-auditor, ui-race-auditor) to enrich analysis with structured defect knowledge.
 ---
 
 # Defect Taxonomy Knowledge Base

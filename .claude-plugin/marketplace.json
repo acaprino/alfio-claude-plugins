@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Claude Code Daodan - 42 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, reverse engineering, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), and pure-architecture audits (missed unification, wrong abstractions).",
-    "version": "10.0.1"
+    "version": "10.0.2"
   },
   "plugins": [
     {
@@ -38,7 +38,7 @@
       "name": "deep-dive-analysis",
       "source": "./plugins/deep-dive-analysis",
       "description": "Multi-language systematic codebase analysis (Python, Java, JavaScript, TypeScript, SQL, PL/SQL, Rust) - analyzes architecture, traces data flows, detects anti-patterns, and generates structured documentation for onboarding, architecture review, or code documentation. The Next Steps menu wires deep-dive output into downstream documentation generators (CLAUDE.md, codebase map, interface docs) as a technical-reference backbone.",
-      "version": "1.12.0",
+      "version": "1.12.1",
       "author": {
         "name": "Alfio"
       },
@@ -108,7 +108,7 @@
       "name": "react-development",
       "source": "./plugins/react-development",
       "description": "React performance optimization, React 19 API adoption, state management audit, bundle analysis, re-render detection, and Vercel best practices checklist",
-      "version": "1.9.8",
+      "version": "1.9.9",
       "author": {
         "name": "Alfio"
       },
@@ -139,7 +139,7 @@
       "name": "xterm",
       "source": "./plugins/xterm",
       "description": "xterm.js terminal emulator development - building, configuring, and integrating xterm.js in web and Electron apps with addon support and PTY wiring",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "author": {
         "name": "Alfio"
       },
@@ -166,7 +166,7 @@
       "name": "ai-tooling",
       "source": "./plugins/ai-tooling",
       "description": "AI development workflow - prompt engineering and optimization, proactive skill activation across the marketplace, and Claude Agent SDK integration guide",
-      "version": "3.2.0",
+      "version": "3.2.1",
       "author": {
         "name": "Alfio"
       },
@@ -202,7 +202,7 @@
       "name": "python-development",
       "source": "./plugins/python-development",
       "description": "Python development toolkit - TDD with pytest, code refactoring with complexity metrics, performance profiling, async patterns, uv package management, dead code detection, comment auditing, project scaffolding, deep Pydantic v2.13 guide (validators/serializers/strict/performance/security/PydanticAI+Logfire) with v1 migration, and /python-audit consolidated quality report",
-      "version": "1.21.2",
+      "version": "1.21.3",
       "author": {
         "name": "Alfio"
       },
@@ -246,7 +246,7 @@
       "name": "stripe",
       "source": "./plugins/stripe",
       "description": "Stripe payments, subscriptions, Connect marketplaces, and revenue optimization for SaaS monetization; includes a dedicated skill (link-first references + scripts) for API patterns, Next.js/TypeScript integration, Embedded Checkout, Billing Meters, Entitlements, webhook reliability and auditing, Stripe Agent Toolkit for LLM tool-calling, test-clock simulation, PCI DSS 4.0 compliance, and pricing design",
-      "version": "2.4.2",
+      "version": "2.4.3",
       "author": {
         "name": "Alfio"
       },
@@ -362,7 +362,7 @@
       "name": "business",
       "source": "./plugins/business",
       "description": "Legal advisory, compliance document generation, and SaaS business planning - Privacy Policies, Cookie Policies, DPAs, GDPR/ePrivacy/CCPA compliance, contract review, GTM strategy, market sizing, pricing, and positioning",
-      "version": "1.9.5",
+      "version": "1.9.6",
       "author": {
         "name": "Alfio"
       },
@@ -524,7 +524,7 @@
       "name": "digital-marketing",
       "source": "./plugins/digital-marketing",
       "description": "SEO optimization, content marketing, brand naming, domain hunting, text humanization, customer review response, GA4/GTM analytics implementation, and answer-engine optimization (Google AI Overviews / SGE, Perplexity, ChatGPT Search, Claude Search, Bing Copilot) - technical audits, keyword research, content strategy, brand naming, domain checks, trademark screening, AI text rewriting, professional review reply generation with sentiment analysis, Google Analytics 4 + Google Tag Manager deployment with EU/GDPR Consent Mode v2 compliance, /ga4-audit Playwright-powered verification, and /llm-seo-audit AEO command with crawler-access matrix, E-E-A-T, structured data, passage extractability",
-      "version": "1.33.5",
+      "version": "1.33.6",
       "author": {
         "name": "Alfio"
       },
@@ -596,7 +596,7 @@
       "name": "senior-review",
       "source": "./plugins/senior-review",
       "description": "Multi-agent code review orchestration with unified code auditing (architecture, failure flow, pattern analysis, scoring), security auditing, UI race condition detection, distributed flow analysis, platform engineering review, codebase-hygiene auditing (dead code + orphan assets + generated artifacts in VCS + phantom/unused deps + barrel-file and eager-bundle bloat + stale documentation and historical artifacts), /cleanup-dead-code incremental-phase command with commit-per-category and build+test gates, semantic interconnect mapping (contracts / invariants / domain rules / assumptions) reusable across team-review and codebase-mapper, logic-integrity auditing for cross-component contract violations, git blame/history analysis, finding validation with false-positive filtering, committable PR suggestions, pre-review skip logic, intent-driven review, confidence gating, cross-agent deduplication, pre-existing issue separation, verdict system, interactive fix loop, and conditional reviewers for testing quality, API contracts, and data migrations. Backed by a comprehensive defect taxonomy knowledge base (140+ defect patterns, CWE/OWASP mappings, plus a dedicated logic-integrity reference).",
-      "version": "5.11.0",
+      "version": "5.11.1",
       "author": {
         "name": "Alfio"
       },
@@ -680,7 +680,7 @@
       "name": "browser-extensions",
       "source": "./plugins/browser-extensions",
       "description": "Expert Firefox extension (WebExtension) developer covering Manifest V2/V3, all 51 browser.* APIs, content scripts, background scripts, native messaging, cross-browser compatibility, AMO publishing, web-ext CLI tooling, project scaffolding, and live MDN documentation lookup; includes /firefox-scaffold, /firefox-lint, /firefox-publish commands",
-      "version": "1.7.3",
+      "version": "1.7.4",
       "author": {
         "name": "Alfio"
       },
@@ -715,7 +715,7 @@
       "name": "learning",
       "source": "./plugins/learning",
       "description": "Learning and knowledge management - mind map generation from any content, Obsidian MarkMind export, and interactive force-graph HTML visualization",
-      "version": "1.6.2",
+      "version": "1.6.3",
       "author": {
         "name": "Alfio"
       },
@@ -747,7 +747,7 @@
       "name": "marketplace-ops",
       "source": "./plugins/marketplace-ops",
       "description": "Generic Claude Code plugin marketplace manager - auditing, validation, AI quality review, upstream sync, plugin scaffolding, and health monitoring. Works against any project with the standard .claude-plugin/marketplace.json + plugins/<name>/ layout; reads project-specific conventions (author, license, category taxonomy, upstream sources) from the target marketplace.json and CLAUDE.md",
-      "version": "2.0.3",
+      "version": "2.0.4",
       "author": {
         "name": "Alfio"
       },
@@ -867,7 +867,7 @@
       "name": "codebase-mapper",
       "source": "./plugins/codebase-mapper",
       "description": "Human-readable codebase guide generator: explores unfamiliar projects, builds a structured interconnect map (contracts, invariants, domain rules, integration hot-spots) via the senior-review semantic-interconnect-mapper, then autonomously profiles the project (type, audience, register) and produces audience-adaptive narrative documents with Mermaid diagrams that cite the map, including a plain-language executive summary and a domain glossary so the guide is comprehensible by everyone. Includes documentation-reality drift detection in the review phase, plus standalone documentation creation, maintenance, and humanization with bottom-up code analysis. Both docs-create and docs-maintain cover 20 documentation dimensions; docs-maintain runs a structured per-dimension drift audit (added/removed/renamed/retyped) instead of generic outdated-text matching.",
-      "version": "2.8.0",
+      "version": "2.8.1",
       "author": {
         "name": "Alfio"
       },
@@ -922,7 +922,7 @@
       "name": "git-worktrees",
       "source": "./plugins/git-worktrees",
       "description": "Git worktree management for parallel development - create, list, pause, resume, remove, and merge worktrees with proactive WIP detection, conflict early warning, and session context recovery",
-      "version": "1.3.4",
+      "version": "1.3.5",
       "author": {
         "name": "Alfio"
       },
@@ -954,7 +954,7 @@
       "name": "rag-development",
       "source": "./plugins/rag-development",
       "description": "RAG system design, implementation, and optimization - chunking strategies, embedding models (Voyage 4 family, OpenAI v3, Cohere embed-v4, Gemini, BGE-M3, NV-Embed-v2, Nomic MoE, Jina v3), vector databases (Qdrant 1.13-1.16), hybrid search, modern rerankers (Voyage rerank-2.5, Cohere Rerank 3.5, Jina Reranker v3, mxbai-rerank-v2), advanced patterns (HippoRAG, LightRAG, LongRAG, Agentic RAG, CRAG, Self-RAG, GraphRAG), evaluation (RAGAS/DeepEval/TruLens), and production deployment",
-      "version": "1.5.3",
+      "version": "1.5.4",
       "author": {
         "name": "Alfio"
       },
@@ -988,7 +988,7 @@
       "name": "docs",
       "source": "./plugins/docs",
       "description": "README and project documentation authoring - craft magnetic, top-tier README.md files with progressive disclosure, hero sections, badges, quick start, feature tables, Mermaid diagrams, and community sections",
-      "version": "1.1.2",
+      "version": "1.1.3",
       "author": {
         "name": "Alfio"
       },
@@ -1017,7 +1017,7 @@
       "name": "testing",
       "source": "./plugins/testing",
       "description": "Language-agnostic testing toolkit - TDD methodology with red-green-refactor loop, E2E testing patterns with Playwright and Cypress, and a test-writer agent that generates behavior-driven test suites",
-      "version": "1.2.7",
+      "version": "1.2.8",
       "author": {
         "name": "Alfio"
       },
@@ -1050,7 +1050,7 @@
       "name": "platform-engineering",
       "source": "./plugins/platform-engineering",
       "description": "Cross-platform development rulebook - security (validation, auth tokens, passkeys/WebAuthn, API security, XSS/CSP, secrets), architecture (client-server, REST vs GraphQL, offline-first, monolith-first, CI/CD), and performance (bundles, images, Core Web Vitals, SSR/SSG, CDN caching) for SPA, PWA, mobile, Electron (with Fuses + asar integrity), and Tauri; includes /platform-review standalone command",
-      "version": "1.2.6",
+      "version": "1.2.7",
       "author": {
         "name": "Alfio"
       },
@@ -1235,7 +1235,7 @@
       "name": "opentelemetry",
       "source": "./plugins/opentelemetry",
       "description": "OpenTelemetry Python instrumentation - distributed tracing, async context propagation, custom transport propagators, OTLP exporters, AWS ADOT/X-Ray, and production observability; includes /otel-audit command",
-      "version": "1.3.3",
+      "version": "1.3.4",
       "author": {
         "name": "Alfio"
       },
@@ -1298,7 +1298,7 @@
       "name": "grabber-development",
       "source": "./plugins/grabber-development",
       "description": "Expert Python web scraping - coordinator (grabber-architect) plus three specialists: stealth-browser-expert (Patchright/Camoufox/Nodriver + CAPTCHA), http-fingerprint-expert (JA4+/curl_cffi/primp + proxies/Web Unlocker), ai-scraping-expert (Crawl4AI/Firecrawl/ScrapeGraphAI + Pydantic + GraphQL RE)",
-      "version": "1.3.2",
+      "version": "1.3.3",
       "author": {
         "name": "Alfio"
       },
@@ -1371,7 +1371,7 @@
       "name": "codebase-cleanup",
       "source": "./plugins/codebase-cleanup",
       "description": "Technical debt reduction, dependency security auditing, and SOLID-driven refactoring - three multi-language slash commands: deps-audit (CVE/license/supply-chain scan across npm, pip, gem, maven, go, cargo, composer, nuget), refactor-clean (SOLID refactoring with before/after metrics), and tech-debt (prioritized debt inventory with ROI roadmap).",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "author": {
         "name": "Seth Hobson"
       },

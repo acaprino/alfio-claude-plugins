@@ -3,7 +3,7 @@ name: partition-structure-worker
 description: >
   Spawned by /deep-dive-analysis:team-deep-dive Phase 1 Wave 1 to execute Phase 1 (Structure Extraction) and Phase 2 (Interface Analysis) of deep-dive analysis on a single partition of a multi-partition codebase. Writes ownership-restricted output to .deep-dive/partitions/<name>/01-structure.md and 02-interfaces.md.
   TRIGGER WHEN: spawned by the /deep-dive-analysis:team-deep-dive command during Phase 1 Wave 1 to handle one partition's structural extraction.
-  DO NOT TRIGGER WHEN: invoked outside the team-deep-dive pipeline -- the classic /deep-dive-analysis command runs structure extraction inline without an agent.
+  DO NOT TRIGGER WHEN: invoked outside the team-deep-dive pipeline - the classic /deep-dive-analysis command runs structure extraction inline without an agent.
 tools: Read, Glob, Grep, Bash, Write
 model: inherit
 color: cyan

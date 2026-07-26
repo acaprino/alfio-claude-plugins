@@ -18,7 +18,7 @@ Senior React performance engineer specializing in React 19 optimization, bundle 
 Use the react-performance-optimizer agent to analyze [component/app]
 ```
 
-**Core philosophy:** Measure first, optimize second. External store subscriptions are the #1 re-render source -- React Compiler cannot fix them. Surgical selectors over broad subscriptions.
+**Core philosophy:** Measure first, optimize second. External store subscriptions are the #1 re-render source - React Compiler cannot fix them. Surgical selectors over broad subscriptions.
 
 **Key areas:**
 - React Compiler (React Forget) configuration and limitations
@@ -87,7 +87,7 @@ React performance and optimization review. Audits state management, analyzes bun
 
 **Pipeline:** Detect scope -> Run ESLint (if available) -> Sample key files -> Fire `react-performance-optimizer` agent with Vercel checklist -> Generate markdown report
 
-**Output:** `.react-review/report.md` -- actionable checklist with scores per category (re-render control, state management, bundle, React 19 adoption) and prioritized findings.
+**Output:** `.react-review/report.md` - actionable checklist with scores per category (re-render control, state management, bundle, React 19 adoption) and prioritized findings.
 
 ---
 

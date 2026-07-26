@@ -37,7 +37,7 @@ Skill activation engine that checks every installed skill against the current ta
 
 | | |
 |---|---|
-| **Invoke** | Runs automatically at conversation start and before tasks -- not manually invoked |
+| **Invoke** | Runs automatically at conversation start and before tasks - not manually invoked |
 | **Use for** | Proactive skill discovery and activation |
 
 **Behavior:** Invokes any skill with even a 1% chance of relevance to the current task. User instructions always override skill directives. Skips activation when running as a subagent.
@@ -66,7 +66,7 @@ Build apps with the Claude Agent SDK (formerly Claude Code SDK). Covers programm
 
 ### `/prompt-optimize`
 
-Analyze, score, and optimize prompts for LLMs -- evaluates clarity, specificity, structure, token efficiency, robustness, and output control. Shows before/after comparison.
+Analyze, score, and optimize prompts for LLMs - evaluates clarity, specificity, structure, token efficiency, robustness, and output control. Shows before/after comparison.
 
 ```
 /prompt-optimize "You are a helpful assistant that..." --optimize-for tokens
