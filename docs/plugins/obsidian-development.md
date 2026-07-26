@@ -26,7 +26,7 @@ Scaffold a new Obsidian community plugin project -- bot-compliant from day one.
 
 ### `obsidian-check`
 
-Pre-submission lint and review. Auto-installs `eslint-plugin-obsidianmd` if missing, runs all 28 ESLint rules (including `ui/sentence-case`), plus manual checks the linter does not cover.
+Pre-submission lint and review. Auto-installs `eslint-plugin-obsidianmd` if missing, runs its full recommended rule set (41 documented rules as of v0.4.1, including `ui/sentence-case`; the count grows with the package), plus manual checks the linter does not cover.
 
 | | |
 |---|---|
