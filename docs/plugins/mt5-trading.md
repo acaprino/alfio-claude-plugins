@@ -10,7 +10,7 @@ Expert in MetaTrader 5 Python algotrading system design, implementation, and deb
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Tools** | `Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch` |
 | **Use for** | Building MT5 trading bots, connecting to MT5 terminal via Python, implementing polling event loops, executing orders with correct fill modes, handling MT5 disconnections, deploying MT5 bots on Windows |
 

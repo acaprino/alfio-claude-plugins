@@ -42,7 +42,37 @@ Evaluates incoming prompts for vagueness and triggers the skill when enrichment 
 |---|---|
 | **Handler** | `hooks/handlers/improve-prompt.js` |
 | **Event** | `UserPromptSubmit` |
-| **Timeout** | 5s |
+| **Timeout** | 15s |
+
+### `plan-guidance.js` (PreToolUse: EnterPlanMode)
+
+Injects plan readability guidance when entering plan mode.
+
+| | |
+|---|---|
+| **Handler** | `hooks/handlers/plan-guidance.js` |
+| **Event** | `PreToolUse` (matcher: `EnterPlanMode`) |
+| **Timeout** | 15s |
+
+### `background-exec.js` (PreToolUse: Bash)
+
+Encourages background execution for long-running Bash commands (dev servers, watchers, tail).
+
+| | |
+|---|---|
+| **Handler** | `hooks/handlers/background-exec.js` |
+| **Event** | `PreToolUse` (matcher: `Bash`) |
+| **Timeout** | 15s |
+
+### `subagent-routing.js` (SubagentStart)
+
+Token-efficiency guidance for Explore/Plan research subagents.
+
+| | |
+|---|---|
+| **Handler** | `hooks/handlers/subagent-routing.js` |
+| **Event** | `SubagentStart` |
+| **Timeout** | 15s |
 
 ---
 

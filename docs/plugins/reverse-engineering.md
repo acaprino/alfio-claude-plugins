@@ -2,7 +2,7 @@
 
 > Binary reverse engineering, malware analysis, firmware security, and software protection research. Three specialist agents plus four reference skills covering binary patterns, anti-reversing techniques, memory forensics, and network protocol analysis. Scoped for authorized security research, CTF competitions, and defensive security work.
 
-**Version:** 1.0.0 (marketplace 6.5.1)
+**Version:** 1.1.1 (marketplace 9.0.0)
 
 ## Agents
 
@@ -12,7 +12,7 @@ Expert reverse engineer for binary analysis, disassembly, decompilation, and pro
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Binary analysis, CTF challenges, security research, understanding undocumented software, library inspection, executable analysis |
 
 **Invocation:**
@@ -36,7 +36,7 @@ Defensive malware analyst specializing in threat intelligence, incident response
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Malware triage, threat hunting, incident response, IOC extraction, family identification |
 
 **Invocation:**
@@ -60,7 +60,7 @@ Embedded systems and IoT security expert for firmware extraction, analysis, and 
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Firmware security audits, IoT penetration testing, embedded systems research, hardware reverse engineering |
 
 **Invocation:**

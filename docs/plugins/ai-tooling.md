@@ -12,7 +12,7 @@ Expert prompt engineer for designing and optimizing LLM prompts.
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Prompt design, token optimization, A/B testing, production systems |
 
 **Invocation:**

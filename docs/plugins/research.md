@@ -24,7 +24,7 @@ Expert deep research agent for complex multi-source investigation requiring syst
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Complex research, iterative refinement, multi-source cross-referencing, query optimization |
 
 **Invocation:**
@@ -51,6 +51,43 @@ Shared knowledge base for web search: query techniques, source ranking, WebFetch
 - WebFetch guidance: when to fetch, anti-bot fallback via `${CLAUDE_PLUGIN_ROOT}/scripts/webfetch.py` (curl_cffi Chrome TLS impersonation)
 - Anti-loop rules (never repeat a query verbatim; change terminology / broaden / switch domain)
 - Citation format
+
+---
+
+## Commands
+
+### `/research:team-research`
+
+Deep multi-source research with parallel investigators covering the local codebase, the web, and domain-specific expertise, synthesized into one report with confidence levels.
+
+**Prerequisites:** requires the upstream `agent-teams` plugin (`wshobson/agents`, MIT) for the `agent-teams:team-composition-patterns` and `agent-teams:team-communication-protocols` skills:
+
+```
+/plugin marketplace add wshobson/agents
+/plugin install agent-teams@claude-code-workflows
+```
+
+| | |
+|---|---|
+| **Invoke** | `/research:team-research <question-or-topic> [--scope codebase\|web\|all] [--domain security\|architecture\|frontend\|python\|tauri\|business] [--depth quick\|standard\|deep]` |
+
+**Depth levels:**
+
+| Depth | Researchers | Roles |
+|-------|-------------|-------|
+| `quick` | 2 | Codebase analyst + Web researcher |
+| `standard` | 3 | Codebase analyst + Web researcher + Context builder (`codebase-mapper:codebase-explorer`) |
+| `deep` | 4 | Codebase analyst + Web researcher + Context builder + Domain expert |
+
+Codebase and web researchers both run as `research:deep-researcher` instances scoped to a different tool set (Grep/Glob/Read/Bash for the codebase angle, WebSearch/WebFetch for the web angle). The domain expert is auto-selected from `--domain` or the detected topic: `security-auditor`, `code-auditor`, `typescript-engineer`, `python-engineer`, `tauri-desktop`, `business-planner`, `distributed-flow-auditor`, or a general `deep-researcher` instance.
+
+```
+/research:team-research "How does the auth middleware chain work?" --scope codebase
+/research:team-research "Best practices for WebSocket reconnection" --scope web --depth deep
+/research:team-research "Should we migrate from REST to gRPC?" --depth deep --domain architecture
+```
+
+Synthesis cross-references codebase findings against web research and the domain expert's assessment, assigns an overall confidence level (High/Medium/Low), and lists open questions the researchers could not resolve.
 
 ---
 

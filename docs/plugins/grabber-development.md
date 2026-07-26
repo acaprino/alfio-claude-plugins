@@ -10,7 +10,7 @@ Lead architect / coordinator for production Python scraping systems. Handles ups
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Color** | pink |
 | **Tools** | Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch |
 | **Use for** | Designing a new scraping pipeline end-to-end, assessing target protection before tool choice, API reverse-engineering via network interception, framework selection (Scrapy / Crawlee / Crawl4AI / Firecrawl), rate limiting + observability, cost modelling, routing to specialists |
@@ -31,7 +31,7 @@ Specialist for stealth browser automation: Patchright, Camoufox, Nodriver, rebro
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Picking / configuring stealth browser driver (Patchright for Chromium, Camoufox for Firefox / DataDome, Nodriver for PerimeterX / Cloudflare); behavioral biometrics (ghost-cursor); `cf_clearance` extraction for HTTP replay; persistent context strategy; browser-level CAPTCHA (playwright-captcha, playwright-recaptcha) |
 
 **Driver matrix:** Patchright (Chromium, general) / Camoufox (Firefox, DataDome) / Nodriver (PerimeterX, advanced CF) / rebrowser-patches (existing Puppeteer codebases).
@@ -46,7 +46,7 @@ Specialist for HTTP/TLS fingerprinting and impersonation: curl_cffi, primp, asyn
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Picking HTTP client that impersonates a browser TLS fingerprint; debugging why httpx/requests gets blocked; reverse-engineering an API for `curl_cffi` replay; choosing proxy tier; integrating a Web Unlocker API (Bright Data / Oxylabs / ZenRows) |
 
 **Client matrix:** curl_cffi (default for protected targets, Chrome 99-135 / FF 102-135 / Safari 15-18 / HTTP/3), primp (Rust-powered, 2-3x faster), async-tls-client v2.2+ (historical profiles), plus Go alternatives.
@@ -61,7 +61,7 @@ Specialist for AI-assisted extraction: Crawl4AI, Firecrawl, ScrapeGraphAI, Brows
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Picking between LLM-based scraping frameworks; designing schema-driven extraction with Pydantic; building a CSS + LLM-fallback hybrid; reverse-engineering a GraphQL API (persisted query bypass); estimating extraction cost at 1M+ pages/month scale |
 
 **Framework matrix:** Crawl4AI (LLM-ready markdown, deep crawl) / Firecrawl (strongest Pydantic integration) / ScrapeGraphAI (graph-based LLM pipelines) / Browser Use (85K stars, 89% WebVoyager) / Stagehand (self-healing) / Skyvern (vision-first) / Jina Reader (100B tokens/day).

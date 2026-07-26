@@ -10,7 +10,7 @@ Expert in Tauri v2 + React desktop optimization for trading and high-frequency d
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | IPC optimization, state management, memory leaks, WebView tuning, Raw Payloads with rkyv, Canvas/OffscreenCanvas HFT rendering, backpressure, window management, shell plugin, desktop bundling, platform WebViews |
 
 **Invocation:**
@@ -34,7 +34,7 @@ Expert in Tauri 2 mobile development for Android and iOS.
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Mobile setup, emulator/ADB, mobile plugins (biometric, haptics, NFC), IAP, OAuth deep links, code signing, store deployment, mobile CI/CD |
 
 **Invocation:**
@@ -50,7 +50,7 @@ Expert Rust developer specializing in systems programming and memory safety.
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Ownership patterns, async tokio, FFI, performance optimization, tracing/observability, rkyv serialization, loom concurrency testing |
 
 **Invocation:**

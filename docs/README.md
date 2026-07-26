@@ -8,6 +8,7 @@ The augmentation symbiote for Claude Code. Agents, skills, and commands for deve
 
 | Plugin | Category | Description | Docs |
 |--------|----------|-------------|------|
+| [abstraction-architect](plugins/abstraction-architect.md) | code-quality | Pure-architecture audits: missed unification, wrong abstractions, diff-anchored prior-art search | 1 agent, 1 skill, 1 command |
 | [ai-tooling](plugins/ai-tooling.md) | ai-ml | Prompt engineering, skill activation, Claude Agent SDK | 1 agent, 2 skills, 1 command |
 | [acp-hooks](plugins/acp-hooks.md) | security | Session hooks: skill awareness, security gate, autocompact, review gate, docs gate, team spawn gate | hooks only |
 | [app-analyzer](plugins/app-analyzer.md) | analysis | Android app analysis via ADB and webapp exploration via Playwright | 1 agent |
@@ -37,10 +38,11 @@ The augmentation symbiote for Claude Code. Agents, skills, and commands for deve
 | [playwright-skill](plugins/playwright-skill.md) | testing | Browser automation with Playwright -- testing, screenshots, form filling | 1 skill |
 | [project-setup](plugins/project-setup.md) | utilities | CLAUDE.md creation and maintenance with ground truth validation | 1 agent, 2 commands |
 | [prompt-improver](plugins/prompt-improver.md) | ai-ml | Intelligent prompt optimization -- enriches vague prompts with research-based clarifying questions | 1 skill, hooks |
+| [pwa-expert](plugins/pwa-expert.md) | frontend | Progressive Web Apps 2025-2026: manifest, service workers, Web Push, install flows, store distribution | 1 agent, 1 skill, 3 commands |
 | [python-development](plugins/python-development.md) | development | TDD, refactoring, profiling, async, uv, dead code, Pydantic v2, scaffolding, /python-audit | 3 agents, 9 skills, 3 commands |
 | [rag-development](plugins/rag-development.md) | ai-ml | RAG system design and audit -- chunking, embeddings, Qdrant, advanced patterns | 2 agents, 1 skill, 1 command |
 | [react-development](plugins/react-development.md) | frontend | React 19 performance, state management, bundle optimization, Vercel best practices | 1 agent, 1 skill, 1 command |
-| [research](plugins/research.md) | research | Quick search (Sonnet) and deep multi-source research (Opus) with shared web-search-techniques skill | 2 agents, 1 skill, 1 command |
+| [research](plugins/research.md) | research | Quick search (Sonnet) and deep multi-source research with shared web-search-techniques skill | 2 agents, 1 skill, 1 command |
 | [reverse-engineering](plugins/reverse-engineering.md) | security | Binary reverse engineering, malware analysis, firmware security, and protocol research for authorized work | 3 agents, 4 skills |
 | [senior-review](plugins/senior-review.md) | review | Multi-agent code review: architecture, security, patterns, distributed flows, logic integrity, API contracts, startup cycles, UI races, codebase hygiene | 9 agents, 2 skills, 5 commands |
 | [stripe](plugins/stripe.md) | payments | Stripe payments, subscriptions, Connect, revenue optimization, webhook auditing | 3 agents, 1 skill, 1 command |
@@ -78,7 +80,7 @@ The augmentation symbiote for Claude Code. Agents, skills, and commands for deve
 /cc-usage 30d
 ```
 
-The four relocated multi-agent pipeline commands (`/senior-review:team-review`, `/deep-dive-analysis:team-deep-dive`, `/codebase-mapper:team-codebase-map`, `/research:team-research`) live in their host plugins; each command file documents its own phases and team layout. For generic team orchestration (`/agent-teams:team-feature`, `/agent-teams:team-debug`, `/agent-teams:team-spawn` presets), install the upstream `wshobson/agents` plugin.
+The four relocated multi-agent pipeline commands are documented in their host plugin docs: `/senior-review:team-review` in [senior-review](plugins/senior-review.md), `/deep-dive-analysis:team-deep-dive` in [deep-dive-analysis](plugins/deep-dive-analysis.md), `/codebase-mapper:team-codebase-map` in [codebase-mapper](plugins/codebase-mapper.md), `/research:team-research` in [research](plugins/research.md). For generic team orchestration (`/agent-teams:team-feature`, `/agent-teams:team-debug`, `/agent-teams:team-spawn` presets), install the upstream `wshobson/agents` plugin.
 
 ## References
 

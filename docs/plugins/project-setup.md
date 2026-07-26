@@ -6,18 +6,19 @@
 
 ### `claude-md-auditor`
 
-Audits `.claude.md` files by verifying ground truth, detecting obsolete information, and checking alignment with best practices.
+Audits `CLAUDE.md` files by verifying ground truth, detecting obsolete information, and checking alignment with best practices.
 
 | | |
 |---|---|
 | **Invoke** | Agent reference |
-| **Use for** | .claude.md auditing, creation, verification, improvement |
+| **Use for** | CLAUDE.md auditing, creation, verification, improvement |
 
 **Core capabilities:**
 - **Ground Truth Verification** - Validates every claim against actual codebase
 - **Obsolescence Detection** - Finds outdated file paths, dependencies, commands
 - **Best Practices Compliance** - Checks instruction economy, conciseness, progressive disclosure
-- **Tailored Creation** - Generates .claude.md based on your preferences
+- **Working Principles enforcement** - Every generated CLAUDE.md includes the canonical `## Working Principles` block inline (5 numbered principles with sub-bullets, distilled from Karpathy's guidelines plus a locally authored fifth principle); audits flag a missing or gutted block as a High-priority finding and offer to insert it
+- **Tailored Creation** - Generates CLAUDE.md based on your preferences
 - **Guided Improvement** - Helps prioritize and apply fixes incrementally
 
 **Enforces these best practices:**
@@ -30,11 +31,11 @@ Audits `.claude.md` files by verifying ground truth, detecting obsolete informat
 
 ### `/create-claude-md`
 
-Create a new `.claude.md` file through an interactive questionnaire about your workflow and preferences.
+Create a new `CLAUDE.md` file through an interactive questionnaire about your workflow and preferences.
 
 ### `/maintain-claude-md`
 
-Audit and optionally improve your existing `.claude.md` file with ground truth verification.
+Audit and optionally improve your existing `CLAUDE.md` file with ground truth verification.
 
 **Two workflows:**
 1. **Audit-only**: Review findings, no changes applied

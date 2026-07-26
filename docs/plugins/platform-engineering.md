@@ -10,7 +10,7 @@ Adversarial cross-platform code reviewer that audits code against the platform-e
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Tools** | `Read, Glob, Grep, Bash` |
 | **Use for** | Reviewing PRs or code for security, architecture, or performance compliance across SPA, PWA, mobile, and desktop platforms |
 

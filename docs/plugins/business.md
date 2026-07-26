@@ -10,7 +10,7 @@ Fractional CMO and GTM strategist for SaaS business planning. Socratic Phase-gat
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | SaaS business plan, GTM strategy, positioning, pricing strategy, market sizing (TAM/SAM/SOM), PMF validation, persona design, competitive analysis, unit economics |
 
 **Invocation:**
@@ -34,7 +34,7 @@ Drafts privacy compliance documents -- Privacy Policies, Cookie Policies, DPAs, 
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Drafting or auditing privacy and data protection documents for websites, apps, or SaaS products |
 
 **Invocation:**
@@ -58,7 +58,7 @@ Technology law advisor for advisory analysis and general legal documents -- cont
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Contract review, NDAs, IP protection, employment law, corporate governance, legal risk assessment |
 
 **Invocation:**

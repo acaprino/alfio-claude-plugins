@@ -10,7 +10,7 @@ Expert SEO strategist specializing in technical SEO, content optimization, and s
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Technical SEO audits, keyword research, on-page optimization, structured data |
 
 **Invocation:**
@@ -34,7 +34,7 @@ Expert content marketer specializing in content strategy, SEO optimization, and 
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Content strategy, editorial calendars, campaign management, lead generation |
 
 **Invocation:**
@@ -58,7 +58,7 @@ Remove AI writing traces from prose, articles, blog posts, and documentation. De
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Humanizing AI-generated text, rewriting AI-sounding copy, polishing articles / blog posts / documentation prose |
 
 **Invocation:**
@@ -76,7 +76,7 @@ GA4 + GTM implementation expert with deep focus on EU/GDPR Consent Mode v2 compl
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | GA4 / GTM deployment, Consent Mode v2 compliance, CMP integration (iubenda, Cookiebot, Orestbida CookieConsent), Key Event + Google Ads conversion import, Enhanced Conversions, remarketing audiences, "why isn't my site converting" diagnostics |
 
 **Invocation:**
@@ -94,7 +94,7 @@ Answer-engine optimization (AEO) specialist for Google AI Overviews / SGE, Perpl
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Auditing a site for AI-search discoverability, checking E-E-A-T signals, optimizing passage-level extractability, reviewing JSON-LD / Schema.org, diagnosing low citation rate in LLM answers |
 
 **Invocation:**

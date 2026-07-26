@@ -1,6 +1,6 @@
 # Senior Review Plugin
 
-> Catch bugs before they ship. Nine specialized agents review code quality, security, UI timing, distributed flows, startup cycles, cross-component logic integrity, formal API contracts, and codebase hygiene in parallel. A semantic interconnect mapper turns codebases into a shared contract/invariant map consumable by every reviewer. Backed by a comprehensive defect taxonomy knowledge base with 140+ defect patterns and CWE/OWASP mappings.
+> Catch bugs before they ship. Nine specialized agents review code quality, security, UI timing, distributed flows, startup cycles, cross-component logic integrity, formal API contracts, and codebase hygiene in parallel. A semantic interconnect mapper turns codebases into a shared contract/invariant map consumable by every reviewer. Backed by a comprehensive defect taxonomy knowledge base with 140+ defect patterns and CWE/OWASP mappings. `/team-review` runs all of it as a single pipeline, with an adversarial verification panel and a completeness critic as quality gates before the report ships.
 
 ## Agents
 
@@ -10,7 +10,7 @@ Adversarial code quality auditor combining architecture review, failure flow tra
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Architecture integrity, failure path analysis, pattern consistency, quality scoring |
 
 **Invocation:**
@@ -34,7 +34,7 @@ Security auditor with attacker mindset specializing in vulnerability detection, 
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Security audits, vulnerability assessment, OWASP/CWE compliance, threat modeling |
 
 **Invocation:**
@@ -58,7 +58,7 @@ Framework-agnostic UI race condition analyst detecting timing bugs between async
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | UI timing bugs, scroll races, focus races, stale closures, measurement races |
 
 **Invocation:**
@@ -74,7 +74,7 @@ Adversarial cross-service flow analyst for microservices, agent-based, and multi
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Cross-service analysis, distributed flow tracing, contract verification, multi-service code review |
 
 **Invocation:**
@@ -96,7 +96,7 @@ Detects chicken-and-egg problems, circular initialization dependencies, and boot
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Startup dependency analysis, circular initialization detection, bootstrap cycle auditing, service startup ordering review |
 
 **Invocation:**
@@ -118,7 +118,7 @@ Phase 1b context-builder that produces a structured map of a codebase's contract
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Tools** | Read, Grep, Glob |
 | **Use for** | Pre-review context building when running `/senior-review:team-review` or `/map-codebase`; generating the `.team-review/02-interconnect.md` artifact that drives the logic-integrity and contract reviewers |
 
@@ -137,7 +137,7 @@ Adversarial reviewer that hunts for violations of contracts, invariants, assumpt
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | `/senior-review:team-review` Phase 2 (always-on in the review preset); logic/contract/invariant audit of code with an associated interconnect map |
 
 **Invocation:**
@@ -155,7 +155,7 @@ Adversarial auditor for formal API contracts -- OpenAPI / Swagger, JSON Schema, 
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Tools** | Read, Glob, Grep, Bash |
 | **Use for** | Auditing OpenAPI/Swagger/GraphQL/gRPC specs for drift vs implementation; reviewing a PR that touches an API boundary; spec-first development audit; checking backwards compatibility before a release |
 
@@ -178,7 +178,7 @@ Adversarial codebase hygiene auditor. Detects dead code, orphan assets, generate
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Tools** | Read, Glob, Grep, Bash |
 | **Use for** | Codebase cleanup review, technical-debt audit, dead-code detection with asset/VCS/dep coverage, monorepo dependency hygiene. Always-on dimension in `/senior-review:team-review`. |
 
@@ -215,7 +215,66 @@ Comprehensive defect knowledge base with 16 macro-categories and 140+ subcategor
 
 ---
 
+### `review-quality-gates`
+
+Quality gates for multi-reviewer code review pipelines: the context-sharing pattern that lets reviewers cite a shared interconnect map instead of re-reading code from scratch, the adversarial verification panel that re-judges every consolidated finding, and the completeness critic that reports what the review failed to cover. Consumed by `/senior-review:team-review` (Phases 1, 4b, 4c) and `/senior-review:code-review` (Steps 4b/4c).
+
+**Context Sharing Pattern:** reviewers read `.deep-dive/` output plus `.team-review/02-interconnect.md` (contracts, invariants, domain rules, assumptions, integration hot-spots), guided by anchor routing per dimension (security reads Integration Hot-Spots plus unverified Assumptions; logic-integrity reads Contracts, Invariants, and Domain Rules; and so on). The **context utilization rate** (share of findings that cite a map anchor) is the quality signal: high at 30%+, medium at 10-30%, low below 10%. `logic-integrity-auditor` should sit above 70%, since its findings are almost entirely map-driven.
+
+**Adversarial Verification Panel:** every finding above a 50% confidence floor is judged by 3 parallel lenses (Reachability/Correctness, False-Positive Causes, Severity Calibration). A finding survives if at least 2 of lenses 1-2 vote REAL, is discarded (`filtered`) if at least 2 vote FALSE_POSITIVE, and survives `contested` on a tie. Final severity comes from lens 3's vote. A cost guard (a finding-count proxy, not a token budget) narrows verification to Critical/High plus an uncertainty band once more than 25 findings survive dedup, unless `--rigorous` is passed; `--fast` skips the panel entirely.
+
+**Completeness Critic:** one agent checks coverage against a fixed gap taxonomy (dimensions warranted but not run, in-scope files cited by no finding, unverified interconnect assumptions untouched by any finding, high-risk hot-spots with zero findings) and may trigger one bounded follow-up round for the single highest-risk gap it names.
+
+**Reviewer Pipeline Conventions:** every Phase 2 reviewer carries a scope budget (stops after ~15 file reads without a finding), a no-findings protocol (a clean "examined X, Y, Z: no issues" report is valid, not a failure), and a `## Cross-Reviewer Notes` section for observations that belong to another dimension.
+
+---
+
 ## Commands
+
+### `/senior-review:team-review`
+
+Multi-dimensional code review as a **4-phase pipeline**: context building first, so reviewers hunt cross-component logic bugs, not just what's visible from local inspection. Supersedes the deprecated `/full-review` for new work.
+
+**Prerequisites:** requires the upstream `agent-teams` plugin (`wshobson/agents`, MIT) for the `agent-teams:multi-reviewer-patterns` and `agent-teams:team-communication-protocols` skills and the `agent-teams:team-reviewer` fallback agent:
+
+```
+/plugin marketplace add wshobson/agents
+/plugin install agent-teams@claude-code-workflows
+```
+
+| | |
+|---|---|
+| **Invoke** | `/senior-review:team-review <target> [--reviewers auto\|security,performance,...] [--base-branch main] [--all] [--deep] [--skip-interconnect] [--fast] [--rigorous]` |
+| **Artifact dir** | `.team-review/` (state, scope, interconnect map, per-dimension findings, consolidated report; preserved, not auto-deleted) |
+
+**Pipeline:**
+
+| Phase | What happens |
+|-------|---------------|
+| 0. Target resolution | Resolves `<target>` (path, git diff range, or PR number) and collects the diff |
+| 0b. Context detection | Auto-selects review dimensions from changed files and codebase signals (skipped if `--reviewers` is explicit) |
+| 1a. Deep-dive analysis | Invokes the `deep-dive-analysis:deep-dive-analysis` **skill** (`--depth=lite` by default, full with `--deep`) |
+| 1b. Interconnect mapping | `semantic-interconnect-mapper` builds `.team-review/02-interconnect.md` |
+| 2. Adversarial review | Spawns one teammate per dimension in parallel, each reading the deep-dive output plus the interconnect map |
+| 3. Consolidation | Deduplicates findings, resolves severity conflicts, organizes by severity |
+| 4b. Adversarial verification | Quality gate, see `review-quality-gates` above (skipped with `--fast`) |
+| 4c. Completeness critic | Quality gate, see `review-quality-gates` above (skipped with `--fast`) |
+| 5. Report & cleanup | Consolidated report with the context-utilization metric; team resources torn down |
+
+**Always-on dimensions:** security, architecture, logic integrity (skipped under `--skip-interconnect`), codebase hygiene.
+
+**Conditional dimensions** (auto-detected): UI races, React performance, general performance, platform compliance, distributed flows, circular dependencies, testing quality, API contracts, data migrations, and abstraction/reuse (`abstraction-architect:abstraction-architect` in diff mode, only when that plugin is installed and the target resolves to a diff that adds code).
+
+```
+/senior-review:team-review src/auth/                                # auto-detected dimensions
+/senior-review:team-review main...HEAD --reviewers security,testing # explicit dimensions on a diff
+/senior-review:team-review #42 --rigorous                           # PR review, verify every finding
+/senior-review:team-review src/ --skip-interconnect                 # legacy parallel-only mode
+```
+
+`--skip-interconnect` reproduces the pre-pipeline behavior: no context phase, no `logic-integrity-auditor`, reviewers see only the target and diff. Use it for quick scans or targets under roughly 100 LOC.
+
+---
 
 ### `/full-review`
 

@@ -10,7 +10,7 @@ Rewrites source code for readability and maintainability with zero behavior chan
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Tools** | `Read, Edit, Write, Glob, Grep, Bash, Task` |
 | **Use for** | Code cleanup, naming improvements, removing AI-generated boilerplate, simplifying structure |
 

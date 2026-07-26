@@ -11,7 +11,7 @@ Write Obsidian plugin code that passes ObsidianReviewBot on first submission. Co
 | | |
 |---|---|
 | **Trigger** | Writing, reviewing, or fixing Obsidian community plugin code |
-| **Coverage** | 21 required rules (sentence case, no inline styles, promise handling, etc.), API reference |
+| **Coverage** | 25 required rules (sentence case, no inline styles, promise handling, etc.), API reference |
 | **Reference** | Condensed TypeScript API reference for Plugin, Vault, Workspace, Setting, Modal, and more |
 
 ### `obsidian-scaffold`
@@ -32,7 +32,7 @@ Pre-submission lint and review. Auto-installs `eslint-plugin-obsidianmd` if miss
 |---|---|
 | **Trigger** | Before pushing or submitting an Obsidian plugin |
 | **Auto-setup** | Installs `eslint-plugin-obsidianmd` with recommended config if not present |
-| **Checks** | TypeScript compilation, 28 ESLint rules (sentence case, inline styles, commands, manifest, etc.), 6 manual checks, manifest validation, LICENSE |
+| **Checks** | TypeScript compilation, ESLint via `eslint-plugin-obsidianmd` recommended config (sentence case, inline styles, commands, manifest, etc.), 6 required + 5 optional manual checks, manifest validation, LICENSE |
 | **Output** | Structured report with severity grouping, file:line locations, and suggested fixes |
 
 ---

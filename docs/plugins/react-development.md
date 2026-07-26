@@ -10,7 +10,7 @@ Senior React performance engineer specializing in React 19 optimization, bundle 
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Bundle analysis, re-render optimization, state management audit, virtualization, React Compiler readiness |
 
 **Invocation:**

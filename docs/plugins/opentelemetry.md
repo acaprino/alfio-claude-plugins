@@ -1,6 +1,6 @@
 # OpenTelemetry Plugin
 
-> OpenTelemetry Python instrumentation -- distributed tracing, async context propagation, custom transport propagators (AMQP, ZMQ, gRPC), OTLP exporters, AWS ADOT/X-Ray integration, and production observability. Targets SDK v1.40.0 / instrumentation v0.61b0.
+> OpenTelemetry Python instrumentation -- distributed tracing, async context propagation, custom transport propagators (AMQP, ZMQ, gRPC), OTLP exporters, AWS ADOT/X-Ray integration, and production observability. Targets SDK v1.42.1.
 
 ## Agents
 
@@ -10,7 +10,7 @@ OpenTelemetry Python instrumentation architect.
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Tools** | `Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch` |
 | **Use for** | Instrumenting code with OpenTelemetry, designing distributed tracing, auditing observability pipelines, configuring OTLP exporters, reviewing tracing code for correctness |
 

@@ -10,7 +10,7 @@ Complete Stripe API integrator covering payments, subscriptions, Connect marketp
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Payment processing, subscriptions, marketplaces, billing, webhooks, SCA/3DS compliance, fraud prevention, dispute handling |
 
 **Invocation:**
@@ -52,7 +52,7 @@ Monetization expert. Analyzes your codebase to discover features, calculate serv
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Feature cost analysis, pricing strategy, usage modeling, revenue projections, tier design |
 
 **Invocation:**
@@ -83,7 +83,7 @@ Adversarial auditor for Stripe webhook integrations. Given a Stripe account plus
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Tools** | Read, Bash, Glob, Grep, WebFetch |
 | **Use for** | Auditing an existing Stripe webhook setup, preparing for a production launch, after a webhook-related incident, or when adding Billing Meters / Entitlements and the event list needs to grow |
 

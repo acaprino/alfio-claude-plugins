@@ -10,7 +10,7 @@ Generates focused, behavior-driven test suites or guides interactive TDD session
 
 | | |
 |---|---|
-| **Model** | opus |
+| **Model** | inherit |
 | **Use for** | Writing tests for existing code, TDD for new features, test quality review |
 | **Modes** | Generate (write complete test suite) or Interactive TDD (guide red-green-refactor cycle) |
 

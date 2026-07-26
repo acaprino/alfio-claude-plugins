@@ -10,7 +10,7 @@ Expert marketplace operations manager for Claude Code Daodan.
 
 | | |
 |---|---|
-| **Model** | opus |
+| **Model** | inherit |
 | **Color** | yellow |
 | **Tools** | Read, Write, Edit, Bash, Glob, Grep, WebFetch |
 | **Use for** | Adding, auditing, reorganizing, versioning, or syncing plugins |

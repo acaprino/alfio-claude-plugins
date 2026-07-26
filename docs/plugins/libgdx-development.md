@@ -10,7 +10,7 @@ Expert in libGDX cross-platform game development with Java and Kotlin. Designs G
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Scaffolding a libGDX project, choosing between gdx-liftoff and gdx-setup, designing Screen/Game/ApplicationListener structure, integrating Scene2D + Ashley + Box2D, managing OpenGL resource disposal, packing textures with TexturePacker, debugging frame-rate drops or GL thread blocking, configuring multi-platform Gradle builds, migrating to libGDX 1.14.0, deciding Kotlin vs Java for a libGDX project |
 
 **Invocation:**

@@ -27,7 +27,7 @@ Explores an unfamiliar project to build a context brief for the writer agents.
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Tools** | Read, Bash, Glob, Grep |
 | **Produces** | `.codebase-map/_internal/context-brief.md` |
 
@@ -56,7 +56,7 @@ Reviews all generated documents for consistency, adds cross-references, unifies 
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Tools** | Read, Write, Edit, Glob, Grep |
 | **Produces** | `INDEX.md` |
 
@@ -100,7 +100,7 @@ Creates accurate technical documentation by analyzing existing code first. Uses 
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Tools** | Read, Write, Edit, Glob, Grep, WebFetch, WebSearch |
 | **Use for** | API docs, architecture docs, tutorials, documentation management |
 
@@ -112,7 +112,7 @@ Rewrites existing documentation to follow human-centered writing guidelines. Tra
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Tools** | Read, Write, Edit, Glob, Grep |
 | **Use for** | Improving readability of existing docs without changing content |
 
@@ -147,6 +147,38 @@ Rewrite existing documentation for readability -- strips AI-style density and ap
 ```
 /humanize-docs docs/
 ```
+
+---
+
+### `/codebase-mapper:team-codebase-map`
+
+Parallel variant of `/map-codebase`. Same four-phase pipeline and the same 10 output documents, but Phase 2's six writers run simultaneously instead of one-by-one.
+
+**Prerequisites:** requires the upstream `agent-teams` plugin (`wshobson/agents`, MIT) for the `agent-teams:task-coordination-strategies` and `agent-teams:team-communication-protocols` skills:
+
+```
+/plugin marketplace add wshobson/agents
+/plugin install agent-teams@claude-code-workflows
+```
+
+| | |
+|---|---|
+| **Invoke** | `/codebase-mapper:team-codebase-map [target-path] [--skip-review] [--writers N]` |
+
+**Pipeline:**
+
+1. **Explore** (sequential): `codebase-explorer` builds `.codebase-map/_internal/context-brief.md`. Checkpoint: confirm before continuing.
+2. **Interconnect map** (sequential): `senior-review:semantic-interconnect-mapper` reads the context brief and produces `.codebase-map/_internal/interconnect.md` (contracts, invariants, domain rules, assumptions, integration hot-spots, call graph). Degrades gracefully (writers use only the context brief) if the `senior-review` plugin is not installed.
+3. **Write** (parallel, all 6 writers at once): `overview-writer`, `tech-writer`, `flow-writer`, `onboarding-writer`, `ops-writer`, `config-writer`. `tech-writer`, `flow-writer`, and `ops-writer` additionally cite the interconnect map's structured facts instead of paraphrasing code.
+4. **Review** (sequential, skipped with `--skip-review`): `guide-reviewer` checks all 10 documents for consistency, detects documentation-reality drift against the interconnect map using `senior-review:defect-taxonomy`'s `logic-integrity.md`, and produces `INDEX.md`.
+
+```
+/codebase-mapper:team-codebase-map                  # map the entire current project, 6 parallel writers
+/codebase-mapper:team-codebase-map src/auth          # map a subdirectory
+/codebase-mapper:team-codebase-map . --writers 3     # cap parallel writers
+```
+
+Output is identical in shape to `/map-codebase` (`.codebase-map/` with 10 numbered documents plus `INDEX.md`); the pipeline just parallelizes Phase 2.
 
 ---
 

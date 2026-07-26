@@ -10,7 +10,7 @@ Hands-on Firefox WebExtension developer. Actively writes code, scaffolds project
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Tools** | Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch |
 | **Use for** | Creating new extensions, debugging existing ones, AMO publishing prep, Manifest V3 migration, native messaging integration, cross-browser compatibility work |
 

@@ -10,7 +10,7 @@ Hands-on TypeScript 5.x engineer. Designs architecture AND writes production cod
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Planning new TypeScript projects, designing architecture, making tech-stack decisions, implementing TS features, migrating JavaScript to TypeScript, setting up monorepos |
 
 **Invocation:**

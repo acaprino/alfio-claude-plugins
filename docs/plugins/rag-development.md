@@ -10,7 +10,7 @@ Expert in RAG system design covering the full pipeline -- ingestion, chunking, e
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Pipeline design, chunking strategy selection, hybrid search, production optimization |
 
 **Invocation:**
@@ -33,7 +33,7 @@ Qdrant vector database specialist for collection configuration, HNSW tuning, qua
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Qdrant setup, HNSW parameter tuning, quantization, hybrid search, multi-tenancy |
 
 **Invocation:**

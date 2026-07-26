@@ -10,7 +10,7 @@ RabbitMQ and AMQP architecture expert. Designs queue topologies, configures exch
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Tools** | Read, Write, Edit, Bash, Glob, Grep, WebFetch |
 | **Use for** | RabbitMQ setup, queue design, AMQP patterns, high availability, performance tuning |
 

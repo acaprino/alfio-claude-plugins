@@ -10,7 +10,7 @@ Unified app analysis agent that auto-detects platform and runs a two-phase analy
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Competitor app analysis, navigation mapping, design system extraction, UX audits |
 
 **Invocation:**

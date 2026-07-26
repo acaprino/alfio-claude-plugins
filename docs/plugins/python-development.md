@@ -10,7 +10,7 @@ Hands-on Python 3.12+ engineer. Designs system architecture and implements produ
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Planning new Python projects, designing architecture, making tech stack decisions, implementing Python features |
 
 **Invocation:**
@@ -33,7 +33,7 @@ Expert Python refactoring agent. Cleans up legacy code, reduces complexity, remo
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Refactoring code, removing dead code, optimizing imports, reducing cognitive complexity, improving code readability and docstrings |
 
 **Invocation:**
@@ -57,7 +57,7 @@ Expert Python test engineer. Writes focused, behavior-driven pytest suites, hand
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Writing tests, improving test coverage, fixing broken tests, setting up pytest configurations, red-green-refactor workflows |
 
 **Invocation:**

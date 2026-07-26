@@ -10,7 +10,7 @@ Handles git worktree operations that need judgment -- guided merge flows with co
 
 | | |
 |---|---|
-| **Model** | `opus` |
+| **Model** | `inherit` |
 | **Use for** | Merge strategy selection, conflict resolution guidance, cross-worktree conflict early warning |
 
 **Invocation:**
