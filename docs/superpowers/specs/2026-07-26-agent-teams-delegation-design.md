@@ -14,7 +14,7 @@ Driver: the local plugin was upstream-synced and required recurring merge mainte
 
 1. Delegation mode: full removal of `plugins/agent-teams/`; upstream becomes the provider of the generic core.
 2. The four local pipelines are relocated to host plugins, not deleted.
-3. Residual references from relocated pipelines to upstream generic skills/agents become a declared hard prerequisite on the upstream plugin (exception to the superpowers conditional-phrasing rule, which is amended in CLAUDE.md).
+3. Residual references from relocated pipelines to upstream generic skills/agents become a declared hard prerequisite on the upstream plugin (consistent with the hard-dependency policy adopted in marketplace 8.2.0, when the superpowers conditional-phrasing rule was dropped and superpowers became a declared dependency of `ai-tooling` and `agent-teams`).
 4. Local-only `team-spawn` presets (`app-analysis`, `tauri`, `docs`, `deep-search`) are deleted. Their agents remain reachable directly; `deep-search` routing is remapped to `/research:team-research`.
 
 ## Upstream reference
@@ -29,7 +29,7 @@ Driver: the local plugin was upstream-synced and required recurring merge mainte
 
 - Delete `plugins/agent-teams/` entirely: 10 commands, 4 agents, 6 skills.
 - Delete `docs/plugins/agent-teams.md` (397-line plugin doc).
-- Remove the `agent-teams` entry from `.claude-plugin/marketplace.json` (currently v3.1.1, lines ~1355-1405), including its `optionalDependencies: ["abstraction-architect"]`.
+- Remove the `agent-teams` entry from `.claude-plugin/marketplace.json` (currently v3.2.0, lines ~1355-1410), including its `dependencies: ["superpowers"]` and `optionalDependencies: ["abstraction-architect"]`. The superpowers hard dependency survives on `ai-tooling` only.
 - Accepted losses (explicit): local-only `team-spawn` presets (`app-analysis`, `tauri`, `docs`, `codebase-mapper`, `deep-search`), the Ecosystem Integration sections of the 4 team agents, the generic bodies of the 6 skills (upstream's versions are used instead), local preset documentation in `team-composition-patterns/references/preset-teams.md`.
 
 ## 2. Relocations
@@ -69,7 +69,7 @@ Consumers updated to point at `senior-review:review-quality-gates`:
 
 - Each relocated pipeline command opens with a Prerequisites block naming the upstream plugin and the two install commands, and stating that the command requires it (for `agent-teams:team-communication-protocols`, `agent-teams:task-coordination-strategies`, `agent-teams:team-composition-patterns`, `agent-teams:parallel-feature-development`, and, for team-review only, the `agent-teams:team-reviewer` fallback agent for the 4 generic dimensions).
 - References keep the `agent-teams:` namespace unchanged since the upstream plugin resolves them.
-- CLAUDE.md amendment: the existing rule "Never make a superpowers skill a hard requirement" stays for superpowers; add an explicit, motivated exception stating that the relocated team pipelines declare upstream `agent-teams` (wshobson/agents) as a hard prerequisite.
+- CLAUDE.md amendment: the conditional-phrasing rule for superpowers was already dropped in marketplace 8.2.0 (superpowers is a declared hard dependency of `ai-tooling` and `agent-teams`); extend the same policy by stating that the relocated team pipelines declare upstream `agent-teams` (wshobson/agents) as a hard prerequisite.
 
 ## 4. Rewiring map
 
@@ -116,7 +116,7 @@ Namespace rewrite `/agent-teams:team-deep-dive` -> `/deep-dive-analysis:team-dee
 
 - Minor bumps: `senior-review` (new command + new skill), `deep-dive-analysis`, `codebase-mapper`, `research` (new commands), `acp-hooks` (gate rewrite), `ai-tooling` (acp-loader rewrite).
 - Patch bumps: `abstraction-architect`, `libgdx-development`, `platform-engineering`, `react-development` (reference updates).
-- `metadata.version`: 8.1.0 -> 9.0.0 (plugin removal is a breaking marketplace change, precedent: frontend removal in 7.0.0).
+- `metadata.version`: 8.2.0 -> 9.0.0 (plugin removal is a breaking marketplace change, precedent: frontend removal in 7.0.0).
 - Single atomic commit: deletions, relocations, new skill, all rewiring, docs, CLAUDE.md, marketplace.json. Push to master.
 - Commit message: `Delegate agent-teams to wshobson/agents, relocate team pipelines (v9.0.0)` with a body listing relocation map and removals.
 

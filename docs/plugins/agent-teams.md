@@ -379,7 +379,7 @@ A defining feature of this plugin is its deep integration with the broader marke
 
 **Documentation tasks** delegate to `codebase-mapper:documentation-engineer`.
 
-**Planning phases** settle requirements and design before decomposition. This marketplace ships no design or planning skill: with [obra/superpowers](https://github.com/obra/superpowers) installed, its `brainstorming`, `writing-plans`, and `executing-plans` skills cover that phase.
+**Planning phases** settle requirements and design before decomposition. This marketplace ships no design or planning skill: [obra/superpowers](https://github.com/obra/superpowers) is a declared hard dependency of `agent-teams`, and its `brainstorming`, `writing-plans`, and `executing-plans` skills cover that phase.
 
 The generic team-reviewer, team-implementer, and team-debugger agents are used only when no specialized agent matches the task context.
 

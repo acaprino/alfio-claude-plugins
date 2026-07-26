@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Claude Code Daodan -- 44 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, reverse engineering, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), and pure-architecture audits (missed unification, wrong abstractions).",
-    "version": "8.1.2"
+    "version": "8.2.0"
   },
   "plugins": [
     {
@@ -165,7 +165,7 @@
       "name": "ai-tooling",
       "source": "./plugins/ai-tooling",
       "description": "AI development workflow -- prompt engineering and optimization, proactive skill activation across the marketplace, and Claude Agent SDK integration guide",
-      "version": "3.0.0",
+      "version": "3.1.0",
       "author": {
         "name": "Alfio"
       },
@@ -183,6 +183,9 @@
       ],
       "category": "ai-ml",
       "strict": false,
+      "dependencies": [
+        "superpowers"
+      ],
       "agents": [
         "./agents/prompt-engineer.md"
       ],
@@ -1356,7 +1359,7 @@
       "name": "agent-teams",
       "source": "./plugins/agent-teams",
       "description": "Orchestrate multi-agent teams for parallel code review, hypothesis-driven debugging, and coordinated feature development using Claude Code Agent Teams. Includes the team-review pipeline (deep-dive + interconnect map + parallel reviewers + codebase-hygiene auditor + consolidation) for finding cross-component logic bugs plus dead code / orphan assets / VCS cruft / phantom deps, the team-codebase-map pipeline (context brief + interconnect map + parallel writers + drift-aware review) for producing accurate codebase documentation, and the team-deep-dive pipeline (partition detection + parallel per-partition workers + synthesis + global interconnect map) for monorepo-scale deep-dive analysis.",
-      "version": "3.1.1",
+      "version": "3.2.0",
       "author": {
         "name": "Seth Hobson"
       },
@@ -1373,6 +1376,9 @@
       ],
       "category": "development",
       "strict": false,
+      "dependencies": [
+        "superpowers"
+      ],
       "optionalDependencies": [
         "abstraction-architect"
       ],

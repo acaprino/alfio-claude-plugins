@@ -99,7 +99,7 @@ These thoughts mean STOP -- you are rationalizing not using a skill:
 
 When multiple skills could apply, use this order:
 
-1. **Process skills first** -- design and planning skills determine HOW to approach the task. This marketplace no longer ships them: if [obra/superpowers](https://github.com/obra/superpowers) is installed, its `brainstorming`, `writing-plans`, and `executing-plans` skills fill that slot.
+1. **Process skills first** -- design and planning skills determine HOW to approach the task. This marketplace no longer ships them: [obra/superpowers](https://github.com/obra/superpowers) is a declared hard dependency of `ai-tooling`, so load its `brainstorming`, `writing-plans`, and `executing-plans` skills for that slot. If they are unavailable, tell the user to install superpowers (`claude plugin install superpowers@claude-plugins-official`) before proceeding.
 2. **Domain skills second** (react-best-practices, pwa-development, python-tdd) -- these guide execution
 3. **Review skills last** (code-review, full-review) -- these validate the result
 

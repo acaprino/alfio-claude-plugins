@@ -110,7 +110,7 @@ The lead MUST select specialized marketplace agents over generic team agents whe
 
 ### Planning Phase
 
-Before decomposing work, settle requirements and design, then write a bite-sized plan with file-level detail. This marketplace ships no design or planning skill: if [obra/superpowers](https://github.com/obra/superpowers) is installed, load its `brainstorming`, `writing-plans`, and `executing-plans` skills here. Otherwise do the same work inline, and do not decompose until the design is agreed.
+Before decomposing work, settle requirements and design, then write a bite-sized plan with file-level detail. This marketplace ships no design or planning skill: [obra/superpowers](https://github.com/obra/superpowers) is a declared hard dependency of `agent-teams`, so load its `brainstorming`, `writing-plans`, and `executing-plans` skills here. If they are unavailable, stop and tell the user to install superpowers (`claude plugin install superpowers@claude-plugins-official`). Do not decompose until the design is agreed.
 
 ### Agent Selection by Task Type
 

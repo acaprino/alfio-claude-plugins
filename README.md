@@ -122,7 +122,7 @@ Framework-specific frontend work stays here: [react-development](docs/plugins/re
 
 ### Brainstorming, planning, and execution
 
-Same story for the design-first workflow. The `brainstorming`, `writing-plans`, and `executing-plans` skills shipped in `ai-tooling` were ports of [obra/superpowers](https://github.com/obra/superpowers), which maintains them upstream inside a much larger methodology. Carrying three stale copies stopped paying for itself, so they are gone as of ai-tooling 3.0.0.
+Same story for the design-first workflow. The `brainstorming`, `writing-plans`, and `executing-plans` skills shipped in `ai-tooling` were ports of [obra/superpowers](https://github.com/obra/superpowers), which maintains them upstream inside a much larger methodology. Carrying three stale copies stopped paying for itself, so they are gone as of ai-tooling 3.0.0. As of marketplace 8.2.0, superpowers is no longer an optional companion: `ai-tooling` and `agent-teams` declare it as a hard dependency in `marketplace.json`, so install it alongside this marketplace.
 
 | Upstream | License | Covers |
 |----------|---------|--------|
@@ -143,7 +143,7 @@ claude plugin install superpowers@superpowers-marketplace
 
 Upstream also documents installs for Antigravity, Codex, Cursor, Gemini CLI, Copilot CLI, Kimi, OpenCode, and Pi: see its [installation section](https://github.com/obra/superpowers#installation).
 
-Everything downstream of the plan stays here: [agent-teams](docs/plugins/agent-teams.md) for parallel implementation, [senior-review](docs/plugins/senior-review.md) for multi-agent review, [testing](docs/plugins/testing.md) for TDD methodology, and the per-language plugins for domain execution. Where a workflow used to invoke the removed skills, it now says to settle design and plan first and names superpowers as the provider if you have it installed.
+Everything downstream of the plan stays here: [agent-teams](docs/plugins/agent-teams.md) for parallel implementation, [senior-review](docs/plugins/senior-review.md) for multi-agent review, [testing](docs/plugins/testing.md) for TDD methodology, and the per-language plugins for domain execution. Where a workflow used to invoke the removed skills, it now loads the superpowers skills directly and expects them to be installed: superpowers is a declared hard dependency of `ai-tooling` and `agent-teams`.
 
 ---
 

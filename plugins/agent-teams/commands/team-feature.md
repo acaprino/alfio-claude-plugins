@@ -14,7 +14,7 @@ Before starting, invoke these skills to inform the feature development process:
 - `agent-teams:task-coordination-strategies` -- task decomposition, dependency graphs, workload monitoring
 - `agent-teams:team-communication-protocols` -- message type selection, plan approval workflow, shutdown protocol
 
-Requirements and design come first, before any decomposition. This marketplace ships no design or planning skill: if [obra/superpowers](https://github.com/obra/superpowers) is installed, load its `brainstorming` and `writing-plans` skills here. Otherwise settle the design with the user inline.
+Requirements and design come first, before any decomposition. This marketplace ships no design or planning skill: [obra/superpowers](https://github.com/obra/superpowers) is a declared hard dependency of `agent-teams`, so load its `brainstorming` and `writing-plans` skills here. If they are unavailable, stop and tell the user to install superpowers (`claude plugin install superpowers@claude-plugins-official`) before continuing.
 
 ## Pre-flight Checks
 

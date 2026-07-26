@@ -238,7 +238,7 @@ Two areas were vendored, then handed back to their upstreams because maintaining
 | Frontend and design (`frontend` plugin: 3 agents, 5 skills, 1 command) | `pbakaus/impeccable`, `nextlevelbuilder/ui-ux-pro-max-skill`, `paulirish/dotfiles` | marketplace 7.0.0 |
 | Brainstorming, planning, execution (`ai-tooling` skills `brainstorming`, `writing-plans`, `executing-plans`) | `obra/superpowers` | marketplace 8.0.0, ai-tooling 3.0.0 |
 
-Places that used to invoke the removed planning skills now tell the reader to settle design and plan first, and point at `obra/superpowers` as the optional provider: `acp-loader` (Skill Priority), `agent-teams:team-lead` (Planning Phase), `/agent-teams:team-feature` (Skills to Load). Keep that phrasing conditional. Never make a superpowers skill a hard requirement, since it is a separate install.
+Places that used to invoke the removed planning skills now load the superpowers skills directly: `acp-loader` (Skill Priority), `agent-teams:team-lead` (Planning Phase), `/agent-teams:team-feature` (Skills to Load). As of marketplace 8.2.0, superpowers is a declared hard dependency (`dependencies: ["superpowers"]` in `marketplace.json`) of `ai-tooling` and `agent-teams`, and the phrasing in those three places is unconditional: load the skills, and if they are unavailable stop and tell the user to install superpowers (`claude plugin install superpowers@claude-plugins-official`). This supersedes the earlier rule that kept superpowers references conditional; do not reintroduce conditional phrasing.
 
 ### How to sync a plugin
 
