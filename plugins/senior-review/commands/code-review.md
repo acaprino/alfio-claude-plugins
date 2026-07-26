@@ -750,6 +750,53 @@ Agent tool call:
     description, concrete fix with code example.
 ```
 
+### Agent J: Abstraction & Reuse Review
+
+**Run this agent whenever the diff adds code**, meaning at least one added function, method, class, module, constant table, or block longer than roughly five lines. Skip it for diffs that are purely deletions, renames, formatting, or config edits.
+
+This is the only agent that answers "was this already available?". Every other agent reads the diff and judges it on its own terms; this one takes the diff as an anchor and goes looking through the rest of the codebase for prior art.
+
+**Skip if the `abstraction-architect` plugin is not installed.** There is no fallback: the check depends on that agent's pattern catalogs and decision frame, and a freelance grep for similar names produces false positives that cost more than the finding is worth.
+
+```
+Agent tool call:
+  - description: "Abstraction and reuse review for senior-review command"
+  - subagent_type: "abstraction-architect:abstraction-architect"
+  - run_in_background: true
+  - prompt: |
+    [Include shared instructions: Intent + Diff Scope]
+
+    mode: diff
+    codebase_path: [repo root]
+    deep_dive_path: [.deep-dive/ if Step 2 produced one, otherwise "none"]
+    changed_files: [list of changed files]
+    report_path: [scratch path for this review]
+    severity_floor: medium
+
+    ## Diff
+    [paste the git diff output]
+
+    ## Instructions
+    Follow the `PROCESS (mode = diff)` section of your agent definition.
+
+    Your search space is the WHOLE codebase, not the diff. The prior art you are
+    hunting for is by definition in files that did not change, so never limit
+    Grep to the changed files.
+
+    Report classes R1 (exact prior art), R2 (near prior art), R3 (Rule of Three
+    reached on this diff), and R5 (wrong abstraction introduced). Note R4 second
+    occurrences in their own section without flagging them.
+
+    Do NOT re-flag single-file smells that `senior-review:code-auditor` already
+    owns: leaky abstractions, premature interfaces with one implementation, and
+    god objects visible inside one file. Your findings must cite at least one
+    site outside the diff.
+
+    For each finding: severity (Critical/High/Medium/Low), file + line for BOTH
+    the new code and the prior art, confidence (0-100), the behavioral difference
+    if any, and the suggested direction in one sentence.
+```
+
 ---
 
 ## Step 4: Consolidate Findings & Extract Score
@@ -886,6 +933,12 @@ After validation completes, synthesize everything into the final structured revi
 ### React Performance (if applicable)
 | # | Severity | File:Line | Finding | Confidence | Fix |
 |---|----------|-----------|---------|------------|-----|
+
+### Abstraction & Reuse (if applicable)
+| # | Class | Severity | New Code | Prior Art | Difference | Direction |
+|---|-------|----------|----------|-----------|------------|-----------|
+
+Second occurrences (R4), listed without flagging: [one line each, or "none"]
 
 ### Coverage
 - Suppressed: [N] findings below 0.50 confidence

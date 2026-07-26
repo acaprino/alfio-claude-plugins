@@ -85,6 +85,8 @@ Apply cognitive frameworks:
 - God Functions: single function doing parse + validate + transform + persist
 - Premature Abstraction: interface with only one implementation
 
+NB: this inspector is scoped to smells you can see **inside one file**. The cross-file reuse question ("this new helper already exists in `src/lib/`", "this diff is the third copy of the same shape") belongs to `abstraction-architect:abstraction-architect`, which runs as the Abstraction dimension of the same review. Do NOT duplicate its findings here, and do not go hunting for prior art in unchanged files; flag only what the file under review shows on its own.
+
 **State Auditor** (Resource & Memory)
 - Global Mutability: module-level let/var, static mutable fields
 - Memory Leaks: event listeners without cleanup

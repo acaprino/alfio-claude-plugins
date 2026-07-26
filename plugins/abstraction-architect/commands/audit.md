@@ -1,6 +1,6 @@
 ---
-description: Audit a codebase for missed unification opportunities and wrong abstractions. Auto-launches /deep-dive-analysis:deep-dive-analysis when .deep-dive/ is missing or incomplete. Report-only.
-argument-hint: "[path] [--scope <subpath>] [--severity-floor low|medium|high] [--focus unification|wrong-abstraction|both]"
+description: Audit a codebase for missed unification opportunities and wrong abstractions, or check with --diff whether newly written code was already available for reuse. Auto-launches /deep-dive-analysis:deep-dive-analysis when .deep-dive/ is missing or incomplete. Report-only.
+argument-hint: "[path] [--diff [<base-ref>]] [--scope <subpath>] [--severity-floor low|medium|high] [--focus unification|wrong-abstraction|both]"
 ---
 
 # /abstraction-architect:audit
@@ -15,11 +15,14 @@ Audit a codebase for the two failure modes of pure architecture: missed unificat
 /abstraction-architect:audit --severity-floor high              # only high-severity findings
 /abstraction-architect:audit --focus wrong-abstraction          # restrict to one category
 /abstraction-architect:audit --scope src/api --focus unification
+/abstraction-architect:audit --diff                             # did the code I just wrote already exist?
+/abstraction-architect:audit --diff origin/master               # same, against an explicit base ref
 ```
 
 ## Arguments
 
 - `[path]` (optional) — codebase root. Default: current working directory.
+- `--diff [<base-ref>]` (optional) — run the agent in diff-anchored mode instead of a whole-codebase audit. Takes the changed code as the anchor and searches the rest of the codebase for prior art, reporting whether an added unit duplicates something that already exists or has become the third occurrence that justifies unifying. Base ref defaults to the merge base with the default branch, falling back to `HEAD` for uncommitted work.
 - `--scope <subpath>` (optional) — limit findings to a subtree. Deep-dive is still run on the full codebase; the agent filters findings by scope.
 - `--severity-floor low|medium|high` (optional) — drop findings below this severity. Default: `medium`.
 - `--focus unification|wrong-abstraction|both` (optional) — restrict to one finding category. Default: `both`.
@@ -32,11 +35,15 @@ Audit a codebase for the two failure modes of pure architecture: missed unificat
 
 3. **Auto-launches deep-dive if needed.** If `.deep-dive/` is missing or incomplete, prints the status message *"No deep-dive output found at `.deep-dive/`. Launching `/deep-dive-analysis:deep-dive-analysis` first. This may take several minutes on a large codebase."* then invokes `/deep-dive-analysis:deep-dive-analysis` automatically without a confirmation prompt. If deep-dive fails, aborts with the path of the deep-dive log.
 
-4. **Spawns the `abstraction-architect` agent** via the `Agent` tool, passing the codebase path, the deep-dive path, and the parsed scope / severity-floor / focus flags.
+   Under `--diff` this step is skipped. Diff mode consumes only `01-structure.md` and `02-interfaces.md`, uses whatever is already on disk, and runs on `Glob` plus `Grep` alone when nothing is. Launching a full deep-dive to review a handful of changed files is not worth the wait.
 
-5. **The agent writes the report** to `<path>/.abstraction-architect/findings.md`.
+4. **Resolves the diff (`--diff` only).** Runs `git diff --name-only <base-ref>...HEAD` plus `git diff --name-only` for uncommitted work, and passes the union as `changed_files`. Aborts with a clear message when the path is not a git repository.
 
-6. **Prints to the user:**
+5. **Spawns the `abstraction-architect` agent** via the `Agent` tool, passing the codebase path, the mode, the deep-dive path when present, `changed_files` under `--diff`, and the parsed scope / severity-floor / focus flags.
+
+6. **The agent writes the report** to `<path>/.abstraction-architect/findings.md`, or `findings-diff.md` under `--diff`.
+
+7. **Prints to the user:**
    - The absolute path of the report.
    - Summary counts: total findings, high / medium / low breakdown.
    - The top three high-severity findings as one-line previews.
@@ -45,20 +52,21 @@ The full report stays in the file so the user opens it deliberately.
 
 ## Output location
 
-`<path>/.abstraction-architect/findings.md`
+`<path>/.abstraction-architect/findings.md`, or `<path>/.abstraction-architect/findings-diff.md` under `--diff`.
 
 The directory is created automatically if missing. Re-running the command overwrites the previous report.
 
 ## Prerequisites
 
-- The `deep-dive-analysis` plugin must be installed (declared as a dependency in `marketplace.json`).
+- The `deep-dive-analysis` plugin must be installed (declared as a dependency in `marketplace.json`). `--diff` degrades gracefully without deep-dive output and reports the reduced confidence in its Gaps section.
+- `--diff` requires the target path to be a git repository.
 - For monorepos large enough to benefit from partitioned analysis, run `/agent-teams:team-deep-dive` first to produce `08-interconnect-map.md`; the auditor will then include bounded-context fusion findings.
 
 ## Related commands
 
 - `/deep-dive-analysis:deep-dive-analysis` — produces the `.deep-dive/` input this command consumes. Auto-launched by this command when missing.
 - `/agent-teams:team-deep-dive` — partitioned deep-dive for monorepos; adds `08-interconnect-map.md` to the output.
-- `/senior-review:code-review` — orthogonal: general code-quality review. Use that for style and pattern consistency; use this for pure-architecture audits.
+- `/senior-review:code-review` and `/agent-teams:team-review` — both run this agent in diff mode as their abstraction dimension, so a review already answers the "was this already available?" question for the changed code. Use `--diff` here when you want that check on its own, without the rest of the review.
 - `/clean-code:clean-code` — style and readability cleanup. Different concern.
 
 ## Out of scope

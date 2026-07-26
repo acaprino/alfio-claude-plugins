@@ -240,6 +240,8 @@ Multi-phase comprehensive code review with checkpoints and persistent sessions. 
 
 Unified code review that auto-detects scope: uncommitted/staged changes, recent commits, PR number, or branch diff. Fires code-auditor, security-auditor, and dead code agents in parallel.
 
+When the diff adds code and the `abstraction-architect` plugin is installed, it also fires `abstraction-architect:abstraction-architect` in diff mode as an Abstraction & Reuse reviewer. That agent is the one that answers "was this already available?": it takes each added unit as an anchor and searches the rest of the codebase for prior art, reporting exact duplicates, near duplicates, and diffs that become the third occurrence of a shape (Rule of Three). `code-auditor` keeps the single-file abstraction smells; cross-file reuse findings belong to the abstraction reviewer.
+
 ```
 /code-review                    # auto-detect: uncommitted changes or branch diff
 /code-review 42                 # review PR #42

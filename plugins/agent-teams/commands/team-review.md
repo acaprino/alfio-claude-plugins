@@ -92,6 +92,7 @@ Analyze changed files and codebase to determine which review dimensions are rele
 | Architecture | `senior-review:code-auditor` | Coupling, abstractions, failure flows, pattern consistency, scoring |
 | **Logic integrity** | `senior-review:logic-integrity-auditor` | **Hunts violations of contracts/invariants/domain rules surfaced in Phase 1b** (skipped if `--skip-interconnect`) |
 | Codebase hygiene | `senior-review:cleanup-auditor` | Dead code + orphan assets + generated artifacts tracked in VCS + phantom/unused deps + barrel-file and eager-bundle bloat |
+| **Abstraction** | `abstraction-architect:abstraction-architect` (mode `diff`) | **Was the changed code already available elsewhere?** Hunts prior art across the codebase for each added unit, and flags the diff that becomes the third occurrence of a duplicated shape (Rule of Three) |
 
 ### Conditional dimensions (auto-detected from context)
 
@@ -214,6 +215,7 @@ If the skill is unavailable (not installed) or produces no output, halt the pipe
 | Security | `senior-review:security-auditor` |
 | Architecture (+ failure flows, patterns, scoring) | `senior-review:code-auditor` |
 | **Logic integrity (contracts/invariants/domain rules)** | `senior-review:logic-integrity-auditor` |
+| **Abstraction (prior art / Rule of Three)** | `abstraction-architect:abstraction-architect` |
 | Dead code & lint | `general-purpose` |
 | UI race conditions | `senior-review:ui-race-auditor` |
 | React performance | `react-development:react-performance-optimizer` |
@@ -252,6 +254,22 @@ Write your output to .team-review/findings-{dimension}.md using the structured f
 ```
 
 If `--skip-interconnect` was set, omit the "Context files" and "Reviewer Hints" sections and do NOT spawn the `logic-integrity-auditor`.
+
+**Abstraction dimension addendum.** `abstraction-architect:abstraction-architect` takes named inputs rather than a free-form dimension prompt. Append this block to its prompt:
+
+```
+mode: diff
+codebase_path: {target root}
+deep_dive_path: .deep-dive/
+changed_files: {the same file list used to build the diff above}
+report_path: .team-review/findings-abstraction.md
+severity_floor: medium
+```
+
+Two things this reviewer must be told explicitly, because they invert the default reviewer contract:
+
+- Its search space is the **whole codebase**, not the diff. The diff is only the anchor; the prior art it is hunting for is by definition in files that did not change. Do not scope it to the changed files.
+- It runs fine on `--depth=lite` output, since it consumes only `01-structure.md` and `02-interfaces.md`. Do not force `--deep` on its account.
 
 ### Spawn and task creation
 
