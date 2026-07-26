@@ -5,8 +5,8 @@
     "email": ""
   },
   "metadata": {
-    "description": "Claude Code Daodan -- 43 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, reverse engineering, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), and pure-architecture audits (missed unification, wrong abstractions).",
-    "version": "9.0.1"
+    "description": "Claude Code Daodan -- 42 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, reverse engineering, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), and pure-architecture audits (missed unification, wrong abstractions).",
+    "version": "10.0.0"
   },
   "plugins": [
     {
@@ -861,34 +861,6 @@
       "strict": true,
       "skills": [
         "./skills/prompt-improver"
-      ]
-    },
-    {
-      "name": "cc-usage",
-      "source": "./plugins/cc-usage",
-      "description": "Claude Code usage analyzer -- token tracking, cost estimates, billing block monitoring, tool usage stats, and per-project breakdowns from local JSONL session data",
-      "version": "1.1.2",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "usage",
-        "tokens",
-        "cost",
-        "billing",
-        "monitoring",
-        "analytics",
-        "burn-rate",
-        "claude-code"
-      ],
-      "category": "utilities",
-      "strict": false,
-      "skills": [
-        "./skills/cc-usage"
-      ],
-      "commands": [
-        "./commands/cc-usage.md"
       ]
     },
     {

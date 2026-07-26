@@ -14,7 +14,6 @@ The augmentation symbiote for Claude Code. Agents, skills, and commands for deve
 | [app-analyzer](plugins/app-analyzer.md) | analysis | Android app analysis via ADB and webapp exploration via Playwright | 1 agent |
 | [browser-extensions](plugins/browser-extensions.md) | development | Firefox WebExtension development: Manifest V2/V3, browser.* APIs, AMO publishing | 1 agent, 1 skill, 3 commands |
 | [business](plugins/business.md) | business | Legal advisory, privacy policies, GDPR/ePrivacy/CCPA compliance, SaaS business planning | 3 agents, 1 skill |
-| [cc-usage](plugins/cc-usage.md) | utilities | Claude Code token usage, costs, billing blocks, and activity analysis | 1 skill, 1 command |
 | [clean-code](plugins/clean-code.md) | review | Rewrite source code for readability without changing behavior | 1 agent, 1 command |
 | [codebase-cleanup](plugins/codebase-cleanup.md) | review | Multi-language dependency security audits, SOLID-driven refactoring, and prioritized tech-debt remediation roadmaps | 3 commands |
 | [codebase-mapper](plugins/codebase-mapper.md) | documentation | Human-readable codebase guide generator with standalone doc creation, maintenance, and humanization | 10 agents, 1 skill, 5 commands |
@@ -73,11 +72,6 @@ The augmentation symbiote for Claude Code. Agents, skills, and commands for deve
 **Map an unfamiliar codebase:**
 ```
 /map-codebase ../other-project
-```
-
-**Track your usage and costs:**
-```
-/cc-usage 30d
 ```
 
 The four relocated multi-agent pipeline commands are documented in their host plugin docs: `/senior-review:team-review` in [senior-review](plugins/senior-review.md), `/deep-dive-analysis:team-deep-dive` in [deep-dive-analysis](plugins/deep-dive-analysis.md), `/codebase-mapper:team-codebase-map` in [codebase-mapper](plugins/codebase-mapper.md), `/research:team-research` in [research](plugins/research.md). For generic team orchestration (`/agent-teams:team-feature`, `/agent-teams:team-debug`, `/agent-teams:team-spawn` presets), install the upstream `wshobson/agents` plugin.
