@@ -50,6 +50,23 @@ That's it. Plugins activate automatically when relevant -- or invoke them direct
 "Ask the rust-engineer to review my Tauri backend"
 ```
 
+### Required dependencies
+
+`ai-tooling` and `agent-teams` declare [obra/superpowers](https://github.com/obra/superpowers) as a hard dependency (`dependencies: ["superpowers"]` in `marketplace.json`): their planning phases load its `brainstorming`, `writing-plans`, and `executing-plans` skills. If you install either plugin, install superpowers too, from the official Claude plugin marketplace:
+
+```bash
+claude plugin install superpowers@claude-plugins-official
+```
+
+Or from the [Superpowers marketplace](https://github.com/obra/superpowers-marketplace):
+
+```bash
+claude plugin marketplace add obra/superpowers-marketplace
+claude plugin install superpowers@superpowers-marketplace
+```
+
+More detail in [Brainstorming, planning, and execution](#brainstorming-planning-and-execution).
+
 ---
 
 ## Plugins
