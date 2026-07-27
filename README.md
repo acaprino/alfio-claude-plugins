@@ -120,6 +120,8 @@ More detail in [Browser automation (Playwright)](#browser-automation-playwright)
 | **[codebase-cleanup](docs/plugins/codebase-cleanup.md)** | Multi-language dependency security audits, SOLID refactoring, prioritized tech-debt roadmaps | - | - | 3 |
 | **[libgdx-development](docs/plugins/libgdx-development.md)** | libGDX cross-platform game dev - rendering pipeline, Scene2D + Ashley ECS, Box2D, AssetManager, deploy to Desktop/Android/iOS/HTML5, /libgdx-audit | 1 | 1 | 1 |
 | **[kotlin-development](docs/plugins/kotlin-development.md)** | Idiomatic Kotlin - coroutines, Flow/StateFlow, Kotlin Multiplatform (KMP), Jetpack Compose, Ktor server, type-safe DSLs | - | 1 | - |
+| **[pwa-expert](docs/plugins/pwa-expert.md)** | Progressive Web Apps 2025-2026: manifest, service workers, Web Push, install flows, store distribution | 1 | 1 | 3 |
+| **[abstraction-architect](docs/plugins/abstraction-architect.md)** | Pure-architecture audits: missed unification, wrong abstractions, diff-anchored prior-art search | 1 | 1 | 1 |
 
 **A** = Agents, **S** = Skills, **C** = Commands
 
@@ -140,7 +142,7 @@ claude plugin marketplace add pbakaus/impeccable
 claude plugin marketplace add nextlevelbuilder/ui-ux-pro-max-skill
 ```
 
-Framework-specific frontend work stays here: [react-development](docs/plugins/react-development.md) for React 19 performance, `pwa-expert` for Progressive Web Apps, [browser-extensions](docs/plugins/browser-extensions.md) for Firefox add-ons, and [xterm](docs/plugins/xterm.md) for terminal UIs.
+Framework-specific frontend work stays here: [react-development](docs/plugins/react-development.md) for React 19 performance, [pwa-expert](docs/plugins/pwa-expert.md) for Progressive Web Apps, [browser-extensions](docs/plugins/browser-extensions.md) for Firefox add-ons, and [xterm](docs/plugins/xterm.md) for terminal UIs.
 
 ### Brainstorming, planning, and execution
 
