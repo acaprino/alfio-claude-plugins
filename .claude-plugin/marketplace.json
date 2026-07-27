@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Claude Code Daodan - 39 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), and pure-architecture audits (missed unification, wrong abstractions).",
-    "version": "13.0.0"
+    "version": "13.1.0"
   },
   "plugins": [
     {
@@ -38,7 +38,7 @@
       "name": "deep-dive-analysis",
       "source": "./plugins/deep-dive-analysis",
       "description": "Multi-language systematic codebase analysis (Python, Java, JavaScript, TypeScript, SQL, PL/SQL, Rust) - analyzes architecture, traces data flows, detects anti-patterns, and generates structured documentation for onboarding, architecture review, or code documentation. The Next Steps menu wires deep-dive output into downstream documentation generators (CLAUDE.md, codebase map, interface docs) as a technical-reference backbone.",
-      "version": "1.12.1",
+      "version": "1.12.2",
       "author": {
         "name": "Alfio"
       },
@@ -166,7 +166,7 @@
       "name": "ai-tooling",
       "source": "./plugins/ai-tooling",
       "description": "AI development workflow - prompt engineering and optimization, proactive skill activation across the marketplace, and Claude Agent SDK integration guide",
-      "version": "3.3.1",
+      "version": "3.3.2",
       "author": {
         "name": "Alfio"
       },
@@ -202,7 +202,7 @@
       "name": "python-development",
       "source": "./plugins/python-development",
       "description": "Python development toolkit - TDD with pytest, code refactoring with complexity metrics, performance profiling, async patterns, uv package management, dead code detection, comment auditing, project scaffolding, deep Pydantic v2.13 guide (validators/serializers/strict/performance/security/PydanticAI+Logfire) with v1 migration, and /python-audit consolidated quality report",
-      "version": "1.21.3",
+      "version": "1.21.4",
       "author": {
         "name": "Alfio"
       },
@@ -461,7 +461,7 @@
       "name": "typescript-development",
       "source": "./plugins/typescript-development",
       "description": "TypeScript and JavaScript development toolkit - hands-on typescript-engineer agent (architecture + implementation), dead-code detection via Knip, coding standards enforcement, and enterprise-grade TypeScript mastery (type system, generics, React/NestJS integration, Zod validation, modern toolchain)",
-      "version": "2.1.3",
+      "version": "2.1.4",
       "author": {
         "name": "Alfio"
       },
@@ -596,7 +596,7 @@
       "name": "senior-review",
       "source": "./plugins/senior-review",
       "description": "Multi-agent code review orchestration with unified code auditing (architecture, failure flow, pattern analysis, scoring), security auditing, UI race condition detection, distributed flow analysis, platform engineering review, codebase-hygiene auditing (dead code + orphan assets + generated artifacts in VCS + phantom/unused deps + barrel-file and eager-bundle bloat + stale documentation and historical artifacts), /cleanup-dead-code incremental-phase command with commit-per-category and build+test gates, semantic interconnect mapping (contracts / invariants / domain rules / assumptions) reusable across team-review and codebase-mapper, logic-integrity auditing for cross-component contract violations, git blame/history analysis, finding validation with false-positive filtering, committable PR suggestions, pre-review skip logic, intent-driven review, confidence gating, cross-agent deduplication, pre-existing issue separation, verdict system, interactive fix loop, and conditional reviewers for testing quality, API contracts, and data migrations. Backed by a comprehensive defect taxonomy knowledge base (140+ defect patterns, CWE/OWASP mappings, plus a dedicated logic-integrity reference).",
-      "version": "5.11.1",
+      "version": "6.0.0",
       "author": {
         "name": "Alfio"
       },
@@ -643,7 +643,6 @@
         "./skills/review-quality-gates"
       ],
       "commands": [
-        "./commands/full-review.md",
         "./commands/pr-review.md",
         "./commands/code-review.md",
         "./commands/cleanup-dead-code.md",
@@ -993,7 +992,7 @@
       "name": "platform-engineering",
       "source": "./plugins/platform-engineering",
       "description": "Cross-platform development rulebook - security (validation, auth tokens, passkeys/WebAuthn, API security, XSS/CSP, secrets), architecture (client-server, REST vs GraphQL, offline-first, monolith-first, CI/CD), and performance (bundles, images, Core Web Vitals, SSR/SSG, CDN caching) for SPA, PWA, mobile, Electron (with Fuses + asar integrity), and Tauri; includes /platform-review standalone command",
-      "version": "1.2.7",
+      "version": "1.2.8",
       "author": {
         "name": "Alfio"
       },
@@ -1364,7 +1363,7 @@
       "name": "abstraction-architect",
       "source": "./plugins/abstraction-architect",
       "description": "Pure-architecture auditor with two modes. Global mode finds missed unification opportunities (cross-cutting concerns scattered across call sites that should be a single layer) and wrong abstractions (god services, flag-soup functions, premature interfaces, leaky abstractions that should be inlined or decomposed) from .deep-dive/ output. Diff mode anchors on newly written code and searches the rest of the codebase for prior art, answering whether the code was already available for reuse or has become the third occurrence that justifies unifying; it runs as the Abstraction dimension of /senior-review:team-review and /senior-review:code-review. Report-only, grounded in canonical theory (Metz's Wrong Abstraction, Beck's Tidy First, Fowler's bounded contexts, Gross's Locality of Behaviour).",
-      "version": "1.1.3",
+      "version": "1.1.4",
       "author": {
         "name": "Alfio"
       },

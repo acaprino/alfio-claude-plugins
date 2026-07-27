@@ -2,7 +2,7 @@
 description: >
   Consolidated Python code-quality audit - runs ruff, mypy/pyright, vulture, complexity metrics (complexipy/radon), and pytest coverage, then produces a prioritized report with concrete fixes.
   TRIGGER WHEN: the user asks to audit a Python codebase, run a quality check across lint/types/complexity/dead-code/coverage, or prepare a codebase for release review.
-  DO NOT TRIGGER WHEN: focused on a single dimension only - use /python-development:python-refactor for restructuring, /senior-review:cleanup-dead-code for dead code alone, or /python-development:python-tdd for test writing.
+  DO NOT TRIGGER WHEN: focused on a single dimension only - use /python-development:python-refactor for restructuring, /senior-review:cleanup-dead-code for dead code alone, or the python-development:python-tdd skill for test writing.
 argument-hint: "<path> [--strict] [--skip-types] [--skip-coverage]"
 ---
 

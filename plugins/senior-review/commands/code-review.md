@@ -1006,15 +1006,17 @@ For each inline comment, decide whether to include a committable suggestion:
 ### Inline comment format
 
 ```bash
+mkdir -p .code-review-tmp
+
 # Without committable suggestion (large or multi-location fix)
-cat > .full-review/temp_inline_comment.md << 'COMMENT_EOF'
+cat > .code-review-tmp/temp_inline_comment.md << 'COMMENT_EOF'
 **[Severity]** -- [finding summary]
 
 [concrete fix recommendation describing what to change]
 COMMENT_EOF
 
 # With committable suggestion (small, self-contained fix)
-cat > .full-review/temp_inline_comment.md << 'COMMENT_EOF'
+cat > .code-review-tmp/temp_inline_comment.md << 'COMMENT_EOF'
 **[Severity]** -- [finding summary]
 
 ```suggestion
@@ -1024,7 +1026,7 @@ COMMENT_EOF
 
 # Post as inline PR comment using -F (file input)
 gh api repos/{owner}/{repo}/pulls/{number}/comments \
-  -F body=@.full-review/temp_inline_comment.md \
+  -F body=@.code-review-tmp/temp_inline_comment.md \
   -f path="[file]" \
   -f line=[line] \
   -f commit_id="$(gh pr view {number} --json headRefOid --jq '.headRefOid')"
@@ -1033,7 +1035,9 @@ gh api repos/{owner}/{repo}/pulls/{number}/comments \
 Post the overall summary as a regular PR comment (also via temp file):
 
 ```bash
-cat > .full-review/temp_summary_comment.md << 'SUMMARY_EOF'
+mkdir -p .code-review-tmp
+
+cat > .code-review-tmp/temp_summary_comment.md << 'SUMMARY_EOF'
 ## Automated Code Review
 
 **Overall Score: X/10**
@@ -1046,7 +1050,7 @@ cat > .full-review/temp_summary_comment.md << 'SUMMARY_EOF'
 *Reviewed by: code-auditor, security-auditor, dead-code-and-lint-detector, ui-race-auditor, git-history-analyzer | Findings verified by 3-lens panel*
 SUMMARY_EOF
 
-gh pr comment {number} -F .full-review/temp_summary_comment.md
+gh pr comment {number} -F .code-review-tmp/temp_summary_comment.md
 ```
 
 ---

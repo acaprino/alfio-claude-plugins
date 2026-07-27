@@ -71,4 +71,4 @@ The directory is created automatically if missing. Re-running the command overwr
 
 ## Out of scope
 
-This command does not produce a refactoring plan. The `suggested direction` field in each finding names the target layer or refactoring move in one sentence. A future `/abstraction-architect:plan-refactor <finding-id>` command will turn a finding into a step-by-step plan.
+This command does not produce a refactoring plan. The `suggested direction` field in each finding names the target layer or refactoring move in one sentence.

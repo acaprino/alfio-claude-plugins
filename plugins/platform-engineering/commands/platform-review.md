@@ -8,7 +8,7 @@ argument-hint: "[target-path] [--platform spa|pwa|mobile|electron|tauri|auto] [-
 
 # Platform Engineering Review
 
-Standalone invocation of the `platform-reviewer` agent. Previously only reachable via `/senior-review:code-review` (Agent D) or the deprecated `/senior-review:full-review`. This command surfaces it directly for targeted cross-platform audits.
+Standalone invocation of the `platform-reviewer` agent. Previously only reachable via `/senior-review:code-review` (Agent D). This command surfaces it directly for targeted cross-platform audits.
 
 ## CRITICAL RULES
 

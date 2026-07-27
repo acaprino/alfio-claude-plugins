@@ -561,4 +561,4 @@ Present a summary of changes made after applying fixes. For languages outside th
 
 ## Integration with Code Review
 
-Deep dive output in `.deep-dive/` is automatically picked up by `/code-review` and can be explicitly used by `/full-review --deep-dive`. Run a deep dive first, then run a code review for the most thorough analysis possible.
+Deep dive output in `.deep-dive/` is automatically picked up by `/code-review`. `/senior-review:team-review` builds the same context itself: its Phase 1a invokes the `deep-dive-analysis:deep-dive-analysis` skill (`--depth=lite` by default). Run a deep dive first, then run a code review for the most thorough analysis possible.

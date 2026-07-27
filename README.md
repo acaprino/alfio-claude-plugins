@@ -11,7 +11,7 @@
 [![Plugins](https://img.shields.io/badge/plugins-39-orange?style=flat)](#plugins)
 [![Agents](https://img.shields.io/badge/agents-66-purple?style=flat)](#plugins)
 [![Skills](https://img.shields.io/badge/skills-54-teal?style=flat)](#plugins)
-[![Commands](https://img.shields.io/badge/commands-54-red?style=flat)](#plugins)
+[![Commands](https://img.shields.io/badge/commands-53-red?style=flat)](#plugins)
 
 </div>
 
@@ -78,7 +78,7 @@ More detail in [Browser automation (Playwright)](#browser-automation-playwright)
 | Plugin | Description | A | S | C |
 |--------|-------------|:-:|:-:|:-:|
 | **[python-development](docs/plugins/python-development.md)** | TDD, refactoring, async patterns, packaging, performance, dead code, Pydantic v2, /python-audit | 3 | 9 | 3 |
-| **[senior-review](docs/plugins/senior-review.md)** | 9 agents review architecture, security, patterns, distributed flows, logic integrity, API contracts, startup cycles, UI races, and codebase hygiene in parallel | 9 | 2 | 5 |
+| **[senior-review](docs/plugins/senior-review.md)** | 9 agents review architecture, security, patterns, distributed flows, logic integrity, API contracts, startup cycles, UI races, and codebase hygiene in parallel | 9 | 2 | 4 |
 | **[codebase-mapper](docs/plugins/codebase-mapper.md)** | Generate 10 narrative docs with Mermaid diagrams from any codebase | 10 | 1 | 5 |
 | **[ai-tooling](docs/plugins/ai-tooling.md)** | Prompt engineering and optimization, skill activation, Agent SDK | 1 | 2 | 1 |
 | **[tauri-development](docs/plugins/tauri-development.md)** | Tauri 2 desktop + mobile, Rust backend, IPC optimization | 3 | 1 | - |

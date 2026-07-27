@@ -61,7 +61,7 @@ Before responding to ANY user message, run this check:
    --> Check: react-development:react-best-practices, pwa-expert:pwa-development
 
 4. Is this a code review request?
-   --> Check: senior-review:code-review, senior-review:full-review
+   --> Check: senior-review:code-review, senior-review:team-review
 
 5. Is this Python work?
    --> Check: python-development skills (python-tdd, python-refactor, etc.)
@@ -101,12 +101,12 @@ When multiple skills could apply, use this order:
 
 1. **Process skills first** -- design and planning skills determine HOW to approach the task. This marketplace no longer ships them: [obra/superpowers](https://github.com/obra/superpowers) is a declared hard dependency of `ai-tooling`, so load its `brainstorming`, `writing-plans`, and `executing-plans` skills for that slot. If they are unavailable, tell the user to install superpowers (`claude plugin install superpowers@claude-plugins-official`) before proceeding.
 2. **Domain skills second** (react-best-practices, pwa-development, python-tdd) -- these guide execution
-3. **Review skills last** (code-review, full-review) -- these validate the result
+3. **Review skills last** (code-review, team-review) -- these validate the result
 
 Examples:
 - "Build a new dashboard" --> design and plan --> react-best-practices --> review
 - "Fix a slow React re-render" --> react-development:react-best-practices directly
-- "Review this code" --> code-review or full-review
+- "Review this code" --> code-review or team-review
 - "Create a Python API" --> design and plan --> python-tdd --> review
 
 ## Workflow Awareness

@@ -233,7 +233,7 @@ Quality gates for multi-reviewer code review pipelines: the context-sharing patt
 
 ### `/senior-review:team-review`
 
-Multi-dimensional code review as a **4-phase pipeline**: context building first, so reviewers hunt cross-component logic bugs, not just what's visible from local inspection. Supersedes the deprecated `/full-review` for new work.
+Multi-dimensional code review as a **4-phase pipeline**: context building first, so reviewers hunt cross-component logic bugs, not just what's visible from local inspection.
 
 **Prerequisites:** requires the upstream `agent-teams` plugin (`wshobson/agents`, MIT) for the `agent-teams:multi-reviewer-patterns` and `agent-teams:team-communication-protocols` skills and the `agent-teams:team-reviewer` fallback agent:
 
@@ -273,25 +273,6 @@ Multi-dimensional code review as a **4-phase pipeline**: context building first,
 ```
 
 `--skip-interconnect` reproduces the pre-pipeline behavior: no context phase, no `logic-integrity-auditor`, reviewers see only the target and diff. Use it for quick scans or targets under roughly 100 LOC.
-
----
-
-### `/full-review`
-
-Multi-phase comprehensive code review with checkpoints and persistent sessions. 5 phases: Code Audit, Security & Performance, Testing & Documentation, Best Practices, Consolidated Report.
-
-```
-/full-review src/features/auth/ --security-focus
-```
-
-**Options:**
-| Flag | Effect |
-|------|--------|
-| `--deep-dive` | Gather structural/semantic context first |
-| `--security-focus` | Prioritize security analysis |
-| `--performance-critical` | Deep performance review |
-| `--strict-mode` | Strictest quality standards |
-| `--framework react\|django` | Framework-specific checks |
 
 ---
 

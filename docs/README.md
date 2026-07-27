@@ -40,7 +40,7 @@ The augmentation symbiote for Claude Code. Agents, skills, and commands for deve
 | [rag-development](plugins/rag-development.md) | ai-ml | RAG system design and audit - chunking, embeddings, Qdrant, advanced patterns | 2 agents, 1 skill, 1 command |
 | [react-development](plugins/react-development.md) | frontend | React 19 performance, state management, bundle optimization, Vercel best practices | 1 agent, 1 skill, 1 command |
 | [research](plugins/research.md) | research | Quick search (Sonnet) and deep multi-source research with shared web-search-techniques skill | 2 agents, 1 skill, 1 command |
-| [senior-review](plugins/senior-review.md) | review | Multi-agent code review: architecture, security, patterns, distributed flows, logic integrity, API contracts, startup cycles, UI races, codebase hygiene | 9 agents, 2 skills, 5 commands |
+| [senior-review](plugins/senior-review.md) | review | Multi-agent code review: architecture, security, patterns, distributed flows, logic integrity, API contracts, startup cycles, UI races, codebase hygiene | 9 agents, 2 skills, 4 commands |
 | [stripe](plugins/stripe.md) | payments | Stripe payments, subscriptions, Connect, revenue optimization, webhook auditing | 3 agents, 1 skill, 1 command |
 | [system-utils](plugins/system-utils.md) | utilities | File organization, duplicate detection, directory cleanup | 1 skill, 1 command |
 | [tauri-development](plugins/tauri-development.md) | development | Tauri 2 desktop/mobile - IPC optimization, Rust backend, cross-platform | 3 agents, 1 skill |
@@ -58,7 +58,6 @@ The augmentation symbiote for Claude Code. Agents, skills, and commands for deve
 **Quick review of specific changes:**
 ```
 /code-review              # auto-detect scope
-/full-review src/         # deep analysis + multi-agent review
 ```
 
 **Optimize React performance:**

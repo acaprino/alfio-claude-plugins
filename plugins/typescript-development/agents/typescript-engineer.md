@@ -265,7 +265,7 @@ Cleaner than try/finally for scoped resources.
 - Dead code / unused exports -> `typescript-development:knip` skill
 - Enterprise-grade TypeScript deep dive -> `typescript-development:mastering-typescript` skill
 - General writing / linting rules -> `typescript-development:typescript-write` skill
-- Pre-commit code quality -> `/typescript-development:review-typescript` (if exists) or `/senior-review:code-review`
+- Pre-commit code quality -> `/senior-review:code-review`
 - Python equivalent for comparison -> `python-development:python-engineer`
 - Schema-first validation parity -> `python-development:pydantic-v2` skill
 
