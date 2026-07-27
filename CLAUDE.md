@@ -15,7 +15,7 @@ plugins/
     hooks/                  # hook handlers (JS/Python) + hooks.json (acp-hooks, prompt-improver)
 ```
 
-40 plugins: clean-code, deep-dive-analysis, tauri-development, react-development, xterm, ai-tooling, python-development, stripe, system-utils, messaging, research, business, project-setup, app-analyzer, typescript-development, csp, digital-marketing, senior-review, obsidian-development, browser-extensions, learning, marketplace-ops, acp-hooks, prompt-improver, codebase-mapper, git-worktrees, rag-development, docs, testing, platform-engineering, ibkr-trading, mt5-trading, opentelemetry, docker, grabber-development, codebase-cleanup, libgdx-development, kotlin-development, pwa-expert, abstraction-architect.
+39 plugins: clean-code, deep-dive-analysis, tauri-development, react-development, xterm, ai-tooling, python-development, stripe, system-utils, messaging, research, business, project-setup, app-analyzer, typescript-development, csp, digital-marketing, senior-review, obsidian-development, browser-extensions, learning, marketplace-ops, acp-hooks, prompt-improver, codebase-mapper, rag-development, docs, testing, platform-engineering, ibkr-trading, mt5-trading, opentelemetry, docker, grabber-development, codebase-cleanup, libgdx-development, kotlin-development, pwa-expert, abstraction-architect.
 
 ## Plugin anatomy
 
@@ -228,7 +228,7 @@ When the user asks for "upstream updates" (or similar), this is the default work
 
 ### Deliberately not vendored
 
-Five areas were vendored, then handed back to their upstreams because maintaining the copy cost more than it returned. Do NOT re-import them, and do not add sync-table rows for them on a future "upstream updates" pass. The README documents all five for users.
+Six areas were removed and delegated to their upstreams because maintaining the local copy cost more than it returned (the first five were vendored copies handed back; `git-worktrees` was locally authored content retired in favor of equivalent upstream coverage). Do NOT re-import or re-create them, and do not add sync-table rows for them on a future "upstream updates" pass. The README documents all six for users.
 
 | Area | Upstream | Removed in |
 |---|---|---|
@@ -237,6 +237,7 @@ Five areas were vendored, then handed back to their upstreams because maintainin
 | Multi-agent generic core (`agent-teams` plugin: 6 commands, 4 agents, 6 skills) | `wshobson/agents` | marketplace 9.0.0 |
 | Browser automation (`playwright-skill` plugin: 1 skill) | `lackeyjb/playwright-skill` | marketplace 11.0.0 |
 | Binary reverse engineering (`reverse-engineering` plugin: 3 agents, 4 skills) | `wshobson/agents` | marketplace 12.0.0 |
+| Git worktree parallel development (`git-worktrees` plugin: 1 agent, 1 skill, 1 command) | `obra/superpowers` (`using-git-worktrees` skill) | marketplace 13.0.0 |
 
 Places that used to invoke the removed planning skills now load the superpowers skills directly: `acp-loader` (Skill Priority). As of marketplace 8.2.0, superpowers is a declared hard dependency of `ai-tooling` (`dependencies: ["superpowers@claude-plugins-official"]` in `marketplace.json`; cross-marketplace dependencies MUST use the qualified `name@marketplace` form, because a bare name resolves against this marketplace and fails the whole plugin load, which is what silently broke `ai-tooling` until marketplace 12.0.2), and the phrasing in that place is unconditional: load the skills, and if they are unavailable stop and tell the user to install superpowers (`claude plugin install superpowers@claude-plugins-official`). This supersedes the earlier rule that kept superpowers references conditional; do not reintroduce conditional phrasing.
 
@@ -245,6 +246,8 @@ The same policy applies to the team pipelines: `/senior-review:team-review`, `/d
 Browser automation follows the same pattern as of marketplace 11.0.0: the vendored `playwright-skill` plugin was a byte-level copy of its upstream (only convention adaptations: TRIGGER WHEN frontmatter, temp-dir portability, emoji stripping), so it was removed and delegated. `app-analyzer`, `pwa-expert`, `digital-marketing`, and `grabber-development` declare `playwright-skill` as a hard dependency (`dependencies: ["playwright-skill@playwright-skill"]` in `marketplace.json`; qualified form required for cross-marketplace dependencies, see the superpowers note above). The upstream plugin keeps the same `playwright-skill:playwright-skill` namespace, so existing references resolve as written once it is installed (`claude plugin marketplace add lackeyjb/playwright-skill`, then `claude plugin install playwright-skill@playwright-skill`). Their commands and agents state this install path in their dependency-check blocks; do not point those blocks back at this marketplace.
 
 Binary reverse engineering follows the same pattern as of marketplace 12.0.0: the vendored `reverse-engineering` plugin was a byte-level copy of `wshobson/agents` `plugins/reverse-engineering/` (only convention adaptations: MIT attribution comments, agent `model: inherit` and `color: purple`, three upstream `references/details.md` files kept inline in the local SKILL.md bodies), so it was removed and delegated. Upstream publishes it under the same `reverse-engineering` plugin name with identical agent and skill names in the `claude-code-workflows` marketplace (`claude plugin marketplace add wshobson/agents`, then `claude plugin install reverse-engineering@claude-code-workflows`). No local plugin references or depends on it, so no dependency declarations or reference rewrites were needed.
+
+Git worktrees were retired as of marketplace 13.0.0, with one difference from the other rows: the `git-worktrees` plugin (worktree-agent, worktree-manager skill, `/wt` command) was locally authored, not vendored. It was removed because superpowers' `using-git-worktrees` skill covers the isolation workflow (workspace detection, native-tool-first creation with `git worktree` fallback, project setup, clean-baseline verification) and superpowers is already a hard dependency of `ai-tooling` and a required install for this marketplace. The `/wt` lifecycle extras (pause/resume session context, guided merge) were retired without replacement: plain `git worktree` commands cover them. No local plugin referenced or depended on `git-worktrees` (it only declared an optionalDependency on `senior-review`), so no dependency declarations or reference rewrites were needed. The README documents this in its "Git worktrees (parallel development)" section, alongside a must-have callout for `using-git-worktrees` in the superpowers section.
 
 ### How to sync a plugin
 
@@ -277,7 +280,7 @@ After fetching, compare with the local file, apply changes while preserving loca
 
 ## Custom plugin maintenance
 
-A "custom plugin" is any plugin NOT listed in the "Upstream-synced plugins" table above. Its content is hand-authored or research-grounded and has no upstream source to re-pull. The list is large (libgdx-development, ibkr-trading, mt5-trading, rag-development, opentelemetry, stripe, csp, grabber-development, browser-extensions, obsidian-development, business, research, codebase-mapper, python-development, typescript-development, senior-review, digital-marketing, docs, learning, app-analyzer, project-setup, marketplace-ops, system-utils, git-worktrees, platform-engineering, testing, react-development, tauri-development, messaging, xterm, clean-code, deep-dive-analysis, ai-tooling, acp-hooks). If a plugin is not in the sync table, it falls under this section.
+A "custom plugin" is any plugin NOT listed in the "Upstream-synced plugins" table above. Its content is hand-authored or research-grounded and has no upstream source to re-pull. The list is large (libgdx-development, ibkr-trading, mt5-trading, rag-development, opentelemetry, stripe, csp, grabber-development, browser-extensions, obsidian-development, business, research, codebase-mapper, python-development, typescript-development, senior-review, digital-marketing, docs, learning, app-analyzer, project-setup, marketplace-ops, system-utils, platform-engineering, testing, react-development, tauri-development, messaging, xterm, clean-code, deep-dive-analysis, ai-tooling, acp-hooks). If a plugin is not in the sync table, it falls under this section.
 
 Custom plugins decay differently than vendored ones. There is no upstream commit to diff against. Versions, framework recommendations, breaking-change notes, and "current as of 2026" claims become stale silently. The maintenance protocol below is the antidote.
 
@@ -290,7 +293,7 @@ Classify each plugin into one of four classes. The class determines refresh cade
 | **Very fast** | Versions bump every few months; breaking changes are common; ecosystem reshuffles | Every 3 months | rag-development (embedding models, rerankers, vector DBs), digital-marketing/ga4-implementation (Consent Mode, GA4 events), react-development (React 19, Vercel guidance) |
 | **Fast** | Framework releases 2-3x per year; APIs evolve | Every 6 months | libgdx-development, opentelemetry, tauri-development, stripe (API additions, webhook event types), grabber-development (anti-bot vendor moves), browser-extensions, pwa-expert (browser version churn, WebKit feature rollout, framework PWA library churn) |
 | **Moderate** | Major releases ~yearly; breaking changes rare | Every 12 months | ibkr-trading, mt5-trading, csp (OR-Tools), python-development, typescript-development, messaging (RabbitMQ majors), obsidian-development, abstraction-architect (theory is stable; URL list in further-reading.md decays on a yearly cadence) |
-| **Slow** | Workflow knowledge that ages by behavior change, not version bumps | Opportunistic; review only when symptoms appear | senior-review, codebase-mapper, team pipeline workflows, ai-tooling skills, project-setup, marketplace-ops, system-utils, git-worktrees, learning, docs, research, business, clean-code, deep-dive-analysis, platform-engineering, testing methodology, xterm, app-analyzer, acp-hooks |
+| **Slow** | Workflow knowledge that ages by behavior change, not version bumps | Opportunistic; review only when symptoms appear | senior-review, codebase-mapper, team pipeline workflows, ai-tooling skills, project-setup, marketplace-ops, system-utils, learning, docs, research, business, clean-code, deep-dive-analysis, platform-engineering, testing methodology, xterm, app-analyzer, acp-hooks |
 
 If unsure, default to "Fast" (6 months). Reclassify after the first refresh based on how much actually changed.
 

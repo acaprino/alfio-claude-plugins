@@ -5,8 +5,8 @@
     "email": ""
   },
   "metadata": {
-    "description": "Claude Code Daodan - 40 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), and pure-architecture audits (missed unification, wrong abstractions).",
-    "version": "12.0.2"
+    "description": "Claude Code Daodan - 39 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), and pure-architecture audits (missed unification, wrong abstractions).",
+    "version": "13.0.0"
   },
   "plugins": [
     {
@@ -891,38 +891,6 @@
         "./commands/docs-maintain.md",
         "./commands/humanize-docs.md",
         "./commands/team-codebase-map.md"
-      ]
-    },
-    {
-      "name": "git-worktrees",
-      "source": "./plugins/git-worktrees",
-      "description": "Git worktree management for parallel development - create, list, pause, resume, remove, and merge worktrees with proactive WIP detection, conflict early warning, and session context recovery",
-      "version": "1.3.5",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "git",
-        "worktree",
-        "parallel",
-        "branching",
-        "workflow",
-        "session"
-      ],
-      "category": "development-tools",
-      "strict": false,
-      "optionalDependencies": [
-        "senior-review"
-      ],
-      "agents": [
-        "./agents/worktree-agent.md"
-      ],
-      "skills": [
-        "./skills/worktree-manager"
-      ],
-      "commands": [
-        "./commands/wt.md"
       ]
     },
     {

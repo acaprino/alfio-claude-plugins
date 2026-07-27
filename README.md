@@ -2,16 +2,16 @@
 
 # Claude Code Daodan
 
-**40 specialized plugins that augment Claude Code into a specialized toolkit - so you spend less time prompting and more time shipping.**
+**39 specialized plugins that augment Claude Code into a specialized toolkit - so you spend less time prompting and more time shipping.**
 
 > The Daodan is the symbiote that enhances its host. This marketplace is the Daodan of Claude Code.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat)](LICENSE)
-[![Marketplace](https://img.shields.io/badge/marketplace-v12.0.0-green?style=flat)](.claude-plugin/marketplace.json)
-[![Plugins](https://img.shields.io/badge/plugins-40-orange?style=flat)](#plugins)
-[![Agents](https://img.shields.io/badge/agents-67-purple?style=flat)](#plugins)
-[![Skills](https://img.shields.io/badge/skills-55-teal?style=flat)](#plugins)
-[![Commands](https://img.shields.io/badge/commands-55-red?style=flat)](#plugins)
+[![Marketplace](https://img.shields.io/badge/marketplace-v13.0.0-green?style=flat)](.claude-plugin/marketplace.json)
+[![Plugins](https://img.shields.io/badge/plugins-39-orange?style=flat)](#plugins)
+[![Agents](https://img.shields.io/badge/agents-66-purple?style=flat)](#plugins)
+[![Skills](https://img.shields.io/badge/skills-54-teal?style=flat)](#plugins)
+[![Commands](https://img.shields.io/badge/commands-54-red?style=flat)](#plugins)
 
 </div>
 
@@ -88,7 +88,6 @@ More detail in [Browser automation (Playwright)](#browser-automation-playwright)
 | **[marketplace-ops](docs/plugins/marketplace-ops.md)** | Audit, scaffold, review, and manage plugins in this ecosystem | 1 | 2 | 4 |
 | **[learning](docs/plugins/learning.md)** | Mind maps in MarkMind format and interactive force-graphs | - | 3 | 1 |
 | **[deep-dive-analysis](docs/plugins/deep-dive-analysis.md)** | 7-phase systematic codebase analysis with pattern detection | 4 | 1 | 2 |
-| **[git-worktrees](docs/plugins/git-worktrees.md)** | Parallel development with git worktrees - create, pause, resume, merge | 1 | 1 | 1 |
 | **[business](docs/plugins/business.md)** | Tech law, compliance, privacy docs, contracts, SaaS business planning | 3 | 1 | - |
 | **[stripe](docs/plugins/stripe.md)** | Stripe payments, subscriptions, Connect, revenue optimization, /audit-webhooks | 3 | 1 | 1 |
 | **[research](docs/plugins/research.md)** | Quick search and deep multi-source investigation with shared web-search techniques skill | 2 | 1 | 1 |
@@ -157,6 +156,8 @@ Obra's own [Superpowers marketplace](https://github.com/obra/superpowers-marketp
 
 Upstream also documents installs for Antigravity, Codex, Cursor, Gemini CLI, Copilot CLI, Kimi, OpenCode, and Pi: see its [installation section](https://github.com/obra/superpowers#installation).
 
+**Must-have from that toolkit:** the [`using-git-worktrees`](https://github.com/obra/superpowers/tree/main/skills/using-git-worktrees) skill ([overview on SkillsMP](https://skillsmp.com/creators/obra/superpowers/skills-using-git-worktrees)). Before feature work or plan execution it checks whether the session is already isolated, creates an isolated workspace (native tools first, plain `git worktree` as fallback), runs project setup, and verifies a clean test baseline. As of marketplace 13.0.0 it also replaces the retired local `git-worktrees` plugin (see [Git worktrees](#git-worktrees-parallel-development)).
+
 Everything downstream of the plan stays here: [senior-review](docs/plugins/senior-review.md) for multi-agent review, [deep-dive-analysis](docs/plugins/deep-dive-analysis.md) for partitioned deep-dive analysis, [codebase-mapper](docs/plugins/codebase-mapper.md) for codebase mapping, [research](docs/plugins/research.md) for multi-source research, [testing](docs/plugins/testing.md) for TDD methodology, and the per-language plugins for domain execution. Parallel feature implementation and other generic team workflows are delegated to the upstream `wshobson/agents` `agent-teams` plugin (see below). Where a workflow used to invoke the removed skills, it now loads the superpowers skills directly and expects them to be installed: superpowers remains a declared hard dependency of `ai-tooling`.
 
 ### Agent teams (parallel implementation and generic orchestration)
@@ -209,6 +210,16 @@ claude plugin install reverse-engineering@claude-code-workflows
 
 No plugin in this marketplace depends on it, so nothing else here changes when it is absent: install it from upstream only if you need the reverse-engineering toolkit itself.
 
+### Git worktrees (parallel development)
+
+As of marketplace 13.0.0, the `git-worktrees` plugin (1 agent, 1 skill, the `/wt` command) is retired. Unlike the other delegated areas it was locally authored rather than vendored, but the same economics applied: superpowers' `using-git-worktrees` skill covers the high-value part of the workflow (isolated workspace setup before feature work or plan execution, with project setup and clean-baseline verification), and superpowers is already a required install here.
+
+| Upstream | License | Covers |
+|----------|---------|--------|
+| [obra/superpowers](https://github.com/obra/superpowers) | MIT | `using-git-worktrees` ([overview on SkillsMP](https://skillsmp.com/creators/obra/superpowers/skills-using-git-worktrees)): workspace isolation via native tools first, plain `git worktree` as fallback, then project setup and clean test baseline |
+
+Install instructions are in [Required dependencies](#required-dependencies); no extra marketplace is needed. The `/wt` lifecycle extras (pause/resume with session context, guided merge flow) retire without replacement: plain `git worktree` commands cover those cases. No plugin in this marketplace depended on `git-worktrees`, so nothing else changes.
+
 ---
 
 <details>
@@ -238,7 +249,7 @@ claude-code-daodan/
 │   │   ├── skills/            # SKILL.md + optional references/
 │   │   └── commands/          # slash-command .md files
 │   ├── senior-review/
-│   └── ...                    # 40 plugins total
+│   └── ...                    # 39 plugins total
 ├── LICENSE
 └── README.md
 ```
