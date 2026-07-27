@@ -2,15 +2,15 @@
 
 # Claude Code Daodan
 
-**41 specialized plugins that augment Claude Code into a specialized toolkit - so you spend less time prompting and more time shipping.**
+**40 specialized plugins that augment Claude Code into a specialized toolkit - so you spend less time prompting and more time shipping.**
 
 > The Daodan is the symbiote that enhances its host. This marketplace is the Daodan of Claude Code.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat)](LICENSE)
-[![Marketplace](https://img.shields.io/badge/marketplace-v11.0.0-green?style=flat)](.claude-plugin/marketplace.json)
-[![Plugins](https://img.shields.io/badge/plugins-41-orange?style=flat)](#plugins)
-[![Agents](https://img.shields.io/badge/agents-70-purple?style=flat)](#plugins)
-[![Skills](https://img.shields.io/badge/skills-59-teal?style=flat)](#plugins)
+[![Marketplace](https://img.shields.io/badge/marketplace-v12.0.0-green?style=flat)](.claude-plugin/marketplace.json)
+[![Plugins](https://img.shields.io/badge/plugins-40-orange?style=flat)](#plugins)
+[![Agents](https://img.shields.io/badge/agents-67-purple?style=flat)](#plugins)
+[![Skills](https://img.shields.io/badge/skills-55-teal?style=flat)](#plugins)
 [![Commands](https://img.shields.io/badge/commands-55-red?style=flat)](#plugins)
 
 </div>
@@ -117,7 +117,6 @@ More detail in [Browser automation (Playwright)](#browser-automation-playwright)
 | **[opentelemetry](docs/plugins/opentelemetry.md)** | OpenTelemetry Python - distributed tracing, context propagation, exporters, /otel-audit | 1 | 1 | 1 |
 | **[docker](docs/plugins/docker.md)** | Optimized multi-stage Dockerfiles for any language or framework | - | 1 | - |
 | **[grabber-development](docs/plugins/grabber-development.md)** | Python web scraping - coordinator + 3 specialists (stealth browser, HTTP fingerprint, AI scraping), anti-bot bypass | 4 | 1 | - |
-| **[reverse-engineering](docs/plugins/reverse-engineering.md)** | Binary reverse engineering, malware analysis, firmware security, protocol research for authorized work | 3 | 4 | - |
 | **[codebase-cleanup](docs/plugins/codebase-cleanup.md)** | Multi-language dependency security audits, SOLID refactoring, prioritized tech-debt roadmaps | - | - | 3 |
 | **[libgdx-development](docs/plugins/libgdx-development.md)** | libGDX cross-platform game dev - rendering pipeline, Scene2D + Ashley ECS, Box2D, AssetManager, deploy to Desktop/Android/iOS/HTML5, /libgdx-audit | 1 | 1 | 1 |
 | **[kotlin-development](docs/plugins/kotlin-development.md)** | Idiomatic Kotlin - coroutines, Flow/StateFlow, Kotlin Multiplatform (KMP), Jetpack Compose, Ktor server, type-safe DSLs | - | 1 | - |
@@ -203,6 +202,21 @@ claude plugin install playwright-skill@playwright-skill
 
 The plugins that build on it ([app-analyzer](docs/plugins/app-analyzer.md), [pwa-expert](docs/plugins/pwa-expert.md), [digital-marketing](docs/plugins/digital-marketing.md), [grabber-development](docs/plugins/grabber-development.md)) declare it as a hard dependency and keep referencing the same `playwright-skill:playwright-skill` namespace, which resolves as written once the upstream plugin is installed.
 
+### Reverse engineering (binary analysis)
+
+As of marketplace 12.0.0, the `reverse-engineering` plugin is no longer vendored here. The local copy was byte-identical to its upstream, which already publishes the same plugin in the `claude-code-workflows` marketplace, so it was handed back:
+
+| Upstream | License | Covers |
+|----------|---------|--------|
+| [wshobson/agents](https://github.com/wshobson/agents) | MIT | Binary reverse engineering, malware analysis, firmware security, and protocol research: `reverse-engineer`, `malware-analyst`, and `firmware-analyst` agents plus four reference skills (binary-analysis-patterns, anti-reversing-techniques, memory-forensics, protocol-reverse-engineering) |
+
+```bash
+claude plugin marketplace add wshobson/agents
+claude plugin install reverse-engineering@claude-code-workflows
+```
+
+No plugin in this marketplace depends on it, so nothing else here changes when it is absent: install it from upstream only if you need the reverse-engineering toolkit itself.
+
 ---
 
 <details>
@@ -232,7 +246,7 @@ claude-code-daodan/
 │   │   ├── skills/            # SKILL.md + optional references/
 │   │   └── commands/          # slash-command .md files
 │   ├── senior-review/
-│   └── ...                    # 41 plugins total
+│   └── ...                    # 40 plugins total
 ├── LICENSE
 └── README.md
 ```
@@ -252,7 +266,7 @@ claude plugin install ./claude-code-daodan/plugins/python-development
 <details>
 <summary><b>Recommended Settings (skill visibility)</b></summary>
 
-With 41 plugins installed, Claude Code's default skill-listing budget can truncate the list of available skills shown at conversation start. Raise the fraction of context allocated to the skill listing in `~/.claude/settings.json`:
+With 40 plugins installed, Claude Code's default skill-listing budget can truncate the list of available skills shown at conversation start. Raise the fraction of context allocated to the skill listing in `~/.claude/settings.json`:
 
 ```json
 {
