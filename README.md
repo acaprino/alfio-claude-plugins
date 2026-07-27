@@ -52,18 +52,13 @@ That's it. Plugins activate automatically when relevant - or invoke them directl
 
 ### Required dependencies
 
-`ai-tooling` declares [obra/superpowers](https://github.com/obra/superpowers) as a hard dependency (`dependencies: ["superpowers"]` in `marketplace.json`): its planning phase loads the `brainstorming`, `writing-plans`, and `executing-plans` skills. If you install it, install superpowers too, from the official Claude plugin marketplace:
+`ai-tooling` declares [obra/superpowers](https://github.com/obra/superpowers) as a hard dependency, marketplace-qualified since v12.0.2 (`dependencies: ["superpowers@claude-plugins-official"]` in `marketplace.json`): its planning phase loads the `brainstorming`, `writing-plans`, and `executing-plans` skills. If you install it, install superpowers too — from the official Claude plugin marketplace, which is the one the dependency resolves against:
 
 ```bash
 claude plugin install superpowers@claude-plugins-official
 ```
 
-Or from the [Superpowers marketplace](https://github.com/obra/superpowers-marketplace):
-
-```bash
-claude plugin marketplace add obra/superpowers-marketplace
-claude plugin install superpowers@superpowers-marketplace
-```
+Installing the same plugin from [obra's own marketplace](https://github.com/obra/superpowers-marketplace) (`superpowers@superpowers-marketplace`) does NOT satisfy the qualified dependency: the CLI reports it as missing and keeps the official copy pinned. Same bytes, wrong marketplace — use the official one, and don't keep both installed (the duplicate collides at load time).
 
 More detail in [Brainstorming, planning, and execution](#brainstorming-planning-and-execution).
 
@@ -146,24 +141,19 @@ Framework-specific frontend work stays here: [react-development](docs/plugins/re
 
 ### Brainstorming, planning, and execution
 
-Same story for the design-first workflow. The `brainstorming`, `writing-plans`, and `executing-plans` skills shipped in `ai-tooling` were ports of [obra/superpowers](https://github.com/obra/superpowers), which maintains them upstream inside a much larger methodology. Carrying three stale copies stopped paying for itself, so they are gone as of ai-tooling 3.0.0. As of marketplace 8.2.0, superpowers is no longer an optional companion: `ai-tooling` declares it as a hard dependency in `marketplace.json`, so install it alongside this marketplace.
+Same story for the design-first workflow. The `brainstorming`, `writing-plans`, and `executing-plans` skills shipped in `ai-tooling` were ports of [obra/superpowers](https://github.com/obra/superpowers), which maintains them upstream inside a much larger methodology. Carrying three stale copies stopped paying for itself, so they are gone as of ai-tooling 3.0.0. As of marketplace 8.2.0, superpowers is no longer an optional companion: `ai-tooling` declares it as a hard dependency in `marketplace.json` — qualified as `superpowers@claude-plugins-official` since v12.0.2 — so install it from there alongside this marketplace.
 
 | Upstream | License | Covers |
 |----------|---------|--------|
 | [obra/superpowers](https://github.com/obra/superpowers) | MIT | Design-first development: brainstorming a spec you actually sign off on, bite-sized implementation plans, subagent-driven execution, TDD, systematic debugging, worktree workflows |
 
-Superpowers is listed on the [official Claude plugin marketplace](https://claude.com/plugins/superpowers):
+Superpowers is listed on the [official Claude plugin marketplace](https://claude.com/plugins/superpowers), and the qualified dependency only resolves against that copy:
 
 ```bash
 claude plugin install superpowers@claude-plugins-official
 ```
 
-Or from the [Superpowers marketplace](https://github.com/obra/superpowers-marketplace), which carries a few related plugins too:
-
-```bash
-claude plugin marketplace add obra/superpowers-marketplace
-claude plugin install superpowers@superpowers-marketplace
-```
+Obra's own [Superpowers marketplace](https://github.com/obra/superpowers-marketplace) carries the same plugin plus a few companions (e.g. `double-shot-latte`); adding that marketplace for the companions is fine, but install superpowers itself from `claude-plugins-official` only — a second copy from another marketplace doesn't satisfy the dependency and collides at load time.
 
 Upstream also documents installs for Antigravity, Codex, Cursor, Gemini CLI, Copilot CLI, Kimi, OpenCode, and Pi: see its [installation section](https://github.com/obra/superpowers#installation).
 
