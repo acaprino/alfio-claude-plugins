@@ -1,11 +1,12 @@
 # Reasoning Patterns for Prompt Engineering
 
-On-demand reference for the `prompt-engineer` agent and the `/prompt-optimize` command. Read this file when a task needs reasoning structure beyond plain few-shot or basic chain-of-thought. Each pattern below states what it is, when to apply it, the prompt skeleton, and the main failure modes.
+On-demand reference for the `prompt-engineer` agent and the `/prompt-optimize` command. Read this file when a task needs reasoning structure beyond plain few-shot or basic chain-of-thought, or when the target is a reasoning model and you must decide whether any explicit pattern is warranted at all. Each pattern below states what it is, when to apply it, the prompt skeleton, and the main failure modes.
 
 ## Selection cheat sheet
 
 | Task shape | First-choice pattern |
 |---|---|
+| Any task on a reasoning model (extended thinking, o-series, R1 class) | None by default; see "Reasoning models change the defaults" below |
 | Specific factual question over a known domain | Step-Back |
 | Math, logic, multi-step arithmetic | Chain-of-Thought + Self-Consistency |
 | Tool use, search, multi-turn interaction with environment | ReAct |
@@ -16,6 +17,20 @@ On-demand reference for the `prompt-engineer` agent and the `/prompt-optimize` c
 | Multi-hop QA where intermediate questions are needed | Self-Ask |
 
 If two patterns fit, prefer the one that adds the least latency and token cost.
+
+## Reasoning models change the defaults
+
+Reasoning models (Claude with extended/adaptive thinking, OpenAI o-series and successors, DeepSeek R1 class) internalize most of the patterns in this file. Determine the model class BEFORE selecting any pattern.
+
+On reasoning models:
+
+- **No explicit CoT scaffolds.** OpenAI's official guidance: "think step by step" prompts are unnecessary on reasoning models and can degrade performance. Anthropic: prefer general instructions ("think thoroughly") over prescriptive step-by-step plans; manual CoT with `<thinking>`/`<answer>` tags is a fallback for when thinking is off. The Wharton "Decreasing Value of Chain of Thought" study (Meincke et al., 2025, arXiv:2506.07142) measured explicit CoT on reasoning models at marginal gains for 20-80% added time cost.
+- **Minimize few-shot.** Start zero-shot; add examples only to steer format or tone.
+- **Spend effort elsewhere**: precise success criteria, input curation, and thinking budget (adaptive thinking / effort settings) beat any reasoning scaffold.
+- **Patterns that keep value**: Self-Consistency only where answers are cheaply verifiable (majority vote over 3-8 traces); Tree-of-Thought only for genuinely search-structured tasks (game playing, theorem proving), preferably with deterministic checkers instead of model-judged scoring at the nodes.
+- **Verification prompts are model-dependent.** "Check your answer against the criteria before finishing" still helps mid-tier models on coding and math, but the newest top-tier models self-verify; carried-over verification instructions there cause over-verification (token and latency waste). Remove them when migrating upward.
+
+On non-reasoning models the patterns below apply as documented, with one caveat: CoT gains concentrate in math, logic, and symbolic tasks, and come with increased answer variability elsewhere (Sprague et al., 2024, arXiv:2409.12183).
 
 ---
 
@@ -38,6 +53,8 @@ Think step by step. Show your work inside <reasoning> tags, then produce the fin
 - Few-shot CoT: include 2-4 worked examples with explicit reasoning chains.
 
 **Failure modes**: hallucinated steps that look plausible, premature commitment to a wrong first step, token bloat on simple tasks.
+
+**Reasoning-model note**: redundant on reasoning models (internalized) and officially discouraged by OpenAI. On non-reasoning models, expect modest average gains with higher answer variability outside math and symbolic tasks.
 
 ---
 
@@ -81,6 +98,8 @@ Wang et al., 2022.
 
 **Failure modes**: expensive (Nx cost), useless when all chains share a systematic bias, breaks when the answer is free-form text rather than a discrete label.
 
+**Reasoning-model note**: reasoning models already sample multiple internal paths. Keep this pattern only when answers are cheaply verifiable and the vote is deterministic.
+
 ---
 
 ## 4. Tree-of-Thought (ToT)
@@ -101,6 +120,8 @@ At each step:
 ```
 
 **Failure modes**: very expensive, judge-prompt biases dominate, breaks down when the evaluation function is not actually learnable by the model.
+
+**Reasoning-model note**: reserve for genuinely search-structured tasks; prefer deterministic checkers over model-judged scoring at the nodes.
 
 ---
 
@@ -145,6 +166,8 @@ Shinn et al., 2023 (Reflexion); Madaan et al., 2023 (Self-Refine).
 ```
 
 **Failure modes**: the critique step rubber-stamps the original, edits introduce new bugs, infinite loop on subjective tasks.
+
+**Reasoning-model note**: model-dependent. The newest top-tier models self-verify; explicit verification loops there add cost without quality gains. Still effective on mid-tier models for code and math.
 
 ---
 
@@ -252,12 +275,13 @@ These patterns compose. Common pairings worth knowing:
 - **Tree-of-Thought + Self-Consistency**: ToT for exploration, majority vote at the leaves.
 - **Skeleton-of-Thought + Few-shot**: each skeleton-point expansion guided by an example.
 
-Do not stack more than two patterns without a clear reason. Each adds latency, tokens, and surface area for prompt drift.
+Do not stack more than two patterns without a clear reason. Each adds latency, tokens, and surface area for prompt drift. On reasoning models, do not stack any of these on top of native thinking: the model already runs its own multi-step process.
 
 ## Decision guide
 
 Run through this when designing or optimizing a prompt that needs reasoning:
 
+0. Is the target a reasoning model (extended thinking, o-series, R1 class)? Default to no explicit pattern: direct instructions, precise success criteria, and a thinking budget. Continue below only if the output shows a gap that instructions alone cannot close.
 1. Is the answer a short discrete label? Consider Self-Consistency over CoT.
 2. Does the right answer follow from a general principle the model knows? Apply Step-Back before CoT.
 3. Does the task need external information mid-reasoning? Use ReAct or Self-Ask, not plain CoT.

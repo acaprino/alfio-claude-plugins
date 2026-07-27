@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Claude Code Daodan - 40 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), and pure-architecture audits (missed unification, wrong abstractions).",
-    "version": "12.0.0"
+    "version": "12.0.1"
   },
   "plugins": [
     {
@@ -166,7 +166,7 @@
       "name": "ai-tooling",
       "source": "./plugins/ai-tooling",
       "description": "AI development workflow - prompt engineering and optimization, proactive skill activation across the marketplace, and Claude Agent SDK integration guide",
-      "version": "3.2.1",
+      "version": "3.3.0",
       "author": {
         "name": "Alfio"
       },

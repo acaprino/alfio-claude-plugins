@@ -20,7 +20,7 @@ argument-hint: "<prompt text or file path> [--model claude|gpt|gemini] [--optimi
 Execute the full analysis and optimization in a single `prompt-engineer` subagent call. The agent uses `<analysis>` tags for chain-of-thought reasoning before producing the final output.
 
 ```
-Task:
+Agent:
   subagent_type: "prompt-engineer"
   description: "Analyze and optimize the prompt in a single pass"
   prompt: |
@@ -36,7 +36,11 @@ Task:
     Clarity, Specificity, Structure, Token Efficiency, Robustness, Output Control.
     Identify ambiguities, missing edge cases, structural weaknesses, and injection vulnerabilities.
 
-    Reasoning-pattern check: decide whether the task would benefit from a structured
+    Reasoning-pattern check: first determine the target model class. For reasoning models
+    (extended thinking, o-series, R1 class), default to NO explicit scaffold: direct
+    instructions plus precise success criteria; consult the "Reasoning models change the
+    defaults" section of `plugins/ai-tooling/references/reasoning-patterns.md` before adding
+    any pattern. Otherwise, decide whether the task would benefit from a structured
     reasoning scaffold beyond plain instructions (CoT, Step-Back, ReAct, Tree-of-Thought,
     Self-Consistency, Reflexion, Plan-and-Solve, Least-to-Most, Self-Ask, Skeleton-of-Thought).
     If yes, read `plugins/ai-tooling/references/reasoning-patterns.md`, pick the pattern
@@ -59,7 +63,8 @@ Task:
 
     ### Optimized Prompt
     ```
-    [The fully rewritten, ready-to-use prompt. Use XML tags if target model is Claude.
+    [The fully rewritten, ready-to-use prompt. Use XML tags if target model is Claude and
+     the prompt mixes instructions, context, or examples; headings suffice for simple prompts.
      Enforce clear hierarchy. Resolve all issues identified in analysis.]
     ```
 
