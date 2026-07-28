@@ -10,7 +10,7 @@ argument-hint: "<file or text> [--score]"
 
 Use the `text-humanizer` agent to remove AI writing traces from prose, articles, blog posts, documentation, or any non-code text.
 
-**This is for TEXT/PROSE. For source code readability, use `/humanize` instead.**
+**This is for TEXT/PROSE. For source code readability, use `/clean-code:clean-code` instead.**
 
 ## Step 1: Identify Input
 
@@ -56,7 +56,7 @@ If `--score` flag is set, include the 5-dimension quality scoring table.
 
 ## When to use what
 
-- `/humanize` -- source code readability (naming, comments, structure)
+- `/clean-code:clean-code` -- source code readability (naming, comments, structure)
 - `/humanize-text` -- prose/text AI trace removal (this command)
 
 $ARGUMENTS

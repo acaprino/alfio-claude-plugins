@@ -52,21 +52,7 @@ Use the content-marketer agent to [plan/create/optimize] [content/campaign]
 
 ---
 
-### `text-humanizer`
-
-Remove AI writing traces from prose, articles, blog posts, and documentation. Detects 24 patterns (inflated symbolism, promotional language, AI vocabulary, filler phrases) and rewrites for natural human voice with a self-evaluation pass.
-
-| | |
-|---|---|
-| **Model** | `inherit` |
-| **Use for** | Humanizing AI-generated text, rewriting AI-sounding copy, polishing articles / blog posts / documentation prose |
-
-**Invocation:**
-```
-Use the text-humanizer agent to humanize [file or pasted text]
-```
-
-Runs in two passes: (1) pattern-removal rewrite, (2) self-evaluation that flags any remaining AI tells and revises. Always returns revision metadata so you can audit what changed.
+> **Moved:** prose humanization (the `text-humanizer` agent, the `/humanize-text` command, and the `anti-ai-writing-patterns` knowledge base) now lives in the standalone [text-humanizer](text-humanizer.md) plugin, a hard dependency of this one. SEO flows route to `/text-humanizer:humanize-text`.
 
 ---
 
@@ -157,19 +143,6 @@ Generate professional, empathetic, on-brand replies to online customer reviews. 
 
 ---
 
-### `anti-ai-writing-patterns`
-
-Knowledge base listing 24 common AI-writing patterns (inflated symbolism, promotional language, formulaic sentence structures, etc.) and rewrite guidelines. Loaded by the `text-humanizer` agent and `/humanize-text` command.
-
-| | |
-|---|---|
-| **Invoke** | Skill reference (auto-loaded by humanize workflows) |
-| **Trigger** | Editing or reviewing text to remove AI traces |
-
-**Pattern categories:** inflated significance, promotional language, AI vocabulary, filler phrases, formulaic intros / conclusions, em-dash overuse, tricolon overuse, "not just X but Y" pattern, hedged certainty, and 15 more.
-
----
-
 ### `ga4-implementation`
 
 Knowledge base for implementing GA4 + GTM with EU/GDPR Consent Mode v2 compliance. Referenced by the `ga4-implementation-expert` agent.
@@ -227,20 +200,6 @@ Marketing and conversion audit. Runs 3 parallel agents (UX/Conversion, Content/C
 **Phases:** Scope -> Parallel Audit (3 agents) -> Synthesis -> (Checkpoint) -> Apply -> Report
 
 **Output:** `.content-strategy/` directory with scope, audit, plan, changes, and final report.
-
----
-
-### `/humanize-text`
-
-Remove AI writing traces from text. Detects 24 patterns and rewrites for natural human voice with a self-evaluation pass.
-
-```
-/humanize-text path/to/article.md
-/humanize-text "paste prose directly here"
-/humanize-text path/to/article.md --score   # include self-eval pattern-scan score
-```
-
-Delegates to the `text-humanizer` agent. See the `anti-ai-writing-patterns` skill for the 24-pattern catalog.
 
 ---
 

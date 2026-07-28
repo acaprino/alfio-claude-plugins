@@ -62,7 +62,7 @@ Dispatch research agents via the Agent tool. Provide them with specific queries 
 
 Before writing the final deliverable in Phase 7, use the **text-humanizer** agent to review and rewrite the `[ProductName]_GTM_Strategy.md` file. This removes AI writing traces (inflated language, formulaic structures, promotional tone) and ensures the document reads as if written by an experienced human consultant.
 
-Dispatch the text-humanizer agent via the Agent tool after generating the final document.
+Dispatch the text-humanizer agent (`subagent_type: "text-humanizer:text-humanizer"`, from the text-humanizer plugin) via the Agent tool after generating the final document.
 
 # 7-Phase Workflow
 

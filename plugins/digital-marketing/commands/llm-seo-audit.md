@@ -95,5 +95,5 @@ Run alongside traditional SEO tooling for a complete picture:
 - Deep knowledge base -> `digital-marketing:llm-seo-optimize` agent (the actual worker)
 - Structured data validation alongside broader checks -> `/digital-marketing:seo-audit`
 - Measurement setup -> `digital-marketing:ga4-implementation-expert` agent (AI-referrer tracking)
-- Humanizing AI-sounding copy to raise E-E-A-T -> `/digital-marketing:humanize-text`
+- Humanizing AI-sounding copy to raise E-E-A-T -> `/text-humanizer:humanize-text` (text-humanizer plugin)
 - Playwright-based live verification -> `playwright-skill`

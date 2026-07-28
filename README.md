@@ -82,7 +82,7 @@ More detail in [Browser automation (Playwright)](#browser-automation-playwright)
 | **[codebase-mapper](docs/plugins/codebase-mapper.md)** | Generate 10 narrative docs with Mermaid diagrams from any codebase | 10 | 1 | 5 |
 | **[ai-tooling](docs/plugins/ai-tooling.md)** | Prompt engineering and optimization, skill activation, Agent SDK | 1 | 2 | 1 |
 | **[tauri-development](docs/plugins/tauri-development.md)** | Tauri 2 desktop + mobile, Rust backend, IPC optimization | 3 | 1 | - |
-| **[digital-marketing](docs/plugins/digital-marketing.md)** | SEO + AEO (AI Overviews/Perplexity/ChatGPT Search), GA4/GTM with Consent Mode v2, content strategy, brand naming, domain hunting, text humanization | 5 | 5 | 7 |
+| **[digital-marketing](docs/plugins/digital-marketing.md)** | SEO + AEO (AI Overviews/Perplexity/ChatGPT Search), GA4/GTM with Consent Mode v2, content strategy, brand naming, domain hunting | 4 | 4 | 6 |
 | **[react-development](docs/plugins/react-development.md)** | React 19 performance, state management, bundle optimization | 1 | 1 | 1 |
 | **[rag-development](docs/plugins/rag-development.md)** | RAG system design - chunking, embeddings, vector DBs, advanced patterns | 2 | 1 | 1 |
 | **[marketplace-ops](docs/plugins/marketplace-ops.md)** | Audit, scaffold, review, and manage plugins in this ecosystem | 1 | 2 | 4 |
@@ -116,6 +116,7 @@ More detail in [Browser automation (Playwright)](#browser-automation-playwright)
 | **[kotlin-development](docs/plugins/kotlin-development.md)** | Idiomatic Kotlin - coroutines, Flow/StateFlow, Kotlin Multiplatform (KMP), Jetpack Compose, Ktor server, type-safe DSLs | - | 1 | - |
 | **[pwa-expert](docs/plugins/pwa-expert.md)** | Progressive Web Apps 2025-2026: manifest, service workers, Web Push, install flows, store distribution | 1 | 1 | 3 |
 | **[abstraction-architect](docs/plugins/abstraction-architect.md)** | Pure-architecture audits: missed unification, wrong abstractions, diff-anchored prior-art search | 1 | 1 | 1 |
+| **[text-humanizer](docs/plugins/text-humanizer.md)** | Remove AI writing traces from any prose (24 patterns) with /humanize-text; consumed by digital-marketing, codebase-mapper, business, clean-code | 1 | 1 | 1 |
 
 **A** = Agents, **S** = Skills, **C** = Commands
 
@@ -249,7 +250,7 @@ claude-code-daodan/
 │   │   ├── skills/            # SKILL.md + optional references/
 │   │   └── commands/          # slash-command .md files
 │   ├── senior-review/
-│   └── ...                    # 39 plugins total
+│   └── ...                    # 40 plugins total
 ├── LICENSE
 └── README.md
 ```

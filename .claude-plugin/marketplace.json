@@ -5,15 +5,15 @@
     "email": ""
   },
   "metadata": {
-    "description": "Claude Code Daodan - 39 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), and pure-architecture audits (missed unification, wrong abstractions).",
-    "version": "13.2.1"
+    "description": "Claude Code Daodan - 40 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), prose humanization, and pure-architecture audits (missed unification, wrong abstractions).",
+    "version": "13.3.0"
   },
   "plugins": [
     {
       "name": "clean-code",
       "source": "./plugins/clean-code",
       "description": "Rewrites source code to be more readable and human-friendly without changing behavior - improves naming, removes AI boilerplate, simplifies structure, and adds clarity comments",
-      "version": "1.1.3",
+      "version": "1.1.4",
       "author": {
         "name": "Alfio"
       },
@@ -27,6 +27,9 @@
       ],
       "category": "review",
       "strict": false,
+      "dependencies": [
+        "text-humanizer"
+      ],
       "agents": [
         "./agents/clean-code-agent.md"
       ],
@@ -374,7 +377,7 @@
       "name": "business",
       "source": "./plugins/business",
       "description": "Legal advisory, compliance document generation, and SaaS business planning - Privacy Policies, Cookie Policies, DPAs, GDPR/ePrivacy/CCPA compliance, contract review, GTM strategy, market sizing, pricing, and positioning",
-      "version": "1.9.6",
+      "version": "1.10.0",
       "author": {
         "name": "Alfio"
       },
@@ -401,6 +404,9 @@
       ],
       "category": "business",
       "strict": false,
+      "dependencies": [
+        "text-humanizer"
+      ],
       "agents": [
         "./agents/privacy-doc-generator.md",
         "./agents/legal-advisor.md",
@@ -535,8 +541,8 @@
     {
       "name": "digital-marketing",
       "source": "./plugins/digital-marketing",
-      "description": "SEO optimization, content marketing, brand naming, domain hunting, text humanization, customer review response, GA4/GTM analytics implementation, and answer-engine optimization (Google AI Overviews / SGE, Perplexity, ChatGPT Search, Claude Search, Bing Copilot) - technical audits, keyword research, content strategy, brand naming, domain checks, trademark screening, AI text rewriting, professional review reply generation with sentiment analysis, Google Analytics 4 + Google Tag Manager deployment with EU/GDPR Consent Mode v2 compliance, /ga4-audit Playwright-powered verification, and /llm-seo-audit AEO command with crawler-access matrix, E-E-A-T, structured data, passage extractability",
-      "version": "1.34.1",
+      "description": "SEO optimization, content marketing, brand naming, domain hunting, customer review response, GA4/GTM analytics implementation, and answer-engine optimization (Google AI Overviews / SGE, Perplexity, ChatGPT Search, Claude Search, Bing Copilot) - technical audits, keyword research, content strategy, brand naming, domain checks, trademark screening, professional review reply generation with sentiment analysis, Google Analytics 4 + Google Tag Manager deployment with EU/GDPR Consent Mode v2 compliance, /ga4-audit Playwright-powered verification, and /llm-seo-audit AEO command with crawler-access matrix, E-E-A-T, structured data, passage extractability. Prose humanization lives in the standalone text-humanizer plugin.",
+      "version": "2.0.0",
       "author": {
         "name": "Alfio"
       },
@@ -561,9 +567,6 @@
         "review-response",
         "reputation",
         "customer-feedback",
-        "ai-writing",
-        "text-humanization",
-        "humanize",
         "ga4",
         "google-analytics",
         "gtm",
@@ -578,12 +581,12 @@
       "category": "marketing",
       "strict": false,
       "dependencies": [
-        "playwright-skill@playwright-skill"
+        "playwright-skill@playwright-skill",
+        "text-humanizer"
       ],
       "agents": [
         "./agents/seo-specialist.md",
         "./agents/content-marketer.md",
-        "./agents/text-humanizer.md",
         "./agents/ga4-implementation-expert.md",
         "./agents/llm-seo-optimize.md"
       ],
@@ -591,7 +594,6 @@
         "./skills/brand-naming",
         "./skills/domain-hunter",
         "./skills/reply-to-customer-review",
-        "./skills/anti-ai-writing-patterns",
         "./skills/ga4-implementation"
       ],
       "commands": [
@@ -599,7 +601,6 @@
         "./commands/content-strategy.md",
         "./commands/brand-naming.md",
         "./commands/reply-to-customer-review.md",
-        "./commands/humanize-text.md",
         "./commands/ga4-audit.md",
         "./commands/llm-seo-audit.md"
       ]
@@ -856,7 +857,7 @@
       "name": "codebase-mapper",
       "source": "./plugins/codebase-mapper",
       "description": "Human-readable codebase guide generator: explores unfamiliar projects, builds a structured interconnect map (contracts, invariants, domain rules, integration hot-spots) via the senior-review semantic-interconnect-mapper, then autonomously profiles the project (type, audience, register) and produces audience-adaptive narrative documents with Mermaid diagrams that cite the map, including a plain-language executive summary and a domain glossary so the guide is comprehensible by everyone. Includes documentation-reality drift detection in the review phase, plus standalone documentation creation, maintenance, and humanization with bottom-up code analysis. Both docs-create and docs-maintain cover 20 documentation dimensions; docs-maintain runs a structured per-dimension drift audit (added/removed/renamed/retyped) instead of generic outdated-text matching.",
-      "version": "2.9.0",
+      "version": "2.10.0",
       "author": {
         "name": "Alfio"
       },
@@ -882,10 +883,8 @@
       "strict": false,
       "dependencies": [
         "agent-teams@claude-code-workflows",
-        "senior-review"
-      ],
-      "optionalDependencies": [
-        "digital-marketing"
+        "senior-review",
+        "text-humanizer"
       ],
       "agents": [
         "./agents/codebase-explorer.md",
@@ -1413,6 +1412,38 @@
       ],
       "commands": [
         "./commands/audit.md"
+      ]
+    },
+    {
+      "name": "text-humanizer",
+      "source": "./plugins/text-humanizer",
+      "description": "Prose humanization toolkit: the text-humanizer editor agent removes AI writing traces from any text in any language (24 documented patterns: inflated symbolism, promotional language, AI vocabulary, filler phrases, formulaic structures, dash-as-connector asides), backed by the anti-ai-writing-patterns knowledge base and the /humanize-text command with optional 5-dimension quality scoring. Self-contained leaf plugin with zero dependencies, consumed by digital-marketing (E-E-A-T copy), codebase-mapper (AI trace removal on generated docs), business (GTM deliverables), and clean-code (prose routing). Extracted from digital-marketing in marketplace 13.3.0.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Alfio"
+      },
+      "license": "MIT",
+      "keywords": [
+        "text-humanization",
+        "humanize",
+        "ai-writing",
+        "anti-ai",
+        "prose",
+        "editing",
+        "writing",
+        "ai-detection",
+        "copywriting"
+      ],
+      "category": "writing",
+      "strict": false,
+      "agents": [
+        "./agents/text-humanizer.md"
+      ],
+      "skills": [
+        "./skills/anti-ai-writing-patterns"
+      ],
+      "commands": [
+        "./commands/humanize-text.md"
       ]
     }
   ]
