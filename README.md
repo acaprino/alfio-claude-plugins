@@ -173,7 +173,7 @@ claude plugin marketplace add wshobson/agents
 claude plugin install agent-teams@claude-code-workflows
 ```
 
-The four pipelines this marketplace built on top of the old `agent-teams` plugin were relocated rather than removed, and keep working locally without the upstream install:
+The four pipelines this marketplace built on top of the old `agent-teams` plugin were relocated rather than removed. Their commands live locally, but each of the four plugins declares `agent-teams@claude-code-workflows` as a hard dependency in `marketplace.json` (the pipelines load its skills and spawn its `team-reviewer` fallback agent), so the upstream install above is required:
 
 - `/agent-teams:team-review` -> [`/senior-review:team-review`](docs/plugins/senior-review.md)
 - `/agent-teams:team-deep-dive` -> [`/deep-dive-analysis:team-deep-dive`](docs/plugins/deep-dive-analysis.md)
