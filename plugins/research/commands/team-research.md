@@ -1,6 +1,6 @@
 ---
 description: "Deep multi-source research with parallel investigators covering codebase, web, and domain-specific analysis"
-argument-hint: "<question-or-topic> [--scope codebase|web|all] [--domain security|architecture|frontend|python|tauri|business] [--depth quick|standard|deep]"
+argument-hint: "<question-or-topic> [--scope codebase|web|all] [--domain <topic-domain>] [--depth quick|standard|deep]"
 ---
 
 ## Prerequisites
@@ -30,13 +30,13 @@ Before starting, invoke these skills:
 2. Parse `$ARGUMENTS`:
    - `<question-or-topic>`: the research question, topic, or area to investigate
    - `--scope`: what to search -- `codebase` (local only), `web` (external only), `all` (both, default)
-   - `--domain`: hint for selecting the domain expert -- `security`, `architecture`, `frontend`, `python`, `tauri`, `business`, or auto-detect
+   - `--domain`: free-form domain hint for the Domain Expert persona (e.g. `security`, `python`, `finance`, `nutrition`, `law`); auto-detected from the topic when omitted
    - `--depth`: research depth -- `quick` (2 researchers), `standard` (3 researchers, default), `deep` (4 researchers with domain expert)
 
 ## Phase 1: Question Analysis
 
 1. Analyze the research question to understand:
-   - Is it about the local codebase, external knowledge, or both?
+   - Is it about the local codebase, external knowledge, or both? If it has no local-project component at all (a pure general-knowledge or web topic), treat `--scope` as `web` for the rest of the pipeline: no Codebase Analyst, no Context Builder.
    - What domain does it touch? (security, architecture, frontend, backend, etc.)
    - What would a complete answer look like? (facts, comparisons, recommendations, code examples)
 2. Break the question into sub-questions that can be investigated in parallel
@@ -62,29 +62,18 @@ Before starting, invoke these skills:
 - Tools: WebSearch, WebFetch, Read
 - Prompt: "Search the web for {sub-question}. Cite every finding with source URL."
 
-**Context Builder** (standard + deep):
+**Context Builder** (standard + deep, only when the investigation touches a local project):
 - `subagent_type`: `codebase-mapper:codebase-explorer`
+- Requires the `codebase-mapper` plugin (declared as an optional dependency): when it is not installed, skip this role and note it in the final report instead of spawning (the spawn would fail). Also skipped entirely when the effective scope is `web`.
 - Focus: build a context brief of the project/area under investigation
 - Tools: Read, Glob, Grep, Bash
 - Prompt: "Explore {area} to understand the project structure, entry points, and key patterns."
 
 **Domain Expert** (deep only):
-- Auto-select `subagent_type` based on `--domain` or auto-detected topic:
-
-| Domain | Agent |
-|--------|-------|
-| security | `senior-review:security-auditor` |
-| architecture | `senior-review:code-auditor` |
-| frontend | `typescript-development:typescript-engineer` |
-| python | `python-development:python-engineer` |
-| tauri | `tauri-development:tauri-desktop` |
-| business | `business:business-planner` |
-| distributed | `senior-review:distributed-flow-auditor` |
-| performance | `react-development:react-performance-optimizer` |
-| general | `research:deep-researcher` (additional instance) |
-
+- `subagent_type`: `research:deep-researcher` (dedicated instance with a domain persona)
+- The domain comes from `--domain` or the topic detected in Phase 1. Any domain works: security, architecture, python, finance, law, nutrition, history. The persona lives in the prompt, not in a specialized agent, so this role never depends on other plugins being installed.
 - Focus: domain-specific analysis, validation of findings from other researchers
-- Prompt: "As a {domain} expert, analyze {topic}. Validate or challenge findings from other researchers."
+- Prompt: "Act as a senior {domain} expert. Analyze {topic} strictly from the {domain} perspective. Validate or challenge the findings from the other researchers, citing evidence for every confirmation or objection."
 
 ## Phase 3: Investigation
 

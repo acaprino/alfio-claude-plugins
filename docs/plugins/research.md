@@ -79,7 +79,7 @@ Deep multi-source research with parallel investigators covering the local codeba
 | `standard` | 3 | Codebase analyst + Web researcher + Context builder (`codebase-mapper:codebase-explorer`) |
 | `deep` | 4 | Codebase analyst + Web researcher + Context builder + Domain expert |
 
-Codebase and web researchers both run as `research:deep-researcher` instances scoped to a different tool set (Grep/Glob/Read/Bash for the codebase angle, WebSearch/WebFetch for the web angle). The domain expert is auto-selected from `--domain` or the detected topic: `security-auditor`, `code-auditor`, `typescript-engineer`, `python-engineer`, `tauri-desktop`, `business-planner`, `distributed-flow-auditor`, or a general `deep-researcher` instance.
+Codebase and web researchers both run as `research:deep-researcher` instances scoped to a different tool set (Grep/Glob/Read/Bash for the codebase angle, WebSearch/WebFetch for the web angle). The domain expert is a dedicated `deep-researcher` instance given a domain persona from `--domain` or the detected topic; any domain works (security, python, finance, nutrition, law), so the plugin stays self-contained and usable on any subject. The codebase-facing roles are conditional: for pure general-knowledge questions the pipeline runs web-only, and the context builder requires the optional `codebase-mapper` plugin (skipped with a note when absent).
 
 ```
 /research:team-research "How does the auth middleware chain work?" --scope codebase

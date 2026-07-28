@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Claude Code Daodan - 39 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), and pure-architecture audits (missed unification, wrong abstractions).",
-    "version": "13.2.0"
+    "version": "13.2.1"
   },
   "plugins": [
     {
@@ -336,7 +336,7 @@
       "name": "research",
       "source": "./plugins/research",
       "description": "Web research toolkit (any topic) - quick-searcher (sonnet) for single-fact web lookups and as sub-unit in deep team, deep-researcher lead orchestrator that classifies queries into authoritative/community/comparison/recency angles and either spawns parallel quick-searcher sub-agents (Mode A, top-level invocation) or runs the angles itself via WebSearch+WebFetch (Mode B, nested-subagent fallback) with cross-checked synthesis",
-      "version": "2.9.0",
+      "version": "3.0.0",
       "author": {
         "name": "Alfio"
       },
@@ -354,14 +354,10 @@
       "category": "research",
       "strict": false,
       "dependencies": [
-        "agent-teams@claude-code-workflows",
-        "codebase-mapper",
-        "senior-review",
-        "typescript-development",
-        "python-development",
-        "tauri-development",
-        "business",
-        "react-development"
+        "agent-teams@claude-code-workflows"
+      ],
+      "optionalDependencies": [
+        "codebase-mapper"
       ],
       "agents": [
         "./agents/quick-searcher.md",
