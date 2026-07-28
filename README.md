@@ -120,6 +120,67 @@ More detail in [Browser automation (Playwright)](#browser-automation-playwright)
 
 **A** = Agents, **S** = Skills, **C** = Commands
 
+### Dependency graph
+
+Solid arrows are hard dependencies (`dependencies` in `marketplace.json`: the plugin does not work without them). Dashed arrows are optional dependencies (`optionalDependencies`: used when installed, skipped gracefully otherwise). Plugins with no declared dependencies and no dependents are omitted. External upstream plugins are grouped at the bottom with their marketplace name.
+
+```mermaid
+flowchart TD
+    acphooks[acp-hooks]
+    aitooling[ai-tooling]
+    appanalyzer[app-analyzer]
+    pwaexpert[pwa-expert]
+    grabber[grabber-development]
+    digitalmarketing[digital-marketing]
+    business[business]
+    cleancode[clean-code]
+    research[research]
+    codebasemapper[codebase-mapper]
+    seniorreview[senior-review]
+    deepdive[deep-dive-analysis]
+    abstraction[abstraction-architect]
+    texthumanizer[text-humanizer]
+    reactdev[react-development]
+    platformeng[platform-engineering]
+    pythondev[python-development]
+    tsdev[typescript-development]
+
+    subgraph external [External marketplaces]
+        superpowers["superpowers<br/>(claude-plugins-official)"]
+        agentteams["agent-teams<br/>(claude-code-workflows)"]
+        playwright["playwright-skill<br/>(playwright-skill)"]
+    end
+
+    aitooling --> superpowers
+    appanalyzer --> playwright
+    pwaexpert --> playwright
+    grabber --> playwright
+    digitalmarketing --> playwright
+    digitalmarketing --> texthumanizer
+    business --> texthumanizer
+    cleancode --> texthumanizer
+    codebasemapper --> texthumanizer
+    codebasemapper --> agentteams
+    codebasemapper --> seniorreview
+    seniorreview --> agentteams
+    seniorreview --> deepdive
+    seniorreview --> abstraction
+    seniorreview --> reactdev
+    seniorreview --> platformeng
+    seniorreview --> pythondev
+    seniorreview --> tsdev
+    abstraction --> deepdive
+    deepdive --> agentteams
+    deepdive -.-> seniorreview
+    research --> agentteams
+    research -.-> codebasemapper
+    acphooks -.-> aitooling
+    acphooks -.-> seniorreview
+    acphooks -.-> research
+```
+
+The only near-cycle in the graph is deliberate: `senior-review -> deep-dive-analysis` is hard, so the reverse edge (`deep-dive-analysis`'s use of `senior-review:semantic-interconnect-mapper` in team-deep-dive Phase 3) stays optional to keep the hard-dependency graph acyclic. `text-humanizer` is a pure leaf: zero dependencies, four dependents.
+
 ### Frontend and design
 
 This marketplace deliberately ships no general frontend/design plugin. That ground is covered better by the upstream projects it used to vendor from, so go straight to the source:
