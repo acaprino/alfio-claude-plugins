@@ -1,5 +1,5 @@
 ---
-description: Audit a codebase for missed unification opportunities and wrong abstractions, or check with --diff whether newly written code was already available for reuse. Auto-launches /deep-dive-analysis:deep-dive-analysis when .deep-dive/ is missing or incomplete. Report-only.
+description: Audit a codebase for missed unification opportunities and wrong abstractions, or check with --diff whether newly written code was already available for reuse. Auto-launches /codebase-xray:analyze when .deep-dive/ is missing or incomplete. Report-only.
 argument-hint: "[path] [--diff [<base-ref>]] [--scope <subpath>] [--severity-floor low|medium|high] [--focus unification|wrong-abstraction|both]"
 ---
 
@@ -33,7 +33,7 @@ Audit a codebase for the two failure modes of pure architecture: missed unificat
 
 2. **Checks for `.deep-dive/`.** Looks for the required files: `01-structure.md`, `02-interfaces.md`, `03-flows.md`, `04-semantics.md`. The optional `08-interconnect-map.md` is also checked; if absent the audit proceeds without bounded-context fusion analysis.
 
-3. **Auto-launches deep-dive if needed.** If `.deep-dive/` is missing or incomplete, prints the status message *"No deep-dive output found at `.deep-dive/`. Launching `/deep-dive-analysis:deep-dive-analysis` first. This may take several minutes on a large codebase."* then invokes `/deep-dive-analysis:deep-dive-analysis` automatically without a confirmation prompt. If deep-dive fails, aborts with the path of the deep-dive log.
+3. **Auto-launches deep-dive if needed.** If `.deep-dive/` is missing or incomplete, prints the status message *"No deep-dive output found at `.deep-dive/`. Launching `/codebase-xray:analyze` first. This may take several minutes on a large codebase."* then invokes `/codebase-xray:analyze` automatically without a confirmation prompt. If deep-dive fails, aborts with the path of the deep-dive log.
 
    Under `--diff` this step is skipped. Diff mode consumes only `01-structure.md` and `02-interfaces.md`, uses whatever is already on disk, and runs on `Glob` plus `Grep` alone when nothing is. Launching a full deep-dive to review a handful of changed files is not worth the wait.
 
@@ -58,14 +58,14 @@ The directory is created automatically if missing. Re-running the command overwr
 
 ## Prerequisites
 
-- The `deep-dive-analysis` plugin must be installed (declared as a dependency in `marketplace.json`). `--diff` degrades gracefully without deep-dive output and reports the reduced confidence in its Gaps section.
+- The `codebase-xray` plugin must be installed (declared as a dependency in `marketplace.json`). `--diff` degrades gracefully without deep-dive output and reports the reduced confidence in its Gaps section.
 - `--diff` requires the target path to be a git repository.
-- For monorepos large enough to benefit from partitioned analysis, run `/deep-dive-analysis:team-deep-dive` first to produce `08-interconnect-map.md`; the auditor will then include bounded-context fusion findings.
+- For monorepos large enough to benefit from partitioned analysis, run `/codebase-xray:team-analyze` first to produce `08-interconnect-map.md`; the auditor will then include bounded-context fusion findings.
 
 ## Related commands
 
-- `/deep-dive-analysis:deep-dive-analysis` — produces the `.deep-dive/` input this command consumes. Auto-launched by this command when missing.
-- `/deep-dive-analysis:team-deep-dive` — partitioned deep-dive for monorepos; adds `08-interconnect-map.md` to the output.
+- `/codebase-xray:analyze` — produces the `.deep-dive/` input this command consumes. Auto-launched by this command when missing.
+- `/codebase-xray:team-analyze` — partitioned deep-dive for monorepos; adds `08-interconnect-map.md` to the output.
 - `/senior-review:code-review` and `/senior-review:team-review` — both run this agent in diff mode as their abstraction dimension, so a review already answers the "was this already available?" question for the changed code. Use `--diff` here when you want that check on its own, without the rest of the review.
 - `/clean-code:clean-code` — style and readability cleanup. Different concern.
 

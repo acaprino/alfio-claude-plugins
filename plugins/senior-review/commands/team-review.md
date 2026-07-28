@@ -43,7 +43,7 @@ Before starting, invoke these skills to inform the review process:
    - `--reviewers`: comma-separated dimensions OR `auto` (default: `auto`)
    - `--base-branch`: base branch for diff comparison (default: `main`)
    - `--all`: force all dimensions regardless of auto-detection
-   - `--deep`: run Phase 1a `deep-dive-analysis` in full mode (default: `--depth=lite`)
+   - `--deep`: run Phase 1a `codebase-xray` in full mode (default: `--depth=lite`)
    - `--skip-interconnect`: skip Phase 1 entirely and run reviewers with raw code only (backward-compat mode; `logic-integrity-auditor` is also skipped)
    - `--fast`: skip the verification + completeness-critic gate entirely (Phase 4b and 4c)
    - `--rigorous`: verify every finding above the confidence floor, ignoring the cost-guard cap
@@ -163,7 +163,7 @@ Context detection complete:
   - Skipped: platform (not fullstack), chicken-egg (no startup code), testing (no test files changed)
 
 Pipeline plan:
-  Phase 1a: deep-dive-analysis (--depth=lite)
+  Phase 1a: codebase-xray (--depth=lite)
   Phase 1b: semantic-interconnect-mapper
   Phase 2:  {N} reviewers in parallel
   Phase 3:  consolidation
@@ -178,12 +178,12 @@ Skip this phase entirely if `--skip-interconnect` was passed. Mark `phase_1a_dee
 
 ### Phase 1a: Deep-Dive Analysis
 
-> **CRITICAL: `deep-dive-analysis:deep-dive-analysis` is a SKILL, NOT an agent.**
-> There is no agent named `deep-dive-analysis`. Do NOT call the `Agent` tool with `subagent_type: "deep-dive-analysis:deep-dive-analysis"` -- it will fail with "Agent type not found".
-> Invoke it via the `Skill` tool: `Skill(skill: "deep-dive-analysis:deep-dive-analysis", args: "--depth=lite <target>")`.
+> **CRITICAL: `codebase-xray:analyze` is a SKILL, NOT an agent.**
+> There is no agent named `codebase-xray`. Do NOT call the `Agent` tool with `subagent_type: "codebase-xray:analyze"` -- it will fail with "Agent type not found".
+> Invoke it via the `Skill` tool: `Skill(skill: "codebase-xray:analyze", args: "--depth=lite <target>")`.
 > The disambiguation matters because the rest of this command (Phase 1b, Phase 2) spawns many `subagent_type: plugin:name` teammates and the same `plugin:name` shape is reused for skill identifiers -- treat Phase 1a as a Skill invocation, full stop.
 
-1. Invoke the `deep-dive-analysis:deep-dive-analysis` **skill** via the `Skill` tool against the target:
+1. Invoke the `codebase-xray:analyze` **skill** via the `Skill` tool against the target:
    - Default mode: `--depth=lite` (structure + interfaces + risks only)
    - If `--deep` flag: full analysis
    - Target scope: the files from Phase 0

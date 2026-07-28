@@ -1,6 +1,6 @@
 # Claude Code Agent Teams — Best Practices Reference
 
-> Cross-cutting knowledge base for designing, reviewing, and restructuring agentic teams in Claude Code. Used to inform changes to the team pipelines in this marketplace (senior-review, deep-dive-analysis, codebase-mapper, research) and the upstream wshobson/agents agent-teams plugin they build on, plus any agent that participates in a multi-agent pipeline.
+> Cross-cutting knowledge base for designing, reviewing, and restructuring agentic teams in Claude Code. Used to inform changes to the team pipelines in this marketplace (senior-review, codebase-xray, codebase-mapper, research) and the upstream wshobson/agents agent-teams plugin they build on, plus any agent that participates in a multi-agent pipeline.
 >
 > **Snapshot date:** 2026-05-16. Re-verify when Claude Code crosses a minor version or when the agent-teams feature flag is graduated out of experimental.
 
@@ -194,7 +194,7 @@ The gate is default-on with a finding-count cost guard (threshold 25), a `--fast
 
 This reference is the source of truth for any change to:
 
-- `plugins/deep-dive-analysis/` — partition worker and synthesizer agents that participate in `/team-deep-dive`.
+- `plugins/codebase-xray/` — partition worker and synthesizer agents that participate in `/team-analyze`.
 - `plugins/senior-review/` — every reviewer agent that participates in `/team-review` Phase 2.
 - `plugins/codebase-mapper/` — writer agents in the parallel-writers pipeline.
 - `plugins/research/` — `deep-researcher` (orchestrator) and `quick-searcher` (sub-agent worker).

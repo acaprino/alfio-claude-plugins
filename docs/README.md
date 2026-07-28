@@ -18,7 +18,7 @@ The augmentation symbiote for Claude Code. Agents, skills, and commands for deve
 | [codebase-cleanup](plugins/codebase-cleanup.md) | review | Multi-language dependency security audits, SOLID-driven refactoring, and prioritized tech-debt remediation roadmaps | 3 commands |
 | [codebase-mapper](plugins/codebase-mapper.md) | documentation | Human-readable codebase guide generator with standalone doc creation, maintenance, and humanization | 10 agents, 1 skill, 5 commands |
 | [csp](plugins/csp.md) | optimization | Constraint programming with Google OR-Tools CP-SAT solver | 1 agent |
-| [deep-dive-analysis](plugins/deep-dive-analysis.md) | review | Systematic codebase analysis - architecture, data flows, anti-patterns | 4 agents, 1 skill, 2 commands |
+| [codebase-xray](plugins/codebase-xray.md) | review | Systematic codebase analysis - architecture, data flows, anti-patterns | 4 agents, 1 skill, 2 commands |
 | [digital-marketing](plugins/digital-marketing.md) | marketing | SEO + AEO audits, GA4/GTM with Consent Mode v2, content strategy, brand naming, domain hunting, text humanization, customer review replies | 5 agents, 5 skills, 7 commands |
 | [docker](plugins/docker.md) | development | Optimized multi-stage Dockerfiles for any language or framework | 1 skill |
 | [docs](plugins/docs.md) | documentation | Craft top-tier README.md files with progressive disclosure, badges, quick start | 1 skill, 1 command |
@@ -70,10 +70,10 @@ The augmentation symbiote for Claude Code. Agents, skills, and commands for deve
 /map-codebase ../other-project
 ```
 
-The four relocated multi-agent pipeline commands are documented in their host plugin docs: `/senior-review:team-review` in [senior-review](plugins/senior-review.md), `/deep-dive-analysis:team-deep-dive` in [deep-dive-analysis](plugins/deep-dive-analysis.md), `/codebase-mapper:team-codebase-map` in [codebase-mapper](plugins/codebase-mapper.md), `/research:team-research` in [research](plugins/research.md). For generic team orchestration (`/agent-teams:team-feature`, `/agent-teams:team-debug`, `/agent-teams:team-spawn` presets), install the upstream `wshobson/agents` plugin.
+The four relocated multi-agent pipeline commands are documented in their host plugin docs: `/senior-review:team-review` in [senior-review](plugins/senior-review.md), `/codebase-xray:team-analyze` in [codebase-xray](plugins/codebase-xray.md), `/codebase-mapper:team-codebase-map` in [codebase-mapper](plugins/codebase-mapper.md), `/research:team-research` in [research](plugins/research.md). For generic team orchestration (`/agent-teams:team-feature`, `/agent-teams:team-debug`, `/agent-teams:team-spawn` presets), install the upstream `wshobson/agents` plugin.
 
 ## References
 
 Cross-cutting knowledge bases that inform changes across multiple plugins.
 
-- [Agent Teams best practices](references/agent-teams-best-practices.md) — when to spawn a team vs a subagent vs a single Claude, sizing, ownership, hooks, hard limits, and operational do's and don'ts. Source of truth when restructuring `senior-review`, `codebase-mapper`, `research`, `deep-dive-analysis` (the team pipelines). Snapshot 2026-05-16.
+- [Agent Teams best practices](references/agent-teams-best-practices.md) — when to spawn a team vs a subagent vs a single Claude, sizing, ownership, hooks, hard limits, and operational do's and don'ts. Source of truth when restructuring `senior-review`, `codebase-mapper`, `research`, `codebase-xray` (the team pipelines). Snapshot 2026-05-16.

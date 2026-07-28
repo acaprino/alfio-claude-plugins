@@ -253,7 +253,7 @@ Multi-dimensional code review as a **4-phase pipeline**: context building first,
 |-------|---------------|
 | 0. Target resolution | Resolves `<target>` (path, git diff range, or PR number) and collects the diff |
 | 0b. Context detection | Auto-selects review dimensions from changed files and codebase signals (skipped if `--reviewers` is explicit) |
-| 1a. Deep-dive analysis | Invokes the `deep-dive-analysis:deep-dive-analysis` **skill** (`--depth=lite` by default, full with `--deep`) |
+| 1a. Deep-dive analysis | Invokes the `codebase-xray:analyze` **skill** (`--depth=lite` by default, full with `--deep`) |
 | 1b. Interconnect mapping | `semantic-interconnect-mapper` builds `.team-review/02-interconnect.md` |
 | 2. Adversarial review | Spawns one teammate per dimension in parallel, each reading the deep-dive output plus the interconnect map |
 | 3. Consolidation | Deduplicates findings, resolves severity conflicts, organizes by severity |

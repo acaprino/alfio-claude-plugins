@@ -13,7 +13,7 @@ This command launches an interactive session to create a new `CLAUDE.md` file pe
 
 ## Pre-flight: detect existing deep-dive output
 
-Before the agent starts its own bottom-up analysis, check whether the project already has technical-reference output on disk from a previous `/deep-dive-analysis` session:
+Before the agent starts its own bottom-up analysis, check whether the project already has technical-reference output on disk from a previous `/codebase-xray:analyze` session:
 
 ```bash
 ls .deep-dive/01-structure.md .deep-dive/02-interfaces.md 2>/dev/null
@@ -22,7 +22,7 @@ ls .deep-dive/01-structure.md .deep-dive/02-interfaces.md 2>/dev/null
 If both files exist, prompt the user:
 
 ```
-Found .deep-dive/ from a previous /deep-dive-analysis session.
+Found .deep-dive/ from a previous /codebase-xray:analyze session.
 Available technical references:
   - 01-structure.md (file inventory, dependency graph, entry points, naming conventions)
   - 02-interfaces.md (public APIs, contracts, "How to Add a New Module")
@@ -121,4 +121,4 @@ Your new CLAUDE.md will:
 ## Related Commands
 
 - `/maintain-claude-md` - Audit and improve existing CLAUDE.md
-- `/deep-dive-analysis` - Run first to generate `.deep-dive/` technical references; this command can then ingest them as the structure backbone
+- `/codebase-xray:analyze` - Run first to generate `.deep-dive/` technical references; this command can then ingest them as the structure backbone

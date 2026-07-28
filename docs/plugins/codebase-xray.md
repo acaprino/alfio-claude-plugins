@@ -1,0 +1,93 @@
+# Codebase X-Ray Plugin
+
+> Understand any codebase in minutes. Seven-phase analysis maps structure, traces flows, identifies risks, and documents the WHY behind the code - not just what it does. Renamed from `deep-dive-analysis` in plugin 2.0.0 (marketplace 14.0.0); the output artifact directory is still `.deep-dive/`.
+
+## Concurrent runs
+
+Every analysis is an isolated run under `.deep-dive/runs/<run-id>/` with its own `state.json`, registered in `.deep-dive/runs.json`. Multiple analyses can proceed at the same time (different targets, different sessions, or a re-analysis alongside an older one) without touching each other's files. On completion a run is **published**: its `01..08.md` files are mirrored to the `.deep-dive/` root, which is the stable contract downstream consumers read (`/senior-review:team-review`, `/senior-review:code-review`, `/codebase-mapper:map-codebase`, `/project-setup:create-claude-md`). Use `--run-name <name>` for explicit run identity; otherwise the run-id derives from the target slug plus a timestamp.
+
+## Agents
+
+These four agents exist to serve `/codebase-xray:team-analyze` below. The classic `/codebase-xray:analyze` command runs its seven phases inline without spawning these agents; nothing here is used outside the team pipeline.
+
+| Agent | Model | Runs during | Produces (inside the run directory) |
+|-------|-------|--------------|----------|
+| `partition-structure-worker` | `inherit` | Phase 1 Wave 1: Structure + Interfaces | `partitions/<name>/01-structure.md`, `02-interfaces.md` |
+| `partition-behavior-worker` | `inherit` | Phase 1 Wave 2: Flows + Semantics (skipped under `--depth=lite`) | `partitions/<name>/03-flows.md`, `04-semantics.md` |
+| `partition-quality-worker` | `inherit` | Phase 1 Wave 2: Risks + Documentation | `partitions/<name>/05-risks.md`, `06-documentation.md` (05 only under `--depth=lite`) |
+| `partition-synthesizer` | `inherit` | Phase 2: Consolidation | `01-structure.md` through `07-final-report.md` (consolidated across partitions) |
+
+Each worker owns only its listed output files and never touches another partition's files, the consolidated output, or the `.deep-dive/` root (other runs may be in flight). Cross-partition references use `<other-partition>::<symbol>` citation notation.
+
+---
+
+## Skills
+
+### `analyze`
+
+Systematic codebase analysis that combines structure extraction with semantic understanding. Ships the multi-language script suite (Python stdlib-only; optional tree-sitter for Java/JS/TS/Rust fidelity; Python >= 3.10).
+
+| | |
+|---|---|
+| **Invoke** | `/codebase-xray:analyze` |
+| **Use for** | Codebase understanding, architecture mapping, onboarding, pre-review ground truth |
+
+**Capabilities:**
+- Extract code structure (classes, functions, imports)
+- Map internal/external dependencies
+- Recognize architectural patterns
+- Identify anti-patterns and red flags
+- Trace data and control flows
+
+---
+
+## Commands
+
+### `/codebase-xray:analyze`
+
+7-phase systematic codebase analysis with per-run state management, output files, and phased execution: structure -> interfaces -> flows -> semantics -> risks -> documentation -> report.
+
+```
+/codebase-xray:analyze src/core/ --critical
+/codebase-xray:analyze src/api --run-name api      # named run, safe to run others concurrently
+```
+
+**Output:** `.deep-dive/runs/<run-id>/` with 7 phase files and a final consolidated report, published to the `.deep-dive/` root on completion.
+
+---
+
+### `/codebase-xray:team-analyze`
+
+Multi-agent variant of `/codebase-xray:analyze` for large or partitioned codebases: auto-detects partitions, runs the structural/behavioral/quality phases in parallel per partition across two waves, then consolidates into the same `01..07.md` layout plus a global cross-partition interconnect map, all inside an isolated run directory.
+
+**Prerequisites:** requires the upstream `agent-teams` plugin (`wshobson/agents`, MIT) for the `agent-teams:task-coordination-strategies`, `agent-teams:team-communication-protocols`, and `agent-teams:parallel-feature-development` skills:
+
+```
+/plugin marketplace add wshobson/agents
+/plugin install agent-teams@claude-code-workflows
+```
+
+| | |
+|---|---|
+| **Invoke** | `/codebase-xray:team-analyze <target> [--critical] [--comments] [--depth=lite\|full] [--partition <path>] [--skip-interconnect] [--skip-synthesis] [--run-name <name>] [--yes]` |
+
+**Pipeline:**
+
+1. **Partition detection** (Phase 0): explicit workspace manifests (pnpm/npm workspaces, Lerna, Nx, Turbo, Cargo, uv) -> convention-based monorepo layout (`apps/`, `packages/`, `services/`) -> frontend/backend layer split -> language-cluster split -> single-partition fallback. Presents a checkpoint to accept, modify, or manually override the partition list before spawning anything. Creates the team via `TeamCreate`.
+2. **Wave 1** (parallel): one `partition-structure-worker` per partition writes structure and interfaces.
+3. **Wave 2** (parallel): `partition-behavior-worker` and `partition-quality-worker` per partition write flows/semantics and risks/documentation, each citing sibling partitions' Wave 1 output for cross-partition calls. Under `--depth=lite` the behavior workers are not spawned and quality workers write risks only.
+4. **Synthesis**: `partition-synthesizer` consolidates every partition's output into the standard `01-structure.md` through `07-final-report.md` files inside the run directory, flagging any failed partition inline.
+5. **Interconnect map**: `senior-review:semantic-interconnect-mapper` reads the consolidated output and produces `08-interconnect-map.md`, the global cross-partition contract/invariant map that `/senior-review:team-review` reuses directly.
+6. **Publish**: the consolidated set (and interconnect map) is mirrored to the `.deep-dive/` root for downstream consumers, and the run is closed in `runs.json`.
+
+```
+/codebase-xray:team-analyze .                                   # auto-detect, full depth
+/codebase-xray:team-analyze . --depth=lite                      # lite mode, fewer agents
+/codebase-xray:team-analyze . --partition packages/api --partition packages/web --yes
+```
+
+Resume-safe: re-running against an in-progress run in `runs.json` re-spawns only the missing workers for the phase that stopped.
+
+---
+
+**Related:** [codebase-mapper](codebase-mapper.md) (generates 10 narrative documents from codebase exploration) | [senior-review](senior-review.md) (code review agents that run after the X-ray)

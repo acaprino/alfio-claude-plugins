@@ -120,7 +120,7 @@ These commands orchestrate multi-agent teams for complex tasks. Prefer them over
 | Debug with competing hypotheses | `/agent-teams:team-debug` (requires the upstream wshobson/agents agent-teams plugin) |
 | Deep multi-source research | `/research:team-research` |
 | Map an unfamiliar codebase | `/codebase-mapper:team-codebase-map` |
-| Deep-dive a monorepo or partitioned codebase | `/deep-dive-analysis:team-deep-dive` |
+| X-ray a monorepo or partitioned codebase | `/codebase-xray:team-analyze` |
 
 If the user's request matches a team scope, suggest the team command instead of invoking individual skills.
 

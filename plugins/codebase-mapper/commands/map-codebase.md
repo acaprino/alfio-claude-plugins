@@ -2,7 +2,7 @@
 description: >
   Generate a human-readable codebase guide - explores the project, writes 10 narrative documents with Mermaid diagrams, and produces an INDEX.md entry point.
   TRIGGER WHEN: the user asks to onboard to an unfamiliar project, generate a codebase tour, or produce a full narrative guide for new contributors.
-  DO NOT TRIGGER WHEN: the user wants structured AST/dependency analysis (use /deep-dive-analysis:deep-dive-analysis) or just API docs (use /codebase-mapper:docs-create).
+  DO NOT TRIGGER WHEN: the user wants structured AST/dependency analysis (use /codebase-xray:analyze) or just API docs (use /codebase-mapper:docs-create).
 argument-hint: "[target-path]"
 ---
 

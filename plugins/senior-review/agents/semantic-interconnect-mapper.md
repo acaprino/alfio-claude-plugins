@@ -1,7 +1,7 @@
 ---
 name: semantic-interconnect-mapper
 description: >
-  Phase 1b for pipelines that need a structured map of the code's contracts, invariants, domain rules, and integration hot-spots. Used by /team-review (fed by deep-dive-analysis) and by /map-codebase (fed by codebase-explorer's context brief). Output drives downstream reviewers, writers, and reviewers hunting documentation drift.
+  Phase 1b for pipelines that need a structured map of the code's contracts, invariants, domain rules, and integration hot-spots. Used by /team-review (fed by codebase-xray) and by /map-codebase (fed by codebase-explorer's context brief). Output drives downstream reviewers, writers, and reviewers hunting documentation drift.
   TRIGGER WHEN: the user runs /team-review or /map-codebase, or explicitly asks to map contracts, invariants, call graphs, or integration boundaries.
   DO NOT TRIGGER WHEN: no prior context artifact exists (neither .deep-dive/ nor a context-brief.md), or the task is a surface-level operation that does not need the map.
 tools: Read, Write, Glob, Grep
@@ -30,7 +30,7 @@ Before starting, locate and read these inputs. The invoking command specifies wh
 
 1. **Primary context source** (one of the following, required):
 
-   **1a. Deep-dive output directory** (used by `/team-review`): `.deep-dive/` from the prior `deep-dive-analysis` run
+   **1a. Deep-dive output directory** (used by `/team-review`): `.deep-dive/` from the prior `codebase-xray` run
    - `01-structure.md` -- file inventory, dependency graph, entry points
    - `02-interfaces.md` -- public APIs, exported symbols, contracts declared explicitly
    - `05-risks.md` -- anti-patterns, red flags identified

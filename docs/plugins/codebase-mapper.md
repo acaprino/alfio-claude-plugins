@@ -182,4 +182,4 @@ Output is identical in shape to `/map-codebase` (`.codebase-map/` with 10 number
 
 ---
 
-**Related:** [deep-dive-analysis](deep-dive-analysis.md) (structural analysis)
+**Related:** [codebase-xray](codebase-xray.md) (structural analysis)

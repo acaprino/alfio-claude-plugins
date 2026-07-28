@@ -19,7 +19,7 @@ Gates and consolidation rules shared by /senior-review:team-review and /senior-r
 
 When `/team-review` runs in pipeline mode (no `--skip-interconnect`), reviewers do not receive raw code only. They receive two context artifacts produced in Phase 1:
 
-1. **Deep-dive output** at `.deep-dive/` (from `deep-dive-analysis` plugin): `01-structure.md`, `02-interfaces.md`, `05-risks.md`, and optionally `03-flows.md`, `04-semantics.md`, `06-documentation.md`, `07-final-report.md`.
+1. **Deep-dive output** at `.deep-dive/` (from `codebase-xray` plugin): `01-structure.md`, `02-interfaces.md`, `05-risks.md`, and optionally `03-flows.md`, `04-semantics.md`, `06-documentation.md`, `07-final-report.md`.
 2. **Interconnect map** at `.team-review/02-interconnect.md` (from `senior-review:semantic-interconnect-mapper`): contracts (formal / structural / implicit), invariants, domain rules, assumptions (verified / documented / unverified), integration hot-spots, change impact radius.
 
 ### Why context sharing matters

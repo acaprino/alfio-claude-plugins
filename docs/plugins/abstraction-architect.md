@@ -4,7 +4,7 @@
 
 ## Prerequisites
 
-The `deep-dive-analysis` plugin is a hard dependency: the global audit consumes `.deep-dive/` output and `/abstraction-architect:audit` auto-launches deep-dive when that output is missing. Diff mode degrades gracefully without it.
+The `codebase-xray` plugin is a hard dependency: the global audit consumes `.deep-dive/` output and `/abstraction-architect:audit` auto-launches deep-dive when that output is missing. Diff mode degrades gracefully without it.
 
 ## Agents
 
@@ -25,7 +25,7 @@ Use the abstraction-architect agent to audit [path] for missed unification and w
 Also spawned by `/abstraction-architect:audit` and, in diff mode, as the Abstraction dimension of `/senior-review:team-review` and `/senior-review:code-review`.
 
 **Key behaviors (global mode):**
-- Reads `01-structure.md`, `02-interfaces.md`, `03-flows.md`, `04-semantics.md`, plus `08-interconnect-map.md` when `/deep-dive-analysis:team-deep-dive` produced it
+- Reads `01-structure.md`, `02-interfaces.md`, `03-flows.md`, `04-semantics.md`, plus `08-interconnect-map.md` when `/codebase-xray:team-analyze` produced it
 - Three passes: missed unification (call-site clusters sharing a structural shape), wrong abstraction (god services, `utils` dumping grounds, flag-soup functions, premature interfaces), boundary violations (responsibility vs dependency mismatches, bounded-context fusion)
 - Applies the Rule of Three: clusters with fewer than three sites are downgraded or dropped
 - Writes the report to `.abstraction-architect/findings.md`
@@ -67,13 +67,13 @@ References, loaded on demand by the agent: `theory.md`, `unification-patterns.md
 | `--severity-floor low\|medium\|high` | Drop findings below this severity (default `medium`) |
 | `--focus unification\|wrong-abstraction\|both` | Restrict to one category (default `both`). Under `--diff`, `unification` maps to classes R1-R4 and `wrong-abstraction` to R5 |
 
-Without `--diff`, the command checks for `.deep-dive/` and auto-launches `/deep-dive-analysis:deep-dive-analysis` when it is missing or incomplete. Report-only: no file outside `.abstraction-architect/` is ever edited, and the suggested direction in each finding is one sentence, not a refactoring plan.
+Without `--diff`, the command checks for `.deep-dive/` and auto-launches `/codebase-xray:analyze` when it is missing or incomplete. Report-only: no file outside `.abstraction-architect/` is ever edited, and the suggested direction in each finding is one sentence, not a refactoring plan.
 
 ## Ecosystem integration
 
 - **`/senior-review:team-review`** activates the agent in diff mode as the conditional Abstraction dimension whenever the review target resolves to a diff that adds code and this plugin is installed. Plain file/directory targets skip the dimension and point here instead.
 - **`/senior-review:code-review`** runs it as Agent J (Abstraction & Reuse Review) under the same conditions.
 - **`senior-review:code-auditor`** keeps the single-file abstraction smells (leaky abstractions, premature interfaces, god objects); this agent owns the cross-file reuse question. The dedup boundary is declared on both sides.
-- **`/deep-dive-analysis:team-deep-dive`** adds `08-interconnect-map.md` to the deep-dive output, which enables the bounded-context fusion findings in global mode.
+- **`/codebase-xray:team-analyze`** adds `08-interconnect-map.md` to the deep-dive output, which enables the bounded-context fusion findings in global mode.
 
-**Related:** [deep-dive-analysis](deep-dive-analysis.md) (produces the `.deep-dive/` input) | [senior-review](senior-review.md) (`/team-review` Abstraction dimension, code-review Agent J, code-auditor dedup boundary) | [clean-code](clean-code.md) (readability cleanup, different concern)
+**Related:** [codebase-xray](codebase-xray.md) (produces the `.deep-dive/` input) | [senior-review](senior-review.md) (`/team-review` Abstraction dimension, code-review Agent J, code-auditor dedup boundary) | [clean-code](clean-code.md) (readability cleanup, different concern)

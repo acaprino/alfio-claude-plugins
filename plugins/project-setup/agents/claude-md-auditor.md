@@ -115,7 +115,7 @@ If `.deep-dive/` exists with at least `01-structure.md` AND `02-interfaces.md`:
 1. Read `.deep-dive/state.json` if present to confirm the analysis is complete (not stale/in-progress).
 2. Surface the finding to the user (during the create flow this comes from the host command's pre-flight; during the audit/maintain flow ask explicitly):
    ```
-   Found .deep-dive/ from a previous /deep-dive-analysis session
+   Found .deep-dive/ from a previous /codebase-xray:analyze session
    (target: <state.json target>, status: <state.json status>, completed: <state.json started_at>).
    Available docs:
      - 01-structure.md (file inventory, dependency graph, naming conventions)

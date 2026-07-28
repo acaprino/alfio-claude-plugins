@@ -1,0 +1,589 @@
+---
+description: >
+  Systematic codebase analysis (X-ray) combining structure extraction with semantic understanding - documents WHAT, WHY, HOW, and CONSEQUENCES of code with phased output and concurrent run support.
+  TRIGGER WHEN: the user asks for a deep analysis of an unfamiliar codebase, pre-review context, or a structure-plus-semantics snapshot.
+  DO NOT TRIGGER WHEN: the user wants human-readable narrative docs (use /codebase-mapper:map-codebase) or a shallow overview.
+argument-hint: "<target path> [--critical] [--comments] [--docs-only] [--phase N] [--depth=lite|full] [--run-name <name>]"
+---
+
+# Codebase X-Ray Analysis
+
+## CRITICAL RULES
+
+1. **Execute phases in order.** Unless `--phase N` skips to a specific phase.
+2. **Write output files.** Each phase produces a file in the run directory for context passing.
+3. **Run isolation.** All writes go to `$RUN_DIR` until the publish step. Never write phase files to the `.deep-dive/` root during analysis: concurrent runs share that root.
+4. **Stop at checkpoints.** Confirm scope before starting analysis and before applying changes.
+5. **Never enter plan mode.** Execute immediately.
+6. **Code is ground truth.** Document what the code actually does, not what you think it should do.
+
+## Tool Integration
+
+The scripts in `${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/` are language-aware and support: **Python, Java, JavaScript, TypeScript (incl. TSX/JSX), SQL, PL/SQL, Rust**. You MUST use them instead of manual file reading whenever the target file matches one of those languages.
+
+- **Phase 1-2 (Structure):** Use `ast_parser.py` for class/function/import extraction and `classifier.py` for file classification. Do NOT attempt to parse AST manually or count imports with grep.
+- **Phase 5 (Risks):** Use `usage_finder.py` to trace symbol usages across the codebase. Multi-language: matches Python `from/import`, Java `import`, JS/TS `import`/`require`, Rust `use`, etc.
+- **Phase 6 (Docs):** Use `doc_review.py` for link validation and marker checks, and `rewrite_comments.py` for multi-language comment quality analysis (Python `#`/docstrings, Java/JS/TS `//` / `/* */` / Javadoc / JSDoc, SQL/PL-SQL `--` / `/* */`, Rust `//` / rustdoc).
+
+For unsupported languages, use the Read tool and Grep tool directly. Tree-sitter is optional (see Prerequisites in the `codebase-xray:analyze` skill): when `tree-sitter-language-pack` is installed, Java/JS/TS/Rust use the tree-sitter parsers for higher fidelity; otherwise a regex fallback is used. Python always uses the stdlib `ast` module. SQL/PL-SQL use a regex-based DDL extractor.
+
+Do NOT use raw bash commands (cat, grep, find) to extract structure when a dedicated script exists. The scripts use real parsers, which are faster, more accurate, and consume fewer tokens than reading files line by line.
+
+## Forbidden Files
+
+NEVER read or include contents from:
+- `.env`, `.env.*` - environment variables with secrets
+- `credentials.*`, `secrets.*`, `*secret*`, `*credential*`
+- `*.pem`, `*.key`, `*.p12`, `*.pfx` - certificates and private keys
+- `id_rsa*`, `id_ed25519*` - SSH keys
+- `.npmrc`, `.pypirc`, `.netrc` - auth tokens
+- Any file that appears to contain API keys, passwords, or tokens
+
+If encountered: note file existence only ("`.env` present - contains environment config"). NEVER quote contents.
+
+## Pre-flight
+
+### 1. Resolve the run
+
+Analyses are concurrent-safe: each invocation is an isolated **run** under `.deep-dive/runs/<run-id>/` (see `## Concurrent Runs Model` in the `codebase-xray:analyze` skill).
+
+1. Compute `run-id`: value of `--run-name` (normalized to `[a-z0-9-]`) or `<slug-of-target>-<YYYYMMDD-HHMMSS>`. On collision with an existing run directory, append `-2`, `-3`, ...
+2. Set `RUN_DIR = .deep-dive/runs/<run-id>`.
+3. Read `.deep-dive/runs.json` if it exists:
+   - **Active runs listed**: show them (run-id, target, mode, started_at) and ask: resume one of them, or start this new run alongside? Starting alongside is normal and safe; runs never share files.
+   - **Legacy layout** (root `state.json` with a `current_phase` field and no `runs.json`): offer to migrate the old files into `.deep-dive/runs/legacy-<date>/` before proceeding.
+4. Register the run: create/update `runs.json` with read-modify-write, appending `{run_id, target, mode: "classic", started_at}` to `active`. Never drop entries you did not create.
+
+### 2. Initialize state
+
+Create `$RUN_DIR/` and `$RUN_DIR/state.json`:
+
+```json
+{
+  "run_id": "<run-id>",
+  "target": "$ARGUMENTS",
+  "mode": "classic",
+  "status": "in_progress",
+  "flags": {
+    "critical": false,
+    "comments": false,
+    "docs_only": false,
+    "phase": null,
+    "depth": "full"
+  },
+  "current_phase": 1,
+  "completed_phases": [],
+  "files_created": [],
+  "started_at": "ISO_TIMESTAMP"
+}
+```
+
+Parse flags: `--critical` (prioritize high-risk code), `--comments` (comment quality mode), `--docs-only` (documentation health only, skip to Phase 6), `--phase N` (start at phase N), `--depth=lite` (lightweight analysis: skip flow tracing diagrams, state machine diagrams, and detailed dependency analysis for non-critical files, producing only structure + interfaces + risks + final summary), `--run-name <name>` (explicit run identity for concurrent or repeated analyses).
+
+### 3. Confirm scope
+
+Scan the target and present:
+
+```
+X-ray target: [path]
+Run: [run-id]  (concurrent active runs: [count or "none"])
+Files to analyze: [count] ([language breakdown])
+Flags: [active flags]
+
+Analysis phases:
+1. Structure Extraction -- file inventory, dependency graph
+2. Interface Analysis -- public APIs, contracts, exports
+3. Flow Tracing -- data flow, control flow, critical paths
+4. Semantic Understanding -- WHY code exists, design decisions, ADRs
+5. Pattern & Risk Detection -- anti-patterns, red flags, tech debt
+6. Documentation Health -- existing docs accuracy, gaps
+7. Final Report -- consolidated findings
+
+1. Proceed with full analysis
+2. Analyze specific phase only (--phase N)
+3. Quick scan (phases 1-2 only)
+4. Lite mode (--depth=lite: structure + interfaces + risks + summary, skip detailed flows/diagrams)
+5. Cancel
+```
+
+## Parallel Execution Strategy
+
+After scope confirmation, execute in two waves. All agents write output files directly to `$RUN_DIR/` and receive the target path, the run directory, and active flags as context.
+
+### Full depth (default)
+
+**Wave 1 -- Structure (sequential, must complete first):**
+
+- **Agent A (Structure):** Executes Phase 1 + Phase 2. Writes `$RUN_DIR/01-structure.md` and `$RUN_DIR/02-interfaces.md`.
+
+Wait for Agent A to complete. Its output provides the structural foundation (dependency graph, entry points, module inventory) that Agents B and C need to do meaningful analysis.
+
+**Wave 2 -- Behavior + Quality (parallel, with structure context):**
+
+- **Agent B (Behavior):** Executes Phase 3 + Phase 4. Receives `$RUN_DIR/01-structure.md` as input context. Writes `$RUN_DIR/03-flows.md` and `$RUN_DIR/04-semantics.md`.
+- **Agent C (Quality):** Executes Phase 5 + Phase 6. Receives `$RUN_DIR/01-structure.md` as input context. Writes `$RUN_DIR/05-risks.md` and `$RUN_DIR/06-documentation.md`.
+
+Wait for both agents to complete, then execute Phase 7 in the main context.
+
+### Lite depth (`--depth=lite`)
+
+Lightweight mode for smaller projects, MVPs, or quick assessments. Spawn 2 agents:
+
+- **Agent A (Structure):** Executes Phase 1 + Phase 2. Writes `$RUN_DIR/01-structure.md` and `$RUN_DIR/02-interfaces.md`.
+- **Agent B (Risks):** Executes Phase 5 only. Writes `$RUN_DIR/05-risks.md`.
+
+Skip Phase 3 (Flow Tracing), Phase 4 (Semantic Understanding), and Phase 6 (Documentation Health). In Phase 5, skip detailed state machine diagrams and Mermaid flowcharts for non-critical files, focusing on anti-patterns, red flags, and tech debt items.
+
+Wait for both agents to complete, then generate a condensed `$RUN_DIR/07-final-report.md` covering structure, interfaces, and risks only. The report omits the "Critical Paths", "Design Insights", "Key Process Diagrams", and "Documentation vs Reality" sections.
+
+### Overrides
+
+If `--phase N` or `--docs-only` flags are set, skip parallel execution and run only the requested phase(s) sequentially.
+
+---
+
+## Phase 1: Structure Extraction
+
+Scan all files in the target and build a structural map.
+
+For each file, extract:
+- Module/file name and path
+- Language and framework
+- Imports and dependencies
+- Exported symbols (functions, classes, constants)
+- File size and complexity indicators (line count, function count)
+
+**Output file:** `$RUN_DIR/01-structure.md`
+
+```markdown
+# Phase 1: Structure Extraction
+
+## File Inventory
+| File | Language | Lines | Functions | Classes | Imports |
+|------|----------|-------|-----------|---------|---------|
+| ... | ... | ... | ... | ... | ... |
+
+## Dependency Graph
+[Mermaid diagram of module dependencies]
+
+## Entry Points
+[Main files, API routes, CLI handlers]
+
+## Key Observations
+[Notable structural patterns or concerns]
+
+## Where to Add New Code
+[For each major directory, describe what belongs there]
+- New feature module: `[path]`
+- New API endpoint: `[path]`
+- New utility: `[path]`
+- New tests: `[path]`
+
+## Naming Conventions
+[Prescriptive: "Use X" not "X is used"]
+- Files: [pattern]
+- Functions: [pattern]
+- Classes: [pattern]
+```
+
+Update `$RUN_DIR/state.json`: add phase 1 to `completed_phases`.
+
+---
+
+## Phase 2: Interface Analysis
+
+For each module, document the public interface:
+
+- Function signatures with parameter types and return types
+- Class hierarchies and method signatures
+- API endpoints with request/response shapes
+- Configuration interfaces
+- Event/signal contracts
+
+**Output file:** `$RUN_DIR/02-interfaces.md`
+
+```markdown
+# Phase 2: Interface Analysis
+
+## Public APIs
+[Organized by module]
+
+## Contracts
+[Interface definitions, type shapes, schemas]
+
+## External Dependencies
+[Third-party libraries and how they're used]
+
+## How to Add a New Module
+[Step-by-step guide based on existing patterns]
+1. Create file at `[path]`
+2. Follow interface pattern from `[example file]`
+3. Register in `[registration point]`
+4. Add tests at `[test path]`
+```
+
+---
+
+## Phase 3: Flow Tracing
+
+Trace critical execution paths through the codebase:
+
+- Request lifecycle (entry → processing → response)
+- Data transformation pipeline (input → validation → processing → output)
+- Error propagation paths (where errors originate, how they're handled)
+- State mutation flows (what changes state, side effects)
+
+If `--critical` flag is set, prioritize:
+- Authentication/authorization flows
+- Payment/transaction flows
+- Data persistence flows
+
+**Output file:** `$RUN_DIR/03-flows.md`
+
+```markdown
+# Phase 3: Flow Tracing
+
+## Critical Paths
+[Step-by-step flow descriptions with file:line references]
+
+## Data Flow
+[How data transforms through the system]
+
+## Error Handling Paths
+[Where errors originate and how they propagate]
+
+## Side Effects
+[Functions with side effects and their blast radius]
+
+## Process Diagrams
+
+For each significant process discovered, generate a Mermaid flowchart diagram. Categorize each diagram as Technical, Functional, or End-to-End.
+
+### Technical Processes
+[Internal system mechanics - how components interact at code level]
+[One Mermaid flowchart per process, e.g. request handling pipeline, database transaction flow, cache invalidation]
+
+### Functional Processes
+[Business logic flows - what the system does from a domain perspective]
+[One Mermaid flowchart per process, e.g. user registration, order processing, notification dispatch]
+
+### End-to-End Processes
+[Full user journeys spanning multiple components and services]
+[One Mermaid flowchart per process, e.g. complete purchase flow from cart to confirmation, onboarding flow from signup to first action]
+
+Diagram guidelines:
+- Limit to the 5 most critical/complex paths per category to avoid noise. Reference additional flows in prose.
+- Use `flowchart TD` (top-down) for linear processes, `flowchart LR` (left-right) for pipelines
+- Include decision nodes (`{condition}`) for branching logic
+- Label edges with conditions, data passed, or HTTP methods
+- Reference source files as comments: `%% src/auth/login.py::handle_request`
+- Mark error/failure paths with dotted lines: `-->|error|`
+- Keep each diagram under 30 nodes - split large processes into sub-diagrams
+```
+
+---
+
+## Phase 4: Semantic Understanding
+
+This is the AI-powered phase -- understand the **WHY** behind the code:
+
+- Business purpose of each module
+- Design decisions and trade-offs (inferred from code patterns)
+- Historical context (from git blame and commit messages)
+- Assumptions embedded in the code
+- Implicit contracts not documented anywhere
+- Architecture Decision Records (ADRs) -- document rejected alternatives and WHY they were rejected, so future developers don't reintroduce failed approaches
+
+**Output file:** `$RUN_DIR/04-semantics.md`
+
+```markdown
+# Phase 4: Semantic Understanding
+
+## Module Purposes
+[WHY each module exists, not just WHAT it does]
+
+## Design Decisions
+[Inferred decisions and their trade-offs]
+
+## Architecture Decision Records
+[For each significant design choice discovered, document as an ADR:]
+- **Decision:** [What was chosen]
+- **Context:** [What problem it solves]
+- **Alternatives rejected:** [What was NOT chosen and WHY]
+- **Consequences:** [Trade-offs accepted]
+
+ADRs bridge the gap between temporal purity (document only the present) and historical
+knowledge (don't repeat past mistakes). The code shows WHAT was chosen; ADRs preserve
+WHY alternatives were rejected.
+
+## Embedded Assumptions
+[Assumptions the code makes that aren't documented]
+
+## Hidden Contracts
+[Implicit agreements between modules]
+
+## Conventions to Follow
+[Prescriptive rules derived from observed patterns]
+- Error handling: [pattern]
+- Logging: [pattern]
+- Configuration: [pattern]
+```
+
+---
+
+## Phase 5: Pattern & Risk Detection
+
+Scan for anti-patterns, red flags, and technical debt:
+
+- **Anti-patterns**: God objects, spaghetti code, shotgun surgery, feature envy
+- **Red flags**: Swallowed exceptions, hardcoded credentials, race conditions, N+1 queries
+- **Technical debt**: TODO/FIXME comments, deprecated APIs, outdated patterns
+- **Failure modes**: What breaks under load, edge cases, missing error handling
+
+**Output file:** `$RUN_DIR/05-risks.md`
+
+```markdown
+# Phase 5: Pattern & Risk Detection
+
+## Anti-Patterns Found
+[Organized by severity]
+
+## Red Flags
+[Security, reliability, and performance risks]
+
+## Technical Debt Inventory
+[TODO/FIXME items, deprecated usage, modernization opportunities]
+
+## Failure Mode Analysis
+[What could break and under what conditions]
+```
+
+---
+
+## Phase 6: Documentation Health
+
+Evaluate existing documentation against the code reality:
+
+- **Accuracy**: Do docs match the actual code?
+- **Completeness**: What's documented vs what should be?
+- **Freshness**: When were docs last updated vs code?
+- **Broken links**: References to files/functions that don't exist
+- **Comment quality**: Using antirez standards (if `--comments` flag)
+
+If `--comments` flag is set, also analyze comment quality:
+- Identify trivial/debt/backup comments
+- Score comment usefulness
+- Suggest rewrites following antirez standards
+
+**Output file:** `$RUN_DIR/06-documentation.md`
+
+```markdown
+# Phase 6: Documentation Health
+
+## Documentation vs Code Accuracy
+[Mismatches between docs and reality]
+
+## Coverage Gaps
+[Undocumented public APIs, missing architecture docs]
+
+## Broken References
+[Dead links, non-existent file paths in docs]
+
+## Comment Quality [if --comments]
+[Comment audit with improvement suggestions]
+```
+
+---
+
+## Phase 7: Final Report
+
+Synthesize all `$RUN_DIR/*.md` files (01 through 06) into a consolidated report.
+
+**Context management strategy** (to avoid "lost in the middle" on large codebases):
+1. Read each phase file one at a time
+2. After reading each file, extract the key findings into a running summary (max 5 bullet points per phase)
+3. After processing all 6 files, write the final report from the extracted summaries
+4. For detailed sections, cross-reference the original phase files rather than duplicating content
+
+**Output file:** `$RUN_DIR/07-final-report.md`
+
+```markdown
+# Codebase X-Ray Analysis Report
+
+## Target
+[From scope]
+
+## Executive Summary
+[2-3 sentences on overall codebase health]
+
+## Project at a Glance
+[2-3 paragraph narrative explaining what this project does, who it's for, and how it works - written for someone who has never seen the codebase]
+
+## Architecture Overview
+[Mermaid diagram + narrative from Phases 1-2]
+
+## Technology Decisions
+[Key tech choices and why they were made - useful for presentations and onboarding]
+
+## Critical Paths
+[Key findings from Phase 3]
+
+## Key Process Diagrams
+[Include the most important Mermaid flowcharts from 03-flows.md - select 3-5 diagrams that best represent the system's core processes. Prioritize E2E and Functional diagrams over Technical ones. Reference 03-flows.md for the complete set.]
+
+## Design Insights
+[Key findings from Phase 4]
+
+## Risk Assessment
+| Category | Critical | High | Medium | Low |
+|----------|----------|------|--------|-----|
+| Anti-patterns | X | X | X | X |
+| Security risks | X | X | X | X |
+| Technical debt | X | X | X | X |
+| Doc gaps | X | X | X | X |
+
+## Documentation vs Reality
+[Discrepancies found between existing docs and actual code behavior - useful for doc maintenance]
+
+## Top Priority Actions
+1. [Most important fix/improvement]
+2. [Second priority]
+3. [Third priority]
+
+## Detailed Findings
+[Cross-references to phase files for full details]
+
+## Quick Reference: Which File to Consult
+
+| Your Task | Start With | Also Check |
+|-----------|-----------|------------|
+| Onboarding / understanding the project | 07-final-report, 01-structure | 04-semantics |
+| Writing new feature | 01-structure (Where to Add), 02-interfaces | 04-semantics |
+| Fixing a bug | 03-flows, 05-risks | 01-structure |
+| Refactoring | 01-structure, 04-semantics, 05-risks | 03-flows |
+| Code review | 02-interfaces, 05-risks | 06-documentation |
+| Updating documentation | 06-documentation, 04-semantics | 02-interfaces |
+| Creating report/presentation | 07-final-report, 01-structure | 04-semantics |
+| Finding doc vs code discrepancies | 06-documentation | 03-flows, 05-risks |
+
+## Analysis Metadata
+- Run: [run-id]
+- Target: [path]
+- Files analyzed: [count]
+- Phases completed: [list]
+- Date: [timestamp]
+```
+
+Update `$RUN_DIR/state.json`: set `status` to `"complete"`.
+
+---
+
+## Publish Step
+
+After Phase 7 completes:
+
+1. Copy `$RUN_DIR/01-*.md` through `$RUN_DIR/07-final-report.md` (the ones that exist for the active flags) and `$RUN_DIR/state.json` to the `.deep-dive/` root, overwriting the previous mirror.
+2. Update `runs.json` with read-modify-write: remove this run from `active`, set `latest_completed` to this run-id.
+3. The root mirror is what downstream consumers (`/senior-review:team-review`, `/senior-review:code-review`, `/codebase-mapper:map-codebase`, `/project-setup:create-claude-md`, `/project-setup:maintain-claude-md`) read. The run directory stays intact for history and comparison.
+
+If the analysis is aborted or fails, remove the run from `active` in `runs.json` and leave the root mirror untouched.
+
+---
+
+## Completion
+
+Present the analysis summary and a proposed action plan derived from findings, then ask the user what they want to do.
+
+```
+Codebase X-ray complete for: $ARGUMENTS
+Run: [run-id] (published to .deep-dive/ root)
+
+Output Files:
+- Structure: .deep-dive/runs/[run-id]/01-structure.md
+- Interfaces: .deep-dive/runs/[run-id]/02-interfaces.md
+- Flows: .deep-dive/runs/[run-id]/03-flows.md
+- Semantics: .deep-dive/runs/[run-id]/04-semantics.md
+- Risks: .deep-dive/runs/[run-id]/05-risks.md
+- Documentation: .deep-dive/runs/[run-id]/06-documentation.md
+- Final Report: .deep-dive/runs/[run-id]/07-final-report.md
+(mirrored to .deep-dive/ root for downstream consumers)
+
+Summary:
+- Files analyzed: [count]
+- Anti-patterns: [count] | Red flags: [count] | Tech debt items: [count]
+- Documentation gaps: [count]
+```
+
+### Proposed Action Plan
+
+After presenting the summary, generate a prioritized action plan based on the analysis findings. Group actions by urgency:
+
+```
+Proposed Action Plan
+====================
+
+CRITICAL (fix now):
+1. [Action derived from 05-risks critical findings]
+2. [Action derived from security red flags]
+
+HIGH (fix soon):
+3. [Action derived from anti-patterns or tech debt]
+4. [Action derived from documentation gaps]
+
+RECOMMENDED (improve when possible):
+5. [Action derived from code quality observations]
+6. [Action derived from naming/convention inconsistencies]
+```
+
+Each action must reference the specific finding and file from the analysis (e.g., "Fix missing input validation in `src/auth/login.py:45` - see 05-risks.md").
+
+### Next Steps Menu
+
+After presenting the action plan, ask the user:
+
+```
+What would you like to do next?
+
+1. Start fixing - execute the action plan (all or selected items)
+2. Apply quick fixes - fix stale comments, outdated references, type hints, and naming issues directly in code
+3. Analyze further - run additional phases or re-analyze specific areas (a new run alongside this one is fine)
+4. Generate documentation - the analysis output is now available as
+   technical ground truth for downstream documentation generators:
+   4a. CLAUDE.md - create or update the project's CLAUDE.md using this
+       analysis as the structure backbone
+       (suggests: /project-setup:create-claude-md if CLAUDE.md is absent,
+        otherwise /project-setup:maintain-claude-md)
+   4b. Codebase map - generate the full 10-document human-readable
+       narrative guide (suggests: /codebase-mapper:map-codebase)
+   4c. API / interface docs - generate documentation for one or more
+       formal interfaces (suggests: /codebase-mapper:docs-create with the
+       relevant flag, e.g. --interfaces, --architecture, --data-model)
+5. Export report - save the final report in a different format
+6. Nothing for now - end the session
+```
+
+Wait for the user's choice before proceeding. If the user picks option 1, confirm which actions to execute and in what order before starting.
+
+If the user picks option 4 (any sub-option), the downstream command auto-detects the published `.deep-dive/` mirror on its pre-flight and offers to ingest it as the technical source. The user does not need to pass any flag manually -- detection is automatic. If the user picks 4a and `CLAUDE.md` already exists, route to `/project-setup:maintain-claude-md` (audit + improve); otherwise route to `/project-setup:create-claude-md` (fresh generation).
+
+If the user picks option 2, use the dedicated scripts for safe, automated fixes:
+
+1. **Comment cleanup:** Run `rewrite_comments.py rewrite <file> --apply --backup` for each file flagged in Phase 6. The script handles backup, lexer-safe removal of trivial/backup comments, and auto-formatting. Works on Python, Java, JavaScript, TypeScript, SQL, PL/SQL, Rust. Do NOT manually edit comments with the Edit tool when the script supports the language.
+2. **Type hint / annotation fixes:** Apply these with the Edit tool one file at a time, verifying syntax after each change.
+3. **Stale references:** Update outdated names/references in comments using targeted Edit tool replacements.
+
+Present a summary of changes made after applying fixes. For languages outside the supported set (Python/Java/JS/TS/SQL/PL-SQL/Rust), fall back to targeted Edit tool changes with explicit before/after diffs shown to the user.
+
+## Quick Examples
+
+- `/codebase-xray:analyze src/` -- Full 7-phase analysis
+- `/codebase-xray:analyze src/ --depth=lite` -- Lightweight: structure + interfaces + risks only
+- `/codebase-xray:analyze src/auth/ --critical` -- Prioritize security-critical code
+- `/codebase-xray:analyze src/ --docs-only` -- Documentation health check only
+- `/codebase-xray:analyze src/ --comments` -- Include comment quality audit
+- `/codebase-xray:analyze src/ --phase 5` -- Jump to pattern & risk detection
+- `/codebase-xray:analyze src/api --run-name api` -- Named run; a second session can run `/codebase-xray:analyze src/web --run-name web` concurrently
+
+## Integration with Code Review
+
+Published analysis output in `.deep-dive/` is automatically picked up by `/senior-review:code-review`. `/senior-review:team-review` builds the same context itself: its Phase 1a invokes the `codebase-xray:analyze` skill (`--depth=lite` by default). Run an X-ray first, then run a code review for the most thorough analysis possible.

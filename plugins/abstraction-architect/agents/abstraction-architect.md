@@ -38,7 +38,7 @@ Read these files from `deep_dive_path`. Missing files do not abort the audit; th
 - `02-interfaces.md` — public APIs. Used to find premature interfaces, leaky abstractions, flag-soup functions.
 - `03-flows.md` — call graphs. Used to find missed unification: N call sites with the same structural shape across modules.
 - `04-semantics.md` — responsibilities and intent. Used to find boundary violations (domain logic in infrastructure, infrastructure in domain).
-- `08-interconnect-map.md` (optional, present only when produced by `deep-dive-analysis:team-deep-dive`) — cross-partition contracts and invariants. Used to find bounded-context fusion.
+- `08-interconnect-map.md` (optional, present only when produced by `codebase-xray:team-analyze`) — cross-partition contracts and invariants. Used to find bounded-context fusion.
 
 Mode `diff` needs only `01-structure.md` and `02-interfaces.md`, both of which `--depth=lite` produces. It does not need `03-flows.md` or `04-semantics.md`: the diff supplies the anchor and `Grep` supplies the other sites. When no deep-dive output exists at all, mode `diff` still runs on `Glob` and `Grep` alone, at reduced confidence, and says so in the Gaps list.
 

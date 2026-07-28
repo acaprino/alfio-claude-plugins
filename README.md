@@ -87,7 +87,7 @@ More detail in [Browser automation (Playwright)](#browser-automation-playwright)
 | **[rag-development](docs/plugins/rag-development.md)** | RAG system design - chunking, embeddings, vector DBs, advanced patterns | 2 | 1 | 1 |
 | **[marketplace-ops](docs/plugins/marketplace-ops.md)** | Audit, scaffold, review, and manage plugins in this ecosystem | 1 | 2 | 4 |
 | **[learning](docs/plugins/learning.md)** | Mind maps in MarkMind format and interactive force-graphs | - | 3 | 1 |
-| **[deep-dive-analysis](docs/plugins/deep-dive-analysis.md)** | 7-phase systematic codebase analysis with pattern detection | 4 | 1 | 2 |
+| **[codebase-xray](docs/plugins/codebase-xray.md)** | 7-phase systematic codebase X-ray with pattern detection and concurrent runs (was deep-dive-analysis) | 4 | 1 | 2 |
 | **[business](docs/plugins/business.md)** | Tech law, compliance, privacy docs, contracts, SaaS business planning | 3 | 1 | - |
 | **[stripe](docs/plugins/stripe.md)** | Stripe payments, subscriptions, Connect, revenue optimization, /audit-webhooks | 3 | 1 | 1 |
 | **[research](docs/plugins/research.md)** | Quick search and deep multi-source investigation with shared web-search techniques skill | 2 | 1 | 1 |
@@ -137,7 +137,7 @@ flowchart TD
     research[research]
     codebasemapper[codebase-mapper]
     seniorreview[senior-review]
-    deepdive[deep-dive-analysis]
+    deepdive[codebase-xray]
     abstraction[abstraction-architect]
     texthumanizer[text-humanizer]
     reactdev[react-development]
@@ -179,7 +179,7 @@ flowchart TD
     acphooks -.-> research
 ```
 
-The only near-cycle in the graph is deliberate: `senior-review -> deep-dive-analysis` is hard, so the reverse edge (`deep-dive-analysis`'s use of `senior-review:semantic-interconnect-mapper` in team-deep-dive Phase 3) stays optional to keep the hard-dependency graph acyclic. `text-humanizer` is a pure leaf: zero dependencies, four dependents.
+The only near-cycle in the graph is deliberate: `senior-review -> codebase-xray` is hard, so the reverse edge (`codebase-xray`'s use of `senior-review:semantic-interconnect-mapper` in team-analyze Phase 3) stays optional to keep the hard-dependency graph acyclic. `text-humanizer` is a pure leaf: zero dependencies, four dependents.
 
 ### Frontend and design
 
@@ -220,7 +220,7 @@ Upstream also documents installs for Antigravity, Codex, Cursor, Gemini CLI, Cop
 
 **Must-have from that toolkit:** the [`using-git-worktrees`](https://github.com/obra/superpowers/tree/main/skills/using-git-worktrees) skill ([overview on SkillsMP](https://skillsmp.com/creators/obra/superpowers/skills-using-git-worktrees)). Before feature work or plan execution it checks whether the session is already isolated, creates an isolated workspace (native tools first, plain `git worktree` as fallback), runs project setup, and verifies a clean test baseline. As of marketplace 13.0.0 it also replaces the retired local `git-worktrees` plugin (see [Git worktrees](#git-worktrees-parallel-development)).
 
-Everything downstream of the plan stays here: [senior-review](docs/plugins/senior-review.md) for multi-agent review, [deep-dive-analysis](docs/plugins/deep-dive-analysis.md) for partitioned deep-dive analysis, [codebase-mapper](docs/plugins/codebase-mapper.md) for codebase mapping, [research](docs/plugins/research.md) for multi-source research, [testing](docs/plugins/testing.md) for TDD methodology, and the per-language plugins for domain execution. Parallel feature implementation and other generic team workflows are delegated to the upstream `wshobson/agents` `agent-teams` plugin (see below). Where a workflow used to invoke the removed skills, it now loads the superpowers skills directly and expects them to be installed: superpowers remains a declared hard dependency of `ai-tooling`.
+Everything downstream of the plan stays here: [senior-review](docs/plugins/senior-review.md) for multi-agent review, [codebase-xray](docs/plugins/codebase-xray.md) for partitioned deep-dive analysis, [codebase-mapper](docs/plugins/codebase-mapper.md) for codebase mapping, [research](docs/plugins/research.md) for multi-source research, [testing](docs/plugins/testing.md) for TDD methodology, and the per-language plugins for domain execution. Parallel feature implementation and other generic team workflows are delegated to the upstream `wshobson/agents` `agent-teams` plugin (see below). Where a workflow used to invoke the removed skills, it now loads the superpowers skills directly and expects them to be installed: superpowers remains a declared hard dependency of `ai-tooling`.
 
 ### Agent teams (parallel implementation and generic orchestration)
 
@@ -238,7 +238,7 @@ claude plugin install agent-teams@claude-code-workflows
 The four pipelines this marketplace built on top of the old `agent-teams` plugin were relocated rather than removed. Their commands live locally, but each of the four plugins declares `agent-teams@claude-code-workflows` as a hard dependency in `marketplace.json` (the pipelines load its skills and spawn its `team-reviewer` fallback agent), so the upstream install above is required:
 
 - `/agent-teams:team-review` -> [`/senior-review:team-review`](docs/plugins/senior-review.md)
-- `/agent-teams:team-deep-dive` -> [`/deep-dive-analysis:team-deep-dive`](docs/plugins/deep-dive-analysis.md)
+- `/agent-teams:team-deep-dive` -> [`/codebase-xray:team-analyze`](docs/plugins/codebase-xray.md)
 - `/agent-teams:team-codebase-map` -> [`/codebase-mapper:team-codebase-map`](docs/plugins/codebase-mapper.md)
 - `/agent-teams:team-research` -> [`/research:team-research`](docs/plugins/research.md)
 
