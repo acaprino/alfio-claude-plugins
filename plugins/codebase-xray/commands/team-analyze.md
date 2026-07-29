@@ -15,7 +15,7 @@ This command requires the upstream `agent-teams` plugin from `wshobson/agents` (
 /plugin install agent-teams@claude-code-workflows
 ```
 
-The team tools themselves (TeamCreate, TeamDelete, TaskCreate, TaskList, TaskUpdate) are native Claude Code features and need no plugin.
+The team infrastructure itself (teammate spawning via the `Agent` tool, plus TaskCreate, TaskList, TaskUpdate) is a native Claude Code feature and needs no plugin, but it is experimental and OFF by default: it requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`, best set persistently in the `env` block of `~/.claude/settings.json`. As of Claude Code 2.1.178 there are no `TeamCreate`/`TeamDelete` tools: the team forms implicitly when the first teammate is spawned, and team resources are cleaned up automatically when the session ends. If teammate spawning is unavailable in this session, stop and tell the user to enable the flag and restart Claude Code; do not fall back to plain subagents without saying so.
 
 # Team X-Ray Analysis
 
@@ -60,9 +60,9 @@ Before starting, invoke these skills:
 
 ## Phase 0: Team Setup + Partition Detection
 
-### Create the team
+### Team formation
 
-Use the `TeamCreate` tool to create the team with `team_name: "xray-{run-id}"` and a short description. One team per lead: if a previous team from an aborted run is still around, clean it up first.
+There is no explicit team-creation step: the team forms implicitly when the first worker teammate is spawned, its name is session-derived, and a session has exactly one team. The run identity lives in `{run-id}` and the run directory, not in the team name.
 
 ### Initialize state
 
@@ -315,7 +315,7 @@ Monitor. On completion: mark `phase_3_interconnect: "complete"`. On failure: mar
 1. Update `$RUN_DIR/state.json`: `status: "complete"`, `completed_at: <ISO_TIMESTAMP>`.
 2. **Publish** (skip if `--skip-synthesis`): copy `$RUN_DIR/01-*.md` .. `$RUN_DIR/07-final-report.md` (those that exist), `$RUN_DIR/08-interconnect-map.md` (if Phase 3 ran), and `$RUN_DIR/state.json` to the `.deep-dive/` root, overwriting the previous mirror. Update `runs.json` with read-modify-write: remove this run from `active`, set `latest_completed`. The root mirror is the downstream contract for `/senior-review:team-review`, `/codebase-mapper:map-codebase`, and `/project-setup:create-claude-md`.
 3. Send `shutdown_request` to all remaining teammates.
-4. Call `TeamDelete` to remove team resources.
+4. Team resources are cleaned up automatically when the session ends; there is no `TeamDelete` step.
 5. Present summary:
 
 ```
@@ -367,7 +367,7 @@ On pre-flight detection of an active run in `runs.json` with `mode == "team"` wh
 - If `phases.phase_2_synthesis == "complete"` and `phase_3_interconnect != "complete"`: re-run Phase 3
 - If `phases.phase_3_interconnect == "complete"`: run the Phase 4 publish step and present the menu directly
 
-Resuming re-creates the team if needed (`TeamCreate` with the same `xray-{run-id}` name).
+Resuming spawns fresh teammates as needed; teams are not restored across sessions, and the run directory (not the team name) carries the run identity.
 
 ## Quick Examples
 

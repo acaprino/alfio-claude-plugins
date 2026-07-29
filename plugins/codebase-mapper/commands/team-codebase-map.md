@@ -12,7 +12,7 @@ This command requires the upstream `agent-teams` plugin from `wshobson/agents` (
 /plugin install agent-teams@claude-code-workflows
 ```
 
-The team tools themselves (TeamCreate, TeamDelete, TaskList) are native Claude Code features and need no plugin.
+The team infrastructure itself (teammate spawning via the `Agent` tool, plus TaskList) is a native Claude Code feature and needs no plugin, but it is experimental and OFF by default: it requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`, best set persistently in the `env` block of `~/.claude/settings.json`. As of Claude Code 2.1.178 there are no `TeamCreate`/`TeamDelete` tools: the team forms implicitly when the first teammate is spawned, and team resources are cleaned up automatically when the session ends. If teammate spawning is unavailable in this session, stop and tell the user to enable the flag and restart Claude Code; do not fall back to plain subagents without saying so.
 
 # Team Codebase Map
 
@@ -101,7 +101,7 @@ Spawn a single `senior-review:semantic-interconnect-mapper` agent:
 
 Spawn a write team with 6 specialists working simultaneously:
 
-1. Use `TeamCreate` tool to create the team with `team_name: "codebase-map-writers-{timestamp}"` and `description`
+1. The team forms implicitly when the first writer is spawned (no `TeamCreate` step; the team name is session-derived and any `team_name` passed to the `Agent` tool is ignored)
 2. Spawn all 6 agents in parallel:
 
 **Agent 1: Overview Writer**
@@ -159,7 +159,7 @@ Spawn a single reviewer agent:
 ## Phase 4: Cleanup & Summary
 
 1. Send `shutdown_request` to all remaining teammates
-2. Call `TeamDelete` to remove team resources
+2. Team resources are cleaned up automatically when the session ends; there is no `TeamDelete` step
 3. Present final summary:
 
 ```

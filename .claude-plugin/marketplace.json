@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Claude Code Daodan - 40 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), prose humanization, and pure-architecture audits (missed unification, wrong abstractions).",
-    "version": "14.0.0"
+    "version": "14.0.1"
   },
   "plugins": [
     {
@@ -41,7 +41,7 @@
       "name": "codebase-xray",
       "source": "./plugins/codebase-xray",
       "description": "Multi-language systematic codebase X-ray analysis (Python, Java, JavaScript, TypeScript, SQL, PL/SQL, Rust) - analyzes architecture, traces data flows, detects anti-patterns, and generates structured documentation for onboarding, architecture review, or code documentation. Concurrent-safe: every analysis is an isolated run under .deep-dive/runs/ published to a stable root mirror. The Next Steps menu wires the output into downstream documentation generators (CLAUDE.md, codebase map, interface docs) as a technical-reference backbone. Renamed from deep-dive-analysis in 2.0.0.",
-      "version": "2.0.0",
+      "version": "2.0.1",
       "author": {
         "name": "Alfio"
       },
@@ -339,7 +339,7 @@
       "name": "research",
       "source": "./plugins/research",
       "description": "Web research toolkit (any topic) - quick-searcher (sonnet) for single-fact web lookups and as sub-unit in deep team, deep-researcher lead orchestrator that classifies queries into authoritative/community/comparison/recency angles and either spawns parallel quick-searcher sub-agents (Mode A, top-level invocation) or runs the angles itself via WebSearch+WebFetch (Mode B, nested-subagent fallback) with cross-checked synthesis",
-      "version": "3.0.0",
+      "version": "3.0.1",
       "author": {
         "name": "Alfio"
       },
@@ -609,7 +609,7 @@
       "name": "senior-review",
       "source": "./plugins/senior-review",
       "description": "Multi-agent code review orchestration with unified code auditing (architecture, failure flow, pattern analysis, scoring), security auditing, UI race condition detection, distributed flow analysis, platform engineering review, codebase-hygiene auditing (dead code + orphan assets + generated artifacts in VCS + phantom/unused deps + barrel-file and eager-bundle bloat + stale documentation and historical artifacts), /cleanup-dead-code incremental-phase command with commit-per-category and build+test gates, semantic interconnect mapping (contracts / invariants / domain rules / assumptions) reusable across team-review and codebase-mapper, logic-integrity auditing for cross-component contract violations, git blame/history analysis, finding validation with false-positive filtering, committable PR suggestions, pre-review skip logic, intent-driven review, confidence gating, cross-agent deduplication, pre-existing issue separation, verdict system, interactive fix loop, and conditional reviewers for testing quality, API contracts, and data migrations. Backed by a comprehensive defect taxonomy knowledge base (140+ defect patterns, CWE/OWASP mappings, plus a dedicated logic-integrity reference).",
-      "version": "6.1.1",
+      "version": "6.1.2",
       "author": {
         "name": "Alfio"
       },
@@ -798,7 +798,7 @@
       "name": "acp-hooks",
       "source": "./plugins/acp-hooks",
       "description": "Claude Code Daodan session hooks - skill awareness injection, PreToolUse security gate that BLOCKS hardcoded secrets before they reach disk, autocompact when context is high, cleanup of duplicate built-in plugins, review gate for PR/merge operations, docs gate for documentation auditing, and team spawn gate with runtime-generated agent catalog from marketplace.json (no more drift from hardcoded lists)",
-      "version": "4.1.0",
+      "version": "4.2.0",
       "author": {
         "name": "Alfio"
       },
@@ -857,7 +857,7 @@
       "name": "codebase-mapper",
       "source": "./plugins/codebase-mapper",
       "description": "Human-readable codebase guide generator: explores unfamiliar projects, builds a structured interconnect map (contracts, invariants, domain rules, integration hot-spots) via the senior-review semantic-interconnect-mapper, then autonomously profiles the project (type, audience, register) and produces audience-adaptive narrative documents with Mermaid diagrams that cite the map, including a plain-language executive summary and a domain glossary so the guide is comprehensible by everyone. Includes documentation-reality drift detection in the review phase, plus standalone documentation creation, maintenance, and humanization with bottom-up code analysis. Both docs-create and docs-maintain cover 20 documentation dimensions; docs-maintain runs a structured per-dimension drift audit (added/removed/renamed/retyped) instead of generic outdated-text matching.",
-      "version": "2.10.1",
+      "version": "2.10.2",
       "author": {
         "name": "Alfio"
       },

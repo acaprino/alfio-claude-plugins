@@ -73,7 +73,7 @@ Multi-agent variant of `/codebase-xray:analyze` for large or partitioned codebas
 
 **Pipeline:**
 
-1. **Partition detection** (Phase 0): explicit workspace manifests (pnpm/npm workspaces, Lerna, Nx, Turbo, Cargo, uv) -> convention-based monorepo layout (`apps/`, `packages/`, `services/`) -> frontend/backend layer split -> language-cluster split -> single-partition fallback. Presents a checkpoint to accept, modify, or manually override the partition list before spawning anything. Creates the team via `TeamCreate`.
+1. **Partition detection** (Phase 0): explicit workspace manifests (pnpm/npm workspaces, Lerna, Nx, Turbo, Cargo, uv) -> convention-based monorepo layout (`apps/`, `packages/`, `services/`) -> frontend/backend layer split -> language-cluster split -> single-partition fallback. Presents a checkpoint to accept, modify, or manually override the partition list before spawning anything. The team forms implicitly when the first worker is spawned (no explicit creation step on Claude Code 2.1.178+).
 2. **Wave 1** (parallel): one `partition-structure-worker` per partition writes structure and interfaces.
 3. **Wave 2** (parallel): `partition-behavior-worker` and `partition-quality-worker` per partition write flows/semantics and risks/documentation, each citing sibling partitions' Wave 1 output for cross-partition calls. Under `--depth=lite` the behavior workers are not spawned and quality workers write risks only.
 4. **Synthesis**: `partition-synthesizer` consolidates every partition's output into the standard `01-structure.md` through `07-final-report.md` files inside the run directory, flagging any failed partition inline.

@@ -19,12 +19,13 @@ try {
 
 if (!enabled) process.exit(0);
 
-// Legacy experimental flag: still gate on it if set to "0" or "false" to let users opt out explicitly.
-// Teams are no longer experimental (TeamCreate/TeamDelete/SendMessage/TaskCreate are stable), so we
-// default to enabled unless the user actively disables it via config (teamSpawnGate: false) or via
-// the legacy env var set to a falsy value.
-const legacyFlag = process.env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS;
-if (legacyFlag === "0" || legacyFlag === "false") process.exit(0);
+// Agent teams are experimental and OFF by default in Claude Code: they require
+// CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 (best set in the "env" block of ~/.claude/settings.json).
+// Only nudge toward team commands when the session actually has teams enabled; suggesting a team
+// in a teams-off session makes Claude report the infrastructure as unavailable mid-command.
+// trim() guards against cmd.exe-style trailing spaces ("set FLAG=1  && claude" yields "1  ").
+const teamsFlag = (process.env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS || "").trim().toLowerCase();
+if (teamsFlag !== "1" && teamsFlag !== "true") process.exit(0);
 
 // --- Preset detection rules ---
 // Each preset has:

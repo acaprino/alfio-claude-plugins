@@ -137,7 +137,7 @@ Before saving any derived file, scan for and rewrite:
 - **Emoji**: remove if the destination plugin's existing files have none.
 - **Upstream-specific cross-references**: rewrite `[reference/foo.md](foo.md)` style links to point at the local destination path (or remove if the target was not imported). Rewrite `{{template_vars}}` and references to upstream-only commands.
 - **Namespace prefixes**: rewrite upstream `<their-plugin>:X` skill references to the local `<our-plugin>:X` equivalent, or drop them when we vendor no equivalent.
-- **Stale tool names** in team-related imports: `Teammate` -> `TeamCreate`, `Task tool to spawn` -> `Agent tool`.
+- **Stale tool names** in team-related imports: `Teammate` / `Task tool to spawn` -> `Agent tool`; explicit `TeamCreate` / `TeamDelete` steps -> rewrite to implicit team formation (the team forms when the first teammate is spawned) and automatic cleanup at session end (both tools were removed in Claude Code 2.1.178).
 
 ### 6. Wire the new content into existing agents and commands
 
@@ -204,7 +204,7 @@ When the user asks for "upstream updates" (or similar), this is the default work
 
 5. **Apply targeted Edits, not Writes** - prefer surgical edits that fix specific bugs (stale tool names, added items in a list) over replacing whole files. Only use Write for new files or when the entire file is being replaced.
 
-6. **Watch for stale tool names** (common drift source): `` `Teammate` tool `` / `` `Task` tool to spawn `` / `` Call `Teammate` cleanup `` / `` operation: "spawnTeam" `` -> fix to `` `TeamCreate` tool `` / `` `Agent` tool `` / `` `TeamDelete` ``. Grep team-related imports after any sync to catch these.
+6. **Watch for stale tool names** (common drift source): `` `Teammate` tool `` / `` `Task` tool to spawn `` -> fix to `` `Agent` tool ``; `` `TeamCreate` `` / `` `TeamDelete` `` / `` Call `Teammate` cleanup `` / `` operation: "spawnTeam" `` -> rewrite to implicit team formation on first spawn and automatic cleanup at session end (Claude Code 2.1.178 removed TeamCreate/TeamDelete). Grep team-related imports after any sync to catch these.
 
 7. **Version bump and commit** - bump each touched plugin's `version` in `.claude-plugin/marketplace.json`, bump `metadata.version`, and commit everything together with a descriptive message like "Sync upstream updates for X and Y (vN.N.N)". Push to master.
 

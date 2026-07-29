@@ -12,7 +12,7 @@ This command requires the upstream `agent-teams` plugin from `wshobson/agents` (
 /plugin install agent-teams@claude-code-workflows
 ```
 
-The team tools themselves (TeamCreate, TaskCreate, TeamDelete) are native Claude Code features and need no plugin.
+The team infrastructure itself is a native Claude Code feature and needs no plugin, but it is experimental and OFF by default: it requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`, best set persistently in the `env` block of `~/.claude/settings.json`. As of Claude Code 2.1.178 there are no `TeamCreate`/`TeamDelete` tools: the team forms implicitly when the first teammate is spawned, and team resources are cleaned up automatically when the session ends. If teammate spawning is unavailable in this session, stop and tell the user to enable the flag and restart Claude Code; do not fall back to plain subagents without saying so.
 
 # Team Review (Pipeline)
 
@@ -217,7 +217,7 @@ If the skill is unavailable (not installed) or produces no output, halt the pipe
 
 ## Phase 2: Adversarial Review (parallel)
 
-1. Use `TeamCreate` tool to create the team with `team_name: "review-{timestamp}"` and `description`.
+1. The team forms implicitly when the first teammate is spawned (no `TeamCreate` step; the team name is session-derived and any `team_name` passed to the `Agent` tool is ignored).
 2. For each selected dimension (always-on + detected conditional), use `Agent` tool to spawn a teammate using the **most specialized agent**.
 
 ### Dimension-to-agent mapping
@@ -377,7 +377,7 @@ Skip this phase if `--fast` was passed (mark `phase_4c_critic` as `skipped`). Ot
    Where `{cost_guard_note}` is `, narrowed to stakes+band (N unverified)` when the cost guard fired, else empty.
 
 2. Send `shutdown_request` to all reviewers.
-3. Call `TeamDelete` to remove team resources.
+3. Team resources are cleaned up automatically when the session ends; there is no `TeamDelete` step.
 4. Update `state.json` -> `status: "complete"`, mark `phase_4_report` complete.
 5. Inform the user that detailed findings and context are preserved in `.team-review/` for future reference (do not auto-delete).
 
