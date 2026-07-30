@@ -1,6 +1,8 @@
 # AI Tooling Plugin
 
-> Prompt engineering, skill activation, and Agent SDK guidance. The layer that makes Claude Code use the right tool for the job.
+> Prompt engineering and Agent SDK guidance.
+
+**Note:** the `acp-loader` skill was removed in ai-tooling 4.0.0, together with the `acp-hooks` plugin that injected it at session start. Its generic behavior (check for a relevant skill before acting) is covered by the superpowers `using-superpowers` skill, which loads itself through its own SessionStart hook.
 
 **Note:** the `brainstorming`, `writing-plans`, and `executing-plans` skills used to live here as ports of [obra/superpowers](https://github.com/obra/superpowers). They were removed in ai-tooling 3.0.0: superpowers maintains them upstream and ships the full methodology around them. Since ai-tooling 3.1.0, superpowers is a declared hard dependency of this plugin, not an optional companion. See the [README](../../README.md#brainstorming-planning-and-execution) for install instructions.
 
@@ -30,19 +32,6 @@ Use the prompt-engineer agent to optimize [prompt/system]
 ---
 
 ## Skills
-
-### `acp-loader`
-
-Skill activation engine that checks every installed skill against the current task. Fires at conversation start and before every task.
-
-| | |
-|---|---|
-| **Invoke** | Runs automatically at conversation start and before tasks - not manually invoked |
-| **Use for** | Proactive skill discovery and activation |
-
-**Behavior:** Invokes any skill with even a 1% chance of relevance to the current task. User instructions always override skill directives. Skips activation when running as a subagent.
-
----
 
 ### `agent-sdk-builder`
 
@@ -76,4 +65,4 @@ Analyze, score, and optimize prompts for LLMs - evaluates clarity, specificity, 
 
 ---
 
-**Related:** upstream wshobson/agents agent-teams (generic team orchestration); local team pipelines live in senior-review, codebase-xray, codebase-mapper, research | [acp-hooks](acp-hooks.md) (acp-loader skill awareness)
+**Related:** upstream wshobson/agents agent-teams (generic team orchestration); local team pipelines live in senior-review, codebase-xray, codebase-mapper, research

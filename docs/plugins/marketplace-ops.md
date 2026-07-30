@@ -105,4 +105,4 @@ Deterministic activation-quality checks plus AI-powered body review for all skil
 
 ---
 
-**Related:** [acp-hooks](acp-hooks.md) (session lifecycle hooks) | [project-setup](project-setup.md) (CLAUDE.md management)
+**Related:** [project-setup](project-setup.md) (CLAUDE.md management)

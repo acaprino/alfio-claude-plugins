@@ -80,7 +80,7 @@ More detail in [Browser automation (Playwright)](#browser-automation-playwright)
 | **[python-development](docs/plugins/python-development.md)** | TDD, refactoring, async patterns, packaging, performance, dead code, Pydantic v2, /python-audit | 3 | 9 | 3 |
 | **[senior-review](docs/plugins/senior-review.md)** | 9 agents review architecture, security, patterns, distributed flows, logic integrity, API contracts, startup cycles, UI races, and codebase hygiene in parallel | 9 | 2 | 4 |
 | **[codebase-mapper](docs/plugins/codebase-mapper.md)** | Generate 10 narrative docs with Mermaid diagrams from any codebase | 10 | 1 | 5 |
-| **[ai-tooling](docs/plugins/ai-tooling.md)** | Prompt engineering and optimization, skill activation, Agent SDK | 1 | 2 | 1 |
+| **[ai-tooling](docs/plugins/ai-tooling.md)** | Prompt engineering and optimization, Agent SDK | 1 | 1 | 1 |
 | **[tauri-development](docs/plugins/tauri-development.md)** | Tauri 2 desktop + mobile, Rust backend, IPC optimization | 3 | 1 | - |
 | **[digital-marketing](docs/plugins/digital-marketing.md)** | SEO + AEO (AI Overviews/Perplexity/ChatGPT Search), GA4/GTM with Consent Mode v2, content strategy, brand naming, domain hunting | 4 | 4 | 6 |
 | **[react-development](docs/plugins/react-development.md)** | React 19 performance, state management, bundle optimization | 1 | 1 | 1 |
@@ -102,7 +102,6 @@ More detail in [Browser automation (Playwright)](#browser-automation-playwright)
 | **[csp](docs/plugins/csp.md)** | Scheduling, routing, assignment with OR-Tools CP-SAT | 1 | - | - |
 | **[browser-extensions](docs/plugins/browser-extensions.md)** | Firefox extensions with Manifest V2/V3, /firefox-scaffold /firefox-lint /firefox-publish | 1 | 1 | 3 |
 | **[prompt-improver](docs/plugins/prompt-improver.md)** | Enrich vague prompts with research-based questions | - | 1 | - |
-| **[acp-hooks](docs/plugins/acp-hooks.md)** | Session hooks: skill awareness, security gate, autocompact, review/docs/team gates | - | - | - |
 | **[docs](docs/plugins/docs.md)** | Craft top-tier README.md files | - | 1 | 1 |
 | **[testing](docs/plugins/testing.md)** | TDD methodology, E2E testing patterns, behavior-driven test generation | 1 | 2 | - |
 | **[platform-engineering](docs/plugins/platform-engineering.md)** | Cross-platform security (passkeys/WebAuthn, Electron Fuses), architecture, and performance rulebook + /platform-review | 1 | 1 | 1 |
@@ -126,7 +125,6 @@ Solid arrows are hard dependencies (`dependencies` in `marketplace.json`: the pl
 
 ```mermaid
 flowchart TD
-    acphooks[acp-hooks]
     aitooling[ai-tooling]
     appanalyzer[app-analyzer]
     pwaexpert[pwa-expert]
@@ -174,9 +172,6 @@ flowchart TD
     deepdive -.-> seniorreview
     research --> agentteams
     research -.-> codebasemapper
-    acphooks -.-> aitooling
-    acphooks -.-> seniorreview
-    acphooks -.-> research
 ```
 
 The only near-cycle in the graph is deliberate: `senior-review -> codebase-xray` is hard, so the reverse edge (`codebase-xray`'s use of `senior-review:semantic-interconnect-mapper` in team-analyze Phase 3) stays optional to keep the hard-dependency graph acyclic. `text-humanizer` is a pure leaf: zero dependencies, four dependents.

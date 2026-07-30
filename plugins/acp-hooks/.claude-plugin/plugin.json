@@ -1,7 +1,0 @@
-{
-  "name": "acp-hooks",
-  "description": "Claude Code Daodan session hooks -- skill awareness injection, security gate for hardcoded secrets, autocompact when context is high, cleanup of duplicate built-in plugins, review gate for PR/merge operations, docs gate for documentation auditing, and team spawn gate for auto-suggesting agent teams",
-  "author": {
-    "name": "Alfio"
-  }
-}

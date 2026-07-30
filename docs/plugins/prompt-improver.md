@@ -76,4 +76,4 @@ Token-efficiency guidance for Explore/Plan research subagents.
 
 ---
 
-**Related:** [ai-tooling](ai-tooling.md) (prompt-optimize command) | [acp-hooks](acp-hooks.md) (other session hooks)
+**Related:** [ai-tooling](ai-tooling.md) (prompt-optimize command)

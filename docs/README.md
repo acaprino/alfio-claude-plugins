@@ -9,8 +9,7 @@ The augmentation symbiote for Claude Code. Agents, skills, and commands for deve
 | Plugin | Category | Description | Docs |
 |--------|----------|-------------|------|
 | [abstraction-architect](plugins/abstraction-architect.md) | code-quality | Pure-architecture audits: missed unification, wrong abstractions, diff-anchored prior-art search | 1 agent, 1 skill, 1 command |
-| [ai-tooling](plugins/ai-tooling.md) | ai-ml | Prompt engineering, skill activation, Claude Agent SDK | 1 agent, 2 skills, 1 command |
-| [acp-hooks](plugins/acp-hooks.md) | security | Session hooks: skill awareness, security gate, autocompact, review gate, docs gate, team spawn gate | hooks only |
+| [ai-tooling](plugins/ai-tooling.md) | ai-ml | Prompt engineering, Claude Agent SDK | 1 agent, 1 skill, 1 command |
 | [app-analyzer](plugins/app-analyzer.md) | analysis | Android app analysis via ADB and webapp exploration via Playwright | 1 agent |
 | [browser-extensions](plugins/browser-extensions.md) | development | Firefox WebExtension development: Manifest V2/V3, browser.* APIs, AMO publishing | 1 agent, 1 skill, 3 commands |
 | [business](plugins/business.md) | business | Legal advisory, privacy policies, GDPR/ePrivacy/CCPA compliance, SaaS business planning | 3 agents, 1 skill |

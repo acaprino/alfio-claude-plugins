@@ -12,12 +12,12 @@ plugins/
     agents/                 # agent .md files (frontmatter + system prompt)
     skills/                 # skill directories (SKILL.md + optional references/)
     commands/               # slash-command .md files
-    hooks/                  # hook handlers (JS/Python) + hooks.json (acp-hooks, prompt-improver)
+    hooks/                  # hook handlers (JS/Python) + hooks.json (prompt-improver)
 exports/
   <host>/                   # ports of selected plugins to non-Claude-Code hosts
 ```
 
-40 plugins (`codebase-xray` was named `deep-dive-analysis` until marketplace 14.0.0; its analysis artifact directory is still `.deep-dive/`, which is the stable downstream contract): clean-code, codebase-xray, tauri-development, react-development, xterm, ai-tooling, python-development, stripe, system-utils, messaging, research, business, project-setup, app-analyzer, typescript-development, csp, digital-marketing, senior-review, obsidian-development, browser-extensions, learning, marketplace-ops, acp-hooks, prompt-improver, codebase-mapper, rag-development, docs, testing, platform-engineering, ibkr-trading, mt5-trading, opentelemetry, docker, grabber-development, codebase-cleanup, libgdx-development, kotlin-development, pwa-expert, abstraction-architect, text-humanizer.
+39 plugins (`codebase-xray` was named `deep-dive-analysis` until marketplace 14.0.0; its analysis artifact directory is still `.deep-dive/`, which is the stable downstream contract): clean-code, codebase-xray, tauri-development, react-development, xterm, ai-tooling, python-development, stripe, system-utils, messaging, research, business, project-setup, app-analyzer, typescript-development, csp, digital-marketing, senior-review, obsidian-development, browser-extensions, learning, marketplace-ops, prompt-improver, codebase-mapper, rag-development, docs, testing, platform-engineering, ibkr-trading, mt5-trading, opentelemetry, docker, grabber-development, codebase-cleanup, libgdx-development, kotlin-development, pwa-expert, abstraction-architect, text-humanizer.
 
 ## Plugin anatomy
 
@@ -33,7 +33,7 @@ exports/
 
 **Commands** - Slash-command `.md` files with YAML frontmatter (`description`, `argument-hint`) and usage instructions/examples.
 
-**Hooks** - Used by `acp-hooks` and `prompt-improver` plugins. Contains `hooks.json` (hook definitions) and `handlers/` directory with JS handler scripts. `acp-hooks` also uses `plugins/acp-hooks/.claude-plugin/plugin.json` for supplementary hook configuration alongside marketplace registration.
+**Hooks** - Used by the `prompt-improver` plugin. Contains `hooks.json` (hook definitions) and `handlers/` directory with JS handler scripts.
 
 ## Conventions
 
@@ -242,7 +242,7 @@ Six areas were removed and delegated to their upstreams because maintaining the 
 | Binary reverse engineering (`reverse-engineering` plugin: 3 agents, 4 skills) | `wshobson/agents` | marketplace 12.0.0 |
 | Git worktree parallel development (`git-worktrees` plugin: 1 agent, 1 skill, 1 command) | `obra/superpowers` (`using-git-worktrees` skill) | marketplace 13.0.0 |
 
-Places that used to invoke the removed planning skills now load the superpowers skills directly: `acp-loader` (Skill Priority). As of marketplace 8.2.0, superpowers is a declared hard dependency of `ai-tooling` (`dependencies: ["superpowers@claude-plugins-official"]` in `marketplace.json`; cross-marketplace dependencies MUST use the qualified `name@marketplace` form, because a bare name resolves against this marketplace and fails the whole plugin load, which is what silently broke `ai-tooling` until marketplace 12.0.2), and the phrasing in that place is unconditional: load the skills, and if they are unavailable stop and tell the user to install superpowers (`claude plugin install superpowers@claude-plugins-official`). This supersedes the earlier rule that kept superpowers references conditional; do not reintroduce conditional phrasing.
+As of marketplace 8.2.0, superpowers is a declared hard dependency of `ai-tooling` (`dependencies: ["superpowers@claude-plugins-official"]` in `marketplace.json`; cross-marketplace dependencies MUST use the qualified `name@marketplace` form, because a bare name resolves against this marketplace and fails the whole plugin load, which is what silently broke `ai-tooling` until marketplace 12.0.2). Any place that points at the superpowers planning skills says so unconditionally: load the skills, and if they are unavailable stop and tell the user to install superpowers (`claude plugin install superpowers@claude-plugins-official`). This supersedes the earlier rule that kept superpowers references conditional; do not reintroduce conditional phrasing.
 
 The same policy applies to the team pipelines: `/senior-review:team-review`, `/codebase-xray:team-analyze`, `/codebase-mapper:team-codebase-map`, and `/research:team-research` declare the upstream `agent-teams` plugin (wshobson/agents) as a hard prerequisite in their Prerequisites blocks, and as of marketplace 13.2.0 all four owning plugins also declare it as a hard dependency in `marketplace.json` (`"agent-teams@claude-code-workflows"`, qualified form per the superpowers note above). The upstream plugin keeps the same `agent-teams:*` namespace, so those references resolve as written once it is installed (`/plugin marketplace add wshobson/agents`, then `/plugin install agent-teams@claude-code-workflows`). The four pipelines and the `senior-review:review-quality-gates` skill are local content with no upstream sync.
 
@@ -287,7 +287,7 @@ After fetching, compare with the local file, apply changes while preserving loca
 
 ## Custom plugin maintenance
 
-A "custom plugin" is any plugin NOT listed in the "Upstream-synced plugins" table above. Its content is hand-authored or research-grounded and has no upstream source to re-pull. The list is large (libgdx-development, ibkr-trading, mt5-trading, rag-development, opentelemetry, stripe, csp, grabber-development, browser-extensions, obsidian-development, business, research, codebase-mapper, python-development, typescript-development, senior-review, digital-marketing, docs, learning, app-analyzer, project-setup, marketplace-ops, system-utils, platform-engineering, testing, react-development, tauri-development, messaging, xterm, clean-code, codebase-xray, ai-tooling, acp-hooks, text-humanizer). If a plugin is not in the sync table, it falls under this section.
+A "custom plugin" is any plugin NOT listed in the "Upstream-synced plugins" table above. Its content is hand-authored or research-grounded and has no upstream source to re-pull. The list is large (libgdx-development, ibkr-trading, mt5-trading, rag-development, opentelemetry, stripe, csp, grabber-development, browser-extensions, obsidian-development, business, research, codebase-mapper, python-development, typescript-development, senior-review, digital-marketing, docs, learning, app-analyzer, project-setup, marketplace-ops, system-utils, platform-engineering, testing, react-development, tauri-development, messaging, xterm, clean-code, codebase-xray, ai-tooling, text-humanizer). If a plugin is not in the sync table, it falls under this section.
 
 Custom plugins decay differently than vendored ones. There is no upstream commit to diff against. Versions, framework recommendations, breaking-change notes, and "current as of 2026" claims become stale silently. The maintenance protocol below is the antidote.
 
@@ -300,7 +300,7 @@ Classify each plugin into one of four classes. The class determines refresh cade
 | **Very fast** | Versions bump every few months; breaking changes are common; ecosystem reshuffles | Every 3 months | rag-development (embedding models, rerankers, vector DBs), digital-marketing/ga4-implementation (Consent Mode, GA4 events), react-development (React 19, Vercel guidance) |
 | **Fast** | Framework releases 2-3x per year; APIs evolve | Every 6 months | libgdx-development, opentelemetry, tauri-development, stripe (API additions, webhook event types), grabber-development (anti-bot vendor moves), browser-extensions, pwa-expert (browser version churn, WebKit feature rollout, framework PWA library churn) |
 | **Moderate** | Major releases ~yearly; breaking changes rare | Every 12 months | ibkr-trading, mt5-trading, csp (OR-Tools), python-development, typescript-development, messaging (RabbitMQ majors), obsidian-development, abstraction-architect (theory is stable; URL list in further-reading.md decays on a yearly cadence) |
-| **Slow** | Workflow knowledge that ages by behavior change, not version bumps | Opportunistic; review only when symptoms appear | senior-review, codebase-mapper, team pipeline workflows, ai-tooling skills, project-setup, marketplace-ops, system-utils, learning, docs, research, business, clean-code, codebase-xray, platform-engineering, testing methodology, xterm, app-analyzer, acp-hooks, text-humanizer |
+| **Slow** | Workflow knowledge that ages by behavior change, not version bumps | Opportunistic; review only when symptoms appear | senior-review, codebase-mapper, team pipeline workflows, ai-tooling skills, project-setup, marketplace-ops, system-utils, learning, docs, research, business, clean-code, codebase-xray, platform-engineering, testing methodology, xterm, app-analyzer, text-humanizer |
 
 If unsure, default to "Fast" (6 months). Reclassify after the first refresh based on how much actually changed.
 
