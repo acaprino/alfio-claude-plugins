@@ -41,7 +41,7 @@ CVE / license / supply-chain audit across multiple package ecosystems.
 - GitHub Actions workflow for continuous monitoring
 
 **DO NOT TRIGGER WHEN:**
-- Removing dead code or phantom dependencies only: use `/senior-review:cleanup-dead-code`
+- Removing dead code or phantom dependencies only: use `/senior-review:code-review --fix`
 - Python-only lint, type, complexity, and coverage audit: use `/python-development:python-audit`
 - Stripe webhook event audit: use `/stripe:audit-webhooks`
 
@@ -78,7 +78,7 @@ SOLID-driven refactoring command with before/after metrics. Multi-language examp
 **DO NOT TRIGGER WHEN:**
 - Python-specific metrics-driven refactoring: use `/python-development:python-refactor`
 - Pure readability cleanup (no structural changes): use `/clean-code:clean-code`
-- Dead code or dependency removal: use `/senior-review:cleanup-dead-code`
+- Dead code or dependency removal: use `/senior-review:code-review --fix`
 
 ---
 
@@ -112,7 +112,7 @@ Technical debt inventory, ROI scoring, and prioritized remediation roadmap. Span
 
 **DO NOT TRIGGER WHEN:**
 - Python-only lint / type / complexity audit: use `/python-development:python-audit`
-- Dead code / dependency removal: use `/senior-review:cleanup-dead-code`
+- Dead code / dependency removal: use `/senior-review:code-review --fix`
 - Single-file refactoring pass: use `/python-development:python-refactor` or `/clean-code:clean-code`
 
 ---

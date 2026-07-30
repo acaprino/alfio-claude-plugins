@@ -1,9 +1,9 @@
 ---
 description: >
-  Unified code review - auto-detects scope and runs architecture, security, and pattern analysis agents in parallel. Automatically uses deep-dive context if available.
-  TRIGGER WHEN: the user asks for a code review, PR review, branch audit, or security/architecture analysis of recent changes.
+  Unified code review - auto-detects scope and runs architecture, security, dead-code and VCS-hygiene analysis in parallel, then optionally fixes and cleans up what it found. Automatically uses X-ray context if available.
+  TRIGGER WHEN: the user asks for a code review, PR review, branch audit, security/architecture analysis of recent changes, or asks to find and remove dead code, unused exports, unused dependencies, orphan assets, or generated artifacts committed to git.
   DO NOT TRIGGER WHEN: a full multi-phase pipeline is needed (use /senior-review:team-review) or reviewing a single file for style (use clean-code).
-argument-hint: "[PR number | --branch <name> | --commits N] [--auto-comment] [--strict] [--security-focus] [--fast] [--rigorous]"
+argument-hint: "[PR number | --branch <name> | --commits N] [--fix] [--auto-comment] [--strict] [--security-focus] [--fast] [--rigorous]"
 ---
 
 # Code Review
@@ -310,16 +310,22 @@ Agent tool call:
     For each finding: severity, CWE if applicable, file + line, confidence (0-100), attack scenario, concrete fix.
 ```
 
-### Agent B2: Dead Code & Unused Parameter Detection
+### Agent B2: Dead Code, Unused Parameters & VCS Hygiene
+
+This is the **lite** codebase-hygiene pass: dimensions D1 (dead code) and D3
+(VCS hygiene) scoped to the diff. The **full** pass, covering orphan assets,
+dependency and barrel-file hygiene, and stale documentation across the whole
+codebase, belongs to `senior-review:cleanup-auditor` in
+`/senior-review:team-review`. Do not widen this agent's scope to reach it.
 
 ```
 Agent tool call:
-  - description: "Dead code and lint detection for senior-review command"
+  - description: "Dead code, lint and VCS hygiene detection for senior-review command"
   - subagent_type: "general-purpose"
   - run_in_background: true
   - prompt: |
-    Detect dead code and unused parameters in the files changed by the diff.
-    Use BOTH automated linting tools AND manual analysis.
+    Detect dead code, unused parameters, and VCS hygiene defects in the files
+    changed by the diff. Use BOTH automated tools AND manual analysis.
 
     ## Changed Files
     [list of changed code files with line counts]
@@ -388,9 +394,40 @@ Agent tool call:
 
     ### Other languages
 
-    Skip automated lint; rely on Phase 2 manual analysis.
+    Skip automated lint; rely on Phase 3 manual analysis.
 
-    ## Phase 2: Manual Diff Analysis
+    ## Phase 2: VCS Hygiene (MANDATORY)
+
+    Dead code is not the only hygiene defect a diff can introduce. Check the
+    changed files for artifacts that should never have been committed. This
+    phase is cheap and its false-positive rate is near zero, which is why it
+    runs on every review instead of waiting for a full team-review.
+
+    Scope it to the changed files only, same as Phase 1.
+
+    ```bash
+    # 1. Generated artifacts newly tracked by this diff
+    #    (build output, bundles, coverage, compiled assets, lockfile-adjacent
+    #     caches, editor and OS metadata)
+    git diff --name-only --diff-filter=A $BASE...HEAD | grep -iE \
+      '(^|/)(dist|build|out|coverage|\.next|\.nuxt|target|__pycache__|node_modules)/|\.(pyc|pyo|class|o|so|dll|map|tsbuildinfo)$|(^|/)\.DS_Store$|(^|/)Thumbs\.db$'
+
+    # 2. Filesystem garbage (shell-redirection artifacts and stray files)
+    git diff --name-only --diff-filter=A $BASE...HEAD | grep -iE \
+      '(^|/)(nul|con|prn|aux)$|\.(bak|old|orig|swp|tmp)$'
+
+    # 3. .gitignore gap: for every hit above, check whether a pattern already
+    #    covers it. A tracked file matching an existing pattern means it was
+    #    committed before the pattern was added and needs `git rm --cached`.
+    git check-ignore -v <path>
+    ```
+
+    Report each hit as a finding. Never delete anything here: this command's
+    Step 7c owns removal, and its `gitignore` phase owns the `git rm --cached`
+    plus pattern append. Name the phase in your finding so Step 7c can act on
+    it without re-deriving the classification.
+
+    ## Phase 3: Manual Diff Analysis
 
     After collecting lint results, also manually analyze the diff for issues
     that linters miss:
@@ -423,12 +460,15 @@ Agent tool call:
     ## Output Format
 
     For each finding provide:
-    - Source: "ruff [RULE]", "vulture", "knip", "tsc", or "manual"
+    - Source: "ruff [RULE]", "vulture", "knip", "tsc", "vcs", or "manual"
     - Severity (High / Medium / Low)
-    - File + line
+    - File + line (for VCS findings, the path alone)
     - Confidence score (0-100)
-    - What is unused and why
-    - Recommended action (remove, prefix with _, verify dynamic usage, add to __all__)
+    - What is unused or misplaced, and why
+    - Recommended action (remove, prefix with _, verify dynamic usage, add to
+      __all__, `git rm --cached` plus a .gitignore pattern)
+    - Fix phase: the Step 7c cleanup phase that would resolve it
+      (`exports` for dead code, `garbage` or `gitignore` for VCS findings)
 ```
 
 ### Agent C: UI Race Condition Analysis
@@ -490,6 +530,8 @@ Agent tool call:
 ### Agent D: Platform Engineering Review
 
 **Only run this agent if fullstack app signals were detected** (2+ signals from auto-detection in Step 1). Skip entirely for libraries, CLI tools, or single-layer projects.
+
+**Skip if the `platform-engineering` plugin is not installed.** It is an `optionalDependency`, so the spawn fails with "Agent type not found" when it is absent. Report the dimension as skipped for that reason instead, so the gap is visible in the report rather than silent.
 
 ```
 Agent tool call:
@@ -709,6 +751,8 @@ Agent tool call:
 ### Agent I: React Performance Review (conditional)
 
 **Only run this agent if the diff touches `.tsx` or `.jsx` files AND the project has React as a dependency** (check `package.json` for `react` in dependencies/devDependencies).
+
+**Skip if the `react-development` plugin is not installed.** It is an `optionalDependency`, so the spawn fails with "Agent type not found" when it is absent. Report the dimension as skipped for that reason instead, so the gap is visible in the report rather than silent.
 
 ```
 Agent tool call:
@@ -1059,6 +1103,8 @@ gh pr comment {number} -F .code-review-tmp/temp_summary_comment.md
 
 After presenting the review (Step 5/6), offer an interactive fix cycle. Skip this step if the verdict is "Ready to merge" with no findings, or if the user didn't request fixes.
 
+The loop has two kinds of work: targeted fixes for review findings (7b) and bulk removal for codebase-hygiene findings (7c). The second is the only place in the marketplace that deletes at scale, so it carries its own pre-flight, gates, and per-phase commits. A review with no hygiene findings skips 7c entirely.
+
 ### 7a. Severity Acceptance
 
 Present a single prompt listing all severity levels with findings. Use `AskUserQuestion` with `multiSelect: true`:
@@ -1098,7 +1144,65 @@ Agent tool call:
 
 Wait for all fixes to complete before proceeding.
 
-### 7c. Re-review Offer
+### 7c. Cleanup Phases
+
+Run this sub-step only when the accepted findings include codebase-hygiene items (dead code, orphan assets, generated artifacts tracked in VCS, unused or phantom deps, stale docs). Skip it entirely otherwise. This is the only place in the marketplace that performs bulk removal; detection lives in `senior-review:cleanup-auditor` and in Agent B2 above, and neither of them deletes anything.
+
+#### Critical rules
+
+These are non-negotiable. Removal at this scale is safe only because of them.
+
+1. **Git pre-flight.** `git status` must be clean before the first phase. Warn and halt if the working tree has uncommitted changes. Fixes from 7b must already be committed.
+2. **Phase isolation.** Each phase gets its own commit, never mixing categories, so every step is independently revertible.
+3. **Gate after every phase.** The project build must pass and tests must not regress against the baseline recorded before the first phase. On either failure, `git reset --hard HEAD~1` and halt.
+4. **Grep-before-delete.** For every asset, export, or dependency candidate, run a final confirmation Grep and proceed only on zero results. Skip any item with matches and log it separately.
+5. **Never remove what is used through side effects.** Dynamic imports, decorators, framework conventions (Next.js `pages/` and `app/`, Django views, pytest fixtures), and module augmentation in `*.d.ts` with `declare module`.
+6. **Python functions and classes require explicit approval.** vulture's false-positive rate is high; present them separately and wait for user confirmation.
+
+#### Baseline
+
+Before the first phase, record the starting commit (`git rev-parse HEAD`), run the build, and run the test suite to capture pass and fail counts. Resolve `BUILD_CMD` and `TEST_CMD` from the project (`package.json` scripts, `pyproject.toml`, or the project equivalent), preferring unit tests over e2e. If the baseline build or tests already fail, halt: the branch must be stable before subtraction.
+
+#### Phase order
+
+Lowest risk first, stopping at the first gate failure. Run only the phases the accepted findings actually require.
+
+1. `garbage` -- filesystem cruft (`nul`, `.DS_Store`, shell-redirection artifacts). Safest phase, no build or dependency impact expected.
+2. `brand` -- rebrand residue. Requires the user to confirm the old brand name first.
+3. `assets` -- orphan static files. Watch for dynamic references built from template literals, so Grep partial basenames too. For eager `import.meta.glob` bloat, switch to `{ eager: false }` with lazy resolution rather than removing the glob, unless every file in it is provably unused; removing the glob needs user sign-off.
+4. `gitignore` -- append missing patterns, then `git rm --cached` for currently-tracked files the new patterns now match. Regenerate `.gitignore` only if it was empty or clearly minimal; otherwise append.
+5. `deps` -- unused and phantom dependencies. Move phantom deps to the correct workspace's manifest instead of deleting them unless confirmed unused everywhere. Re-install after editing and commit the manifest together with the lockfile. Never touch implicitly-used devDependencies (`prettier`, `eslint`, `typescript`, `@types/*` matching runtime deps) without grepping config files first.
+6. `exports` -- dead exports, types, files, and unused Python symbols, in ascending risk order: ruff `F401` and `F841` auto-fix, then Knip unused exports and types verified by Grep across all workspaces, then Knip unused files verified against dynamic require and framework-convention paths, then vulture functions and classes under rule 6.
+7. `docs` -- stale documentation and historical artifacts. Last on purpose, so it also catches doc references made stale by the `exports` phase. Detection-only unless the user explicitly opts into removal.
+
+#### Per-phase template
+
+For every phase `P`:
+
+- **P.1 Confirm zero references.** Grep each candidate across source and docs, excluding the file being removed. Skip anything with a match.
+- **P.2 Apply removals in batches** of 5 to 20 items. Delete files or edit export lines for code, `git rm` for assets, `git rm --cached` for generated artifacts, manifest edit plus re-install for deps, append for `.gitignore`.
+- **P.3 Gate.** Run `BUILD_CMD` then `TEST_CMD`. On failure, `git reset --hard HEAD~1`, report which phase failed, and halt.
+- **P.4 Commit.** One commit per phase: `chore(cleanup): <phase> -- <count> items removed`, with a short summary of what went in the body.
+- **P.5 Proceed** to the next phase, or halt if the gate failed.
+
+#### The docs phase
+
+Highest false-positive rate of the seven, so removal is opt-in and gated per item.
+
+- Without an explicit opt-in, output the categorized report and stop.
+- Plans, ADRs, and archive folders need per-item confirmation. A stale plan is indistinguishable from an active one to a tool. Show path, last-modified date, checklist completion percentage, and the first few lines of the body.
+- Scratch directories: untracked and already in `.gitignore` means safe local cleanup with no commit. Tracked means `git rm -r` plus a `.gitignore` entry, committed normally.
+- Stale doc references are edits, not deletions. Rewrite the paragraph or strike the bullet; never delete a whole document over one stale link. If a document ends up effectively empty, propose its deletion as a separate confirmed item.
+- Orphan doc-assets follow the same Grep-before-delete rule, searching only `*.md`, `*.mdx`, `*.rst`, `*.adoc`. Watch for inline base64 images that reference no filename.
+- ADRs are historical record. The default action for `Status: Superseded` is to move them under a `superseded/` subfolder, not to delete them.
+
+#### Cleanup report
+
+After the last phase, or at the first gate failure, present one row per phase with status, items removed, and the commit sha, plus the before-and-after test counts and the reverted phase if any. Then run the alignment check: Grep the removed symbols, paths, and dependency names against `CLAUDE.md` and propose updates for any hit, since a cleanup that leaves the project instructions describing deleted code has only moved the problem.
+
+This step is pure subtraction. It does not refactor architecture, does not touch test files unless they reference removed symbols, and does not run a bundle analyzer.
+
+### 7d. Re-review Offer
 
 After fixes land, present:
 - **Run another review round (Recommended)** -- verify fixes and check for new issues
@@ -1106,7 +1210,7 @@ After fixes land, present:
 
 If another round: run the full Step 1-7 flow again (fresh agents, fresh scope).
 
-### 7d. Post-fix Options
+### 7e. Post-fix Options
 
 After the fix-review cycle completes (clean verdict or user chose to stop):
 

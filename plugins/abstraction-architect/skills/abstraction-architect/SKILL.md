@@ -3,7 +3,7 @@ name: abstraction-architect
 description: >
   Knowledge base for pure-architecture decisions on when to unify duplicated logic into a shared abstraction versus leave it duplicated. Covers the canonical theory (Rule of Three, DRY/WET/AHA, Wrong Abstraction, Locality of Behaviour, Bounded Contexts, Tidy First options framing, CUPID vs SOLID), 12 essential-duplication patterns that justify unification, 12 wrong-abstraction patterns that justify inlining or decomposition, an operational decision frame, and a verified reading list.
   TRIGGER WHEN: the user is making an architectural decision about whether to centralize, extract, or remove a layer; reviewing an abstraction for premature generality; auditing scattered cross-cutting concerns; spawned by the abstraction-architect agent during /abstraction-architect:audit or as the Abstraction dimension of /senior-review:team-review or /senior-review:code-review; the user asks "should I extract this into a service" / "is this DRY enough" / "is this wrong abstraction".
-  DO NOT TRIGGER WHEN: the task is code formatting and readability cleanup (use clean-code:clean-code), Python-specific refactoring with metrics (use python-development:python-refactor), generic dead-code removal (use senior-review:cleanup-dead-code), security review (use senior-review:security-auditor), or pure pattern-consistency review without an architecture lens (use senior-review:code-auditor).
+  DO NOT TRIGGER WHEN: the task is code formatting and readability cleanup (use clean-code:clean-code), Python-specific refactoring with metrics (use python-development:python-refactor), generic dead-code removal (use /senior-review:code-review --fix), security review (use senior-review:security-auditor), or pure pattern-consistency review without an architecture lens (use senior-review:code-auditor).
 ---
 
 # Abstraction Architect Knowledge Base
@@ -30,7 +30,7 @@ Do not load this skill for:
 
 - Style and readability fixes (use `clean-code:clean-code`)
 - Python-specific complexity reduction (use `python-development:python-refactor`)
-- Dead-code removal (use `senior-review:cleanup-dead-code`)
+- Dead-code removal (use `/senior-review:code-review --fix`)
 - Security and authorization review (use `senior-review:security-auditor`)
 - Generic code review (use `senior-review:code-auditor`)
 

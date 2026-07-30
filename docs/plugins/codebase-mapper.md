@@ -7,7 +7,7 @@
 The `/map-codebase` command orchestrates a 4-phase pipeline:
 
 1. **Phase 1 (Explore):** The `codebase-explorer` agent scans the project (README, configs, entry points, directory structure) and writes a context brief to `.codebase-map/_internal/context-brief.md`.
-2. **Phase 1b (Interconnect Map):** The `senior-review:semantic-interconnect-mapper` agent reads the context brief and produces `.codebase-map/_internal/interconnect.md`: a structured map of contracts, invariants, domain rules, assumptions, integration hot-spots, and call graph. Writers cite these structured facts instead of paraphrasing code. Skipped gracefully (degraded mode) if the senior-review plugin is not installed.
+2. **Phase 1b (Interconnect Map):** The `codebase-xray:semantic-interconnect-mapper` agent reads the context brief and produces `.codebase-map/_internal/interconnect.md`: a structured map of contracts, invariants, domain rules, assumptions, integration hot-spots, and call graph. Writers cite these structured facts instead of paraphrasing code. The agent ships with `codebase-xray`, a hard dependency of this plugin, so it is always available; if the run itself fails the pipeline continues in degraded mode with writers using only the context brief.
 3. **Phase 2 (Write):** Six writer agents run in parallel, each producing 1-2 documents from the context brief and (when present) the interconnect map.
 4. **Phase 3 (Review):** The `guide-reviewer` agent reviews all documents for consistency, adds cross-references, detects documentation-reality drift against the interconnect map's invariants and domain rules, and produces `INDEX.md`.
 
@@ -168,7 +168,7 @@ Parallel variant of `/map-codebase`. Same four-phase pipeline and the same 10 ou
 **Pipeline:**
 
 1. **Explore** (sequential): `codebase-explorer` builds `.codebase-map/_internal/context-brief.md`. Checkpoint: confirm before continuing.
-2. **Interconnect map** (sequential): `senior-review:semantic-interconnect-mapper` reads the context brief and produces `.codebase-map/_internal/interconnect.md` (contracts, invariants, domain rules, assumptions, integration hot-spots, call graph). Degrades gracefully (writers use only the context brief) if the `senior-review` plugin is not installed.
+2. **Interconnect map** (sequential): `codebase-xray:semantic-interconnect-mapper` reads the context brief and produces `.codebase-map/_internal/interconnect.md` (contracts, invariants, domain rules, assumptions, integration hot-spots, call graph). Degrades gracefully (writers use only the context brief) if the run fails. The agent itself is always present: it ships with `codebase-xray`, a hard dependency.
 3. **Write** (parallel, all 6 writers at once): `overview-writer`, `tech-writer`, `flow-writer`, `onboarding-writer`, `ops-writer`, `config-writer`. `tech-writer`, `flow-writer`, and `ops-writer` additionally cite the interconnect map's structured facts instead of paraphrasing code.
 4. **Review** (sequential, skipped with `--skip-review`): `guide-reviewer` checks all 10 documents for consistency, detects documentation-reality drift against the interconnect map using `senior-review:defect-taxonomy`'s `logic-integrity.md`, and produces `INDEX.md`.
 

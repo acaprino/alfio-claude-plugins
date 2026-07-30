@@ -80,7 +80,7 @@ Spawn a single explorer agent:
 
 ## Phase 1b: Interconnect Map (Sequential)
 
-Spawn a single `senior-review:semantic-interconnect-mapper` agent:
+Spawn a single `codebase-xray:semantic-interconnect-mapper` agent:
 
 1. Task:
    > Build the interconnect map for this project.

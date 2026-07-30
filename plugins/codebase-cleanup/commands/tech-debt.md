@@ -2,7 +2,7 @@
 description: >
   Analyze and remediate technical debt - inventory debt items, score by impact, and produce a prioritized remediation plan with estimated effort. Covers code debt, architecture debt, testing debt, documentation debt, and infrastructure debt with ROI calculations and quarterly roadmap.
   TRIGGER WHEN: the user asks for a technical-debt inventory, debt-score dashboard, prioritized remediation roadmap with effort/ROI estimates, debt-prevention quality gates, or stakeholder-facing debt report. Multi-language and multi-dimension (code, architecture, testing, docs, infra).
-  DO NOT TRIGGER WHEN: the task is Python-only lint/type/complexity audit (use `/python-development:python-audit`), dead-code/dependency removal only (use `/senior-review:cleanup-dead-code`), or a single-file refactoring pass (use `/python-development:python-refactor` or `/clean-code:clean-code`).
+  DO NOT TRIGGER WHEN: the task is Python-only lint/type/complexity audit (use `/python-development:python-audit`), dead-code/dependency removal only (use `/senior-review:code-review --fix`), or a single-file refactoring pass (use `/python-development:python-refactor` or `/clean-code:clean-code`).
 argument-hint: "[path] [--dimension=code|architecture|testing|docs|infra|all] [--horizon=sprint|quarter|year] [--with-roi]"
 ---
 

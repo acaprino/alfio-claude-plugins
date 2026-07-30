@@ -78,7 +78,7 @@ More detail in [Browser automation (Playwright)](#browser-automation-playwright)
 | Plugin | Description | A | S | C |
 |--------|-------------|:-:|:-:|:-:|
 | **[python-development](docs/plugins/python-development.md)** | TDD, refactoring, async patterns, packaging, performance, dead code, Pydantic v2, /python-audit | 3 | 9 | 3 |
-| **[senior-review](docs/plugins/senior-review.md)** | 9 agents review architecture, security, patterns, distributed flows, logic integrity, API contracts, startup cycles, UI races, and codebase hygiene in parallel | 9 | 2 | 4 |
+| **[senior-review](docs/plugins/senior-review.md)** | 8 agents review architecture, security, patterns, distributed flows, logic integrity, API contracts, startup cycles, UI races, and codebase hygiene in parallel | 8 | 2 | 3 |
 | **[codebase-mapper](docs/plugins/codebase-mapper.md)** | Generate 10 narrative docs with Mermaid diagrams from any codebase | 10 | 1 | 5 |
 | **[ai-tooling](docs/plugins/ai-tooling.md)** | Prompt engineering and optimization, Agent SDK | 1 | 1 | 1 |
 | **[tauri-development](docs/plugins/tauri-development.md)** | Tauri 2 desktop + mobile, Rust backend, IPC optimization | 3 | 1 | - |
@@ -87,7 +87,7 @@ More detail in [Browser automation (Playwright)](#browser-automation-playwright)
 | **[rag-development](docs/plugins/rag-development.md)** | RAG system design - chunking, embeddings, vector DBs, advanced patterns | 2 | 1 | 1 |
 | **[marketplace-ops](docs/plugins/marketplace-ops.md)** | Audit, scaffold, review, and manage plugins in this ecosystem | 1 | 2 | 4 |
 | **[learning](docs/plugins/learning.md)** | Mind maps in MarkMind format and interactive force-graphs | - | 3 | 1 |
-| **[codebase-xray](docs/plugins/codebase-xray.md)** | 7-phase systematic codebase X-ray with pattern detection and concurrent runs (was deep-dive-analysis) | 4 | 1 | 2 |
+| **[codebase-xray](docs/plugins/codebase-xray.md)** | 7-phase systematic codebase X-ray with pattern detection and concurrent runs, plus the interconnect mapper that review and documentation both build on (was deep-dive-analysis) | 5 | 1 | 2 |
 | **[business](docs/plugins/business.md)** | Tech law, compliance, privacy docs, contracts, SaaS business planning | 3 | 1 | - |
 | **[stripe](docs/plugins/stripe.md)** | Stripe payments, subscriptions, Connect, revenue optimization, /audit-webhooks | 3 | 1 | 1 |
 | **[research](docs/plugins/research.md)** | Quick search and deep multi-source investigation with shared web-search techniques skill | 2 | 1 | 1 |
@@ -159,22 +159,22 @@ flowchart TD
     cleancode --> texthumanizer
     codebasemapper --> texthumanizer
     codebasemapper --> agentteams
-    codebasemapper --> seniorreview
+    codebasemapper --> deepdive
+    codebasemapper -.-> seniorreview
     seniorreview --> agentteams
     seniorreview --> deepdive
-    seniorreview --> abstraction
-    seniorreview --> reactdev
-    seniorreview --> platformeng
-    seniorreview --> pythondev
-    seniorreview --> tsdev
+    seniorreview -.-> abstraction
+    seniorreview -.-> reactdev
+    seniorreview -.-> platformeng
+    seniorreview -.-> pythondev
+    seniorreview -.-> tsdev
     abstraction --> deepdive
     deepdive --> agentteams
-    deepdive -.-> seniorreview
     research --> agentteams
     research -.-> codebasemapper
 ```
 
-The only near-cycle in the graph is deliberate: `senior-review -> codebase-xray` is hard, so the reverse edge (`codebase-xray`'s use of `senior-review:semantic-interconnect-mapper` in team-analyze Phase 3) stays optional to keep the hard-dependency graph acyclic. `text-humanizer` is a pure leaf: zero dependencies, four dependents.
+Solid arrows are hard dependencies, dotted ones optional. The hard graph is a tree rooted at `codebase-xray`, the plugin that works out how a codebase actually behaves: `senior-review` (review), `codebase-mapper` (documentation), and `abstraction-architect` all build on top of it, and it depends on nothing of ours. That shape is deliberate as of marketplace 16.0.0, when the shared interconnect mapper moved into `codebase-xray` and removed the last near-cycle. `senior-review`'s five optional edges back its conditional review dimensions, each skipped with a note when the plugin is absent rather than failing the review. `text-humanizer` is a pure leaf: zero dependencies, four dependents.
 
 ### Frontend and design
 

@@ -168,7 +168,7 @@ Four edits:
 1. The downstream-exports source map row for the mapper changes its source path from `senior-review/agents/` to `codebase-xray/agents/`.
 2. The paragraph documenting the `codebase-xray` optional-dependency exception, with its instruction not to promote it on a future pass, is removed. The exception no longer exists.
 3. The 13.2.0 paragraph's dependency statements for `senior-review` and `codebase-mapper` are restated to match the new tables.
-4. A migration note records both removals: `senior-review:semantic-interconnect-mapper` becomes `codebase-xray:semantic-interconnect-mapper`, and `/senior-review:cleanup-dead-code` becomes `/senior-review:code-review --fix`. Same shape as the old-to-new mapping kept for the `codebase-xray` rename.
+4. A migration note records both removals: the mapper agent moves out of the `senior-review` namespace into `codebase-xray:semantic-interconnect-mapper`, and `/senior-review:cleanup-dead-code` becomes `/senior-review:code-review --fix`. Same shape as the old-to-new mapping kept for the `codebase-xray` rename.
 
 ### README.md
 
@@ -193,7 +193,7 @@ Deliberately unchanged, to keep the change reviewable:
 
 Before committing:
 
-1. No namespaced reference to `senior-review:semantic-interconnect-mapper` remains anywhere in `plugins/`, `docs/`, `README.md`, or `marketplace.json`.
+1. No reference to the mapper under its old `senior-review:` namespace remains anywhere in `plugins/`, `docs/`, `README.md`, or `marketplace.json`.
 2. No reference to `cleanup-dead-code` remains outside `exports/vscode/README.md`, where it names the original on purpose, and the CLAUDE.md migration note.
 3. `marketplace.json` parses as JSON, every path listed for each plugin exists on disk, and no plugin lists the deleted command or the moved agent under its old owner.
 4. The hard-dependency graph is acyclic, verified by walking `dependencies` only.

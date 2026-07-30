@@ -50,7 +50,7 @@ This is the only interactive checkpoint. Profiling itself is autonomous; this st
 
 ## Phase 1b: Interconnect Map (sequential)
 
-Spawn a single `senior-review:semantic-interconnect-mapper` agent. This produces structured facts (contracts, invariants, domain rules, integration hot-spots) that the writer agents cite instead of paraphrasing code.
+Spawn a single `codebase-xray:semantic-interconnect-mapper` agent. This produces structured facts (contracts, invariants, domain rules, integration hot-spots) that the writer agents cite instead of paraphrasing code.
 
 **Agent task:**
 > Build the interconnect map for this project.

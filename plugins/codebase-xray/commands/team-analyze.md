@@ -293,7 +293,7 @@ Monitor. On completion: mark `phase_2_synthesis: "complete"`. On failure: mark `
 
 Skip if `--skip-interconnect` or `--skip-synthesis` or Phase 2 failed.
 
-Spawn a single `senior-review:semantic-interconnect-mapper`:
+Spawn a single `codebase-xray:semantic-interconnect-mapper`:
 - Task prompt:
 
 ```

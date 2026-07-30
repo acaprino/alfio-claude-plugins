@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Claude Code Daodan - 40 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), prose humanization, and pure-architecture audits (missed unification, wrong abstractions).",
-    "version": "15.0.0"
+    "version": "16.0.0"
   },
   "plugins": [
     {
@@ -40,8 +40,8 @@
     {
       "name": "codebase-xray",
       "source": "./plugins/codebase-xray",
-      "description": "Multi-language systematic codebase X-ray analysis (Python, Java, JavaScript, TypeScript, SQL, PL/SQL, Rust) - analyzes architecture, traces data flows, detects anti-patterns, and generates structured documentation for onboarding, architecture review, or code documentation. Concurrent-safe: every analysis is an isolated run under .deep-dive/runs/ published to a stable root mirror. The Next Steps menu wires the output into downstream documentation generators (CLAUDE.md, codebase map, interface docs) as a technical-reference backbone. Renamed from deep-dive-analysis in 2.0.0.",
-      "version": "2.0.1",
+      "description": "Multi-language systematic codebase X-ray analysis (Python, Java, JavaScript, TypeScript, SQL, PL/SQL, Rust) - analyzes architecture, traces data flows, detects anti-patterns, and generates structured documentation for onboarding, architecture review, or code documentation. Root of the review and documentation dependency graph: it also owns the semantic interconnect mapper (contracts / invariants / domain rules / assumptions) that team-review and codebase-mapper both consume. Concurrent-safe: every analysis is an isolated run under .deep-dive/runs/ published to a stable root mirror. The Next Steps menu wires the output into downstream documentation generators (CLAUDE.md, codebase map, interface docs) as a technical-reference backbone. Renamed from deep-dive-analysis in 2.0.0.",
+      "version": "2.1.0",
       "author": {
         "name": "Alfio"
       },
@@ -69,14 +69,12 @@
       "dependencies": [
         "agent-teams@claude-code-workflows"
       ],
-      "optionalDependencies": [
-        "senior-review"
-      ],
       "agents": [
         "./agents/partition-structure-worker.md",
         "./agents/partition-behavior-worker.md",
         "./agents/partition-quality-worker.md",
-        "./agents/partition-synthesizer.md"
+        "./agents/partition-synthesizer.md",
+        "./agents/semantic-interconnect-mapper.md"
       ],
       "skills": [
         "./skills/analyze"
@@ -210,7 +208,7 @@
       "name": "python-development",
       "source": "./plugins/python-development",
       "description": "Python development toolkit - TDD with pytest, code refactoring with complexity metrics, performance profiling, async patterns, uv package management, dead code detection, comment auditing, project scaffolding, deep Pydantic v2.13 guide (validators/serializers/strict/performance/security/PydanticAI+Logfire) with v1 migration, and /python-audit consolidated quality report",
-      "version": "1.21.4",
+      "version": "1.21.5",
       "author": {
         "name": "Alfio"
       },
@@ -607,8 +605,8 @@
     {
       "name": "senior-review",
       "source": "./plugins/senior-review",
-      "description": "Multi-agent code review orchestration with unified code auditing (architecture, failure flow, pattern analysis, scoring), security auditing, UI race condition detection, distributed flow analysis, platform engineering review, codebase-hygiene auditing (dead code + orphan assets + generated artifacts in VCS + phantom/unused deps + barrel-file and eager-bundle bloat + stale documentation and historical artifacts), /cleanup-dead-code incremental-phase command with commit-per-category and build+test gates, semantic interconnect mapping (contracts / invariants / domain rules / assumptions) reusable across team-review and codebase-mapper, logic-integrity auditing for cross-component contract violations, git blame/history analysis, finding validation with false-positive filtering, committable PR suggestions, pre-review skip logic, intent-driven review, confidence gating, cross-agent deduplication, pre-existing issue separation, verdict system, interactive fix loop, and conditional reviewers for testing quality, API contracts, and data migrations. Backed by a comprehensive defect taxonomy knowledge base (140+ defect patterns, CWE/OWASP mappings, plus a dedicated logic-integrity reference).",
-      "version": "6.1.2",
+      "description": "Multi-agent code review orchestration with unified code auditing (architecture, failure flow, pattern analysis, scoring), security auditing, UI race condition detection, distributed flow analysis, platform engineering review, codebase-hygiene auditing (dead code + orphan assets + generated artifacts in VCS + phantom/unused deps + barrel-file and eager-bundle bloat + stale documentation and historical artifacts), a lite dead-code and VCS-hygiene pass in code-review and pr-review plus incremental-phase removal inside the code-review fix loop with commit-per-category and build+test gates, logic-integrity auditing for cross-component contract violations driven by the interconnect map that codebase-xray produces, git blame/history analysis, finding validation with false-positive filtering, committable PR suggestions, pre-review skip logic, intent-driven review, confidence gating, cross-agent deduplication, pre-existing issue separation, verdict system, interactive fix loop, and conditional reviewers for testing quality, API contracts, and data migrations. Backed by a comprehensive defect taxonomy knowledge base (140+ defect patterns, CWE/OWASP mappings, plus a dedicated logic-integrity reference).",
+      "version": "7.0.0",
       "author": {
         "name": "Alfio"
       },
@@ -635,7 +633,9 @@
       "strict": false,
       "dependencies": [
         "agent-teams@claude-code-workflows",
-        "codebase-xray",
+        "codebase-xray"
+      ],
+      "optionalDependencies": [
         "abstraction-architect",
         "react-development",
         "platform-engineering",
@@ -648,7 +648,6 @@
         "./agents/ui-race-auditor.md",
         "./agents/distributed-flow-auditor.md",
         "./agents/chicken-egg-detector.md",
-        "./agents/semantic-interconnect-mapper.md",
         "./agents/logic-integrity-auditor.md",
         "./agents/api-contract-auditor.md",
         "./agents/cleanup-auditor.md"
@@ -660,7 +659,6 @@
       "commands": [
         "./commands/pr-review.md",
         "./commands/code-review.md",
-        "./commands/cleanup-dead-code.md",
         "./commands/team-review.md"
       ]
     },
@@ -820,8 +818,8 @@
     {
       "name": "codebase-mapper",
       "source": "./plugins/codebase-mapper",
-      "description": "Human-readable codebase guide generator: explores unfamiliar projects, builds a structured interconnect map (contracts, invariants, domain rules, integration hot-spots) via the senior-review semantic-interconnect-mapper, then autonomously profiles the project (type, audience, register) and produces audience-adaptive narrative documents with Mermaid diagrams that cite the map, including a plain-language executive summary and a domain glossary so the guide is comprehensible by everyone. Includes documentation-reality drift detection in the review phase, plus standalone documentation creation, maintenance, and humanization with bottom-up code analysis. Both docs-create and docs-maintain cover 20 documentation dimensions; docs-maintain runs a structured per-dimension drift audit (added/removed/renamed/retyped) instead of generic outdated-text matching.",
-      "version": "2.10.2",
+      "description": "Human-readable codebase guide generator: explores unfamiliar projects, builds a structured interconnect map (contracts, invariants, domain rules, integration hot-spots) via the codebase-xray semantic-interconnect-mapper, then autonomously profiles the project (type, audience, register) and produces audience-adaptive narrative documents with Mermaid diagrams that cite the map, including a plain-language executive summary and a domain glossary so the guide is comprehensible by everyone. Includes documentation-reality drift detection in the review phase, plus standalone documentation creation, maintenance, and humanization with bottom-up code analysis. Both docs-create and docs-maintain cover 20 documentation dimensions; docs-maintain runs a structured per-dimension drift audit (added/removed/renamed/retyped) instead of generic outdated-text matching.",
+      "version": "2.11.0",
       "author": {
         "name": "Alfio"
       },
@@ -847,8 +845,11 @@
       "strict": false,
       "dependencies": [
         "agent-teams@claude-code-workflows",
-        "senior-review",
+        "codebase-xray",
         "text-humanizer"
+      ],
+      "optionalDependencies": [
+        "senior-review"
       ],
       "agents": [
         "./agents/codebase-explorer.md",
@@ -1264,7 +1265,7 @@
       "name": "codebase-cleanup",
       "source": "./plugins/codebase-cleanup",
       "description": "Technical debt reduction, dependency security auditing, and SOLID-driven refactoring - three multi-language slash commands: deps-audit (CVE/license/supply-chain scan across npm, pip, gem, maven, go, cargo, composer, nuget), refactor-clean (SOLID refactoring with before/after metrics), and tech-debt (prioritized debt inventory with ROI roadmap).",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "author": {
         "name": "Seth Hobson"
       },
@@ -1344,7 +1345,7 @@
       "name": "abstraction-architect",
       "source": "./plugins/abstraction-architect",
       "description": "Pure-architecture auditor with two modes. Global mode finds missed unification opportunities (cross-cutting concerns scattered across call sites that should be a single layer) and wrong abstractions (god services, flag-soup functions, premature interfaces, leaky abstractions that should be inlined or decomposed) from .deep-dive/ output. Diff mode anchors on newly written code and searches the rest of the codebase for prior art, answering whether the code was already available for reuse or has become the third occurrence that justifies unifying; it runs as the Abstraction dimension of /senior-review:team-review and /senior-review:code-review. Report-only, grounded in canonical theory (Metz's Wrong Abstraction, Beck's Tidy First, Fowler's bounded contexts, Gross's Locality of Behaviour).",
-      "version": "1.1.5",
+      "version": "1.1.6",
       "author": {
         "name": "Alfio"
       },

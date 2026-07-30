@@ -8,6 +8,8 @@ Every analysis is an isolated run under `.deep-dive/runs/<run-id>/` with its own
 
 ## Agents
 
+### Partition workers
+
 These four agents exist to serve `/codebase-xray:team-analyze` below. The classic `/codebase-xray:analyze` command runs its seven phases inline without spawning these agents; nothing here is used outside the team pipeline.
 
 | Agent | Model | Runs during | Produces (inside the run directory) |
@@ -18,6 +20,28 @@ These four agents exist to serve `/codebase-xray:team-analyze` below. The classi
 | `partition-synthesizer` | `inherit` | Phase 2: Consolidation | `01-structure.md` through `07-final-report.md` (consolidated across partitions) |
 
 Each worker owns only its listed output files and never touches another partition's files, the consolidated output, or the `.deep-dive/` root (other runs may be in flight). Cross-partition references use `<other-partition>::<symbol>` citation notation.
+
+### `semantic-interconnect-mapper`
+
+Context-builder that produces a structured map of a codebase's contracts, invariants, domain rules, assumptions, integration hot-spots, and call graph. Unlike the partition workers, it is shared across the whole marketplace: it serves three pipelines and is the reason this plugin sits at the root of the dependency graph. It lived in `senior-review` until plugin 2.1.0 (marketplace 16.0.0).
+
+| | |
+|---|---|
+| **Model** | `inherit` |
+| **Tools** | Read, Write, Glob, Grep |
+| **Use for** | Building the structured-facts artifact that downstream reviewers and writers cite instead of paraphrasing code |
+
+**Consumers:**
+
+| Pipeline | Phase | Artifact produced |
+|---|---|---|
+| `/codebase-xray:team-analyze` | Phase 3 | `08-interconnect-map.md`, the global cross-partition view |
+| `/senior-review:team-review` | Phase 1b | `.team-review/02-interconnect.md`, which every reviewer reads and which `logic-integrity-auditor` requires |
+| `/codebase-mapper:map-codebase` and `/codebase-mapper:team-codebase-map` | Phase 1b | `.codebase-map/_internal/interconnect.md`, cited by `tech-writer`, `flow-writer`, `ops-writer`, and `guide-reviewer` |
+
+**Output sections:** `## Contracts` (formal + implicit), `## Invariants` (temporal + structural), `## Assumptions` (unverified), `## Domain Rules`, `## Integration Hot-Spots` (HTTP, queue, IPC, env/config), `## Call Graph`. Each section is self-contained so consumers can Grep a single heading and get full context.
+
+Input source differs per pipeline: X-ray output for `team-review`, the consolidated partition set for `team-analyze`, and `codebase-explorer`'s context brief for the `codebase-mapper` pipelines. It never proposes fixes; every claim carries a `file:line` citation.
 
 ---
 
@@ -77,7 +101,7 @@ Multi-agent variant of `/codebase-xray:analyze` for large or partitioned codebas
 2. **Wave 1** (parallel): one `partition-structure-worker` per partition writes structure and interfaces.
 3. **Wave 2** (parallel): `partition-behavior-worker` and `partition-quality-worker` per partition write flows/semantics and risks/documentation, each citing sibling partitions' Wave 1 output for cross-partition calls. Under `--depth=lite` the behavior workers are not spawned and quality workers write risks only.
 4. **Synthesis**: `partition-synthesizer` consolidates every partition's output into the standard `01-structure.md` through `07-final-report.md` files inside the run directory, flagging any failed partition inline.
-5. **Interconnect map**: `senior-review:semantic-interconnect-mapper` reads the consolidated output and produces `08-interconnect-map.md`, the global cross-partition contract/invariant map that `/senior-review:team-review` reuses directly.
+5. **Interconnect map**: `codebase-xray:semantic-interconnect-mapper` reads the consolidated output and produces `08-interconnect-map.md`, the global cross-partition contract/invariant map that `/senior-review:team-review` reuses directly.
 6. **Publish**: the consolidated set (and interconnect map) is mirrored to the `.deep-dive/` root for downstream consumers, and the run is closed in `runs.json`.
 
 ```

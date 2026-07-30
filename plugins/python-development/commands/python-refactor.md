@@ -2,7 +2,7 @@
 description: >
   Metrics-driven Python refactoring - analyze complexity, plan improvements, execute with test validation, and produce before/after comparison report.
   TRIGGER WHEN: the user asks to refactor Python code, reduce cyclomatic complexity, or restructure modules with measured before/after metrics.
-  DO NOT TRIGGER WHEN: just renaming/simplifying for readability (use /clean-code:clean-code) or removing dead code (use /senior-review:cleanup-dead-code).
+  DO NOT TRIGGER WHEN: just renaming/simplifying for readability (use /clean-code:clean-code) or removing dead code (use /senior-review:code-review --fix).
 argument-hint: "<target file or directory> [--strict-mode]"
 ---
 

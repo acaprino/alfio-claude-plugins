@@ -71,4 +71,4 @@ Master enterprise-grade TypeScript development with type-safe patterns, modern t
 
 ---
 
-**Related:** [senior-review](senior-review.md) (`/cleanup-dead-code` delegates to Knip for TS/JS) | [react-development](react-development.md) (React-specific optimization)
+**Related:** [senior-review](senior-review.md) (`/code-review --fix` delegates to Knip for TS/JS) | [react-development](react-development.md) (React-specific optimization)

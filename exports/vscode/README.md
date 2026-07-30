@@ -189,7 +189,7 @@ Two gates keep the findings honest. The **verification panel** judges each findi
 | `--phase N` | Supported by the classic command | Rejected with an explicit error |
 | Phase specs | Duplicated between command bodies and agent definitions | Live only in the agent definitions; the workflow reference points at them |
 | Worker scoping | Separate code paths for single-target and partitioned modes | One set of workers parametrized by `output_dir` |
-| Interconnect map | `senior-review:semantic-interconnect-mapper`, a separate plugin | Vendored as `xray-interconnect-mapper`, wired into Phase 3 |
+| Interconnect map | `codebase-xray:semantic-interconnect-mapper`, an agent of the same plugin since marketplace 16.0.0 (it lived in `senior-review` when this port was written) | Vendored as `xray-interconnect-mapper`, wired into Phase 3 |
 | Reviewer hints | Named the `senior-review` reviewer agents | Rewritten as generic review-concern hints |
 | Downstream handoff | Next-steps menu routes into `project-setup` and `codebase-mapper` | Generic guidance; those plugins have no VS Code equivalent |
 
@@ -201,10 +201,10 @@ Two gates keep the findings honest. The **verification panel** judges each findi
 | Interconnect map source | Written directly to `.team-review/02-interconnect.md` | Copied there from the X-ray **run directory**, not the `.deep-dive/` root mirror, which a concurrent X-ray run can republish mid-review |
 | Dimension detection | A block of `grep`, `sed`, and `awk` piped in bash | Expressed on `#search/textSearch` and `#search/fileSearch`, so it behaves the same on Windows without a POSIX layer |
 | API contracts dimension | Generic `agent-teams:team-reviewer` | The specialized `review-api-contract-auditor`, which the upstream plugin ships but the upstream command never wired in |
-| Dead code dimension | The Phase 2 table says `general-purpose`, the Phase 0b table says `cleanup-auditor` | Resolved to `review-cleanup-auditor`. The upstream tables contradict each other; the specialized agent is clearly the intent. |
+| Dead code dimension | `cleanup-auditor` in both tables | `review-cleanup-auditor`. No longer a divergence: the upstream tables contradicted each other until marketplace 16.0.0, which adopted the resolution this port had already made. |
 | Testing / migrations / performance | Generic `agent-teams:team-reviewer` | `review-generic-reviewer`, which carries an explicit checklist per dimension instead of a bare dimension name |
 | Verification lens models | Lens 3 pinned to a cheaper model | Unpinned. VS Code accepts `model:`, but the correct id depends on which Copilot models the user has; pin it yourself on `review-verification-lens` if it pays off. |
-| Cleanup fix command | Findings end with `Fix: /senior-review:cleanup-dead-code --phase=<phase>` | `Fix phase: <phase>`. The automated removal command is not part of this bundle; the auditor stays report-only. |
+| Cleanup fix command | Findings end with `Fix phase: <phase>`, resolved at Step 7c of `/senior-review:code-review --fix` | `Fix phase: <phase>`. No longer a divergence in the finding format, which marketplace 16.0.0 adopted from this port. Still a divergence in capability: no automated removal command is part of this bundle, so the auditor stays report-only and the phase label is advisory. |
 | Team teardown | `shutdown_request` to every reviewer, then implicit cleanup | Nothing to tear down; subagents end when they return |
 
 The `.deep-dive/` layout, run registry, phase numbering, output file names, and `##` section anchors are unchanged, so anything that already consumes the Claude Code plugins' output reads this port's output without modification.

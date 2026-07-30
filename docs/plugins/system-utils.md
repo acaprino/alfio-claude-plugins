@@ -42,4 +42,4 @@ Quick command to organize files and directories.
 
 ---
 
-**Related:** [senior-review](senior-review.md) (`/cleanup-dead-code` for removing unused code)
+**Related:** [senior-review](senior-review.md) (`/code-review --fix` for removing unused code)

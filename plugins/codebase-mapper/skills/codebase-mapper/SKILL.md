@@ -66,7 +66,7 @@ Single `codebase-explorer` agent reads the project and writes `_internal/context
 The `map-codebase` command surfaces the inferred Project Profile and lets the user confirm or adjust it before the writers run. The confirmed profile drives register and depth across all documents.
 
 ### Phase 1b - Interconnect Map
-Single `senior-review:semantic-interconnect-mapper` agent reads the context brief and writes `_internal/interconnect.md` (contracts, invariants, domain rules, integration hot-spots). Optional: if it fails, the pipeline continues in degraded mode. The `tech-writer`, `flow-writer`, `ops-writer`, and `guide-reviewer` cite this map instead of paraphrasing code.
+Single `codebase-xray:semantic-interconnect-mapper` agent reads the context brief and writes `_internal/interconnect.md` (contracts, invariants, domain rules, integration hot-spots). Optional: if it fails, the pipeline continues in degraded mode. The `tech-writer`, `flow-writer`, `ops-writer`, and `guide-reviewer` cite this map instead of paraphrasing code.
 
 ### Phase 2 - Write
 Six parallel writer agents, each reading context-brief.md:

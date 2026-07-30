@@ -112,25 +112,6 @@ Use the chicken-egg-detector agent to analyze [system/infrastructure]
 
 ---
 
-### `semantic-interconnect-mapper`
-
-Phase 1b context-builder that produces a structured map of a codebase's contracts, invariants, domain rules, assumptions, integration hot-spots, and call graph. Output is consumed by every downstream reviewer (logic-integrity-auditor, code-auditor, security-auditor, distributed-flow-auditor, api-contract-auditor, chicken-egg-detector, ui-race-auditor) so they can find cross-component bugs instead of only local issues.
-
-| | |
-|---|---|
-| **Model** | `inherit` |
-| **Tools** | Read, Grep, Glob |
-| **Use for** | Pre-review context building when running `/senior-review:team-review` or `/map-codebase`; generating the `.team-review/02-interconnect.md` artifact that drives the logic-integrity and contract reviewers |
-
-**Invocation:**
-```
-Used automatically by /senior-review:team-review Phase 1b (after deep-dive analysis) and by /map-codebase pipelines; rarely invoked directly
-```
-
-**Output sections:** `## Contracts` (formal + implicit), `## Invariants` (temporal + structural), `## Assumptions` (unverified), `## Domain Rules`, `## Integration Hot-Spots` (HTTP, queue, IPC, env/config), `## Call Graph`. Each section is self-contained so reviewers can Grep a single heading and get full context.
-
----
-
 ### `logic-integrity-auditor`
 
 Adversarial reviewer that hunts for violations of contracts, invariants, assumptions, domain rules, ordering, idempotency, and state machines documented in the interconnect map. Catches bugs no local-only reviewer can see - logic drift across components, implicit contracts silently broken, terminal states mutated, retry paths double-committing.
@@ -174,7 +155,7 @@ Use the api-contract-auditor agent to review [spec file or API boundary]
 
 ### `cleanup-auditor`
 
-Adversarial codebase hygiene auditor. Detects dead code, orphan assets, generated artifacts tracked in VCS, phantom/unused dependencies, barrel-file bloat, eager-bundling anti-patterns, rebrand residue, and filesystem garbage. Report-only; the fix is delegated to `/cleanup-dead-code`.
+Adversarial codebase hygiene auditor. Detects dead code, orphan assets, generated artifacts tracked in VCS, phantom/unused dependencies, barrel-file bloat, eager-bundling anti-patterns, rebrand residue, and filesystem garbage. Report-only; the fix is delegated to Step 7c of `/code-review --fix`.
 
 | | |
 |---|---|
@@ -192,7 +173,7 @@ Also spawned automatically by `/senior-review:team-review` as the "Codebase hygi
 - 4-dimension detection pipeline: dead code (delegates to Knip / vulture / ruff), asset hygiene (orphan images, fonts, build artifacts), VCS hygiene (generated files tracked, .gitignore gaps), dependency hygiene (phantom / unused / version drift in monorepo workspaces)
 - Every finding cites `file:line` or a concrete path; vague "consider cleaning up" advice is forbidden
 - False-positive candidates (module augmentation, side-effect imports, DI-registered classes, framework-convention files) flagged in a separate section, never auto-confirmed
-- Each finding ends with the exact `/cleanup-dead-code --phase=<phase>` command that would fix it
+- Each finding ends with `Fix phase: <phase>`, naming the cleanup phase of `/code-review --fix` Step 7c that would remove it
 
 ---
 
@@ -292,24 +273,21 @@ When the diff adds code and the `abstraction-architect` plugin is installed, it 
 
 ---
 
-### `/cleanup-dead-code`
+### Dead code and cleanup
 
-Find and remove dead code. Auto-detects language: Knip for TypeScript/JavaScript, vulture + ruff for Python. Runs tests before and after to catch regressions.
+There is no standalone cleanup command. The capability is split by scope, so you never install or invoke anything extra to get it.
 
-```
-/cleanup-dead-code src/ --dry-run
-```
+| Scope | Where it runs | Coverage |
+|---|---|---|
+| **Lite** | `/code-review` and `/pr-review`, inline on the changed files | Dead code (Knip for TS/JS, vulture and ruff for Python) plus VCS hygiene (generated artifacts tracked in git, filesystem garbage, `.gitignore` gaps) |
+| **Full** | `/senior-review:team-review`, always-on `cleanup-auditor` dimension across the whole codebase | All five dimensions: dead code, orphan assets, VCS hygiene, dependency and barrel-file hygiene, stale documentation |
+| **Removal** | `/code-review --fix` Step 7c | Seven phases lowest-risk-first, one commit each, build and test gate between phases, `git reset --hard HEAD~1` on failure |
 
-| Flag | Effect |
-|------|--------|
-| `--dry-run` | Report findings without modifying files |
-| `--dependencies-only` | Only check unused dependencies |
-| `--exports-only` | Only check unused exports |
-| `--production` | Skip devDependencies |
+Removal safety comes from the Step 7c rules: clean working tree before starting, phase isolation so each step is independently revertible, a confirmation Grep returning zero results before any delete, no removal of anything reached through dynamic imports or framework conventions, and explicit user approval for Python functions and classes given vulture's false-positive rate. The `docs` phase is report-only unless removal is explicitly opted into.
 
-**Safety:** Checks `git status` before starting. Reverts changes when tests fail. Asks for approval before removing Python functions/classes (high false-positive rate).
+Delegates to the `typescript-development:knip` and `python-development:python-dead-code` skills when those plugins are installed, and falls back to direct tool invocation otherwise.
 
-**Related:** Delegates to `typescript-development:knip` (TS/JS) and `python-development:python-dead-code` (Python) skills.
+The `/cleanup-dead-code` command was removed in plugin 7.0.0 (marketplace 16.0.0). Its detection duplicated `cleanup-auditor` and its removal machinery moved into Step 7c above.
 
 ---
 

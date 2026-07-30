@@ -103,18 +103,20 @@ Analyze changed files and codebase to determine which review dimensions are rele
 | Security | `senior-review:security-auditor` | Every change can introduce vulnerabilities |
 | Architecture | `senior-review:code-auditor` | Coupling, abstractions, failure flows, pattern consistency, scoring |
 | **Logic integrity** | `senior-review:logic-integrity-auditor` | **Hunts violations of contracts/invariants/domain rules surfaced in Phase 1b** (skipped if `--skip-interconnect`) |
-| Codebase hygiene | `senior-review:cleanup-auditor` | Dead code + orphan assets + generated artifacts tracked in VCS + phantom/unused deps + barrel-file and eager-bundle bloat |
+| Codebase hygiene | `senior-review:cleanup-auditor` | The **full** hygiene pass across all five dimensions and the whole codebase: dead code, orphan assets, generated artifacts tracked in VCS, phantom/unused deps plus barrel-file and eager-bundle bloat, and stale documentation. `/senior-review:code-review` and `/senior-review:pr-review` run only the lite subset (dead code + VCS hygiene, scoped to the diff), so this dimension is where the other three dimensions get covered at all |
 
 ### Conditional dimensions (auto-detected from context)
 
-Run these checks against the changed files and codebase to decide which extra reviewers to spawn:
+Run these checks against the changed files and codebase to decide which extra reviewers to spawn.
+
+Three of these dimensions live in plugins declared as `optionalDependencies` of `senior-review`: React performance (`react-development`), platform compliance (`platform-engineering`), and abstraction (`abstraction-architect`). A dimension whose plugin is absent is **skipped with a note**, never spawned. Attempting the spawn fails with "Agent type not found" and takes the phase down with it. Report the reason as "not installed" so the user can tell it apart from a dimension that simply did not match. Everything else in the table resolves to `senior-review` agents or to the `agent-teams` fallback, both of which are hard dependencies and always present.
 
 | Signal | Detection rule | Dimension activated | Agent |
 |--------|---------------|---------------------|-------|
 | **UI/frontend files** | Changed files include `.tsx`, `.jsx`, `.vue`, `.svelte`, `.component.ts`, or files containing scroll/focus/layout manipulation | UI race conditions | `senior-review:ui-race-auditor` |
-| **React project** | `package.json` has `react` in dependencies AND changed files include `.tsx`/`.jsx` | React performance | `react-development:react-performance-optimizer` |
+| **React project** | `package.json` has `react` in dependencies AND changed files include `.tsx`/`.jsx`. Requires the `react-development` plugin: when it is not installed, skip and note it under Skipped instead of spawning (the spawn would fail) | React performance | `react-development:react-performance-optimizer` |
 | **Non-React frontend** | Frontend files detected but no React dependency | General performance | `agent-teams:team-reviewer` (performance dimension) |
-| **Fullstack app** | 2+ signals: frontend framework in `package.json`, backend framework config, API route definitions, `docker-compose.yml` with multiple services, Tauri/Electron config | Platform compliance | `platform-engineering:platform-reviewer` |
+| **Fullstack app** | 2+ signals: frontend framework in `package.json`, backend framework config, API route definitions, `docker-compose.yml` with multiple services, Tauri/Electron config. Requires the `platform-engineering` plugin: when it is not installed, skip and note it under Skipped instead of spawning (the spawn would fail) | Platform compliance | `platform-engineering:platform-reviewer` |
 | **Multi-service / messaging** | Changed files touch API routes, message handlers, gRPC definitions, queue consumers/producers, or `docker-compose.yml` with multiple services | Distributed flows | `senior-review:distributed-flow-auditor` |
 | **Init/startup code** | Changed files touch startup sequences, dependency injection, config bootstrap, migration runners, or service registration | Circular dependencies | `senior-review:chicken-egg-detector` |
 | **Test files** | Changed files match `test_*`, `*_test.*`, `*.spec.*`, `*.test.*`, `conftest.py`, `__tests__/` | Testing quality | `agent-teams:team-reviewer` (testing dimension) |
@@ -158,17 +160,20 @@ After detection, display the plan:
 
 ```
 Context detection complete:
-  - Always: security, architecture, logic-integrity, dead-code
+  - Always: security, architecture, logic-integrity, codebase-hygiene
   - Detected: ui-races (6 .tsx files), react-perf (React project), distributed-flows (API routes + RabbitMQ), abstraction (diff adds 4 units)
   - Skipped: platform (not fullstack), chicken-egg (no startup code), testing (no test files changed)
+  - Skipped, plugin not installed: react-perf (react-development)
 
 Pipeline plan:
   Phase 1a: codebase-xray (--depth=lite)
-  Phase 1b: semantic-interconnect-mapper
+  Phase 1b: codebase-xray:semantic-interconnect-mapper
   Phase 2:  {N} reviewers in parallel
   Phase 3:  consolidation
   Phase 4:  report
 ```
+
+Show the last line only when a dimension matched but its plugin is missing. The two skip reasons are different signals: "not fullstack" means the code did not need the dimension, while "not installed" means it did and the review has a known blind spot.
 
 Mark `phase_0b_detection` complete in `state.json`.
 
@@ -195,7 +200,7 @@ If the skill is unavailable (not installed) or produces no output, halt the pipe
 
 ### Phase 1b: Semantic Interconnect Mapping
 
-1. Spawn a single teammate with `subagent_type: senior-review:semantic-interconnect-mapper`.
+1. Spawn a single teammate with `subagent_type: codebase-xray:semantic-interconnect-mapper`.
 2. Prompt:
 
    ```
@@ -228,7 +233,7 @@ If the skill is unavailable (not installed) or produces no output, halt the pipe
 | Architecture (+ failure flows, patterns, scoring) | `senior-review:code-auditor` |
 | **Logic integrity (contracts/invariants/domain rules)** | `senior-review:logic-integrity-auditor` |
 | **Abstraction (prior art / Rule of Three)** | `abstraction-architect:abstraction-architect` |
-| Dead code & lint | `general-purpose` |
+| Codebase hygiene (full pass: dead code, assets, VCS, deps, docs) | `senior-review:cleanup-auditor` |
 | UI race conditions | `senior-review:ui-race-auditor` |
 | React performance | `react-development:react-performance-optimizer` |
 | General performance | `agent-teams:team-reviewer` |

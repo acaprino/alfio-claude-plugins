@@ -1,6 +1,6 @@
 ---
 description: >
-  Analyze current branch changes, generate a comprehensive PR description with risk assessment and review checklist, and optionally create the PR via gh CLI.
+  Analyze current branch changes, generate a comprehensive PR description with risk assessment, a lite dead-code and VCS-hygiene pass over the diff, and a review checklist, then optionally create the PR via gh CLI.
   TRIGGER WHEN: the user asks to prepare a PR, write a PR description, or create a pull request from the current branch.
   DO NOT TRIGGER WHEN: reviewing someone else's PR (use /senior-review:code-review with the PR number).
 argument-hint: "[--base main] [--create] [--split-check] [--strict-mode]"
@@ -76,9 +76,9 @@ Lines: +[insertions] / -[deletions] (net: [net change])
 
 ## Phase 2: Risk & Architecture Assessment (2 agents in parallel)
 
-Run both agents **in parallel** in a single response.
+Run both agents **in parallel** in a single response. Agent A also carries the lite codebase-hygiene pass, so the phase stays at two spawns.
 
-### Agent A: Architecture & Risk Assessment
+### Agent A: Architecture, Risk & Hygiene Assessment
 
 ```
 Task:
@@ -105,6 +105,43 @@ Task:
        - Security risk: auth, input handling, crypto, secrets
     4. **Breaking changes**: Any API contract changes, removed exports, schema changes
     5. **PR split opportunities**: If >500 lines, suggest logical split points
+    6. **Lite hygiene pass**: dimensions D1 and D3, scoped to the changed files.
+       This is the same perimeter /senior-review:code-review runs. Do not widen
+       it to orphan assets, dependency hygiene, or stale docs: those belong to
+       the full pass in /senior-review:team-review.
+
+       **D1, dead code introduced or exposed by the diff.** Run the tool that
+       matches the changed files and report only findings on lines the diff
+       touched:
+
+       ```bash
+       # Python
+       ruff check --select F401,F811,F841,ARG <changed .py files>
+       vulture --min-confidence 80 <changed .py files>   # if available
+       # TS/JS
+       npx knip --include files,exports,dependencies --no-progress
+       # fallback when knip is absent
+       npx tsc --noEmit --noUnusedLocals --noUnusedParameters
+       ```
+
+       Skip a tool that is not installed rather than installing it; note the
+       skip. Do not flag framework conventions (route decorators, pytest
+       fixtures, signal handlers, Django views), symbols in `__all__` or
+       reached dynamically, dunder methods, or parameters prefixed with `_`.
+
+       **D3, artifacts that should not be in the commit.** Check files the diff
+       ADDS for build output and caches (`dist/`, `build/`, `out/`, `.next/`,
+       `target/`, `__pycache__/`, `coverage/`), compiled or generated files
+       (`*.pyc`, `*.class`, `*.map`, `*.tsbuildinfo`), OS and editor metadata
+       (`.DS_Store`, `Thumbs.db`), and filesystem garbage (`nul`, `*.bak`,
+       `*.orig`, `*.swp`). For each hit, run `git check-ignore -v <path>` to
+       tell a missing `.gitignore` pattern apart from a file committed before
+       the pattern existed.
+
+    Report hygiene findings in their own section, each with the path and the
+    cleanup phase that would resolve it (`exports`, `garbage`, or `gitignore`).
+    Never remove anything: this command only describes the PR. Removal lives in
+    `/senior-review:code-review --fix` Step 7c.
 
     Output a structured risk assessment with an overall risk level (Low/Medium/High/Critical).
 ```
@@ -188,6 +225,12 @@ Using the analysis from Phase 1 and agent findings from Phase 2, generate a comp
 | Security | [Low/Med/High] | [description] |
 
 [Include any security findings from Agent B]
+
+## Hygiene
+
+[Include the hygiene findings from Agent A, or "Clean". One row per finding
+with the path, what it is, and the cleanup phase that resolves it. Omit this
+section entirely when the diff is clean, rather than leaving an empty heading.]
 
 ## Breaking Changes
 

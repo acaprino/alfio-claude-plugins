@@ -376,7 +376,7 @@ The team command:
 1. Auto-detects partitions (workspaces, top-level dirs, or language clusters) and asks you to confirm at a checkpoint.
 2. Spawns three workers per partition in two waves (Wave 1 = Structure; Wave 2 = Behavior + Quality). Wave 2 workers read every partition's Wave 1 output, so cross-partition contracts and flows can be cited directly.
 3. Synthesizes a backward-compatible `01..07.md` set inside the run directory; the publish step mirrors it to the `.deep-dive/` root, so any downstream consumer (`/senior-review:team-review`, `/codebase-mapper:map-codebase`, `/project-setup:create-claude-md`) picks it up without changes.
-4. Adds `08-interconnect-map.md` produced by `senior-review:semantic-interconnect-mapper` on top of the consolidated set, giving a global Call Graph, Contracts, Invariants, and Integration Hot-Spots view.
+4. Adds `08-interconnect-map.md` produced by `codebase-xray:semantic-interconnect-mapper` on top of the consolidated set, giving a global Call Graph, Contracts, Invariants, and Integration Hot-Spots view.
 
 ### Choosing between classic and team
 

@@ -2,7 +2,7 @@
 description: >
   Consolidated Python code-quality audit - runs ruff, mypy/pyright, vulture, complexity metrics (complexipy/radon), and pytest coverage, then produces a prioritized report with concrete fixes.
   TRIGGER WHEN: the user asks to audit a Python codebase, run a quality check across lint/types/complexity/dead-code/coverage, or prepare a codebase for release review.
-  DO NOT TRIGGER WHEN: focused on a single dimension only - use /python-development:python-refactor for restructuring, /senior-review:cleanup-dead-code for dead code alone, or the python-development:python-tdd skill for test writing.
+  DO NOT TRIGGER WHEN: focused on a single dimension only - use /python-development:python-refactor for restructuring, /senior-review:code-review --fix for dead code alone, or the python-development:python-tdd skill for test writing.
 argument-hint: "<path> [--strict] [--skip-types] [--skip-coverage]"
 ---
 
@@ -127,6 +127,6 @@ Return exit code 1 if any critical issues are present and `--strict` is set; oth
 ## Synergies
 
 - Deep refactoring with metrics -> `/python-development:python-refactor`
-- Dead code removal only -> `/senior-review:cleanup-dead-code`
+- Dead code removal only -> `/senior-review:code-review --fix`
 - Adding tests to raise coverage -> `python-development:python-tdd` skill
 - CLAUDE.md updates after cleanup -> `/project-setup:maintain-claude-md`
