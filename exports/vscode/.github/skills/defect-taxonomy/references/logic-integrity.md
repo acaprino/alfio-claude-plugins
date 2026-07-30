@@ -55,7 +55,7 @@ Scope: violations of contracts, invariants, domain rules, ordering, idempotency,
 ### L2.2 Temporal Invariant Break
 - **CWE**: 362 (related, but non-concurrent case)
 - **Pattern**: An attribute documented as "set once, never modified" or "monotonically increasing" is modified or decremented somewhere. E.g., `created_at` overwritten, `version` decremented, a terminal state (`status='completed'`) mutated back.
-- **Detection**: For each temporal invariant in `## Invariants`, Search for every assignment site of that field; verify each is the initial one or a monotonic update.
+- **Detection**: For each temporal invariant in `## Invariants`, search for every assignment site of that field; verify each is the initial one or a monotonic update.
 - **Fix**: Freeze the field after initial set (property, database CHECK constraint, or application-level guard).
 - **Difficulty**: Easy to Medium
 - **Signature**: `self.created_at = ...` appears in a method that is not `__init__` or a migration path.
@@ -119,7 +119,7 @@ Scope: violations of contracts, invariants, domain rules, ordering, idempotency,
 ### L4.1 Bypass Path to Business Rule
 - **CWE**: 284 (Improper Access Control) / 693 (Protection Mechanism Failure)
 - **Pattern**: A business rule ("orders cannot be modified after payment", "withdrawals blocked for unverified accounts") is enforced in the primary entry point but a secondary path (admin API, webhook, batch job, import tool) bypasses it.
-- **Detection**: For each rule in `## Domain Rules`, identify the enforcement site; Search for every mutation of the relevant state; verify each mutation path applies the rule.
+- **Detection**: For each rule in `## Domain Rules`, identify the enforcement site; search for every mutation of the relevant state; verify each mutation path applies the rule.
 - **Fix**: Push enforcement down to the data layer (DB trigger, constraint, or repository method) so every path goes through it; or centralize mutations through a single domain service.
 - **Difficulty**: Medium-Hard
 - **Signature**: `UserRepository.update` (unchecked) exists alongside `UserService.update_profile` (checked); admin tool uses the repo directly.
@@ -203,7 +203,7 @@ Scope: violations of contracts, invariants, domain rules, ordering, idempotency,
 ### L7.2 Terminal State Mutation
 - **CWE**: 837 (Improper Enforcement of a Single, Unique Action)
 - **Pattern**: A "final" state (refunded, archived, completed, cancelled) is still mutable through some path. Business rule says terminal but code does not enforce.
-- **Detection**: Identify terminal states from `## Domain Rules`; Search for assignments/mutations of entities in those states.
+- **Detection**: Identify terminal states from `## Domain Rules`; search for assignments/mutations of entities in those states.
 - **Fix**: Validate state at the mutation site (`raise if instance.status == 'completed'`) or move to event-sourcing.
 - **Difficulty**: Medium
 - **Signature**: `order.total = new_total` without a check that `order.status != 'paid'`.

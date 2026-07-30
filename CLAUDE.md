@@ -432,6 +432,9 @@ A copied file is never correct as-is. Re-apply all of these:
 7. **Team infrastructure** (`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS`, `agent-teams` prerequisites, `shutdown_request`) -> delete. VS Code subagents need no flag, no plugin, and no teardown.
 8. **`agent-teams:team-reviewer` fallbacks** -> `review-generic-reviewer` with the dimension named in the dispatch prompt.
 9. **The `PreToolUse` guard block** on every worker and reviewer, with `--confine .deep-dive` for X-ray workers and `--confine .team-review` for reviewers. Orchestrators do not declare it.
+10. **De-branding.** "Claude" as the actor becomes "the agent" or "the AI": the export runs on Copilot. Applies to reference bodies too, not just agent prompts (`AI_ANALYSIS_METHODOLOGY.md`, `SEMANTIC_PATTERNS.md`, `analysis-templates.md` all carry it). The only legitimate "Claude" mentions left are the handful that explicitly compare against "the Claude Code original" when documenting a divergence.
+11. **Plugin-dependency degradation notes** get deleted, not translated. Upstream tells `team-review` to skip a conditional dimension when its plugin is absent; in the export every agent ships inside the bundle, so a dimension is skipped only when its activation rule did not fire. Never mirror a "not installed" branch.
+12. **Prose capitalization after the tool rename.** `Grep` mid-sentence becomes lowercase `search`, not `Search`, since `Grep` was a proper noun and `search` is not. Sentence-initial occurrences stay capitalized.
 
 ### Divergences that must survive the mirror
 

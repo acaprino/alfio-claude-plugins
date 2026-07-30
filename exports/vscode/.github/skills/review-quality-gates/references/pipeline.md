@@ -37,6 +37,13 @@ The gate specs (verification panel, completeness critic, context-sharing pattern
 
 Support agents: `review-verification-lens` (Phase 4b, three per finding), `review-completeness-critic` (Phase 4c).
 
+Two scoping rules that are easy to get wrong:
+
+- **`review-cleanup-auditor` scans the whole codebase, not the diff.** It is the only hygiene pass in this bundle, covering all five dimensions (dead code, orphan assets, VCS artifacts, dependency and barrel-file bloat, stale documentation). Every other always-on reviewer is diff-scoped. Do not narrow it to the changed files: orphan assets and phantom deps are by definition in files the diff never touched.
+- **`review-abstraction-architect` also searches the whole codebase.** The diff is only its anchor; the prior art it hunts for lives in files that did not change.
+
+Every agent in the roster ships inside this bundle, so no dimension can be skipped for a missing dependency. A dimension is skipped only when its activation rule did not fire.
+
 ## Pre-flight
 
 1. Parse the arguments the user typed after `/team-review`:
