@@ -1,10 +1,11 @@
 ---
 name: web-search-techniques
 description: >
-  Knowledge base for web search query techniques, source authority ranking, WebFetch/WebSearch
-  best practices, and bot-block fallback via webfetch.py. Used by quick-searcher and
-  deep-researcher in plugins/research/. Use when performing web research with `#websearch` or
-  WebFetch. Not for searching local codebase (use `#search/textSearch` or Glob directly).
+  Knowledge base for web search query techniques, source authority ranking, `#web/fetch` and
+  `#websearch` best practices, and bot-block fallback via webfetch.py. Used by quick-searcher and
+  deep-researcher in this bundle. Use when performing web research with `#websearch` or
+  `#web/fetch`. Not for searching local codebase (use `#search/textSearch` or `#search/fileSearch`
+  directly).
 user-invocable: true
 license: MIT
 metadata:
@@ -45,16 +46,16 @@ Currency checks:
 - Version numbers cited vs latest release
 - Deprecation warnings
 
-## WebSearch Techniques
+## `#websearch` Techniques
 
-Query operators (standard search-engine conventions, usually respected by WebSearch):
+Query operators (standard search-engine conventions, usually respected by `#websearch`):
 - `site:` -- restrict to a domain
 - `"exact phrase"` -- match the phrase verbatim
 - Year token -- add "2026" for recency
 - `"official"` or `"documentation"` -- bias toward authoritative
 - Version numbers when relevant (e.g. `react 19`)
 
-## WebFetch Guidance
+## `#web/fetch` Guidance
 
 - Prefer documentation pages and API references over blog posts
 - Evaluate fetched content -- low-authority source means discard and re-search
@@ -63,11 +64,13 @@ Query operators (standard search-engine conventions, usually respected by WebSea
 
 ## webfetch.py Fallback
 
-When WebFetch returns a bot-block (403, 429, Cloudflare challenge) or thin content (under ~200 chars of useful text), fall back to the plugin's stealth fetcher:
+When `#web/fetch` returns a bot-block (403, 429, Cloudflare challenge) or thin content (under ~200 chars of useful text), fall back to the stealth fetcher shipped with this skill:
 
 ```bash
 python3 $SKILLS/web-search-techniques/scripts/webfetch.py <url>
 ```
+
+`$SKILLS` is the installed skills directory: the first of `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/` that exists. When this bundle is installed as an agent plugin rather than copied into the workspace, the skill lives outside all four; in that case resolve `scripts/webfetch.py` relative to this file.
 
 Behavior:
 - Impersonates Chrome TLS fingerprint via curl_cffi

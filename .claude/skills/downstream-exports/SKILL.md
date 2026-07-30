@@ -2,9 +2,10 @@
 name: downstream-exports
 description: >
   How to mirror our content OUT to hosts that are not Claude Code: the `exports/vscode/`
-  catalog and its source map, the adaptations to re-apply on every mirror, the divergences
-  that must survive a sync, the content that deliberately keeps Claude Code vocabulary, the
-  method for a full re-audit, and the verification script plus its known false positives.
+  catalog and its source map, the VS Code extension that ships it and how to package that,
+  the adaptations to re-apply on every mirror, the divergences that must survive a sync, the
+  content that deliberately keeps Claude Code vocabulary, the method for a full re-audit, and
+  the verification scripts plus their known false positives.
   TRIGGER WHEN: the user asks to update, mirror, regenerate, or audit anything under
   `exports/`, or a change lands in any plugin file, since as of the 2026-07-30 catalog
   build every plugin except `prompt-improver` feeds a bundle.
@@ -22,7 +23,7 @@ The mirror image of the `external-repo-intake` skill. That skill covers content 
 
 | Export | Host | Shape |
 |---|---|---|
-| `exports/vscode/` | VS Code Copilot (`.github/skills/`, `.github/prompts/`, `.github/agents/`) | A catalog of 36 independently installable bundles |
+| `exports/vscode/` | VS Code Copilot (`.github/skills/`, `.github/prompts/`, `.github/agents/`) | A catalog of 36 bundles, published as one VS Code extension |
 
 **The obligation is now global, not scoped.** Until the 2026-07-30 catalog build only five plugins fed the export. Now every plugin except `prompt-improver` has a bundle, so any plugin change is a candidate mirror. Do not go looking for the old five-row source map: it is gone.
 
@@ -37,6 +38,37 @@ One bundle per plugin, at `exports/vscode/<plugin>/.github/`, with `skills/<name
 | Plugin-root content | `research/scripts/webfetch.py` and `ai-tooling/references/reasoning-patterns.md` live outside `skills/` upstream and are mirrored **into** the consuming skill's directory. A copy loop that only walks `skills/` silently misses them and leaves dangling references. |
 
 Deliberately not exported, for reasons recorded in the catalog README: `/codebase-xray:analyze`, `/senior-review:code-review`, `/senior-review:pr-review`, `/abstraction-architect:audit`, and `/codebase-mapper:team-codebase-map`.
+
+## The extension layer
+
+`exports/vscode/` is a publishable VS Code extension as well as a directory of bundles. The bundles are unchanged by this: the extension root sits alongside them, so the per-project `cp -r <bundle>/.github` install still works for anyone who wants a narrower footprint.
+
+| File | Role |
+|---|---|
+| `package.json` | Extension manifest. Declares every agent under `chatAgents` and every prompt under `chatPromptFiles`, plus three commands and two settings. |
+| `extension.js` | Copies whole skill directories into `~/.copilot/skills/` on start and after an update. Plain CommonJS, no dependencies, no build step. |
+| `uninstall.js` | The `vscode:uninstall` hook. Runs outside VS Code with no extension API, so it reads the manifest `extension.js` wrote at `~/.copilot/.daodan-installed.json`. |
+| `.vscodeignore`, `CHANGELOG.md`, `LICENSE` | Packaging and listing. `README.md` doubles as the Marketplace listing. |
+
+**Agents and prompts are contributed; skills are copied.** This asymmetry is not a preference. Agents and prompts are single files, so a contribution point carries them whole. Skills are directories, and 45 of the 66 carry supporting files under `references/`, `scripts/` and `assets/`; a contributed skill loads only its `SKILL.md` ([microsoft/vscode#304721](https://github.com/microsoft/vscode/issues/304721), open). Copying keeps the directory intact, and it needs **no content edits at all**, because the `$SKILLS` probe already lists `~/.copilot/skills/` fourth. Pointing VS Code at the extension's own folder instead is not available: `chat.agentSkillsLocations` rejects absolute paths ([microsoft/vscode#307610](https://github.com/microsoft/vscode/issues/307610), open).
+
+**Watch both issues.** If #304721 ships, `extension.js`, `uninstall.js` and the two settings all get deleted and skills move to a `chatSkills` list. If #307610 ships first, the copy is replaced by a path registration.
+
+Adding, renaming or removing an agent or prompt invalidates the manifest. Regenerate it, never hand-edit the two arrays:
+
+```bash
+python .claude/skills/downstream-exports/scripts/gen_extension_manifest.py
+```
+
+It rewrites only `contributes.chatAgents` and `contributes.chatPromptFiles`, preserving every hand-authored field, and prints the counts to compare against the catalog README table. Bump `version` in `package.json` on any content change: it is what drives the update check, and what `extension.js` compares against to decide whether to re-copy the skills.
+
+Verify a change packages before claiming it works:
+
+```bash
+cd exports/vscode && npx --yes @vscode/vsce package --no-dependencies --out /tmp/daodan.vsix
+```
+
+Two fields are unresolved and must not be treated as verified. `publisher` is `acaprino`, a placeholder: publishing needs that publisher to exist on the VS Code Marketplace. `engines.vscode` is `^1.109.0`, chosen from when subagents shipped rather than from when `chatAgents` did; confirm it against the release notes before the first publish.
 
 ## Adaptations to re-apply on every mirror
 
@@ -89,7 +121,7 @@ These are decisions, not drift. A sync that "fixes" them is a regression.
 
 **Catalog-wide:**
 
-- **The catalog is not one bundle.** VS Code loads every present agent and skill description for routing, so a monolith taxes every project with every plugin it does not use.
+- **The bundles stay separate directories, even though distribution merged into one extension.** Keeping them split is what preserves the per-project install and what a future per-workspace scoping would need. Do not flatten them. The routing cost of having everything loaded at once is real and was accepted deliberately; it is documented in the README and mitigated by the Agent Customizations editor, not by re-splitting the shipping unit.
 - **`/team-codebase-map` is dropped.** Minus the agent-teams layer it is identical to `/map-codebase`, which already runs its six writers concurrently.
 - **`/content-strategy` runs three sequential passes**, not three concurrent dispatches.
 - **`project-setup` targets `AGENTS.md` / `.github/copilot-instructions.md`**, honoring an existing `CLAUDE.md`. A note at the top of each file states the mapping; the substance is unchanged.
@@ -107,13 +139,30 @@ These are decisions, not drift. A sync that "fixes" them is a regression.
 
 ## Verification
 
-One entry point, run from the repository root:
+Content check, run from the repository root:
 
 ```bash
 python .claude/skills/downstream-exports/scripts/check_export.py
 ```
 
 Eight passes: frontmatter schema, tool ids, name uniqueness across bundles, prompt `agent:` bindings, `agents:` allowlists, residual Claude Code coupling, malformed markdown code spans, and byte-copy drift against `plugins/`. It exits non-zero on any failure and needs no dependencies.
+
+Packaging check, after any change to an agent or prompt filename:
+
+```bash
+python .claude/skills/downstream-exports/scripts/gen_extension_manifest.py
+cd exports/vscode && npx --yes @vscode/vsce package --no-dependencies --out /tmp/daodan.vsix
+```
+
+### What the checker does not see
+
+Known blind spots. Do not read a green run as "the export is correct".
+
+- **Pass 2 validates tool ids only in `tools:` frontmatter, never in prose.** Claude Code tool names survive in bodies, headers and budget lines, and the catalog build left them there. The `research` bundle had `WebSearch` and `WebFetch` throughout its prose while its two searcher agents did not even declare `websearch` in `tools:`, so they could not search the web at all. That was fixed; roughly 30 occurrences remain in `digital-marketing`, `business`, `browser-extensions` and `codebase-mapper`. `WebSearch`, `WebFetch`, `TeamCreate`, `AskUserQuestion` and `NotebookEdit` are safe to grep for, being words no English sentence produces. `Read`, `Write`, `Edit`, `Glob`, `Grep` and `Bash` are not.
+- **Nothing checks that a file using `$SKILLS` defines it**, though the convention requires it. Two files in `research` used it undefined.
+- **Nothing checks that an adaptation left the markdown coherent.** `team-research.prompt.md` shipped with an empty "Skills to Load" section and a numbered list starting at 2, both from deleted content.
+- **Nothing checks the manifest against the tree.** A renamed agent leaves a dangling `chatAgents` path until the generator is re-run.
+- Pass 8 skips `_pipelines`, and no pass validates that `hooks:` command paths resolve.
 
 Also run the guard hook suite when the guard, the forbidden-files list, or any `--confine` value changes:
 
@@ -151,4 +200,8 @@ When the ask is to regenerate rather than mirror one change, **diff every file a
 
 ## Versioning
 
-`_pipelines` carries its own `metadata.version` inside `skills/codebase-xray/SKILL.md`. Bump it when its content changes, independently of the marketplace version. `exports/` is not registered in `marketplace.json` and is not a plugin.
+Three versions live here and they are not the same number.
+
+- `exports/vscode/package.json` `version` is the extension's. Bump it on any content change: it drives the Marketplace update check, and `extension.js` compares it against the recorded manifest to decide whether to re-copy the skills. It currently tracks the marketplace version (`16.2.0`) for legibility, which is a convenience, not a constraint.
+- `_pipelines` carries its own `metadata.version` inside `skills/codebase-xray/SKILL.md`. Bump it when its content changes, independently of the other two.
+- `exports/` is not registered in `marketplace.json` and is not a plugin, so it has no entry there.

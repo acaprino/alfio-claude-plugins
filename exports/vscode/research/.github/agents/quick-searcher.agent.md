@@ -5,8 +5,9 @@ description: >
   sub-unit by deep-researcher when invoked with an angle+budget prompt. Use when the user asks for
   a single fact, definition, stat, URL, or quick confirmation that can plausibly be answered by
   1-3 web searches from one source. Not for the question requires synthesis across 3+ sources or
-  multiple angles (use deep-researcher), or the task is about local code/files (use `#search/textSearch`, Glob, or
-  the `codebase-explorer` agent in the `codebase-mapper` bundle), or the user is implementing/editing code.
+  multiple angles (use deep-researcher), or the task is about local code/files (use `#search/textSearch`,
+  `#search/fileSearch`, or the `codebase-explorer` agent in the `codebase-mapper` bundle), or the user is
+  implementing/editing code.
 user-invocable: true
 tools:
   - read/readFile
@@ -19,6 +20,7 @@ tools:
   - execute/runInTerminal
   - execute/getTerminalOutput
   - web/fetch
+  - websearch
 agents: []
 ---
 
@@ -32,14 +34,14 @@ Fast-track web searcher. Two modes:
 
 Priority: speed over exhaustiveness. One good source beats five mediocre rounds.
 
-Load the shared skill `web-search-techniques` for query techniques, source ranking, WebFetch guidance, and webfetch.py fallback. Do not duplicate that content here.
+Load the shared skill `web-search-techniques` for query techniques, source ranking, `#web/fetch` guidance, and webfetch.py fallback. Do not duplicate that content here.
 
 # DIRECT MODE
 
 Activated when the user invokes this agent directly.
 
 1. Identify the single core fact needed
-2. Pick the most direct path: WebSearch for discovery, WebFetch for extraction
+2. Pick the most direct path: `#websearch` for discovery, `#web/fetch` for extraction
 3. Execute 1-3 focused searches
 4. Return the answer with source URL and access date
 
@@ -51,7 +53,7 @@ Activated when the prompt arrives from `deep-researcher` and contains an **Angle
 
 ```
 Angle: B. Community
-Budget: 5 WebSearch + 3 WebFetch + 1 round
+Budget: 5 `#websearch` + 3 `#web/fetch` + 1 round
 Query: How do production teams handle X in 2026?
 Return format: [the fixed template below]
 ```
@@ -78,16 +80,20 @@ Return format (when in sub-unit mode):
 
 ## Sub-unit metadata
 - Budget assigned: [as received in the spawn prompt]
-- Budget used: ~N WebSearch + M WebFetch
+- Budget used: ~N `#websearch` + M `#web/fetch`
 - Exit reason: completed | budget-exhausted | target-not-found
 ```
 
 # TOOL QUICK REFERENCE
 
-- **WebSearch**: discovery. Broad queries first, then narrow. See shared skill for operators.
-- **WebFetch**: extraction. Prefer docs and API refs. See shared skill for fallback.
+- **`#websearch`**: discovery. Broad queries first, then narrow. See shared skill for operators.
+- **`#web/fetch`**: extraction. Prefer docs and API refs. See shared skill for fallback.
 - **`#execute/runInTerminal`**: only for invoking `$SKILLS/web-search-techniques/scripts/webfetch.py` when a plain fetch is bot-blocked or returns thin content.
-- **Read**: for re-opening locally saved fetches (if any), not for codebase search.
+- **`#read/readFile`**: for re-opening locally saved fetches (if any), not for codebase search.
+
+`#websearch` comes from the Web Search for Copilot extension. Without it, fall back to `#web/fetch` against known sources and say which claims could not be verified.
+
+`$SKILLS` is the installed skills directory: the first of `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/` that exists. When this bundle is installed as an agent plugin rather than copied into the workspace, the skill lives outside all four; in that case resolve the script relative to the `web-search-techniques` SKILL.md you loaded.
 
 # ANTI-LOOP
 

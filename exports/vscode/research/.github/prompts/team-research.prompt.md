@@ -8,12 +8,9 @@ agent: research-orchestrator
 
 Orchestrate a deep research investigation using multiple specialized researchers working in parallel. Each researcher covers a different angle (codebase, web sources, domain expertise) and findings are synthesized into a unified report.
 
-## Skills to Load
-
-Before starting, invoke these skills:
-
 ## Pre-flight Checks
 
+1. Load the `web-search-techniques` skill for query formulation, source authority ranking, and the bot-block fallback.
 2. Parse `$ARGUMENTS`:
    - `<question-or-topic>`: the research question, topic, or area to investigate
    - `--scope`: what to search -- `codebase` (local only), `web` (external only), `all` (both, default)
@@ -34,26 +31,26 @@ Before starting, invoke these skills:
 
 ## Phase 2: Dispatch
 
-1. The team forms implicitly when the first researcher is spawned (no `TeamCreate` step; the team name is session-derived and any `team_name` passed to the `Agent` tool is ignored)
-2. Spawn researchers using specialized agents:
+1. Dispatch every researcher with `#agent/runSubagent`, in one turn so they run in parallel. Only the agents in this agent's `agents:` allowlist can be dispatched.
+2. Assign each researcher one role:
 
 **Codebase Analyst** (always, unless `--scope web`):
 - agent: `deep-researcher`
 - Focus: local code, git history, architecture, patterns, dependencies
-- Tools: Grep, Glob, Read, Bash (for git log/blame)
+- Tools: `#search/textSearch`, `#search/fileSearch`, `#read/readFile`, `#execute/runInTerminal` (for git log/blame)
 - Prompt: "Search the local codebase for {sub-question}. Cite every finding with file:line."
 
 **Web Researcher** (always, unless `--scope codebase`):
 - agent: `deep-researcher`
 - Focus: documentation, articles, comparisons, best practices, release notes
-- Tools: WebSearch, WebFetch, Read
+- Tools: `#websearch`, `#web/fetch`, `#read/readFile`
 - Prompt: "Search the web for {sub-question}. Cite every finding with source URL."
 
 **Context Builder** (standard + deep, only when the investigation touches a local project):
 - agent: `codebase-explorer` (ships in the `codebase-mapper` bundle; skip this role and note it if that bundle is absent)
 - Requires the `codebase-mapper` plugin (declared as an optional dependency): when it is not installed, skip this role and note it in the final report instead of spawning (the spawn would fail). Also skipped entirely when the effective scope is `web`.
 - Focus: build a context brief of the project/area under investigation
-- Tools: Read, Glob, Grep, Bash
+- Tools: `#read/readFile`, `#search/fileSearch`, `#search/textSearch`, `#execute/runInTerminal`
 - Prompt: "Explore {area} to understand the project structure, entry points, and key patterns."
 
 **Domain Expert** (deep only):

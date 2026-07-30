@@ -1,0 +1,458 @@
+{
+  "name": "claude-code-daodan",
+  "displayName": "Claude Code Daodan",
+  "description": "81 agents, 66 skills and 47 prompts for GitHub Copilot: code review, documentation, testing, research, frontend, trading, observability and more.",
+  "version": "16.2.0",
+  "publisher": "acaprino",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.109.0"
+  },
+  "categories": [
+    "AI",
+    "Chat",
+    "Programming Languages",
+    "Other"
+  ],
+  "keywords": [
+    "copilot",
+    "agents",
+    "skills",
+    "prompts",
+    "code-review",
+    "documentation"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/acaprino/claude-code-daodan.git"
+  },
+  "main": "./extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "scripts": {
+    "vscode:uninstall": "node ./uninstall.js"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "daodan.syncSkills",
+        "title": "Install or Refresh Skills",
+        "category": "Daodan"
+      },
+      {
+        "command": "daodan.removeSkills",
+        "title": "Remove Installed Skills",
+        "category": "Daodan"
+      },
+      {
+        "command": "daodan.openSkillsFolder",
+        "title": "Reveal Skills Folder",
+        "category": "Daodan"
+      }
+    ],
+    "configuration": {
+      "title": "Claude Code Daodan",
+      "properties": {
+        "daodan.autoSync": {
+          "type": "boolean",
+          "default": true,
+          "description": "Install and refresh the bundled skills automatically when the extension starts or is updated."
+        },
+        "daodan.skillsLocation": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Where to install the bundled skills. Empty means `~/.copilot/skills`, which VS Code reads in every workspace. Set another path only if you keep personal skills elsewhere, and make sure it is one VS Code scans."
+        }
+      }
+    },
+    "chatAgents": [
+      {
+        "path": "./_pipelines/.github/agents/review-abstraction-architect.agent.md"
+      },
+      {
+        "path": "./_pipelines/.github/agents/review-api-contract-auditor.agent.md"
+      },
+      {
+        "path": "./_pipelines/.github/agents/review-chicken-egg-detector.agent.md"
+      },
+      {
+        "path": "./_pipelines/.github/agents/review-cleanup-auditor.agent.md"
+      },
+      {
+        "path": "./_pipelines/.github/agents/review-code-auditor.agent.md"
+      },
+      {
+        "path": "./_pipelines/.github/agents/review-completeness-critic.agent.md"
+      },
+      {
+        "path": "./_pipelines/.github/agents/review-distributed-flow-auditor.agent.md"
+      },
+      {
+        "path": "./_pipelines/.github/agents/review-generic-reviewer.agent.md"
+      },
+      {
+        "path": "./_pipelines/.github/agents/review-logic-integrity-auditor.agent.md"
+      },
+      {
+        "path": "./_pipelines/.github/agents/review-orchestrator.agent.md"
+      },
+      {
+        "path": "./_pipelines/.github/agents/review-platform-reviewer.agent.md"
+      },
+      {
+        "path": "./_pipelines/.github/agents/review-react-performance-optimizer.agent.md"
+      },
+      {
+        "path": "./_pipelines/.github/agents/review-security-auditor.agent.md"
+      },
+      {
+        "path": "./_pipelines/.github/agents/review-ui-race-auditor.agent.md"
+      },
+      {
+        "path": "./_pipelines/.github/agents/review-verification-lens.agent.md"
+      },
+      {
+        "path": "./_pipelines/.github/agents/sp-code-reviewer.agent.md"
+      },
+      {
+        "path": "./_pipelines/.github/agents/sp-implementer.agent.md"
+      },
+      {
+        "path": "./_pipelines/.github/agents/sp-re-reviewer.agent.md"
+      },
+      {
+        "path": "./_pipelines/.github/agents/sp-task-reviewer.agent.md"
+      },
+      {
+        "path": "./_pipelines/.github/agents/sp-worker.agent.md"
+      },
+      {
+        "path": "./_pipelines/.github/agents/superpowers.agent.md"
+      },
+      {
+        "path": "./_pipelines/.github/agents/xray-behavior-worker.agent.md"
+      },
+      {
+        "path": "./_pipelines/.github/agents/xray-interconnect-mapper.agent.md"
+      },
+      {
+        "path": "./_pipelines/.github/agents/xray-orchestrator.agent.md"
+      },
+      {
+        "path": "./_pipelines/.github/agents/xray-quality-worker.agent.md"
+      },
+      {
+        "path": "./_pipelines/.github/agents/xray-structure-worker.agent.md"
+      },
+      {
+        "path": "./_pipelines/.github/agents/xray-synthesizer.agent.md"
+      },
+      {
+        "path": "./ai-tooling/.github/agents/prompt-engineer.agent.md"
+      },
+      {
+        "path": "./app-analyzer/.github/agents/app-analyzer.agent.md"
+      },
+      {
+        "path": "./browser-extensions/.github/agents/firefox-extension-dev.agent.md"
+      },
+      {
+        "path": "./business/.github/agents/business-planner.agent.md"
+      },
+      {
+        "path": "./business/.github/agents/legal-advisor.agent.md"
+      },
+      {
+        "path": "./business/.github/agents/privacy-doc-generator.agent.md"
+      },
+      {
+        "path": "./clean-code/.github/agents/clean-code-agent.agent.md"
+      },
+      {
+        "path": "./codebase-mapper/.github/agents/codebase-explorer.agent.md"
+      },
+      {
+        "path": "./codebase-mapper/.github/agents/config-writer.agent.md"
+      },
+      {
+        "path": "./codebase-mapper/.github/agents/doc-humanizer.agent.md"
+      },
+      {
+        "path": "./codebase-mapper/.github/agents/documentation-engineer.agent.md"
+      },
+      {
+        "path": "./codebase-mapper/.github/agents/flow-writer.agent.md"
+      },
+      {
+        "path": "./codebase-mapper/.github/agents/guide-reviewer.agent.md"
+      },
+      {
+        "path": "./codebase-mapper/.github/agents/map-codebase-orchestrator.agent.md"
+      },
+      {
+        "path": "./codebase-mapper/.github/agents/onboarding-writer.agent.md"
+      },
+      {
+        "path": "./codebase-mapper/.github/agents/ops-writer.agent.md"
+      },
+      {
+        "path": "./codebase-mapper/.github/agents/overview-writer.agent.md"
+      },
+      {
+        "path": "./codebase-mapper/.github/agents/tech-writer.agent.md"
+      },
+      {
+        "path": "./csp/.github/agents/or-tools-expert.agent.md"
+      },
+      {
+        "path": "./digital-marketing/.github/agents/content-marketer.agent.md"
+      },
+      {
+        "path": "./digital-marketing/.github/agents/ga4-implementation-expert.agent.md"
+      },
+      {
+        "path": "./digital-marketing/.github/agents/llm-seo-optimize.agent.md"
+      },
+      {
+        "path": "./digital-marketing/.github/agents/seo-specialist.agent.md"
+      },
+      {
+        "path": "./grabber-development/.github/agents/ai-scraping-expert.agent.md"
+      },
+      {
+        "path": "./grabber-development/.github/agents/grabber-architect.agent.md"
+      },
+      {
+        "path": "./grabber-development/.github/agents/http-fingerprint-expert.agent.md"
+      },
+      {
+        "path": "./grabber-development/.github/agents/stealth-browser-expert.agent.md"
+      },
+      {
+        "path": "./ibkr-trading/.github/agents/ibkr-architect.agent.md"
+      },
+      {
+        "path": "./libgdx-development/.github/agents/libgdx-architect.agent.md"
+      },
+      {
+        "path": "./marketplace-ops/.github/agents/marketplace-manager.agent.md"
+      },
+      {
+        "path": "./messaging/.github/agents/rabbitmq-expert.agent.md"
+      },
+      {
+        "path": "./mt5-trading/.github/agents/mt5-architect.agent.md"
+      },
+      {
+        "path": "./opentelemetry/.github/agents/otel-architect.agent.md"
+      },
+      {
+        "path": "./platform-engineering/.github/agents/platform-reviewer.agent.md"
+      },
+      {
+        "path": "./project-setup/.github/agents/claude-md-auditor.agent.md"
+      },
+      {
+        "path": "./pwa-expert/.github/agents/pwa-architect.agent.md"
+      },
+      {
+        "path": "./python-development/.github/agents/python-engineer.agent.md"
+      },
+      {
+        "path": "./python-development/.github/agents/python-refactor-agent.agent.md"
+      },
+      {
+        "path": "./python-development/.github/agents/python-test-engineer.agent.md"
+      },
+      {
+        "path": "./rag-development/.github/agents/qdrant-expert.agent.md"
+      },
+      {
+        "path": "./rag-development/.github/agents/rag-architect.agent.md"
+      },
+      {
+        "path": "./react-development/.github/agents/react-performance-optimizer.agent.md"
+      },
+      {
+        "path": "./research/.github/agents/deep-researcher.agent.md"
+      },
+      {
+        "path": "./research/.github/agents/quick-searcher.agent.md"
+      },
+      {
+        "path": "./research/.github/agents/research-orchestrator.agent.md"
+      },
+      {
+        "path": "./stripe/.github/agents/revenue-optimizer.agent.md"
+      },
+      {
+        "path": "./stripe/.github/agents/stripe-integrator.agent.md"
+      },
+      {
+        "path": "./stripe/.github/agents/stripe-webhooks-auditor.agent.md"
+      },
+      {
+        "path": "./tauri-development/.github/agents/rust-engineer.agent.md"
+      },
+      {
+        "path": "./tauri-development/.github/agents/tauri-desktop.agent.md"
+      },
+      {
+        "path": "./tauri-development/.github/agents/tauri-mobile.agent.md"
+      },
+      {
+        "path": "./testing/.github/agents/test-writer.agent.md"
+      },
+      {
+        "path": "./text-humanizer/.github/agents/text-humanizer.agent.md"
+      },
+      {
+        "path": "./typescript-development/.github/agents/typescript-engineer.agent.md"
+      }
+    ],
+    "chatPromptFiles": [
+      {
+        "path": "./_pipelines/.github/prompts/team-review.prompt.md"
+      },
+      {
+        "path": "./_pipelines/.github/prompts/xray-team-analyze.prompt.md"
+      },
+      {
+        "path": "./ai-tooling/.github/prompts/prompt-optimize.prompt.md"
+      },
+      {
+        "path": "./browser-extensions/.github/prompts/firefox-lint.prompt.md"
+      },
+      {
+        "path": "./browser-extensions/.github/prompts/firefox-publish.prompt.md"
+      },
+      {
+        "path": "./browser-extensions/.github/prompts/firefox-scaffold.prompt.md"
+      },
+      {
+        "path": "./clean-code/.github/prompts/clean-code.prompt.md"
+      },
+      {
+        "path": "./codebase-cleanup/.github/prompts/deps-audit.prompt.md"
+      },
+      {
+        "path": "./codebase-cleanup/.github/prompts/refactor-clean.prompt.md"
+      },
+      {
+        "path": "./codebase-cleanup/.github/prompts/tech-debt.prompt.md"
+      },
+      {
+        "path": "./codebase-mapper/.github/prompts/docs-create.prompt.md"
+      },
+      {
+        "path": "./codebase-mapper/.github/prompts/docs-maintain.prompt.md"
+      },
+      {
+        "path": "./codebase-mapper/.github/prompts/humanize-docs.prompt.md"
+      },
+      {
+        "path": "./codebase-mapper/.github/prompts/map-codebase.prompt.md"
+      },
+      {
+        "path": "./digital-marketing/.github/prompts/brand-naming.prompt.md"
+      },
+      {
+        "path": "./digital-marketing/.github/prompts/content-strategy.prompt.md"
+      },
+      {
+        "path": "./digital-marketing/.github/prompts/ga4-audit.prompt.md"
+      },
+      {
+        "path": "./digital-marketing/.github/prompts/llm-seo-audit.prompt.md"
+      },
+      {
+        "path": "./digital-marketing/.github/prompts/reply-to-customer-review.prompt.md"
+      },
+      {
+        "path": "./digital-marketing/.github/prompts/seo-audit.prompt.md"
+      },
+      {
+        "path": "./docs/.github/prompts/maintain-readme.prompt.md"
+      },
+      {
+        "path": "./ibkr-trading/.github/prompts/ibkr-audit.prompt.md"
+      },
+      {
+        "path": "./learning/.github/prompts/export-to-markmind.prompt.md"
+      },
+      {
+        "path": "./libgdx-development/.github/prompts/libgdx-audit.prompt.md"
+      },
+      {
+        "path": "./marketplace-ops/.github/prompts/marketplace-health.prompt.md"
+      },
+      {
+        "path": "./marketplace-ops/.github/prompts/marketplace-review.prompt.md"
+      },
+      {
+        "path": "./marketplace-ops/.github/prompts/marketplace-scaffold-plugin.prompt.md"
+      },
+      {
+        "path": "./marketplace-ops/.github/prompts/skills-validate.prompt.md"
+      },
+      {
+        "path": "./mt5-trading/.github/prompts/mt5-audit.prompt.md"
+      },
+      {
+        "path": "./opentelemetry/.github/prompts/otel-audit.prompt.md"
+      },
+      {
+        "path": "./platform-engineering/.github/prompts/platform-review.prompt.md"
+      },
+      {
+        "path": "./project-setup/.github/prompts/create-claude-md.prompt.md"
+      },
+      {
+        "path": "./project-setup/.github/prompts/maintain-claude-md.prompt.md"
+      },
+      {
+        "path": "./pwa-expert/.github/prompts/pwa-audit.prompt.md"
+      },
+      {
+        "path": "./pwa-expert/.github/prompts/pwa-checklist.prompt.md"
+      },
+      {
+        "path": "./pwa-expert/.github/prompts/pwa-scaffold.prompt.md"
+      },
+      {
+        "path": "./python-development/.github/prompts/python-audit.prompt.md"
+      },
+      {
+        "path": "./python-development/.github/prompts/python-refactor.prompt.md"
+      },
+      {
+        "path": "./python-development/.github/prompts/python-scaffold.prompt.md"
+      },
+      {
+        "path": "./rag-development/.github/prompts/rag-audit.prompt.md"
+      },
+      {
+        "path": "./react-development/.github/prompts/review-react.prompt.md"
+      },
+      {
+        "path": "./research/.github/prompts/team-research.prompt.md"
+      },
+      {
+        "path": "./stripe/.github/prompts/audit-webhooks.prompt.md"
+      },
+      {
+        "path": "./system-utils/.github/prompts/organize-files.prompt.md"
+      },
+      {
+        "path": "./text-humanizer/.github/prompts/humanize-text.prompt.md"
+      },
+      {
+        "path": "./xterm/.github/prompts/xterm-debug.prompt.md"
+      },
+      {
+        "path": "./xterm/.github/prompts/xterm-implement.prompt.md"
+      }
+    ]
+  }
+}

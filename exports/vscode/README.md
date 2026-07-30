@@ -1,10 +1,40 @@
-# VS Code Copilot export catalog
+# Claude Code Daodan for GitHub Copilot
 
-A VS Code Copilot port of [acaprino/claude-code-daodan](https://github.com/acaprino/claude-code-daodan), packaged as **36 independently installable bundles**. Each bundle is a self-contained `.github/` directory holding skills, agents, and prompt files. Copy the ones you want into your project; ignore the rest.
+A VS Code Copilot port of [acaprino/claude-code-daodan](https://github.com/acaprino/claude-code-daodan): **81 agents, 66 skills and 47 prompts**, shipped as one extension. Install it once and every project you open has them. You never copy a `.github/` directory into a repository.
 
-The catalog is not a single install. That is the point: VS Code loads the `description` of every agent and skill present in a workspace to route requests, so a Rust project that also carries Stripe, MT5 and SEO agents pays for them on every turn. One bundle per concern keeps that cost proportional.
+This directory is both the extension source and the catalog documentation. The 36 bundles below are how the content is organized on disk, not 36 separate installs.
 
 ## Install
+
+Search for **Claude Code Daodan** in the Extensions view and click Install. Nothing else: no settings to edit, no repository to clone, no folder to copy.
+
+On first start the extension does two things:
+
+- **Agents and prompts** register straight from the extension through the `chatAgents` and `chatPromptFiles` contribution points. Type `/` in the Chat view to see the prompts; **Chat: Configure Agents** lists the agents.
+- **Skills** are copied into `~/.copilot/skills/`, the personal skills location VS Code reads in every workspace. They cannot be contributed like the rest: 45 of the 66 carry supporting files under `references/`, `scripts/` and `assets/`, and a contributed skill loads only its `SKILL.md` ([microsoft/vscode#304721](https://github.com/microsoft/vscode/issues/304721)). Copying keeps those files together, and the `$SKILLS` probe already resolves there.
+
+A skill directory that is already present and was not installed by the extension is never overwritten; it is reported and skipped.
+
+| Command | What it does |
+|---|---|
+| **Daodan: Install or Refresh Skills** | Re-run the copy by hand, after changing the location or resolving a conflict |
+| **Daodan: Remove Installed Skills** | Delete only the skills the extension installed |
+| **Daodan: Reveal Skills Folder** | Open the install location in the OS file manager |
+
+| Setting | Default | What it does |
+|---|---|---|
+| `daodan.autoSync` | `true` | Install and refresh skills on start and after an update |
+| `daodan.skillsLocation` | `~/.copilot/skills` | Where skills are installed. Change it only for a path VS Code already scans. |
+
+Uninstalling the extension removes the skills it installed.
+
+### The cost of having everything everywhere
+
+VS Code loads the `description` of every agent and skill available in order to route a request. With all 81 agents and 66 skills installed at user level, a Rust project carries the Stripe, MT5 and SEO descriptions too, on every turn. That is a real cost, accepted deliberately in exchange for one install that follows you into every project. Turn off what you do not want in the Agent Customizations editor (**Chat: Open Customizations**), or set `daodan.autoSync` to `false` and manage the skills folder yourself.
+
+### Per-project install, without the extension
+
+The bundles still work the old way when you want a single project to carry only what it needs:
 
 ```bash
 cp -r exports/vscode/<bundle>/.github  /path/to/your/project/
@@ -18,7 +48,7 @@ cp    exports/vscode/<bundle>/.github/prompts/* /path/to/your/project/.github/pr
 cp    exports/vscode/<bundle>/.github/agents/*  /path/to/your/project/.github/agents/
 ```
 
-Bundles compose: copying several merges cleanly, because every agent, skill and prompt name is unique across the whole catalog. VS Code picks them up without a restart. Verify with **Chat: Configure Agents**, and by typing `/` in the Chat view.
+Bundles compose: copying several merges cleanly, because every agent, skill and prompt name is unique across the whole catalog. VS Code picks them up without a restart.
 
 For a monorepo where the bundle lives at the repository root but you open a subfolder, enable `chat.useCustomizationsInParentRepositories`.
 
@@ -96,7 +126,7 @@ Catalog-wide. `_pipelines` documents its own differences separately, in [its REA
 
 | Area | Claude Code | This port |
 |---|---|---|
-| Distribution | A marketplace you install plugins from | A directory of bundles you copy. There is no plugin system in Copilot, so a bundle is self-contained or it is nothing. |
+| Distribution | A marketplace you install plugins from | One VS Code extension, installed once and available in every workspace. The bundles remain copyable per project for anyone who wants a narrower install. |
 | Commands | Plugin commands, namespaced `plugin:command` | `.github/prompts/*.prompt.md`. Namespaces are gone: `/senior-review:team-review` is `/team-review`. |
 | Single-agent commands | The command body dispatches a subagent | The prompt binds the agent directly with `agent:` in frontmatter. VS Code gates dispatch behind an `agents:` allowlist that a prompt file cannot declare, and a one-hop dispatch buys nothing. |
 | Multi-agent pipelines | The command body fans out from the main agent | A named orchestrator agent per pipeline, which is the only thing that can hold the `agents:` allowlist |
