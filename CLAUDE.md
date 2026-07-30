@@ -450,6 +450,20 @@ These are decisions, not drift. A sync that "fixes" them is a regression:
 
 Two former divergences became alignments in marketplace 16.0.0, when the plugins adopted what the export had already worked out. Do not re-add them to the list above: the dead-code dimension now resolves to `cleanup-auditor` in both of `team-review`'s tables, and `cleanup-auditor` findings now end with `Fix phase: <phase>` upstream too. The export needed no content change for either.
 
+### Full re-audit of the export
+
+When the ask is to "regenerate the whole export" rather than mirror one change, **diff every file against its source; do not rewrite the files.** Rewriting 70-odd files to reproduce them identically adds risk without changing the result, and the risk is real: a careless edit mid-audit corrupted a markdown table in `pipeline.md` and had to be reverted. The deliverable is the same (every file verified against its source, not just the recent deltas), the method is comparison.
+
+Sort the files into three families first, because each is audited differently:
+
+| Family | Files | How to audit |
+|---|---|---|
+| **Byte-copies** (no adaptation applies) | the 19 X-ray `scripts/**`, `templates/*` mirrored to `assets/*`, and the reference bodies that contain no tool names, agent names, or "Claude" | `diff -q` against the source. Any difference is drift, unless it is one of adaptations 10 or 12. |
+| **Adapted** | every `*.agent.md`, both `*.prompt.md`, all four `SKILL.md`, and the references that do name tools or agents | Compare **section headers**, not whole bodies: `diff <(grep -o '^#\+ .*' src) <(grep -o '^#\+ .*' exp)`. Header-level differences are renames and export-only additions; a header present in the source and absent in the export is real drift, which is the only thing worth reading line by line. |
+| **Export-only** (no source exists) | `agents/{xray,review}-orchestrator`, `agents/review-{generic-reviewer,verification-lens,completeness-critic}`, `hooks/xray_guard.py` + its tests, `README.md` | Check internal consistency against the regenerated content: allowlists, dispatched agent names, phase names. Nothing upstream to compare to. |
+
+The 2026-07-30 audit found the byte-copy and adapted families fully in sync, with one real defect in `review-cleanup-auditor` (a directive whose label had drifted from its own content, a phase list missing an entry, and flag syntax for a command the bundle never shipped). Expect that shape again: drift concentrates in agents whose upstream source changed recently, not in the bulk of the tree.
+
 ### Versioning and verification
 
 The export carries its own `metadata.version` inside `skills/codebase-xray/SKILL.md`. Bump it when the exported content changes, independently of the marketplace version. `exports/` is not registered in `marketplace.json` and is not a plugin.
@@ -461,3 +475,9 @@ Before committing an export change, re-run the checks in `exports/vscode/README.
 - Agent cross-references close in both directions: nothing referenced but undefined, nothing defined but unreferenced, nothing outside every `agents:` allowlist
 - `grep` the export for residual Claude Code coupling: `CLAUDE_PLUGIN_ROOT`, `CLAUDE_CODE_`, `Skill(`, `Teammate`, `TaskCreate`, `subagent_type`, `<plugin>:` namespaces. The only legitimate hits are in `README.md`, which names the originals on purpose.
 - The guard hook test suite passes: `python exports/vscode/.github/skills/codebase-xray/hooks/test_xray_guard.py` (36 cases across both `--confine` values, secret patterns, path edge cases, and fail-open behavior; runs from any working directory)
+
+Three of those checks produce false positives that have already cost one pass. Do not act on them without confirming first:
+
+- **`tools:` lists are longer than they look, and not every id has a slash.** `review-orchestrator` declares 16 tool ids. A `grep -A<n>` with n below that silently truncates the list and makes a declared tool look undeclared; `vscode/askQuestions` sits at position 15 and is the one that gets missed. Separately, a `[a-z]+/[a-zA-Z]+` pattern drops `todos` at position 16, since it carries no namespace prefix. Parse the YAML block to its terminator instead of grepping for a shape.
+- **Legitimate frontmatter fields that a naive schema check rejects:** `argument-hint` on the two orchestrators (they are user-facing entry points), `user-invocable` on all four skills, and `compatibility` on `codebase-xray/SKILL.md`. The real invariant is distributional, and it holds: the 19 dispatched agents all carry `user-invocable` plus `hooks`, the 2 orchestrators carry neither and add `argument-hint`.
+- **`codebase-xray:` matches inside `xray_guard.py`** are message prefixes in error strings, not plugin namespaces. Scope the namespace grep to `.md` files, or read the three hits before concluding anything.
