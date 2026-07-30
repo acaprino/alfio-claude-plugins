@@ -1,0 +1,194 @@
+---
+description: Create accurate technical documentation by analyzing the codebase first. Covers public interfaces (APIs, CLI, library exports, emitted events), configuration, integrations, architecture, data model and schema, data flows, state machines, dependencies (internal + external), concurrency, domain glossary, auth/security, error handling, observability, deployment, testing strategy, performance, compliance, or full project documentation. One artifact per invocation; multiple flags combine into a single document with sections. Use when the user asks to create technical documentation, API docs, architecture guides, data model / schema docs, data flow / pipeline docs, dependency maps, or any new documentation for a codebase. Not for the user wants to audit existing docs (use /docs-maintain) or just a README (use /maintain-readme in the `docs` bundle) or a full multi-document project guide (use /map-codebase).
+agent: documentation-engineer
+argument-hint: <target path or description> [--interfaces] [--config] [--integrations] [--architecture] [--data-model] [--data-flows] [--state-machines] [--dependencies] [--concurrency] [--glossary] [--auth] [--errors] [--observability] [--deployment] [--testing] [--build-release] [--migrations] [--performance] [--compliance] [--component] [--full] [--scope <dim1,dim2,...>] [--format markdown|html] [--output <path>] [--audience technical|general|mixed]
+---
+
+# Create Documentation
+
+## CRITICAL RULES
+
+1. **Analyze code before writing.** Read the actual source code first. Never write documentation based on assumptions.
+2. **Bottom-up approach.** Start from code structure, then build documentation that reflects reality.
+3. **Confirm scope with user.** Present what will be documented before generating.
+4. **Never enter plan mode.** Execute immediately.
+
+## Step 1: Analyze Target
+
+Determine what to document from `$ARGUMENTS`:
+
+- If a file/directory path: scan the code structure
+- If a class/module name: find it in the codebase
+- If no target: scan the entire project
+
+```bash
+# Discover project structure
+find [target] -type f \( -name "*.py" -o -name "*.ts" -o -name "*.js" -o -name "*.rs" -o -name "*.go" -o -name "*.java" \) | head -50
+```
+
+Identify:
+- **Language & framework** (from package.json, Cargo.toml, pyproject.toml, etc.)
+- **Key modules** (entry points, API routes, core business logic)
+- **Existing docs** (README, docstrings, JSDoc, rustdoc, etc.)
+- **Public API surface** (exports, endpoints, CLI commands)
+
+## Step 2: Confirm Documentation Plan
+
+Present the plan and ask for approval. The documentation dimensions are grouped into 5 fasce. The user can pick one dimension, several (combined into a single artifact with sections), an entire fascia, or `--full` for everything.
+
+```
+Documentation plan for: [target]
+
+Language: [detected]
+Framework: [detected]
+
+Files to document:
+- [file1] -- [type: API endpoint / class / module / ORM model / config / etc.]
+- [file2] -- [type]
+- ...
+
+Documentation dimensions (pick one or more; can also pick a whole fascia):
+
+SURFACE (what the system exposes)
+- [ ] interfaces       -- HTTP/REST, gRPC, GraphQL, WebSocket, CLI, library exports, events emitted (Kafka topics, RabbitMQ exchanges, webhooks emitted)
+- [ ] config           -- env vars, config files, feature flags, secrets references, runtime profiles
+- [ ] integrations     -- webhooks consumed, third-party APIs called, message queues, scheduled jobs/cron
+
+INTERNALS (what the system is)
+- [ ] architecture     -- layers, bounded contexts, component boundaries, design decisions (ADR-style)
+- [ ] data-model       -- entities, DB schema, DTO/Pydantic/Zod/dataclass, ER diagram, constraints, indexes, migrations
+- [ ] data-flows       -- request lifecycle, data pipelines, event flows, sequence diagrams, sagas
+- [ ] state-machines   -- FSMs, lifecycle of domain objects, allowed transitions
+- [ ] dependencies     -- internal module-to-module call graph + external libraries (with versions) + external services / SaaS
+- [ ] concurrency      -- workers, queues, schedulers, async tasks, locking, idempotency
+- [ ] glossary         -- ubiquitous language, domain terminology, business rules
+
+OPERATIONS (how the system runs)
+- [ ] auth             -- authn/authz flows, RBAC/ABAC, secrets management, PII handling, threat surface
+- [ ] errors           -- error catalog, retry policy, circuit breaker, fallback, idempotency boundaries
+- [ ] observability    -- logs emitted, metrics exposed, traces, alerts, referenced dashboards
+- [ ] deployment       -- Docker/K8s/Terraform, CI/CD, environments, DNS/networking, operational runbooks
+
+PROCESS (how the system evolves)
+- [ ] build-release    -- versioning, changelog, release cadence, hot-fix process
+- [ ] testing          -- test pyramid, fixtures, mocks, coverage gaps
+- [ ] migrations       -- upgrade paths, breaking changes, deprecation cycle
+
+CROSS-CUTTING
+- [ ] performance      -- SLA/SLO, latency, throughput, known bottlenecks
+- [ ] compliance       -- GDPR/PCI/HIPAA/SOC2 controls visible in code
+
+TARGETED
+- [ ] component        -- deep dive on a single module/class (zoom)
+
+FULL
+- [ ] full             -- all of the above, indexed with table of contents
+
+Output: [format] at [output path]
+
+1. Proceed with this plan
+2. Adjust scope -- I'll tell you what to change
+3. Cancel
+```
+
+Use AskUserQuestion. Do NOT proceed until the user confirms.
+
+If the user picks multiple dimensions, the result is ONE document with one section per dimension (in the order above). If the user picks `--full`, run every dimension. For very large scopes, suggest `/map-codebase` instead.
+
+## Step 3: Generate Documentation
+
+Use the `documentation-engineer` agent for the heavy lifting. The agent must run the per-dimension procedure defined in its own system prompt (section "DIMENSION-SPECIFIC GENERATION GUIDE"). The command's job here is just to pass the selected dimensions and the source material.
+
+Create accurate technical documentation by analyzing the source code.
+
+### Target
+[Insert path and description]
+
+### Source Code
+[Insert contents of key files -- the agent needs to see the actual code.
+ For data-model dimension include ORM models, schemas, migrations.
+ For interfaces include route definitions, CLI entry points, library exports.
+ For dependencies include package manifests (package.json, pyproject.toml,
+ Cargo.toml, go.mod) and a sample of imports.
+ For deployment include Dockerfile, compose, k8s manifests, CI workflows.]
+
+### Selected Dimensions
+[List the dimensions chosen by the user, e.g.: interfaces, data-model, dependencies]
+[If multiple, produce ONE markdown document with one top-level section per
+ dimension, in the order listed in the command's Step 2.]
+
+### Instructions
+For each selected dimension, follow the corresponding procedure in the
+"DIMENSION-SPECIFIC GENERATION GUIDE" section of your own system prompt.
+Do not invent procedures the system prompt does not describe.
+
+### Audience
+If `--audience` was provided, write for it. Otherwise infer a lightweight
+profile (project type plus primary audience) from the source. Calibrate
+framing and glossary per
+plugins/codebase-mapper/skills/codebase-mapper/references/audience-adaptation.md.
+
+CRITICAL:
+- Every claim must come from reading the actual code. Do not guess or assume.
+- If something is unclear from the code, write `[NEEDS VERIFICATION]` rather
+  than inventing it.
+- Cite source as `**Source:** path/file.ext:line` on every entity, endpoint,
+  env var, dependency entry, state transition, alert, etc.
+- Produce a Mermaid diagram where applicable (erDiagram for data-model,
+  flowchart for data-flows, stateDiagram-v2 for state-machines,
+  graph LR for architecture/dependencies, sequenceDiagram for request flows).
+
+Write the documentation as a single structured markdown document.
+
+## Step 4: AI Trace Removal
+
+Before saving, strip AI writing traces from the generated documentation (inflated significance, AI vocabulary, filler phrases, promotional language). If the `text-humanizer` bundle from the same catalog is installed, run `/humanize-text` over the file; otherwise apply the pass yourself using the instructions below.
+
+Humanize this technical documentation. Remove AI patterns while preserving
+all factual content, code examples, and technical accuracy. Focus on:
+- Removing AI vocabulary and filler phrases
+- Breaking formulaic structures
+- Making prose sound natural and direct
+- Keeping code blocks and diagrams unchanged
+
+Do NOT add the self-evaluation pass -- just return the cleaned text.
+
+Documentation:
+[generated documentation]
+
+## Step 5: Review & Write Output
+
+Present a brief summary of the generated documentation:
+
+```
+Documentation generated:
+
+- Sections: [count]
+- API endpoints documented: [count] (if applicable)
+- Components documented: [count]
+- Architecture diagrams: [count]
+- Total length: ~[X] lines
+- AI trace removal: applied
+
+1. Write to [output path] -- save the documentation
+2. Show full preview -- display before saving
+3. Revise -- adjust content or scope
+```
+
+Write the documentation to the specified output path (default: `docs/` directory).
+
+If the output directory doesn't exist, create it.
+
+## Quick Examples
+
+- `/docs-create src/api --interfaces` -- Document all API endpoints + emitted events in src/api
+- `/docs-create UserService --component` -- Deep dive on the UserService class
+- `/docs-create --architecture` -- Architecture doc for the whole project
+- `/docs-create --data-model` -- Entities, schema, ER diagram for the whole project
+- `/docs-create src/models --data-model` -- Data model for a specific module
+- `/docs-create --integrations --auth` -- Inbound/outbound integrations + auth model in one document
+- `/docs-create --config --observability --deployment` -- Operational doc (env vars + logs/metrics + deploy)
+- `/docs-create --dependencies` -- Internal call graph + external libraries with versions
+- `/docs-create --data-flows` -- Request lifecycle, pipelines, event flows with sequence diagrams
+- `/docs-create --state-machines` -- FSM diagrams for domain objects
+- `/docs-create --full --output docs/technical.md` -- Everything in one file

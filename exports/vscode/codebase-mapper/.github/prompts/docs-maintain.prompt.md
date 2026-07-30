@@ -1,0 +1,197 @@
+---
+description: Audit and improve existing project documentation with ground truth verification and guided improvements. Detects drift across 20 documentation dimensions (interfaces, config, integrations, architecture, data model and schema, data flows, state machines, internal and external dependencies, concurrency, glossary, auth/security, error handling, observability, deployment, testing, build-release, migrations, performance, compliance) and produces a refactoring plan with surgical Edits. Use when the user asks to audit, update, or verify existing technical docs against the current codebase, or to detect documentation drift on any dimension (endpoints removed but still documented, env vars renamed, schema fields added/dropped, dependencies upgraded, alerts removed, etc.). Not for creating new docs from scratch (use /docs-create) or humanizing prose style (use /humanize-docs).
+agent: documentation-engineer
+---
+
+# Maintain Documentation
+
+Use the `documentation-engineer` agent to audit and refactor existing documentation:
+
+$ARGUMENTS
+
+This command provides a comprehensive documentation management workflow:
+
+## What This Does
+
+1. **Audit Phase** - Inventories all existing documentation and runs a **per-dimension drift check** against the actual codebase. For each dimension the audit reports added / removed / renamed / retyped items, not just generic "outdated content". See "Per-Dimension Drift Checks" below for the full matrix.
+
+2. **Planning Phase** - Creates a refactoring plan to fix identified issues:
+   - Merge duplicate content
+   - Update outdated sections with surgical Edits (per dimension)
+   - Link or archive orphaned pages
+   - Fix broken references
+   - Add missing sections for undocumented dimensions
+
+3. **Interactive Decision** - Asks if you want to execute the refactoring plan
+
+4. **Execution Phase** (optional) - Applies refactoring with your approval:
+   - Reorganizes documentation structure
+   - Merges and consolidates content
+   - Updates references and links
+   - Verifies no content was lost
+
+## When to Use
+
+Use this command when you need to:
+- Perform quarterly documentation health checks
+- Clean up docs after major codebase refactoring
+- Fix scattered or duplicated documentation
+- Prepare documentation before onboarding new team members
+- Identify gaps in API documentation coverage
+- Ensure documentation matches current implementation
+
+## Example Interactive Flow
+
+**Audit-only workflow** (report without changes):
+```
+You:   /docs-maintain --audit-only
+
+Agent: I've inventoried your documentation. Found:
+       - 3 duplicate documentation files
+       - 5 outdated sections that don't match code
+       - 2 orphaned pages
+       - 1 broken link
+
+       [Detailed audit report provided]
+```
+
+**Full refactoring workflow** (audit -> plan -> execute):
+```
+You:   /docs-maintain
+
+Agent: I've inventoried your documentation. Found:
+       - 3 duplicate documentation files
+       - 5 outdated sections that don't match code
+       - 2 orphaned pages
+       - 1 broken link
+
+       Should I create a refactoring plan to fix these?
+You:   Yes
+
+Agent: Here's the refactoring plan:
+       1. Merge UserAPI.md and user-api-reference.md -> api/users.md
+       2. Update 5 outdated sections to match current code
+       3. Link orphaned pages from main README or archive them
+       4. Fix broken link in README.md
+
+       Approve this plan?
+You:   Yes
+
+Agent: Executing refactoring...
+       Done: Merged duplicate files
+       Done: Updated outdated sections
+       Done: Fixed orphaned pages
+       Done: Fixed broken links
+
+       Verification: All original content preserved, structure improved
+```
+
+## Options/Flags
+
+- `--audit-only` - Generate audit report without creating refactoring plan or executing changes
+- `--plan-only` - Generate refactoring plan without executing (stops after planning phase)
+- `--merge-duplicates` - Focus specifically on identifying and merging duplicate content
+- `--scope <dim1,dim2,...>` - Restrict audit to specific dimensions (e.g. `--scope data-model,interfaces,dependencies`); default is all dimensions
+- `[path]` - Target specific folder or file (default: entire project)
+
+Valid dimensions for `--scope`: `interfaces`, `config`, `integrations`, `architecture`, `data-model`, `data-flows`, `state-machines`, `dependencies`, `concurrency`, `glossary`, `auth`, `errors`, `observability`, `deployment`, `testing`, `build-release`, `migrations`, `performance`, `compliance`, `component`.
+
+**Examples:**
+```bash
+/docs-maintain                                        # Full workflow on entire project (all dimensions)
+/docs-maintain --audit-only                           # Report only, no changes
+/docs-maintain --plan-only                            # Audit + plan, no execution
+/docs-maintain docs/                                  # Manage only docs/ folder
+/docs-maintain README.md                              # Check specific file
+/docs-maintain --merge-duplicates                     # Focus on duplicates
+/docs-maintain --scope data-model                     # Schema drift only
+/docs-maintain --scope interfaces,integrations,auth   # API surface + integrations + auth drift
+/docs-maintain --scope dependencies                   # Outdated package versions only
+```
+
+## Issues Detected (generic)
+
+The audit phase checks for these generic issues across all docs:
+
+- **Duplicate Documentation** - Same topic documented in multiple files
+- **Broken Links** - References to non-existent files or URLs
+- **Orphaned Pages** - Documentation files not linked from any other docs
+- **Inconsistent Structure** - Disorganized file hierarchy
+- **Stale Examples** - Code examples that no longer work
+
+## Per-Dimension Drift Checks
+
+In addition to the generic checks, the audit runs a **structured drift check per dimension**. For each one it compares the documented surface against the actual source of truth in the codebase and reports added / removed / renamed / retyped / signature-changed items, not just "outdated text".
+
+| Dimension | Source of truth in code | Drift the audit reports |
+|---|---|---|
+| `interfaces` | Route definitions (FastAPI/Express/Spring/Django/Rails/Gin), CLI entry points (argparse, click, commander, clap), library `__all__` / public exports, GraphQL SDL, gRPC `.proto`, emitted events (Kafka topics, RabbitMQ exchanges, webhook payloads) | Endpoint added/removed, method/path changed, request or response schema changed, auth requirement changed, CLI flag added/removed, emitted event renamed or payload changed |
+| `config` | Reads of `os.environ` / `process.env` / `viper`, dotenv templates, config file schemas, feature flag SDK calls | Env var added/removed/renamed, default changed, required vs optional flip, feature flag added/removed |
+| `integrations` | HTTP client calls to external hosts, webhook handlers, scheduled jobs (cron, APScheduler, BullMQ, Celery), message queue producers/consumers | External API endpoint changed, new outbound dependency, webhook signature changed, cron schedule changed, queue topic renamed |
+| `architecture` | Module structure, package boundaries, dependency direction | New layer introduced, boundary violation now in code, component split or merged |
+| `data-model` | ORM models (SQLAlchemy, Django ORM, Prisma, Drizzle, TypeORM, Sequelize, ActiveRecord, GORM, Diesel), Pydantic/Zod/dataclass, `CREATE TABLE`, migration files (Alembic, Flyway, Liquibase, Prisma migrate, knex) | Entity added/removed/renamed, field added/removed/renamed, type changed, nullable flipped, default changed, FK or relationship changed, index added/removed |
+| `data-flows` | Call sites between components, queue producers/consumers, event bus subscriptions, pipeline DAGs (Airflow, Prefect, Dagster) | New flow path, removed/short-circuited path, new fan-out, ordering or transaction boundary changed |
+| `state-machines` | Explicit FSM libs (xstate, transitions, statelessLib), enum-driven status fields with guarded transitions | State added/removed/renamed, transition added/removed, guard changed, terminal state changed |
+| `dependencies` | Package manifests (package.json, pyproject.toml, Cargo.toml, go.mod, pom.xml, build.gradle, Gemfile) + lockfiles + actual imports | Dependency added/removed, version upgraded across major/minor, new optional dep, dep moved from prod to dev, unused dep, undeclared dep used |
+| `concurrency` | Worker definitions, scheduler config, async runtime usage, lock primitives, idempotency keys | Worker added/removed, queue topology changed, schedule changed, locking changed, retry/backoff policy changed |
+| `glossary` | Domain types, enum names, value objects, repeated terminology in models/services | Term renamed, term removed from code, new term used in code but absent from glossary |
+| `auth` | Auth middleware, JWT/session config, RBAC tables, permission decorators, secret loaders | New role/permission, removed role, scope change, secret source changed, MFA path added/removed |
+| `errors` | Exception classes, error code enums, retry decorators, circuit-breaker config, idempotency keys | Error code added/removed/renumbered, retry policy changed, new circuit breaker, idempotency boundary changed |
+| `observability` | Logger calls with structured fields, metrics registrations (Prometheus/StatsD/OTel), tracer spans, alert rules | Metric added/removed/renamed, log field renamed, span name changed, alert added/removed |
+| `deployment` | Dockerfile, compose, k8s manifests, Helm charts, Terraform, CI workflows | Image base changed, exposed port changed, env injection changed, healthcheck changed, new pipeline stage, runner changed |
+| `testing` | Test directory structure, coverage config, fixtures, mocks | New test layer, removed suite, coverage thresholds changed, fixture/mock signature changed |
+| `build-release` | Version files, changelog generators, release scripts | Version scheme changed, release pipeline changed, hot-fix branch convention changed |
+| `migrations` | Migration history, deprecated APIs still referenced, `@deprecated` markers | New breaking change not in migration guide, deprecated API removed, upgrade step now obsolete |
+| `performance` | Benchmark scripts, load test configs, code-level perf budgets, SLO config | SLO changed, benchmark removed, perf budget added/changed |
+| `compliance` | Annotated PII fields, audit log calls, retention config, encryption usage | New PII field undocumented, retention period changed, encryption algorithm changed |
+| `component` | Single module/class under review | Public API signature changed, internal helper now public or vice versa, dependency change |
+
+## Output
+
+**Audit-only mode** produces:
+- Comprehensive inventory of all documentation files
+- Per-dimension drift report (added / removed / renamed / retyped items per dimension), with `**Source:** file:line` citations to the code that is the source of truth
+- Categorized list of generic issues (duplicates, broken links, orphaned, structural) with severity levels
+- Recommendations for improvements
+- No files modified
+
+**Full refactoring mode** produces:
+- All audit findings (generic + per-dimension)
+- Detailed refactoring plan grouped by dimension, with proposed surgical Edits
+- Executed changes with verification
+- Summary of improvements made
+- Confirmation that no content was lost
+
+## Quick Examples
+
+```bash
+# Quarterly documentation maintenance
+/docs-maintain
+
+# Quick health check without changes
+/docs-maintain --audit-only
+
+# Focus on cleaning up duplicates
+/docs-maintain --merge-duplicates
+
+# Manage API documentation only
+/docs-maintain docs/api/
+
+# Check if README is current
+/docs-maintain README.md
+```
+
+## Tips for Best Results
+
+1. **Run audit-only first** on large projects to understand scope before refactoring
+2. **Target specific folders** for large codebases to manage incrementally
+3. **Review the plan** carefully before approving execution
+4. **Use version control** - commit before running to easily review or revert changes
+5. **Run after major refactors** to keep docs in sync with code changes
+6. **Schedule regularly** - quarterly audits prevent documentation debt
+
+## Related Commands
+
+- `/docs-create` - Create NEW documentation from code analysis (use when docs don't exist)
+- `/docs-maintain` - Audit and improve EXISTING documentation (use when docs exist but need maintenance)
+- `/humanize-docs` - Rewrite existing docs to be more human-readable

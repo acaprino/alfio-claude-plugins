@@ -26,7 +26,7 @@ When changes modify plugins (agents, skills, commands), update the marketplace *
 
 1. **Bump plugin version** - increment `version` for the changed plugin in `.claude-plugin/marketplace.json`
 2. **Bump marketplace version** - increment `metadata.version` in the same file
-3. **Check the downstream exports** - five plugins feed `exports/vscode/`: `codebase-xray`, `senior-review`, `abstraction-architect`, plus one agent each from `react-development` and `platform-engineering`. If the changed file is one of those, load the `downstream-exports` skill and mirror the change into `exports/` in the same commit. Skipping this is how the ports silently rot.
+3. **Mirror into the downstream export** - since the 2026-07-30 catalog build, `exports/vscode/` carries a bundle for every plugin except `prompt-improver`, so almost any plugin change needs mirroring. Load the `downstream-exports` skill and mirror into `exports/` in the same commit, then run its checker (`python .claude/skills/downstream-exports/scripts/check_export.py`). Skipping this is how the ports silently rot.
 4. **Commit together** - stage the plugin files, `marketplace.json`, and any `exports/` changes in one commit
 5. **Push to remote** - `git push` to `master`
 
@@ -65,7 +65,7 @@ Four maintenance workflows live in `.claude/skills/` so they load only when the 
 | `external-repo-intake` | Importing, vendoring, or cherry-picking from an external GitHub repo for the FIRST time. Covers classification, the license gate, convention adaptation, and the commit shape. |
 | `upstream-sync` | Re-syncing a plugin already ported from an upstream repo, or answering "which plugins are upstream-synced". Holds the sync table, the merge strategy, and the per-plugin sync notes. |
 | `custom-plugin-refresh` | Refreshing a hand-authored plugin that has no upstream. Holds the freshness risk classes, cadences, and the re-research protocol. |
-| `downstream-exports` | Touching `exports/`, or changing a plugin file listed in the export source map (see step 3 of the marketplace update workflow). Holds the source map, the twelve mirror adaptations, and the divergences that must survive a sync. |
+| `downstream-exports` | Touching `exports/`, or changing almost any plugin file (see step 3 of the marketplace update workflow). Holds the source map, the mirror adaptations, the four dispatch shapes, the content that deliberately keeps Claude Code vocabulary, the divergences that must survive a sync, and the verification script. |
 
 ## Deliberately not vendored
 
@@ -83,6 +83,12 @@ Six areas were removed and delegated to their upstreams because maintaining the 
 As of marketplace 8.2.0, superpowers is a declared hard dependency of `ai-tooling` (`dependencies: ["superpowers@claude-plugins-official"]` in `marketplace.json`; cross-marketplace dependencies MUST use the qualified `name@marketplace` form, because a bare name resolves against this marketplace and fails the whole plugin load, which is what silently broke `ai-tooling` until marketplace 12.0.2). Any place that points at the superpowers planning skills says so unconditionally: load the skills, and if they are unavailable stop and tell the user to install superpowers (`claude plugin install superpowers@claude-plugins-official`). This supersedes the earlier rule that kept superpowers references conditional; do not reintroduce conditional phrasing.
 
 One scoped exception to the superpowers row, taken on 2026-07-30: `exports/vscode/` vendors 14 superpowers skills and the 6 agents that serve them, adapted for VS Code Copilot. This does not reopen the delegation. `plugins/` still delegates, `ai-tooling` still hard-depends on `superpowers@claude-plugins-official`, and nothing under `plugins/` may re-import those skills. The exception exists because a Copilot user has no plugin system to install superpowers from: the export is a self-contained `.github/` bundle or it is nothing. The vendored copy is pinned to upstream 6.2.0 and tracked by its own row in the `upstream-sync` sync table, which is the only row in that table pointing at `exports/` instead of `plugins/`.
+
+On 2026-07-30 the export was restructured from one bundle into a **catalog of 36 independently installable bundles**, one per plugin, and the port was extended from 5 plugins to 38. `exports/vscode/README.md` is the catalog root and `exports/vscode/<plugin>/.github/` is a bundle. The former single bundle now lives at `exports/vscode/_pipelines/`, which is also the only bundle carrying more than one plugin (`codebase-xray`, `senior-review`, `abstraction-architect`, plus the vendored superpowers content). Three consequences bind future work:
+
+- **The mirror obligation is global.** Every plugin except `prompt-improver` feeds a bundle, so step 3 of the marketplace workflow applies to almost every plugin change.
+- **The catalog stays split.** Merging it back into one bundle would tax every project with the routing descriptions of 81 agents and 66 skills it does not use. That is the reason it is a catalog, not a preference.
+- **`marketplace-ops` and `ai-tooling/agent-sdk-builder` keep Claude Code vocabulary.** Their subject matter *is* Claude Code, so their tool names and `TRIGGER WHEN` labels are content. Never de-brand or tool-rename them; the `downstream-exports` checker excludes both.
 
 **Watch [obra/superpowers#764](https://github.com/obra/superpowers/issues/764)**, the tracking issue for official GitHub Copilot / VS Code support. When upstream ships it, the vendored copy is the thing to delete rather than to sync: drop the 14 skill directories, drop the `sp-*` and `superpowers` agents that exist only to supply the dispatch layer VS Code gates behind an allowlist, and point the export README at the official install path. Check the issue on every superpowers sync pass, before diffing any file.
 

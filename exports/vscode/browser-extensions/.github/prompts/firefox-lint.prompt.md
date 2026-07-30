@@ -1,0 +1,98 @@
+---
+description: Lint a Firefox WebExtension for AMO compliance and common issues. Runs `web-ext lint` plus static checks for forbidden APIs, permission bloat, eval/Function usage, remote-hosted code, and manifest V3 migration issues. Use when the user asks to lint, validate, or check a Firefox extension; before an AMO submission; before a git push on an extension project. Not for Chrome-only extensions, where the Chrome Web Store publisher dashboard validator is the right tool, nor for userscripts.
+argument-hint: [path] [--strict] [--json]
+---
+
+# Firefox Extension Lint
+
+Comprehensive pre-publish lint for a Firefox WebExtension.
+
+## CRITICAL RULES
+
+1. **Run `web-ext lint` first** -- Mozilla's official linter catches AMO-blocking issues (remote code, missing icons, invalid manifest).
+2. **Then scan source for anti-patterns** that `web-ext lint` misses: eval/Function, remote script injection, wildcards in host_permissions, stored tokens in non-session storage.
+3. **Report results grouped by severity** matching AMO's own review criteria.
+
+## Procedure
+
+### 1. Run web-ext lint
+
+```bash
+cd "$TARGET"
+npx web-ext lint --pretty
+```
+
+Parse the output. If `--json` flag set, use `--output=json` and parse JSON.
+
+### 2. Static checks beyond web-ext lint
+
+Run these greps / AST checks against `src/`:
+
+**Forbidden / high-risk APIs (AMO review often rejects)**
+- `eval(`, `new Function(` -- AMO blocks unless justified
+- `document.write(` -- CSP violation
+- `innerHTML =` with user-controlled input -- XSS risk
+- Remote script loading: `<script src="https://...">` in extension pages
+- `browser.tabs.executeScript` with dynamic code strings (MV2)
+
+**Permission bloat**
+- `<all_urls>` in `host_permissions` -- AMO reviewers ask "why?"
+- `"tabs"` permission without reading tab URL/title/favIcon (often over-requested)
+- `"storage"` permission without any `browser.storage.*` call (dead permission)
+- `"webNavigation"` without `onBeforeNavigate` / `onCompleted` listeners
+
+**Auth / storage anti-patterns**
+- Tokens / API keys in `localStorage` (persists, shared with content scripts if `all_frames`)
+- Secrets hardcoded in source
+- `browser.storage.local` for secrets -- acceptable but document the trust boundary
+
+**Manifest V3 migration issues (if MV3)**
+- `browser.webRequest.onBeforeRequest` with `["blocking"]` -- MV3 removed blocking webRequest on Chrome; Firefox still supports it but discourage for cross-browser
+- Service worker / event page confusion -- Firefox MV3 uses event pages (DOM access OK), Chrome MV3 uses service workers
+- Missing `declarativeNetRequest` rules when webRequest is being deprecated
+
+**Code quality**
+- `console.log` in production code
+- No `"strict_min_version"` in `browser_specific_settings.gecko` (makes update channel unclear)
+- Extension ID collisions / placeholder IDs
+
+### 3. Output format
+
+```markdown
+# Firefox Extension Lint -- <extension-name> -- <date>
+
+## Summary
+- [BLOCKER] (AMO will reject): N
+- [WARNING]: N
+- [INFO]: N
+
+## Blockers
+- <file:line> <issue> -- <AMO rule or CVE> -- <fix>
+- ...
+
+## Warnings
+- ...
+
+## Informational
+- ...
+
+## Permissions audit
+| Permission | Declared | Used | Recommendation |
+|-----------|----------|------|----------------|
+| `<all_urls>` | yes | <file:line>... | Narrow to specific domains |
+| `tabs` | yes | - | Remove (unused) |
+| ... |
+
+## Next steps
+1. Fix blockers
+2. Run `npm run build` to produce the signed .zip
+3. Run `/firefox-publish` to sign + upload via AMO API
+```
+
+With `--strict`, treat all warnings as blockers (exit code 1).
+
+## Synergies
+
+- Full API / manifest details -> `firefox-extension-dev` agent
+- Pre-AMO publishing workflow -> `/firefox-publish`
+- New extension scaffolding -> `/firefox-scaffold`

@@ -1,0 +1,101 @@
+---
+description: Walk the production deploy checklist interactively. Reports pass / fail / N/A per category against the codebase (and optional deployed URL). Distinct from /pwa-audit: this is a deterministic checklist walk, not an open-ended adversarial audit.
+agent: pwa-architect
+argument-hint: [path or URL]
+---
+
+# /pwa-checklist
+
+Walk the production deploy checklist from `references/production-checklist.md` interactively against the current project (or the provided URL).
+
+Read `production-checklist.md` upfront. This is one of the few cases where preloading a reference is correct, because the command IS the checklist. Then walk every item.
+
+## Modes
+
+- If the target is a URL: walk the checklist against the live deployment with playwright-mcp where applicable, plus the codebase for items that can only be verified in source.
+- If the target is a path or omitted: walk against the codebase only.
+
+## How the walk works
+
+For every item in every category of `production-checklist.md`:
+
+1. State the item verbatim.
+2. Verify it. Use `#read/readFile`, `#search/textSearch`, `#search/fileSearch`, `#execute/runInTerminal`, or the playwright-mcp tools as appropriate.
+3. Record the result as one of: **PASS**, **FAIL**, **N/A** (with a reason for N/A).
+
+## Output format
+
+Produce a markdown report:
+
+```
+# Production Checklist Report
+
+**Target:** <path or URL>
+**Date:** YYYY-MM-DD
+
+## Summary
+
+| Category | Pass | Fail | N/A | Score |
+|---|---|---|---|---|
+| Manifest | X | Y | Z | X / (X+Y) |
+| iOS-specific | ... |
+| Service Worker | ... |
+| Security | ... |
+| Performance | ... |
+| Push | ... |
+| Storage | ... |
+| Testing | ... |
+| Distribution | ... |
+| Monitoring | ... |
+| **Overall** | ... |
+
+## Manifest
+
+- [PASS] id is explicit (not implied from start_url). Found in `public/manifest.webmanifest:2`.
+- [FAIL] Icons: 192 PNG purpose: "maskable" missing. Add via /pwa-scaffold or by hand.
+- ...
+
+(... and so on for every category, every item)
+
+## Recommended next actions
+
+(Numbered list of the highest-impact fails, ordered by severity.)
+```
+
+## Difference from /pwa-audit
+
+- `pwa-audit` is open-ended and adversarial. It uses domain knowledge to find defects the checklist does not enumerate.
+- `pwa-checklist` is deterministic. The output maps 1:1 to the source guide's deploy checklist sections. Two runs on the same target produce structurally identical reports.
+
+Use `pwa-checklist` for release gates and CI integration. Use `pwa-audit` for design reviews and pre-launch deep-dives.
+
+## CI integration
+
+The deterministic, structured output makes this command suitable as a release gate:
+
+1. Run `/pwa-checklist <path-or-URL>` from a CI step that invokes the agent.
+2. Parse the Summary table for the **Overall** row.
+3. Fail the build if `Fail > 0` for any category that the team has flagged as blocking (typically Manifest, Service Worker, Security).
+4. Treat `N/A` as informational, not failing.
+
+## Category-to-reference map for FAIL remediation
+
+When recording a FAIL, point the user at the matching reference so they can self-serve the fix:
+
+| Checklist category | Reference file |
+|---|---|
+| Manifest, iOS-specific | `references/manifest.md` |
+| Service Worker | `references/service-workers.md` |
+| Security | `references/security.md` |
+| Performance | `references/performance.md` |
+| Push | `references/push-notifications.md` |
+| Storage | `references/storage-persistence.md` |
+| Testing | `references/frameworks-tooling.md` (debugging surface) |
+| Distribution | `references/distribution.md` |
+| Monitoring | `references/performance.md` (CrUX / RUM) and `references/push-notifications.md` (pushsubscriptionchange) |
+
+## Output rules
+
+- No emojis. Status indicators are text only: `[PASS]`, `[FAIL]`, `[N/A]`.
+- Cite a file and line for every PASS / FAIL where possible (local mode) or a URL fragment / manifest field (live mode).
+- Recommend the matching reference file from the knowledge base for every FAIL, so the user can self-serve the fix.

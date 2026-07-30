@@ -120,7 +120,7 @@ ls packages/ apps/ 2>/dev/null
 
 If workspace detected, treat each package as a separate audit unit.
 
-**Phantom dependencies (the `@radix-ui/*` in react-app/ imported only by shared/` pattern):**
+**Phantom dependencies (the `@radix-ui/* in react-app/ imported only by shared/` pattern):**
 For each workspace `W`:
 1. Read `W/package.json` `dependencies` + `devDependencies`.
 2. For each dep `D`, `Grep` for `from ['"]${D}` within `W/**` (excluding `node_modules/`).

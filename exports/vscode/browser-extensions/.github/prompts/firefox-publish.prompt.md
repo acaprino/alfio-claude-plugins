@@ -1,0 +1,114 @@
+---
+description: Publish a Firefox WebExtension to AMO (addons.mozilla.org) - runs pre-publish lint, signs via web-ext and AMO API, uploads, and walks the user through the review workflow. Handles both listed (public) and unlisted (self-distribution) channels. Use when the user asks to publish, release, submit, upload, or sign a Firefox extension; when preparing an AMO submission. Not for publishing to Chrome Web Store (different API, use CWS publisher dashboard) or to Edge Add-ons (Microsoft Partner Center).
+argument-hint: [path] [--channel listed|unlisted] [--version <semver>] [--dry-run]
+---
+
+# Firefox Extension Publish
+
+Signed publication to AMO. Covers pre-flight validation, signing via `web-ext sign`, and post-submission follow-up.
+
+## CRITICAL RULES
+
+1. **Run lint first**. Never submit unlinted -- Mozilla's AMO reviewers reject submissions for issues `web-ext lint` catches in 30 seconds.
+2. **Never commit API credentials**. Credentials live in env vars or a gitignored `.env`; refuse to proceed if they appear in the repo.
+3. **Choose the right channel**:
+   - `listed` -- public AMO listing, goes through Mozilla review (1-14 days, sometimes longer)
+   - `unlisted` -- self-distribution, auto-signed in seconds, not shown on AMO
+4. **Bump version before submission**. AMO rejects resubmissions with the same version string.
+5. **Confirm with the user before upload**. Signing is fast to revert; a listed review that starts is annoying to withdraw.
+
+## Procedure
+
+### 1. Pre-flight
+
+```bash
+# Check credentials
+test -n "$WEB_EXT_API_KEY" || fail "WEB_EXT_API_KEY not set"
+test -n "$WEB_EXT_API_SECRET" || fail "WEB_EXT_API_SECRET not set"
+
+# Check .env or credential files are gitignored
+git check-ignore -v .env || fail ".env is not gitignored"
+```
+
+If credentials are missing, guide the user to https://addons.mozilla.org/en-US/developers/addon/api/key/ to generate them.
+
+### 2. Run lint
+
+Invoke `/firefox-lint` first. If any blockers, stop.
+
+### 3. Bump version
+
+Read current version from `manifest.json`. If `--version` is supplied, use it; otherwise ask the user for:
+- patch (`0.1.0` -> `0.1.1`) -- bug fixes
+- minor (`0.1.0` -> `0.2.0`) -- new features
+- major (`0.1.0` -> `1.0.0`) -- breaking change (first public release is traditionally `1.0.0`)
+
+Update both `manifest.json` and `package.json`. Stage these edits but DO NOT commit automatically -- the user may want to do a final review.
+
+### 4. Build
+
+```bash
+cd "$TARGET"
+npx web-ext build --overwrite-dest
+# Artifact: .web-ext-artifacts/<name>-<version>.zip
+```
+
+Verify the artifact exists and is reasonably sized (warn if > 10 MB -- large extensions get slower AMO review).
+
+### 5. Sign / upload
+
+**Listed channel (public review):**
+```bash
+npx web-ext sign \
+  --api-key="$WEB_EXT_API_KEY" \
+  --api-secret="$WEB_EXT_API_SECRET" \
+  --channel=listed
+```
+
+**Unlisted channel (self-distribution, auto-signed):**
+```bash
+npx web-ext sign \
+  --api-key="$WEB_EXT_API_KEY" \
+  --api-secret="$WEB_EXT_API_SECRET" \
+  --channel=unlisted
+```
+
+With `--dry-run`, stop before signing and print the command the user would run.
+
+### 6. Post-submission
+
+**For listed:**
+- Tell the user the submission ID
+- Link to the AMO developer dashboard: `https://addons.mozilla.org/en-US/developers/addon/<slug>/versions`
+- Review typically takes 1-14 days; expect extra time for extensions with broad host_permissions or native messaging
+- If rejected, Mozilla emails a reason; common causes: obfuscated code, remote-hosted code, unjustified permissions, missing source code submission (required for bundlers)
+
+**For unlisted:**
+- Signed XPI is written to `.web-ext-artifacts/`; user hosts it themselves
+- For auto-update, add an `updates.json` or `update_url` in `manifest.json` pointing to a signed update feed
+
+### 7. Tag release
+
+Suggest (do not auto-execute):
+```bash
+git tag v<new-version>
+git push origin v<new-version>
+```
+
+Optionally open a GitHub release with the signed XPI attached.
+
+### 8. Source code submission reminder (listed only)
+
+If the project uses a bundler (webpack, Vite, Rollup, esbuild), Mozilla requires the original source code plus build instructions to be submitted alongside the signed XPI. `web-ext sign --channel=listed` will prompt; otherwise manually attach via the AMO dashboard.
+
+Minimum source-upload contents:
+- Original source (src/, package.json, lockfile)
+- Build config (webpack.config.js, vite.config.ts, etc.)
+- README.md explaining how to reproduce the build from source
+- No node_modules/ or build artifacts
+
+## Synergies
+
+- Scaffolding a new extension -> `/firefox-scaffold`
+- Pre-submission lint -> `/firefox-lint`
+- API / manifest / MDN lookups -> `firefox-extension-dev` agent

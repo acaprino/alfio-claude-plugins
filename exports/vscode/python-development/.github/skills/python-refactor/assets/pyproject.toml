@@ -1,0 +1,146 @@
+# =============================================================================
+# Python Project Configuration
+# Stack: Ruff (linting/formatting) + Complexipy (cognitive complexity) + Radon
+# =============================================================================
+
+[tool.ruff]
+# General settings
+line-length = 88
+target-version = "py311"
+
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "build",
+    "dist",
+    ".eggs",
+    "*.egg-info",
+    "migrations",
+    "node_modules",
+]
+
+[tool.ruff.lint]
+# Enable rules
+select = [
+    # Core
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings  
+    "F",      # Pyflakes (undefined names, unused imports)
+    
+    # Complexity
+    "C90",    # McCabe cyclomatic complexity
+    
+    # Code quality (replaces flake8 plugins)
+    "B",      # flake8-bugbear (likely bugs)
+    "SIM",    # flake8-simplify (simpler code)
+    "C4",     # flake8-comprehensions (cleaner comprehensions)
+    "UP",     # pyupgrade (modern Python)
+    "I",      # isort (import sorting)
+    "N",      # pep8-naming (naming conventions)
+    
+    # Documentation
+    "D",      # pydocstyle (docstrings)
+    
+    # Additional quality
+    "RUF",    # Ruff-specific rules
+    "PIE",    # flake8-pie (misc lints)
+    "RET",    # flake8-return
+    "ARG",    # flake8-unused-arguments
+    "ERA",    # eradicate (commented-out code)
+    "PL",     # Pylint rules
+]
+
+# Ignore specific rules
+ignore = [
+    "E501",   # Line too long (handled by formatter)
+    "D100",   # Missing docstring in public module
+    "D104",   # Missing docstring in public package
+]
+
+[tool.ruff.lint.per-file-ignores]
+"test_*.py" = ["D", "PLR2004", "S101"]
+"tests/*" = ["D", "PLR2004", "S101"]
+"**/conftest.py" = ["D"]
+"__init__.py" = ["F401", "D"]
+
+[tool.ruff.lint.mccabe]
+# Cyclomatic complexity threshold
+max-complexity = 10
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.isort]
+force-single-line = false
+lines-after-imports = 2
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+
+# =============================================================================
+# Complexipy - Cognitive Complexity Analysis
+# =============================================================================
+# Complexipy is a Rust-based tool for cognitive complexity analysis.
+# It complements Ruff (which only handles cyclomatic complexity).
+#
+# Usage:
+#   complexipy src/                              # Basic analysis
+#   complexipy src/ --max-complexity-allowed 15  # With threshold
+#   complexipy src/ --snapshot-create            # Create baseline for legacy code
+#
+# =============================================================================
+
+[tool.complexipy]
+# Paths to analyze (relative to project root)
+paths = ["src"]
+
+# Maximum cognitive complexity allowed per function
+# 15 is the SonarQube default, good starting point
+max-complexity-allowed = 15
+
+# Directories/files to exclude
+exclude = ["tests", "migrations", "vendor", ".venv"]
+
+# Suppress console output (useful in CI when using --output-json)
+quiet = false
+
+# Show all functions regardless of threshold
+ignore-complexity = false
+
+# Sort order for results: "asc" or "desc"
+sort = "desc"
+
+# Output options
+output-csv = false
+output-json = false
+
+
+# =============================================================================
+# pytest configuration (if using)
+# =============================================================================
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+
+
+# =============================================================================
+# Coverage configuration (if using)
+# =============================================================================
+
+[tool.coverage.run]
+source = ["src"]
+omit = ["tests/*", "*/__pycache__/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+]
