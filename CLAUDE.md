@@ -13,6 +13,8 @@ plugins/
     skills/                 # skill directories (SKILL.md + optional references/)
     commands/               # slash-command .md files
     hooks/                  # hook handlers (JS/Python) + hooks.json (acp-hooks, prompt-improver)
+exports/
+  <host>/                   # ports of selected plugins to non-Claude-Code hosts
 ```
 
 40 plugins (`codebase-xray` was named `deep-dive-analysis` until marketplace 14.0.0; its analysis artifact directory is still `.deep-dive/`, which is the stable downstream contract): clean-code, codebase-xray, tauri-development, react-development, xterm, ai-tooling, python-development, stripe, system-utils, messaging, research, business, project-setup, app-analyzer, typescript-development, csp, digital-marketing, senior-review, obsidian-development, browser-extensions, learning, marketplace-ops, acp-hooks, prompt-improver, codebase-mapper, rag-development, docs, testing, platform-engineering, ibkr-trading, mt5-trading, opentelemetry, docker, grabber-development, codebase-cleanup, libgdx-development, kotlin-development, pwa-expert, abstraction-architect, text-humanizer.
@@ -49,8 +51,9 @@ When changes modify plugins (agents, skills, commands), update the marketplace *
 
 1. **Bump plugin version** - increment `version` for the changed plugin in `.claude-plugin/marketplace.json`
 2. **Bump marketplace version** - increment `metadata.version` in the same file
-3. **Commit together** - stage both the plugin files and `marketplace.json` in one commit
-4. **Push to remote** - `git push` to `master`
+3. **Check the downstream exports** - if the changed plugin appears in the "Downstream exports" table below, mirror the change into `exports/` in the same commit. Skipping this is how the ports silently rot.
+4. **Commit together** - stage the plugin files, `marketplace.json`, and any `exports/` changes in one commit
+5. **Push to remote** - `git push` to `master`
 
 Key fields in `.claude-plugin/marketplace.json`:
 - `metadata.version`: overall marketplace version
@@ -359,3 +362,82 @@ Refresh the "Very fast" and "Fast" classes first if any are on the work queue; d
 ### When to upgrade a custom plugin to upstream-synced
 
 If during a refresh you discover that someone else's open-source repo now publishes content that overlaps significantly with one of our custom plugins, evaluate vendoring it instead of maintaining from scratch. Follow the "External-repository intake" workflow in this file, then move the plugin's row from this section's mental model into the "Upstream-synced plugins" sync table.
+
+---
+
+## Downstream exports
+
+The mirror image of "External-repository intake". That section covers content flowing *in* from other repos; this one covers our content flowing *out* to hosts that are not Claude Code. `exports/<host>/` holds those ports.
+
+**Direction is one-way: `plugins/` is the source of truth, `exports/` is derived.** Never edit an export and back-port to the plugin. If a fix belongs in both, make it in `plugins/` first, then mirror.
+
+**The obligation is scoped, not global.** Only the plugins in the table below feed an export, and inside those plugins only the listed files. A change to any of the other plugins, or to an unlisted file, needs no export work. Do not re-mirror the whole plugin because one line moved in a file that was never exported.
+
+### Active exports
+
+| Export | Host | Entry points |
+|---|---|---|
+| `exports/vscode/` | VS Code Copilot (`.github/skills/`, `.github/prompts/`, `.github/agents/`) | `/xray-team-analyze`, `/team-review` |
+
+### Source map for `exports/vscode/`
+
+| Source in `plugins/` | Derived in `exports/vscode/.github/` |
+|---|---|
+| `codebase-xray/skills/analyze/**` (SKILL.md, references, assets, scripts) | `skills/codebase-xray/**` |
+| `codebase-xray/commands/team-analyze.md` | `prompts/xray-team-analyze.prompt.md` + `skills/codebase-xray/references/workflow.md` |
+| `codebase-xray/agents/partition-{structure,behavior,quality}-worker.md` | `agents/xray-{structure,behavior,quality}-worker.agent.md` |
+| `codebase-xray/agents/partition-synthesizer.md` | `agents/xray-synthesizer.agent.md` |
+| `senior-review/agents/semantic-interconnect-mapper.md` | `agents/xray-interconnect-mapper.agent.md` |
+| `senior-review/agents/{security,code,logic-integrity,cleanup,ui-race,distributed-flow,api-contract}-auditor.md` | `agents/review-<same>.agent.md` |
+| `senior-review/agents/chicken-egg-detector.md` | `agents/review-chicken-egg-detector.agent.md` |
+| `senior-review/commands/team-review.md` | `prompts/team-review.prompt.md` + `skills/review-quality-gates/references/pipeline.md` |
+| `senior-review/skills/defect-taxonomy/**` | `skills/defect-taxonomy/**` |
+| `senior-review/skills/review-quality-gates/SKILL.md` | `skills/review-quality-gates/SKILL.md` |
+| `react-development/agents/react-performance-optimizer.md` | `agents/review-react-performance-optimizer.agent.md` |
+| `platform-engineering/agents/platform-reviewer.md` | `agents/review-platform-reviewer.agent.md` |
+| `abstraction-architect/agents/abstraction-architect.md` | `agents/review-abstraction-architect.agent.md` |
+| `abstraction-architect/skills/abstraction-architect/**` | `skills/abstraction-architect/**` |
+
+Export-only files with no source in `plugins/`, maintained directly in `exports/vscode/`: `agents/xray-orchestrator.agent.md`, `agents/review-orchestrator.agent.md`, `agents/review-generic-reviewer.agent.md`, `agents/review-verification-lens.agent.md`, `agents/review-completeness-critic.agent.md`, `skills/codebase-xray/hooks/xray_guard.py`, `README.md`. The two orchestrators and the three support agents exist because VS Code gates subagent dispatch behind an `agents:` allowlist and has no `general-purpose` subagent; there is nothing upstream to mirror them from.
+
+Deliberately NOT exported: `codebase-xray/commands/analyze.md`, `senior-review/commands/{code-review,pr-review,cleanup-dead-code}.md`, `abstraction-architect/commands/audit.md`, and every file of `react-development` and `platform-engineering` other than the single agent listed.
+
+### Adaptations to re-apply on every mirror
+
+A copied file is never correct as-is. Re-apply all of these:
+
+1. **Frontmatter conversion.** Claude Code `name` / `description` / `model: inherit` / `color` / `tools: Read, Write, Glob, Grep, Bash` becomes VS Code `name` / `description` / `user-invocable: false` / `tools:` (YAML list of namespaced ids) / `agents: []` / `hooks:`. Drop `model` and `color`; VS Code has neither. Rewrite `description` to drop TRIGGER WHEN / DO NOT TRIGGER WHEN routing: subagents are dispatched explicitly by an orchestrator, not auto-routed.
+2. **Tool names.** `Read` -> `read/readFile`, `Grep` -> `search/textSearch`, `Glob` -> `search/fileSearch`, `Write` -> `edit/createFile`, `Edit` -> `edit/editFiles`, `Bash` -> `execute/runInTerminal`, `WebFetch` -> `web/fetch`, Task-tool spawning -> `agent/runSubagent`. Applies to prose too (`Grep for X`, `` the `Read` tool ``), not only frontmatter. Watch for false positives: `import.meta.glob` in `cleanup-auditor` is Vite vocabulary, not a tool name.
+3. **Agent names.** `senior-review:<x>` -> `review-<x>`, X-ray workers -> `xray-<x>`, `semantic-interconnect-mapper` -> `xray-interconnect-mapper`. Every cross-agent reference in a body must resolve to an agent that exists in the export.
+4. **Plugin namespaces and commands that do not exist in the export.** `/senior-review:team-review` -> `/team-review`; `/senior-review:cleanup-dead-code` -> a phase label, since no fix command is exported; `typescript-development:` / `python-development:` / `clean-code:` skill pointers -> plain descriptions.
+5. **`${CLAUDE_PLUGIN_ROOT}`** -> the `$XRAY` probe over `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/`.
+6. **Task-status polling** (`TaskCreate` / `TaskList` / `TaskUpdate`) -> file-existence barriers verified with `#search/fileSearch`.
+7. **Team infrastructure** (`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS`, `agent-teams` prerequisites, `shutdown_request`) -> delete. VS Code subagents need no flag, no plugin, and no teardown.
+8. **`agent-teams:team-reviewer` fallbacks** -> `review-generic-reviewer` with the dimension named in the dispatch prompt.
+9. **The `PreToolUse` guard block** on every worker and reviewer, with `--confine .deep-dive` for X-ray workers and `--confine .team-review` for reviewers. Orchestrators do not declare it.
+
+### Divergences that must survive the mirror
+
+These are decisions, not drift. A sync that "fixes" them is a regression:
+
+- **No classic single-context X-ray.** `/codebase-xray:analyze` is not exported; the single-partition fallback covers it. `--phase N` is rejected with an explicit error.
+- **`/team-review` Phase 1a and 1b are collapsed into one X-ray run** at `--depth=lite`. The exported X-ray pipeline already emits `08-interconnect-map.md`, so the interconnect mapper is not run a second time. Phase 1 copies that file to `.team-review/02-interconnect.md`.
+- **Reviewers read the X-ray run directory**, never the `.deep-dive/` root mirror, which a concurrent run can republish mid-review.
+- **The API contracts dimension uses `review-api-contract-auditor`**, not a generic reviewer. Upstream ships the specialized agent but never wires it into `team-review`.
+- **The dead-code dimension resolves to `review-cleanup-auditor`.** The upstream command's Phase 0b and Phase 2 tables contradict each other on this.
+- **No model pinning on the verification lenses.** Upstream pins a cheaper model on lens 3; the correct Copilot model id varies per user, so the export leaves it to the picker.
+- **`review-cleanup-auditor` findings end with `Fix phase: <phase>`**, not a `cleanup-dead-code` invocation.
+- **The guard hook enforces only the unambiguous secret patterns.** `*secret*` and `*credential*` stay prompt-level, because `secrets_manager.py` is a legitimate analysis target.
+- **Phase 0b detection is expressed on search tools**, not a bash `grep`/`sed`/`awk` pipeline, so it works on Windows without a POSIX layer.
+
+### Versioning and verification
+
+The export carries its own `metadata.version` inside `skills/codebase-xray/SKILL.md`. Bump it when the exported content changes, independently of the marketplace version. `exports/` is not registered in `marketplace.json` and is not a plugin.
+
+Before committing an export change, re-run the checks in `exports/vscode/README.md` terms:
+
+- Every `.md` frontmatter parses as YAML, with no fields outside the VS Code schema for its type (skill / agent / prompt)
+- Every tool id in `tools:` and every `#tool` reference in prose is a real VS Code tool
+- Agent cross-references close in both directions: nothing referenced but undefined, nothing defined but unreferenced, nothing outside every `agents:` allowlist
+- `grep` the export for residual Claude Code coupling: `CLAUDE_PLUGIN_ROOT`, `CLAUDE_CODE_`, `Skill(`, `Teammate`, `TaskCreate`, `subagent_type`, `<plugin>:` namespaces. The only legitimate hits are in `README.md`, which names the originals on purpose.
+- The guard hook test suite passes: `python exports/vscode/.github/skills/codebase-xray/hooks/test_xray_guard.py` (36 cases across both `--confine` values, secret patterns, path edge cases, and fail-open behavior; runs from any working directory)
