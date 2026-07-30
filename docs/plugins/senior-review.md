@@ -1,6 +1,6 @@
 # Senior Review Plugin
 
-> Catch bugs before they ship. Nine specialized agents review code quality, security, UI timing, distributed flows, startup cycles, cross-component logic integrity, formal API contracts, and codebase hygiene in parallel. A semantic interconnect mapper turns codebases into a shared contract/invariant map consumable by every reviewer. Backed by a comprehensive defect taxonomy knowledge base with 140+ defect patterns and CWE/OWASP mappings. `/team-review` runs all of it as a single pipeline, with an adversarial verification panel and a completeness critic as quality gates before the report ships.
+> Catch bugs before they ship. Eight specialized agents review code quality, security, UI timing, distributed flows, startup cycles, cross-component logic integrity, formal API contracts, and codebase hygiene in parallel. They read a shared contract/invariant map built by `codebase-xray:semantic-interconnect-mapper`, which is why they find bugs that are invisible from local-only inspection. Backed by a comprehensive defect taxonomy knowledge base with 140+ defect patterns and CWE/OWASP mappings. `/team-review` runs all of it as a single pipeline, with an adversarial verification panel and a completeness critic as quality gates before the report ships.
 
 ## Agents
 
@@ -244,7 +244,7 @@ Multi-dimensional code review as a **4-phase pipeline**: context building first,
 
 **Always-on dimensions:** security, architecture, logic integrity (skipped under `--skip-interconnect`), codebase hygiene.
 
-**Conditional dimensions** (auto-detected): UI races, React performance, general performance, platform compliance, distributed flows, circular dependencies, testing quality, API contracts, data migrations, and abstraction/reuse (`abstraction-architect:abstraction-architect` in diff mode, only when that plugin is installed and the target resolves to a diff that adds code).
+**Conditional dimensions** (auto-detected): UI races, distributed flows, circular dependencies, and API contracts (`api-contract-auditor`, activated by a formal contract file such as `*.proto`, `openapi*.y*ml`, `*.graphql`, or `asyncapi*`, as well as by route and serializer changes) all resolve to specialized agents in this plugin. React performance, platform compliance, and abstraction/reuse resolve to agents in `react-development`, `platform-engineering`, and `abstraction-architect`, which are optional dependencies: when one is absent its dimension is skipped and reported as "not installed" rather than failing the review. General performance, testing quality, and data migrations resolve to the `agent-teams:team-reviewer` fallback with the dimension named in the prompt.
 
 ```
 /senior-review:team-review src/auth/                                # auto-detected dimensions

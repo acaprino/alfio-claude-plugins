@@ -1,8 +1,8 @@
 ---
 name: marketplace-audit
 description: >
-  Validate the integrity of any Claude Code plugin marketplace. Use PROACTIVELY before any commit that modifies plugin files or marketplace.json. Checks marketplace.json consistency, verifies all referenced files exist, validates frontmatter fields, detects orphaned plugins/skills/agents/commands, and reports naming convention violations.
-  TRIGGER WHEN: before any commit that modifies plugin files or marketplace.json; when the user asks to verify marketplace.json integrity, find orphan files, or check naming conventions in a Claude Code plugin marketplace.
+  Validate the integrity of any Claude Code plugin marketplace. Use PROACTIVELY before any commit that modifies plugin files or marketplace.json. Checks marketplace.json consistency, verifies all referenced files exist, validates frontmatter fields, detects orphaned plugins/skills/agents/commands, resolves the dependency graph and proves it acyclic, catches stale agent/skill/command counts restated in README and docs index tables, and reports naming convention violations.
+  TRIGGER WHEN: before any commit that modifies plugin files or marketplace.json; when the user asks to verify marketplace.json integrity, find orphan files, check dependency resolution or cycles, confirm the documented plugin counts still match, or check naming conventions in a Claude Code plugin marketplace.
   DO NOT TRIGGER WHEN: the task is AI-powered content quality review (use marketplace-review) or scaffolding new plugins (use marketplace-scaffold-plugin / skills-creator).
 ---
 
@@ -61,6 +61,16 @@ The script checks:
 8. **Version sanity**
    - All versions are valid semver (`MAJOR.MINOR.PATCH`)
    - `metadata.version` is present at the root
+9. **Dependency resolution and acyclicity**
+   - An unqualified `dependencies` entry must name a plugin in this marketplace
+   - A cross-marketplace entry must use the qualified `name@marketplace` form, which is checked for shape only, since it is unresolvable from here by design. A bare name silently resolves against the local marketplace and fails the whole plugin load, so the qualified form is mandatory, not stylistic
+   - The hard-dependency graph must be acyclic. Optional dependencies are excluded from the cycle walk on purpose: they exist precisely to express an edge that would otherwise close a loop
+   - External marketplaces are reported as info, grouped by which plugins require them
+10. **Documentation count drift**
+   - Per-plugin agent, skill, and command counts restated in `docs/README.md`'s index table and in `README.md`'s plugin table must match what marketplace.json declares
+   - Rows naming a plugin that is not registered, and registered plugins missing from a table that already lists the others, are both flagged
+   - Every `N plugins` phrase in `README.md`, `docs/README.md`, `CLAUDE.md`, and the marketplace `metadata.description` must match the real plugin count
+   - This is the check that catches the most common silent decay: adding or removing one file leaves every table that counted it stale, and nothing else fails. Each sub-check is skipped when the file or the table is absent, so it stays valid for marketplaces with a different documentation layout
 
 ### Step 3: Fix issues
 

@@ -40,7 +40,7 @@ Default anchor routing:
 | distributed-flows | `## Integration Hot-Spots` (HTTP / queue / IPC), `## Call Graph` (cross-service) |
 | chicken-egg | `## Assumptions` (initialization order), `## Integration Hot-Spots` (Env / config), `## Invariants` (cross-component) |
 | ui-races | `## Invariants` (temporal), `## Integration Hot-Spots` (UI state) |
-| api-contracts (future) | `## Contracts` (formal) |
+| api-contracts | `## Contracts` (formal). This is the only dimension whose primary anchor is the formal-contract section, which is why it resolves to `senior-review:api-contract-auditor` and not to a generic reviewer |
 | abstraction (diff mode) | none. This reviewer does not consume the interconnect map: it reads `.deep-dive/01-structure.md` + `02-interfaces.md` and hunts prior art across the codebase with Grep. Omit the anchors block from its prompt; `/team-review` passes it a named-inputs addendum instead |
 
 ### Prompt template for context-aware reviewers

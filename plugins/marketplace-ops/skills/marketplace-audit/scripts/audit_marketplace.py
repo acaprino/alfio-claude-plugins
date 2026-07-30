@@ -180,6 +180,109 @@ def set_frontmatter_field(filepath, field, value):
     return True
 
 
+DOC_INDEX_ROW = re.compile(
+    r"\|\s*\[([a-z][a-z0-9-]*)\]\(plugins/[^)]+\)\s*\|[^|]*\|[^|]*\|([^|]*)\|"
+)
+README_TABLE_ROW = re.compile(
+    r"\|\s*\*\*\[([a-z][a-z0-9-]*)\]\(docs/plugins/[^)]+\)\*\*\s*\|[^|]*\|"
+    r"\s*([\d-]+)\s*\|\s*([\d-]+)\s*\|\s*([\d-]+)\s*\|"
+)
+COUNT_PHRASE = re.compile(r"\b(\d{1,3})\s+plugins?\b")
+
+
+def _declared_counts(cell):
+    """Parse 'N agents, M skills, K commands' in any order, missing kinds as 0."""
+    found = {"agent": 0, "skill": 0, "command": 0}
+    for number, kind in re.findall(r"(\d+)\s+(agent|skill|command)s?", cell):
+        found[kind] = int(number)
+    return (found["agent"], found["skill"], found["command"])
+
+
+def audit_doc_counts(report, plugins):
+    """Cross-check per-plugin counts and the total in human-facing docs.
+
+    Documentation tables that restate what marketplace.json already declares
+    drift silently: adding or removing one agent file leaves every table that
+    counted it stale, and nothing fails. Every check here is skipped when the
+    file or the table is absent, so this stays valid for other projects.
+    """
+    real = {
+        p.get("name"): (
+            len(p.get("agents", [])),
+            len(p.get("skills", [])),
+            len(p.get("commands", [])),
+        )
+        for p in plugins
+    }
+    kinds = ("agents", "skills", "commands")
+
+    def compare(path, pattern, extract, label):
+        target = PROJECT_ROOT / path
+        if not target.exists():
+            return
+        rows = 0
+        for line in target.read_text(encoding="utf-8").splitlines():
+            match = pattern.match(line)
+            if not match:
+                continue
+            name = match.group(1)
+            if name not in real:
+                report.add("warning", f"{path}: {label} row '{name}' is not a registered plugin")
+                continue
+            rows += 1
+            declared = extract(match)
+            if declared != real[name]:
+                deltas = ", ".join(
+                    f"{kind} {d} vs {r}"
+                    for kind, d, r in zip(kinds, declared, real[name])
+                    if d != r
+                )
+                report.add(
+                    "warning",
+                    f"{path}: '{name}' count is stale ({deltas}; doc vs marketplace.json)",
+                )
+        if rows:
+            missing = sorted(set(real) - {
+                pattern.match(line).group(1)
+                for line in target.read_text(encoding="utf-8").splitlines()
+                if pattern.match(line)
+            })
+            if missing:
+                report.add(
+                    "warning",
+                    f"{path}: {label} is missing {len(missing)} plugin(s): {', '.join(missing)}",
+                )
+
+    compare(
+        "docs/README.md",
+        DOC_INDEX_ROW,
+        lambda m: _declared_counts(m.group(2)),
+        "index table",
+    )
+    compare(
+        "README.md",
+        README_TABLE_ROW,
+        lambda m: tuple(0 if v == "-" else int(v) for v in m.group(2, 3, 4)),
+        "plugin table",
+    )
+
+    # The total, which lives in prose and in the marketplace description string.
+    total = len(plugins)
+    for path in ("README.md", "docs/README.md", "CLAUDE.md", ".claude-plugin/marketplace.json"):
+        target = PROJECT_ROOT / path
+        if not target.exists():
+            continue
+        wrong = sorted({
+            int(n) for n in COUNT_PHRASE.findall(target.read_text(encoding="utf-8"))
+            if int(n) != total
+        })
+        for value in wrong:
+            report.add(
+                "warning",
+                f"{path}: says '{value} plugins' but marketplace.json registers {total}",
+            )
+
+
 def audit(fix=False):
     report = AuditReport()
 
@@ -444,15 +547,18 @@ def audit(fix=False):
     if claude_md.exists():
         try:
             claude_content = claude_md.read_text(encoding="utf-8")
-            # Look for "# <project-name>" header
-            header_match = re.search(r"^#\s+(\S+)", claude_content, re.MULTILINE)
-            if header_match:
-                claude_project_name = header_match.group(1)
-                if marketplace_name and claude_project_name != marketplace_name:
+            # Take the WHOLE header line, then slugify before comparing. Matching
+            # only the first token compares "Claude" against "claude-code-daodan"
+            # and warns on every project whose title is more than one word.
+            header_match = re.search(r"^#\s+(.+?)\s*$", claude_content, re.MULTILINE)
+            if header_match and marketplace_name:
+                header = header_match.group(1)
+                header_slug = re.sub(r"[^a-z0-9]+", "-", header.lower()).strip("-")
+                if header_slug != marketplace_name.lower():
                     report.add(
                         "warning",
                         f"Marketplace name '{marketplace_name}' does not match "
-                        f"CLAUDE.md project header '{claude_project_name}'",
+                        f"CLAUDE.md project header '{header}' (slug '{header_slug}')",
                     )
         except Exception:
             pass
@@ -520,22 +626,73 @@ def audit(fix=False):
         for kw, pnames in sorted(shared_kw.items()):
             report.add("info", f"Shared keyword '{kw}': {', '.join(pnames)}")
 
-    # Dependency validation
+    # Dependency validation.
+    #
+    # A dependency on a plugin in ANOTHER marketplace must use the qualified
+    # "name@marketplace" form: a bare name resolves against this marketplace and
+    # fails the whole plugin load. So an unqualified name has to exist locally,
+    # while a qualified one is unresolvable from here by definition and is only
+    # checked for shape.
     plugin_names = {p.get("name") for p in plugins}
+    external = {}
     for plugin in plugins:
         pname = plugin.get("name", "")
-        for dep in plugin.get("dependencies", []):
-            if dep not in plugin_names:
-                report.add(
-                    "critical",
-                    f"Plugin '{pname}': dependency '{dep}' not found in marketplace",
-                )
-        for dep in plugin.get("optionalDependencies", []):
-            if dep not in plugin_names:
-                report.add(
-                    "warning",
-                    f"Plugin '{pname}': optional dependency '{dep}' not found in marketplace",
-                )
+        for field, severity in (("dependencies", "critical"), ("optionalDependencies", "warning")):
+            for dep in plugin.get(field, []):
+                if "@" in dep:
+                    dep_name, _, market = dep.partition("@")
+                    if not dep_name or not market:
+                        report.add(
+                            severity,
+                            f"Plugin '{pname}': {field} entry '{dep}' is malformed; "
+                            f"the qualified form is 'name@marketplace'",
+                        )
+                    else:
+                        external.setdefault(market, set()).add(pname)
+                elif dep not in plugin_names:
+                    report.add(
+                        severity,
+                        f"Plugin '{pname}': {field} '{dep}' not found in marketplace. "
+                        f"If it lives in another marketplace, qualify it as '{dep}@<marketplace>'",
+                    )
+
+    for market, dependents in sorted(external.items()):
+        report.add(
+            "info",
+            f"External marketplace '{market}' required by: {', '.join(sorted(dependents))}",
+        )
+
+    # Hard-dependency graph must stay acyclic. A cycle is a load-order hazard,
+    # and the loader's behavior on one is unverified.
+    hard = {
+        p.get("name"): [d for d in p.get("dependencies", []) if "@" not in d]
+        for p in plugins
+    }
+    WHITE, GREY, BLACK = 0, 1, 2
+    color = {n: WHITE for n in hard}
+
+    def find_cycle(node, stack):
+        color[node] = GREY
+        stack.append(node)
+        for nxt in hard.get(node, []):
+            if color.get(nxt) == GREY:
+                return stack[stack.index(nxt):] + [nxt]
+            if color.get(nxt) == WHITE:
+                found = find_cycle(nxt, stack)
+                if found:
+                    return found
+        stack.pop()
+        color[node] = BLACK
+        return None
+
+    for node in sorted(hard):
+        if color[node] == WHITE:
+            cycle = find_cycle(node, [])
+            if cycle:
+                report.add("critical", f"Dependency cycle: {' -> '.join(cycle)}")
+                break
+
+    audit_doc_counts(report, plugins)
 
     report.print_report()
     return 1 if report.critical else 0

@@ -443,12 +443,17 @@ These are decisions, not drift. A sync that "fixes" them is a regression:
 - **No classic single-context X-ray.** `/codebase-xray:analyze` is not exported; the single-partition fallback covers it. `--phase N` is rejected with an explicit error.
 - **`/team-review` Phase 1a and 1b are collapsed into one X-ray run** at `--depth=lite`. The exported X-ray pipeline already emits `08-interconnect-map.md`, so the interconnect mapper is not run a second time. Phase 1 copies that file to `.team-review/02-interconnect.md`.
 - **Reviewers read the X-ray run directory**, never the `.deep-dive/` root mirror, which a concurrent run can republish mid-review.
-- **The API contracts dimension uses `review-api-contract-auditor`**, not a generic reviewer. Upstream ships the specialized agent but never wires it into `team-review`.
 - **No model pinning on the verification lenses.** Upstream pins a cheaper model on lens 3; the correct Copilot model id varies per user, so the export leaves it to the picker.
 - **The guard hook enforces only the unambiguous secret patterns.** `*secret*` and `*credential*` stay prompt-level, because `secrets_manager.py` is a legitimate analysis target.
 - **Phase 0b detection is expressed on search tools**, not a bash `grep`/`sed`/`awk` pipeline, so it works on Windows without a POSIX layer.
 
-Two former divergences became alignments in marketplace 16.0.0, when the plugins adopted what the export had already worked out. Do not re-add them to the list above: the dead-code dimension now resolves to `cleanup-auditor` in both of `team-review`'s tables, and `cleanup-auditor` findings now end with `Fix phase: <phase>` upstream too. The export needed no content change for either.
+Three former divergences became alignments across marketplace 16.0.0 and 16.1.0, when the plugins adopted what the export had already worked out. Do not re-add them to the list above:
+
+- The dead-code dimension resolves to `cleanup-auditor` in both of `team-review`'s tables.
+- `cleanup-auditor` findings end with `Fix phase: <phase>` upstream too.
+- The API contracts dimension resolves to `api-contract-auditor` upstream, and `review-quality-gates` no longer marks that dimension `(future)`. Upstream also gained the concrete contract-file detection globs the export had introduced, because the old path-only rule (`routes?`, `api/`, `endpoints?/`, `handlers?/`) never fired on a bare `openapi.yaml` or `schema.graphql` change, which is the specialized auditor's core case.
+
+The export needed no content change for any of the three.
 
 ### Full re-audit of the export
 

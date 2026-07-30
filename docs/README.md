@@ -44,6 +44,7 @@ The augmentation symbiote for Claude Code. Agents, skills, and commands for deve
 | [system-utils](plugins/system-utils.md) | utilities | File organization, duplicate detection, directory cleanup | 1 skill, 1 command |
 | [tauri-development](plugins/tauri-development.md) | development | Tauri 2 desktop/mobile - IPC optimization, Rust backend, cross-platform | 3 agents, 1 skill |
 | [testing](plugins/testing.md) | testing | TDD methodology, E2E testing patterns, behavior-driven test generation | 1 agent, 2 skills |
+| [text-humanizer](plugins/text-humanizer.md) | writing | Removes AI writing traces from prose in any language via 24 documented patterns. Zero-dependency leaf, consumed by digital-marketing, codebase-mapper, business, and clean-code | 1 agent, 1 skill, 1 command |
 | [typescript-development](plugins/typescript-development.md) | development | Hands-on TypeScript engineer agent, best practices, Knip dead code detection, and enterprise TypeScript mastery | 1 agent, 3 skills |
 | [xterm](plugins/xterm.md) | frontend | xterm.js terminal emulator - addons, PTY wiring, debugging, features | 1 skill, 2 commands |
 
