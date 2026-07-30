@@ -1,11 +1,12 @@
-# codebase-xray + team-review for VS Code Copilot
+# codebase-xray + team-review + superpowers for VS Code Copilot
 
-A VS Code Copilot port of two multi-agent pipelines from [acaprino/claude-code-daodan](https://github.com/acaprino/claude-code-daodan):
+A VS Code Copilot port of two multi-agent pipelines from [acaprino/claude-code-daodan](https://github.com/acaprino/claude-code-daodan), plus a port of the [obra/superpowers](https://github.com/obra/superpowers) development methodology:
 
 - **`/xray-team-analyze`**: systematic codebase analysis. Combines mechanical structure extraction with semantic understanding, producing ground-truth documentation of WHAT, WHY, HOW, and CONSEQUENCES, followed by a structured map of contracts, invariants, and integration hot-spots.
 - **`/team-review`**: multi-dimensional adversarial code review. Builds context with an X-ray pass, auto-detects which review dimensions the target warrants, dispatches up to 11 specialized reviewers in parallel, then runs a 3-lens verification panel and a completeness critic before reporting.
+- **the `superpowers` agent**: the development methodology itself. Fourteen skills covering brainstorming, planning, TDD, systematic debugging, subagent-driven execution, and code review, plus the five subagents those skills dispatch.
 
-The second builds on the first: `/team-review` Phase 1 runs the X-ray pipeline to produce the context its reviewers hunt violations against.
+The second builds on the first: `/team-review` Phase 1 runs the X-ray pipeline to produce the context its reviewers hunt violations against. The third is independent of both, and covers the work that happens before a review exists to run.
 
 Multi-language: Python, Java, JavaScript, TypeScript, SQL, PL/SQL, Rust.
 
@@ -66,12 +67,26 @@ python .github/skills/codebase-xray/hooks/test_xray_guard.py
 .github/
 ├── skills/
 │   ├── codebase-xray/          # X-ray skill: workflow, methodology, templates, 16 Python files
-│   │   ├── hooks/xray_guard.py # the optional PreToolUse guard, shared by both pipelines
+│   │   ├── hooks/xray_guard.py # the optional PreToolUse guard, shared by all three entry points
 │   │   └── ...
 │   ├── review-quality-gates/   # verification panel, completeness critic, context-sharing pattern
 │   │   └── references/pipeline.md   # the full 6-phase team-review workflow
 │   ├── defect-taxonomy/        # 140+ defect subcategories with CWE/OWASP mappings, 9 references
-│   └── abstraction-architect/  # unification vs wrong-abstraction theory, 5 references
+│   ├── abstraction-architect/  # unification vs wrong-abstraction theory, 5 references
+│   ├── using-superpowers/      # the 14 vendored methodology skills start here
+│   ├── brainstorming/          # + visual-companion.md and its mockup server
+│   ├── writing-plans/
+│   ├── executing-plans/
+│   ├── subagent-driven-development/   # + 3 POSIX helper scripts
+│   ├── dispatching-parallel-agents/
+│   ├── systematic-debugging/   # + root-cause-tracing, defense-in-depth, condition-based-waiting
+│   ├── test-driven-development/      # + writing-good-tests.md
+│   ├── requesting-code-review/
+│   ├── receiving-code-review/
+│   ├── verification-before-completion/
+│   ├── using-git-worktrees/
+│   ├── finishing-a-development-branch/
+│   └── writing-skills/         # + persuasion-principles, testing-skills-with-subagents
 ├── prompts/
 │   ├── xray-team-analyze.prompt.md
 │   └── team-review.prompt.md
@@ -89,12 +104,18 @@ python .github/skills/codebase-xray/hooks/test_xray_guard.py
     ├── review-abstraction-architect.agent.md
     ├── review-generic-reviewer.agent.md    # testing / migrations / general performance
     ├── review-verification-lens.agent.md   # Phase 4b, 3 per finding
-    └── review-completeness-critic.agent.md # Phase 4c
+    ├── review-completeness-critic.agent.md # Phase 4c
+    ├── superpowers.agent.md                # 6 methodology agents
+    ├── sp-implementer.agent.md
+    ├── sp-worker.agent.md
+    ├── sp-code-reviewer.agent.md
+    ├── sp-task-reviewer.agent.md
+    └── sp-re-reviewer.agent.md
 ```
 
-21 agents, 2 prompt files, 4 skills. Each worker's phase spec and output template live in its agent definition, not in the workflow references, so the orchestrators read only the role they need.
+27 agents, 2 prompt files, 18 skills. Each worker's phase spec and output template live in its agent definition, not in the workflow references, so the orchestrators read only the role they need.
 
-Only the two orchestrators are `user-invocable`. The other 19 agents stay out of the agents dropdown and declare `agents: []`, so none of them can spawn further subagents.
+Three agents are `user-invocable`: the two pipeline orchestrators and the `superpowers` driver. The other 24 stay out of the agents dropdown and declare `agents: []`, so none of them can spawn further subagents. The 14 methodology skills are user-invocable as `/skill-name`; the 4 pipeline skills are not, because their agents load them.
 
 ## Pipeline: `/xray-team-analyze`
 
@@ -166,6 +187,52 @@ Session output lands in `.team-review/` and stays there after the report. Nothin
 
 Two gates keep the findings honest. The **verification panel** judges each finding with three independent lenses (reachability, refutation, severity calibration) and needs 2 of the first 2 to vote REAL for a finding to survive; a tie keeps it alive, tagged `contested`. The **completeness critic** then asks what the review never examined, and may trigger exactly one bounded follow-up round.
 
+## Methodology: the `superpowers` agent
+
+Select **superpowers** from the agent picker (or type `/` and pick a skill directly) to run development work through the methodology instead of improvising it. The skills carry the method; the agent carries the dispatch.
+
+| Stage | Skill | Dispatches |
+|---|---|---|
+| Understand the problem | `brainstorming` | inline self-review |
+| Design the work | `writing-plans` | inline self-review |
+| Isolate the workspace | `using-git-worktrees` | none |
+| Build it, task by task | `subagent-driven-development` | `sp-implementer`, `sp-task-reviewer`, `sp-re-reviewer` |
+| Build it, single context | `executing-plans` | none |
+| Attack independent failures | `dispatching-parallel-agents` | `sp-worker` per domain |
+| Debug | `systematic-debugging` | `sp-worker` for independent hypotheses |
+| Test discipline | `test-driven-development` | none |
+| Review before merge | `requesting-code-review` | `sp-code-reviewer` |
+| Handle the feedback | `receiving-code-review` | none |
+| Prove it works | `verification-before-completion` | none |
+| Land it | `finishing-a-development-branch` | none |
+| Author new skills | `writing-skills` | none |
+
+Every skill is also user-invocable on its own: `/systematic-debugging`, `/test-driven-development`, and so on. Only the workflows that delegate need the agent, because VS Code refuses a dispatch to an agent the caller has not declared in its `agents:` allowlist, and the default chat agent declares none.
+
+Three of the skills carry POSIX shell helpers (`subagent-driven-development/scripts/`, `systematic-debugging/find-polluter.sh`, `brainstorming/scripts/start-server.sh`). On Windows they need Git Bash or WSL; each step that uses one also names a fallback that does not.
+
+### What was left out, and why
+
+| Upstream file | Why it is not here |
+|---|---|
+| `using-superpowers/references/{codex,gemini,pi,antigravity}-tools.md` | Platform adaptations for four harnesses that are not this one. Replaced by a VS Code section in the skill body. |
+| `systematic-debugging/{CREATION-LOG,test-academic,test-pressure-1,2,3}.md` | Skill-development artifacts: the pressure tests used to validate the skill, not runtime content. |
+| `writing-skills/anthropic-best-practices.md` | A copy of Anthropic's own documentation, not covered by the MIT license this bundle inherits. Linked from the skill instead. |
+| `brainstorming/spec-document-reviewer-prompt.md`, `writing-plans/plan-document-reviewer-prompt.md` | Vestigial in 6.2.0: both skills now run those reviews inline, and nothing dispatches the templates. |
+
+### Prior art
+
+Upstream does not support VS Code Copilot natively ([obra/superpowers#764](https://github.com/obra/superpowers/issues/764) tracks it). Several community ports exist and solve overlapping problems: [earchibald/vsc-superpowers](https://github.com/earchibald/vsc-superpowers), [faulkdev/github-copilot-superpowers](https://github.com/faulkdev/github-copilot-superpowers), [varunr89/superpowers-copilot](https://github.com/varunr89/superpowers-copilot), [DwainTR/superpowers-copilot](https://github.com/DwainTR/superpowers-copilot), and [jsloat/superpowers-for-copilot](https://github.com/jsloat/superpowers-for-copilot). This port derives from upstream directly so the provenance stays single-source, and so the skills share this bundle's guard hook and agent conventions.
+
+## Optional companions
+
+The bundle needs no other extension or plugin. Two capabilities that the Claude Code originals reach for through other plugins have first-class equivalents here, and neither is vendored:
+
+| Capability | In Claude Code | Here |
+|---|---|---|
+| Multi-agent teams | The upstream `agent-teams` plugin plus `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` | Native `#agent/runSubagent`. Already how every pipeline in this bundle dispatches. |
+| Browser automation | The `playwright-skill` plugin | [microsoft/playwright-mcp](https://github.com/microsoft/playwright-mcp), an MCP server. Preconfigured for the Copilot coding agent; add it under **Settings > AI > Manage MCP Servers** for local use. |
+
 ## Differences from the Claude Code plugins
 
 ### Both pipelines
@@ -209,6 +276,18 @@ Two gates keep the findings honest. The **verification panel** judges each findi
 
 The `.deep-dive/` layout, run registry, phase numbering, output file names, and `##` section anchors are unchanged, so anything that already consumes the Claude Code plugins' output reads this port's output without modification.
 
+### The superpowers skills
+
+| Area | obra/superpowers 6.2.0 | This port |
+|---|---|---|
+| Entry point | A SessionStart hook injects `using-superpowers` into every conversation | The skill is loaded by description match, or forced with `/using-superpowers`. The `superpowers` agent carries the same discipline for delegating work. |
+| Cross-skill references | `superpowers:brainstorming` namespace | Bare skill names, since the export has no plugin namespaces |
+| Subagent dispatch | Prompt templates pasted into an ad-hoc `general-purpose` subagent | Named agents (`sp-implementer`, `sp-task-reviewer`, `sp-re-reviewer`, `sp-code-reviewer`, `sp-worker`), because VS Code dispatches from an allowlist and has no generic subagent |
+| Fix rounds 1-3 | Resume the live implementer, which still holds the task context | A fresh `sp-implementer` every round. VS Code cannot message a subagent that already returned, so the report file carries the continuity. Upstream documents this same fallback for harnesses without resume. |
+| Model selection | The dispatch specifies the model per subagent, and an omitted model silently inherits the session's | The model is a property of the agent file. The sp-* agents ship unpinned, for the same reason the verification lenses do: the right Copilot model id varies per user. |
+| Skills directory | `~/.claude/skills/`, with per-harness paths in four reference files | `.github/skills/` here, with `.claude/skills/`, `.agents/skills/`, and `~/.copilot/skills/` also read by VS Code |
+| Guard hook | None | Every sp-* agent declares the `PreToolUse` guard without `--confine`, so the forbidden-files rule applies while the implementer stays free to edit the repo |
+
 ## Standards
 
 The skills follow the [Agent Skills specification](https://agentskills.io/specification), which VS Code implements. The prompt files and custom agents are VS Code specific. Validate a skill with:
@@ -221,4 +300,8 @@ Because VS Code also reads `.claude/skills/` and `.agents/skills/`, the skill di
 
 ## License
 
-MIT. Derived from the `codebase-xray`, `senior-review`, `react-development`, `platform-engineering`, and `abstraction-architect` plugins in [acaprino/claude-code-daodan](https://github.com/acaprino/claude-code-daodan).
+MIT.
+
+The two pipelines derive from the `codebase-xray`, `senior-review`, `react-development`, `platform-engineering`, and `abstraction-architect` plugins in [acaprino/claude-code-daodan](https://github.com/acaprino/claude-code-daodan).
+
+The 14 methodology skills and the six agents that serve them derive from [obra/superpowers](https://github.com/obra/superpowers), MIT License, Copyright (c) 2025 Jesse Vincent. Snapshot 2026-07-30 of upstream 6.2.0. Every derived file carries the attribution header.
