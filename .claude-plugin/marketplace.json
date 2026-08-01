@@ -5,8 +5,8 @@
     "email": ""
   },
   "metadata": {
-    "description": "Claude Code Daodan - 39 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), prose humanization, and pure-architecture audits (missed unification, wrong abstractions).",
-    "version": "16.2.4"
+    "description": "Claude Code Daodan - 38 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), prose humanization, and pure-architecture audits (missed unification, wrong abstractions).",
+    "version": "17.0.0"
   },
   "plugins": [
     {
@@ -173,7 +173,7 @@
       "name": "ai-tooling",
       "source": "./plugins/ai-tooling",
       "description": "AI development workflow - prompt engineering and optimization, and Claude Agent SDK integration guide",
-      "version": "4.0.0",
+      "version": "4.0.1",
       "author": {
         "name": "Alfio"
       },
@@ -789,30 +789,6 @@
         "./commands/marketplace-scaffold-plugin.md",
         "./commands/marketplace-review.md",
         "./commands/skills-validate.md"
-      ]
-    },
-    {
-      "name": "prompt-improver",
-      "source": "./plugins/prompt-improver",
-      "description": "Intelligent prompt optimization - enriches vague prompts with research-based clarifying questions before Claude Code executes them",
-      "version": "0.9.0",
-      "author": {
-        "name": "severity1"
-      },
-      "license": "MIT",
-      "keywords": [
-        "prompt",
-        "improvement",
-        "clarification",
-        "vague",
-        "research",
-        "questions",
-        "hook"
-      ],
-      "category": "ai-ml",
-      "strict": true,
-      "skills": [
-        "./skills/prompt-improver"
       ]
     },
     {

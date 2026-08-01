@@ -12,5 +12,6 @@
       "Bash(unzip -o \"C:\\\\Users\\\\alfio\\\\Downloads\\\\code-review.zip\" -d /d/tmp/code-review-skill)",
       "Read(//d/tmp/**)"
     ]
-  }
+  },
+  "enabledPlugins": {}
 }

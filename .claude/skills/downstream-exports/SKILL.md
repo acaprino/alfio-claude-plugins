@@ -8,7 +8,7 @@ description: >
   the verification scripts plus their known false positives.
   TRIGGER WHEN: the user asks to update, mirror, regenerate, or audit anything under
   `exports/`, or a change lands in any plugin file, since as of the 2026-07-30 catalog
-  build every plugin except `prompt-improver` feeds a bundle.
+  build every plugin feeds a bundle.
   DO NOT TRIGGER WHEN: pulling content IN from an external repo (use `external-repo-intake`
   or `upstream-sync`), or changing a file this skill's source map does not list.
 ---
@@ -25,16 +25,15 @@ The mirror image of the `external-repo-intake` skill. That skill covers content 
 |---|---|---|
 | `exports/vscode/` | VS Code Copilot (`.github/skills/`, `.github/prompts/`, `.github/agents/`) | A catalog of 36 bundles, published as one VS Code extension |
 
-**The obligation is now global, not scoped.** Until the 2026-07-30 catalog build only five plugins fed the export. Now every plugin except `prompt-improver` has a bundle, so any plugin change is a candidate mirror. Do not go looking for the old five-row source map: it is gone.
+**The obligation is now global, not scoped.** Until the 2026-07-30 catalog build only five plugins fed the export. Now every plugin has a bundle, so any plugin change is a candidate mirror. Do not go looking for the old five-row source map: it is gone.
 
 ## Source map
 
-One bundle per plugin, at `exports/vscode/<plugin>/.github/`, with `skills/<name>/` mirroring `skills/`, `agents/<name>.agent.md` mirroring `agents/<name>.md`, and `prompts/<name>.prompt.md` mirroring `commands/<name>.md`. Three exceptions:
+One bundle per plugin, at `exports/vscode/<plugin>/.github/`, with `skills/<name>/` mirroring `skills/`, `agents/<name>.agent.md` mirroring `agents/<name>.md`, and `prompts/<name>.prompt.md` mirroring `commands/<name>.md`. Two exceptions:
 
 | Exception | Detail |
 |---|---|
 | `_pipelines` | Carries three plugins whole: `codebase-xray`, `senior-review`, `abstraction-architect`. It also vendors 14 superpowers skills plus their 6 agents, whose upstream is `obra/superpowers`, not `plugins/`. It has its own README and its own `metadata.version`. |
-| `prompt-improver` | Not exported. It is a `UserPromptSubmit` hook; VS Code has no equivalent interception point. |
 | Plugin-root content | `research/scripts/webfetch.py` and `ai-tooling/references/reasoning-patterns.md` live outside `skills/` upstream and are mirrored **into** the consuming skill's directory. A copy loop that only walks `skills/` silently misses them and leaves dangling references. |
 
 Deliberately not exported, for reasons recorded in the catalog README: `/codebase-xray:analyze`, `/senior-review:code-review`, `/senior-review:pr-review`, `/abstraction-architect:audit`, and `/codebase-mapper:team-codebase-map`.

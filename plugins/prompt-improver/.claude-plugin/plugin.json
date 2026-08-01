@@ -1,9 +1,0 @@
-{
-  "name": "prompt-improver",
-  "description": "Intelligent prompt optimization -- enriches vague prompts with research-based clarifying questions before Claude Code executes them",
-  "version": "0.8.0",
-  "author": {
-    "name": "severity1"
-  },
-  "license": "MIT"
-}

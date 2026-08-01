@@ -26,7 +26,7 @@ When changes modify plugins (agents, skills, commands), update the marketplace *
 
 1. **Bump plugin version** - increment `version` for the changed plugin in `.claude-plugin/marketplace.json`
 2. **Bump marketplace version** - increment `metadata.version` in the same file
-3. **Mirror into the downstream export** - since the 2026-07-30 catalog build, `exports/vscode/` carries a bundle for every plugin except `prompt-improver`, so almost any plugin change needs mirroring. Load the `downstream-exports` skill and mirror into `exports/` in the same commit, then run its checker (`python .claude/skills/downstream-exports/scripts/check_export.py`). If an agent or prompt was added, renamed or removed, also regenerate the extension manifest (`python .claude/skills/downstream-exports/scripts/gen_extension_manifest.py`) and bump `version` in `exports/vscode/package.json`. Skipping this is how the ports silently rot.
+3. **Mirror into the downstream export** - since the 2026-07-30 catalog build, `exports/vscode/` carries a bundle for every plugin, so any plugin change needs mirroring. Load the `downstream-exports` skill and mirror into `exports/` in the same commit, then run its checker (`python .claude/skills/downstream-exports/scripts/check_export.py`). If an agent or prompt was added, renamed or removed, also regenerate the extension manifest (`python .claude/skills/downstream-exports/scripts/gen_extension_manifest.py`) and bump `version` in `exports/vscode/package.json`. Skipping this is how the ports silently rot.
 4. **Commit together** - stage the plugin files, `marketplace.json`, and any `exports/` changes in one commit
 5. **Push to remote** - `git push` to `master`
 
@@ -76,7 +76,7 @@ Four maintenance workflows live in `.claude/skills/` so they load only when the 
 
 ## Deliberately not vendored
 
-Six areas were removed and delegated to their upstreams because maintaining the local copy cost more than it returned (the first five were vendored copies handed back; `git-worktrees` was locally authored content retired in favor of equivalent upstream coverage). Do NOT re-import or re-create them, and do not add rows for them to the sync table in the `upstream-sync` skill on a future "upstream updates" pass. The README documents all six for users.
+Seven areas were removed and delegated to their upstreams because maintaining the local copy cost more than it returned (the first five were vendored copies handed back; `git-worktrees` was locally authored content retired in favor of equivalent upstream coverage; `prompt-improver` was a local JS re-port handed back to its upstream in 17.0.0). Do NOT re-import or re-create them, and do not add rows for them to the sync table in the `upstream-sync` skill on a future "upstream updates" pass. The README documents all seven for users.
 
 | Area | Upstream | Removed in |
 |---|---|---|
@@ -86,6 +86,7 @@ Six areas were removed and delegated to their upstreams because maintaining the 
 | Browser automation (`playwright-skill` plugin: 1 skill) | `lackeyjb/playwright-skill` | marketplace 11.0.0 |
 | Binary reverse engineering (`reverse-engineering` plugin: 3 agents, 4 skills) | `wshobson/agents` | marketplace 12.0.0 |
 | Git worktree parallel development (`git-worktrees` plugin: 1 agent, 1 skill, 1 command) | `obra/superpowers` (`using-git-worktrees` skill) | marketplace 13.0.0 |
+| Prompt-improver hook (`prompt-improver` plugin: 1 skill, 4 hook handlers) | `severity1/claude-code-prompt-improver` | marketplace 17.0.0 |
 
 As of marketplace 8.2.0, superpowers is a declared hard dependency of `ai-tooling` (`dependencies: ["superpowers@claude-plugins-official"]` in `marketplace.json`; cross-marketplace dependencies MUST use the qualified `name@marketplace` form, because a bare name resolves against this marketplace and fails the whole plugin load, which is what silently broke `ai-tooling` until marketplace 12.0.2). Any place that points at the superpowers planning skills says so unconditionally: load the skills, and if they are unavailable stop and tell the user to install superpowers (`claude plugin install superpowers@claude-plugins-official`). This supersedes the earlier rule that kept superpowers references conditional; do not reintroduce conditional phrasing.
 
@@ -93,7 +94,7 @@ One scoped exception to the superpowers row, taken on 2026-07-30: `exports/vscod
 
 On 2026-07-30 the export was restructured from one bundle into a **catalog of 36 bundles**, one per plugin, and the port was extended from 5 plugins to 38. Later the same day it was packaged as a **single VS Code extension**, because the per-project `cp -r` install was the thing users actually wanted gone. `exports/vscode/` is now both the extension root (`package.json`, `extension.js`, `uninstall.js`, `.vscodeignore`, `CHANGELOG.md`, `LICENSE`) and the catalog, and `exports/vscode/<plugin>/.github/` is still a bundle. `_pipelines` is the former single bundle and the only one carrying more than one plugin (`codebase-xray`, `senior-review`, `abstraction-architect`, plus the vendored superpowers content). Four consequences bind future work:
 
-- **The mirror obligation is global.** Every plugin except `prompt-improver` feeds a bundle, so step 3 of the marketplace workflow applies to almost every plugin change.
+- **The mirror obligation is global.** Every plugin feeds a bundle, so step 3 of the marketplace workflow applies to every plugin change.
 - **The bundles stay split on disk even though distribution merged.** The extension ships all 36, but each stays a self-contained `.github/` directory. That is what keeps the per-project install working for anyone who wants a narrower footprint, and what a future release would need to scope contributions per workspace. Do not flatten the directories into one tree.
 - **Agents and prompts are contributed; skills are copied.** `package.json` declares every agent and prompt path under `chatAgents` and `chatPromptFiles`, so adding, renaming or removing one means regenerating it with `python .claude/skills/downstream-exports/scripts/gen_extension_manifest.py`. Skills are deliberately absent from that manifest: `extension.js` copies whole skill directories into `~/.copilot/skills/` instead, because 45 of the 66 carry supporting files and a contributed skill loads only its `SKILL.md` ([microsoft/vscode#304721](https://github.com/microsoft/vscode/issues/304721), open). If that issue ships, the copy layer is what to delete.
 - **`marketplace-ops` and `ai-tooling/agent-sdk-builder` keep Claude Code vocabulary.** Their subject matter *is* Claude Code, so their tool names and `TRIGGER WHEN` labels are content. Never de-brand or tool-rename them; the `downstream-exports` checker excludes both.

@@ -2,16 +2,16 @@
 
 # Claude Code Daodan
 
-**39 specialized plugins that augment Claude Code into a specialized toolkit - so you spend less time prompting and more time shipping.**
+**38 specialized plugins that augment Claude Code into a specialized toolkit - so you spend less time prompting and more time shipping.**
 
 > The Daodan is the symbiote that enhances its host. This marketplace is the Daodan of Claude Code.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat)](LICENSE)
 [![Consistency](https://github.com/acaprino/claude-code-daodan/actions/workflows/consistency.yml/badge.svg)](https://github.com/acaprino/claude-code-daodan/actions/workflows/consistency.yml)
 [![Marketplace](https://img.shields.io/badge/dynamic/json?label=marketplace&prefix=v&query=%24.metadata.version&url=https%3A%2F%2Fraw.githubusercontent.com%2Facaprino%2Fclaude-code-daodan%2Fmaster%2F.claude-plugin%2Fmarketplace.json&style=flat&color=green)](.claude-plugin/marketplace.json)
-[![Plugins](https://img.shields.io/badge/plugins-39-orange?style=flat)](#plugins)
+[![Plugins](https://img.shields.io/badge/plugins-38-orange?style=flat)](#plugins)
 [![Agents](https://img.shields.io/badge/agents-66-purple?style=flat)](#plugins)
-[![Skills](https://img.shields.io/badge/skills-53-teal?style=flat)](#plugins)
+[![Skills](https://img.shields.io/badge/skills-52-teal?style=flat)](#plugins)
 [![Commands](https://img.shields.io/badge/commands-52-red?style=flat)](#plugins)
 
 </div>
@@ -102,7 +102,6 @@ More detail in [Browser automation (Playwright)](#browser-automation-playwright)
 | **[messaging](docs/plugins/messaging.md)** | RabbitMQ queue design and AMQP patterns | 1 | - | - |
 | **[csp](docs/plugins/csp.md)** | Scheduling, routing, assignment with OR-Tools CP-SAT | 1 | - | - |
 | **[browser-extensions](docs/plugins/browser-extensions.md)** | Firefox extensions with Manifest V2/V3, /firefox-scaffold /firefox-lint /firefox-publish | 1 | 1 | 3 |
-| **[prompt-improver](docs/plugins/prompt-improver.md)** | Enrich vague prompts with research-based questions | - | 1 | - |
 | **[docs](docs/plugins/docs.md)** | Craft top-tier README.md files | - | 1 | 1 |
 | **[testing](docs/plugins/testing.md)** | TDD methodology, E2E testing patterns, behavior-driven test generation | 1 | 2 | - |
 | **[platform-engineering](docs/plugins/platform-engineering.md)** | Cross-platform security (passkeys/WebAuthn, Electron Fuses), architecture, and performance rulebook + /platform-review | 1 | 1 | 1 |
@@ -278,6 +277,16 @@ As of marketplace 13.0.0, the `git-worktrees` plugin (1 agent, 1 skill, the `/wt
 
 Install instructions are in [Required dependencies](#required-dependencies); no extra marketplace is needed. The `/wt` lifecycle extras (pause/resume with session context, guided merge flow) retire without replacement: plain `git worktree` commands cover those cases. No plugin in this marketplace depended on `git-worktrees`, so nothing else changes.
 
+### Prompt improver (hook)
+
+As of marketplace 17.0.0, the `prompt-improver` plugin (1 skill, 4 hook handlers) is no longer vendored here. It was a JS re-port of its upstream's `UserPromptSubmit` nudge engine; the upstream installs directly and evolves faster than the port could track it:
+
+| Upstream | License | Covers |
+|----------|---------|--------|
+| [severity1/claude-code-prompt-improver](https://github.com/severity1/claude-code-prompt-improver) | MIT | Prompt clarity evaluation before execution, research-based clarifying questions, and the declarative nudge engine that replaced the original scripts |
+
+No plugin in this marketplace depended on `prompt-improver`, so nothing else changes.
+
 ---
 
 <details>
@@ -307,7 +316,7 @@ claude-code-daodan/
 │   │   ├── skills/            # SKILL.md + optional references/
 │   │   └── commands/          # slash-command .md files
 │   ├── senior-review/
-│   └── ...                    # 39 plugins total
+│   └── ...                    # 38 plugins total
 ├── LICENSE
 └── README.md
 ```
@@ -327,7 +336,7 @@ claude plugin install ./claude-code-daodan/plugins/python-development
 <details>
 <summary><b>Recommended Settings (skill visibility)</b></summary>
 
-With 39 plugins installed, Claude Code's default skill-listing budget can truncate the list of available skills shown at conversation start. Raise the fraction of context allocated to the skill listing in `~/.claude/settings.json`:
+With 38 plugins installed, Claude Code's default skill-listing budget can truncate the list of available skills shown at conversation start. Raise the fraction of context allocated to the skill listing in `~/.claude/settings.json`:
 
 ```json
 {

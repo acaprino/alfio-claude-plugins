@@ -150,9 +150,7 @@ Renaming those would make the material wrong. Anything that greps the export for
 
 ## Not exported
 
-**`prompt-improver`** is a `UserPromptSubmit` hook: it rewrites the user's prompt before the model sees it. VS Code exposes only `PreToolUse`-style hooks on agents, with no equivalent interception point, so there is nothing faithful to port.
-
-Everything else in the marketplace has a bundle. Three plugins have no bundle of their own because `_pipelines` already carries them whole: `codebase-xray`, `senior-review`, and `abstraction-architect`. Splitting them out would duplicate 68 files under a second set of names, and a user who installed both copies would get two variants of every reviewer competing for the same request.
+Every plugin in the marketplace has a bundle. Three plugins have no bundle of their own because `_pipelines` already carries them whole: `codebase-xray`, `senior-review`, and `abstraction-architect`. Splitting them out would duplicate 68 files under a second set of names, and a user who installed both copies would get two variants of every reviewer competing for the same request.
 
 Four commands stay unexported for reasons `_pipelines` already records: `/codebase-xray:analyze` (the single-partition fallback covers it), `/senior-review:code-review` and `/senior-review:pr-review` (no automated fix loop ships here), and `/abstraction-architect:audit` (the agent runs as a `/team-review` dimension).
 

@@ -1,5 +1,5 @@
 ---
-description: Analyze, evaluate, and optimize prompts for LLMs - improve clarity, reduce token usage, add structure, and test variations. Use when the user wants to review or optimize a prompt, system message, or agent instructions for clarity/tokens/reliability. Not for the user wants the prompt-improver hook (which runs automatically) or generating new prompts from scratch.
+description: Analyze, evaluate, and optimize prompts for LLMs - improve clarity, reduce token usage, add structure, and test variations. Use when the user wants to review or optimize a prompt, system message, or agent instructions for clarity/tokens/reliability. Not for generating new prompts from scratch.
 agent: prompt-engineer
 argument-hint: <prompt text or file path> [--model claude|gpt|gemini] [--optimize-for clarity|tokens|reliability] [--compare]
 ---
