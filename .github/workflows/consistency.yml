@@ -28,3 +28,31 @@ jobs:
 
       - name: VS Code extension manifest freshness
         run: python .claude/skills/downstream-exports/scripts/gen_extension_manifest.py --check
+
+  # Enforces steps 1 and 2 of the marketplace update workflow: a change under
+  # plugins/<name>/ must bump that plugin's version and metadata.version in
+  # marketplace.json within the same push or PR.
+  version-bumps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Version bumps over the pushed or PR range
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="${{ github.event.pull_request.base.sha }}"
+          else
+            BASE="${{ github.event.before }}"
+          fi
+          if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ] \
+             || ! git cat-file -e "$BASE" 2>/dev/null; then
+            echo "base revision unknown (branch creation or pruned history); skipping"
+            exit 0
+          fi
+          python scripts/check_version_bumps.py "$BASE" HEAD
