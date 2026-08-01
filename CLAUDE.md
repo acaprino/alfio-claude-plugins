@@ -50,7 +50,13 @@ Key fields in `.claude-plugin/marketplace.json`:
 
 ## Build / CI
 
-None. No tests, no build step, no CI pipeline. All content is static markdown.
+No build step, no runtime tests: all content is static markdown. There IS a consistency CI (`.github/workflows/consistency.yml`, runs on push to `master` and on PRs) that mechanically enforces contracts which used to live only in this file. Three checks, all stdlib-only Python runnable from the repo root:
+
+1. `python scripts/lint_dependency_graph.py` — the dependency-graph linter. Extracts runtime cross-plugin references (agent spawns, skill loads) from plugin bodies and enforces: every runtime reference is declared in `dependencies`/`optionalDependencies`; bare dependency names must exist in this marketplace (cross-marketplace deps use the qualified `name@marketplace` form); the forbidden edge `codebase-xray → senior-review` never reappears; spawns of optional-dependency agents carry a nearby skip note. `--refs` prints the extracted edge list.
+2. `python .claude/skills/downstream-exports/scripts/check_export.py` — the export structural checker (see the `downstream-exports` skill).
+3. `python .claude/skills/downstream-exports/scripts/gen_extension_manifest.py --check` — fails if `exports/vscode/package.json` contribution lists are stale relative to the bundles on disk.
+
+When a change legitimately trips the linter, fix the declaration (or the reference), not the linter; heuristic misreads go in its `ALLOWLIST` with a reason.
 
 ## Documentation
 

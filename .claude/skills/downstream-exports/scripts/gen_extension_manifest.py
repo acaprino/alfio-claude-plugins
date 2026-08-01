@@ -13,6 +13,9 @@ skill loads only its SKILL.md. extension.js copies whole skill directories into
 
 Hand-authored fields in package.json are preserved. Only contributes.chatAgents and
 contributes.chatPromptFiles are rewritten.
+
+With --check, nothing is written: the contribution lists are recomputed and compared
+against the manifest on disk, exiting 1 on drift. CI runs this mode.
 """
 
 import json
@@ -62,6 +65,8 @@ def main():
     if not ROOT.is_dir():
         sys.exit("run from the repository root: exports/vscode not found")
 
+    check_only = "--check" in sys.argv[1:]
+
     manifest_path = ROOT / "package.json"
     if manifest_path.is_file():
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -70,6 +75,22 @@ def main():
 
     agents = collect("agents", ".agent.md")
     prompts = collect("prompts", ".prompt.md")
+
+    if check_only:
+        contributes = manifest.get("contributes", {})
+        stale = []
+        if contributes.get("chatAgents") != agents:
+            stale.append("chatAgents")
+        if contributes.get("chatPromptFiles") != prompts:
+            stale.append("chatPromptFiles")
+        if stale:
+            sys.exit(
+                f"{manifest_path} is stale ({', '.join(stale)}): regenerate with "
+                "python .claude/skills/downstream-exports/scripts/gen_extension_manifest.py"
+            )
+        print(f"{manifest_path}: manifest is fresh "
+              f"({len(agents)} agents, {len(prompts)} prompts)")
+        return
 
     manifest.setdefault("contributes", {})
     manifest["contributes"]["chatAgents"] = agents

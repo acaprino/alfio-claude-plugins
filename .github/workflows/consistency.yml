@@ -1,0 +1,30 @@
+# Marketplace consistency checks. All content in this repo is static markdown,
+# so there is no build or test job: these are the mechanical versions of the
+# contracts documented in CLAUDE.md. Every script is stdlib-only Python and
+# runs from the repository root, so failures reproduce locally with the same
+# commands.
+name: consistency
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  consistency:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Dependency graph lint
+        run: python scripts/lint_dependency_graph.py
+
+      - name: VS Code export structural check
+        run: python .claude/skills/downstream-exports/scripts/check_export.py
+
+      - name: VS Code extension manifest freshness
+        run: python .claude/skills/downstream-exports/scripts/gen_extension_manifest.py --check
