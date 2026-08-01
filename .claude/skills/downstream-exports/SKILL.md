@@ -202,6 +202,6 @@ When the ask is to regenerate rather than mirror one change, **diff every file a
 
 Three versions live here and they are not the same number.
 
-- `exports/vscode/package.json` `version` is the extension's. Bump it on any content change: it drives the Marketplace update check, and `extension.js` compares it against the recorded manifest to decide whether to re-copy the skills. It currently tracks the marketplace version (`16.2.0`) for legibility, which is a convenience, not a constraint.
+- `exports/vscode/package.json` `version` is the extension's. Bump it on any content change: it drives the Marketplace update check, and `extension.js` compares it against the recorded manifest to decide whether to re-copy the skills. It currently tracks the marketplace version for legibility, which is a convenience, not a constraint.
 - `_pipelines` carries its own `metadata.version` inside `skills/codebase-xray/SKILL.md`. Bump it when its content changes, independently of the other two.
 - `exports/` is not registered in `marketplace.json` and is not a plugin, so it has no entry there.

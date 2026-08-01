@@ -7,11 +7,12 @@
 > The Daodan is the symbiote that enhances its host. This marketplace is the Daodan of Claude Code.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat)](LICENSE)
-[![Marketplace](https://img.shields.io/badge/marketplace-v13.0.0-green?style=flat)](.claude-plugin/marketplace.json)
+[![Consistency](https://github.com/acaprino/claude-code-daodan/actions/workflows/consistency.yml/badge.svg)](https://github.com/acaprino/claude-code-daodan/actions/workflows/consistency.yml)
+[![Marketplace](https://img.shields.io/badge/dynamic/json?label=marketplace&prefix=v&query=%24.metadata.version&url=https%3A%2F%2Fraw.githubusercontent.com%2Facaprino%2Fclaude-code-daodan%2Fmaster%2F.claude-plugin%2Fmarketplace.json&style=flat&color=green)](.claude-plugin/marketplace.json)
 [![Plugins](https://img.shields.io/badge/plugins-39-orange?style=flat)](#plugins)
 [![Agents](https://img.shields.io/badge/agents-66-purple?style=flat)](#plugins)
-[![Skills](https://img.shields.io/badge/skills-54-teal?style=flat)](#plugins)
-[![Commands](https://img.shields.io/badge/commands-53-red?style=flat)](#plugins)
+[![Skills](https://img.shields.io/badge/skills-53-teal?style=flat)](#plugins)
+[![Commands](https://img.shields.io/badge/commands-52-red?style=flat)](#plugins)
 
 </div>
 
@@ -288,7 +289,7 @@ Install instructions are in [Required dependencies](#required-dependencies); no 
 | **Skill** | A knowledge module Claude references automatically | Activates when the task matches its trigger keywords |
 | **Command** | A slash command that kicks off a workflow | `/code-review`, `/python-scaffold`, `/senior-review:team-review` |
 
-Plugins are pure Markdown with optional JS/Python helper scripts. No build step, no runtime framework.
+Plugins are pure Markdown with optional JS/Python helper scripts. No build step, no runtime framework. A consistency CI guards the marketplace contracts on every push: cross-plugin references must match declared dependencies, plugin changes must bump versions, and the VS Code export must stay in sync with its sources.
 
 </details>
 

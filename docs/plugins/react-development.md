@@ -37,7 +37,7 @@ Use the react-performance-optimizer agent to analyze [component/app]
 | Render time | < 16ms | < 16ms |
 | Memory baseline | N/A | < 100MB |
 
-**Agent delegation:** Reports CSS issues, animation jank, and layout structure as styling problems it does not own. Defers Tauri IPC/Rust to `tauri-desktop`.
+**Agent delegation:** Reports CSS issues, animation jank, and layout structure as styling problems it does not own. Reports native desktop backend work (Rust, IPC, shell configuration) as out of scope; the reverse route exists instead, with `tauri-development`'s `tauri-desktop` sending pure React performance work here.
 
 ---
 
