@@ -1,5 +1,9 @@
 # Changelog
 
+## 16.2.3
+
+- The React performance optimizer is decoupled from Tauri. It no longer hands off to the `tauri-development` bundle: native desktop backend work (Rust, IPC, shell configuration) is reported as out of scope instead. The direction that remains is the correct one, where `tauri-desktop` routes pure React performance work here.
+
 ## 16.2.0
 
 First release as a VS Code extension. The catalog was previously a set of 36 `.github/` bundles you copied into each project by hand.

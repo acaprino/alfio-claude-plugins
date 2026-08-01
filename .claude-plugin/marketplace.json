@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Claude Code Daodan - 39 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), prose humanization, and pure-architecture audits (missed unification, wrong abstractions).",
-    "version": "16.2.2"
+    "version": "16.2.3"
   },
   "plugins": [
     {
@@ -115,7 +115,7 @@
       "name": "react-development",
       "source": "./plugins/react-development",
       "description": "React performance optimization, React 19 API adoption, state management audit, bundle analysis, re-render detection, and Vercel best practices checklist",
-      "version": "1.9.11",
+      "version": "1.10.0",
       "author": {
         "name": "Alfio"
       },
@@ -132,9 +132,6 @@
       ],
       "category": "frontend",
       "strict": false,
-      "optionalDependencies": [
-        "tauri-development"
-      ],
       "agents": [
         "./agents/react-performance-optimizer.md"
       ],

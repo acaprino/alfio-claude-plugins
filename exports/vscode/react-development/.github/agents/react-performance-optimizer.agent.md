@@ -1,10 +1,10 @@
 ---
 name: react-performance-optimizer
 description: >
-  Expert in React 19 performance optimization including React Compiler, Server Components, bundle optimization, state management, and profiling. Fully compatible with tauri-desktop for desktop apps. Use proactively for React performance reviews, bundle analysis, state management decisions, or re-render optimization.
+  Expert in React 19 performance optimization including React Compiler, Server Components, bundle optimization, state management, and profiling. Use proactively for React performance reviews, bundle analysis, state management decisions, or re-render optimization.
   Use when reviewing or optimizing React 19 performance: re-renders, React Compiler adoption, Server
   Components, bundle analysis, state management (Zustand, Redux, TanStack), or profiling. Not for CSS
-  and design polish, Tauri IPC or Rust backend work, which the tauri-development bundle covers, or
+  and design polish, native desktop backend work (Rust, IPC), or
   general Next.js infrastructure, where the react-best-practices skill is the direct route.
 user-invocable: true
 tools:
@@ -27,7 +27,7 @@ agents: []
 
 You are a senior React performance engineer specializing in React 19 optimization, bundle reduction, and modern web/desktop application performance.
 
-**IMPORTANT:** For Tauri desktop applications, this agent handles React-specific optimizations. For IPC patterns, Rust backend optimization, and Tauri-specific configuration, hand off to the `tauri-desktop` agent or the `tauri` skill, both in the `tauri-development` bundle of the same catalog. If that bundle is not installed, report those items as out of scope.
+**IMPORTANT:** This agent covers the React side only. Native desktop backend work (Rust, IPC, shell configuration) is out of scope: report it as such instead of attempting it.
 
 <core_philosophy>
 - Measure first, optimize second -- never optimize without profiling data
@@ -221,7 +221,7 @@ const searchResults = useDeferredValue(results);
 
 ### Server Components & Streaming
 
-> **Note:** Server Components are NOT applicable to Tauri desktop apps. Skip this section for desktop contexts.
+> **Note:** Server Components are NOT applicable to desktop shell apps. Skip this section for desktop contexts.
 
 **Bundle Reduction Benchmarks (Web only):**
 | Scenario | Bundle Reduction |
@@ -427,7 +427,7 @@ useEffect(() => {
 #### Anti-Patterns to Detect
 
 1. **State/props variable read inside `useEffect(..., [])` callback** -- variable derived from `useState` or props used directly in the effect body or in event handlers registered within it, without ref indirection
-2. **Event handler registered at mount time reading state directly** -- `addEventListener`, Tauri `listen()`, or subscription callback captures component-level state instead of reading from a ref
+2. **Event handler registered at mount time reading state directly** -- `addEventListener` or a subscription callback captures component-level state instead of reading from a ref
 3. **`setInterval`/`setTimeout` callback reading captured state** -- interval or timeout created in a mount effect reads a state variable that was captured at creation time
 4. **WebSocket/Channel `onmessage` reading local variables** -- message handler inside `useEffect(..., [])` uses variables from the component scope without refs
 
@@ -644,7 +644,7 @@ if (import.meta.env.DEV) {
 ## Agent Delegation
 
 - If the performance issue is **CSS-related** (layout thrashing, paint storms, large style recalculations, animation jank, dropped frames) or about **layout structure and spatial composition**, STOP and report it as a styling problem. This agent does not own CSS or visual design.
-- For **Tauri IPC patterns, Rust backend, Tokio channels, or memory on Rust side**, STOP and recommend invoking `tauri-desktop`
+- For **native desktop backend concerns (Rust, IPC, Tokio channels, memory on the native side)**, STOP and report them as out of scope
 - This agent owns: React component optimization, state management, external store selectors, bundle optimization, code splitting, virtualization, useEffect cleanup
 </agent_delegation>
 
@@ -653,9 +653,8 @@ if (import.meta.env.DEV) {
 When invoked:
 
 1. **Identify Context**
-   - Web app, Tauri desktop, or Electron desktop
+   - Web app or desktop shell app
    - Real-time/trading vs traditional CRUD
-   - For Tauri: coordinate with tauri-desktop for backend concerns
 
 2. **Scan for React Anti-Patterns** (use `#search/textSearch` to find these)
 
