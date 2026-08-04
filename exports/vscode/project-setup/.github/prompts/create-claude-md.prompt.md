@@ -48,8 +48,9 @@ The agent will:
 2. Ask you questions about your workflow and preferences
 3. Clarify any ambiguous patterns found in the codebase
 4. Generate a concise, accurate `CLAUDE.md` following best practices
-5. Verify all claims against your actual codebase
-6. Review the draft with you before finalizing
+5. Detect whether the project has a test suite and, if so, offer the canonical `## Test-Suite Rules` block (on by default)
+6. Verify all claims against your actual codebase
+7. Review the draft with you before finalizing
 
 ## When to Use
 
@@ -118,6 +119,7 @@ Your new CLAUDE.md will:
 - Use regular hyphens `-` or `--`, never em dashes
 - Avoid internal duplication: each file path, pointer, and external resource appears once unless every occurrence carries a genuinely distinct directive (e.g., "where the doc lives" in one section and "what rule to follow when modifying it" in another, with an anti-pattern example). Before finalizing, the agent runs the Phase 4b dedup pass on the draft itself and surfaces any candidate duplicates as per-finding questions
 - Always embed the `## Working Principles` block inline (Think Before Coding, Simplicity First, Surgical Changes, Goal-Driven Execution, Centralize Shared Logic - with 3 deeper-meta-rule sub-bullets under each of principles 1-4) so Claude approaches every task with explicit assumptions, minimal code, surgical edits, verifiable success criteria, and DRY-by-default routing of shared logic through single utilities. The block is self-contained and never replaced with an external link
+- Embed the `## Test-Suite Rules` block inline when the project has a test suite, so agents extend existing tests instead of piling up parallel files, keep layers explicit, and never soften a failing assertion to get CI green
 
 ## Related Commands
 

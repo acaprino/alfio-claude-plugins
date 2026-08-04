@@ -18,6 +18,7 @@ Audits `CLAUDE.md` files by verifying ground truth, detecting obsolete informati
 - **Obsolescence Detection** - Finds outdated file paths, dependencies, commands
 - **Best Practices Compliance** - Checks instruction economy, conciseness, progressive disclosure
 - **Working Principles enforcement** - Every generated CLAUDE.md includes the canonical `## Working Principles` block inline (5 numbered principles with sub-bullets, distilled from Karpathy's guidelines plus a locally authored fifth principle); audits flag a missing or gutted block as a High-priority finding and offer to insert it
+- **Test-Suite Rules (conditional)** - When the project has a test suite, generated CLAUDE.md files also carry the canonical `## Test-Suite Rules` block (7 binding rules condensed from the `testing` plugin's hygiene knowledge base: search before writing, mirrored placement, explicit layers, behavior over implementation, no skip markers, assertion integrity, delete tests with the feature); offered on create (default yes), verified on audit, never flagged in projects without tests
 - **Tailored Creation** - Generates CLAUDE.md based on your preferences
 - **Guided Improvement** - Helps prioritize and apply fixes incrementally
 

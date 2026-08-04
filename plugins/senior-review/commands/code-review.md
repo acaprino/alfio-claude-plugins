@@ -635,6 +635,39 @@ Agent tool call:
 
 **Only run this agent if the diff touches test files** (`test_*`, `*_test.*`, `*.spec.*`, `*.test.*`, `conftest.py`, `fixtures/`, `__tests__/`).
 
+**Prefer `testing:test-suite-auditor` when the `testing` plugin is installed.** The `testing` plugin is an `optionalDependency` of `senior-review`: when it is not installed the spawn fails with "Agent type not found", so use the generic fallback block further below instead and note the reduced depth in the report, following the same degrade-not-fail rule as Agents D, I, and J.
+
+Preferred variant (testing plugin installed):
+
+```
+Agent tool call:
+  - description: "Testing review for senior-review command"
+  - subagent_type: "testing:test-suite-auditor"
+  - run_in_background: true
+  - prompt: |
+    [Include shared instructions: Intent + Diff Scope]
+
+    ## Changed Files
+    [list of changed test files + their corresponding source files]
+
+    ## Diff
+    [paste the git diff output]
+
+    ## Instructions
+    Run your detection pipeline scoped to the modules owned by the changed
+    test files (D2 to D8 on those modules; D1/D9 statistics suite-wide as
+    context only). Do NOT run the full suite inside this review (no-run
+    semantics): reuse CI history or existing report artifacts, and mark
+    anything unmeasured as such.
+
+    For each finding: severity (Critical/High/Medium/Low), file + line,
+    confidence (0-100), description, suggested fix path.
+
+    If the changed tests look solid, say so explicitly.
+```
+
+Fallback variant (testing plugin not installed):
+
 ```
 Agent tool call:
   - description: "Testing review for senior-review command"
@@ -1103,7 +1136,7 @@ gh pr comment {number} -F .code-review-tmp/temp_summary_comment.md
 
 After presenting the review (Step 5/6), offer an interactive fix cycle. Skip this step if the verdict is "Ready to merge" with no findings, or if the user didn't request fixes.
 
-The loop has two kinds of work: targeted fixes for review findings (7b) and bulk removal for codebase-hygiene findings (7c). The second is the only place in the marketplace that deletes at scale, so it carries its own pre-flight, gates, and per-phase commits. A review with no hygiene findings skips 7c entirely.
+The loop has two kinds of work: targeted fixes for review findings (7b) and bulk removal for codebase-hygiene findings (7c). The second is the only place in the marketplace that deletes application code at scale (bulk removal of test files belongs to the `testing` plugin's gated `/testing:test-consolidate` workflow), so it carries its own pre-flight, gates, and per-phase commits. A review with no hygiene findings skips 7c entirely.
 
 ### 7a. Severity Acceptance
 
@@ -1146,7 +1179,7 @@ Wait for all fixes to complete before proceeding.
 
 ### 7c. Cleanup Phases
 
-Run this sub-step only when the accepted findings include codebase-hygiene items (dead code, orphan assets, generated artifacts tracked in VCS, unused or phantom deps, stale docs). Skip it entirely otherwise. This is the only place in the marketplace that performs bulk removal; detection lives in `senior-review:cleanup-auditor` and in Agent B2 above, and neither of them deletes anything.
+Run this sub-step only when the accepted findings include codebase-hygiene items (dead code, orphan assets, generated artifacts tracked in VCS, unused or phantom deps, stale docs). Skip it entirely otherwise. This is the only place in the marketplace that performs bulk removal of application code (test-file bulk removal is owned by the `testing` plugin's gated `/testing:test-consolidate` workflow); detection lives in `senior-review:cleanup-auditor` and in Agent B2 above, and neither of them deletes anything.
 
 #### Critical rules
 

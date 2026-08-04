@@ -109,7 +109,7 @@ Analyze changed files and codebase to determine which review dimensions are rele
 
 Run these checks against the changed files and codebase to decide which extra reviewers to spawn.
 
-Three of these dimensions live in plugins declared as `optionalDependencies` of `senior-review`: React performance (`react-development`), platform compliance (`platform-engineering`), and abstraction (`abstraction-architect`). A dimension whose plugin is absent is **skipped with a note**, never spawned. Attempting the spawn fails with "Agent type not found" and takes the phase down with it. Report the reason as "not installed" so the user can tell it apart from a dimension that simply did not match. Everything else in the table resolves to `senior-review` agents or to the `agent-teams` fallback, both of which are hard dependencies and always present.
+Four of these dimensions live in plugins declared as `optionalDependencies` of `senior-review`: React performance (`react-development`), platform compliance (`platform-engineering`), abstraction (`abstraction-architect`), and testing quality (`testing`). A dimension whose plugin is absent is **skipped with a note**, never spawned. Attempting the spawn fails with "Agent type not found" and takes the phase down with it. Report the reason as "not installed" so the user can tell it apart from a dimension that simply did not match. Testing quality degrades differently from the other three: when the `testing` plugin is not installed the dimension is not skipped; it falls back to the generic `agent-teams:team-reviewer` with the testing dimension named in the prompt, which is the pre-testing-plugin behavior. Everything else in the table resolves to `senior-review` agents or to the `agent-teams` fallback, both of which are hard dependencies and always present.
 
 | Signal | Detection rule | Dimension activated | Agent |
 |--------|---------------|---------------------|-------|
@@ -119,7 +119,7 @@ Three of these dimensions live in plugins declared as `optionalDependencies` of 
 | **Fullstack app** | 2+ signals: frontend framework in `package.json`, backend framework config, API route definitions, `docker-compose.yml` with multiple services, Tauri/Electron config. Requires the `platform-engineering` plugin: when it is not installed, skip and note it under Skipped instead of spawning (the spawn would fail) | Platform compliance | `platform-engineering:platform-reviewer` |
 | **Multi-service / messaging** | Changed files touch API routes, message handlers, gRPC definitions, queue consumers/producers, or `docker-compose.yml` with multiple services | Distributed flows | `senior-review:distributed-flow-auditor` |
 | **Init/startup code** | Changed files touch startup sequences, dependency injection, config bootstrap, migration runners, or service registration | Circular dependencies | `senior-review:chicken-egg-detector` |
-| **Test files** | Changed files match `test_*`, `*_test.*`, `*.spec.*`, `*.test.*`, `conftest.py`, `__tests__/` | Testing quality | `agent-teams:team-reviewer` (testing dimension) |
+| **Test files** | Changed files match `test_*`, `*_test.*`, `*.spec.*`, `*.test.*`, `conftest.py`, `__tests__/`. Prefers the `testing` plugin: when it is not installed, do not attempt spawning `testing:test-suite-auditor` (the spawn would fail); fall back to `agent-teams:team-reviewer` (testing dimension) and note the fallback under the detection display | Testing quality | `testing:test-suite-auditor` |
 | **API files** | Changed files touch a formal contract file (`*.proto`, `openapi*.y*ml`, `swagger*`, `*.graphql`, `asyncapi*`, JSON Schema), or route definitions, serializers, or DTO/model declarations | API contracts | `senior-review:api-contract-auditor` |
 | **Migration files** | Changed files match database migration patterns (Alembic, Django, Rails, Prisma, SQL migrations) | Data migrations | `agent-teams:team-reviewer` (migration dimension) |
 | **Diff target adding code** | Target resolved to a diff in Phase 0 (git range, PR number, or uncommitted changes) AND the diff adds at least one function, method, class, module, constant table, or block longer than roughly five lines. Requires the `abstraction-architect` plugin: when it is not installed, skip and note it under Skipped instead of spawning (the spawn would fail). Never activated for plain file/directory targets: there is no diff to anchor on, and the whole-tree question belongs to `/abstraction-architect:audit` | Abstraction (**was the changed code already available elsewhere?** Prior art per added unit + Rule of Three on this diff) | `abstraction-architect:abstraction-architect` (mode `diff`) |
@@ -166,8 +166,9 @@ After detection, display the plan:
 Context detection complete:
   - Always: security, architecture, logic-integrity, codebase-hygiene
   - Detected: ui-races (6 .tsx files), react-perf (React project), distributed-flows (API routes + RabbitMQ), abstraction (diff adds 4 units)
-  - Skipped: platform (not fullstack), chicken-egg (no startup code), testing (no test files changed)
+  - Skipped: platform (not fullstack), chicken-egg (no startup code)
   - Skipped, plugin not installed: react-perf (react-development)
+  - Fallback: testing quality -> agent-teams:team-reviewer (testing plugin not installed)
 
 Pipeline plan:
   Phase 1a: codebase-xray (--depth=lite)
@@ -177,7 +178,7 @@ Pipeline plan:
   Phase 4:  report
 ```
 
-Show the last line only when a dimension matched but its plugin is missing. The two skip reasons are different signals: "not fullstack" means the code did not need the dimension, while "not installed" means it did and the review has a known blind spot.
+Show the last two lines only when a dimension matched but its plugin is missing. The three reasons are different signals: "not fullstack" means the code did not need the dimension, "not installed" means it did and the review has a known blind spot, and "Fallback" means the dimension still ran but generically, without the specialized auditor's detection pipeline.
 
 Mark `phase_0b_detection` complete in `state.json`.
 
@@ -244,7 +245,7 @@ If the skill is unavailable (not installed) or produces no output, halt the pipe
 | Platform compliance | `platform-engineering:platform-reviewer` |
 | Distributed flows | `senior-review:distributed-flow-auditor` |
 | Circular dependencies | `senior-review:chicken-egg-detector` |
-| Testing quality | `agent-teams:team-reviewer` |
+| Testing quality | `testing:test-suite-auditor` (fallback: `agent-teams:team-reviewer` when the `testing` plugin is not installed) |
 | API contracts | `senior-review:api-contract-auditor` |
 | Data migrations | `agent-teams:team-reviewer` |
 
@@ -292,6 +293,18 @@ Three things about this reviewer, because they invert the default reviewer contr
 - Its search space is the **whole codebase**, not the diff. The diff is only the anchor; the prior art it is hunting for is by definition in files that did not change. Do not scope it to the changed files.
 - It runs fine on `--depth=lite` output, since it consumes only `01-structure.md` and `02-interfaces.md`. Do not force `--deep` on its account.
 - `--skip-interconnect` does NOT skip it (that rule removes only `logic-integrity-auditor`). It runs with `deep_dive_path: none` and degrades to Glob plus Grep, reporting the reduced confidence in its Gaps section.
+
+**Testing dimension addendum.** `testing:test-suite-auditor` (when the `testing` plugin is installed; the `agent-teams:team-reviewer` fallback needs no addendum) partly inverts the default reviewer contract. Append this to its prompt:
+
+```
+Scope: run D2 to D8 only on tests owned by the changed modules; keep D1/D9
+statistics suite-wide for context. Do NOT run the full suite inside this
+review (no-run semantics): reuse metrics from CI history or existing report
+artifacts, and mark anything unmeasured as such. Findings in this command's
+severity format. Write your output to .team-review/findings-testing.md.
+```
+
+Two notes on why: a review is diff-anchored, so a whole-suite execution would dominate the phase's wall clock for findings mostly outside the diff; and suite-wide inventory statistics still matter because parallel-file and cross-layer-duplicate findings are invisible when only the changed test file is read.
 
 ### Spawn and task creation
 

@@ -271,7 +271,7 @@ public class MovementSystem extends IteratingSystem {
 ## Synergies
 
 - **java/kotlin language support**: pair with general Java/Kotlin best practices; libGDX itself ships idiomatic Java
-- **testing:tdd**: GameTest/HeadlessApplication for unit-testing render-free logic; integration tests for systems
+- **mattpocock-skills:tdd** (upstream mattpocock/skills): GameTest/HeadlessApplication for unit-testing render-free logic; integration tests for systems
 - **docker:multi-stage-dockerfile**: for headless server-side gameplay simulation or build CI containers
 - For parallel Screen/ECS/asset implementation across multiple agents, the upstream agent-teams plugin (wshobson/agents) provides `/agent-teams:team-feature`.
 

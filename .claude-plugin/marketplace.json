@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Claude Code Daodan - 38 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), prose humanization, and pure-architecture audits (missed unification, wrong abstractions).",
-    "version": "17.1.0"
+    "version": "18.0.0"
   },
   "plugins": [
     {
@@ -208,7 +208,7 @@
       "name": "python-development",
       "source": "./plugins/python-development",
       "description": "Python development toolkit - TDD with pytest, code refactoring with complexity metrics, performance profiling, async patterns, uv package management, dead code detection, comment auditing, project scaffolding, deep Pydantic v2.13 guide (validators/serializers/strict/performance/security/PydanticAI+Logfire) with v1 migration, and /python-audit consolidated quality report",
-      "version": "1.21.5",
+      "version": "1.21.6",
       "author": {
         "name": "Alfio"
       },
@@ -416,8 +416,8 @@
     {
       "name": "project-setup",
       "source": "./plugins/project-setup",
-      "description": "Project configuration and setup tools including CLAUDE.md creation and maintenance with ground truth validation. The maintain flow preserves existing references and information by default - removal requires cross-verification proving the content false or obsolete (else: keep, extract to docs/, or ask the user) - and surfaces every single drift to the user via AskUserQuestion before applying any change (no batch-auto-fix, default on unanswered = leave unchanged). Includes a Phase 4b internal-duplication detection pass: file paths, pointers, and external resources are counted across the document; reference outliers (one path appearing N>1 times while peers appear once), conceptual restatements, and weak-justification duplicates (e.g., 'scannability' for jumping readers) are surfaced as per-drift questions with all N occurrences, peer-group comparison, and concrete merge/keep/cross-reference/extract options. Dedup merges are treated as deletions and require explicit per-item approval. Enforces a hard 40,000-character cap on CLAUDE.md (Claude Code performance warning threshold) by extracting bloated sections to docs/ via thin pointers. The project-structure section is required to document the EVERGREEN shape (top-level layout + repeating structural patterns + role per category), not an exhaustive file-by-file tree; file-by-file annotation is justified only where names alone are ambiguous, where the file is a key entry point, or to disambiguate siblings. Exhaustive file-by-file trees in existing CLAUDE.md files are flagged as Medium consolidation candidates (high decay risk, tokens without evergreen value) and surfaced as per-finding questions (consolidate / extract to docs/ / keep / skip), never collapsed autonomously. Generated CLAUDE.md files always include a canonical Working Principles section with 5 principles (4 inspired by upstream agentic-coding meta-rules: Think Before Coding, Simplicity First, Surgical Changes, Goal-Driven Execution; plus the locally authored Centralize Shared Logic for DRY / Single Source of Truth across external calls and cross-cutting concerns). Each of principles 1-4 ships with 3 inline sub-bullets covering the deeper meta-rules (root-cause analysis, evergreen tests, surgical diffs) so the block is self-contained and never linked out. The create/maintain flows auto-detect .deep-dive/ output and offer to ingest it as the technical-reference backbone.",
-      "version": "1.17.3",
+      "description": "Project configuration and setup tools including CLAUDE.md creation and maintenance with ground truth validation. The maintain flow preserves existing references and information by default - removal requires cross-verification proving the content false or obsolete (else: keep, extract to docs/, or ask the user) - and surfaces every single drift to the user via AskUserQuestion before applying any change (no batch-auto-fix, default on unanswered = leave unchanged). Includes a Phase 4b internal-duplication detection pass: file paths, pointers, and external resources are counted across the document; reference outliers (one path appearing N>1 times while peers appear once), conceptual restatements, and weak-justification duplicates (e.g., 'scannability' for jumping readers) are surfaced as per-drift questions with all N occurrences, peer-group comparison, and concrete merge/keep/cross-reference/extract options. Dedup merges are treated as deletions and require explicit per-item approval. Enforces a hard 40,000-character cap on CLAUDE.md (Claude Code performance warning threshold) by extracting bloated sections to docs/ via thin pointers. The project-structure section is required to document the EVERGREEN shape (top-level layout + repeating structural patterns + role per category), not an exhaustive file-by-file tree; file-by-file annotation is justified only where names alone are ambiguous, where the file is a key entry point, or to disambiguate siblings. Exhaustive file-by-file trees in existing CLAUDE.md files are flagged as Medium consolidation candidates (high decay risk, tokens without evergreen value) and surfaced as per-finding questions (consolidate / extract to docs/ / keep / skip), never collapsed autonomously. Generated CLAUDE.md files always include a canonical Working Principles section with 5 principles (4 inspired by upstream agentic-coding meta-rules: Think Before Coding, Simplicity First, Surgical Changes, Goal-Driven Execution; plus the locally authored Centralize Shared Logic for DRY / Single Source of Truth across external calls and cross-cutting concerns). Each of principles 1-4 ships with 3 inline sub-bullets covering the deeper meta-rules (root-cause analysis, evergreen tests, surgical diffs) so the block is self-contained and never linked out. The create/maintain flows auto-detect .deep-dive/ output and offer to ingest it as the technical-reference backbone. When the project has a test suite, generated CLAUDE.md files also carry a canonical Test-Suite Rules block (7 binding rules condensed from the testing plugin's hygiene knowledge base: search before writing, mirrored placement, explicit layers, behavior over implementation, no skip markers, assertion integrity, delete tests with the feature), offered on create and verified on audit; projects without tests do not get the block.",
+      "version": "1.18.0",
       "author": {
         "name": "Alfio"
       },
@@ -605,8 +605,8 @@
     {
       "name": "senior-review",
       "source": "./plugins/senior-review",
-      "description": "Multi-agent code review orchestration with unified code auditing (architecture, failure flow, pattern analysis, scoring), security auditing, UI race condition detection, distributed flow analysis, platform engineering review, codebase-hygiene auditing (dead code + orphan assets + generated artifacts in VCS + phantom/unused deps + barrel-file and eager-bundle bloat + stale documentation and historical artifacts), a lite dead-code and VCS-hygiene pass in code-review and pr-review plus incremental-phase removal inside the code-review fix loop with commit-per-category and build+test gates, logic-integrity auditing for cross-component contract violations driven by the interconnect map that codebase-xray produces, git blame/history analysis, finding validation with false-positive filtering, committable PR suggestions, pre-review skip logic, intent-driven review, confidence gating, cross-agent deduplication, pre-existing issue separation, verdict system, interactive fix loop, and conditional reviewers for testing quality, API contracts, and data migrations. Backed by a comprehensive defect taxonomy knowledge base (140+ defect patterns, CWE/OWASP mappings, plus a dedicated logic-integrity reference).",
-      "version": "7.1.1",
+      "description": "Multi-agent code review orchestration with unified code auditing (architecture, failure flow, pattern analysis, scoring), security auditing, UI race condition detection, distributed flow analysis, platform engineering review, codebase-hygiene auditing (dead code + orphan assets + generated artifacts in VCS + phantom/unused deps + barrel-file and eager-bundle bloat + stale documentation and historical artifacts), a lite dead-code and VCS-hygiene pass in code-review and pr-review plus incremental-phase removal inside the code-review fix loop with commit-per-category and build+test gates, logic-integrity auditing for cross-component contract violations driven by the interconnect map that codebase-xray produces, git blame/history analysis, finding validation with false-positive filtering, committable PR suggestions, pre-review skip logic, intent-driven review, confidence gating, cross-agent deduplication, pre-existing issue separation, verdict system, interactive fix loop, and conditional reviewers for testing quality (the testing plugin's test-suite-auditor when installed, generic fallback otherwise), API contracts, and data migrations. Backed by a comprehensive defect taxonomy knowledge base (140+ defect patterns, CWE/OWASP mappings, plus a dedicated logic-integrity reference).",
+      "version": "7.2.0",
       "author": {
         "name": "Alfio"
       },
@@ -640,7 +640,8 @@
         "react-development",
         "platform-engineering",
         "python-development",
-        "typescript-development"
+        "typescript-development",
+        "testing"
       ],
       "agents": [
         "./agents/code-auditor.md",
@@ -916,34 +917,43 @@
     {
       "name": "testing",
       "source": "./plugins/testing",
-      "description": "Language-agnostic testing toolkit - TDD methodology with red-green-refactor loop, E2E testing patterns with Playwright and Cypress, and a test-writer agent that generates behavior-driven test suites",
-      "version": "1.2.8",
+      "description": "Test-suite hygiene and generation toolkit - binding test-hygiene rules (search-before-write protocol, mirror-the-source placement, one test file per source file, explicit layers with budgets, no skip markers, assertion integrity, delete tests with the feature), a report-only test-suite-auditor agent (orphan, skipped, failing, flaky, duplicate, contradictory, implementation-coupled and never-failing test detection plus layer and runtime/coverage distribution), /test-audit with a versioned TEST_AUDIT.md and gated quarantine to tests/_quarantine/, /test-consolidate with behavior-inventory approval, same-commit rewrite plus delete and a coverage gate, and a test-writer agent that generates behavior-driven test suites and extends existing test files instead of creating parallel ones. TDD methodology and browser E2E patterns are delegated to hard dependencies: mattpocock-skills (tdd) and developer-essentials (e2e-testing-patterns)",
+      "version": "2.0.0",
       "author": {
         "name": "Alfio"
       },
       "license": "MIT",
       "keywords": [
         "testing",
+        "test-hygiene",
+        "test-audit",
+        "quarantine",
+        "test-consolidation",
+        "flaky-tests",
+        "mutation-testing",
         "tdd",
         "e2e",
-        "playwright",
-        "cypress",
         "unit-tests",
         "integration-tests",
         "test-generation",
-        "red-green-refactor",
-        "behavior-driven",
-        "visual-regression",
-        "accessibility"
+        "behavior-driven"
       ],
       "category": "testing",
       "strict": false,
+      "dependencies": [
+        "mattpocock-skills@mattpocock",
+        "developer-essentials@claude-code-workflows"
+      ],
       "agents": [
-        "./agents/test-writer.md"
+        "./agents/test-writer.md",
+        "./agents/test-suite-auditor.md"
       ],
       "skills": [
-        "./skills/tdd",
-        "./skills/e2e-testing-patterns"
+        "./skills/test-hygiene"
+      ],
+      "commands": [
+        "./commands/test-audit.md",
+        "./commands/test-consolidate.md"
       ]
     },
     {
@@ -1053,7 +1063,7 @@
       "name": "libgdx-development",
       "source": "./plugins/libgdx-development",
       "description": "libGDX cross-platform game development - project generation via gdx-liftoff, rendering pipeline (SpriteBatch, TextureAtlas, viewports), Scene2D + Ashley ECS architecture, Box2D physics, AssetManager lifecycle, Screen management, Tiled maps, and deployment to Desktop (LWJGL3), Android, iOS (RoboVM), and HTML5 (GWT/TeaVM); includes libGDX 1.14.0 migration notes and a /libgdx-audit command",
-      "version": "1.0.4",
+      "version": "1.0.5",
       "author": {
         "name": "Alfio"
       },

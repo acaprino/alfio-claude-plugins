@@ -1,7 +1,7 @@
 ---
 name: test-writer
 description: >
-  Generate tests for existing code or guide TDD for new features. Analyzes targets (function, class, module, area) and produces behavior-driven test suites. Language-agnostic - auto-detects test framework from project config.
+  Generate tests for existing code or guide TDD for new features. Analyzes targets (function, class, module, area) and produces behavior-driven test suites. Language-agnostic - auto-detects test framework from project config. Follows the test-hygiene search-before-write protocol: extends existing test files instead of creating parallel ones.
   Use when the user asks to write tests, add test coverage, or work test-first.
 user-invocable: true
 tools:
@@ -35,6 +35,18 @@ Before writing any test, apply this mental model:
 4. **The AAA Pattern:** Every test must strictly follow Arrange, Act, Assert. Visually separate these sections with newlines.
 5. **Deterministic Execution:** Tests must not depend on external APIs, local time zones, or execution order.
 
+## SEARCH BEFORE WRITE (BINDING)
+
+Before creating ANY test file, consult the `test-hygiene` skill of this bundle and run its search-before-write protocol (`references/prevention-rules.md`, rule 1):
+
+1. Derive the expected test path from the source path under the project's convention; if a file exists there, extend it.
+2. File-search the test tree (`search/fileSearch`) for name variants of the target (`test_<name>*`, `<name>.test.*`, `<name>.spec.*`, `<name>_test.*`).
+3. Text-search the test tree (`search/textSearch`) for imports of the target module.
+4. Any hit means EXTEND that file (new case in an existing group, or a new group in the file). Creating a parallel test file for an already-tested source file is forbidden.
+5. Zero hits on all three is the only situation that justifies a new file; state the evidence ("searched X, found nothing") when creating it, and place it at the mirrored path in the correct layer.
+
+Two more rules from the same protocol bind every mode below: never add a skip marker to get a suite green, and never weaken an existing assertion (tolerance widening, equality to truthiness, assert deletion) to make a failing test pass. A failing assertion is a signal about the code, not an obstacle in the test.
+
 ---
 
 # MODE 1: GENERATION MODE (Default)
@@ -42,6 +54,7 @@ Before writing any test, apply this mental model:
 Use this when the user points to existing code and asks for tests or coverage.
 
 ## Step 1: Context & Discovery
+- Run the SEARCH BEFORE WRITE protocol above. Extending an existing test file is the default; creating a file is the exception that requires the protocol's zero-hit evidence.
 - Identify the target (Function, Class, Module).
 - Detect the test framework by searching for config files (`package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`).
 - Analyze the public API surface. What are the inputs? What are the side effects?
@@ -98,6 +111,9 @@ Use this when the user explicitly requests "TDD", "red-green-refactor", or is bu
 - **BAD: Horizontal Slicing in TDD:** Writing 10 failing tests at once. (TDD must be done one test at a time).
 - **BAD: Testing Private Methods:** Testing `_helper_function()` instead of testing the public `calculate_total()` that uses it.
 - **BAD: Hardcoded Golden Values:** Asserting exact computed results (`assert total == 660`) instead of invariants or tolerances. Use `pytest.approx`, derive expected values from inputs, or assert contracts (within tolerance of target, sum of parts equals total). Exact values are only appropriate for pure arithmetic, deterministic serialization, and lookup tables.
+- **BAD: The Parallel File:** Creating `test_foo_extra.py` (or `foo.more.test.ts`) beside an existing `test_foo.py` because reading the existing file felt expensive. One test file per source file; extend the existing one.
+- **BAD: The Skip Escape:** Adding `.skip`/`xfail`/`@Disabled` to a failing test to get the suite green. Fix it, or hand it to the quarantine workflow of `/test-audit --fix` with a tracked reason.
+- **BAD: The Softened Assert:** Widening a tolerance, swapping equality for truthiness, or deleting an assert so CI passes. Fix the code, or change the expectation explicitly with the justification in the commit message.
 
 # OUTPUT FORMAT
 

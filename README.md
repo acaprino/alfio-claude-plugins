@@ -10,9 +10,9 @@
 [![Consistency](https://github.com/acaprino/claude-code-daodan/actions/workflows/consistency.yml/badge.svg)](https://github.com/acaprino/claude-code-daodan/actions/workflows/consistency.yml)
 [![Marketplace](https://img.shields.io/badge/dynamic/json?label=marketplace&prefix=v&query=%24.metadata.version&url=https%3A%2F%2Fraw.githubusercontent.com%2Facaprino%2Fclaude-code-daodan%2Fmaster%2F.claude-plugin%2Fmarketplace.json&style=flat&color=green)](.claude-plugin/marketplace.json)
 [![Plugins](https://img.shields.io/badge/plugins-38-orange?style=flat)](#plugins)
-[![Agents](https://img.shields.io/badge/agents-66-purple?style=flat)](#plugins)
-[![Skills](https://img.shields.io/badge/skills-52-teal?style=flat)](#plugins)
-[![Commands](https://img.shields.io/badge/commands-52-red?style=flat)](#plugins)
+[![Agents](https://img.shields.io/badge/agents-67-purple?style=flat)](#plugins)
+[![Skills](https://img.shields.io/badge/skills-51-teal?style=flat)](#plugins)
+[![Commands](https://img.shields.io/badge/commands-54-red?style=flat)](#plugins)
 
 </div>
 
@@ -103,7 +103,7 @@ More detail in [Browser automation (Playwright)](#browser-automation-playwright)
 | **[csp](docs/plugins/csp.md)** | Scheduling, routing, assignment with OR-Tools CP-SAT | 1 | - | - |
 | **[browser-extensions](docs/plugins/browser-extensions.md)** | Firefox extensions with Manifest V2/V3, /firefox-scaffold /firefox-lint /firefox-publish | 1 | 1 | 3 |
 | **[docs](docs/plugins/docs.md)** | Craft top-tier README.md files | - | 1 | 1 |
-| **[testing](docs/plugins/testing.md)** | TDD methodology, E2E testing patterns, behavior-driven test generation | 1 | 2 | - |
+| **[testing](docs/plugins/testing.md)** | Test-suite hygiene: search-before-write rules, whole-suite audit with quarantine, per-module consolidation, behavior-driven test generation | 2 | 1 | 2 |
 | **[platform-engineering](docs/plugins/platform-engineering.md)** | Cross-platform security (passkeys/WebAuthn, Electron Fuses), architecture, and performance rulebook + /platform-review | 1 | 1 | 1 |
 | **[ibkr-trading](docs/plugins/ibkr-trading.md)** | Interactive Brokers algotrading - TWS API, ib_async, order execution | 1 | 1 | 1 |
 | **[mt5-trading](docs/plugins/mt5-trading.md)** | MetaTrader 5 Python algotrading - API, polling events, order execution | 1 | 1 | 1 |
@@ -142,11 +142,14 @@ flowchart TD
     platformeng[platform-engineering]
     pythondev[python-development]
     tsdev[typescript-development]
+    testing[testing]
 
     subgraph external [External marketplaces]
         superpowers["superpowers<br/>(claude-plugins-official)"]
         agentteams["agent-teams<br/>(claude-code-workflows)"]
         playwright["playwright-skill<br/>(playwright-skill)"]
+        mattpocockskills["mattpocock-skills<br/>(mattpocock)"]
+        deveressentials["developer-essentials<br/>(claude-code-workflows)"]
     end
 
     aitooling --> superpowers
@@ -168,13 +171,16 @@ flowchart TD
     seniorreview -.-> platformeng
     seniorreview -.-> pythondev
     seniorreview -.-> tsdev
+    seniorreview -.-> testing
+    testing --> mattpocockskills
+    testing --> deveressentials
     abstraction --> deepdive
     deepdive --> agentteams
     research --> agentteams
     research -.-> codebasemapper
 ```
 
-Solid arrows are hard dependencies, dotted ones optional. The hard graph is a tree rooted at `codebase-xray`, the plugin that works out how a codebase actually behaves: `senior-review` (review), `codebase-mapper` (documentation), and `abstraction-architect` all build on top of it, and it depends on nothing of ours. That shape is deliberate as of marketplace 16.0.0, when the shared interconnect mapper moved into `codebase-xray` and removed the last near-cycle. `senior-review`'s five optional edges back its conditional review dimensions, each skipped with a note when the plugin is absent rather than failing the review. `text-humanizer` is a pure leaf: zero dependencies, four dependents.
+Solid arrows are hard dependencies, dotted ones optional. The hard graph is a tree rooted at `codebase-xray`, the plugin that works out how a codebase actually behaves: `senior-review` (review), `codebase-mapper` (documentation), and `abstraction-architect` all build on top of it, and it depends on nothing of ours. That shape is deliberate as of marketplace 16.0.0, when the shared interconnect mapper moved into `codebase-xray` and removed the last near-cycle. `senior-review`'s six optional edges back its conditional review dimensions, each skipped with a note when the plugin is absent rather than failing the review (the `testing` edge degrades differently: its dimension falls back to the generic reviewer instead of skipping). `text-humanizer` is a pure leaf: zero dependencies, four dependents.
 
 ### Frontend and design
 
@@ -215,7 +221,7 @@ Upstream also documents installs for Antigravity, Codex, Cursor, Gemini CLI, Cop
 
 **Must-have from that toolkit:** the [`using-git-worktrees`](https://github.com/obra/superpowers/tree/main/skills/using-git-worktrees) skill ([overview on SkillsMP](https://skillsmp.com/creators/obra/superpowers/skills-using-git-worktrees)). Before feature work or plan execution it checks whether the session is already isolated, creates an isolated workspace (native tools first, plain `git worktree` as fallback), runs project setup, and verifies a clean test baseline. As of marketplace 13.0.0 it also replaces the retired local `git-worktrees` plugin (see [Git worktrees](#git-worktrees-parallel-development)).
 
-Everything downstream of the plan stays here: [senior-review](docs/plugins/senior-review.md) for multi-agent review, [codebase-xray](docs/plugins/codebase-xray.md) for partitioned deep-dive analysis, [codebase-mapper](docs/plugins/codebase-mapper.md) for codebase mapping, [research](docs/plugins/research.md) for multi-source research, [testing](docs/plugins/testing.md) for TDD methodology, and the per-language plugins for domain execution. Parallel feature implementation and other generic team workflows are delegated to the upstream `wshobson/agents` `agent-teams` plugin (see below). Where a workflow used to invoke the removed skills, it now loads the superpowers skills directly and expects them to be installed: superpowers remains a declared hard dependency of `ai-tooling`.
+Everything downstream of the plan stays here: [senior-review](docs/plugins/senior-review.md) for multi-agent review, [codebase-xray](docs/plugins/codebase-xray.md) for partitioned deep-dive analysis, [codebase-mapper](docs/plugins/codebase-mapper.md) for codebase mapping, [research](docs/plugins/research.md) for multi-source research, [testing](docs/plugins/testing.md) for test-suite hygiene and test generation, and the per-language plugins for domain execution. Parallel feature implementation and other generic team workflows are delegated to the upstream `wshobson/agents` `agent-teams` plugin (see below). Where a workflow used to invoke the removed skills, it now loads the superpowers skills directly and expects them to be installed: superpowers remains a declared hard dependency of `ai-tooling`.
 
 ### Agent teams (parallel implementation and generic orchestration)
 
@@ -286,6 +292,24 @@ As of marketplace 17.0.0, the `prompt-improver` plugin (1 skill, 4 hook handlers
 | [severity1/claude-code-prompt-improver](https://github.com/severity1/claude-code-prompt-improver) | MIT | Prompt clarity evaluation before execution, research-based clarifying questions, and the declarative nudge engine that replaced the original scripts |
 
 No plugin in this marketplace depended on `prompt-improver`, so nothing else changes.
+
+### Test authoring knowledge bases (TDD and browser E2E)
+
+As of marketplace 18.0.0, the `testing` plugin no longer vendors its two knowledge-base skills. Both upstreams install directly, so the copies were handed back and `testing` declares them as hard dependencies in `marketplace.json`:
+
+| Upstream | License | Covers |
+|----------|---------|--------|
+| [mattpocock/skills](https://github.com/mattpocock/skills) | MIT | `mattpocock-skills:tdd`: language-agnostic TDD methodology (red-to-green workflow, behavior-first tests, mocking discipline) plus companion engineering skills |
+| [wshobson/agents](https://github.com/wshobson/agents) | MIT | `developer-essentials:e2e-testing-patterns`: Playwright/Cypress E2E patterns (page objects, fixtures, waiting strategies, network mocking, visual regression) plus companion developer skills |
+
+```bash
+claude plugin marketplace add mattpocock/skills
+claude plugin install mattpocock-skills@mattpocock
+claude plugin marketplace add wshobson/agents
+claude plugin install developer-essentials@claude-code-workflows
+```
+
+References across this marketplace use the upstream namespaces (`mattpocock-skills:tdd`, `developer-essentials:e2e-testing-patterns`), which resolve as written once the upstream plugins are installed. Both upstreams are multi-skill bundles, so the install brings their companion skills along.
 
 ---
 

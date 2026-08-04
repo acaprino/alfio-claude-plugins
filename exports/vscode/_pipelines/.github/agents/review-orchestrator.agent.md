@@ -32,6 +32,7 @@ agents:
   - review-platform-reviewer
   - review-abstraction-architect
   - review-generic-reviewer
+  - test-suite-auditor
   - review-verification-lens
   - review-completeness-critic
   - xray-orchestrator

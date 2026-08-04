@@ -47,8 +47,9 @@ The agent will:
 2. Ask you questions about your workflow and preferences
 3. Clarify any ambiguous patterns found in the codebase
 4. Generate a concise, accurate `CLAUDE.md` following best practices
-5. Verify all claims against your actual codebase
-6. Review the draft with you before finalizing
+5. Detect whether the project has a test suite and, if so, offer the canonical `## Test-Suite Rules` block (on by default)
+6. Verify all claims against your actual codebase
+7. Review the draft with you before finalizing
 
 ## When to Use
 
@@ -101,6 +102,7 @@ You'll receive:
 - Verification commands to confirm accuracy
 - Follows WHAT/WHY/HOW structure
 - Includes a canonical `## Working Principles` section (5 principles: Think Before Coding, Simplicity First, Surgical Changes, Goal-Driven Execution, Centralize Shared Logic). Principles 1-4 are inspired by upstream agentic-coding meta-rules and each carries 3 inline sub-bullets covering the deeper guidance (root-cause analysis, evergreen tests, surgical diffs); principle 5 enforces DRY / Single Source of Truth for external calls and cross-cutting concerns. The block is always inserted inline - never linked to an external file
+- When the project has tests (offered, on by default): the canonical `## Test-Suite Rules` block (7 binding rules: search before writing, one mirrored test file per source file, explicit layers, behavior over implementation, no skip markers to get green, no weakened assertions, delete tests with the feature). Self-contained and inserted inline, in the HOW group
 - Single entry point -- references existing docs/ for deep dives, but no satellite structure files
 
 ## Best Practices Built In
@@ -117,6 +119,7 @@ Your new CLAUDE.md will:
 - Use regular hyphens `-` or `--`, never em dashes
 - Avoid internal duplication: each file path, pointer, and external resource appears once unless every occurrence carries a genuinely distinct directive (e.g., "where the doc lives" in one section and "what rule to follow when modifying it" in another, with an anti-pattern example). Before finalizing, the agent runs the Phase 4b dedup pass on the draft itself and surfaces any candidate duplicates as per-finding questions
 - Always embed the `## Working Principles` block inline (Think Before Coding, Simplicity First, Surgical Changes, Goal-Driven Execution, Centralize Shared Logic - with 3 deeper-meta-rule sub-bullets under each of principles 1-4) so Claude approaches every task with explicit assumptions, minimal code, surgical edits, verifiable success criteria, and DRY-by-default routing of shared logic through single utilities. The block is self-contained and never replaced with an external link
+- Embed the `## Test-Suite Rules` block inline when the project has a test suite, so agents extend existing tests instead of piling up parallel files, keep layers explicit, and never soften a failing assertion to get CI green
 
 ## Related Commands
 

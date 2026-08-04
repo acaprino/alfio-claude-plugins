@@ -102,7 +102,7 @@ python .github/skills/codebase-xray/hooks/test_xray_guard.py
     ├── review-react-performance-optimizer.agent.md
     ├── review-platform-reviewer.agent.md
     ├── review-abstraction-architect.agent.md
-    ├── review-generic-reviewer.agent.md    # testing / migrations / general performance
+    ├── review-generic-reviewer.agent.md    # migrations / general performance, testing fallback
     ├── review-verification-lens.agent.md   # Phase 4b, 3 per finding
     ├── review-completeness-critic.agent.md # Phase 4c
     ├── superpowers.agent.md                # 6 methodology agents
@@ -269,7 +269,8 @@ The bundle needs no other extension or plugin. Two capabilities that the Claude 
 | Dimension detection | A block of `grep`, `sed`, and `awk` piped in bash | Expressed on `#search/textSearch` and `#search/fileSearch`, so it behaves the same on Windows without a POSIX layer |
 | API contracts dimension | `senior-review:api-contract-auditor` | `review-api-contract-auditor`. No longer a divergence: the upstream command dispatched a generic reviewer until marketplace 16.1.0, which adopted the specialized agent and the contract-file detection globs from this port. |
 | Dead code dimension | `cleanup-auditor` in both tables | `review-cleanup-auditor`. No longer a divergence: the upstream tables contradicted each other until marketplace 16.0.0, which adopted the resolution this port had already made. |
-| Testing / migrations / performance | Generic `agent-teams:team-reviewer` | `review-generic-reviewer`, which carries an explicit checklist per dimension instead of a bare dimension name |
+| Migrations / performance | Generic `agent-teams:team-reviewer` | `review-generic-reviewer`, which carries an explicit checklist per dimension instead of a bare dimension name |
+| Testing dimension | `testing:test-suite-auditor` with `agent-teams:team-reviewer` fallback (marketplace 18.0.0) | `test-suite-auditor` from the `testing` bundle, a declared cross-bundle reference; `review-generic-reviewer` is the fallback when that bundle is not installed |
 | Verification lens models | Lens 3 pinned to a cheaper model | Unpinned. VS Code accepts `model:`, but the correct id depends on which Copilot models the user has; pin it yourself on `review-verification-lens` if it pays off. |
 | Cleanup fix command | Findings end with `Fix phase: <phase>`, resolved at Step 7c of `/senior-review:code-review --fix` | `Fix phase: <phase>`. No longer a divergence in the finding format, which marketplace 16.0.0 adopted from this port. Still a divergence in capability: no automated removal command is part of this bundle, so the auditor stays report-only and the phase label is advisory. |
 | Team teardown | `shutdown_request` to every reviewer, then implicit cleanup | Nothing to tear down; subagents end when they return |

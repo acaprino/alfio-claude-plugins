@@ -31,7 +31,7 @@ The gate specs (verification panel, completeness critic, context-sharing pattern
 | Distributed flows | `review-distributed-flow-auditor` | conditional |
 | Circular dependencies | `review-chicken-egg-detector` | conditional |
 | API contracts | `review-api-contract-auditor` | conditional |
-| Testing quality | `review-generic-reviewer` (dimension `testing`) | conditional |
+| Testing quality | `test-suite-auditor` from the `testing` bundle (fallback: `review-generic-reviewer`, dimension `testing`, when that bundle is not installed) | conditional |
 | Data migrations | `review-generic-reviewer` (dimension `migrations`) | conditional |
 | Abstraction | `review-abstraction-architect` | conditional, diff targets only |
 
@@ -236,7 +236,11 @@ Three things invert the default reviewer contract for this one:
 
 ### Generic-reviewer dimensions
 
-For `testing`, `migrations`, and `performance`, dispatch `review-generic-reviewer` and name the dimension in the prompt. Its definition carries the per-dimension checklists.
+For `migrations` and `performance`, dispatch `review-generic-reviewer` and name the dimension in the prompt. Its definition carries the per-dimension checklists.
+
+### Testing dimension
+
+Prefer `test-suite-auditor` from the `testing` bundle. It is a cross-bundle reference: when that bundle is not installed, dispatch `review-generic-reviewer` with dimension `testing` instead (the pre-specialist behavior) and note the fallback in the dimension plan. When dispatching the specialist, append to its prompt: scope its detection dimensions D2 to D8 to the modules owned by the changed test files, keep D1/D9 statistics suite-wide as context only, never run the full suite inside the review (reuse CI history or existing report artifacts, mark anything unmeasured), and write output to `.team-review/findings-testing.md`.
 
 Mark `phase_2_review` as `in_progress`.
 

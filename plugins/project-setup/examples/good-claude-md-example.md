@@ -160,6 +160,16 @@ See `docs/deployment.md` for environment variables and configuration.
 3. Add TypeScript types
 4. Add tests
 
+## Test-Suite Rules
+
+1. Search before writing: before creating any test file, locate the existing test file for the target source file and extend it. Creating a parallel test file for an already-tested source file is forbidden.
+2. One test file per source file, mirroring the source path (for example `src/foo/bar.py` maps to `tests/unit/foo/test_bar.py`), following this project's established convention.
+3. Keep test layers explicit (unit, integration, e2e), each in its own directory with a runtime budget. A new test goes in the lowest layer that can express the behavior.
+4. Test behavior through public interfaces, never implementation details. A refactor that preserves behavior must not break tests.
+5. Never mark a test skipped (`.skip`, `xfail`, `@Disabled`, or equivalent) to make CI pass. Fix it, or quarantine it with a tracked reason.
+6. Never weaken an assertion to make a failing test pass. A failing assertion is a signal about the code, not an obstacle in the test.
+7. When deleting a feature, delete its tests in the same commit.
+
 ## Working Principles
 
 ### 1. Think Before Coding
