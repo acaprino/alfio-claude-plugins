@@ -72,6 +72,17 @@ claude plugin install playwright-skill@playwright-skill
 
 More detail in [Browser automation (Playwright)](#browser-automation-playwright).
 
+`testing` declares two hard dependencies since marketplace 18.0.0: [mattpocock/skills](https://github.com/mattpocock/skills) (`mattpocock-skills@mattpocock`, the `tdd` knowledge base) and [wshobson/agents](https://github.com/wshobson/agents) (`developer-essentials@claude-code-workflows`, the `e2e-testing-patterns` knowledge base). Without both installed the plugin does not load at all, so its `/testing:test-audit` and `/testing:test-consolidate` commands silently never appear:
+
+```bash
+claude plugin marketplace add mattpocock/skills
+claude plugin install mattpocock-skills@mattpocock
+claude plugin marketplace add wshobson/agents
+claude plugin install developer-essentials@claude-code-workflows
+```
+
+More detail in [Test authoring knowledge bases (TDD and browser E2E)](#test-authoring-knowledge-bases-tdd-and-browser-e2e).
+
 ---
 
 ## Plugins

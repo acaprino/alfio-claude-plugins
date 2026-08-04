@@ -1,5 +1,14 @@
 # Changelog
 
+## 18.0.0
+
+- Tracks marketplace 18.0.0, which rebuilt the `testing` plugin around test-suite hygiene.
+- The `testing` bundle drops its two vendored knowledge bases (`tdd`, `e2e-testing-patterns`): upstream they are Claude Code plugins with no Copilot install path, so the bundle now points at their GitHub repos instead of carrying copies.
+- New in the `testing` bundle: the `test-hygiene` skill (search-before-write protocol, remediation ladder, per-runner playbook), the report-only `test-suite-auditor` agent, and two prompts, `/test-audit` (versioned TEST_AUDIT.md plus gated quarantine with `--fix`) and `/test-consolidate` (behavior-inventory-first module consolidation with a coverage gate). `test-writer` is now bound to the search-before-write protocol.
+- `/team-review` in `_pipelines` prefers `test-suite-auditor` for its testing dimension, a third declared cross-bundle reference; `review-generic-reviewer` remains the fallback when the `testing` bundle is not installed.
+- `project-setup` gains the conditional canonical `## Test-Suite Rules` block (7 binding rules), offered on create and verified on audit when the target project has a test suite.
+- Totals: 82 agents, 65 skills, 49 prompts.
+
 ## 17.0.0
 
 - Tracks marketplace 17.0.0, which removed the `prompt-improver` plugin from the source marketplace. Nothing changes in the shipped bundles: that plugin was never exported (a `UserPromptSubmit` hook with no VS Code equivalent). The listing no longer describes it and the `prompt-optimize` prompt drops its routing reference to the hook.
