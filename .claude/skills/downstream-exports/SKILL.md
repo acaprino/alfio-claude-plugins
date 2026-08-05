@@ -103,7 +103,7 @@ Unwrapping a `Task:` block is not just deleting the wrapper. Its `prompt: |` bod
 
 In `_pipelines`, degradation notes are **deleted**: every agent ships in the bundle, so a dimension is skipped only when its activation rule did not fire.
 
-In the catalog the opposite holds, because bundles genuinely install separately. Cross-bundle pointers are correct and must carry an explicit "skip it if that bundle is not installed" clause. Only three references are real dependencies rather than prose, all declared in an orchestrator allowlist and all with a written degraded path: `codebase-mapper` wants `xray-interconnect-mapper` from `_pipelines`, `research` wants `codebase-explorer` from `codebase-mapper`, and `_pipelines`' `/team-review` wants `test-suite-auditor` from `testing` (falling back to `review-generic-reviewer` when absent).
+In the catalog the opposite holds, because bundles genuinely install separately. Cross-bundle pointers are correct and must carry an explicit "skip it if that bundle is not installed" clause. Only four references are real dependencies rather than prose, all declared in an orchestrator allowlist and all with a written degraded path: `codebase-mapper` wants `xray-interconnect-mapper` from `_pipelines`, `research` wants `codebase-explorer` from `codebase-mapper`, `_pipelines`' `/team-review` wants `test-suite-auditor` from `testing` (falling back to `review-generic-reviewer` when absent), and `_pipelines`' `/team-review` wants `type-safety-auditor` from `typescript-development` for the `ts-safety` dimension (skipped with a note when the bundle is not installed).
 
 ## Content that keeps Claude Code vocabulary
 
