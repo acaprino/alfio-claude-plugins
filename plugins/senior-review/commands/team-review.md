@@ -109,12 +109,13 @@ Analyze changed files and codebase to determine which review dimensions are rele
 
 Run these checks against the changed files and codebase to decide which extra reviewers to spawn.
 
-Four of these dimensions live in plugins declared as `optionalDependencies` of `senior-review`: React performance (`react-development`), platform compliance (`platform-engineering`), abstraction (`abstraction-architect`), and testing quality (`testing`). A dimension whose plugin is absent is **skipped with a note**, never spawned. Attempting the spawn fails with "Agent type not found" and takes the phase down with it. Report the reason as "not installed" so the user can tell it apart from a dimension that simply did not match. Testing quality degrades differently from the other three: when the `testing` plugin is not installed the dimension is not skipped; it falls back to the generic `agent-teams:team-reviewer` with the testing dimension named in the prompt, which is the pre-testing-plugin behavior. Everything else in the table resolves to `senior-review` agents or to the `agent-teams` fallback, both of which are hard dependencies and always present.
+Five of these dimensions live in plugins declared as `optionalDependencies` of `senior-review`: React performance (`react-development`), platform compliance (`platform-engineering`), abstraction (`abstraction-architect`), testing quality (`testing`), and TypeScript type safety (`typescript-development`). A dimension whose plugin is absent is **skipped with a note**, never spawned. Attempting the spawn fails with "Agent type not found" and takes the phase down with it. Report the reason as "not installed" so the user can tell it apart from a dimension that simply did not match. Testing quality degrades differently from the other four: when the `testing` plugin is not installed the dimension is not skipped; it falls back to the generic `agent-teams:team-reviewer` with the testing dimension named in the prompt, which is the pre-testing-plugin behavior. Everything else in the table resolves to `senior-review` agents or to the `agent-teams` fallback, both of which are hard dependencies and always present.
 
 | Signal | Detection rule | Dimension activated | Agent |
 |--------|---------------|---------------------|-------|
 | **UI/frontend files** | Changed files include `.tsx`, `.jsx`, `.vue`, `.svelte`, `.component.ts`, or files containing scroll/focus/layout manipulation | UI race conditions | `senior-review:ui-race-auditor` |
 | **React project** | `package.json` has `react` in dependencies AND changed files include `.tsx`/`.jsx`. Requires the `react-development` plugin: when it is not installed, skip and note it under Skipped instead of spawning (the spawn would fail) | React performance | `react-development:react-performance-optimizer` |
+| **TypeScript project** | Changed files match `\.tsx?$` AND `tsconfig.json` exists at the project root. Requires the `typescript-development` plugin: when it is not installed, skip and note it under Skipped instead of spawning (the spawn would fail) | TypeScript type safety | `typescript-development:type-safety-auditor` |
 | **Non-React frontend** | Frontend files detected but no React dependency | General performance | `agent-teams:team-reviewer` (performance dimension) |
 | **Fullstack app** | 2+ signals: frontend framework in `package.json`, backend framework config, API route definitions, `docker-compose.yml` with multiple services, Tauri/Electron config. Requires the `platform-engineering` plugin: when it is not installed, skip and note it under Skipped instead of spawning (the spawn would fail) | Platform compliance | `platform-engineering:platform-reviewer` |
 | **Multi-service / messaging** | Changed files touch API routes, message handlers, gRPC definitions, queue consumers/producers, or `docker-compose.yml` with multiple services | Distributed flows | `senior-review:distributed-flow-auditor` |
@@ -134,6 +135,9 @@ echo "$CHANGED_FILES" | sed 's/.*\.//' | sort | uniq -c | sort -rn
 
 # 2. Check for React
 cat package.json 2>/dev/null | grep -q '"react"' && echo "REACT=true"
+
+# 2b. Check for a TypeScript project
+echo "$CHANGED_FILES" | grep -qE '\.tsx?$' && [ -f tsconfig.json ] && echo "TS_PROJECT=true"
 
 # 3. Check for fullstack signals (count matches)
 FULLSTACK_SIGNALS=0
@@ -165,7 +169,7 @@ After detection, display the plan:
 ```
 Context detection complete:
   - Always: security, architecture, logic-integrity, codebase-hygiene
-  - Detected: ui-races (6 .tsx files), react-perf (React project), distributed-flows (API routes + RabbitMQ), abstraction (diff adds 4 units)
+  - Detected: ui-races (6 .tsx files), react-perf (React project), ts-safety (TypeScript project), distributed-flows (API routes + RabbitMQ), abstraction (diff adds 4 units)
   - Skipped: platform (not fullstack), chicken-egg (no startup code)
   - Skipped, plugin not installed: react-perf (react-development)
   - Fallback: testing quality -> agent-teams:team-reviewer (testing plugin not installed)
@@ -241,6 +245,7 @@ If the skill is unavailable (not installed) or produces no output, halt the pipe
 | Codebase hygiene (full pass: dead code, assets, VCS, deps, docs) | `senior-review:cleanup-auditor` |
 | UI race conditions | `senior-review:ui-race-auditor` |
 | React performance | `react-development:react-performance-optimizer` |
+| TypeScript type safety | `typescript-development:type-safety-auditor` |
 | General performance | `agent-teams:team-reviewer` |
 | Platform compliance | `platform-engineering:platform-reviewer` |
 | Distributed flows | `senior-review:distributed-flow-auditor` |
