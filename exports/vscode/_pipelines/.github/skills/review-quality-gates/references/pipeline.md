@@ -26,6 +26,7 @@ The gate specs (verification panel, completeness critic, context-sharing pattern
 | Codebase hygiene | `review-cleanup-auditor` | always |
 | UI race conditions | `review-ui-race-auditor` | conditional |
 | React performance | `review-react-performance-optimizer` | conditional |
+| TypeScript type safety | `type-safety-auditor` from the `typescript-development` bundle (skipped with a note when that bundle is not installed) | conditional |
 | General performance | `review-generic-reviewer` (dimension `performance`) | conditional |
 | Platform compliance | `review-platform-reviewer` | conditional |
 | Distributed flows | `review-distributed-flow-auditor` | conditional |
@@ -42,7 +43,7 @@ Two scoping rules that are easy to get wrong:
 - **`review-cleanup-auditor` scans the whole codebase, not the diff.** It is the only hygiene pass in this bundle, covering all five dimensions (dead code, orphan assets, VCS artifacts, dependency and barrel-file bloat, stale documentation). Every other always-on reviewer is diff-scoped. Do not narrow it to the changed files: orphan assets and phantom deps are by definition in files the diff never touched.
 - **`review-abstraction-architect` also searches the whole codebase.** The diff is only its anchor; the prior art it hunts for lives in files that did not change.
 
-Every agent in the roster ships inside this bundle, so no dimension can be skipped for a missing dependency. A dimension is skipped only when its activation rule did not fire.
+Every agent in the roster ships inside this bundle except the two cross-bundle rows marked above (testing quality and TypeScript type safety), so a dimension is normally skipped only when its activation rule did not fire. Those two are the exception: each names what happens when its bundle is absent, and neither is ever dispatched blind.
 
 ## Pre-flight
 
@@ -117,6 +118,7 @@ Gather these with the search tools rather than a shell pipeline, so detection wo
 |---|---|
 | Changed-file extensions | Tally the extensions in the Phase 0 file list |
 | React dependency | `#search/textSearch` for `"react"` in `package.json` |
+| TypeScript project | `#search/fileSearch` for `tsconfig.json` at the project root, combined with changed files ending in `.ts` or `.tsx` |
 | Frontend framework | `#search/textSearch` for `"(react\|vue\|svelte\|angular\|next\|nuxt)"` in `package.json` |
 | Backend framework | `#search/textSearch` for `fastapi\|django\|flask\|express\|nest\|hono\|actix\|axum` across `package.json`, `pyproject.toml`, `Cargo.toml` |
 | API surface | `#search/fileSearch` for `**/{routes,api,endpoints,handlers}/**` |
@@ -133,6 +135,7 @@ Gather these with the search tools rather than a shell pipeline, so detection wo
 |---|---|
 | UI race conditions | Changed files include `.tsx`, `.jsx`, `.vue`, `.svelte`, `.component.ts`, or files manipulating scroll, focus, or layout |
 | React performance | React in dependencies AND changed files include `.tsx` or `.jsx` |
+| TypeScript type safety | Changed files end in `.ts` or `.tsx` AND `tsconfig.json` exists at the project root |
 | General performance | Frontend files detected but no React dependency |
 | Platform compliance | Two or more of: frontend framework, backend framework, API routes, multi-service compose, Tauri or Electron config |
 | Distributed flows | Changed files touch API routes, message handlers, gRPC definitions, or queue consumers/producers, or multi-service compose |
@@ -148,7 +151,8 @@ Gather these with the search tools rather than a shell pipeline, so detection wo
 Context detection complete:
   Always:   security, architecture, logic-integrity, hygiene
   Detected: ui-races (6 .tsx files), react-perf (React project),
-            distributed-flows (API routes + RabbitMQ), abstraction (diff adds 4 units)
+            ts-safety (TypeScript project), distributed-flows (API routes + RabbitMQ),
+            abstraction (diff adds 4 units)
   Skipped:  platform (not fullstack), chicken-egg (no startup code),
             testing (no test files changed), api-contracts (no contract files),
             migrations (no migration files)
@@ -241,6 +245,10 @@ For `migrations` and `performance`, dispatch `review-generic-reviewer` and name 
 ### Testing dimension
 
 Prefer `test-suite-auditor` from the `testing` bundle. It is a cross-bundle reference: when that bundle is not installed, dispatch `review-generic-reviewer` with dimension `testing` instead (the pre-specialist behavior) and note the fallback in the dimension plan. When dispatching the specialist, append to its prompt: scope its detection dimensions D2 to D8 to the modules owned by the changed test files, keep D1/D9 statistics suite-wide as context only, never run the full suite inside the review (reuse CI history or existing report artifacts, mark anything unmeasured), and write output to `.team-review/findings-testing.md`.
+
+### TypeScript type-safety dimension
+
+Dispatch `type-safety-auditor` from the `typescript-development` bundle. It is a cross-bundle reference: when that bundle is not installed, skip the dimension and report it as "not installed" under Skipped, so the user can tell it apart from a dimension whose activation rule did not fire. There is no generic fallback, because the checklist it audits against lives in that bundle's `type-safety-rules` skill. It takes the standard reviewer prompt and writes to `.team-review/findings-ts-safety.md`.
 
 Mark `phase_2_review` as `in_progress`.
 

@@ -58,7 +58,7 @@ For a monorepo where the bundle lives at the repository root but you open a subf
 
 | Bundle | Entry points | SK / AG / PR | Needs |
 |---|---|---|---|
-| **`_pipelines`** | `/xray-team-analyze`, `/team-review`, `superpowers` | 18 / 27 / 2 | python, playwright-mcp (optional), `testing` bundle (optional) |
+| **`_pipelines`** | `/xray-team-analyze`, `/team-review`, `superpowers` | 18 / 27 / 2 | python, playwright-mcp (optional), `testing` and `typescript-development` bundles (optional) |
 | `ai-tooling` | `/prompt-optimize` | 1 / 1 / 1 | |
 | `app-analyzer` | `app-analyzer` | 0 / 1 / 0 | **playwright-mcp** |
 | `browser-extensions` | `/firefox-scaffold`, `/firefox-lint`, `/firefox-publish` | 1 / 1 / 3 | |
@@ -92,7 +92,7 @@ For a monorepo where the bundle lives at the repository root but you open a subf
 | `tauri-development` | `tauri-desktop`, `tauri-mobile`, `rust-engineer` | 1 / 3 / 0 | |
 | `testing` | `/test-audit`, `/test-consolidate`, `test-writer`, `test-suite-auditor` | 1 / 2 / 2 | |
 | `text-humanizer` | `/humanize-text` | 1 / 1 / 1 | |
-| `typescript-development` | `typescript-engineer` | 3 / 1 / 0 | |
+| `typescript-development` | `/review-typescript`, `typescript-engineer` | 4 / 2 / 1 | |
 | `xterm` | `/xterm-debug`, `/xterm-implement` | 1 / 0 / 2 | |
 
 SK / AG / PR counts skills, agents and prompt files. A **bold** requirement means the bundle's headline feature does not work without it.
@@ -113,13 +113,14 @@ Web search has no built-in VS Code tool. Agents that need it declare `websearch`
 
 Bundles reference each other in prose all over the catalog ("for React performance, the `react-development` bundle covers it"). Those are pointers, not dependencies: nothing breaks if the other bundle is absent.
 
-Exactly three references are real, all declared in an orchestrator's `agents:` allowlist, and all degrade:
+Exactly four references are real, all declared in an orchestrator's `agents:` allowlist, and all degrade:
 
 | Bundle | Wants | Behavior when absent |
 |---|---|---|
 | `codebase-mapper` | `xray-interconnect-mapper`, from `_pipelines` | `/map-codebase` skips Phase 1b, warns once, and runs in degraded mode: writers fall back to the context brief alone |
 | `research` | `codebase-explorer`, from `codebase-mapper` | `/team-research` skips the local-code angle, notes it in the report, and continues with the web angles |
 | `_pipelines` | `test-suite-auditor`, from `testing` | `/team-review` falls back to `review-generic-reviewer` with the testing dimension named in the prompt, and notes the fallback in the dimension plan |
+| `_pipelines` | `type-safety-auditor`, from `typescript-development` | `/team-review` skips the TypeScript type-safety dimension and reports it as "not installed" under Skipped. There is no generic fallback: the 20-rule checklist it audits against lives in that bundle |
 
 ## Differences from the Claude Code plugins
 

@@ -1,8 +1,8 @@
 {
   "name": "claude-code-daodan",
   "displayName": "Claude Code Daodan",
-  "description": "82 agents, 65 skills and 49 prompts for GitHub Copilot: code review, documentation, testing, research, frontend, trading, observability and more.",
-  "version": "18.2.0",
+  "description": "83 agents, 66 skills and 50 prompts for GitHub Copilot: code review, documentation, testing, research, frontend, trading, observability and more.",
+  "version": "18.3.0",
   "publisher": "acaprino",
   "license": "MIT",
   "engines": {
@@ -311,6 +311,9 @@
         "path": "./text-humanizer/.github/agents/text-humanizer.agent.md"
       },
       {
+        "path": "./typescript-development/.github/agents/type-safety-auditor.agent.md"
+      },
+      {
         "path": "./typescript-development/.github/agents/typescript-engineer.agent.md"
       }
     ],
@@ -455,6 +458,9 @@
       },
       {
         "path": "./text-humanizer/.github/prompts/humanize-text.prompt.md"
+      },
+      {
+        "path": "./typescript-development/.github/prompts/review-typescript.prompt.md"
       },
       {
         "path": "./xterm/.github/prompts/xterm-debug.prompt.md"

@@ -3,7 +3,7 @@
 A VS Code Copilot port of two multi-agent pipelines from [acaprino/claude-code-daodan](https://github.com/acaprino/claude-code-daodan), plus a port of the [obra/superpowers](https://github.com/obra/superpowers) development methodology:
 
 - **`/xray-team-analyze`**: systematic codebase analysis. Combines mechanical structure extraction with semantic understanding, producing ground-truth documentation of WHAT, WHY, HOW, and CONSEQUENCES, followed by a structured map of contracts, invariants, and integration hot-spots.
-- **`/team-review`**: multi-dimensional adversarial code review. Builds context with an X-ray pass, auto-detects which review dimensions the target warrants, dispatches up to 11 specialized reviewers in parallel, then runs a 3-lens verification panel and a completeness critic before reporting.
+- **`/team-review`**: multi-dimensional adversarial code review. Builds context with an X-ray pass, auto-detects which review dimensions the target warrants, dispatches up to 12 specialized reviewers in parallel, then runs a 3-lens verification panel and a completeness critic before reporting.
 - **the `superpowers` agent**: the development methodology itself. Fourteen skills covering brainstorming, planning, TDD, systematic debugging, subagent-driven execution, and code review, plus the five subagents those skills dispatch.
 
 The second builds on the first: `/team-review` Phase 1 runs the X-ray pipeline to produce the context its reviewers hunt violations against. The third is independent of both, and covers the work that happens before a review exists to run.
@@ -164,13 +164,13 @@ Concurrent runs are safe: a run writes only inside its own directory until the p
 | 0 | `review-orchestrator` | target resolution, `00-scope.md` |
 | 0b | `review-orchestrator` | dimension detection + plan shown to the user |
 | 1 | X-ray pipeline at `--depth=lite` | context + `02-interconnect.md` |
-| 2 | up to 11 reviewers in parallel | `findings-<dimension>.md` each |
+| 2 | up to 12 reviewers in parallel | `findings-<dimension>.md` each |
 | 3 | `review-orchestrator` | dedup, severity calibration, `99-consolidated.md` |
 | 4b | `review-verification-lens` x3 per finding | `98-verification.md` |
 | 4c | `review-completeness-critic` | `97-coverage-gaps.md` |
 | 5 | `review-orchestrator` | report |
 
-Four dimensions always run (security, architecture, logic integrity, codebase hygiene). The rest activate on signals in the changed files: UI races, React performance, general performance, platform compliance, distributed flows, circular dependencies, API contracts, testing quality, data migrations, abstraction.
+Four dimensions always run (security, architecture, logic integrity, codebase hygiene). The rest activate on signals in the changed files: UI races, React performance, general performance, platform compliance, distributed flows, circular dependencies, API contracts, testing quality, TypeScript type safety, data migrations, abstraction.
 
 ```
 /team-review main...HEAD                  # review the branch diff, auto-detect dimensions
@@ -271,6 +271,7 @@ The bundle needs no other extension or plugin. Two capabilities that the Claude 
 | Dead code dimension | `cleanup-auditor` in both tables | `review-cleanup-auditor`. No longer a divergence: the upstream tables contradicted each other until marketplace 16.0.0, which adopted the resolution this port had already made. |
 | Migrations / performance | Generic `agent-teams:team-reviewer` | `review-generic-reviewer`, which carries an explicit checklist per dimension instead of a bare dimension name |
 | Testing dimension | `testing:test-suite-auditor` with `agent-teams:team-reviewer` fallback (marketplace 18.0.0) | `test-suite-auditor` from the `testing` bundle, a declared cross-bundle reference; `review-generic-reviewer` is the fallback when that bundle is not installed |
+| TypeScript type-safety dimension | `typescript-development:type-safety-auditor`, skipped with a note when that plugin is absent | `type-safety-auditor` from the `typescript-development` bundle, a declared cross-bundle reference with the same skip behavior. No generic fallback either way: the 20-rule checklist lives in that bundle. |
 | Verification lens models | Lens 3 pinned to a cheaper model | Unpinned. VS Code accepts `model:`, but the correct id depends on which Copilot models the user has; pin it yourself on `review-verification-lens` if it pays off. |
 | Cleanup fix command | Findings end with `Fix phase: <phase>`, resolved at Step 7c of `/senior-review:code-review --fix` | `Fix phase: <phase>`. No longer a divergence in the finding format, which marketplace 16.0.0 adopted from this port. Still a divergence in capability: no automated removal command is part of this bundle, so the auditor stays report-only and the phase label is advisory. |
 | Team teardown | `shutdown_request` to every reviewer, then implicit cleanup | Nothing to tear down; subagents end when they return |

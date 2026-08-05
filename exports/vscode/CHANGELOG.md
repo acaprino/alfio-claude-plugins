@@ -1,5 +1,12 @@
 # Changelog
 
+## 18.3.0
+
+- Tracks the marketplace's new TypeScript type-safety review layer (`typescript-development` 2.2.0, `senior-review` 7.3.0).
+- New in the `typescript-development` bundle: the `type-safety-rules` skill (20 rules across 7 categories, one file per rule, covering any erosion, unsound casts, boundary validation, assertion abuse, compiler configuration, exhaustiveness, and generics soundness), the report-only `type-safety-auditor` agent, and the `/review-typescript` prompt (diff-scoped by default, `--full` for a whole-tree pass, report at `.ts-review/report.md`).
+- `/team-review` in `_pipelines` gains a conditional TypeScript type-safety dimension, activated when the changed files are `.ts` or `.tsx` and the project root has a `tsconfig.json`. It dispatches `type-safety-auditor` from the `typescript-development` bundle, a fourth declared cross-bundle reference. Unlike the testing dimension it has no generic fallback: the 20-rule checklist lives in that bundle, so the dimension is skipped and reported as "not installed" when the bundle is absent.
+- Totals: 83 agents, 66 skills, 50 prompts.
+
 ## 18.0.0
 
 - Tracks marketplace 18.0.0, which rebuilt the `testing` plugin around test-suite hygiene.

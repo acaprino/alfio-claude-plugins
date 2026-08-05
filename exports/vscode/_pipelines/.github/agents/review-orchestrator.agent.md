@@ -29,6 +29,7 @@ agents:
   - review-chicken-egg-detector
   - review-api-contract-auditor
   - review-react-performance-optimizer
+  - type-safety-auditor
   - review-platform-reviewer
   - review-abstraction-architect
   - review-generic-reviewer
