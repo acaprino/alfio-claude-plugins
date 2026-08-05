@@ -874,6 +874,49 @@ Agent tool call:
     if any, and the suggested direction in one sentence.
 ```
 
+### Agent K: TypeScript Type-Safety Review (conditional)
+
+**Only run this agent if the diff touches `.ts` or `.tsx` files AND `tsconfig.json` exists at the project root.** On React projects both Agent I and Agent K run: the charters are orthogonal (performance vs type safety) and consolidation deduplicates any collision.
+
+**Skip if the `typescript-development` plugin is not installed.** It is an `optionalDependency`, so the spawn fails with "Agent type not found" when it is absent. Report the dimension as skipped for that reason instead, so the gap is visible in the report rather than silent.
+
+```
+Agent tool call:
+  - description: "TypeScript type-safety review for senior-review command"
+  - subagent_type: "typescript-development:type-safety-auditor"
+  - run_in_background: true
+  - prompt: |
+    Review the following TypeScript changes for type-system erosion.
+
+    [Include shared instructions: Intent + Diff Scope]
+
+    ## Changed Files
+    [list of changed .ts/.tsx files]
+
+    ## tsconfig
+    [paste tsconfig.json and any extended configs]
+
+    ## Full File Contents
+    [paste full contents of each changed TypeScript file]
+
+    ## Diff
+    [paste the git diff output]
+
+    ## Instructions
+    Analyze the CHANGED TypeScript code for:
+    1. **Any erosion**: explicit any, untyped JSON.parse and response.json() results, any generic defaults
+    2. **Unsound casts**: shape-changing as casts without runtime checks, as unknown as bypasses
+    3. **Boundary validation**: HTTP payloads, queue messages, storage reads, and env access reaching typed code without a schema parse or guard
+    4. **Assertion abuse**: unjustified non-null assertions, @ts-ignore instead of @ts-expect-error with reason
+    5. **Configuration drift**: strict, noUncheckedIndexedAccess, exactOptionalPropertyTypes missing or weakened by this diff
+    6. **Exhaustiveness**: discriminated-union switches without never defaults, lookup tables without satisfies
+    7. **Generics soundness**: unconstrained exported type parameters, type predicates that do not verify the shape they claim
+
+    Cite rule ids from the type-safety-rules skill in every finding.
+    For each finding: severity (Critical/High/Medium/Low), file + line, confidence (0-100),
+    description, concrete fix with a code example.
+```
+
 ---
 
 ## Step 4: Consolidate Findings & Extract Score
