@@ -1,8 +1,8 @@
 # Claude Code Daodan for GitHub Copilot
 
-A VS Code Copilot port of [acaprino/claude-code-daodan](https://github.com/acaprino/claude-code-daodan): **82 agents, 65 skills and 49 prompts**, shipped as one extension. Install it once and every project you open has them. You never copy a `.github/` directory into a repository.
+A VS Code Copilot port of [acaprino/claude-code-daodan](https://github.com/acaprino/claude-code-daodan): **84 agents, 66 skills and 51 prompts**, shipped as one extension. Install it once and every project you open has them. You never copy a `.github/` directory into a repository.
 
-This directory is both the extension source and the catalog documentation. The 36 bundles below are how the content is organized on disk, not 36 separate installs.
+This directory is both the extension source and the catalog documentation. The 37 bundles below are how the content is organized on disk, not 37 separate installs.
 
 ## Install
 
@@ -30,7 +30,7 @@ Uninstalling the extension removes the skills it installed.
 
 ### The cost of having everything everywhere
 
-VS Code loads the `description` of every agent and skill available in order to route a request. With all 82 agents and 65 skills installed at user level, a Rust project carries the Stripe, MT5 and SEO descriptions too, on every turn. That is a real cost, accepted deliberately in exchange for one install that follows you into every project. Turn off what you do not want in the Agent Customizations editor (**Chat: Open Customizations**), or set `daodan.autoSync` to `false` and manage the skills folder yourself.
+VS Code loads the `description` of every agent and skill available in order to route a request. With all 84 agents and 66 skills installed at user level, a Rust project carries the Stripe, MT5 and SEO descriptions too, on every turn. That is a real cost, accepted deliberately in exchange for one install that follows you into every project. Turn off what you do not want in the Agent Customizations editor (**Chat: Open Customizations**), or set `daodan.autoSync` to `false` and manage the skills folder yourself.
 
 ### Per-project install, without the extension
 
@@ -70,6 +70,7 @@ For a monorepo where the bundle lives at the repository root but you open a subf
 | `digital-marketing` | `/seo-audit`, `/llm-seo-audit`, `/ga4-audit`, `/content-strategy`, `/brand-naming`, `/reply-to-customer-review` | 4 / 4 / 6 | websearch, **playwright-mcp**, python |
 | `docker` | `multi-stage-dockerfile` | 1 / 0 / 0 | |
 | `docs` | `readme-craft`, `/maintain-readme` | 1 / 0 / 1 | |
+| `frontend-review` | `/review-frontend` | 0 / 1 / 1 | `react-development`, `typescript-development`, `pwa-expert` and `platform-engineering` bundles (optional), design skills copied by hand (optional) |
 | `grabber-development` | `grabber-architect` + 3 specialists | 1 / 4 / 0 | **playwright-mcp** |
 | `ibkr-trading` | `/ibkr-audit` | 1 / 1 / 1 | |
 | `kotlin-development` | `kotlin-specialist` | 1 / 0 / 0 | |
@@ -99,21 +100,24 @@ SK / AG / PR counts skills, agents and prompt files. A **bold** requirement mean
 
 ## Optional companions
 
-Three capabilities live outside the bundles. Nothing is vendored, and every bundle degrades explicitly rather than failing when one is missing.
+Four capabilities live outside the bundles. Nothing is vendored, and every bundle degrades explicitly rather than failing when one is missing.
 
 | Capability | Where it comes from | Which bundles reach for it |
 |---|---|---|
+| **Design skills** | Three repositories, copied by hand: [pbakaus/impeccable](https://github.com/pbakaus/impeccable) (ships a Copilot-shaped `.github/skills/impeccable/`), [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) (`ui-ux-pro-max` and `design-system`), and [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official) (`frontend-design`). Copy each skill directory whole into your skills folder. | `frontend-review` |
 | **Web search** | The [Web Search for Copilot](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-websearchforcopilot) extension contributes `#websearch` (needs a Tavily or Bing API key). Copilot Chat's own Bing-backed search is an alternative, behind the "Copilot Access to Bing" policy. | `business`, `research`, `digital-marketing` |
 | **Browser automation** | [playwright-mcp](https://github.com/microsoft/playwright-mcp), an MCP server. Add it under **Settings > AI > Manage MCP Servers**. | `app-analyzer`, `digital-marketing`, `grabber-development`, `pwa-expert`, `_pipelines` |
 | **Python 3.10+** | Your machine. Only needed by bundles that ship helper scripts. | `_pipelines`, `python-development`, `stripe`, `marketplace-ops`, `learning`, `digital-marketing`, `research` |
 
 Web search has no built-in VS Code tool. Agents that need it declare `websearch` in their `tools:` allowlist, which resolves once the extension is installed and is inert otherwise. Browser automation is the opposite case: an MCP server's tool ids depend on the name the user gives that server, so they cannot be allowlisted at all. The five agents that drive a browser therefore ship **without** a `tools:` field, which in VS Code grants the full available tool set. Each says so in a comment at the top of the file.
 
+The design skills are the only companion with no install path at all: they ship as Claude Code plugins, and a skill directory copied into your skills folder is what this extension does for its own skills anyway. `/review-frontend` probes for the four directories and reviews against whichever it finds, so a partial copy is a working setup rather than a broken one.
+
 ## Cross-bundle links
 
 Bundles reference each other in prose all over the catalog ("for React performance, the `react-development` bundle covers it"). Those are pointers, not dependencies: nothing breaks if the other bundle is absent.
 
-Exactly four references are real, all declared in an orchestrator's `agents:` allowlist, and all degrade:
+Eight references are real, all declared in an orchestrator's `agents:` allowlist, and all degrade:
 
 | Bundle | Wants | Behavior when absent |
 |---|---|---|
@@ -121,6 +125,10 @@ Exactly four references are real, all declared in an orchestrator's `agents:` al
 | `research` | `codebase-explorer`, from `codebase-mapper` | `/team-research` skips the local-code angle, notes it in the report, and continues with the web angles |
 | `_pipelines` | `test-suite-auditor`, from `testing` | `/team-review` falls back to `review-generic-reviewer` with the testing dimension named in the prompt, and notes the fallback in the dimension plan |
 | `_pipelines` | `type-safety-auditor`, from `typescript-development` | `/team-review` skips the TypeScript type-safety dimension and reports it as "not installed" under Skipped. There is no generic fallback: the 20-rule checklist it audits against lives in that bundle |
+| `frontend-review` | `react-performance-optimizer`, from `react-development` | `/review-frontend` skips the React performance dimension, reports it as "bundle not installed" in the report's status table, and drops it from the weighted mean rather than scoring it zero |
+| `frontend-review` | `type-safety-auditor`, from `typescript-development` | Same, for the TypeScript type-safety dimension |
+| `frontend-review` | `pwa-architect`, from `pwa-expert` | Same, for the PWA architecture dimension |
+| `frontend-review` | `platform-reviewer`, from `platform-engineering` | Same, for the platform compliance dimension |
 
 ## Differences from the Claude Code plugins
 
@@ -140,6 +148,7 @@ Catalog-wide. `_pipelines` documents its own differences separately, in [its REA
 | `/team-codebase-map` | A parallel variant of `/map-codebase` built on `agent-teams` | Dropped. Once the team layer is deleted it is identical to `/map-codebase`, which already runs its six writers concurrently. |
 | `/content-strategy` fan-out | Three concurrent dispatches of `content-marketer` | Three sequential passes. The three are lenses of one persona on one target, not independent reviewers whose independence carries information. |
 | `project-setup` target file | `CLAUDE.md` | `AGENTS.md` or `.github/copilot-instructions.md`, with `CLAUDE.md` still honored when a project has one. Each file says so up front; the substance is unchanged. |
+| `/review-frontend` design dimension | A hard gate on three external plugins (`impeccable`, `ui-ux-pro-max`, `frontend-design`). Any one missing and the command stops with an install block. | Degraded instead. None of the three has a Copilot install path, so a stop-and-install gate would be a gate that can never pass. The prompt probes for their four skill directories, reviews against whichever are present, skips the dimension only when all four are absent, and names each missing source with the repository to copy its skill directory from. That also makes design a skippable dimension for scoring, which upstream it can never be. |
 
 ### Content that deliberately keeps Claude Code vocabulary
 
@@ -164,6 +173,6 @@ Every file in every bundle follows the same shape.
 - **Agents** carry `name`, `description`, `user-invocable`, `tools` (a YAML list of VS Code tool ids), and `agents` (the dispatch allowlist, `[]` for leaf agents). Each begins with an HTML comment naming the file it was vendored from.
 - **Prompts** carry `description`, an optional `agent` binding, and an optional unquoted `argument-hint`.
 - Agent and skill names are unique across the entire catalog, so bundles can be combined freely.
-- Export-only files, which have no upstream source, say so in a comment explaining why they exist. There are three: the two orchestrators (`map-codebase-orchestrator`, `research-orchestrator`) and the `_pipelines` support agents.
+- Export-only files, which have no upstream source, say so in a comment explaining why they exist. There are four: the three orchestrators (`map-codebase-orchestrator`, `research-orchestrator`, `frontend-review-orchestrator`) and the `_pipelines` support agents.
 
 `plugins/` upstream is the source of truth and this directory is derived. Never edit a bundle and back-port: fix it upstream, then mirror.

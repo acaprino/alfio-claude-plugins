@@ -23,7 +23,7 @@ The mirror image of the `external-repo-intake` skill. That skill covers content 
 
 | Export | Host | Shape |
 |---|---|---|
-| `exports/vscode/` | VS Code Copilot (`.github/skills/`, `.github/prompts/`, `.github/agents/`) | A catalog of 36 bundles, published as one VS Code extension |
+| `exports/vscode/` | VS Code Copilot (`.github/skills/`, `.github/prompts/`, `.github/agents/`) | A catalog of 37 bundles, published as one VS Code extension |
 
 **The obligation is now global, not scoped.** Until the 2026-07-30 catalog build only five plugins fed the export. Now every plugin has a bundle, so any plugin change is a candidate mirror. Do not go looking for the old five-row source map: it is gone.
 
@@ -103,7 +103,7 @@ Unwrapping a `Task:` block is not just deleting the wrapper. Its `prompt: |` bod
 
 In `_pipelines`, degradation notes are **deleted**: every agent ships in the bundle, so a dimension is skipped only when its activation rule did not fire.
 
-In the catalog the opposite holds, because bundles genuinely install separately. Cross-bundle pointers are correct and must carry an explicit "skip it if that bundle is not installed" clause. Only four references are real dependencies rather than prose, all declared in an orchestrator allowlist and all with a written degraded path: `codebase-mapper` wants `xray-interconnect-mapper` from `_pipelines`, `research` wants `codebase-explorer` from `codebase-mapper`, `_pipelines`' `/team-review` wants `test-suite-auditor` from `testing` (falling back to `review-generic-reviewer` when absent), and `_pipelines`' `/team-review` wants `type-safety-auditor` from `typescript-development` for the `ts-safety` dimension (skipped with a note when the bundle is not installed).
+In the catalog the opposite holds, because bundles genuinely install separately. Cross-bundle pointers are correct and must carry an explicit "skip it if that bundle is not installed" clause. Eight references are real dependencies rather than prose, all declared in an orchestrator allowlist and all with a written degraded path: `codebase-mapper` wants `xray-interconnect-mapper` from `_pipelines`, `research` wants `codebase-explorer` from `codebase-mapper`, `_pipelines`' `/team-review` wants `test-suite-auditor` from `testing` (falling back to `review-generic-reviewer` when absent), `_pipelines`' `/team-review` wants `type-safety-auditor` from `typescript-development` for the `ts-safety` dimension (skipped with a note when the bundle is not installed), and `frontend-review`'s `/review-frontend` wants all four of `react-performance-optimizer`, `type-safety-auditor`, `pwa-architect` and `platform-reviewer` from their own bundles, each dimension skipped and reported when its bundle is absent.
 
 ## Content that keeps Claude Code vocabulary
 
@@ -126,6 +126,7 @@ These are decisions, not drift. A sync that "fixes" them is a regression.
 - **`project-setup` targets `AGENTS.md` / `.github/copilot-instructions.md`**, honoring an existing `CLAUDE.md`. A note at the top of each file states the mapping; the substance is unchanged.
 - **Five browser-driving agents ship with no `tools:` field.** An MCP server's tool ids depend on the name the user gave that server, so they cannot be allowlisted; omitting the field grants the full set. Each says so in a comment. Do not "fix" this by inventing ids.
 - **`websearch` is declared in `tools:`** on the three agents that need it. It resolves once the Web Search for Copilot extension is installed, and is inert otherwise.
+- **`/review-frontend`'s design dimension degrades where upstream it hard-gates.** In `plugins/frontend-review/` the dimension stops the command and prints an install block unless `impeccable`, `ui-ux-pro-max` and `frontend-design` are all installed. None of the three has a Copilot install path, so mirroring that gate would ship a command that can never run. The export probes for the four skill directories under `$SKILLS`, reviews against whichever are present, skips the dimension only when all four are absent, and names each missing source with the repository to copy its skill directory from. Design therefore becomes a skippable dimension for scoring, which it never is upstream. The reasoning is recorded in the orchestrator's own header comment as well; if upstream ever ships a Copilot install path, that is what to delete.
 
 **Inside `_pipelines`:**
 

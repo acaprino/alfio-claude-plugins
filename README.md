@@ -2,17 +2,17 @@
 
 # Claude Code Daodan
 
-**38 specialized plugins that augment Claude Code into a specialized toolkit - so you spend less time prompting and more time shipping.**
+**39 specialized plugins that augment Claude Code into a specialized toolkit - so you spend less time prompting and more time shipping.**
 
 > The Daodan is the symbiote that enhances its host. This marketplace is the Daodan of Claude Code.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat)](LICENSE)
 [![Consistency](https://github.com/acaprino/claude-code-daodan/actions/workflows/consistency.yml/badge.svg)](https://github.com/acaprino/claude-code-daodan/actions/workflows/consistency.yml)
 [![Marketplace](https://img.shields.io/badge/dynamic/json?label=marketplace&prefix=v&query=%24.metadata.version&url=https%3A%2F%2Fraw.githubusercontent.com%2Facaprino%2Fclaude-code-daodan%2Fmaster%2F.claude-plugin%2Fmarketplace.json&style=flat&color=green)](.claude-plugin/marketplace.json)
-[![Plugins](https://img.shields.io/badge/plugins-38-orange?style=flat)](#plugins)
+[![Plugins](https://img.shields.io/badge/plugins-39-orange?style=flat)](#plugins)
 [![Agents](https://img.shields.io/badge/agents-67-purple?style=flat)](#plugins)
 [![Skills](https://img.shields.io/badge/skills-51-teal?style=flat)](#plugins)
-[![Commands](https://img.shields.io/badge/commands-54-red?style=flat)](#plugins)
+[![Commands](https://img.shields.io/badge/commands-55-red?style=flat)](#plugins)
 
 </div>
 
@@ -91,6 +91,7 @@ More detail in [Test authoring knowledge bases (TDD and browser E2E)](#test-auth
 |--------|-------------|:-:|:-:|:-:|
 | **[python-development](docs/plugins/python-development.md)** | TDD, refactoring, async patterns, packaging, performance, dead code, Pydantic v2, /python-audit | 3 | 9 | 3 |
 | **[senior-review](docs/plugins/senior-review.md)** | 8 agents review architecture, security, patterns, distributed flows, logic integrity, API contracts, startup cycles, UI races, and codebase hygiene in parallel | 8 | 2 | 3 |
+| **[frontend-review](docs/plugins/frontend-review.md)** | Full frontend review in one pass: design/UX audit from the upstream impeccable, ui-ux-pro-max, and frontend-design skills, plus auto-detected React, TypeScript, PWA, and platform code dimensions | - | - | 1 |
 | **[codebase-mapper](docs/plugins/codebase-mapper.md)** | Generate 10 narrative docs with Mermaid diagrams from any codebase | 10 | 1 | 5 |
 | **[ai-tooling](docs/plugins/ai-tooling.md)** | Prompt engineering and optimization, Agent SDK | 1 | 1 | 1 |
 | **[tauri-development](docs/plugins/tauri-development.md)** | Tauri 2 desktop + mobile, Rust backend, IPC optimization | 3 | 1 | - |
@@ -154,6 +155,7 @@ flowchart TD
     pythondev[python-development]
     tsdev[typescript-development]
     testing[testing]
+    frontendreview[frontend-review]
 
     subgraph external [External marketplaces]
         superpowers["superpowers<br/>(claude-plugins-official)"]
@@ -161,6 +163,9 @@ flowchart TD
         playwright["playwright-skill<br/>(playwright-skill)"]
         mattpocockskills["mattpocock-skills<br/>(mattpocock)"]
         deveressentials["developer-essentials<br/>(claude-code-workflows)"]
+        impeccable["impeccable<br/>(impeccable)"]
+        uiuxpromax["ui-ux-pro-max<br/>(ui-ux-pro-max-skill)"]
+        frontenddesign["frontend-design<br/>(claude-plugins-official)"]
     end
 
     aitooling --> superpowers
@@ -189,28 +194,39 @@ flowchart TD
     deepdive --> agentteams
     research --> agentteams
     research -.-> codebasemapper
+    frontendreview --> impeccable
+    frontendreview --> uiuxpromax
+    frontendreview --> frontenddesign
+    frontendreview -.-> reactdev
+    frontendreview -.-> tsdev
+    frontendreview -.-> pwaexpert
+    frontendreview -.-> platformeng
 ```
 
-Solid arrows are hard dependencies, dotted ones optional. The hard graph is a tree rooted at `codebase-xray`, the plugin that works out how a codebase actually behaves: `senior-review` (review), `codebase-mapper` (documentation), and `abstraction-architect` all build on top of it, and it depends on nothing of ours. That shape is deliberate as of marketplace 16.0.0, when the shared interconnect mapper moved into `codebase-xray` and removed the last near-cycle. `senior-review`'s six optional edges back its conditional review dimensions, each skipped with a note when the plugin is absent rather than failing the review (the `testing` edge degrades differently: its dimension falls back to the generic reviewer instead of skipping). `text-humanizer` is a pure leaf: zero dependencies, four dependents.
+Solid arrows are hard dependencies, dotted ones optional. The hard graph is a tree rooted at `codebase-xray`, the plugin that works out how a codebase actually behaves: `senior-review` (review), `codebase-mapper` (documentation), and `abstraction-architect` all build on top of it, and it depends on nothing of ours. That shape is deliberate as of marketplace 16.0.0, when the shared interconnect mapper moved into `codebase-xray` and removed the last near-cycle. `senior-review`'s six optional edges back its conditional review dimensions, each skipped with a note when the plugin is absent rather than failing the review (the `testing` edge degrades differently: its dimension falls back to the generic reviewer instead of skipping). `text-humanizer` is a pure leaf: zero dependencies, four dependents. `frontend-review` sits outside that tree: its three solid arrows are hard dependencies on external design plugins, not on anything of ours, so it does not join the `codebase-xray` root; its four dotted arrows back the auto-detected code dimensions the same way `senior-review`'s optional edges do.
 
 ### Frontend and design
 
-This marketplace deliberately ships no general frontend/design plugin. That ground is covered better by the upstream projects it used to vendor from, so go straight to the source:
+Design content stays upstream: three external plugins cover design craft, design-system deliverables, and visual craft, and this marketplace does not vendor any of it. What lives here instead is [frontend-review](docs/plugins/frontend-review.md), a pure orchestrator that drives those three upstream skills alongside the local code reviewers in one scored pass:
 
 | Upstream | License | Covers |
 |----------|---------|--------|
 | [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | Apache-2.0 | Design craft: typography, color and contrast, motion, cognitive load, delight, iOS/Android platform patterns |
 | [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) | MIT | Design-system deliverables: token architecture, component specs, states and variants, Tailwind integration |
+| [frontend-design](https://claude.com/plugins/frontend-design) (official marketplace) | Apache-2.0 | Visual craft: applied by `frontend-review` as evaluation criteria for existing UI, not as a generator |
 | [paulirish/dotfiles](https://github.com/paulirish/dotfiles/tree/main/agents/skills/modern-css) | MIT | Modern CSS reference. Not a marketplace: copy the skill folder by hand |
 
-The first two install as marketplaces:
+Install all three marketplace-backed sources:
 
 ```bash
 claude plugin marketplace add pbakaus/impeccable
+claude plugin install impeccable@impeccable
 claude plugin marketplace add nextlevelbuilder/ui-ux-pro-max-skill
+claude plugin install ui-ux-pro-max@ui-ux-pro-max-skill
+claude plugin install frontend-design@claude-plugins-official
 ```
 
-Framework-specific frontend work stays here: [react-development](docs/plugins/react-development.md) for React 19 performance, [pwa-expert](docs/plugins/pwa-expert.md) for Progressive Web Apps, [browser-extensions](docs/plugins/browser-extensions.md) for Firefox add-ons, and [xterm](docs/plugins/xterm.md) for terminal UIs.
+Framework-specific frontend work stays here: [frontend-review](docs/plugins/frontend-review.md) as the combined design-plus-code entry point, [react-development](docs/plugins/react-development.md) for React 19 performance, [pwa-expert](docs/plugins/pwa-expert.md) for Progressive Web Apps, [browser-extensions](docs/plugins/browser-extensions.md) for Firefox add-ons, and [xterm](docs/plugins/xterm.md) for terminal UIs.
 
 ### Brainstorming, planning, and execution
 
@@ -351,7 +367,7 @@ claude-code-daodan/
 │   │   ├── skills/            # SKILL.md + optional references/
 │   │   └── commands/          # slash-command .md files
 │   ├── senior-review/
-│   └── ...                    # 38 plugins total
+│   └── ...                    # 39 plugins total
 ├── LICENSE
 └── README.md
 ```
@@ -371,7 +387,7 @@ claude plugin install ./claude-code-daodan/plugins/python-development
 <details>
 <summary><b>Recommended Settings (skill visibility)</b></summary>
 
-With 38 plugins installed, Claude Code's default skill-listing budget can truncate the list of available skills shown at conversation start. Raise the fraction of context allocated to the skill listing in `~/.claude/settings.json`:
+With 39 plugins installed, Claude Code's default skill-listing budget can truncate the list of available skills shown at conversation start. Raise the fraction of context allocated to the skill listing in `~/.claude/settings.json`:
 
 ```json
 {

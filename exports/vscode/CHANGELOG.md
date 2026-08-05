@@ -1,5 +1,13 @@
 # Changelog
 
+## 18.4.0
+
+- Tracks the marketplace's new `frontend-review` plugin, a pure orchestrator that reviews a frontend surface for design and code in one pass.
+- New `frontend-review` bundle, the 37th: the `/review-frontend` prompt and the export-only `frontend-review-orchestrator` agent that dispatches it. Five dimensions, one scored report at `.frontend-review/report.md`: a design and UX pass that runs inline, plus React performance, TypeScript type safety, PWA architecture and platform compliance, each auto-detected from the project's own signals.
+- The four code dimensions are cross-bundle references, declared in the orchestrator's allowlist and skipped with a named reason when their bundle is absent: `react-performance-optimizer`, `type-safety-auditor`, `pwa-architect` and `platform-reviewer`. That takes the catalog from four real cross-bundle references to eight.
+- Divergence from the Claude Code original: there the design dimension is a hard gate on three external plugins, and the command stops with an install block when any is missing. None of the three has a Copilot install path, so this port probes for their four skill directories and degrades instead, running against whatever is present, skipping the dimension only when all four are absent, and naming each missing source with the repository to copy its skill directory from.
+- Totals: 84 agents, 66 skills, 51 prompts.
+
 ## 18.3.1
 
 - Correctness fixes to the `type-safety-rules` skill in the `typescript-development` bundle (tracks marketplace `typescript-development` 2.2.1): the `config-exact-optional` rule's incorrect example dropped a false JSON-serialization claim in favor of the real hazard, presence checks via `in` and `Object.keys`; the `assert-non-null` detection grep now matches a statement-final `!`; and the `/review-typescript` prompt's file-discovery `find` command groups its `-name` clauses so `.tsx` matches keep the `-type f` filter.
