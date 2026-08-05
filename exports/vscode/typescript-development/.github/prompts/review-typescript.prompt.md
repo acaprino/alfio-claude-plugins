@@ -37,7 +37,7 @@ git diff --cached --name-only | grep -E '\.tsx?$' || true
 ### Discover TypeScript files (full mode only)
 
 ```bash
-find src -type f -name "*.ts" -o -name "*.tsx" | head -80
+find src -type f \( -name "*.ts" -o -name "*.tsx" \) | head -80
 ```
 
 Or use the path from `$ARGUMENTS` if provided.

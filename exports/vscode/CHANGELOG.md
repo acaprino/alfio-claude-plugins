@@ -1,5 +1,9 @@
 # Changelog
 
+## 18.3.1
+
+- Correctness fixes to the `type-safety-rules` skill in the `typescript-development` bundle (tracks marketplace `typescript-development` 2.2.1): the `config-exact-optional` rule's incorrect example dropped a false JSON-serialization claim in favor of the real hazard, presence checks via `in` and `Object.keys`; the `assert-non-null` detection grep now matches a statement-final `!`; and the `/review-typescript` prompt's file-discovery `find` command groups its `-name` clauses so `.tsx` matches keep the `-type f` filter.
+
 ## 18.3.0
 
 - Tracks the marketplace's new TypeScript type-safety review layer (`typescript-development` 2.2.0, `senior-review` 7.3.0).

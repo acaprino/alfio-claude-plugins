@@ -26,4 +26,4 @@ if (!user) throw new Error(`unknown user id: ${id}`)
 notify(user.email)
 ```
 
-**Detection:** `rg -n '\w+!(\.|\)|,|;)' --type ts`. Hits without an adjacent invariant comment are findings; `!` immediately after a populate step with a stated invariant passes.
+**Detection:** `rg -n '\w+!(\.|\)|,|;|$)' --type ts`. Hits without an adjacent invariant comment are findings; `!` immediately after a populate step with a stated invariant passes.

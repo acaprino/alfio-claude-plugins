@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Claude Code Daodan - 38 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), prose humanization, and pure-architecture audits (missed unification, wrong abstractions).",
-    "version": "18.2.0"
+    "version": "18.2.1"
   },
   "plugins": [
     {
@@ -476,7 +476,7 @@
       "name": "typescript-development",
       "source": "./plugins/typescript-development",
       "description": "TypeScript and JavaScript development toolkit - hands-on typescript-engineer agent (architecture + implementation), dead-code detection via Knip, coding standards enforcement, and enterprise-grade TypeScript mastery (type system, generics, React/NestJS integration, Zod validation, modern toolchain), and a type-safety review layer: adversarial type-safety-auditor agent, 20-rule type-safety-rules skill, and /review-typescript command with tsc/ESLint ground truth",
-      "version": "2.2.0",
+      "version": "2.2.1",
       "author": {
         "name": "Alfio"
       },
