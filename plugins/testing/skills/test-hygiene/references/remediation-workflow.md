@@ -68,7 +68,7 @@ Executed by `/testing:test-consolidate <module>`. The order of operations is the
 3. **Approve.** The keep-list and delete-list are explicit and user-approved. Unanswered rows default to keep.
 4. **Rewrite** one test file per source file, covering the approved behaviors plus evident gaps, at the correct layer, following the prevention rules.
 5. **Delete the originals in the same commit** as the rewrite, including processed quarantine entries and their ledger rows.
-6. **Verify**: the module's coverage must not drop below the pre-consolidation baseline. On a drop, revert the commit and report which behaviors lost coverage. Where no coverage tooling exists, the gate degrades to "count of distinct behaviors covered must not drop", stated explicitly.
+6. **Verify**: the module's coverage must not drop below the pre-consolidation baseline. Tests that cannot execute locally are gated on the CI run after the push. On a failed gate, roll the commit back (`git reset --hard HEAD~1` while it exists only locally, `git revert` once it has been pushed) and report which behaviors lost coverage. Where no coverage tooling exists, the gate degrades to "count of distinct behaviors covered must not drop", stated explicitly.
 
 ## 4. Safety net before mass pruning
 

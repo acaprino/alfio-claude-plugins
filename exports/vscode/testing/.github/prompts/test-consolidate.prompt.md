@@ -21,7 +21,7 @@ Per-module test consolidation: the surgical half of the remediation ladder. Turn
 1. Consult the `test-hygiene` skill; its `references/remediation-workflow.md` section 3 defines this workflow's contract.
 2. Verify a git repository with a clean working tree; halt otherwise.
 3. Resolve the test set: every test file resolving to `<module-path>` (imports plus naming convention), wherever it lives, INCLUDING matching entries under `tests/_quarantine/` and their ledger rows.
-4. Detect the runner (`--runner` overrides); run the module's tests for a baseline (pass/fail per test).
+4. Detect the runner (`--runner` overrides); run the module's tests for a baseline (pass/fail per test). When part of the test set cannot execute locally (missing services, containers, or credentials), say so explicitly, take the baseline for that part from the latest green CI run on the current branch, and record that the Step 7 gate for those tests moves to CI.
 5. Record the module's coverage baseline (`--coverage-cmd` or the playbook's per-runner command). No coverage tooling configured: state explicitly that the verification gate degrades from "coverage must not drop" to "count of distinct behaviors must not drop", and require the user to acknowledge before proceeding.
 
 ## Step 2: Behavior inventory (always, before any code)
@@ -63,7 +63,9 @@ Run the suite plus the coverage command. Gates:
 1. The suite passes.
 2. Module coverage is not below the Step 1 baseline (or, in degraded mode, every approved behavior has a covering test).
 
-A gate fails: `git reset --hard HEAD~1`, then report which behaviors lost coverage or which tests broke, with the inventory rows involved. The originals come back; nothing is lost.
+Tests that could not execute locally in Step 1 are gated on CI instead: push, watch the run, and treat a red lane as a failed gate.
+
+A gate fails: roll the consolidation commit back, then report which behaviors lost coverage or which tests broke, with the inventory rows involved. The originals come back; nothing is lost. Pick the rollback by push state: `git reset --hard HEAD~1` while the commit exists only locally; `git revert` once it has been pushed, because rewriting history on a shared branch overwrites other sessions' pushes.
 
 ## Step 8: Report
 

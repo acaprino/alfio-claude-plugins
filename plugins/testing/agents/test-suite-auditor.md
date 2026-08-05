@@ -52,7 +52,7 @@ Execute in order. Skip a dimension when its signal is absent and say so in the s
 
 ### D2: Orphan tests
 
-For each test file, resolve the source module it targets (imports plus naming convention). Then:
+For each test file, resolve the source module(s) it targets. Imports are authoritative: parse what the file actually imports from the project. Naming convention is a fallback only, for files whose imports are indirect (fixture-driven setups, HTTP-level tests hitting an app object). A file may resolve to several source modules; record all of them. Then:
 
 1. Glob for the source file. Present: not an orphan.
 2. Absent: Grep the source tree for the module's basename and class/function names (it may have moved), and check `git log --follow --diff-filter=D` for a deletion.
@@ -72,7 +72,7 @@ For each test file, resolve the source module it targets (imports plus naming co
 
 ### D5: Duplicate and overlapping coverage
 
-1. Cluster test cases by target source module (from D1's resolution).
+1. Cluster test cases by imported source module (from D2's resolution), never by filename prefix or similarity. A test file that exercises several source modules belongs to several clusters, one per module. A prefix family (`test_foo_*.py`) whose members import different modules is the case name-based clustering misses: each member must be compared against the owning test file of the module it imports, which usually shares no name with it.
 2. Within a cluster, compare test names, assert targets, and setup shape. Same behavior asserted in more than one file, or repeated with cosmetic variation in one file, is a duplicate finding.
 3. Cross-layer duplication (same behavior at unit and integration and e2e) is the highest-value duplicate to surface; name every location.
 
@@ -163,6 +163,7 @@ Each is a finding referencing prevention rule 5; these are the tests that break 
 
 - Do NOT edit, move, or delete anything. You are a reporter; `Write` is for your report file only.
 - Do NOT flag a parametrized or table-driven test as duplicates of itself.
+- Do NOT cluster tests by filename prefix or similarity in D5. Clustering is by imported source module; a shared prefix across files that target different modules is exactly how parallel-file duplicates stay invisible.
 - Do NOT flag intentional cross-service contract duplication without first checking for a shared spec or contract-test marker.
 - Do NOT declare a test flaky without rerun or CI-history disagreement. Style smells are candidates, not findings.
 - Do NOT count `conftest.py`, fixture modules, factories, or test helpers as orphan tests.
