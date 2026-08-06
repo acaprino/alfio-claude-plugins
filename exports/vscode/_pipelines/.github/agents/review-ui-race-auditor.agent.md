@@ -129,6 +129,8 @@ Scan for these **universal anti-patterns** regardless of framework:
 - Sibling component A resizes → sibling component B's scroll position shifts
 - Portal/overlay positioned relative to anchor that re-renders independently
 - Shared ref written by one component, read by another in the same render cycle
+- Stateful custom hook instantiated by multiple components: each instance owns a private copy of the hook's `useState`/`useRef`, so a state change in one consumer never reaches the others. The divergence is deterministic rather than an interleaving race, but it presents as one ("the event fired and the UI never reacted"). Report it with a timeline showing the write landing in instance A while instance B renders its stale copy, and cross-note it to the architecture dimension
+- One-shot mount check per instance: a hook that checks/fetches once at mount goes permanently stale in every instance except the one that re-triggered it. With no shared store and no periodic re-check, the consuming component renders the mount-time snapshot forever (T0: mount check finds nothing; T1: the fact changes externally; T2: another instance re-checks and sees it; T3: this instance still renders the T0 snapshot)
 
 ### Phase 4: Framework-Specific Amplifiers
 

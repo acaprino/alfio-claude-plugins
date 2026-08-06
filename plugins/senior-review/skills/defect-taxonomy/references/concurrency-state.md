@@ -145,3 +145,11 @@ Reference for defect taxonomy categories 1 and 2.
 - **Fix**: Defensive copies, `Collections.unmodifiableList()`, `tuple()` over `list`, `None` sentinel for defaults
 - **Difficulty**: Medium
 - **Signature**: `def __init__(self, items=[]):` -- shared default list across instances
+
+### 2.8 Per-Instance State Divergence (Phantom Singleton)
+- **CWE**: N/A
+- **Pattern**: Stateful hook/composable/mixin instantiated by N components; each instance owns a private copy of state the design assumes is shared, so a write in one instance never reaches the others
+- **Detection**: Grep call sites of custom hooks that own `useState`/`useRef` (or framework equivalents); flag any with more than one instantiating component whose state models an app-global fact (update availability, auth/session, connectivity, feature flags). Runtime fingerprint: mount effects logged once per instance, and actions that succeed in the logs with no visible UI change
+- **Fix**: Lift the state into a shared store (module-level store, context, Zustand/Redux/Jotai slice); keep non-serializable handles in a module-level ref; run mount-time checks once through the store instead of per instance
+- **Difficulty**: Medium
+- **Signature**: `useThing()` with internal `useState` called from both ComponentA and ComponentB; A's handler updates A's copy while B renders its own never-updated copy

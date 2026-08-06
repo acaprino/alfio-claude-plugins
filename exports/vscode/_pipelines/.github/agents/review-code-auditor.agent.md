@@ -77,6 +77,13 @@ Triage before detailed analysis:
 - Check: does `get_instance()` have an elif/else branch that updates the existing instance when new dependencies are provided? If not, flag silent discard risk
 - Check: is there a mechanism for late binding (`set_broker`, `set_dependency`) that retroactively wires dependencies after singleton creation?
 
+**Per-Instance State Divergence Audit** (the inverse of the singleton audit: a singleton that should exist and does not)
+- For every custom hook/composable/mixin that owns state (`useState`/`useRef` inside a React hook body, `ref()` inside a Vue composable, mutable fields in a widget mixin), grep ALL components that instantiate it
+- If more than one component instantiates the same stateful unit AND the state models an app-global fact (update availability, auth/session, connectivity, feature flags, unsaved-changes): flag as CRITICAL. Each consumer owns a private copy; a write in one instance never reaches the others
+- Signature: component A's action (button handler, event, IPC message) updates A's copy while component B renders its own never-updated copy. The feature works in the logs and never on screen
+- Check: do the instances duplicate mount effects? N instances of a hook with a mount-time check/fetch run it N times. Duplicated startup log lines and duplicated requests are the runtime fingerprint of hidden extra instances
+- Fix direction: lift the state into a shared store (the codebase's established state library, context, or a module-level store) and keep non-serializable handles in a module-level ref, never in per-instance state
+
 **Test Infrastructure Blocking Scan** (Python projects with tests/ directory)
 - Check root `tests/conftest.py` for heavy imports at module level (scipy, ortools, tensorflow, torch) -- these can hang during collection
 - Check if `sys.modules` mock installations exist ONLY in subdirectory conftest files (`tests/unit/conftest.py`, `tests/handlers/conftest.py`) -- if root-level test files exist, these mocks load too late, flag as HIGH
