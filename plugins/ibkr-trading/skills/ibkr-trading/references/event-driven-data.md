@@ -12,8 +12,8 @@ Streaming Level 1 quotes, bar updates, individual ticks, or pulling historical O
 |----------|-------------|----------------------------|--------|
 | `reqMktData` | Time-sampled L1 ticks | Lost ticks not backfilled | 1 market data line |
 | `reqRealTimeBars` | 5-second bars **only** | **Backfilled automatically** | 1 line, list grows in memory |
-| `reqTickByTickData` | Every tick | Lost ticks not backfilled | **Max 3 subscriptions** per connection |
-| `reqHistoricalData` (`keepUpToDate=True`) | Any standard bar size | "Leaves the entire API inoperable after a network interruption" (per ib_insync docs) | 1 line per subscription |
+| `reqTickByTickData` | Every tick | Lost ticks not backfilled | Cap follows the market-depth formula (small by default, grows with market data lines); max 1 request per instrument per 15 s |
+| `reqHistoricalData` (`keepUpToDate=True`) | Any standard bar size | The archived ib_insync docs warned it "leaves the entire API inoperable after a network interruption"; the warning is historical but the reconnect fragility is still observed | 1 line per subscription |
 
 **Production rule**: for real-time bars in production, **prefer `reqRealTimeBars` over `reqHistoricalData + keepUpToDate`** -- the second was officially flagged as unreliable across reconnections. For non-standard timeframes (7-min, etc.), aggregate from 5-sec bars locally.
 
@@ -24,16 +24,39 @@ Streaming Level 1 quotes, bar updates, individual ticks, or pulling historical O
 - **Forex has no `TRADES` data** -- always `whatToShow='MIDPOINT'` for FX. Indices have only `TRADES` (no BID/ASK/MIDPOINT). Stocks: `TRADES` for live, `ADJUSTED_LAST` for backtests with dividends.
 - **`BID_ASK` requests count double** toward the 60-per-10-min pacing limit.
 - **Futures daily-bar close = settlement price**, not last trade -- arrives hours after close, on Friday possibly Saturday.
-- **Pacing violation (error 162)** triggers when: identical request within 15 sec, 6+ requests for same contract/exchange/tick-type in 2 sec, **>60 requests in any 10-min window**, or >50 simultaneous open historical requests. Recovery: queue + rate limit, never blind-retry.
-- **Error 354 ("not subscribed")** vs **error 10197 ("using delayed data")** -- the second is informational, your code can keep working with the delayed feed; the first means you have nothing.
-- **Market data lines are shared with TWS** (default 100, expand with Quote Booster Pack). Each streaming sub consumes 1 line. Check current usage in TWS with **Ctrl+Alt+=**.
-- **`reqMarketDataType(3)`** = delayed (free, 15-20 min), `1` = live (paid). Forex and crypto don't need subscriptions.
+- **Pacing violations** trigger when: identical request within 15 sec, 6+ requests for same contract/exchange/tick-type in 2 sec, **>60 requests in any 10-min window**, or >50 simultaneous open historical requests. Recovery: queue + rate limit, never blind-retry. Error **162** is the *generic* historical-data service error; pacing is only one of its causes -- and a pacing violation can also surface as a silent empty response with no error at all (see "Historical silence has three causes" below).
+- **Error 354 ("not subscribed")** means you have nothing. **Error 10197 means "no market data during competing session"**: the same user is logged into live and paper simultaneously and requesting live data on both; the live side gets preference. It is not a delayed-data notice (the informational delayed-data code on the current docs tree is 10167). Treat 10197 as terminal for that contract's snapshot wait.
+- **Market data lines are shared with TWS** (default 100, expand with Quote Booster Packs). Each streaming sub consumes 1 line. Check current usage in TWS with **Ctrl+Alt+=**.
+- **`reqMarketDataType(3)`** = delayed (free, 15-20 min), `1` = live (paid); types `2` (frozen) and `4` (delayed-frozen) also exist. Spot Forex needs no market-data subscription; crypto generally requires one -- verify your entitlements before assuming it is free.
 - **On disconnect: error 1101 ("data lost") and 1102 ("data restored")** -- use them as triggers to reconcile via historical request for the gap window (see `reconnection-resilience.md`).
 - **ib_async initializes `Ticker.bid` / `Ticker.ask` to `NaN`, not `None`.** A price-readiness check of `if price is None` passes immediately and hands a `NaN`/`0.0` placeholder to whatever consumes it (position sizing especially). Validate with `value is not None and not math.isnan(value) and value > 0`. This single wrong assumption seeded a whole family of sizing bugs: see `venue-boundary-failure-modes.md`.
 - **A snapshot/price wait must abort on terminal market-data codes** for the contract: `{200, 354, 10089, 10090, 10197}`, tracked per `conId`. Otherwise the wait exits instantly (on the NaN-vs-None bug above) and returns a placeholder instead of a real price.
 - **Forex CFDs serve no market or historical data** (error 2127 then 366). Pull data from the underlying spot Forex (IDEALPRO) contract while keeping the CFD for orders. See `venue-boundary-failure-modes.md`.
 - **Historical FX bars contain session-anchored stub bars at the reopen** that the live stream never delivers. See the dedicated section below -- they corrupt any replay/bootstrap that consumes historical bars as if they were live ones.
-- **Daily market open/close transitions resonate with dedup layers.** Session transitions recur every ~24 h with seconds of polling jitter. Any downstream deduplication keyed on `(symbol, is_open)` with a TTL at or above the cycle period will suppress a *genuine* daily event that arrives a few seconds earlier than yesterday's -- and a swallowed CLOSE then makes the next real OPEN look like a duplicate too (cascading stale state: consumers stuck on "market closed", entry signals dropped). A dedup TTL must bound only the true duplicate window (seconds to minutes), never the daily cycle.
+- **Daily market open/close transitions resonate with dedup layers.** Session transitions recur every ~24 h with seconds of polling jitter. Any downstream deduplication keyed on `(symbol, is_open)` with a TTL at or above the cycle period will suppress a *genuine* daily event that arrives a few seconds earlier than yesterday's -- and a swallowed CLOSE then makes the next real OPEN look like a duplicate too (cascading stale state: consumers stuck on "market closed", entry signals dropped). A dedup TTL must bound only the true duplicate window (seconds to minutes), never the daily cycle. This session-event layer is a *different* dedup than the seconds-scale order-rejection dedup in `venue-boundary-failure-modes.md` (sized to the errorEvent/orderStatusEvent race); size each to its own duplicate window and never share one TTL.
+
+## Market state is data too (`is_market_open` must be tri-state)
+
+`reqContractDetails` returns `tradingHours` as a string of **concrete dated segments covering only about a week**. Two production failures, in opposite directions:
+
+- **Assumed-open**: returning `True` when trading hours are missing poisons the state seed -- a Sunday-closed market is treated as open and the first session transition is missed.
+- **Assumed-closed (the worse one)**: a long-lived connection outlives the dated window, after which every check lands beyond the last segment and reports the market **permanently closed** -- forever, silently. A confident `False` from a broker that cannot actually see the market is indistinguishable from a genuine closure, and downstream it becomes a seeded CLOSED that silently halts an executor.
+
+**Rules:**
+
+- Make the check **tri-state**: `True` / `False` only inside the covered window, `None` (unknown) beyond it or when data is missing. Consumers must treat `None` as "refresh or hold", never as closed.
+- Track `coverage_end` explicitly; a `check_time` past it returns `None`, never `False`.
+- Refresh `tradingHours` on a TTL (~12 h) keyed on the **last attempt**, not the last success, so a persistently failing refetch retries once per TTL instead of hammering on every call.
+
+## Historical silence has three causes
+
+An empty bar response is **not** an error at the API surface, and at least three unrelated causes are indistinguishable there:
+
+1. **Duration over the per-barSize cap.** Each bar size has a maximum `durationStr` (e.g. 4-hour bars cap around 1 year). Exceeding it does not error; it returns an empty set. Symptom: "Retrieved 0 candles (requested N)".
+2. **Pacing on the identical-request tuple.** The same `(contract, barSize, whatToShow, useRTH)` is limited to one request per 15 s -- **across processes on the same login**, not just within one client. A violation is a silent empty response, not error 162. In production this was three sibling agents issuing the same request within 4 seconds.
+3. **Past-retention windows.** Requests reaching beyond IBKR's retained history also come back empty.
+
+**Retry shape that distinguishes them:** retry the **same** `(endDateTime, durationStr)` after 15/30/45 s, but only for continuation batches (`batch_idx >= 1`); an empty **first** batch means "no data here", not pacing, and retrying it just burns pacing budget. Wrap bootstrap in an outer ladder (30/60/120/300/600 s). On exhaustion return short with an explicit error log rather than raising: past-retention is indistinguishable from pacing, and a hard raise turns a data boundary into an outage.
 
 ## Session-Anchored Stub Bars (historical FX data off the bar grid)
 
@@ -51,9 +74,17 @@ Streaming Level 1 quotes, bar updates, individual ticks, or pulling historical O
 - **Log the drop counts** (raw fetched / on-grid kept / dropped / top-up rounds). Silent filtering reads as "full coverage" when it is not.
 - **Guard state reconciliation against replayed bars.** Before a bootstrap/replay bar is allowed to complete a state transition (confirm a pending setup, fill a slot in a state machine), validate its chronology: the bar must close *after* the state's last update, and any confirmation window derived from it must not already be elapsed. A weeks-old reopen stub passing as "the next bar" is exactly how a replay silently completes and instantly expires a live setup.
 
+### Stub attrition starves the replay window
+
+The stub-drop mitigation has a second-order failure of its own: on larger intraday sizes the reopen stub is roughly 1 bar in 6 per trading day, so a fixed-count fetch **under-delivers** after filtering. In production the delivered pool fell hundreds of bars short of the bootstrap replay window, which would have falsely expired live FORMING signals as regressions on every restart. Ship the producer and consumer fixes together: the fetch inflates its pagination plan (about 7/6) and tops up in bounded rounds, and the bootstrap independently guards against a replay window that comes back empty or thin instead of trusting "I asked for N".
+
+### The forming bar (the last row is not closed)
+
+`reqHistoricalData` returns the **currently-forming bar as the last row**. MetaTrader does not, so code migrated from MT5 that assumes "last row = last closed bar" seeds the forming bar into indicator state at bootstrap; the first live tick then re-supplies the same bar and the indicator state is corrupted from that point on (every read returns nothing, with no error). This is distinct from the session-stub problem above, and both drops belong in the same ingestion method: **drop any bar whose synthesized `time_close` is in the future**.
+
 ## Event Listener Contracts (eventkit swallows your exceptions)
 
-ib_async dispatches events through **eventkit**, which catches every exception raised inside a listener and logs it via `logging.getLogger("eventkit.event")` -- the emission then dies, silently from your application's point of view. Two consequences bite production:
+ib_async dispatches events through **eventkit** (installed as the `aeventkit` fork; import and logger names unchanged), which catches every exception raised inside a listener and logs it via `logging.getLogger("eventkit.event")` -- the emission then dies, silently from your application's point of view. Two consequences bite production:
 
 - **A handler with the wrong signature fails on every single emission.** Example: `positionEvent` emits one `Position` namedtuple, but a handler declared with the raw-wrapper 4-argument signature raises `TypeError` inside eventkit on every position update -- position deltas simply "never fire", forever, with zero trace in your logs.
 - **If your logging pipeline only ships your own loggers** (a dedicated app logger to CloudWatch or similar), the `eventkit.event` and `ib_async` std-logger records land in stdout/stderr at best -- invisible to all remote debugging.
@@ -61,7 +92,8 @@ ib_async dispatches events through **eventkit**, which catches every exception r
 **Rules:**
 
 - **Pin every handler signature with a contract test** that emits the real event object through the real event (`ib.positionEvent.emit(Position(...))`) and asserts the handler body executed. Arity bugs are permanent until tested.
-- **Route the third-party std loggers** (`eventkit`, `ib_async`) into the same sink as your application logs.
+- **Route the third-party std loggers at broker construction**: attach `ib_async`, `ib_insync`, and `eventkit` to the same sink as your application logs (one helper call, e.g. `route_external_loggers(logger, ["ib_async", "ib_insync", "eventkit"])`). In production this routing is what finally exposed a position-delta `TypeError` that had been invisible for weeks. Pair it with process-wide hooks: an asyncio loop exception handler and `threading.excepthook` that escalate to your critical logger, because unhandled task/loop/thread exceptions otherwise die on local stderr.
+- **The decoder is a third failure channel.** ib_async message-decode failures ("Error handling fields:" records) never reach `errorEvent`; they surface only on the ib_async stdlib logger, with no reqId and no contract attached. A reconnect burst can drop contract-data messages for every operating contract this way. An error that reaches your log aggregator only by accident is not an error you observe -- which is exactly why the logger routing above is mandatory, and why decode errors during a reconnect window deserve an explicit triage (was the qualified-contract cache refreshed after them?).
 - **Diagnostic heuristic:** if an event handler "never fires" but the Gateway log proves the server delivered the message, suspect a swallowed listener exception before suspecting the subscription.
 
 ## Throttled request queue (the local pattern worth keeping)
@@ -70,20 +102,27 @@ ib_async dispatches events through **eventkit**, which catches every exception r
 import asyncio
 
 class HistoricalDataThrottle:
-    def __init__(self, max_per_10min=50, min_interval=11):
-        self.semaphore = asyncio.Semaphore(max_per_10min)
+    # Two independent brakes, named for what they actually do:
+    # - max_concurrent bounds simultaneous open requests (venue cap: 50)
+    # - min_interval spaces request starts; 11 s keeps a single client under
+    #   the 60-per-10-min window (600 s / 11 s ~= 54). Use 22 s for BID_ASK,
+    #   which counts double.
+    def __init__(self, max_concurrent=6, min_interval=11):
+        self.semaphore = asyncio.Semaphore(max_concurrent)
         self.min_interval = min_interval
         self.last_request = 0
 
     async def request(self, ib, contract, **kwargs):
         async with self.semaphore:
-            now = asyncio.get_event_loop().time()
+            now = asyncio.get_running_loop().time()
             wait = self.min_interval - (now - self.last_request)
             if wait > 0:
                 await asyncio.sleep(wait)
-            self.last_request = asyncio.get_event_loop().time()
+            self.last_request = asyncio.get_running_loop().time()
             return await ib.reqHistoricalDataAsync(contract, **kwargs)
 ```
+
+The interval throttle is per-process; the identical-request 15 s rule is enforced per login **across processes** (see "Historical silence has three causes").
 
 ## Hybrid OHLCV feed (production-grade)
 
@@ -100,9 +139,11 @@ def on_bar_update(bars, hasNewBar):
     if hasNewBar:
         completed = bars[-2]   # the just-closed bar; bars[-1] is still forming
         # strategy logic
-    if len(bars) > 1000:
-        del bars[:len(bars)-500]
+    if len(bars) > 2000:
+        del bars[:len(bars)-1000]
 ```
+
+**Schema parity is the adapter's job.** IBKR bars carry no `time_close`; synthesize it (`time_open + bar_size`) at the adapter so downstream code has one schema. And ib_async returns `datetime.date` objects for daily-and-larger bars but `datetime` for intraday: convert both explicitly and **raise** on any unsupported timestamp type -- a silent fallback to `now()` once collapsed every daily bar onto the current day.
 
 ## Official docs
 
@@ -116,4 +157,5 @@ def on_bar_update(bars, hasNewBar):
 - `venue-boundary-failure-modes.md` -- NaN-safe price reads, terminal-code aborts, data-contract vs order-contract split
 - `tws-api-architecture.md` -- connection setup, clientId strategy
 - `order-execution.md` -- the same event-pattern applied to order updates
+- `order-lifecycle-contracts.md` -- verdict windows, warning-grade codes, attribution traps
 - `reconnection-resilience.md` -- handling 1101/1102 and reconciling data gaps

@@ -1,6 +1,6 @@
 # IBKR Trading Plugin
 
-> Interactive Brokers algotrading - TWS API 10.45 architecture, ib_async event-driven programming, market data subscriptions, order execution with bracket orders, historical data pacing rules, contract/tick/sizing venue-boundary failure modes, reconnection resilience, IBC automation, and Windows production deployment.
+> Interactive Brokers algotrading - TWS API architecture, ib_async event-driven programming, market data subscriptions, order execution with bracket orders, order lifecycle verdict contracts, historical data pacing rules, contract/tick/sizing venue-boundary failure modes, reconnection resilience, Gateway automation with IBC, and Windows production deployment. Heavily production-derived: netted close paths, terminal order presets, zombie connections, stub bars and forming bars, silent-failure diagnosis.
 
 ## Agents
 
@@ -12,7 +12,7 @@ Expert in Interactive Brokers algotrading system design, implementation, and deb
 |---|---|
 | **Model** | `inherit` |
 | **Tools** | `Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch` |
-| **Use for** | Building IB trading bots, connecting to TWS/IB Gateway, implementing market data subscriptions, designing order execution logic, handling IB reconnection, deploying IB trading systems on Windows |
+| **Use for** | Building IB trading bots, connecting to TWS/IB Gateway, implementing market data subscriptions, designing order execution logic, handling IB reconnection, diagnosing silent order/close failures (wrong-side closes, preset cancellations, swallowed rejections), deploying IB trading systems on Windows |
 
 **Invocation:**
 ```
@@ -31,7 +31,7 @@ Comprehensive knowledge base for building production-grade algorithmic trading s
 |---|---|
 | **Trigger** | Building, optimizing, or debugging IB trading systems with Python |
 
-**Reference documents:** tws-api-architecture, event-driven-data, order-execution, reconnection-resilience, venue-boundary-failure-modes.
+**Reference documents:** tws-api-architecture, event-driven-data, order-execution, order-lifecycle-contracts, reconnection-resilience, gateway-automation, venue-boundary-failure-modes.
 
 ---
 
@@ -39,7 +39,7 @@ Comprehensive knowledge base for building production-grade algorithmic trading s
 
 ### `/ibkr-audit`
 
-Audit an existing Interactive Brokers trading system for reliability, error handling, and production readiness.
+Audit an existing Interactive Brokers trading system for reliability, error handling, and production readiness. Covers connection, market data, orders, close path and netting, terminal preset config, error handling, venue boundary, reconnection, historical data integrity, and production hardening.
 
 ```
 /ibkr-audit [path-or-description]

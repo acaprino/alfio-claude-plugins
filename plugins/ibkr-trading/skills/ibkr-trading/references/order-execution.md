@@ -4,7 +4,7 @@ Placing orders, brackets, monitoring fills, reconciling positions. The principle
 
 ## When to use
 
-Submitting, modifying, cancelling, or reconciling orders. For market data subscriptions (which use the same event pattern), see `event-driven-data.md`.
+Submitting, modifying, cancelling, or reconciling orders. For market data subscriptions (which use the same event pattern), see `event-driven-data.md`. For what "placed" actually means and how the venue's verdict arrives, see `order-lifecycle-contracts.md`.
 
 ## Order shapes (just the most useful ones)
 
@@ -16,8 +16,8 @@ Submitting, modifying, cancelling, or reconciling orders. For market data subscr
 | Stop-Limit | `STP LMT` | Stop + price protection |
 | Trailing Stop | `TRAIL` | Dynamic |
 | MOC / LOC | `MOC` / `LOC` | Market / Limit on close |
-| Pegged-to-NBBO | `REL` | Relative to top of book |
-| Midprice | `MIDPRICE` | Pegged to midpoint |
+| Relative (Pegged-to-Primary) | `REL` | Pegged to the same-side primary quote plus offset |
+| Midprice | `MIDPRICE` | Pegged to midpoint; US stocks via SMART only |
 
 IB algos available too: Adaptive (Urgent/Normal/Patient), TWAP, VWAP, ArrivalPx, DarkIce, Accumulate/Distribute, PctVol.
 
@@ -35,11 +35,11 @@ IB algos available too: Adaptive (Urgent/Normal/Patient), TWAP, VWAP, ArrivalPx,
 - **`placeOrder()` with the same orderId = modify** -- not a new order. Cannot modify already-filled portions; cancellation may fail mid-fill.
 - **Error 201 ("Order rejected") -- never auto-retry.** Always investigate. Common causes: price check failure, margin, exchange-specific rules, and (on retail EU entities) FX currency-leverage on a leveraged spot cross. Blind retry generates more 201s and burns through OER budget. The FX currency-leverage case is fixable by routing through CFDs: see `venue-boundary-failure-modes.md`.
 - **Compliance 201s are NOT order precautions -- no override exists.** Precautions are the 10xxx series; account/compliance rejections like FX currency-leverage are hard rejections. Neither "Bypass Order Precautions for API Orders" in the Gateway config nor `Order.advancedErrorOverride` will let them through. Do not burn time on override paths: fix the contract type (spot -> CFD) or the account, treat the code as permanently non-retryable.
-- **Bracket children (SL/TP) must be `tif='GTC'`; only the parent entry is `DAY`.** Two symmetric failure modes otherwise: DAY children expire at session end and leave an open position **naked overnight**; and children that survive the position (closed by an opposing fill or manually) rest as live orders on a flat contract, ready to open an unintended position. The invariant is *protections live exactly as long as the position*: GTC children for the position's lifetime, plus a **residual-child reaper** -- on a position-closed event for a contract now flat, cancel any bracket children still open on that contract.
+- **Bracket children (SL/TP) must be `tif='GTC'`; only the parent entry is `DAY`.** Two symmetric failure modes otherwise: DAY children expire at session end and leave an open position **naked overnight**; and children that survive the position (closed by an opposing fill or manually) rest as live orders on a flat contract, ready to open an unintended position. The invariant is *protections live exactly as long as the position*: GTC children for the position's lifetime, plus a **residual-child reaper** -- on a position-closed event for a contract now flat, cancel any bracket children still open on that contract. Caveat: this recipe can still be defeated wholesale by a terminal-side order preset (error 10349) -- see `order-lifecycle-contracts.md`.
 - **Phantom `Cancelled` during staged bracket transmit.** With the `transmit=False` staging pattern, children can report a *transient* `Cancelled` status before flipping to `PreSubmitted` once the last child transmits. Do not emit a real cancellation event (or notify anyone) on that transient -- confirm against `reqOpenOrders()`/broker state before treating a staged child's `Cancelled` as real.
-- **`whatIf=True` orders are free empirical probes.** A whatIf submission returns margin impact and commission **without placing**, and surfaces hard rejections (like a compliance 201) with zero market risk. Use whatIf against the paper gateway to *prove* an account capability or a contract-type migration before writing code around an assumption; pair with read-only `reqContractDetailsAsync` to prove a contract form resolves at all.
-- **A successful `placeOrder` is "submitted", not "accepted".** IBKR accepts or rejects asynchronously via `errorEvent`. If you do not subscribe `errorEvent` and route rejection codes into your order lifecycle, a rejected order silently dies while your system thinks it is live. De-duplicate the rejection against `orderStatusEvent`. See `venue-boundary-failure-modes.md`.
-- **Error 110 ("price does not conform to minimum price variation") -> 135 on bracket children.** Snap every price to the contract `minTick` (read from `ContractDetails`, not the `Contract`) before placing, and round bracket SL/TP *away* from entry. Covered in `venue-boundary-failure-modes.md`.
+- **Prove capabilities empirically before writing code around an assumption.** The used-in-anger path: place the exact contested order against the **paper gateway** and read the venue's verdict (this is how "the spot-rejected order is accepted as a CFD with normal margin" was proven before a contract-type migration). `whatIf=True` submissions are a cheaper complementary probe: they return margin impact and commission without placing and surface hard rejections like a compliance 201 with zero market risk. Pair either with read-only `reqContractDetailsAsync` to prove a contract form resolves at all.
+- **A successful `placeOrder` is "submitted", not "accepted".** IBKR accepts or rejects asynchronously via `errorEvent`, typically within a sub-second verdict window. If you do not subscribe `errorEvent` and route rejection codes into your order lifecycle, a rejected order silently dies while your system thinks it is live. De-duplicate the rejection against `orderStatusEvent`. See `venue-boundary-failure-modes.md` for the ingress pattern and `order-lifecycle-contracts.md` for the verdict-window contract.
+- **Error 110 ("price does not conform to minimum price variation") kills a not-yet-working bracket.** On a parent still in `PendingSubmit`, the 110 cascades: the children then die with **error 135 ("Can't find order with ID")** because their parent no longer exists. `place_order` still returned success, so the signal reaches FIRED with no live order. Snap every price to the contract `minTick` (read from `ContractDetails`, not the `Contract`) before placing, and round bracket SL/TP *away* from entry. On an already-working order the same 110 is only warning-grade and the order stays live -- see `order-lifecycle-contracts.md`. Full tick-conformance treatment: `venue-boundary-failure-modes.md`.
 - **Partial fills** populate `trade.fills` (each individual execution) and increment cumulative quantity -- adjust bracket child quantities if a parent partially fills before children become live.
 
 ## Bracket order skeleton (the pattern)
@@ -109,16 +109,26 @@ def on_exec_details(trade, fill):
 ib.execDetailsEvent += on_exec_details
 ```
 
+## Paper Trading Caveats
+
+Paper trading uses **simulated execution** from top-of-book only. Key differences:
+
+- Order types not supported: VWAP, Auction, RFQ, Pegged to Market
+- Stops and complex orders are always simulated -- behavior may differ from production
+- Penny trading for US options is reported unsupported
+- Simulator rejects residual of exchange-directed market orders that execute partially
+- **Test in paper but never assume identical behavior to live.** The paper gateway is still the right place to *prove* venue verdicts empirically (see the probing gotcha above): rejections like compliance 201s reproduce faithfully there.
+
 ## Official docs
 
 - Order types reference: https://www.interactivebrokers.com/campus/ibkr-api-page/twsapi-ref/#order-types
 - Bracket orders: https://www.interactivebrokers.com/campus/ibkr-api-page/twsapi-doc/#bracket-orders
 - Order status flow: https://www.interactivebrokers.com/campus/ibkr-api-page/twsapi-doc/#order-status
 - Error codes: https://www.interactivebrokers.com/campus/ibkr-api-page/tws-api-error-codes/
-- Order Efficiency Ratio: https://www.interactivebrokers.com/en/general/education/order-efficiency-ratio.php
 
 ## Related
 
+- `order-lifecycle-contracts.md` -- verdict windows, warning-vs-rejection grades, terminal presets, netted close paths
 - `venue-boundary-failure-modes.md` -- async rejection ingress, tick conformance, FX-as-CFD routing, NaN-safe sizing
 - `event-driven-data.md` -- the same event pattern for market data
 - `reconnection-resilience.md` -- handling disconnect during open orders

@@ -1,6 +1,8 @@
 # TWS API Architecture and ib_async
 
-The TWS API is a local TCP socket protocol (Protocol Buffers since 10.40) between Python and TWS or IB Gateway. Current production version: **10.45** (March 2026), minimum supported 10.30. Use `ib_async` (the maintained successor to ib_insync) for all new code unless you have a specific reason to use the official ibapi.
+The TWS API is a local TCP socket protocol (Protocol Buffers encoding in recent 10.x versions) between Python and TWS or IB Gateway. Current production version: **10.49** (August 2026), the release that also **open-sourced the TWS API under the GPL**. Version 10.47 removed `reqFundamentalData` and its protobuf variants entirely. Use `ib_async` (the maintained successor to ib_insync) for all new code unless you have a specific reason to use the official ibapi.
+
+This file is the only place in this skill that states the TWS API version number. Everywhere else stays version-free on purpose; update it here.
 
 ## When to use
 
@@ -8,7 +10,7 @@ Building a Python algotrading system that talks to Interactive Brokers. For acco
 
 ## TWS vs IB Gateway (the only choice that matters)
 
-**Use IB Gateway in production** -- ~40% less RAM/CPU than TWS, smaller attack surface, API enabled by default. TWS is for development when you want the GUI alongside.
+**Use IB Gateway in production** -- lighter RAM/CPU footprint than TWS, smaller attack surface, API enabled by default. TWS is for development when you want the GUI alongside.
 
 | Aspect | TWS | IB Gateway |
 |--------|-----|------------|
@@ -16,16 +18,19 @@ Building a Python algotrading system that talks to Interactive Brokers. For acco
 | API enabled by default | No (manual toggle) | **Yes** |
 | Auto-update | Yes | Offline version only |
 
-Both: max 32 simultaneous connections, manual login required (use IBC for automation), use the **offline/standalone build in production** -- the auto-updater silently breaks bots.
+Both: max 32 simultaneous connections, manual login required (use IBC for automation, see `gateway-automation.md`), use the **offline/standalone build in production** -- the auto-updater silently breaks bots.
 
 ## Gotchas
 
 - **Never `time.sleep()` in a TWS API callback.** It blocks the entire event loop and freezes message processing. Use `ib.sleep(seconds)` or `asyncio.sleep()`. CPU work in callbacks goes through `loop.run_in_executor()`.
+- **The sync API twins are a trap inside async code.** Every `IB.x()` has an `IB.xAsync()` counterpart; the sync form calls `run_until_complete` internally and raises `RuntimeError: This event loop is already running` when invoked from a coroutine. In production this surfaced as an order-preparation path that crashed on `IB.accountSummary()` and never sent the order. Inside any async context, only the `*Async` forms are safe.
 - **`clientId=0` is special** -- it merges with manual TWS trading and sees orders placed by hand. Bots should use dedicated non-zero IDs (1=data, 2=orders, 3=monitoring). Configure a Master Client ID in TWS to receive updates from all clients.
-- **Error 326 = "clientId already in use."** Restart-safe IDs require a dedicated assignment scheme.
-- **Web API has a 10 req/sec global limit** with a 10-15 minute IP penalty box. Useless for active trading -- TWS API socket is the only serious choice.
+- **Error 326 = "clientId already in use."** Restart-safe IDs require a dedicated assignment scheme. A half-open socket left behind by a cancelled connect attempt can also collide with the next attempt (see `reconnection-resilience.md`).
+- **IBKR Web API (formerly Client Portal API) has a 10 req/sec global limit**, HTTP 429 on excess, and a roughly 10-minute IP penalty box (repeat violators can be blocked outright). IBKR is merging Client Portal Web API, Digital Account Management, and Flex into one "Web API" brand; older docs use both names for the same product. Useless for active trading -- the TWS API socket is the only serious choice.
 - **`ib_insync` is archived** (March 2024, after the author's passing). Migration to `ib_async` is nearly drop-in: `from ib_async import *`.
-- **Official ibapi on PyPI is from 2020 (9.81.1) -- outdated.** If you need it, install from the TWS API download, not PyPI.
+- **Pin `ib_async` with an upper bound** (`ib_async<3.0.0`) and record why: the library forked from ib_insync in 2024, and a future major could change the `errorEvent` signature or `placeOrder` semantics. A pin forces an explicit upgrade decision instead of passive drift.
+- **ib_async's event layer is `aeventkit`**, the ib-api-reloaded fork of eventkit (the original package's PyPI publishing is blocked). The import name and logger names remain `eventkit.*`, so existing logging routing keeps working; only the installed distribution name changed.
+- **Official `ibapi` on PyPI lags the TWS API downloads.** The package is IBKR-published and saw 2026 uploads, but its version line trails the current API; the separate `ibapi-latest` package tracks current releases. For the newest API version, install from the TWS API download.
 - **Threading vs asyncio**: ib_async (asyncio) is more robust for production. When integrating with sync frameworks (Flask, Django), put IB work in a dedicated thread with its own asyncio loop and communicate via queues -- mixing event loops cross-thread will eventually deadlock.
 
 ## Connection skeleton
@@ -48,22 +53,41 @@ Three event-loop styles: `ib.run()` (sync, simplest standalone bots), `asyncio.r
 
 ## Official docs
 
+The canonical documentation tree moved to `https://www.interactivebrokers.com/docs/tws-api/doc/` (it blocks automated fetching; browse it interactively). The older IBKR Campus paths below still resolve and coexist with it, and `https://interactivebrokers.github.io/tws-api/` is an official, fetchable reference that may lag the newest codes.
+
 - IBKR API Home: https://www.interactivebrokers.com/campus/ibkr-api-page/ibkr-api-home/
 - TWS API docs: https://www.interactivebrokers.com/campus/ibkr-api-page/twsapi-doc/
 - API Reference: https://www.interactivebrokers.com/campus/ibkr-api-page/twsapi-ref/
 - Changelog: https://www.interactivebrokers.com/campus/ibkr-api-page/tws-api-changelog-2/
-- 2026 release notes: https://ibkrguides.com/releasenotes/prod-2026.htm
+- Release notes: https://ibkrguides.com/releasenotes/prod-2026.htm (year-stamped URL; bump the year annually)
 - ib_async repo: https://github.com/ib-api-reloaded/ib_async
 - ib_async docs: https://ib-api-reloaded.github.io/ib_async/
 
 ## Related libraries
 
-- **IBC** (https://github.com/IbcAlpha/IBC) -- login automation for TWS/Gateway, 2FA handling, auto-restart. **Essential for production.**
-- **gnzsnz/ib-gateway-docker** -- Docker image with IB Gateway + IBC, supports simultaneous live+paper.
+- **IBC** (https://github.com/IbcAlpha/IBC) -- login automation for TWS/Gateway, 2FA handling, auto-restart. **Essential for production.** See `gateway-automation.md`.
+- **gnzsnz/ib-gateway-docker** -- Docker image with IB Gateway + IBC, supports simultaneous live+paper. Actively maintained.
 - **NautilusTrader** -- professional platform with IB adapter, backtest + live in one framework.
+
+## Community resources and reference architectures
+
+- **pysystemtrade** (https://github.com/pst-group/pysystemtrade): gold standard reference -- Rob Carver's fully automated futures trading system. Uses **ib_async**. Moved to the `pst-group` GitHub org in January 2026; Andy Geach is primary maintainer (since 2024), jointly owned with Rob Carver.
+- **9600dev/mmr** (https://github.com/9600dev/mmr): LLM-native platform with ib_async + ZeroMQ + DuckDB, modern proposal-based order management. Actively maintained.
+- AlgoTrading101 -- IB Python Native API: https://algotrading101.com/learn/interactive-brokers-python-api-native-guide/
+- AlgoTrading101 -- ib_insync guide (API surface still matches ib_async): https://algotrading101.com/learn/ib_insync-interactive-brokers-api-guide/
+- Rob Carver's blog: https://qoppac.blogspot.com/2017/03/interactive-brokers-native-python-api.html (2017 multi-part series, battle-tested)
+- Book: "Algorithmic Trading with Interactive Brokers" by Matthew Scarpino
+- YouTube -- Part Time Larry: beginner tutorials from the ib_insync era, still API-compatible
+- YouTube -- Adi's livestream VODs: the community video resource credited in the ib_async README
+- Reddit r/algotrading (~1.9M members): most active for IB + Python discussions
+- Elite Trader IB Forum: https://www.elitetrader.com/et/forums/interactive-brokers.10/
+- IBKR Campus Quant Blog: https://www.interactivebrokers.com/campus/ibkr-quant-news/
+- Stack Overflow (tags: `interactive-brokers`, `ib-insync`): moderate activity, useful for specific problems
 
 ## Related
 
-- `event-driven-data.md` -- subscribing to ticks, bars, ticks-by-tick
+- `event-driven-data.md` -- subscribing to ticks, bars, tick-by-tick
 - `order-execution.md` -- placing orders, brackets, execDetails monitoring
-- `reconnection-resilience.md` -- daily reset, IBC, recovery patterns
+- `order-lifecycle-contracts.md` -- what "placed" means, verdict windows, terminal presets
+- `reconnection-resilience.md` -- daily reset, zombie connections, recovery patterns
+- `gateway-automation.md` -- IBC, launcher patterns, Windows deployment
