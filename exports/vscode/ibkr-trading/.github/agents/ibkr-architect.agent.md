@@ -57,10 +57,11 @@ Expert architect for Interactive Brokers algorithmic trading systems in Python. 
 ### Market Data Subscriptions
 - reqMktData: Level 1 streaming, time-sampled (not every tick)
 - reqRealTimeBars: 5-sec bars ONLY, auto-backfills on reconnect, most resilient
-- reqTickByTickData: every tick; simultaneous-subscription cap follows the market-depth formula (small by default, grows with market data lines); max 1 request per instrument per 15 s
+- reqTickByTickData: every tick; simultaneous subscriptions capped at 5% of the account's total market data lines (5 on the default 100); max 1 request per instrument per 15 s; requires an L1 top-of-book subscription
 - keepUpToDate: historical + live tail, versatile but fragile after network interruption
-- Market data lines: 100 default, expandable with paid Quote Booster Packs
-- Snapshots: billed per snapshot (US equities); verify current pricing before designing around it
+- Market data lines: 100 default, expandable with paid Quote Booster Packs; lines are the budget the tick-by-tick cap is computed from
+- Market data types: 1 live, 2 frozen, 3 delayed, 4 delayed-frozen; a non-live request does not switch the feed permanently, and the actual type per request arrives on the marketDataType callback (there is NO error code meaning "you are on delayed data")
+- Snapshots: a small monthly allowance is free (100/month at time of writing), then billed; verify current pricing before designing around it
 - Market state is data too: `tradingHours` from reqContractDetails covers ~a week of dated segments; is_market_open must be tri-state (None beyond coverage, never a confident False from a blind broker), refreshed on a TTL keyed on last attempt
 
 ### Historical Data
@@ -146,8 +147,8 @@ Expert architect for Interactive Brokers algorithmic trading systems in Python. 
 ### Error Codes
 - Connectivity: 1100 (lost), 1101 (restored, data lost), 1102 (restored, data ok)
 - Farm status: 2103/2105 (disconnected), 2104/2106/2158 (connected, informational)
-- Data: 162 (generic historical-data service error; pacing is one cause), 200 (no security definition), 354 (no subscription), 2127->366 (no data on Forex CFD; the tell is the PAIR, 366 alone has other causes), 10197 (no market data during competing live/paper session)
-- Orders: 103 (duplicate ID), 110 (price not a multiple of minTick; kills only PendingSubmit orders, warning-grade on working ones), 135 ("Can't find order with ID" -- seen as the children's death after a parent's 110 killed a staged bracket), 201 (rejected: margin, price check, or FX currency-leverage), 202 (cancelled), 399 (order warning/reject, often sizing), 10349 (TIF overridden/cancelled by a terminal order preset)
+- Data: 162 (generic historical-data service error; pacing is one cause), 200 (no security definition), 354 (no subscription), 2127->366 (no data on Forex CFD; the tell is the PAIR, 366 alone has other causes), 10089 (API data requires subscription), 10090 (part of requested data not subscribed), 10186 (delayed data not enabled), 10197 (no market data during competing live/paper session)
+- Orders: 103 (duplicate ID), 110 (price not a multiple of minTick; kills only PendingSubmit orders, warning-grade on working ones), 135 ("Can't find order with ID" -- seen as the children's death after a parent's 110 killed a staged bracket), 201 (rejected: margin, price check, or FX currency-leverage), 202 (cancelled), 399 (order warning/reject, often sizing), 10349 (TIF overridden/cancelled by a terminal order preset; undocumented, IBKR's published table stops at 10347, and the documented neighbours 10335/10233 confirm presets do act on API orders)
 - Connection: 326 (clientId in use), 502 (connect failed), 100 (message rate exceeded)
 - Terminal market-data codes that must abort a snapshot wait: {200, 354, 10089, 10090, 10197}
 - Async rejection codes to route into the order lifecycle: {103, 135, 161, 201, 202, 10148, 10318}; state-dependent (do NOT route via the error set): 105, 110, 10349; notice-grade: 388 (size reduction); connection-layer: 503, 504
@@ -195,7 +196,7 @@ The silent-failure layer. `placeOrder`/`reqMktData` return success; IBKR accepts
 |------|--------|-------|
 | Streaming quotes | reqMktData | 100 lines default |
 | 5-sec bars, reconnect-safe | reqRealTimeBars | 1 line per subscription |
-| Tick-level precision | reqTickByTickData | Small capped allowance (market-depth formula) |
+| Tick-level precision | reqTickByTickData | 5% of total market data lines |
 | Historical + live chart | keepUpToDate | Fragile after disconnect |
 | One-time price check | reqMktData snapshot | Billed per snapshot |
 

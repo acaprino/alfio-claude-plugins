@@ -80,7 +80,8 @@ Analyze an existing IB trading system and produce an actionable audit report.
 - [ ] Rejection codes GRADED before routing: rejection-grade ({103, 135, 161, 201, 202, 10148, 10318}) mapped to a cancelled/failed event; state-dependent codes (105, 110, 10349) excluded; 388 treated as a size notice; 503/504 routed to reconnection, not the order lifecycle
 - [ ] Rejection events de-duplicated against orderStatusEvent (both fire for one TWS rejection; seconds-scale TTL)
 - [ ] Connectivity codes handled (1100, 1101, 1102)
-- [ ] Data codes handled (162 generic historical-data error, 200 no security, 354 not subscribed, 2127->366 no data on Forex CFD, 10197 competing live/paper session)
+- [ ] Data codes handled (162 generic historical-data error, 200 no security, 354 not subscribed, 2127->366 no data on Forex CFD, 10089/10090/10186 subscription gaps, 10197 competing live/paper session)
+- [ ] Delayed-feed detection reads the `marketDataType` callback, not an error code (no error code means "you are on delayed data")
 - [ ] Order codes handled (103 duplicate ID, 110 tick conformance, 135 can't-find-order after a parent's death, 201 rejected, 202 cancelled, 399 sizing, 10349 preset override)
 - [ ] Farm status codes logged but not alarmed (2104, 2106, 2158)
 - [ ] WinError 10038 handled (Windows socket close)

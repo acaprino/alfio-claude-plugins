@@ -30,11 +30,6 @@ When changes modify plugins (agents, skills, commands), update the marketplace *
 4. **Commit together** - stage the plugin files, `marketplace.json`, and any `exports/` changes in one commit
 5. **Push to remote** - `git push` to `master`
 
-Key fields in `.claude-plugin/marketplace.json`:
-- `metadata.version`: overall marketplace version
-- `plugins[].version`: per-plugin version
-- Install command: `claude plugin marketplace add acaprino/claude-code-daodan`
-
 ## Adding a new plugin
 
 1. Create `plugins/<name>/` with `agents/`, `skills/`, `commands/`, and/or `hooks/` subdirectories as needed
@@ -62,6 +57,25 @@ When a change legitimately trips the linter, fix the declaration (or the referen
 ## Documentation
 
 `docs/plugins/` contains per-plugin documentation. `docs/references/` holds cross-cutting knowledge bases that inform changes across multiple plugins — notably [`agent-teams-best-practices.md`](docs/references/agent-teams-best-practices.md), the source of truth when restructuring any plugin that spawns multi-agent teams or pipeline reviewers (`senior-review`, `codebase-mapper`, `research`, `codebase-xray`).
+
+## Research technique: when a direct fetch is blocked, drive a browser
+
+Many vendor documentation sites (IBKR's `interactivebrokers.com/docs/` among them) return **HTTP 403 to WebFetch** while serving the same pages fine to a real browser. A 403 is a bot-detection result, not evidence that the page is gone or that the fact is unverifiable. Never downgrade a claim to "unverified" on a 403 alone.
+
+The escalation path, in order:
+
+1. `WebFetch`. If it returns 403 or empty content, do not retry it and do not conclude anything from the failure.
+2. **Drive a real browser with the `playwright-skill` plugin** (`playwright-skill@playwright-skill`, a hard dependency of `app-analyzer`, `pwa-expert`, `digital-marketing`, and `grabber-development`, and already installed on this machine). It ships its own Playwright and Chromium, so nothing needs installing. Write the script outside the skill directory (the scratchpad, never the project) and run it through the skill's executor:
+
+   ```bash
+   SKILL=~/.claude/plugins/cache/playwright-skill/playwright-skill/<version>/skills/playwright-skill
+   cd "$SKILL" && node run.js /path/to/scratchpad/script.js
+   ```
+
+   Use `headless: false`: it is the skill's documented default and it also passes bot detection that headless does not.
+3. Check whether the site publishes an **LLM-friendly index**. IBKR's docs expose `/llms.txt` at the root and serve clean Markdown for any page by appending `.md` to its URL, which is faster and cleaner than scraping rendered HTML. Look for that before writing extraction logic.
+
+This is how the five "unverifiable" IBKR facts in the 2026-08-09 `ibkr-trading` refresh were actually resolved, one of which (a plugin claim that error code 10167 exists) turned out to be false rather than merely unconfirmed.
 
 ## Repo workflows
 

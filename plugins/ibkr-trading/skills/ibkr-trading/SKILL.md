@@ -77,7 +77,7 @@ Then harden incrementally:
 |----------|---------|-------------|
 | Connection target | IB Gateway | Need visual debugging -- TWS |
 | Python library | ib_async | Need same-day new features -- ibapi |
-| Live data | reqRealTimeBars (5s bars) | Need tick precision -- reqTickByTickData (small capped allowance) |
+| Live data | reqRealTimeBars (5s bars) | Need tick precision -- reqTickByTickData (capped at 5% of market data lines) |
 | Chart data | keepUpToDate | Network-sensitive env -- reqRealTimeBars + aggregation |
 | Historical data | reqHistoricalData + throttle | Bulk backfill -- chunked requests with Semaphore |
 | Order type | Bracket (parent+TP+SL) | Need trailing: TRAIL. Need algo: Adaptive |

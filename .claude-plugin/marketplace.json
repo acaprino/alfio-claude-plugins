@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Claude Code Daodan - 39 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), prose humanization, and pure-architecture audits (missed unification, wrong abstractions).",
-    "version": "18.5.1"
+    "version": "18.5.2"
   },
   "plugins": [
     {
@@ -1001,7 +1001,7 @@
       "name": "ibkr-trading",
       "source": "./plugins/ibkr-trading",
       "description": "Interactive Brokers algotrading - TWS API architecture, ib_async event-driven programming, market data subscriptions, order execution with bracket orders, order lifecycle verdict contracts (placement verdicts, warning-vs-rejection grades, terminal presets, netted close paths), venue-boundary failure modes (async rejection ingress, tick conformance, FX-as-CFD routing, NaN-safe sizing), reconnection resilience, Gateway automation with IBC, and Windows production deployment",
-      "version": "1.4.0",
+      "version": "1.4.1",
       "author": {
         "name": "Alfio"
       },
