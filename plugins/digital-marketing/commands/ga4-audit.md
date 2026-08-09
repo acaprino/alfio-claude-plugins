@@ -3,7 +3,7 @@ description: >
   End-to-end Google Analytics 4 + GTM audit with Playwright-powered verification of dataLayer events, Consent Mode v2 state, conversion (Key Event) configuration, remarketing audiences, and Ads linking - outputs a prioritized fix list with concrete code.
   TRIGGER WHEN: the user asks to audit GA4, verify GTM setup, check Consent Mode compliance, debug missing conversions, review remarketing audiences, validate dataLayer events, or check "why isn't my site converting".
   DO NOT TRIGGER WHEN: the task is general SEO (use /digital-marketing:seo-audit), content/CTA optimization (use /digital-marketing:content-strategy), or server-side analytics infrastructure unrelated to GA4/GTM.
-argument-hint: "<url or local path> [--gtm <container-id>] [--competitor <url>] [--strict-mode]"
+argument-hint: "<url or local path> [--gtm <container-id>] [--strict-mode]"
 ---
 
 # GA4 + GTM Audit
@@ -17,11 +17,37 @@ Comprehensive audit of a website's GA4 + GTM setup with live Playwright verifica
 3. **Never fabricate IDs**. If you cannot see the GA4 Measurement ID, GTM Container ID, or Ads Conversion ID, say so -- do not guess.
 4. **Write output to `.ga4-audit/`** for persistence and re-runs.
 
+## Pre-flight
+
+### Dependency check
+
+Every live check in Phase 2 needs Playwright MCP tools (`browser_navigate`, `browser_evaluate`, `browser_network_requests`). If they are not available, warn the user:
+
+```
+Missing required plugin: playwright-skill
+
+Live verification needs Playwright MCP tools to inspect dataLayer, network
+requests, cookies, and the consent banner state in a real browser. Without
+it, the audit is limited to reading source code.
+
+playwright-skill is a declared dependency of digital-marketing, distributed
+by its own upstream marketplace. Install it with:
+  claude plugin marketplace add lackeyjb/playwright-skill
+  claude plugin install playwright-skill@playwright-skill
+```
+
+Degraded fallback without Playwright: run a source-only audit (grep the codebase, fetch raw HTML via WebFetch). Report every check that needs a live browser as **NOT VERIFIED**, never as pass or fail. Say so explicitly in the report header so no reader mistakes an unrun check for a passing one.
+
+### Flags
+
+- `--gtm <GTM-ID>` -- skip container detection in Phase 1 and audit the given container ID. Still flag any *other* container ID found in the source as a duplicate.
+- `--strict-mode` -- treat every Warning as Critical in the final report and print an explicit `VERDICT: FAIL` line when any remains. Report text only; the command never sets a process exit code.
+
 ## Phase 1 -- Discovery
 
 Identify the target:
-- Live URL or local dev server (start dev server via `playwright-skill:detectDevServers()` if needed)
-- Extract GTM container ID (`GTM-XXXXXX`) from `<script src="...gtm.js?id=GTM-...">` or `<iframe src="...ns.html?id=GTM-...">`
+- Live URL, or an already-running local dev server. To find one, read the project's dev script and its configured port, or ask the user for the URL. Never start a dev server and never claim one was started.
+- Extract GTM container ID (`GTM-XXXXXX`) from `<script src="...gtm.js?id=GTM-...">` or `<iframe src="...ns.html?id=GTM-...">`. With `--gtm <GTM-ID>`, use the supplied ID instead and skip this step
 - Extract GA4 Measurement ID (`G-XXXXXXXX`) from gtag config or dataLayer events
 - Detect CMP: iubenda, Cookiebot, Orestbida CookieConsent, OneTrust, Axeptio, custom
 - Detect Consent Mode v2 integration: look for `gtag('consent', 'default', {...})` and `gtag('consent', 'update', {...})` calls
@@ -40,7 +66,8 @@ Open the site in Playwright, capture:
 ### Post-consent state
 - Accept cookies, record the `gtag('consent', 'update', ...)` call payload
 - Record subsequent `g/collect` hits, their parameters (`en`, `tid`, `cid`, `dl`)
-- Verify `sessionStorage.getItem('_gtmSession')` / GA cookies (`_ga`, `_ga_<MEASUREMENT_ID>`) set correctly
+- Confirm GTM is live: inspect `window.dataLayer` contents and the network requests to `googletagmanager.com/gtm.js`
+- Verify GA4 cookies are set: `_ga`, plus `_ga_<ID>` where `<ID>` is the Measurement ID with the `G-` prefix stripped (`G-ABC123` produces `_ga_ABC123`)
 
 ### Event coverage
 For each page type (home, product, checkout, thank-you), capture:
@@ -52,14 +79,15 @@ Write to `.ga4-audit/02-verification.md`.
 
 ## Phase 3 -- Configuration Audit
 
-Using GA4 Admin API (if `gcloud` auth available) or manual walkthrough, verify:
+Using the GA4 Admin API (if the user has API credentials configured for it) or a manual walkthrough of the GA4 admin UI with the user, verify:
 
 ### GA4 Property
 - [ ] Data streams configured (Web, iOS, Android as needed)
 - [ ] Enhanced Measurement enabled for relevant events (scroll, outbound clicks, site search, video, file download, form interactions)
-- [ ] Data retention set (14 months recommended for paid users)
-- [ ] IP anonymization on (EU requirement even though GA4 defaults to it)
+- [ ] Data retention set (2 months is the default and the safe EU choice; 14 months only with a documented business justification)
 - [ ] Google Signals enabled only if remarketing is needed AND consent has `ad_user_data: 'granted'`
+
+IP anonymization needs no verification. GA4 truncates IPs by design and exposes no setting to check or toggle (see `gdpr-compliance-eu.md`).
 
 ### Key Events (Conversions)
 - [ ] `purchase` marked as Key Event (always)
@@ -93,12 +121,11 @@ gtag('consent', 'default', {
   ad_user_data: 'denied',
   ad_personalization: 'denied',
   analytics_storage: 'denied',
-  functionality_storage: 'denied',
-  personalization_storage: 'denied',
-  security_storage: 'granted',  // always granted
-  wait_for_update: 500          // ms
+  wait_for_update: 500          // ms, optional but strongly recommended
 });
 ```
+
+Consent Mode v2 requires exactly these four signals. `functionality_storage`, `personalization_storage`, and `security_storage` are optional extras: accept them if the CMP sets them, never flag them as missing.
 
 ### Update on acceptance
 ```javascript
@@ -131,6 +158,8 @@ Generate `.ga4-audit/REPORT.md`:
 - GA4 Property: <G-XXXXXXXX>
 - CMP Detected: <iubenda / Cookiebot / etc.>
 - Consent Mode v2: [COMPLIANT | PARTIAL | MISSING]
+- Live verification: [PLAYWRIGHT | SOURCE-ONLY, live checks NOT VERIFIED]
+- VERDICT: [PASS | FAIL]   <!-- with --strict-mode, any Warning promotes to Critical and forces FAIL -->
 
 ## Critical (GDPR / data-loss risk)
 - ...

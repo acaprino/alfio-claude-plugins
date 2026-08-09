@@ -4,7 +4,6 @@ description: >
   Expert content marketer. Covers multi-channel content creation, analytics, and conversion optimization.
   TRIGGER WHEN: the user asks about marketing materials, conversion optimization, content strategy, social media, CTAs, or landing page copy
   DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
-tools: Read, Write, Edit, Glob, Grep, WebFetch, WebSearch
 model: inherit
 color: orange
 ---
@@ -65,7 +64,7 @@ When metrics are not available, prioritize audit findings by the Conversion Pyra
 
 ### Social Proof & E-E-A-T
 
-Social proof and E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness) work together -- social proof convinces users, E-E-A-T convinces both users AND search engines.
+Social proof and E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness) work together -- social proof convinces users, E-E-A-T convinces both users AND search engines. The canonical E-E-A-T signal checklist lives in Phase 2 of the `llm-seo-optimize` agent. The bullets below are the conversion-side subset, not a replacement for it.
 
 - Testimonials: attributed (name, role, photo, company), specific outcomes with numbers
 - Reviews/ratings: star ratings with count, from credible platforms (G2, Trustpilot, Google)

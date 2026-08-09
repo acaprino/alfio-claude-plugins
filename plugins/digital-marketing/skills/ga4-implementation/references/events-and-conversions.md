@@ -90,6 +90,13 @@ GA4 has a fixed list of "recommended events" mapped to standard reports (Monetiz
 
 The `items[]` array shape and the `ecommerce` dataLayer object structure are documented at https://developers.google.com/tag-platform/gtagjs/reference/events. In GTM, on a "GA4 Event" tag with name `purchase`, enable More Settings → Ecommerce → "Send Ecommerce data" with source "Data Layer" -- GTM picks up the `ecommerce` object automatically.
 
+**Clear `ecommerce` before every push.** Google documents this as mandatory. Without it the previous object persists in the dataLayer and its items merge into the next event, so `add_to_cart` items reappear in `begin_checkout` and `purchase`:
+
+```javascript
+dataLayer.push({ ecommerce: null });
+dataLayer.push({ event: 'add_to_cart', ecommerce: { items: [ /* ... */ ] } });
+```
+
 For non-ecommerce: `login`, `sign_up`, `search`, `share` are also worth using when applicable.
 
 ## Audiences (build them on day one)

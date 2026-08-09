@@ -1,6 +1,7 @@
 ---
 description: Answer-engine optimization (AEO) audit: optimize for being cited inside AI-generated answers (ChatGPT, Perplexity, Google AI Overviews / SGE, Claude, Bing Copilot), not classic Google ranking. Checks AI-bot crawler access, E-E-A-T signals, passage-level extractability, JSON-LD / Schema.org structured data, citation readiness, prompt-injection hardening, and llms.txt. Produces a prioritized fix list with concrete code. For traditional Google and Bing SERP ranking use /seo-audit instead. Use when the user asks to audit for AI search / answer engines, check Google AI Overviews / SGE visibility, optimize for Perplexity / ChatGPT Search / Claude Search / Bing Copilot, verify crawler allowlist for AI bots, check E-E-A-T signals, or diagnose low citation rate in LLM answers. Not for traditional organic SERP-ranking SEO, which /seo-audit covers, paid search, content tone and voice alone, which the content-marketer agent covers, or generic copywriting with no search dimension.
-argument-hint: <url or local path> [--focus crawlers|eeat|schema|passages|injection|all] [--strict-mode]
+argument-hint: <url or local path> [--focus <comma-separated: crawlers,eeat,schema,passages,injection | all>] [--strict-mode]
+agent: llm-seo-optimize
 ---
 
 # LLM SEO / Answer Engine Optimization Audit
@@ -20,17 +21,17 @@ Invokes the `llm-seo-optimize` agent to audit a site for answer-engine discovera
 ### 1. Parse arguments
 
 - `<url or local path>`: required target -- live URL or path to static site / built HTML output
-- `--focus`: restrict audit to a subset of dimensions (default: `all` -- runs every phase)
-  - `crawlers` -- only the AI-bot robots.txt allowlist check
-  - `eeat` -- only E-E-A-T signal audit (authorship, citations, dates)
-  - `schema` -- only JSON-LD / Schema.org structured data
-  - `passages` -- only passage-level extractability (direct-answer paragraphs, tables, bullet lists)
-  - `injection` -- only prompt-injection hardening (hidden text, invisible CSS, comment payloads)
-- `--strict-mode`: treat warnings as blockers and exit 1 if any critical finding remains (useful for CI)
+- `--focus`: restrict the audit to a subset of dimensions. Values are comma-combinable (`--focus schema,eeat`). Default: `all`, which runs every phase
+  - `crawlers` -- the AI-bot robots.txt allowlist check
+  - `eeat` -- E-E-A-T signal audit (authorship, citations, dates)
+  - `schema` -- JSON-LD / Schema.org structured data, plus citation readiness
+  - `passages` -- passage-level extractability (direct-answer paragraphs, tables, bullet lists)
+  - `injection` -- prompt-injection hardening (hidden text, invisible CSS, comment payloads)
+- `--strict-mode`: report-level severity escalation. Every Warning is raised to Critical and the report opens with an explicit `VERDICT: PASS` / `VERDICT: FAIL` line, FAIL when any Critical remains
 
-### 2. Spawn the agent
+### 2. Run the audit
 
-Invoke `llm-seo-optimize` with the target, focus, and strict-mode flag. The agent loads its own knowledge base and runs the 6-phase protocol.
+You are the `llm-seo-optimize` agent: load your knowledge base and run the 6-phase protocol against the target, honoring the focus and strict-mode arguments.
 
 ### 3. Report
 
@@ -56,7 +57,7 @@ Agent writes `.aeo-audit/REPORT.md` with:
 ...
 
 ## Tracking setup
-- Analytics filters for AI-referral hostnames (chatgpt.com, perplexity.ai, claude.ai, copilot.microsoft.com, gemini.google.com)
+- Analytics filters for AI-referral hostnames: chatgpt.com (legacy chat.openai.com), perplexity.ai, claude.ai, copilot.microsoft.com, gemini.google.com
 - Weekly brand-mention query set for citation-share tracking
 ```
 
@@ -72,7 +73,7 @@ Agent writes `.aeo-audit/REPORT.md` with:
 # Static site audit
 /llm-seo-audit ./dist/
 
-# CI-mode with strict blockers
+# Strict grading: warnings become critical, report opens with PASS/FAIL
 /llm-seo-audit https://example.com --strict-mode
 ```
 
@@ -92,5 +93,5 @@ Run alongside traditional SEO tooling for a complete picture:
 - Deep knowledge base -> `llm-seo-optimize` agent (the actual worker)
 - Structured data validation alongside broader checks -> `/seo-audit`
 - Measurement setup -> `ga4-implementation-expert` agent (AI-referrer tracking)
-- Humanizing AI-sounding copy to raise E-E-A-T -> `/humanize-text in the `text-humanizer` bundle` (text-humanizer plugin)
+- Humanizing AI-sounding copy to raise E-E-A-T -> `/humanize-text` in the `text-humanizer` bundle
 - Browser-based live verification -> the playwright-mcp MCP server

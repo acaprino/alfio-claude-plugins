@@ -1,6 +1,6 @@
 ---
-description: Technical SEO audit for traditional search-engine ranking (Google and Bing SERP positioning): Core Web Vitals, meta tags, sitemap, redirects, structured data, mobile, and crawlability. Playwright-powered, scored 0-100, with prioritized fixes and a persistent markdown report. To optimize for being cited inside AI answers (ChatGPT, Perplexity, Google AI Overviews) use /llm-seo-audit instead. Use when the user asks for a technical SEO audit, Core Web Vitals check, structured data review, or search visibility / SERP ranking analysis of a site. Not for the goal is being cited by AI answer engines (use /llm-seo-audit), conversion/CTA/copy (use /content-strategy), or GA4 tracking (use ga4-implementation-expert).
-argument-hint: <url or local path> [--focus <categories>] [--competitor <url>] [--local] [--strict-mode]
+description: Technical SEO audit for traditional search-engine ranking (Google and Bing SERP positioning): Core Web Vitals, meta tags, sitemap, redirects, structured data, mobile, and crawlability. Playwright-powered, scored 0-100, with prioritized fixes and a persistent markdown report. To optimize for being cited inside AI answers (ChatGPT, Perplexity, Google AI Overviews) use /llm-seo-audit instead. Use when the user asks for a technical SEO audit, Core Web Vitals check, structured data review, or search visibility / SERP ranking analysis of a site. Not for being cited by AI answer engines (use /llm-seo-audit), conversion/CTA/copy (use /content-strategy), or GA4 tracking (use ga4-implementation-expert).
+argument-hint: <url or local path> [--focus <comma-separated category names>] [--local] [--strict-mode]
 ---
 
 # SEO Audit
@@ -49,6 +49,7 @@ Gather baseline information before auditing.
 3. **Sitemap** -- fetch the sitemap found in robots.txt (fallback to `/sitemap.xml` if not declared), count URLs, check lastmod dates
 4. **Tech detection** -- identify CMS/framework from headers, meta generators, DOM patterns
 5. **Site structure** -- map primary navigation, identify page types
+6. **Search intent** -- for each audited page, classify the target query intent (informational / transactional / navigational / commercial investigation) and check via `#websearch` whether the top 3-5 ranking results use the same content type. Intent mismatches feed the Core SEO and Content Quality findings in Phase 2
 
 **Output file:** `.seo-audit/01-discovery.md`
 
@@ -58,17 +59,19 @@ Present discovery summary and confirm scope before proceeding.
 
 ## Phase 2: Technical Audit
 
-Run every check below. Use Playwright `browser_snapshot` for DOM, `browser_evaluate` for JS checks, `browser_network_requests` for resources, `browser_console_messages` for errors, `browser_resize` for responsive testing.
+Run every check below. If `--focus` was passed, run only the categories it names (comma-separated, matching the bold category names below) and mark every other category `not audited` in the Phase 3 scorecard.
+
+Use Playwright `browser_snapshot` for DOM, `browser_evaluate` for JS checks, `browser_network_requests` for resources, `browser_console_messages` for errors, `browser_resize` for responsive testing.
 
 **Core SEO** -- Meta title (50-60 chars), meta description (120-160 chars), canonical URL, Open Graph tags, Twitter Cards
 
 **Headings** -- Exactly 1 H1, proper hierarchy, keywords in H1
 
-**Links** -- Internal link depth, check HTTP status for a small sample (max 5-10) of internal/external links to save time, redirect chains, orphan pages
+**Links** -- Internal link depth, check HTTP status for a small sample (max 3-5 pages) of internal/external links to save time, redirect chains, orphan pages
 
 **Images** -- Alt text, descriptive filenames, lazy loading, WebP/AVIF, dimensions
 
-**Performance** -- Transfer size, request count, Core Web Vitals hints, caching, compression
+**Performance** -- Core Web Vitals from CrUX field data (PageSpeed Insights API `loadingExperience.metrics`, thresholds LCP < 2.5s, CLS < 0.1, INP < 200ms), lab data for diagnostics only, transfer size, request count, caching, compression
 
 **Security** -- HTTPS enforced, security headers (CSP, HSTS, X-Frame-Options), no mixed content
 
@@ -82,9 +85,9 @@ Run every check below. Use Playwright `browser_snapshot` for DOM, `browser_evalu
 
 **URL Structure** -- Clean slugs, under 75 chars, keywords in path
 
-**Accessibility** -- ARIA landmarks, alt text, color contrast, skip nav, form labels, focus indicators
+**Accessibility** -- Alt text on every meaningful image, heading order with no skipped levels, WCAG AA contrast on body text and buttons, descriptive link text (no "click here"), ARIA landmarks (header/nav/main/footer), visible keyboard focus indicators, a label on every form field, skip-nav link, touch targets 44px+
 
-**E-E-A-T Signals** -- Author info, about page, contact page, trust signals, citations
+**E-E-A-T Signals** -- Experience, Expertise, Authoritativeness, Trustworthiness: run the `seo-specialist` agent's E-E-A-T checklist
 
 **Local SEO** (if applicable) -- NAP consistency, LocalBusiness schema, geo tags
 
@@ -257,4 +260,3 @@ Remaining issues: [count]
 - `/seo-audit https://example.com/products` -- Audit specific section
 - `/seo-audit src/pages --local` -- Audit local HTML/template files
 - `/seo-audit https://example.com --focus security,performance` -- Focused audit
-- `/seo-audit https://example.com --competitor https://rival.com` -- Comparative audit

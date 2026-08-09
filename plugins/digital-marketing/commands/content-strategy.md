@@ -3,7 +3,7 @@ description: >
   Marketing material and conversion optimization audit - UX patterns, CTAs, social media, copy quality, product presentation, and visual media with parallel analysis and persistent report.
   TRIGGER WHEN: the user asks for a content/marketing/CRO audit of a website, landing page, or marketing funnel.
   DO NOT TRIGGER WHEN: the audit is technical SEO only (use /digital-marketing:seo-audit) or frontend design.
-argument-hint: "<url or local path> [--focus <areas>] [--competitor <url>] [--social] [--strict-mode]"
+argument-hint: "<url or local path> [--focus <comma-separated areas>] [--social] [--strict-mode]"
 ---
 
 # Content Strategy Audit
@@ -46,6 +46,14 @@ Use the `content-marketer` agent for analysis.
 
 ## Phase 1: Audit Scope
 
+### Parse flags
+
+- `--focus <areas>`: comma-separated area names, resolved against the Phase 2 ownership map. Only the agents owning a requested area run; every area not requested is marked `not audited` in the Phase 3 table. Default: all areas
+- `--social`: shorthand for `--focus social,images,video`, which runs Agent C alone
+- `--strict-mode`: in Phase 3, promote every Important finding to Critical and open the plan with an explicit `VERDICT: PASS` / `VERDICT: FAIL` line. FAIL when any Critical remains
+
+### Gather scope
+
 1. **Read target** -- navigate to URL (Playwright) or read local files
 2. **Identify page types** -- landing, product, blog, about, pricing, checkout, FAQ
 3. **Understand the business** -- extract value proposition, target audience, offering
@@ -53,13 +61,30 @@ Use the `content-marketer` agent for analysis.
 
 **Output file:** `.content-strategy/01-scope.md`
 
+### Shared context block
+
+Assemble this once at the end of Phase 1. Every Phase 2 subagent prompt includes it verbatim, so it is written here and nowhere else:
+
+```
+## Scope
+[Contents of .content-strategy/01-scope.md]
+
+## Target
+[URL or local path, plus the resolved focus areas]
+
+## Page Contents
+[Key page content: Playwright snapshot or file text, including OG and meta tag data]
+```
+
 Present scope summary and confirm focus areas.
 
 ---
 
 ## Phase 2: Parallel Audit (3 agents)
 
-Run all three audit agents **in parallel** in a single response:
+Run all three audit agents **in parallel** in a single response.
+
+Area ownership, used to resolve `--focus`: Agent A owns `ux`, `cta`, `social-proof`, `pricing`, `forms`, `navigation`. Agent B owns `copy`, `seo-copy`, `microcopy`, `product-descriptions`. Agent C owns `social`, `images`, `video`. Skip any agent whose areas were all excluded, and tell the agents that do run to report only on the requested areas.
 
 ### Agent A: UX & Conversion Analysis
 
@@ -70,11 +95,7 @@ Task:
   prompt: |
     Audit the UX patterns and conversion elements of this website/page.
 
-    ## Scope
-    [Insert contents of .content-strategy/01-scope.md]
-
-    ## Page Contents
-    [Insert key page content or Playwright snapshot]
+    [Shared context block from Phase 1, verbatim]
 
     ## Instructions
     Evaluate:
@@ -100,11 +121,7 @@ Task:
   prompt: |
     Audit the written content and copy of this website/page.
 
-    ## Scope
-    [Insert contents of .content-strategy/01-scope.md]
-
-    ## Page Contents
-    [Insert key page text content]
+    [Shared context block from Phase 1, verbatim]
 
     ## Instructions
     Evaluate:
@@ -130,11 +147,7 @@ Task:
   prompt: |
     Audit the social media presence and visual assets of this website/page.
 
-    ## Scope
-    [Insert contents of .content-strategy/01-scope.md]
-
-    ## Page Contents
-    [Insert page content and OG/meta tag data]
+    [Shared context block from Phase 1, verbatim]
 
     ## Instructions
     Evaluate:
@@ -174,7 +187,7 @@ Consolidate all agent findings into **`.content-strategy/02-audit.md`**:
 
 ## Phase 3: Synthesize & Prioritize
 
-Read `.content-strategy/02-audit.md` and create actionable plan.
+Read `.content-strategy/02-audit.md` and create actionable plan. If `--strict-mode` was passed, promote every Important finding to Critical before building the table, and open the plan with the `VERDICT:` line.
 
 **Output file:** `.content-strategy/03-plan.md`
 
@@ -316,4 +329,3 @@ Changes applied: [count]
 - `/content-strategy src/pages/landing.html` -- Audit local landing page
 - `/content-strategy https://example.com --focus cta,social-proof` -- Focused audit
 - `/content-strategy https://example.com --social` -- Social media presence focus
-- `/content-strategy https://example.com --competitor https://rival.com` -- Comparative audit

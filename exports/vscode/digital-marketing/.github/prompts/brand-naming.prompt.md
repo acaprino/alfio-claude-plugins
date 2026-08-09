@@ -1,6 +1,6 @@
 ---
 description: Generate, filter, score, and validate brand names through a structured naming workflow with market saturation analysis, domain checks, trademark screening, and weighted scoring. Use when the user asks for brand names, startup names, product names, or company names - typically with a brief or industry. Not for renaming source code identifiers (use clean-code), naming files/tests, or picking SEO keywords (use /seo-audit).
-argument-hint: <brief description or industry> [--style descriptive|abstract|evocative|all] [--languages <lang1,lang2>] [--tlds <.com,.app,.io>]
+argument-hint: <brief description or industry> [--languages <lang1,lang2>] [--tlds <.com,.app,.io>]
 ---
 
 # Brand Naming
@@ -12,7 +12,6 @@ Invoke the `brand-naming` skill and follow its full workflow.
 ## Arguments
 
 - `<brief>`: Industry, target, values, and any constraints for the naming project
-- `--style`: Focus on a specific name style (default: all three styles)
 - `--languages`: Languages to check for cultural conflicts (default: en,it,es,fr,de,pt)
 - `--tlds`: TLDs to check for domain availability (default: .com,.app,.io,.co)
 
@@ -20,14 +19,14 @@ Invoke the `brand-naming` skill and follow its full workflow.
 
 ```
 /brand-naming Meal prep app for vegan athletes. Values: energy, nature, performance. Target: 20-35, international.
-/brand-naming SaaS project management tool for remote teams --style abstract --languages en,es,pt
-/brand-naming Italian artisan coffee brand, premium positioning --style evocative --tlds .com,.it,.coffee
+/brand-naming SaaS project management tool for remote teams --languages en,es,pt
+/brand-naming Italian artisan coffee brand, premium positioning --tlds .com,.it,.coffee
 ```
 
 ## What it does
 
 1. Analyzes the brief and asks clarifying questions if needed
-2. Generates 30+ name candidates across descriptive, abstract, and evocative styles
+2. Generates 12-15 curated candidates across 4 Strategic Directions: Etymological Hijacking, Scientific Decontextualization, Metaphorical Shift, Phonetic Real-Word
 3. Filters linguistically and culturally (pronunciation, negative meanings, phonosymbolism)
 4. Checks domain availability and social media handles
 5. Analyzes market saturation: existing apps, websites, active businesses with same name (Google, Play Store, App Store, Crunchbase)

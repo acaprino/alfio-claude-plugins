@@ -32,7 +32,7 @@ Only after establishing intent, proceed with semantic and technical audits.
 
 ## BROWSER-BASED AUDITING
 
-Primary tooling for live site analysis: the playwright-mcp browser tools, if that MCP server is configured.
+Primary tooling for live site analysis: the playwright-mcp browser tools, if that MCP server is configured. Add the playwright-mcp server under Settings > AI > Manage MCP Servers if it is missing.
 If Playwright MCP tools are not available, fall back to WebFetch/curl for all checks and skip browser-specific analysis (responsive resize, console messages, network requests).
 - `browser_navigate` - load pages, follow redirects, detect final URL
 - `browser_snapshot` - extract full rendered DOM for meta tags, headings, schema, OG tags, link structure
@@ -56,9 +56,9 @@ Fallback: WebFetch for simple HTTP checks, curl via `#execute/runInTerminal` for
 ### Keyword & Semantic Analysis
 - Primary keyword placement: title, H1, first 100 words, URL, meta description
 - Secondary keywords: naturally distributed throughout the body, not forced
-- LSI (Latent Semantic Indexing): related terms and synonyms present -- check via competitor content analysis
+- Topical coverage: related terms, synonyms, and entities the topic requires -- check via competitor content analysis
 - Keyword cannibalization: flag if multiple pages on the same site target the same primary keyword
-- Keyword stuffing: flag density above 3% or unnatural repetition patterns
+- Keyword stuffing: natural usage sits around 1-2%. Flag unnatural repetition and over-optimization patterns, not a fixed density number
 
 ### Content Depth & Comprehensiveness
 - Word count benchmarking: compare against top-ranking competitors for the target query
@@ -162,11 +162,9 @@ Fallback: WebFetch for simple HTTP checks, curl via `#execute/runInTerminal` for
 - **Moved to SEMANTIC & CONTENT QUALITY section above** -- content quality is assessed strategically alongside intent alignment and competitive analysis
 
 ### E-E-A-T Signals
-- Author: bylines, author pages with bio/credentials
-- About page: substantive, team info, company history
-- Contact: real address, phone, email -not just a form
-- Trust: privacy policy, terms of service, refund policy
-- Citations: sources linked, claims backed by data
+
+E-E-A-T is Experience, Expertise, Authoritativeness, Trustworthiness. Run the canonical signal checklist in Phase 2 of the `llm-seo-optimize` agent (bylines, author pages with credentials, published and updated dates, primary-source citations, first-hand experience signals, substantive about and contact detail). Traditional-SEO additions on top of it:
+- Trust pages: privacy policy, terms of service, refund policy
 - Reviews: legitimate third-party reviews/ratings
 
 ### Social & Sharing
@@ -197,9 +195,9 @@ Health score: 0-100, letter grade
 
 Category breakdown: score each section independently
 Issue classification:
-- **Error**: broken functionality, missing critical elements, security issues -fix immediately
-- **Warning**: suboptimal, missed ranking opportunities -fix soon
-- **Notice**: best-practice improvements -fix when convenient
+- **Error**: broken functionality, missing critical elements, security issues. Fix immediately
+- **Warning**: suboptimal, missed ranking opportunities. Fix soon
+- **Notice**: best-practice improvements. Fix when convenient
 
 Prioritize: impact × effort matrix, quick wins first
 
@@ -219,7 +217,7 @@ When comparing against competitors:
 
 SEO and content marketing are inseparable. When auditing:
 - **E-E-A-T signals serve both ranking and conversion** -- author bios, credentials, cited sources improve trust for search engines AND users
-- **Content quality drives technical SEO outcomes** -- thin content, poor engagement metrics, and high bounce rates are ranking signals
+- **Content quality drives technical SEO outcomes** -- thin, unhelpful content is a ranking problem. Bounce rate and time on page are not ranking signals: use them as diagnostics to locate weak pages, never report them as a rankings issue
 - **Structured data bridges content and search** -- schema markup should reflect actual page content accurately
 - Flag findings that require content-marketer collaboration (copy improvements, CTA optimization, social proof enhancement)
 

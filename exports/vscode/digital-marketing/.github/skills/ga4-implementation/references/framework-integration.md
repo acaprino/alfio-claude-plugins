@@ -31,7 +31,7 @@ import { GoogleTagManager } from '@next/third-parties/google';
 // In app/layout.tsx <html>...<GoogleTagManager gtmId="GTM-XXXXXXX" /></html>
 ```
 
-For the Consent Mode v2 default block, paste an inline `<script dangerouslySetInnerHTML={{__html: ...}}>` in `<head>` BEFORE `<GoogleTagManager>`. There is no `beforeInteractive` strategy in App Router -- inline is the only way to guarantee execution before GTM loads.
+For the Consent Mode v2 default block, use `next/script` with `strategy="beforeInteractive"` in the root layout (`app/layout.tsx`), placed BEFORE `<GoogleTagManager>`. The App Router supports `beforeInteractive` from the root layout only; in any other layout, page, or component it is silently downgraded and loses the race with GTM. Fallback when the root layout is not available: a plain inline `<script>` in `<head>`, which also runs first.
 
 For SPA route changes, GA4 page_view fires automatically when the GTM Google Tag uses `Initialization - All Pages`. For finer control, push `dataLayer` page_view events from a `usePathname()` + `useEffect()` client component.
 
@@ -39,7 +39,7 @@ Docs: https://nextjs.org/docs/app/building-your-application/optimizing/third-par
 
 ### Next.js Pages Router
 
-Use `next/script` in `pages/_document.tsx` for the Consent Mode default with `strategy="beforeInteractive"` (this is the ONLY component where `beforeInteractive` works), and another `<Script strategy="afterInteractive">` for the GTM head snippet. The noscript iframe goes in the `<body>` JSX with `style={{display:'none', visibility:'hidden'}}`.
+Use `next/script` in `pages/_document.tsx` for the Consent Mode default with `strategy="beforeInteractive"` (the only Pages Router location where `beforeInteractive` works), and another `<Script strategy="afterInteractive">` for the GTM head snippet. The noscript iframe goes in the `<body>` JSX with `style={{display:'none', visibility:'hidden'}}`.
 
 For SPA routing, listen to `Router.events.routeChangeComplete` in `pages/_app.tsx` and push `page_view` to dataLayer.
 
@@ -78,7 +78,7 @@ If a file is missing, the layout was not applied uniformly.
 ## Gotchas (the real production bites)
 
 - **WordPress caching plugins strip the GTM snippet.** W3 Total Cache, WP Rocket, LiteSpeed, WP Super Cache -- especially with HTML minification or "delay JavaScript execution" turned on. Symptom: works in admin/preview but not in incognito on the live front-end. Fix: flush cache, add `googletagmanager.com` + `gtm.js` to the "do not minify" / "exclude from delay" list. **Always re-verify after enabling/updating any cache plugin.**
-- **`strategy="beforeInteractive"` only works in `_document.tsx`** (Pages Router) -- not in pages or app components. In App Router, there's no equivalent; the Consent Mode default must be inline in `<head>`.
+- **`strategy="beforeInteractive"` only works at the root of the document tree.** Pages Router: `pages/_document.tsx`. App Router: the root `app/layout.tsx`. Anywhere else (a nested layout, a page, a client component) Next silently downgrades it, and the Consent Mode default then loses its race with GTM.
 - **React Strict Mode double-fires `page_view` in development only.** Effects run twice in dev, prod is fine. Verify with DebugView in **production**, not local dev.
 - **Hydration mismatch warnings (Next.js, React)** come from `dangerouslySetInnerHTML` differing between server and client. Use `next/script` or `@next/third-parties/google` -- never raw inline `<script>` for GTM in components.
 - **Static export (`next export`)** works with GTM via the same `next/script` patterns. After export, grep the output to confirm the snippet is in every HTML file.

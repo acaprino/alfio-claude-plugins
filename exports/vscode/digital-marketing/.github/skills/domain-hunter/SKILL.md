@@ -35,11 +35,19 @@ Based on the user's project description, generate 5-10 creative domain name sugg
 
 Use one of these methods to verify availability:
 
-**Method 1: WHOIS check (most reliable)**
+**Method 1: RDAP check (most reliable)**
 ```bash
-# Check if domain is available via whois
-whois {domain}.{tld} 2>/dev/null | grep -i "no match\|not found\|available\|no data found" && echo "AVAILABLE" || echo "TAKEN"
+# Prints the HTTP status: 404 = AVAILABLE, 200 = TAKEN, anything else = UNKNOWN
+curl -s -o /dev/null -w "%{http_code}" "https://rdap.org/domain/{domain}.{tld}"
 ```
+
+A failed command (no network, timeout, rate limit, empty output, any other status) means **UNKNOWN**. Never read a failure as TAKEN and never read it as AVAILABLE. Report UNKNOWN domains as unverified and retry them.
+
+**Method 1b: whois confirmation (only where the binary exists)**
+```bash
+whois {domain}.{tld}
+```
+Use this to confirm an RDAP result, not to replace it. A registration record means TAKEN. "No match" or "not found" in a successful response means AVAILABLE. A missing binary, a non-zero exit, or empty output means UNKNOWN, not TAKEN. Parked-domain banners can contain the word "available", so read the record itself rather than grepping for substrings.
 
 **Method 2: Registrar search page**
 Open the registrar's domain search in browser to verify:
@@ -53,7 +61,7 @@ open "https://www.spaceship.com/domains/?search={domain}.{tld}"
 
 **IMPORTANT:**
 - Only present domains that are confirmed AVAILABLE
-- Mark any uncertain domains with "(unverified)"
+- Mark any uncertain domains with "(unverified)". An UNKNOWN result is unverified, not taken, so never discard a candidate on it
 - Present suggestions to user and **wait for confirmation** before proceeding
 - Ask user to pick their preferred options or provide feedback
 - Only move to Step 2 after user approves domain name(s)
@@ -122,15 +130,15 @@ Present final recommendation in this format:
 
 ## Domain Checker Script
 
-If the user has configured API keys, use the domain checker script for bulk availability checks:
+For bulk availability checks, use the domain checker script:
 
 ```bash
-python scripts/domain_checker.py name1 name2 name3
+python "$SKILLS/domain-hunter/scripts/domain_checker.py" name1 name2 --tlds .com,.io
 ```
 
-The script checks `.com`, `.app`, `.io`, `.co` availability via WHOIS API. See `scripts/domain_checker.py` for setup instructions.
+`$SKILLS` is the first of `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/` that exists. The script checks availability via RDAP. No API key and no third-party packages are needed. It defaults to `.com`, `.app`, `.io`, `.co`; pass `--tlds` to override. Each line reports `AVAILABLE`, `TAKEN`, or `UNKNOWN`, and UNKNOWN means the lookup failed rather than that the domain is free.
 
-If no API key is available, fall back to WHOIS CLI checks (Step 1, Method 1) or WebSearch queries.
+If the script cannot run, fall back to the RDAP curl check (Step 1, Method 1) or web searches (this needs a web-search tool, see the bundle README).
 
 ## References
 

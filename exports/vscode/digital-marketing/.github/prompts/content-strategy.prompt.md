@@ -1,6 +1,6 @@
 ---
-description: Marketing material and conversion optimization audit - UX patterns, CTAs, social media, copy quality, product presentation, and visual media with parallel analysis and persistent report. Use when the user asks for a content/marketing/CRO audit of a website, landing page, or marketing funnel. Not for the audit is technical SEO only (use /seo-audit) or frontend design.
-argument-hint: <url or local path> [--focus <areas>] [--competitor <url>] [--social] [--strict-mode]
+description: Marketing material and conversion optimization audit - UX patterns, CTAs, social media, copy quality, product presentation, and visual media with sequential audit passes and persistent report. Use when the user asks for a content/marketing/CRO audit of a website, landing page, or marketing funnel. Not for technical-SEO-only audits (use /seo-audit) or frontend design.
+argument-hint: <url or local path> [--focus <comma-separated areas>] [--social] [--strict-mode]
 agent: content-marketer
 ---
 
@@ -8,9 +8,9 @@ agent: content-marketer
 
 ## CRITICAL RULES
 
-1. **Execute phases in order.** Scope → Parallel Audit → Synthesis → Approval → Apply → Report.
+1. **Execute phases in order.** Scope → Audit Passes → Synthesis → Approval → Apply → Report.
 2. **Write output files.** Each phase writes to `.content-strategy/` for persistence.
-3. **Run audit agents in parallel.** Phase 2 fires multiple agents simultaneously.
+3. **Run the three audit passes sequentially.** Phase 2 works through UX, content, and social one pass at a time.
 4. **Stop at checkpoint.** Get user approval before applying any changes.
 5. **Use Playwright for live sites.** Browser tools for DOM, screenshots, responsive testing.
 6. **Never enter plan mode.** Execute immediately.
@@ -41,12 +41,35 @@ Use the `content-marketer` agent for analysis.
 
 ## Phase 1: Audit Scope
 
+### Parse flags
+
+- `--focus <areas>`: comma-separated area names, resolved against the Phase 2 ownership map. Only the passes owning a requested area run; every area not requested is marked `not audited` in the Phase 3 table. Default: all areas
+- `--social`: shorthand for `--focus social,images,video`, which runs Pass 3 alone
+- `--strict-mode`: in Phase 3, promote every Important finding to Critical and open the plan with an explicit `VERDICT: PASS` / `VERDICT: FAIL` line. FAIL when any Critical remains
+
+### Gather scope
+
 1. **Read target** -- navigate to URL (Playwright) or read local files
 2. **Identify page types** -- landing, product, blog, about, pricing, checkout, FAQ
 3. **Understand the business** -- extract value proposition, target audience, offering
 4. **Baseline metrics** -- page count, CTA count, form count, social links
 
 **Output file:** `.content-strategy/01-scope.md`
+
+### Shared context block
+
+Assemble this once at the end of Phase 1. Every Phase 2 pass reuses it verbatim, so it is written here and nowhere else:
+
+```
+## Scope
+[Contents of .content-strategy/01-scope.md]
+
+## Target
+[URL or local path, plus the resolved focus areas]
+
+## Page Contents
+[Key page content: Playwright snapshot or file text, including OG and meta tag data]
+```
 
 Present scope summary and confirm focus areas.
 
@@ -56,15 +79,13 @@ Present scope summary and confirm focus areas.
 
 Run the three passes below in order. Each is a distinct lens on the same target; keep their findings separate until Phase 3.
 
+Area ownership, used to resolve `--focus`: Pass 1 owns `ux`, `cta`, `social-proof`, `pricing`, `forms`, `navigation`. Pass 2 owns `copy`, `seo-copy`, `microcopy`, `product-descriptions`. Pass 3 owns `social`, `images`, `video`. Skip any pass whose areas were all excluded, and report only on the requested areas in the passes that do run.
+
 ### Pass 1: UX & Conversion Analysis
 
 Audit the UX patterns and conversion elements of this website/page.
 
-### Scope
-[Insert contents of .content-strategy/01-scope.md]
-
-### Page Contents
-[Insert key page content or Playwright snapshot]
+[Shared context block from Phase 1, verbatim]
 
 ### Instructions
 Evaluate:
@@ -84,11 +105,7 @@ Return structured findings.
 
 Audit the written content and copy of this website/page.
 
-### Scope
-[Insert contents of .content-strategy/01-scope.md]
-
-### Page Contents
-[Insert key page text content]
+[Shared context block from Phase 1, verbatim]
 
 ### Instructions
 Evaluate:
@@ -108,11 +125,7 @@ Return structured findings.
 
 Audit the social media presence and visual assets of this website/page.
 
-### Scope
-[Insert contents of .content-strategy/01-scope.md]
-
-### Page Contents
-[Insert page content and OG/meta tag data]
+[Shared context block from Phase 1, verbatim]
 
 ### Instructions
 Evaluate:
@@ -129,7 +142,7 @@ Note what's working well.
 
 Return structured findings.
 
-Consolidate all agent findings into **`.content-strategy/02-audit.md`**:
+Consolidate the findings of all three passes into **`.content-strategy/02-audit.md`**:
 
 ```markdown
 # Phase 2: Content Strategy Audit
@@ -151,7 +164,7 @@ Consolidate all agent findings into **`.content-strategy/02-audit.md`**:
 
 ## Phase 3: Synthesize & Prioritize
 
-Read `.content-strategy/02-audit.md` and create actionable plan.
+Read `.content-strategy/02-audit.md` and create actionable plan. If `--strict-mode` was passed, promote every Important finding to Critical before building the table, and open the plan with the `VERDICT:` line.
 
 **Output file:** `.content-strategy/03-plan.md`
 
@@ -263,7 +276,7 @@ Read all `.content-strategy/*.md` files and generate consolidated report.
 - Review frequency
 
 ## Audit Metadata
-- Agents used: 3 (UX, Content, Social)
+- Audit passes: 3 (UX, Content, Social)
 - Total findings: [count]
 - Fixes applied: [count]
 ```
@@ -293,4 +306,3 @@ Changes applied: [count]
 - `/content-strategy src/pages/landing.html` -- Audit local landing page
 - `/content-strategy https://example.com --focus cta,social-proof` -- Focused audit
 - `/content-strategy https://example.com --social` -- Social media presence focus
-- `/content-strategy https://example.com --competitor https://rival.com` -- Comparative audit

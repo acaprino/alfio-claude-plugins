@@ -76,7 +76,9 @@ Research (Kohler 1929, Ramachandran 2001 - Bouba/Kiki effect) shows sounds carry
 
 **Stripe** - Neutral, short, boring-on-purpose. Simplicity signals reliability for developers. Lesson: sometimes an unexciting name lets the product speak.
 
-## Morphological Generation Techniques
+## Morphological Generation Techniques (legacy, evaluation only)
+
+**Do NOT generate names from this section.** SKILL.md Step 2 bans exactly what these techniques produce: coined words, algorithmic letter-mashing, and cheap suffixes (-io, -ly, -fy). These patterns are kept here to describe and evaluate names that already exist, such as a competitor's brand or a name the user arrived at elsewhere. For generation, use the 4 Strategic Directions in Step 2. For polishing a promising candidate, use the Refinement Toolkit in SKILL.md.
 
 Advanced techniques for creating registrable, distinctive brand names that go beyond simple portmanteau.
 

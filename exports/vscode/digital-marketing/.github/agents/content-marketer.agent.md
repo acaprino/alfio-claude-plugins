@@ -5,20 +5,13 @@ description: >
   optimization. Use when the user asks about marketing materials, conversion optimization, content
   strategy, social media, CTAs, or landing page copy.
 user-invocable: true
-tools:
-  - read/readFile
-  - read/problems
-  - search/codebase
-  - search/fileSearch
-  - search/listDirectory
-  - search/textSearch
-  - search/usages
-  - edit/createFile
-  - edit/createDirectory
-  - edit/editFiles
-  - web/fetch
 agents: []
 ---
+
+<!-- No `tools:` allowlist: /content-strategy tasks this agent with browser checks (gallery
+     zoom, video loading, responsive behavior) through the playwright-mcp MCP server, and an
+     MCP server's tool ids depend on the name the user gives that server, so they cannot be
+     allowlisted here. Omitting the field grants the full available tool set. -->
 
 <!-- Vendored from plugins/digital-marketing/agents/content-marketer.md in acaprino/claude-code-daodan, MIT. -->
 
@@ -78,7 +71,7 @@ When metrics are not available, prioritize audit findings by the Conversion Pyra
 
 ### Social Proof & E-E-A-T
 
-Social proof and E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness) work together -- social proof convinces users, E-E-A-T convinces both users AND search engines.
+Social proof and E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness) work together -- social proof convinces users, E-E-A-T convinces both users AND search engines. The canonical E-E-A-T signal checklist lives in Phase 2 of the `llm-seo-optimize` agent. The bullets below are the conversion-side subset, not a replacement for it.
 
 - Testimonials: attributed (name, role, photo, company), specific outcomes with numbers
 - Reviews/ratings: star ratings with count, from credible platforms (G2, Trustpilot, Google)

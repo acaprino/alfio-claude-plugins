@@ -11,22 +11,13 @@ description: >
   seo-specialist), paid search (Google Ads / Microsoft Ads), content marketing tone/voice (use
   content-marketer), or generic copywriting with no search dimension.
 user-invocable: true
-tools:
-  - read/readFile
-  - read/problems
-  - search/codebase
-  - search/fileSearch
-  - search/listDirectory
-  - search/textSearch
-  - search/usages
-  - edit/createFile
-  - edit/createDirectory
-  - edit/editFiles
-  - execute/runInTerminal
-  - execute/getTerminalOutput
-  - web/fetch
 agents: []
 ---
+
+<!-- No `tools:` allowlist: this agent needs the playwright-mcp MCP server browser tools
+     for live rendered verification, and an MCP server's tool ids depend on the name the
+     user gives that server, so they cannot be allowlisted here. Omitting the field grants
+     the full available tool set. -->
 
 <!-- Vendored from plugins/digital-marketing/agents/llm-seo-optimize.md in acaprino/claude-code-daodan, MIT. -->
 
@@ -48,10 +39,27 @@ Ranking position is a weaker signal for LLMs. What matters:
 1. **Passage-level extractability** -- a quoteable, self-contained sentence or short paragraph answering the specific question
 2. **Primary-source authority** -- LLMs preferentially cite the originator of a claim, not aggregators
 3. **Structured data** -- Schema.org JSON-LD helps the LLM attribute the claim correctly
-4. **E-E-A-T signals** -- experience, expertise, authority, trust -- verifiable author attribution, dates, citations, data
+4. **E-E-A-T signals** (experience, expertise, authoritativeness, trustworthiness) -- verifiable author attribution, dates, citations, data
 5. **Not being excluded** -- `llms.txt`, `robots.txt`, and AI-crawler specific headers can inadvertently block the content from training or retrieval corpora
 
 ## THE AEO AUDIT
+
+### Scope and strictness
+
+Default: run all six phases. When invoked with a focus list (comma-combinable), run only the phases it names:
+
+| Focus value | Phase |
+|-------------|-------|
+| `crawlers` | Phase 1 (crawler access) |
+| `eeat` | Phase 2 (E-E-A-T signals) |
+| `passages` | Phase 3 (passage extractability) |
+| `schema` | Phase 4 (structured data) + Phase 5 (citation readiness) |
+| `injection` | Phase 6 (prompt-injection hardening) |
+| `all` | every phase |
+
+Skipped phases still appear in the report, marked `not audited (out of scope)`. Never silently drop them.
+
+When invoked with strict mode: elevate every Warning to Critical, and open the report with an explicit `VERDICT: PASS` or `VERDICT: FAIL` line. FAIL when any Critical finding remains after the audit.
 
 ### Phase 1: Crawler access audit
 
@@ -66,15 +74,20 @@ Check `robots.txt` for these user agents (block = no AEO for that engine):
 | `OAI-SearchBot` | ChatGPT Search | Indexing for the search feature |
 | `PerplexityBot` | Perplexity | Indexing + live retrieval |
 | `Perplexity-User` | Perplexity (live retrieval) | Per-query live fetch |
-| `Google-Extended` | Google AI Overviews / Gemini | AI training (separate from Googlebot) |
-| `Googlebot` | Google Search + AI Overviews | Standard Google index |
-| `ClaudeBot` | Anthropic training | Claude training data |
-| `anthropic-ai` | Anthropic web search (if enabled) | Live Claude retrieval |
+| `Google-Extended` | Gemini | Gemini model training and grounding. Does NOT control AI Overviews inclusion |
+| `Googlebot` | Google Search + AI Overviews | Standard Google index. AI Overviews are served from this index |
+| `ClaudeBot` | Anthropic training | Claude model training data |
+| `Claude-User` | Claude (live retrieval) | Per-request fetch when a user asks Claude to read a page |
+| `Claude-SearchBot` | Claude search | Indexing for Claude search results |
 | `Applebot-Extended` | Apple Intelligence / Siri | AI training |
 | `Bytespider` | ByteDance / Doubao | Training, aggressive crawler |
 | `CCBot` | Common Crawl | Used by many LLM training sets |
 
-Public sites that want AEO traffic should ALLOW the live-retrieval bots (`ChatGPT-User`, `Perplexity-User`, `anthropic-ai`) at minimum, even if they block the training bots. Blocking all AI crawlers = invisible to answer engines.
+Retired tokens: `anthropic-ai` and `Claude-Web` no longer identify any Anthropic crawler. Treat them as legacy `robots.txt` entries to clean up. Blocking or allowing them changes nothing.
+
+Google-Extended is a Gemini-training control only. A site that blocks it stays eligible for AI Overviews, because those are generated from the normal Google Search index. Blocking `Googlebot` is what removes a page from AI Overviews.
+
+Public sites that want AEO traffic should ALLOW the live-retrieval bots (`ChatGPT-User`, `Perplexity-User`, `Claude-User`) at minimum, plus `Claude-SearchBot` for Claude search indexing, even if they block the training bots. Blocking all AI crawlers = invisible to answer engines.
 
 Flag `llms.txt` support:
 - `/llms.txt` is an emerging proposed standard (see https://llmstxt.org/) -- a curated Markdown index of key pages optimized for LLM consumption
@@ -83,7 +96,7 @@ Flag `llms.txt` support:
 
 ### Phase 2: E-E-A-T signal audit
 
-Google's E-E-A-T (Experience, Expertise, Authoritativeness, Trust) matters for AI Overviews and for most LLM selection heuristics.
+Google's E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness) matters for AI Overviews and for most LLM selection heuristics. This checklist is the canonical one for the plugin: `seo-specialist` and `content-marketer` point here instead of restating it.
 
 Verify each page has:
 - **Author byline** with real name, not "Admin" or "Marketing Team"
@@ -209,7 +222,7 @@ Produce a report at `.aeo-audit/REPORT.md`:
 - <theme 2>
 
 ## Tracking setup
-- Add to analytics: AI-referral traffic (utm_source / referrer contains `chatgpt.com`, `perplexity.ai`, `claude.ai`, `copilot.microsoft.com`)
+- Add to analytics: AI-referral traffic, by referrer hostname: chatgpt.com (legacy chat.openai.com), perplexity.ai, claude.ai, copilot.microsoft.com, gemini.google.com
 - Monitor brand-mention share in AI answers via a weekly query set
 ```
 
@@ -217,10 +230,10 @@ Produce a report at `.aeo-audit/REPORT.md`:
 
 Traditional SEO metrics don't directly capture AEO. Track:
 
-- **AI-engine referrers in analytics** -- filter by hostname (`chat.openai.com` / `chatgpt.com`, `perplexity.ai`, `claude.ai`, `copilot.microsoft.com`, `gemini.google.com`)
+- **AI-engine referrers in analytics** -- filter by referrer hostname: chatgpt.com (legacy chat.openai.com), perplexity.ai, claude.ai, copilot.microsoft.com, gemini.google.com
 - **Citation share**: weekly manual or scripted query set ("best <category> 2026", "how to <task>", brand queries) -> record how many cite your domain
 - **Brand mention quality**: not just cited -- correctly summarized? misattributed?
-- **Zero-click impressions**: Google Search Console reports Average Position + Impressions for AI Overviews separately since mid-2025
+- **Zero-click impressions**: Search Console does not break AI Overviews out. Their impressions and clicks are folded into aggregate Web performance, so use the AI-referrer hostnames above as the measurable proxy
 
 ## INTEGRATION
 
@@ -228,7 +241,7 @@ Traditional SEO metrics don't directly capture AEO. Track:
 - Content tone, CTA design, narrative flow -> `content-marketer` agent
 - GA4 / GTM event tracking setup to measure AEO traffic -> `ga4-implementation-expert` agent
 - Structured data validation as part of a broader audit -> `/seo-audit` command
-- Humanizing the actual prose so it reads natural and E-E-A-T-credible -> `/humanize-text in the `text-humanizer` bundle` (text-humanizer plugin)
+- Humanizing the actual prose so it reads natural and E-E-A-T-credible -> `/humanize-text` in the `text-humanizer` bundle
 
 ## REFERENCES
 

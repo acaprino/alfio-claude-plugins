@@ -8,7 +8,7 @@ description: >
   Clarity and Search Console integration, and diagnostic patterns for low-traffic sites. Use when
   implementing or auditing GA4, GTM, gtag, dataLayer, Consent Mode v2, cookie banner, conversion
   tracking, Key Events, remarketing audiences, Google Ads conversion import, Enhanced Conversions,
-  or diagnosing why a site has traffic but no conversions. Not for the task involves non-Google
+  or diagnosing why a site has traffic but no conversions. Not for non-Google
   analytics (Matomo, Plausible, Fathom), server-side analytics infrastructure unrelated to
   GA4/GTM, BigQuery export pipelines, or pure SEO work without a measurement layer.
 user-invocable: true
@@ -42,7 +42,7 @@ For non-EU traffic the legal bar is lower, but Consent Mode v2 is still mandator
 Most GA4 implementation tasks follow this sequence:
 
 1. **Audit compliance first** - read [`references/gdpr-compliance-eu.md`](references/gdpr-compliance-eu.md). If the CMP and Consent Mode v2 layer is not in place, fix that before touching tags.
-2. **Install GTM and the GA4 tag** - read [`references/gtm-setup.md`](references/gtm-setup.md) for the step-by-step walkthrough including snippet placement order.
+2. **Install GTM and the GA4 tag** - read [`references/gtm-setup.md`](references/gtm-setup.md) for the install rules, the snippet placement order, and the EEA account-level lockdown.
 3. **Map business goals to events** - read [`references/events-and-conversions.md`](references/events-and-conversions.md) for the standard event taxonomy, custom dimensions, Key Events marking, and audience patterns.
 4. **Apply the framework-specific integration** - read [`references/framework-integration.md`](references/framework-integration.md) for vanilla HTML, Next.js (App + Pages Router), React, and WordPress patterns.
 5. **Verify and diagnose** - read [`references/diagnostics-troubleshooting.md`](references/diagnostics-troubleshooting.md) for verification tools, the traffic-vs-conversion diagnostic split, industry benchmarks, and the common errors checklist.
@@ -57,11 +57,11 @@ The legal layer. Italian Garante decisions timeline (2022 Caffeina, 2023 DPF ade
 
 ### [`gtm-setup.md`](references/gtm-setup.md)
 
-The technical installation walkthrough. Why GTM is preferred over gtag.js direct, step-by-step GA4 property creation, GTM container creation, snippet installation in correct order (Consent Mode v2 default block → CMP loader → GTM head snippet → GTM noscript body snippet), GA4 Google Tag configuration with the Initialization - All Pages trigger, container publishing, and the verification checklist (Realtime, Tag Assistant, DebugView, DevTools Network).
+The installation rationale and the load-bearing rules. Why GTM is preferred over gtag.js direct, the EEA account-level lockdown to apply before the container goes live (retention, Google Signals, attribution, DPA, signup country), the two GTM snippets, snippet installation in correct order (Consent Mode v2 default block → CMP loader → GTM head snippet → GTM noscript body snippet), GA4 Google Tag configuration with the Initialization - All Pages trigger, install gotchas, container backups, environments, and the standard-reports timeline. Property and container creation steps are delegated to the official Google docs it links.
 
 ### [`events-and-conversions.md`](references/events-and-conversions.md)
 
-The measurement layer. Enhanced Measurement auto-events, custom event patterns via GTM (book button clicks, tel/mailto/wa.me link clicks, form submissions, external OTA clicks), the GA4 recommended events list with item array structure for ecommerce, custom dimensions registration walkthrough, Key Events marking (formerly Conversions), the standard audience pattern set, Google Ads link procedure, Enhanced Conversions, and attribution settings.
+The measurement layer. Enhanced Measurement auto-events, custom event patterns via GTM (book button clicks, tel/mailto/wa.me link clicks, form submissions, external OTA clicks), when to use the GA4 recommended event names for ecommerce and the mandatory `ecommerce: null` clear-out before each push (the recommended-events list and the `items[]` shape are delegated to the official Google docs it links), custom dimensions registration walkthrough, Key Events marking (formerly Conversions), the standard audience pattern set, Google Ads link procedure, Enhanced Conversions, internal traffic exclusion, EEA reporting identity, and attribution settings.
 
 ### [`framework-integration.md`](references/framework-integration.md)
 

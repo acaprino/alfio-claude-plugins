@@ -1,7 +1,7 @@
 ---
 name: brand-naming
 description: >
-  Brand naming strategist - generates, filters, scores, and validates brand names through a lateral thinking workflow. Uses 4 lateral thinking techniques (semantic collision, vocabulary shift, invisible hinge, polarization) for creative generation, then filters with 7 naming archetypes, linguistic/phonotactic rules, weighted scoring, domain availability checks, market saturation analysis (existing apps, websites, businesses with same name), trademark pre-screening, and SEO analysis.
+  Brand naming strategist - generates, filters, scores, and validates brand names through a strategic semantic workflow. Uses 4 Strategic Directions (etymological hijacking, scientific decontextualization, metaphorical shift, phonetic real-word) for creative generation, then filters with 7 naming archetypes, linguistic/phonotactic rules, weighted scoring, domain availability checks, market saturation analysis (existing apps, websites, businesses with same name), trademark pre-screening, and SEO analysis.
   TRIGGER WHEN: "brand name", "naming", "name my app", "name my product", "product name", "startup name", "come up with a name", "nome del brand", "naming strategico".
   DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
 ---
@@ -39,7 +39,7 @@ You are a world-class Brand Naming Strategist. Your goal is to ideate, filter, a
    > - Industry: [inferred]
    > - Target audience: [inferred]
    > - Core values/tone: [inferred]
-   > - Languages: [inferred or default: en, it, es, fr, de, pt]
+   > - Languages: [inferred or default: en, it, es, fr, de, pt. If the user passed `--languages`, use exactly that list instead]
    > - Constraints: [inferred or none detected]
 
 4. Only ask follow-up questions for fields you genuinely could not infer from any source. If you found enough context to fill 4+ fields, proceed with confirmation -- do NOT show a generic questionnaire.
@@ -110,11 +110,11 @@ For each name, output:
 
 ### Step 3: Linguistic and Cultural Filtering
 
-From the 30+ candidates, filter down to the best 8-10 by checking:
+From the 12-15 candidates, filter down to the best 8-10 by checking:
 - Pronunciation ease in all target languages
-- No negative/offensive meanings in English, Italian, Spanish, French, German, Portuguese, Chinese, Japanese
+- No negative/offensive meanings in the target languages (default: English, Italian, Spanish, French, German, Portuguese, plus Chinese and Japanese; if the user passed `--languages`, check exactly that list)
 - No unfortunate phonetic associations (sounds like profanity, disease, etc.)
-- **Phonosymbolism alignment** - Does the sound match the brand personality? Round sounds (b, m, l, o, a) = soft/friendly. Sharp sounds (k, t, p, i, e) = energy/precision. Flowing sounds (s, f, v) = elegance/smoothness. Reject names whose sound contradicts the intended brand feel.
+- **Phonosymbolism alignment** - Does the sound match the brand personality? Use the Phonosymbolism Quick Reference below. Reject names whose sound contradicts the intended brand feel.
 - No excessive similarity to existing major brands
 
 ### Step 3b: Quick Domain Gate
@@ -123,7 +123,7 @@ Before full analysis, run a rapid viability check on each of the 8-10 filtered c
 
 - For each name, WebSearch for `"name.com"` and `"name" app`
 - If .com is owned by an established company (Fortune 500, funded startup, active SaaS), **silently discard** the name
-- Generate a replacement name using the lateral thinking techniques and re-filter it
+- Generate a replacement name using the 4 Strategic Directions and re-filter it
 - Only names that pass this quick gate proceed to the full Step 4-6 analysis
 - Goal: eliminate obviously blocked names before spending search calls on deep analysis
 
@@ -144,11 +144,11 @@ This is where the morphological toolkit (see Refinement Toolkit below) is genuin
 > **Tip:** For deep registrar price comparison, promo code hunting, and purchase guidance on your final picks, use the `digital-marketing:domain-hunter` skill.
 
 For the top 8-10 names that passed the Quick Domain Gate, verify:
-- `.com` domain availability (use `domain-hunter/scripts/domain_checker.py` if API key configured, otherwise use WebSearch)
-- Alternative TLDs: `.app`, `.io`, `.co`, `.dev`, or country-specific
+- Domain availability across the target TLDs, using the domain checker script (see Domain Checker Script below) or WebSearch as a fallback
+- TLD set: `.com`, `.app`, `.io`, `.co` by default. If the user passed `--tlds`, use exactly that list and pass it through to the script's `--tlds` flag
 - Social media handle availability on major platforms (search via web)
 
-Report findings in a table:
+Report findings in a table with one column per checked TLD, in the order they were requested:
 ```
 | Name | .com | .app | .io | Twitter/X | Instagram |
 ```
@@ -241,11 +241,9 @@ Deliver the top 3 names with:
 
 ### Evaluation Tests (from Spellbrand methodology)
 
-- **Phone Test**: Say the name once over phone. 70%+ of listeners should remember it correctly.
-- **Spelling Test**: Say the name aloud. 80%+ of listeners should spell it correctly.
-- **Google Test**: Search the exact name. If results are saturated with unrelated content, reconsider.
-- **T-shirt Test**: Would someone wear this name on a shirt? Tests likability and pride.
-- **Radio Test**: Would a radio listener find the brand online after hearing the name once?
+Five checks: **Phone** (70%+ recall after one hearing), **Spelling** (80%+ spell it correctly), **Google** (SERP not saturated with unrelated content), **T-shirt** (likable enough to wear), **Radio** (findable online after hearing it once).
+
+See `references/naming-frameworks.md` for the full wording of each test.
 
 ### Name Style Decision Guide
 
@@ -268,12 +266,9 @@ These tools are for Step 3c phonotactic refinement - polishing promising names, 
 
 #### Phonosymbolism Quick Reference
 
-- Vowels `a`, `o` - open, warm, large, friendly
-- Vowels `i`, `e` - small, precise, light, fast
-- Consonants `b`, `m`, `l` - soft, round, comforting
-- Consonants `k`, `t`, `p` - sharp, strong, energetic
-- Consonants `s`, `f`, `v` - flowing, smooth, elegant
-- Consonants `r`, `g` - rugged, powerful, dynamic
+Vowels: `a`/`o` open and warm, `i`/`e` small and precise, `u` deep and serious. Consonants: `b`/`m`/`l` soft and round, `k`/`t`/`p` sharp and energetic, `s`/`f`/`v` flowing and elegant, `r`/`g` rugged and dynamic.
+
+See `references/naming-frameworks.md` for the research basis and brand examples.
 
 #### Morphological Refinement Techniques
 
@@ -283,19 +278,19 @@ These tools are for Step 3c phonotactic refinement - polishing promising names, 
 - **Clipping** - Remove interior syllables or truncate endings to shorten (e.g., Tumbler -> Tumblr, Flicker -> Flickr)
 - **Cross-linguistic blending** - Fuse morphemes from different languages where both carry meaning (e.g., Auralux from Latin aura + lux)
 
-See `references/naming-frameworks.md` for the full morphological toolkit including suffix inventories, consonant shift rules, and cross-linguistic blending patterns.
+See `references/naming-frameworks.md` for the Name Archetypes table, the full Evaluation Tests, and the Phonosymbolism research. Its Morphological Generation Techniques section is legacy material for evaluating existing and competitor names only. Do not generate from it: the Step 2 ban on coined words, letter-mashing, and cheap suffixes still applies.
 
 ## Domain Checker Script
 
-If the user has configured API keys, use the domain checker script (located in domain-hunter):
+Use the domain checker script (located in domain-hunter) for bulk availability checks:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/skills/domain-hunter/scripts/domain_checker.py" name1 name2 name3
+python "${CLAUDE_PLUGIN_ROOT}/skills/domain-hunter/scripts/domain_checker.py" name1 name2 --tlds .com,.io
 ```
 
-The script checks `.com`, `.app`, `.io`, `.co` availability via WHOIS API. See `${CLAUDE_PLUGIN_ROOT}/skills/domain-hunter/scripts/domain_checker.py` for setup instructions.
+The script checks availability via RDAP. No API key and no third-party packages are needed. It defaults to `.com`, `.app`, `.io`, `.co`; pass the user's `--tlds` list through when they supplied one. Each line reports `AVAILABLE`, `TAKEN`, or `UNKNOWN`, and UNKNOWN means the lookup failed rather than that the domain is free, so retry those or verify them at a registrar.
 
-If no API key is available, fall back to WebSearch queries like `"namexyz.com" site:whois` or check registrar sites manually.
+If the script cannot run, fall back to WebSearch queries or check registrar sites manually.
 
 ## Related Skills
 

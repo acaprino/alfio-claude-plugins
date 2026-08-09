@@ -15,46 +15,47 @@ This is a complete conversation example showing how the domain-hunter skill help
 
 I'll help you find a domain for your auto video editing project. Let me generate some creative domain name suggestions and check their availability.
 
-**Checking domain availability via WHOIS:**
+**Checking domain availability via RDAP:**
 
 ```bash
 for domain in "autoedit.io" "clipcraft.io" "videoedit.ai" "cutflow.io" "autocuts.io" "editsnap.io" "vidflow.ai" "clipflow.io" "autoclipper.io" "smartcut.io"; do
-  echo "Checking $domain..."
-  result=$(whois "$domain" 2>/dev/null | grep -i "no match\|not found\|available\|no data found\|no entries found" | head -1)
-  if [ -n "$result" ]; then
-    echo "  -> LIKELY AVAILABLE"
-  else
-    echo "  -> LIKELY TAKEN"
-  fi
+  code=$(curl -s -o /dev/null -w "%{http_code}" "https://rdap.org/domain/$domain")
+  case "$code" in
+    404) echo "Checking $domain... -> AVAILABLE" ;;
+    200) echo "Checking $domain... -> TAKEN" ;;
+    *)   echo "Checking $domain... -> UNKNOWN (lookup failed, retry)" ;;
+  esac
 done
 ```
 
+Any status other than 404 or 200 is UNKNOWN. A failed lookup is never reported as TAKEN or AVAILABLE.
+
 **Results - First Batch:**
 ```
-Checking autoedit.io...   -> LIKELY TAKEN
-Checking clipcraft.io...  -> LIKELY TAKEN
-Checking videoedit.ai...  -> LIKELY TAKEN
-Checking cutflow.io...    -> LIKELY AVAILABLE
-Checking autocuts.io...   -> LIKELY AVAILABLE
-Checking editsnap.io...   -> LIKELY AVAILABLE
-Checking vidflow.ai...    -> LIKELY TAKEN
-Checking clipflow.io...   -> LIKELY TAKEN
-Checking autoclipper.io...-> LIKELY AVAILABLE
-Checking smartcut.io...   -> LIKELY TAKEN
+Checking autoedit.io...   -> TAKEN
+Checking clipcraft.io...  -> TAKEN
+Checking videoedit.ai...  -> TAKEN
+Checking cutflow.io...    -> AVAILABLE
+Checking autocuts.io...   -> AVAILABLE
+Checking editsnap.io...   -> AVAILABLE
+Checking vidflow.ai...    -> TAKEN
+Checking clipflow.io...   -> TAKEN
+Checking autoclipper.io...-> AVAILABLE
+Checking smartcut.io...   -> TAKEN
 ```
 
 **Results - Second Batch:**
 ```
-Checking autovidz.io...   -> LIKELY AVAILABLE
-Checking clipauto.io...   -> LIKELY AVAILABLE
-Checking videotrim.ai...  -> LIKELY AVAILABLE
-Checking cliphero.io...   -> LIKELY AVAILABLE
-Checking quickclip.io...  -> LIKELY TAKEN
-Checking autosnip.io...   -> LIKELY AVAILABLE
-Checking vidauto.io...    -> LIKELY TAKEN
-Checking clipmagic.io...  -> LIKELY TAKEN
-Checking autorender.io... -> LIKELY TAKEN
-Checking editbot.io...    -> LIKELY AVAILABLE
+Checking autovidz.io...   -> AVAILABLE
+Checking clipauto.io...   -> AVAILABLE
+Checking videotrim.ai...  -> AVAILABLE
+Checking cliphero.io...   -> AVAILABLE
+Checking quickclip.io...  -> TAKEN
+Checking autosnip.io...   -> AVAILABLE
+Checking vidauto.io...    -> TAKEN
+Checking clipmagic.io...  -> TAKEN
+Checking autorender.io... -> TAKEN
+Checking editbot.io...    -> AVAILABLE
 ```
 
 Here are the **available domain suggestions** for your auto video editing project:
@@ -179,7 +180,7 @@ WebSearch: "site:reddit.com r/Domains spaceship domain promo code"
 
 ## Key Takeaways
 
-1. **WHOIS checks** are used to verify domain availability before presenting options
+1. **RDAP checks** are used to verify domain availability before presenting options (404 available, 200 taken, anything else unknown)
 2. **Price comparison** from tld-list.com provides up-to-date registrar pricing
 3. **WebSearch with site:x.com** searches registrar accounts for promo codes
 4. **WebSearch with site:reddit.com** searches r/Domains community for user-shared deals

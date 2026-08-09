@@ -113,7 +113,7 @@ Fix: remove one. **Historical data corrupted by double tracking is NOT recoverab
 
 Symptom: missing early page interactions, especially `session_start` and first `page_view`.
 
-Fix: snippet must be the very first script in `<head>`. The GTM noscript iframe goes immediately after `<body>`, never inside `<head>`.
+Fix: the GTM snippet goes as high in `<head>` as possible, first among scripts except the Consent Mode v2 default block and the CMP loader, which must precede it (see error 6 and the ordering template in `gtm-setup.md`). The GTM noscript iframe goes immediately after `<body>`, never inside `<head>`.
 
 ### 4. Wrong Measurement ID
 

@@ -1,7 +1,7 @@
 <!-- upstream: ReScienceLab/opc-skills - skills/domain-hunter/references/spaceship-api.md -->
 # Spaceship API Reference
 
-API keys configured in `~/.zshrc`:
+Credentials are read from the environment:
 - `SPACESHIP_API_KEY`
 - `SPACESHIP_API_SECRET`
 
@@ -15,10 +15,33 @@ All requests require these headers:
 -H "X-Api-Secret: $SPACESHIP_API_SECRET"
 ```
 
-Load environment variables:
+Set both variables in the shell before any call.
+
+POSIX shell:
 ```bash
-export SPACESHIP_API_KEY="$(grep SPACESHIP_API_KEY ~/.zshrc | cut -d'"' -f2)"
-export SPACESHIP_API_SECRET="$(grep SPACESHIP_API_SECRET ~/.zshrc | cut -d'"' -f2)"
+export SPACESHIP_API_KEY="your_key"
+export SPACESHIP_API_SECRET="your_secret"
+```
+
+PowerShell:
+```powershell
+$env:SPACESHIP_API_KEY = "your_key"
+$env:SPACESHIP_API_SECRET = "your_secret"
+```
+
+**Pre-flight check.** Verify both are non-empty before the first call. An empty variable produces a 401 that reads like a permissions problem and sends you hunting the wrong bug.
+
+```bash
+if [ -z "$SPACESHIP_API_KEY" ] || [ -z "$SPACESHIP_API_SECRET" ]; then
+  echo "ERROR: SPACESHIP_API_KEY and SPACESHIP_API_SECRET must both be set" >&2
+  exit 1
+fi
+```
+
+```powershell
+if (-not $env:SPACESHIP_API_KEY -or -not $env:SPACESHIP_API_SECRET) {
+  throw "SPACESHIP_API_KEY and SPACESHIP_API_SECRET must both be set"
+}
 ```
 
 ## Domains API
@@ -56,7 +79,7 @@ curl -s -X GET "https://spaceship.dev/api/v1/domains/{domain}" \
 
 ### Register Domain (Purchase)
 ```bash
-curl -s -X POST "https://spaceship.dev/api/v1/domains/{domain}" \
+curl -s -D - -X POST "https://spaceship.dev/api/v1/domains/{domain}" \
   -H "X-Api-Key: $SPACESHIP_API_KEY" \
   -H "X-Api-Secret: $SPACESHIP_API_SECRET" \
   -H "Content-Type: application/json" \
@@ -75,7 +98,19 @@ curl -s -X POST "https://spaceship.dev/api/v1/domains/{domain}" \
     }
   }'
 ```
-**Note:** Returns 202 Accepted, poll async-operations for result
+**Note:** Returns 202 Accepted. The operation id comes back in the `spaceship-async-operationid` **response header**, so the request must keep headers (`-D -` or `-i`). A plain `curl -s` throws them away and leaves you with no way to poll.
+
+Capture the id for the poll step:
+```bash
+OPERATION_ID=$(curl -s -D - -o /dev/null -X POST "https://spaceship.dev/api/v1/domains/{domain}" \
+  -H "X-Api-Key: $SPACESHIP_API_KEY" \
+  -H "X-Api-Secret: $SPACESHIP_API_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{...}' \
+  | tr -d '\r' | awk 'tolower($1) == "spaceship-async-operationid:" {print $2}')
+```
+
+**WARNING:** Never retry a paid POST (register, renew, transfer) whose outcome you do not know. Poll the async operation first. A blind retry can double-charge the account.
 
 ### Update Nameservers (Configure to Cloudflare)
 ```bash
@@ -152,7 +187,7 @@ curl -s -X PUT "https://spaceship.dev/api/v1/domains/{domain}/transfer-lock" \
 
 ### Transfer In Domain
 ```bash
-curl -s -X POST "https://spaceship.dev/api/v1/domains/{domain}/transfer" \
+curl -s -D - -X POST "https://spaceship.dev/api/v1/domains/{domain}/transfer" \
   -H "X-Api-Key: $SPACESHIP_API_KEY" \
   -H "X-Api-Secret: $SPACESHIP_API_SECRET" \
   -H "Content-Type: application/json" \
@@ -171,6 +206,7 @@ curl -s -X POST "https://spaceship.dev/api/v1/domains/{domain}/transfer" \
     }
   }'
 ```
+**Note:** Async and paid, same as registration. Keep the headers (`-D -` or `-i`) and read `spaceship-async-operationid` from them, then poll. Never re-POST a transfer whose outcome is unknown.
 
 ## Contacts API
 
@@ -241,7 +277,7 @@ curl -s -X DELETE "https://spaceship.dev/api/v1/dns-records/{domain}" \
 
 ## Async Operations
 
-Domain registration, transfer, etc. are async operations, returning `spaceship-async-operationid` header.
+Domain registration, transfer, etc. are async operations, returning `spaceship-async-operationid` header. Send those requests with `-D -` or `-i`, otherwise curl discards the header and the operation becomes unpollable.
 
 ### Get Operation Status
 ```bash
@@ -288,12 +324,12 @@ curl -s -X GET "https://spaceship.dev/api/v1/domains/example.com/available" ...
 # 2. Get existing contact ID from another domain
 curl -s -X GET "https://spaceship.dev/api/v1/domains?take=1&skip=0" ... | jq '.items[0].contacts.registrant'
 
-# 3. Register domain
-curl -s -X POST "https://spaceship.dev/api/v1/domains/example.com" ... -d '{...}'
-# Note the operationId from response header
+# 3. Register domain, keeping the response headers so the operation id survives
+OPERATION_ID=$(curl -s -D - -o /dev/null -X POST "https://spaceship.dev/api/v1/domains/example.com" ... -d '{...}' \
+  | tr -d '\r' | awk 'tolower($1) == "spaceship-async-operationid:" {print $2}')
 
-# 4. Poll for completion
-curl -s -X GET "https://spaceship.dev/api/v1/async-operations/{operationId}" ...
+# 4. Poll for completion. Do NOT re-POST step 3 if this is unclear: that risks a double charge
+curl -s -X GET "https://spaceship.dev/api/v1/async-operations/$OPERATION_ID" ...
 
 # 5. Update nameservers to Cloudflare
 curl -s -X PUT "https://spaceship.dev/api/v1/domains/example.com/nameservers" \
@@ -305,9 +341,10 @@ curl -s -X PUT "https://spaceship.dev/api/v1/domains/example.com/nameservers" \
 ```bash
 # 1. Get auth code from current registrar
 # 2. Unlock domain at current registrar
-# 3. Initiate transfer
-curl -s -X POST "https://spaceship.dev/api/v1/domains/example.com/transfer" ...
+# 3. Initiate transfer, keeping the response headers so the operation id survives
+OPERATION_ID=$(curl -s -D - -o /dev/null -X POST "https://spaceship.dev/api/v1/domains/example.com/transfer" ... \
+  | tr -d '\r' | awk 'tolower($1) == "spaceship-async-operationid:" {print $2}')
 
-# 4. Poll async operation for status
-curl -s -X GET "https://spaceship.dev/api/v1/async-operations/{operationId}" ...
+# 4. Poll async operation for status. Never re-run step 3 to "check": poll instead
+curl -s -X GET "https://spaceship.dev/api/v1/async-operations/$OPERATION_ID" ...
 ```

@@ -64,7 +64,7 @@ After `<body>` opens: GTM noscript iframe.
 - **Vanilla HTML / Jekyll / Hugo / Eleventy / 11ty**: insert into the shared `<head>` include or layout template. Verify every output page contains the snippet by grepping the build output. Common error: snippet only on `index.html`.
 - **Next.js App Router**: prefer `@next/third-parties/google` `GoogleTagManager` component imported in `app/layout.tsx`. Falls back to `next/script` with `strategy="afterInteractive"` for the head and a manual `<noscript>` injection in `app/layout.tsx`. For SPA route changes, GA4 page_view fires automatically when GTM uses the Initialization - All Pages trigger. If finer control is needed, push a virtual pageview via `dataLayer.push({event: 'page_view', page_path: pathname})` from a `useEffect` hook reading `usePathname()`.
 - **Next.js Pages Router**: insert via `pages/_document.tsx` head injection or `next/script` in `_app.tsx`. Manual route tracking via `Router.events.on('routeChangeComplete', ...)`.
-- **CRA / Vite React**: insert into `public/index.html` head. SPA route changes via a `react-router` location listener pushing `gtm.start` events.
+- **CRA / Vite React**: insert into `public/index.html` head. SPA route changes via a `react-router` `useLocation()` listener pushing a virtual pageview: `dataLayer.push({event: 'page_view', page_path: pathname, page_title: document.title})`.
 - **WordPress**: prefer `wp_head` action hook in the active theme's `functions.php`, or `header.php` direct insert. Plugin alternatives: Site Kit, GTM4WP. Caching plugins (W3 Total Cache, WP Rocket) can strip or rewrite the snippet, especially with HTML minification - test after enabling cache.
 
 In GTM, configure the **Google Tag** with the user's Measurement ID and the **Initialization - All Pages** trigger (not "All Pages") so it fires before any tag dependent on consent state.
@@ -93,7 +93,7 @@ GA4 Enhanced Measurement auto-tracks: page_view, scroll (90%), outbound click, s
 | Submit contact form | `generate_lead` | Form Submission or thank-you page view | `method` |
 | Click external OTA | `booking_platform_click` | Click - Just Links, URL contains `booking.com`, `airbnb` | `platform` |
 
-For ecommerce, use the GA4 recommended events (`view_item`, `add_to_cart`, `begin_checkout`, `add_payment_info`, `purchase`) with the standard `items` array structure. Push them via `dataLayer.push({event: 'purchase', ecommerce: {...}})` from the order confirmation page or the payment gateway success callback.
+For ecommerce, use the GA4 recommended events (`view_item`, `add_to_cart`, `begin_checkout`, `add_payment_info`, `purchase`) with the standard `items` array structure. Clear the previous ecommerce object first with `dataLayer.push({ ecommerce: null });`, which Google documents as mandatory: skip it and stale items merge across `add_to_cart`, `begin_checkout`, and `purchase`. Then push the event itself, `dataLayer.push({event: 'purchase', ecommerce: {...}})`, from the order confirmation page or the payment gateway success callback.
 
 ## AUDIENCES & ADS LINK PHASE
 
@@ -111,7 +111,7 @@ Audiences populate **only from the date of creation forward** in GA4 - they are 
 
 **Other settings to flip on day one**:
 
-- Data retention: 14 months (Admin > Data Collection > Data Retention) - default 2 months kills year-on-year analysis
+- Data retention: 2 months by default (Admin > Data Collection > Data Retention), which is also the safe EU choice. Raise to 14 months only with a documented business need such as year-on-year analysis for a seasonal business
 - Attribution model: data-driven (default), 90-day lookback for travel/hospitality cycles
 - Reporting identity: Blended (or Device-based if low-traffic data thresholding becomes a problem)
 - Enhanced Conversions: enable user-provided data capabilities for hashed first-party email/phone matching
@@ -165,7 +165,7 @@ The most common errors, in order of frequency:
 
 1. **Snippet on only one page**: the most common static-site error. Tag Coverage report confirms. Fix by adding the snippet to every page or to a shared template.
 2. **Double tracking**: same Measurement ID injected by both gtag.js and GTM, or the snippet pasted twice. Every metric doubles silently. Grep the source for `G-` and `GTM-` to find duplicates. Historical data corrupted by double tracking is **not recoverable**.
-3. **Wrong snippet placement**: snippet inside a div, after `</head>`, or in the body. Loses early page interactions. Fix by moving to the first script in `<head>`.
+3. **Wrong snippet placement**: snippet inside a div, after `</head>`, or in the body. Loses early page interactions. Fix by moving it as high in `<head>` as possible: first among scripts, except that the Consent Mode v2 default block (and the CMP loader, when one is used) must still precede it. See error 8.
 4. **Measurement ID typo or smart quotes**: copying from a word processor introduces curly quotes that break the script. Compare the source byte-for-byte with GA4 > Admin > Data Streams.
 5. **Internal IP filter not active**: own visits pollute data. Admin > Data Streams > Configure Tag Settings > Define Internal Traffic, then Admin > Data Settings > Data Filters > activate the filter from Testing to Active. Note: filtered traffic disappears from DebugView too, so disable temporarily for debug sessions.
 6. **Caching plugin strips snippet** (WordPress): test after cache flush, exclude the snippet from minification.
@@ -179,7 +179,7 @@ GA4 work intersects with other digital-marketing concerns:
 - **`seo-specialist`**: organic traffic gaps surface in Acquisition reports. Acquisition data alone cannot diagnose ranking problems - hand off to SEO when Search Console impressions are low.
 - **`content-marketer`**: conversion copy on landing pages drives `generate_lead` and `book_now_click` events. When a landing page has traffic but no conversions, the copy and CTA design are usually the cause.
 - **`/digital-marketing:content-strategy`**: UX issues that appear in Clarity heatmaps (rage clicks, dead clicks, scroll patterns) need a UX/CRO audit beyond analytics.
-- **`playwright-skill`**: when available, use browser MCP tools to verify tag firing in real conditions instead of trusting source-code inspection.
+- **`playwright-skill`**: when available, use browser MCP tools to verify tag firing in real conditions instead of trusting source-code inspection. Install it with `claude plugin marketplace add lackeyjb/playwright-skill`, then `claude plugin install playwright-skill@playwright-skill`.
 
 ## OUTPUT FORMAT
 
