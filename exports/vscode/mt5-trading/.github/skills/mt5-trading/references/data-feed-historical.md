@@ -86,7 +86,7 @@ Polling-based; you call `market_book_get()` repeatedly to detect changes.
 
 ## MT5 vs IBKR for data (one-line summary)
 
-MT5 has no rate limits and includes data with the account, but quality is broker-dependent. IBKR has strict pacing and per-exchange paid subscriptions, but data is exchange-sourced and consistent. Forex/CFD = MT5 wins on convenience; equity/futures with real volume = IBKR wins on quality.
+MT5 has no rate limits and includes data with the account, but quality is broker-dependent. IBKR has strict pacing and per-exchange paid subscriptions for most instruments (spot FX is an exception and needs no subscription), but data is exchange-sourced and consistent. Forex/CFD = MT5 wins on convenience; equity/futures with real volume = IBKR wins on quality. One IBKR-specific trap has no MT5 equivalent: its historical responses include the currently-forming bar as the last row, and its FX responses carry session-anchored stub bars, so code ported from MT5 must drop both.
 
 ## Official docs
 

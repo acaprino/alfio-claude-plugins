@@ -165,11 +165,11 @@ Implement datetime-based sleep mode during weekends and validate connection stat
 
 | Aspect | MT5 | IBKR |
 |--------|-----|------|
-| Auto-reconnect (terminal) | Terminal reconnects to broker automatically | Gateway auto-restarts weekly |
+| Auto-reconnect (terminal) | Terminal reconnects to broker automatically | Gateway Auto Restart runs daily; manual re-login only weekly (tokens invalidate Sunday 1:00 AM ET) |
 | API reconnect | None, must implement fully | None (ib_async), must implement |
-| Daily reset | None (but weekend closure) | Mandatory ~23:45-00:45 ET daily |
+| Daily reset | None (but weekend closure) | Mandatory ~23:45-00:45 ET daily, plus a second connectivity reset observed ~04:30 UTC |
 | Positions during disconnect | Persist server-side, SL/TP active | Native exchange orders continue |
-| Resource usage | ~200-400MB (terminal) | Gateway ~300-500MB, TWS ~1-2GB |
+| Resource usage | Terminal footprint is modest | Gateway is markedly lighter than TWS |
 | Process monitoring | psutil + subprocess | IBC + Task Scheduler |
 
 ## Community Resources
