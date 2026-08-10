@@ -10,9 +10,9 @@
 [![Consistency](https://github.com/acaprino/claude-code-daodan/actions/workflows/consistency.yml/badge.svg)](https://github.com/acaprino/claude-code-daodan/actions/workflows/consistency.yml)
 [![Marketplace](https://img.shields.io/badge/dynamic/json?label=marketplace&prefix=v&query=%24.metadata.version&url=https%3A%2F%2Fraw.githubusercontent.com%2Facaprino%2Fclaude-code-daodan%2Fmaster%2F.claude-plugin%2Fmarketplace.json&style=flat&color=green)](.claude-plugin/marketplace.json)
 [![Plugins](https://img.shields.io/badge/plugins-39-orange?style=flat)](#plugins)
-[![Agents](https://img.shields.io/badge/agents-67-purple?style=flat)](#plugins)
-[![Skills](https://img.shields.io/badge/skills-51-teal?style=flat)](#plugins)
-[![Commands](https://img.shields.io/badge/commands-55-red?style=flat)](#plugins)
+[![Agents](https://img.shields.io/badge/agents-71-purple?style=flat)](#plugins)
+[![Skills](https://img.shields.io/badge/skills-52-teal?style=flat)](#plugins)
+[![Commands](https://img.shields.io/badge/commands-56-red?style=flat)](#plugins)
 
 </div>
 
@@ -361,6 +361,7 @@ claude-code-daodan/
 ├── .claude-plugin/
 │   └── marketplace.json       # plugin registry
 ├── docs/plugins/              # per-plugin documentation
+├── evals/                     # review eval harness (ground-truth cases, never shipped)
 ├── plugins/
 │   ├── python-development/
 │   │   ├── agents/            # .md files with YAML frontmatter

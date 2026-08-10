@@ -56,7 +56,9 @@ When a change legitimately trips the linter, fix the declaration (or the referen
 
 ## Documentation
 
-`docs/plugins/` contains per-plugin documentation. `docs/references/` holds cross-cutting knowledge bases that inform changes across multiple plugins — notably [`agent-teams-best-practices.md`](docs/references/agent-teams-best-practices.md), the source of truth when restructuring any plugin that spawns multi-agent teams or pipeline reviewers (`senior-review`, `codebase-mapper`, `research`, `codebase-xray`).
+`docs/plugins/` contains per-plugin documentation. `docs/references/` holds cross-cutting knowledge bases that inform changes across multiple plugins — notably [`agent-teams-best-practices.md`](docs/references/agent-teams-best-practices.md), the source of truth when restructuring any plugin that spawns multi-agent teams or pipeline reviewers (`senior-review`, `codebase-mapper`, `research`, `codebase-xray`). `evals/senior-review/` holds the review eval harness (ground-truth cases plus scoring protocol): a development asset, never shipped, not registered in `marketplace.json`.
+
+Since senior-review 8.0.0, `commands/code-review.md` is deliberately thin (~350 lines): the full agent prompts (A-N), the fix-loop workflow, and the output templates live in `plugins/senior-review/skills/review-quality-gates/references/code-review-{agents,fix-loop,output}.md`, loaded on demand. When editing that command, keep the pointer and the reference file in sync, and never duplicate a section in both places. The same release split the fix flags: `--fix` edits and verifies without committing, `--commit` implies `--fix` and adds the commits, and Step 7c bulk cleanup requires `--commit`.
 
 ## Research technique: when a direct fetch is blocked, drive a browser
 
