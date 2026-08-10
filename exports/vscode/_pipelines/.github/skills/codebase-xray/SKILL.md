@@ -9,7 +9,7 @@ metadata:
   author: Alfio Caprino
   source: acaprino/claude-code-daodan
   upstream-plugin: codebase-xray
-  version: "3.4.0"
+  version: "3.5.0"
 ---
 
 # Codebase X-Ray Analysis Skill

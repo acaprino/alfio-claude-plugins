@@ -25,11 +25,11 @@ We do not fork, submodule, or add runtime dependencies. The only intake mode for
 | Sub-mode | When to pick | Example |
 |---|---|---|
 | **Full vendoring** | Upstream is a complete drop-in (a single SKILL.md, a small set of references) and there is no local equivalent | `kotlin-development` |
-| **Cherry-pick vendoring** | Upstream has many files but only a subset adds value, or the upstream commands collide with our existing namespace | `wshobson/agents` (3 codebase-cleanup commands imported, 2 agents skipped for overlap) |
+| **Cherry-pick vendoring** | Upstream has many files but only a subset adds value, or the upstream commands collide with our existing namespace | `wshobson/agents` (3 codebase-cleanup commands imported, 2 agents skipped for overlap; the vendor was later retired in marketplace 19.0.0) |
 | **Hybrid merge** | Upstream covers ground that overlaps with a local file; append upstream content as a delimited section instead of creating a duplicate | `wshobson/agents` e2e-testing-patterns `references/details.md` kept inline in the local SKILL.md sections (the vendor was later delegated upstream in marketplace 18.0.0) |
 | **Inspiration only** | We adopt patterns or workflow ideas but write our own content from scratch; no upstream text copied | `codebase-xray` from `gsd-build/get-shit-done` |
 
-Combinations are normal (the `wshobson/agents` intake used cherry-pick plus hybrid merge plus new files across codebase-cleanup and e2e-testing-patterns; its multi-agent generic core, the reverse-engineering vendor, and the e2e-testing-patterns vendor were all later delegated back upstream).
+Combinations are normal (the `wshobson/agents` intake used cherry-pick plus hybrid merge plus new files across codebase-cleanup and e2e-testing-patterns; its multi-agent generic core, the reverse-engineering vendor, and the e2e-testing-patterns vendor were all later delegated back upstream, and the codebase-cleanup vendor was retired outright in marketplace 19.0.0).
 
 ## 2. Decide the four dimensions
 

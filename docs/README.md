@@ -14,10 +14,10 @@ The augmentation symbiote for Claude Code. Agents, skills, and commands for deve
 | [browser-extensions](plugins/browser-extensions.md) | development | Firefox WebExtension development: Manifest V2/V3, browser.* APIs, AMO publishing | 1 agent, 1 skill, 3 commands |
 | [business](plugins/business.md) | business | Legal advisory, privacy policies, GDPR/ePrivacy/CCPA compliance, SaaS business planning | 3 agents, 1 skill |
 | [clean-code](plugins/clean-code.md) | review | Rewrite source code for readability without changing behavior | 1 agent, 1 command |
-| [codebase-cleanup](plugins/codebase-cleanup.md) | review | Multi-language dependency security audits, SOLID-driven refactoring, and prioritized tech-debt remediation roadmaps | 3 commands |
 | [codebase-mapper](plugins/codebase-mapper.md) | documentation | Human-readable codebase guide generator with standalone doc creation, maintenance, and humanization | 10 agents, 1 skill, 5 commands |
 | [csp](plugins/csp.md) | optimization | Constraint programming with Google OR-Tools CP-SAT solver | 1 agent |
 | [codebase-xray](plugins/codebase-xray.md) | review | Systematic codebase analysis - architecture, data flows, anti-patterns - plus the shared interconnect mapper that review and documentation build on | 5 agents, 1 skill, 2 commands |
+| [dependency-audit](plugins/dependency-audit.md) | review | Evidence-first dependency auditing: CVEs, outdated packages, license obligations, and supply-chain signals via each ecosystem's real tooling | 1 skill, 1 command |
 | [digital-marketing](plugins/digital-marketing.md) | marketing | SEO + AEO audits, GA4/GTM with Consent Mode v2, content strategy, brand naming, domain hunting, text humanization, customer review replies | 4 agents, 4 skills, 6 commands |
 | [docker](plugins/docker.md) | development | Optimized multi-stage Dockerfiles for any language or framework | 1 skill |
 | [docs](plugins/docs.md) | documentation | Craft top-tier README.md files with progressive disclosure, badges, quick start | 1 skill, 1 command |

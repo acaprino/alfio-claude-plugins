@@ -1,6 +1,6 @@
 # Claude Code Daodan for GitHub Copilot
 
-A VS Code Copilot port of [acaprino/claude-code-daodan](https://github.com/acaprino/claude-code-daodan): **84 agents, 66 skills and 51 prompts**, shipped as one extension. Install it once and every project you open has them. You never copy a `.github/` directory into a repository.
+A VS Code Copilot port of [acaprino/claude-code-daodan](https://github.com/acaprino/claude-code-daodan): **87 agents, 68 skills and 49 prompts**, shipped as one extension. Install it once and every project you open has them. You never copy a `.github/` directory into a repository.
 
 This directory is both the extension source and the catalog documentation. The 37 bundles below are how the content is organized on disk, not 37 separate installs.
 
@@ -64,9 +64,9 @@ For a monorepo where the bundle lives at the repository root but you open a subf
 | `browser-extensions` | `/firefox-scaffold`, `/firefox-lint`, `/firefox-publish` | 1 / 1 / 3 | |
 | `business` | `business-planner`, `legal-advisor`, `privacy-doc-generator` | 1 / 3 / 0 | websearch |
 | `clean-code` | `/clean-code` | 0 / 1 / 1 | |
-| `codebase-cleanup` | `/deps-audit`, `/refactor-clean`, `/tech-debt` | 0 / 0 / 3 | |
 | `codebase-mapper` | `/map-codebase`, `/docs-create`, `/docs-maintain`, `/humanize-docs` | 1 / 11 / 4 | |
 | `csp` | `or-tools-expert` | 0 / 1 / 0 | |
+| `dependency-audit` | `/deps-audit` | 1 / 0 / 1 | |
 | `digital-marketing` | `/seo-audit`, `/llm-seo-audit`, `/ga4-audit`, `/content-strategy`, `/brand-naming`, `/reply-to-customer-review` | 4 / 4 / 6 | websearch, **playwright-mcp**, python |
 | `docker` | `multi-stage-dockerfile` | 1 / 0 / 0 | |
 | `docs` | `readme-craft`, `/maintain-readme` | 1 / 0 / 1 | |

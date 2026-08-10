@@ -11,8 +11,8 @@
 [![Marketplace](https://img.shields.io/badge/dynamic/json?label=marketplace&prefix=v&query=%24.metadata.version&url=https%3A%2F%2Fraw.githubusercontent.com%2Facaprino%2Fclaude-code-daodan%2Fmaster%2F.claude-plugin%2Fmarketplace.json&style=flat&color=green)](.claude-plugin/marketplace.json)
 [![Plugins](https://img.shields.io/badge/plugins-39-orange?style=flat)](#plugins)
 [![Agents](https://img.shields.io/badge/agents-71-purple?style=flat)](#plugins)
-[![Skills](https://img.shields.io/badge/skills-52-teal?style=flat)](#plugins)
-[![Commands](https://img.shields.io/badge/commands-56-red?style=flat)](#plugins)
+[![Skills](https://img.shields.io/badge/skills-54-teal?style=flat)](#plugins)
+[![Commands](https://img.shields.io/badge/commands-54-red?style=flat)](#plugins)
 
 </div>
 
@@ -122,7 +122,7 @@ More detail in [Test authoring knowledge bases (TDD and browser E2E)](#test-auth
 | **[opentelemetry](docs/plugins/opentelemetry.md)** | OpenTelemetry Python - distributed tracing, context propagation, exporters, /otel-audit | 1 | 1 | 1 |
 | **[docker](docs/plugins/docker.md)** | Optimized multi-stage Dockerfiles for any language or framework | - | 1 | - |
 | **[grabber-development](docs/plugins/grabber-development.md)** | Python web scraping - coordinator + 3 specialists (stealth browser, HTTP fingerprint, AI scraping), anti-bot bypass | 4 | 1 | - |
-| **[codebase-cleanup](docs/plugins/codebase-cleanup.md)** | Multi-language dependency security audits, SOLID refactoring, prioritized tech-debt roadmaps | - | - | 3 |
+| **[dependency-audit](docs/plugins/dependency-audit.md)** | Evidence-first dependency auditing - CVEs, outdated packages, license obligations, supply-chain signals via real ecosystem tooling | - | 1 | 1 |
 | **[libgdx-development](docs/plugins/libgdx-development.md)** | libGDX cross-platform game dev - rendering pipeline, Scene2D + Ashley ECS, Box2D, AssetManager, deploy to Desktop/Android/iOS/HTML5, /libgdx-audit | 1 | 1 | 1 |
 | **[kotlin-development](docs/plugins/kotlin-development.md)** | Idiomatic Kotlin - coroutines, Flow/StateFlow, Kotlin Multiplatform (KMP), Jetpack Compose, Ktor server, type-safe DSLs | - | 1 | - |
 | **[pwa-expert](docs/plugins/pwa-expert.md)** | Progressive Web Apps 2025-2026: manifest, service workers, Web Push, install flows, store distribution | 1 | 1 | 3 |
@@ -337,6 +337,21 @@ claude plugin install developer-essentials@claude-code-workflows
 ```
 
 References across this marketplace use the upstream namespaces (`mattpocock-skills:tdd`, `developer-essentials:e2e-testing-patterns`), which resolve as written once the upstream plugins are installed. Both upstreams are multi-skill bundles, so the install brings their companion skills along.
+
+### Codebase cleanup command trio (deps-audit, refactor-clean, tech-debt)
+
+As of marketplace 19.0.0, the `codebase-cleanup` plugin (3 commands cherry-picked from `wshobson/agents`) is retired. Unlike the delegated areas above it was deleted rather than handed back: a line-by-line review verified content defects worth not recommending even by delegation (an `npm audit fix --force` auto-remediation script, a binary license-compatibility matrix, absolute code metrics presented as pass/fail gates, fabricated ROI figures), and delegating would also have pulled in the two upstream agents originally excluded for overlap with senior-review and testing. The capability lives on locally, split by concern:
+
+- Structural refactoring: [clean-code](docs/plugins/clean-code.md) and [python-development](docs/plugins/python-development.md)'s `/python-refactor`
+- Tech-debt inventory and repository hygiene: [senior-review](docs/plugins/senior-review.md)'s `cleanup-auditor` dimension (extended with lifecycle archaeology in the same release) and `code-auditor`
+- Dependency auditing (CVE, licenses, supply chain, outdated packages): the new hand-authored [dependency-audit](docs/plugins/dependency-audit.md) plugin and its `/dependency-audit:deps-audit` command
+
+Users who want the original trio can install it from upstream:
+
+```bash
+claude plugin marketplace add wshobson/agents
+claude plugin install codebase-cleanup@claude-code-workflows
+```
 
 ---
 
