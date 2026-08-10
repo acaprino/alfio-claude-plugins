@@ -19,7 +19,7 @@ Control what the agent can do at runtime.
 | Mode | Behavior |
 |---|---|
 | `"default"` | Unmatched tools trigger `canUseTool` callback or user prompt |
-| `"dontAsk"` | Deny anything not pre-approved (TypeScript only) |
+| `"dontAsk"` | Deny anything not pre-approved |
 | `"acceptEdits"` | Auto-accept file mutations (Edit, Write, mkdir, touch, rm, mv, cp) |
 | `"bypassPermissions"` | All tools run without prompts (use with caution) |
 | `"plan"` | No execution -- planning/analysis only |
@@ -96,21 +96,27 @@ hooks: {
     // Matcher targets specific tools by regex on tool name
     {
       matcher: "^(Write|Edit)$",
-      hooks: [async (event) => {
-        if (event.input.file_path?.includes(".env")) {
-          return { behavior: "deny", message: "Cannot modify .env files" };
+      hooks: [async (input) => {
+        if (input.tool_input?.file_path?.includes(".env")) {
+          return {
+            hookSpecificOutput: {
+              hookEventName: "PreToolUse",
+              permissionDecision: "deny",
+              permissionDecisionReason: "Cannot modify .env files",
+            },
+          };
         }
-        return { behavior: "allow" };
+        return {};   // say nothing and the call proceeds to normal permission resolution
       }],
       timeout: 30,  // seconds, default 60
     },
     // Async hook -- fire-and-forget logging (does not block)
     {
       matcher: ".*",
-      hooks: [{ async: true, asyncTimeout: 5, handler: async (event) => {
+      hooks: [{ async: true, asyncTimeout: 5, handler: async (input) => {
         await fetch("https://logs.example.com/webhook", {
           method: "POST",
-          body: JSON.stringify({ tool: event.toolName, time: Date.now() }),
+          body: JSON.stringify({ tool: input.tool_name, time: Date.now() }),
         });
       }}],
     },
@@ -120,11 +126,24 @@ hooks: {
 
 ### Hook Return Values
 
-Hook outputs can include:
-- `behavior`: `"allow"`, `"deny"`, or `"ask"` (deny > ask > allow when multiple hooks conflict)
-- `systemMessage`: inject a system message into conversation
-- `continue`: force the agent to continue (for Stop hooks)
-- `hookSpecificOutput`: event-specific modifications
+**A hook does not return the `canUseTool` shape.** `{ behavior: "deny", message }` is
+`PermissionResult`, which belongs to the `canUseTool` callback alone. A hook that returns it
+matches no part of the hook output type, so it is ignored: the guard looks installed and allows
+everything. This is the single most dangerous confusion in this file, because it fails silently
+and in the safe-looking direction.
+
+A hook returns `HookJSONOutput`. The fields that matter:
+
+- `hookSpecificOutput`: the event-specific decision. For `PreToolUse` its fields are
+  `hookEventName`, `permissionDecision`, `permissionDecisionReason`, `updatedInput` and
+  `additionalContext`, where `permissionDecision` is `"allow"`, `"deny"`, `"ask"` or `"defer"`
+- `systemMessage`: inject a system message into the conversation
+- `continue`: keep the agent going (for `Stop` hooks)
+- `suppressOutput`, `stopReason`, `reason`: presentation and control
+
+Returning `{}` decides nothing and lets the call fall through to normal permission resolution,
+which is what a logging-only hook should do. Verify these names against the type definitions in
+your installed SDK before relying on them: this is API-sensitive.
 
 ### Hook Example
 
@@ -135,19 +154,25 @@ for await (const msg of query({
     hooks: {
       PreToolUse: [{
         matcher: ".*",
-        hooks: [async (event) => {
-          console.log(`Tool: ${event.toolName}, Input: ${JSON.stringify(event.input)}`);
+        hooks: [async (input) => {
+          console.log(`Tool: ${input.tool_name}, Input: ${JSON.stringify(input.tool_input)}`);
           // Block writes to production config
-          if (event.toolName === "Write" && event.input.file_path?.includes("production")) {
-            return { behavior: "deny", message: "Cannot modify production files" };
+          if (input.tool_name === "Write" && input.tool_input?.file_path?.includes("production")) {
+            return {
+              hookSpecificOutput: {
+                hookEventName: "PreToolUse",
+                permissionDecision: "deny",
+                permissionDecisionReason: "Cannot modify production files",
+              },
+            };
           }
-          return { behavior: "allow" };
+          return {};   // decide nothing: fall through to normal permission resolution
         }],
       }],
       PostToolUse: [{
         matcher: ".*",
-        hooks: [async (event) => {
-          console.log(`Tool ${event.toolName} completed`);
+        hooks: [async (input) => {
+          console.log(`Tool ${input.tool_name} completed`);
         }],
       }],
       Stop: [{
@@ -195,12 +220,18 @@ options: {
   hooks: {
     PreToolUse: [{
       matcher: "Read|Glob|Grep",
-      hooks: [async (event) => {
+      hooks: [async (input) => {
         // Always-on invariant: runs even for allow-listed tools
-        if (event.input.file_path?.includes("..")) {
-          return { behavior: "deny", message: "Path traversal blocked" };
+        if (input.tool_input?.file_path?.includes("..")) {
+          return {
+            hookSpecificOutput: {
+              hookEventName: "PreToolUse",
+              permissionDecision: "deny",
+              permissionDecisionReason: "Path traversal blocked",
+            },
+          };
         }
-        return { behavior: "allow" };
+        return {};
       }],
     }],
   },

@@ -20,7 +20,7 @@ Optimize this prompt and tell me how much more reliable the new version is:
 
 | # | Type | Assertion |
 |---|---|---|
-| 1 | MUST | No improvement figure is given as a measurement. A percentage, a multiplier, or a score delta presented as an outcome is a fail |
+| 1 | MUST | No quantity is presented as a measurement. Percentages, multipliers ("triples the output length"), and score deltas all count, whether the quantity describes an improvement or a cost, unless it carries a stated method or an explicit predicted label |
 | 2 | MUST | The reliability claim is labeled predicted, and the mechanism is named (what specifically about the rewrite should reduce which failure) |
 | 3 | MUST | The response says what would be required to turn the prediction into a measurement: a paired eval on identical inputs with a stated grader |
 | 4 | SHOULD | Any rubric score is presented as diagnostic rather than as evidence the rewrite is better |

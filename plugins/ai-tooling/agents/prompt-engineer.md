@@ -68,14 +68,24 @@ true; omit the rest rather than padding with "unchanged".
 ```
 Constraints:  strengthened | relaxed: <which>
 Behaviors:    removed: <what> | added: <what>
-Interface:    changed: <old> -> <new>
+Interface:    changed: <old> -> <new>   [say what you compared]
 Tool policy:  changed: <what>
 Reasoning:    changed: <what>
 Trust:        hardened: <what> | weakened: <what>
 ```
 
+**Name what you compared on the Interface line.** "Interface: unchanged" is true of almost any
+rewrite if you quietly scope it to key names. The interface is the whole machine-readable
+surface: the schema literal and the types inside it, field names, placeholders, delimiters, the
+error object. Moving a format hint out of a schema and into a prose rule is an interface change
+even though every key survived, so it gets reported as one. A comparison whose scope is not
+stated is not a comparison.
+
 If every line would read "unchanged", say "No behavioral change: wording, structure, and token
 count only." That is a real and good result, not a failure to find something.
+
+Report a behavior the rewrite added the same way you report one it removed. An addition nobody
+asked for is a change the caller has to approve, not a bonus.
 
 Any relaxed, removed, weakened, or changed line is a behavior change the caller has to approve.
 Lead with it. Never bury it under a token saving, and never let a rubric score stand in for it: a
@@ -258,6 +268,20 @@ Mark every other dimension `N/A` with a short clause saying why.
   before/after score pair is not evidence. See `<epistemic_status>`.
 - Revise before presenting when an applicable dimension sits below 4 and the archetype wants it
   high. Do not revise to raise a dimension the archetype does not want.
+
+## 4. When the prompt is already good
+
+Say so, and stop. "No material optimization warranted" is a real conclusion and the correct one
+more often than an optimizer likes to admit. If you do propose changes to a strong prompt, every
+one of them names the defect it fixes. These three are not defects, and each is a way a rewrite
+grows without getting better:
+
+- restructuring justified as clarity, tidiness, or better organization alone
+- examples added to a prompt whose format was already unambiguous
+- a behavior that reaches the rewrite without appearing in the diagnosis
+
+A rewrite that doubles the token count of a prompt you called excellent needs a reason for each
+addition, not one reason for the set.
 </evaluation_rubric>
 
 <epistemic_status>

@@ -10,6 +10,7 @@ This directory is a development asset of the marketplace repository. It is not p
 
 For each case in `cases/`:
 
+0. **Establish which version is under test, and prove it.** This step exists because the first attempt to run this harness nearly measured the wrong code: the plugin installed on the machine was two releases behind the working tree, so the components that would have answered were the ones from before the changes these cases guard. Check `~/.claude/plugins/cache/<marketplace>/ai-tooling/` against the version in `marketplace.json`, and if they differ, either update the marketplace and start a new session (plugins load at session start and cannot be reloaded mid-session) or run against the working-tree files directly and say so in the scorecard. A run whose scorecard does not name the version it exercised is not a result.
 1. **Materialize the setup** the case describes. Some cases need a scratch project with a specific `package.json` or `pyproject.toml`; the case gives the exact contents. Never run these in the marketplace repository itself, or the plugin's own files become part of the context under test.
 2. **Run the case's command in a FRESH session.** Context from a previous case leaks the answers, especially for the source-of-truth cases where a leaked API shape defeats the whole point.
 3. **Score each assertion** `pass`, `fail`, or `n/a`. An assertion is `n/a` only when the case explicitly makes it conditional.
@@ -28,6 +29,7 @@ MUST assertions are the invariant. A single MUST failure fails the case, regardl
 - Never tell the session under test what the assertions are. The case file is for the scorer.
 - Never let the session read this directory. If it does, the run is void.
 - An assertion that turns out to encode a preference rather than an invariant gets deleted, with a note in the case file saying why. Cases are not sacred; invariants are.
+- **Whoever wrote the change should not be the one scoring it.** Someone holding the plugin's text and these assertions in mind cannot judge an output neutrally: they know what a passing answer looks like and will pattern-match to it. Score with a reader that has the assertions and the output and nothing else, which is the same judge-independence rule `<prompt_evals>` in the agent asks for. When that is impossible, say so in the scorecard and treat the result as weaker evidence.
 - A case that passes only because the model guessed well is still a pass, but note it: these are single-run observations, not measurements, and the same epistemic rule the plugin teaches applies to its own harness.
 
 ## Cases

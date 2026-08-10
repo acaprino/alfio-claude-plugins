@@ -1,5 +1,12 @@
 # Changelog
 
+## 19.1.3
+
+- Security correctness fix in the `ai-tooling` bundle (plugin 5.0.1), found by running the eval harness against the plugin for the first time. The hook examples in `agent-sdk-builder` returned `{ behavior: "deny", message }`, which is `PermissionResult`, the shape belonging to the `canUseTool` callback. A hook returning it matches no variant of `HookJSONOutput` and is ignored at runtime, so a guard written from that documentation looks installed and allows everything. Hooks now return `hookSpecificOutput: { hookEventName, permissionDecision, permissionDecisionReason }`, and the return-values section leads with why this particular confusion is the dangerous one: it fails silently and in the safe-looking direction.
+- The same pass fixes hook input fields to the declared snake_case (`tool_name`, `tool_input`, not `event.toolName`) and drops a wrong "(TypeScript only)" note on the `dontAsk` permission mode. All verified against `@anthropic-ai/claude-agent-sdk@0.3.226` type definitions.
+- This defect was introduced by the 19.0.1 security fix itself, which moved validation into a `PreToolUse` hook and wrote that hook with the callback's return shape. The fix for the original defect shipped a subtler version of it.
+- `prompt-engineer` gains two rules the same run earned. The semantic diff must now name what it compared on the Interface line, because "Interface: unchanged" is true of almost any rewrite once it is quietly scoped to key names while the schema literal has changed. And the rubric gains an explicit "when the prompt is already good" section: saying so and stopping is a real conclusion, and three specific ways a rewrite grows without improving (restructuring justified as clarity alone, examples added to an already unambiguous format, behaviors that reach the rewrite without appearing in the diagnosis) are named as defects.
+
 ## 19.1.2
 
 - Export-only release. Defines `$SKILLS` in the 19 bundle files that used it without saying what it resolves to, so an agent loading any of them alone knows where the skills directory is instead of guessing. Eighteen of those were introduced by 19.1.1 itself, which rewrote paths to `$SKILLS/...` without carrying the definition along: six `_pipelines` review agents, ten `codebase-mapper` agents and two of its prompts, plus the pre-existing `marketplace-audit` skill.
