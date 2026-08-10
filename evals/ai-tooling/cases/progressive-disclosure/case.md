@@ -25,4 +25,8 @@ from the parent?
 
 ## Scoring notes
 
-Assertion 2 has a legitimate exception: subagent tool restriction touches permissions, so opening `permissions-hooks-security.md` is defensible. Opening all five is not. If the harness cannot observe file reads, this case is unscoreable rather than passing; mark it n/a and say so.
+Assertion 2 has a legitimate exception: subagent tool restriction touches permissions, so opening `permissions-hooks-security.md` is defensible. Opening all five is not.
+
+**Make the run report what it read.** Ask it to append `RUN-ACCOUNTING: files_read=<list>` as its last line. Without that the case is unscoreable rather than passing, because an absence of quoted references is not evidence of an absence of reads; mark it n/a and say so.
+
+Assertion 4 failed on the 2026-08-10 run and the failure is fair: the accounting line showed the core read before the reference, which is consistent with decision-tree routing, but the response never named the shape it had selected. Reading in the right order is not the same as showing the route. The assertion stays as a SHOULD, since a correct answer that skips the narration is a lesser fault than one that opens every reference.

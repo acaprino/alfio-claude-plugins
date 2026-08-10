@@ -2,7 +2,28 @@
 
 One row per scored run. Newest first. A case with no row has never been run.
 
-## Run 1, 2026-08-10, ai-tooling 5.0.0
+## Run 2, 2026-08-10, ai-tooling 5.0.1 (installed)
+
+The four cases run 1 could not cover, executed against the **installed** plugin at `~/.claude/plugins/cache/claude-code-daodan/ai-tooling/5.0.1/` rather than the working tree, after the marketplace was updated. Same method otherwise: a fresh subagent per run receiving only the Run text, a separate fresh subagent per verdict.
+
+| Date | Case | Component | MUST | Result | Scorecard |
+|---|---|---|---|---|---|
+| 2026-08-10 | pinned-old-sdk | agent-sdk-builder | 4/4 scored | PASS | [scorecard](cases/pinned-old-sdk/scorecard-2026-08-10.md) |
+| 2026-08-10 | reference-vs-installed | agent-sdk-builder | 3/3 | PASS (on the second setup, see below) | [scorecard](cases/reference-vs-installed/scorecard-2026-08-10.md) |
+| 2026-08-10 | progressive-disclosure | agent-sdk-builder | 3/3 | PASS | [scorecard](cases/progressive-disclosure/scorecard-2026-08-10.md) |
+| 2026-08-10 | audit-depth (deep companion) | prompt-engineer | 2/2 scored | PASS | [scorecard](cases/audit-depth/scorecard-2026-08-10-deep.md) |
+
+With this run every case has been executed at least once, and `audit-depth` has both halves: quick on a five-word prompt, deep on a production agent with a tool loop and untrusted input.
+
+### The source-of-truth policy held under a rigged test
+
+`pinned-old-sdk` is the strongest result of either run. The project pinned `0.2.90` with no `node_modules`, so tier 1 was unreadable and tier 2 documents a version a whole minor line ahead. The run said what it could not read, then downloaded the pinned version's own tarball and resolved every option against that version's `sdk.d.ts`, type-checking both emitted snippets under `strict` before handing them over. It also found that `0.2.90` exports a standalone `forkSession()` that current releases do not, which is the exact class of fact the policy exists to stop the skill recalling wrongly in either direction.
+
+`reference-vs-installed` **failed its first setup for a reason that was the case's fault, not the plugin's.** The case says to introduce a disagreement by editing the installed type definitions. Editing only `sdk.d.ts` leaves the shipped runtime still reading the real name, and the run detected exactly that: it cross-checked `sdk.mjs`, found the package internally inconsistent, and chose the runtime's name on the grounds that following the types would produce an agent with no turn cap. That is better reasoning than the assertion was written to reward. The setup was rebuilt to rename the option consistently across types and runtime, and the re-run then emitted the installed name, named the tier that resolved it, and explained why the old name still sounds right. The case file now carries the corrected setup.
+
+The judge's observation on that case is worth keeping: the sharpest part of the test turned out not to be the `node_modules` edit at all, but an in-project trap left behind by the `always-on-security` run, whose `agent.js` set the old option name under a comment claiming it had been verified against this very SDK version. The run resisted a same-repo precedent that asserted the exact verification it was being asked to perform, diagnosed it as a silent failure rather than a crash, and reported it unprompted.
+
+## Run 1, 2026-08-10, ai-tooling 5.0.0 (working tree)
 
 | Date | Case | Component | MUST | Result | Scorecard |
 |---|---|---|---|---|---|
