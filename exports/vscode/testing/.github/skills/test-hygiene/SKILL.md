@@ -32,7 +32,7 @@ For an agent, writing a new test file costs nearly nothing; understanding the ex
 Full protocol with per-rule detail in `references/prevention-rules.md`. The condensed form:
 
 1. **Search before writing.** Locate the existing test file for the target source file and extend it. Creating a parallel test file for an already-tested source file is forbidden.
-2. **One test file per source file**, mirroring the source path (`src/foo/bar.py` maps to `tests/unit/foo/test_bar.py`), following the project's established convention.
+2. **Deterministic ownership per layer.** Unit tests: one test file per source file, mirroring the source path (`src/foo/bar.py` maps to `tests/unit/foo/test_bar.py`), following the project's established convention. Integration, contract, and e2e tests are behavior-owned: one file per behavioral scope (a flow, an endpoint, a contract), legitimately spanning several source modules. The violation at those layers is an unexplained second file for the same scope, not multi-module reach.
 3. **Explicit layers** (unit, integration, e2e), each in its own directory with a runtime budget. A new test goes in the lowest layer that can express the behavior.
 4. **Behavior, not implementation.** Test through public interfaces. A refactor that preserves behavior must not break tests.
 5. **No skip markers to get green.** Fix the test, or quarantine it with a tracked reason.
@@ -44,8 +44,8 @@ Full protocol with per-rule detail in `references/prevention-rules.md`. The cond
 When the suite has already degraded, rules alone do not repair it. Bonify in layers, opportunistically, alongside normal development. Full mechanics in `references/remediation-workflow.md`.
 
 1. **Measure first.** `/test-audit` produces a versioned `TEST_AUDIT.md`: counts, runtime, skipped, failing, flaky, orphans, layer distribution, slowest tests, per-module coverage. In a degraded suite, instinct misjudges what is dead; numbers do not.
-2. **Quarantine, do not delete.** `/test-audit --fix` moves failing, flaky, orphan, and long-skipped tests to `tests/_quarantine/`, excluded from CI, each with a ledger entry. The suite turns green and trustworthy immediately; a failure becomes a signal again. Quarantined entries are processed only when their module is next touched; entries older than 3 months are deleted outright.
-3. **Consolidate per module.** `/test-consolidate <module>` inventories the BEHAVIORS the module's tests cover (often 40 tests cover 9 behaviors), then rewrites one test file per source file and deletes the originals in the same commit, with a coverage gate.
+2. **Quarantine, do not delete.** `/test-audit --fix` moves failing, flaky, orphan, and long-skipped tests to `tests/_quarantine/`, excluded from CI, each with a ledger entry. The suite turns green and trustworthy immediately; a failure becomes a signal again. Quarantined entries are processed only when their module is next touched; entries older than 3 months become deletion candidates, dropped only through the approval gate with evidence beyond age (feature removed, replacement coverage, temporary origin).
+3. **Consolidate per module.** `/test-consolidate <module>` inventories the BEHAVIORS the module's tests cover (often 40 tests cover 9 behaviors), then rewrites one file per owner at the correct layer and deletes the originals in the same commit, with a coverage gate.
 4. **Verify.** Coverage per module must not drop across a consolidation. A temporary drop in total coverage while pruning fake coverage is normal and desirable.
 
 Order remediation by risk (production bugs, then churn from git log), not by how messy a module looks.
@@ -60,7 +60,7 @@ Defaults; a project's own convention overrides them.
 | `integration` | Real boundaries (DB, HTTP, filesystem) via containers or fixtures | Whole layer under 5min |
 | `e2e` | Critical user flows only | Roughly 20 tests per project; not a regression dumping ground |
 
-The same behavior is tested at ONE layer. When a unit test needs a database, it is an integration test in the wrong directory; move it instead of mocking the database.
+A behavior's primary proof lives at ONE layer. Cross-layer overlap is duplication only when two tests protect substantially the same failure mode through the same observable contract without adding independent risk coverage; a calculation checked at unit, its persistence at integration, and the user flow at e2e are three behaviors, not one repeated. When a unit test needs a database, it is an integration test in the wrong directory; move it instead of mocking the database.
 
 ## Related knowledge
 

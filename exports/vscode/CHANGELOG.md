@@ -1,5 +1,13 @@
 # Changelog
 
+## 19.0.3
+
+- Tracks marketplace 19.0.3, which de-dogmatizes four rules of the `testing` bundle (plugin 2.2.0) after an external review found them stated as universal invariants where they hold only under conditions.
+- Test oracles: the "Hardcoded Golden Values" anti-pattern in `test-writer` became "The Mirrored Oracle". The old rule flagged `assert total == 660` and prescribed deriving the expected value from the inputs, which is the recipe for a test that reimplements the production algorithm and passes when both share a bug. The rule now targets that tautology directly: an explicit, independently derived expected value is the strongest oracle, and invariants or tolerances are for when the complete value is impractical or the property itself is the contract.
+- Test ownership is now scoped per layer in `test-hygiene` (rules 2 and 3) and in `test-suite-auditor` D1. One file per source file still binds unit tests; integration, contract, and e2e tests are behavior-owned and legitimately span several source modules. The violation above the unit layer is an unexplained second file for the same behavioral scope, not multi-module reach. `/test-consolidate` Step 5 rewrites one file per owner accordingly.
+- Cross-layer overlap is no longer duplication by definition. `test-suite-auditor` D5 flags it only when two tests protect substantially the same failure mode through the same observable contract without adding independent risk coverage; a business invariant defended at several layers against different failure modes is defense in depth, and a new anti-pattern entry says not to flag it.
+- Quarantine age became a signal rather than a verdict: an entry older than 3 months is a deletion candidate needing corroborating evidence (feature removed, replacement coverage, temporary origin, no bug-fix provenance) through the consolidation approval gate, instead of being deleted without discussion.
+
 ## 19.0.2
 
 - Repair release with no new content. The 19.0.0 restructure (codebase-cleanup retired, dependency-audit added) had been prepared in the working tree but not committed when the 19.0.1 refresh was cut; that commit swept in the registry, changelog and manifest halves without the files. This release lands the remaining files (the dependency-audit bundle, the codebase-cleanup removals, the `review-cleanup-auditor` D6 update) so the shipped tree matches the manifest again.

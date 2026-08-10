@@ -54,7 +54,7 @@ Categories: `orphan` (source deleted), `failing` (red on current main), `flaky` 
 **Lifecycle.** Two rules, both firm:
 
 1. An entry is processed (rewritten into the consolidated file or deleted) only when its module is next touched. Nobody "works through the quarantine" as a standalone project.
-2. An entry older than 3 months is deleted without discussion. Three months of nobody needing it is the evidence it was dead.
+2. Age is an investigation signal, not a verdict. An entry older than 3 months becomes a deletion CANDIDATE: propose the drop through the consolidation approval gate with corroborating evidence beyond age (the feature was removed, replacement coverage exists, the test was born as a temporary migration aid, no bug-fix provenance in `git log`). A quarantined test can guard a process that runs once a year; age alone never justifies the deletion.
 
 ## 3. Per-module consolidation
 
@@ -68,7 +68,7 @@ Executed by `/test-consolidate <module>`. The order of operations is the whole p
 
    Value is `high`, `low`, or `none`. Flag separately: tests contradicting each other, tests asserting implementation details, tests that cannot fail (no asserts, tautologies, everything mocked).
 3. **Approve.** The keep-list and delete-list are explicit and user-approved. Unanswered rows default to keep.
-4. **Rewrite** one test file per source file, covering the approved behaviors plus evident gaps, at the correct layer, following the prevention rules.
+4. **Rewrite** one file per owner at the correct layer (one test file per source file for unit tests, one file per behavioral scope for integration, contract, and e2e), covering the approved behaviors plus evident gaps, following the prevention rules.
 5. **Delete the originals in the same commit** as the rewrite, including processed quarantine entries and their ledger rows.
 6. **Verify**: the module's coverage must not drop below the pre-consolidation baseline. Tests that cannot execute locally are gated on the CI run after the push. On a failed gate, roll the commit back (`git reset --hard HEAD~1` while it exists only locally, `git revert` once it has been pushed) and report which behaviors lost coverage. Where no coverage tooling exists, the gate degrades to "count of distinct behaviors covered must not drop", stated explicitly.
 

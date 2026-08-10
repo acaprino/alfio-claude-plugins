@@ -57,7 +57,7 @@ Execute in order. Skip a dimension when its signal is absent and say so in the s
 
 1. Detect the runner(s) per the playbook; list test files per layer directory (`unit`, `integration`, `e2e`, or project equivalents).
 2. Count files and cases per layer (list-tests command, no run needed).
-3. **Placement violations**: test files that mirror no source path under the project convention; two or more test files whose imports resolve to the same source file (the parallel-file violation of prevention rule 1).
+3. **Placement violations**: unit-layer test files that mirror no source path under the project convention; two or more test files at the SAME layer owning the same target (same source file at unit, same behavioral scope at integration/e2e), the parallel-file violation of prevention rule 1. Integration, contract, and e2e files are behavior-owned and legitimately span several source modules; multi-module reach at those layers is not a finding.
 4. **Pyramid shape**: layer ratios against the budgets in the test-hygiene skill; an e2e layer larger than unit, or a unit layer with I/O imports (database drivers, HTTP clients), is a finding.
 
 ### D2: Orphan tests
@@ -84,7 +84,7 @@ For each test file, resolve the source module(s) it targets. Imports are authori
 
 1. Cluster test cases by imported source module (from D2's resolution), never by filename prefix or similarity. A test file that exercises several source modules belongs to several clusters, one per module. A prefix family (`test_foo_*.py`) whose members import different modules is the case name-based clustering misses: each member must be compared against the owning test file of the module it imports, which usually shares no name with it.
 2. Within a cluster, compare test names, assert targets, and setup shape. Same behavior asserted in more than one file, or repeated with cosmetic variation in one file, is a duplicate finding.
-3. Cross-layer duplication (same behavior at unit and integration and e2e) is the highest-value duplicate to surface; name every location.
+3. Cross-layer overlap is not duplication by itself. Flag it only when two tests protect substantially the same failure mode through substantially the same observable contract without adding independent risk coverage (same input class, same assertion target, no new dependency reality). A unit test of a calculation and an integration test of its persistence are defense in depth, not a pair. Confirmed same-failure-mode duplication across layers remains the highest-value duplicate to surface; name every location.
 
 ### D6: Contradictory tests
 
@@ -175,6 +175,7 @@ Each is a finding referencing prevention rule 5; these are the tests that break 
 - Do NOT flag a parametrized or table-driven test as duplicates of itself.
 - Do NOT cluster tests by filename prefix or similarity in D5. Clustering is by imported source module; a shared prefix across files that target different modules is exactly how parallel-file duplicates stay invisible.
 - Do NOT flag intentional cross-service contract duplication without first checking for a shared spec or contract-test marker.
+- Do NOT flag defense-in-depth coverage (the same business invariant protected against DIFFERENT failure modes at different layers) as cross-layer duplication. Duplication requires the same failure mode through the same observable contract.
 - Do NOT declare a test flaky without rerun or CI-history disagreement. Style smells are candidates, not findings.
 - Do NOT count `conftest.py`, fixture modules, factories, or test helpers as orphan tests.
 - Do NOT run mutation testing. Read existing reports only.

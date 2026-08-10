@@ -49,7 +49,7 @@ Flag separately, each with evidence:
 - **Contradictory pairs**: tests asserting incompatible outcomes for the same input/state.
 - **Implementation-coupled**: internal mocks, call-echo asserts, private access.
 - **Never-failing**: no asserts, tautologies, everything mocked.
-- **Quarantined entries** for this module, each with a keep (behavior worth preserving in the rewrite) or drop proposal.
+- **Quarantined entries** for this module, each with a keep (behavior worth preserving in the rewrite) or drop proposal. A drop proposal cites evidence beyond age: feature removed, replacement coverage, temporary origin, no bug-fix provenance.
 
 Under `--dry-run`, print the inventory and stop.
 
@@ -59,11 +59,11 @@ Ask the user whether the module sits on a critical business flow. If yes and no 
 
 ## Step 4: Approval gate
 
-Present the inventory via `AskUserQuestion`, grouped per source file: the keep-list (behaviors the rewrite will cover) and the delete-list (duplicates, never-failing, dropped quarantine entries). Unanswered rows default to KEEP. No flag bypasses this gate. Contradictory pairs need an explicit ruling: which behavior is the correct one (check the production code and its documented contract before proposing).
+Present the inventory via `AskUserQuestion`, grouped per owner (source file for unit tests, behavioral scope above that layer): the keep-list (behaviors the rewrite will cover) and the delete-list (duplicates, never-failing, dropped quarantine entries). Unanswered rows default to KEEP. No flag bypasses this gate. Contradictory pairs need an explicit ruling: which behavior is the correct one (check the production code and its documented contract before proposing).
 
 ## Step 5: Rewrite
 
-One test file per source file in the module, at the correct layer and mirrored path, covering exactly the approved behaviors plus any evident gaps the user approved. Follow the prevention rules of the test-hygiene skill; write test content behavior-first per the `mattpocock-skills:tdd` skill (upstream mattpocock/skills, a hard dependency of this plugin; if unavailable, stop and tell the user to install it: `claude plugin marketplace add mattpocock/skills`, then `claude plugin install mattpocock-skills@mattpocock`).
+One file per owner at the correct layer, covering exactly the approved behaviors plus any evident gaps the user approved: one test file per source file at the mirrored path for unit tests, one file per behavioral scope for integration, contract, and e2e tests. Follow the prevention rules of the test-hygiene skill; write test content behavior-first per the `mattpocock-skills:tdd` skill (upstream mattpocock/skills, a hard dependency of this plugin; if unavailable, stop and tell the user to install it: `claude plugin marketplace add mattpocock/skills`, then `claude plugin install mattpocock-skills@mattpocock`).
 
 ## Step 6: Delete originals, same commit
 

@@ -21,9 +21,9 @@ Preference order when a hit exists:
 
 Creating `test_foo_extra.py` next to `test_foo.py` is never acceptable. If the existing file is misplaced relative to the convention, move it as part of the same change instead of forking it.
 
-## 2. Mirror-the-source placement
+## 2. Mirror-the-source placement (unit layer)
 
-One deterministic location per source file. If there is exactly one plausible place where a test can live, the agent finds it with a single file search instead of a semantic search that fails.
+One deterministic location per source file. If there is exactly one plausible place where a test can live, the agent finds it with a single file search instead of a semantic search that fails. Source-path mirroring binds the unit layer; integration, contract, and e2e files mirror a behavioral scope instead (rule 3), and their deterministic location is the layer directory plus the flow, endpoint, or contract name.
 
 | Ecosystem | Source | Test |
 |---|---|---|
@@ -36,16 +36,16 @@ One deterministic location per source file. If there is exactly one plausible pl
 
 The project's established convention wins over this table. What is non-negotiable is that the convention is deterministic and that there is one location per source file.
 
-## 3. One test file per source file
+## 3. One test file per source file (unit layer)
 
-And the inverse: a test file covers exactly one source file. Shared setup goes in fixture files (`conftest.py`, `fixtures.ts`, test helpers), never in a grab-bag test file that covers "miscellaneous" behavior. Grab-bag files are where duplicates hide, because no search for a specific module ever surfaces them.
+At the unit layer the inverse also holds: a test file covers exactly one source file. Integration, contract, and e2e tests are owned by a BEHAVIOR, not a source file: a checkout flow test that exercises the service, the repository, and the payment gateway together is structurally correct, not suspect. What stays forbidden at every layer is the unexplained parallel file: two files owning the same source file at unit, or the same behavioral scope above it. Shared setup goes in fixture files (`conftest.py`, `fixtures.ts`, test helpers), never in a grab-bag test file that covers "miscellaneous" behavior. Grab-bag files are where duplicates hide, because no search for a specific module ever surfaces them.
 
 ## 4. Explicit layers with budgets
 
 Directory structure separates `unit`, `integration`, and `e2e` (or the project's equivalents). Assignment rule: a new test goes in the LOWEST layer that can express the behavior. Consequences:
 
 - A "unit" test that needs a real database, network, or filesystem is an integration test in the wrong directory. Move it; do not mock the database to keep it in unit.
-- The same behavior is verified at ONE layer. Testing a validation rule in a unit test, again through the API in an integration test, and again through the UI in an e2e test is the most toxic duplication a suite can carry, because one behavior change breaks three tests in three places.
+- A behavior's primary proof lives at ONE layer. Re-asserting the same failure mode through the same observable contract at another layer (a validation rule checked in a unit test, re-checked through the API, re-checked through the UI) is the most toxic duplication a suite can carry, because one behavior change breaks three tests in three places. Cross-layer overlap that protects DIFFERENT failure modes (the calculation at unit, the transaction persisting it at integration, the wire format at contract, the user completing the flow at e2e) is defense in depth, not duplication.
 - Budgets (SKILL.md table) are project-tunable defaults. A layer over budget is an audit finding, not background noise.
 
 ## 5. Behavior, not implementation
