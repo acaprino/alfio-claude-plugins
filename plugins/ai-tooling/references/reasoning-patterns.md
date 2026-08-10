@@ -2,6 +2,14 @@
 
 On-demand reference for the `prompt-engineer` agent and the `/prompt-optimize` command. Read this file when a task needs reasoning structure beyond plain few-shot or basic chain-of-thought, or when the target is a reasoning model and you must decide whether any explicit pattern is warranted at all. Each pattern below states what it is, when to apply it, the prompt skeleton, and the main failure modes. Patterns 11-14 are the token-efficiency patterns: read them, plus the "Cost-aware selection" section, whenever token cost or latency is part of the optimization target.
 
+> **Maintenance note.** This file mixes three kinds of content with different shelf lives:
+> selection policy (stable), the pattern catalog (slow-moving), and empirical results (dated and
+> model-specific). Splitting it into selection / catalog / evidence was considered in the
+> 2026-08-10 review and deliberately deferred: the selection cheat sheet and the reasoning-model
+> section are the parts read on most invocations, and they are already at the top. If the
+> empirical numbers below start driving decisions on their own, that is the signal to split and
+> to date each result.
+
 ## Selection cheat sheet
 
 | Task shape | First-choice pattern |
