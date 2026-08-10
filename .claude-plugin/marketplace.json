@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Claude Code Daodan - 39 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), prose humanization, and pure-architecture audits (missed unification, wrong abstractions).",
-    "version": "18.7.1"
+    "version": "18.8.0"
   },
   "plugins": [
     {
@@ -312,8 +312,8 @@
     {
       "name": "messaging",
       "source": "./plugins/messaging",
-      "description": "RabbitMQ and AMQP messaging - queue configuration, exchange routing, clustering, high availability, and event-driven architecture optimization (RabbitMQ 4.x coverage: Khepri, super streams, MQTT 5 native, AMQP 1.0 native)",
-      "version": "1.4.2",
+      "description": "RabbitMQ and AMQP messaging - queue configuration, exchange routing, clustering, high availability, and event-driven architecture optimization (RabbitMQ 4.3 coverage: Khepri-only metadata store, quorum queue priorities and delayed retries, streams, MQTT 5, AMQP 1.0 SQL filters) plus a production knowledge base skill",
+      "version": "2.0.0",
       "author": {
         "name": "Alfio"
       },
@@ -330,6 +330,9 @@
       "strict": false,
       "agents": [
         "./agents/rabbitmq-expert.md"
+      ],
+      "skills": [
+        "./skills/rabbitmq-production"
       ]
     },
     {
