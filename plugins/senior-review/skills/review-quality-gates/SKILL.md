@@ -41,6 +41,8 @@ Default anchor routing:
 | chicken-egg | `## Assumptions` (initialization order), `## Integration Hot-Spots` (Env / config), `## Invariants` (cross-component) |
 | ui-races | `## Invariants` (temporal), `## Integration Hot-Spots` (UI state) |
 | temporal-resilience | `## Invariants` (temporal, liveness), `## Assumptions` (unverified, timing/retry), `## Integration Hot-Spots` (queues, timers, network loops) |
+| data-integrity | `## Invariants` (uniqueness, state exclusivity, balances), `## Contracts` (structural, persistence shapes), `## Assumptions` (unverified, isolation/consistency) |
+| resource-lifecycle | `## Assumptions` (pool bounds, connection reuse), `## Integration Hot-Spots` (connections, subprocesses, long-lived handles) |
 | api-contracts | `## Contracts` (formal). This is the only dimension whose primary anchor is the formal-contract section, which is why it resolves to `senior-review:api-contract-auditor` and not to a generic reviewer |
 | abstraction (diff mode) | none. This reviewer does not consume the interconnect map: it reads `.deep-dive/01-structure.md` + `02-interfaces.md` and hunts prior art across the codebase with Grep. Omit the anchors block from its prompt; `/team-review` passes it a named-inputs addendum instead |
 
@@ -96,7 +98,7 @@ Every reviewer agent that runs as part of `/team-review` Phase 2 carries a `## P
 - **Cross-Reviewer Notes**: reviewers append observations that belong to other dimensions in a `## Cross-Reviewer Notes` section. Phase 3 consolidation must scan for this section and route the observations to the appropriate reviewer (or surface them in the consolidated report under the recipient dimension).
 - **Interconnect anchor citation**: reviewers cite map anchors when applicable. This is the same signal as the context utilization rate above; the section below quantifies the quality metric.
 
-Reference: `docs/references/agent-teams-best-practices.md` § Pipeline Conventions.
+Background: the rationale for these conventions lives in `docs/references/agent-teams-best-practices.md` § Pipeline Conventions in the development repository. That file is not shipped with the installed plugin and is never needed at runtime: the four rules above are the complete, self-contained contract.
 
 ## Evidence Classes for Quantitative Claims
 
@@ -123,7 +125,9 @@ This section is the source of truth. `/senior-review:team-review` (Phase 4b) and
 
 ### The three lenses
 
-Spawn one `Agent` per lens per finding. Use `subagent_type: general-purpose`. Omit `model` for lenses 1 and 2 so they inherit the session model (reasoning-heavy), `model: sonnet` for lens 3 (calibration). Run all three (and across findings) in parallel via `run_in_background: true`.
+Spawn one `Agent` per lens per finding. Use `subagent_type: general-purpose`. Omit `model` for lenses 1 and 2 so they inherit the session model (reasoning-heavy), `model: sonnet` for lens 3 (calibration).
+
+**Lens 3 is gated.** Lenses 1 and 2 run first, in parallel across findings (`run_in_background: true`). Lens 3 (severity calibration) is spawned only for findings that survive them (REAL from both, or the tie that marks them `contested`). Calibrating the severity of a finding the panel is about to discard is spend for nothing; the gate cuts roughly a third of the verifier calls with no change to the survival semantics. Findings killed by lenses 1-2 never reach lens 3 and keep their original severity in the `filtered` record.
 
 **Lens 1 prompt (Reachability / Correctness):**
 
@@ -222,7 +226,7 @@ Each verifier returns: `verdict` (REAL or FALSE_POSITIVE; lens 3 always REAL), `
 
 ### Fail-open
 
-If a verifier errors or returns a malformed verdict, treat it as an abstention. If fewer than 2 valid verdicts return for a finding, apply the tie rule (survives, `contested`). The panel never crashes the pipeline and never silently drops a finding.
+If a verifier errors or returns a malformed verdict, treat it as an abstention. If fewer than 2 valid verdicts return for a finding, apply the tie rule (survives, `contested`). A surviving finding whose lens 3 errored keeps the original reviewer severity. The panel never crashes the pipeline and never silently drops a finding.
 
 ### Selection: what enters the panel
 

@@ -48,7 +48,7 @@ You also depend on the **interconnect map** produced upstream:
 ## PRIME DIRECTIVES
 
 1. **Anchor-first reading.** Read `.team-review/02-interconnect.md` before touching target code. Let the map guide your hunt, not the other way around.
-2. **Cross-reference every finding.** Each finding must cite (a) the interconnect anchor that flagged the concern, (b) the `file:line` where the violation occurs, (c) the taxonomy code (L1.x-L8.x).
+2. **Cross-reference every finding.** Each finding must cite (a) the interconnect anchor that flagged the concern, or the `[MAP-GAP]` marker with the unmapped rule's own `file:line` evidence, (b) the `file:line` where the violation occurs, (c) the taxonomy code (L1.x-L8.x).
 3. **Assume violation.** For each contract/invariant/assumption in the map, assume it is violated somewhere in the code. Find the violation or prove there is none.
 4. **No reinventing other dimensions.** Do NOT re-flag injection (security-auditor's job), concurrency races (code-auditor/ui-race-auditor), or distributed saga compensation (distributed-flow-auditor). Your scope is logic integrity: the code's own declared-or-implied truths vs what it actually does.
 5. **Evidence over suspicion.** If you cannot cite a concrete scenario where the contract/invariant breaks, do not write the finding.
@@ -160,7 +160,7 @@ Start at 10/10. Floor at 1/10. Justify any score below 7 with specific deduction
 
 **[CRITICAL] [Title]**
 - **Category:** L[N.N] [Category name from taxonomy]
-- **Map anchor:** `## [anchor name]` row "[quoted row]"
+- **Map anchor:** `## [anchor name]` row "[quoted row]" (or `[MAP-GAP]` -- rule absent from the map; cite the rule's own `file:line` evidence instead)
 - **Violation site:** `file:line`
 - **Scenario:** [T1 -> T2 -> T3 sequence showing the broken state]
 - **Observable symptom:** [what a user/operator/downstream sees]
@@ -212,7 +212,7 @@ Do NOT pad findings to reach a quota. 0 findings on a clean codebase is a valid 
 
 ## ANTI-PATTERNS (DO NOT DO THESE)
 
-- Do NOT flag issues that the interconnect map does not surface. If the map does not mention an assumption, it either is not one or the mapper missed it. In the latter case, file a note in `Cross-Reviewer Notes` rather than inventing the finding.
+- Map-first, not map-only. Prioritize the anchors the interconnect map surfaces; that is where your unique value is. But if independent analysis reveals a HIGH-CONFIDENCE violation of a contract, invariant, or domain rule that the map never mentions, report it as a finding prefixed `[MAP-GAP]` with full `file:line` evidence for both the rule and the violation. A `[MAP-GAP]` finding is double duty: it reports the defect AND documents that the mapper missed the rule, which makes the mapper itself auditable. Low-confidence hunches about unmapped rules still go to `Cross-Reviewer Notes`, not findings.
 - Do NOT propose architectural rewrites. Scope: concrete fixes for concrete violations.
 - Do NOT write "this might be intentional" -- either cite the intent from the map, or state the violation definitively.
 - Do NOT flag L4.3 (name-logic mismatch) as anything higher than LOW.

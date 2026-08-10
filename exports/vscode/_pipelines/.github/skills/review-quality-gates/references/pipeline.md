@@ -28,16 +28,18 @@ The gate specs (verification panel, completeness critic, context-sharing pattern
 | React performance | `review-react-performance-optimizer` | conditional |
 | TypeScript type safety | `type-safety-auditor` from the `typescript-development` bundle (skipped with a note when that bundle is not installed) | conditional |
 | General performance | `review-generic-reviewer` (dimension `performance`) | conditional |
-| Platform compliance | `review-platform-reviewer` | conditional |
+| Platform / runtime integration | `review-platform-reviewer` | conditional |
 | Distributed flows | `review-distributed-flow-auditor` | conditional |
 | Circular dependencies | `review-chicken-egg-detector` | conditional |
 | Temporal resilience | `review-temporal-resilience-auditor` | conditional |
+| Data integrity | `review-data-integrity-auditor` | conditional |
+| Resource lifecycle | `review-resource-lifecycle-auditor` | conditional |
 | API contracts | `review-api-contract-auditor` | conditional |
 | Testing quality | `test-suite-auditor` from the `testing` bundle (fallback: `review-generic-reviewer`, dimension `testing`, when that bundle is not installed) | conditional |
 | Data migrations | `review-generic-reviewer` (dimension `migrations`) | conditional |
 | Abstraction | `review-abstraction-architect` | conditional, diff targets only |
 
-Support agents: `review-verification-lens` (Phase 4b, three per finding), `review-completeness-critic` (Phase 4c).
+Support agents: `review-verification-lens` (Phase 4b, up to three per finding; lens 3 is gated on survival), `review-completeness-critic` (Phase 4c).
 
 Two scoping rules that are easy to get wrong:
 
@@ -127,6 +129,8 @@ Gather these with the search tools rather than a shell pipeline, so detection wo
 | Messaging | `#search/textSearch` for `rabbitmq\|amqp\|kafka\|grpc\|pubsub\|celery\|dramatiq` in the diff content |
 | Startup code | `#search/textSearch` for `def main\|if __name__\|on_startup\|lifespan\|create_app\|bootstrap\|init_` in the diff content |
 | Long-running / scheduled code | `#search/textSearch` for `setInterval\|setTimeout\|cron\|schedule\|retry\|reconnect\|backoff\|watchdog\|heartbeat\|keepalive\|poll\|daemon\|updater` in the diff content |
+| Persistence code | `#search/textSearch` for `transaction\|commit\|rollback\|UPDATE \|INSERT \|upsert\|unique\|constraint\|ON CONFLICT\|FOR UPDATE\|session.add\|prisma.\|typeorm\|sqlalchemy\|redis` in the diff content |
+| Resource acquisition | `#search/textSearch` for `open(\|createReadStream\|socket\|getConnection\|acquire\|addEventListener\|subscribe(\|mutex\|semaphore\|new Worker\|subprocess\|Popen\|spawn(\|tokio::spawn\|asyncio.create_task\|createObjectURL` in the diff content |
 | Test files | Changed files matching `test_*`, `*_test.*`, `*.spec.*`, `*.test.*`, `conftest.py`, `__tests__/` |
 | Migration files | Changed files matching Alembic, Django, Rails, Prisma, or plain SQL migration patterns |
 | Contract files | Changed files matching `*.proto`, `openapi*.y*ml`, `swagger*`, `*.graphql`, `asyncapi*` |
@@ -139,10 +143,12 @@ Gather these with the search tools rather than a shell pipeline, so detection wo
 | React performance | React in dependencies AND changed files include `.tsx` or `.jsx` |
 | TypeScript type safety | Changed files end in `.ts` or `.tsx` AND `tsconfig.json` exists at the project root |
 | General performance | Frontend files detected but no React dependency |
-| Platform compliance | Two or more of: frontend framework, backend framework, API routes, multi-service compose, Tauri or Electron config |
+| Platform / runtime integration | Two or more of: frontend framework, backend framework, API routes, multi-service compose, Tauri or Electron config |
 | Distributed flows | Changed files touch API routes, message handlers, gRPC definitions, or queue consumers/producers, or multi-service compose |
 | Circular dependencies | Changed files touch startup sequences, dependency injection, config bootstrap, migration runners, or service registration |
 | Temporal resilience | Diff or changed files touch timers, schedulers, polling loops, retry/reconnect logic, cron jobs, queue workers, background daemons, updaters, or watchdogs (the long-running / scheduled code signal). Its mandate is failure-over-time: what does the user see after this has been failing for a day |
+| Data integrity | The persistence-code signal fires: schemas, models, ORM entities, repositories, raw SQL, cache layers, or transaction boundaries. Its mandate: can the store be made to hold an impossible state |
+| Resource lifecycle | The resource-acquisition signal fires: files, sockets, connections, subprocesses, listeners, locks, tasks, or timers acquired in the diff, weighted higher for C/C++/Rust/Go and async-heavy code. Its mandate: does every acquire release on success, error, AND cancellation |
 | API contracts | Changed files touch contract files, route definitions, serializers, or DTO/schema declarations |
 | Testing quality | Changed files include test files |
 | Data migrations | Changed files include migration files |
@@ -155,7 +161,7 @@ Context detection complete:
   Always:   security, architecture, logic-integrity, hygiene
   Detected: ui-races (6 .tsx files), react-perf (React project),
             ts-safety (TypeScript project), distributed-flows (API routes + RabbitMQ),
-            temporal-resilience (retry + scheduler code), abstraction (diff adds 4 units)
+            temporal-resilience (retry + scheduler code), data-integrity (ORM writes + transactions), abstraction (diff adds 4 units)
   Skipped:  platform (not fullstack), chicken-egg (no startup code),
             testing (no test files changed), api-contracts (no contract files),
             migrations (no migration files)
@@ -266,6 +272,7 @@ Mark `phase_2_review` as `in_progress`.
    - **Severity conflicts**: take the higher rating.
    - **Cross-reference**: flag findings that surfaced in more than one dimension. Independent rediscovery is a strong signal of a real root cause.
    - **Route cross-reviewer notes**: scan every `## Cross-Reviewer Notes` section and fold those observations into the consolidated report under the dimension they belong to.
+   - **Collect `[MAP-GAP]` findings**: any logic-integrity finding carrying the `[MAP-GAP]` marker is also listed in the report as an interconnect-map coverage gap, so the mapper's blind spot is recorded alongside the defect it hid.
    - **Organize by severity**: Critical, High, Medium, Low.
 5. Write `.team-review/99-consolidated.md`. Mark `phase_3_consolidation` complete.
 
@@ -275,7 +282,7 @@ Skip if `--fast` (mark `skipped`). Otherwise drive the panel exactly per `SKILL.
 
 1. Apply the confidence floor: findings at `>= 50%`. An unscored finding counts as 60, so it is not silently skipped.
 2. Selection: verify everything if `--rigorous` or 25 or fewer findings survive. Otherwise narrow to stakes plus uncertainty band per the skill, and record how many are left `unverified (cost-guard)`.
-3. For each selected finding, dispatch three `review-verification-lens` subagents, one per lens, all in the same turn. Substitute the finding, the diff, and the full file content into each prompt.
+3. For each selected finding, dispatch two `review-verification-lens` subagents (lenses 1 and 2), all in the same turn across findings. Substitute the finding, the diff, and the full file content into each prompt. Dispatch lens 3 only for findings that survive lenses 1-2, per the skill's gated-lens rule.
 4. Apply the survival rule: survives if at least 2 of lenses 1-2 vote REAL; `filtered` if at least 2 vote FALSE_POSITIVE; a tie or fewer than 2 valid verdicts means it survives, marked `contested`. Final severity is the lens-3 vote when confirmed real, otherwise the original.
 5. Write `.team-review/98-verification.md`: one row per verified finding with per-lens verdicts, final severity, and flag, plus the trailing `unverified (cost-guard)` count.
 6. Update `99-consolidated.md`: drop `filtered` findings, apply recalibrated severities, tag `contested` and `unverified (cost-guard)`.

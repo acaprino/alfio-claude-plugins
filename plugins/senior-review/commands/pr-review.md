@@ -141,7 +141,7 @@ Task:
     Report hygiene findings in their own section, each with the path and the
     cleanup phase that would resolve it (`exports`, `garbage`, or `gitignore`).
     Never remove anything: this command only describes the PR. Removal lives in
-    `/senior-review:code-review --fix` Step 7c.
+    `/senior-review:code-review --commit` Step 7c.
 
     Output a structured risk assessment with an overall risk level (Low/Medium/High/Critical).
 ```

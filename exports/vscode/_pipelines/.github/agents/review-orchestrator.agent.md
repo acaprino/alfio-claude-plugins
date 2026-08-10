@@ -28,6 +28,8 @@ agents:
   - review-distributed-flow-auditor
   - review-chicken-egg-detector
   - review-temporal-resilience-auditor
+  - review-data-integrity-auditor
+  - review-resource-lifecycle-auditor
   - review-api-contract-auditor
   - review-react-performance-optimizer
   - type-safety-auditor

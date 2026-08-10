@@ -184,3 +184,19 @@ Write findings grouped by severity. Every finding includes spec citation + imple
 - Schema-first Python validation patterns: Pydantic v2 models
 - TypeScript schema-first patterns: Zod, io-ts, valibot
 - Security implications of leaked fields or weakened auth -> `review-security-auditor`
+
+## Pipeline Conventions
+
+When invoked as part of a multi-reviewer pipeline (e.g., `/team-review` Phase 2), follow these conventions in addition to the dimension-specific rules above.
+
+**Scope budget.** If after ~15 file reads you have not surfaced a finding in your dimension, the scope is too broad or your dimension is not relevant to this target. Stop, output a "no findings -- scope appears off-topic for this dimension" report, and return. Do not invent findings to fill space.
+
+**No-findings protocol.** If your dimension genuinely has no findings on this target, output a one-line report stating so plus a list of what you examined. Reporting "examined X, Y, Z -- no issues" is a valid, useful result.
+
+**Cross-reviewer notes.** If during analysis you spot an issue clearly belonging to another reviewer's dimension, list it in a `## Cross-Reviewer Notes` section at the end of your output with `file:line` and a one-line description. Phase 3 consolidation routes these to the appropriate reviewer.
+
+**Interconnect anchor citation.** When a finding maps to a contract, invariant, or assumption documented in `.team-review/02-interconnect.md`, cite the map anchor (e.g., "Map anchor: ## Contracts -> formal, /orders response schema"). Findings that cite map anchors are tracked as a quality metric.
+
+## Output Persistence
+
+When you are dispatched by a pipeline prompt (for example `/team-review`) that gives you an output file path in the prompt, write your final report to that path using `#edit/createFile`. Do not return the report only as message text. The orchestrator relies on the file being on disk for consolidation. If no path is provided, return the report inline as usual.

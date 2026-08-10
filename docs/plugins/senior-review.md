@@ -1,6 +1,6 @@
 # Senior Review Plugin
 
-> Catch bugs before they ship. Nine specialized agents review code quality, security, UI timing, distributed flows, startup cycles, temporal resilience (failure-over-time), cross-component logic integrity, formal API contracts, and codebase hygiene in parallel. They read a shared contract/invariant map built by `codebase-xray:semantic-interconnect-mapper`, which is why they find bugs that are invisible from local-only inspection. Backed by a comprehensive defect taxonomy knowledge base with 140+ defect patterns and CWE/OWASP mappings. `/team-review` runs all of it as a single pipeline, with an adversarial verification panel and a completeness critic as quality gates before the report ships.
+> Catch bugs before they ship. Eleven specialized agents review code quality, security, UI timing, distributed flows, startup cycles, temporal resilience (failure-over-time), data integrity (persistence semantics), resource lifecycle (ownership and release), cross-component logic integrity, formal API contracts, and codebase hygiene in parallel. They read a shared contract/invariant map built by `codebase-xray:semantic-interconnect-mapper`, which is why they find bugs that are invisible from local-only inspection. Backed by a comprehensive defect taxonomy knowledge base with 140+ defect patterns and CWE/OWASP mappings. `/team-review` runs all of it as a single pipeline, with an adversarial verification panel and a completeness critic as quality gates before the report ships.
 
 ## Agents
 
@@ -135,6 +135,50 @@ Use the temporal-resilience-auditor agent to analyze [long-running subsystem]
 
 ---
 
+### `data-integrity-auditor`
+
+Adversarial reviewer for persistence semantics. Central question: can the system produce, store, or read an impossible or inconsistent state? Hunts application-only invariants (uniqueness assumed in code, not constrained in the schema), lost updates, check-then-act races, partial writes, cache/database divergence, unstable pagination, and eventual consistency consumed as strong.
+
+| | |
+|---|---|
+| **Model** | `inherit` |
+| **Use for** | Schemas, models, ORM entities, repositories, raw SQL, cache layers, transaction boundaries |
+
+**Invocation:**
+```
+Use the data-integrity-auditor agent to analyze [persistence layer]
+```
+
+**Methodology:**
+- 5-phase analysis: write-path inventory, invariant enforcement gap analysis (code / schema / both / neither), concurrency anomaly hunt, multi-store divergence, representation hazards (soft delete, time, money, NULL, pagination)
+- Distinct from logic-integrity by design: a domain rule violated in application logic is theirs; a store that can be made to hold an impossible state is this agent's territory
+- Activated by persistence signals in `/senior-review:team-review` and as Agent M of `/senior-review:code-review`
+- References `defect-taxonomy` skill (`data-design-ops.md`, `concurrency-state.md`)
+
+---
+
+### `resource-lifecycle-auditor`
+
+Adversarial reviewer for resource ownership and release. Central question: does every acquired resource (file, socket, connection, subprocess, listener, lock, task, timer) have a single owner and a guaranteed release path on success, on error, AND on cancellation? Hunts leaks, double-release, use-after-release, unbounded pool growth, and listeners that outlive their subject.
+
+| | |
+|---|---|
+| **Model** | `inherit` |
+| **Use for** | Code acquiring or managing resources, especially C/C++/Rust/Go and async-heavy systems where cancellation paths multiply |
+
+**Invocation:**
+```
+Use the resource-lifecycle-auditor agent to analyze [resource-managing code]
+```
+
+**Methodology:**
+- 4-phase analysis: acquisition inventory, release-path verification across the three exits, pool and registry discipline, lifetime mismatch hunt
+- Prefers structural fixes (RAII, `with`/`defer`/`finally`, AbortController, effect cleanup) over manually paired calls
+- Conditional, never always-on; activated by acquisition signals in `/senior-review:team-review` and as Agent N of `/senior-review:code-review`
+- References `defect-taxonomy` skill (`memory-resources.md`, `concurrency-state.md`)
+
+---
+
 ### `logic-integrity-auditor`
 
 Adversarial reviewer that hunts for violations of contracts, invariants, assumptions, domain rules, ordering, idempotency, and state machines documented in the interconnect map. Catches bugs no local-only reviewer can see - logic drift across components, implicit contracts silently broken, terminal states mutated, retry paths double-committing.
@@ -178,7 +222,7 @@ Use the api-contract-auditor agent to review [spec file or API boundary]
 
 ### `cleanup-auditor`
 
-Adversarial codebase hygiene auditor. Detects dead code, orphan assets, generated artifacts tracked in VCS, phantom/unused dependencies, barrel-file bloat, eager-bundling anti-patterns, rebrand residue, and filesystem garbage. Report-only; the fix is delegated to Step 7c of `/code-review --fix`.
+Adversarial codebase hygiene auditor. Detects dead code, orphan assets, generated artifacts tracked in VCS, phantom/unused dependencies, barrel-file bloat, eager-bundling anti-patterns, rebrand residue, and filesystem garbage. Report-only; the fix is delegated to Step 7c of `/code-review --commit`.
 
 | | |
 |---|---|
@@ -196,7 +240,7 @@ Also spawned automatically by `/senior-review:team-review` as the "Codebase hygi
 - 4-dimension detection pipeline: dead code (delegates to Knip / vulture / ruff), asset hygiene (orphan images, fonts, build artifacts), VCS hygiene (generated files tracked, .gitignore gaps), dependency hygiene (phantom / unused / version drift in monorepo workspaces)
 - Every finding cites `file:line` or a concrete path; vague "consider cleaning up" advice is forbidden
 - False-positive candidates (module augmentation, side-effect imports, DI-registered classes, framework-convention files) flagged in a separate section, never auto-confirmed
-- Each finding ends with `Fix phase: <phase>`, naming the cleanup phase of `/code-review --fix` Step 7c that would remove it
+- Each finding ends with `Fix phase: <phase>`, naming the cleanup phase of `/code-review --commit` Step 7c that would remove it
 
 ---
 
@@ -304,7 +348,7 @@ There is no standalone cleanup command. The capability is split by scope, so you
 |---|---|---|
 | **Lite** | `/code-review` and `/pr-review`, inline on the changed files | Dead code (Knip for TS/JS, vulture and ruff for Python) plus VCS hygiene (generated artifacts tracked in git, filesystem garbage, `.gitignore` gaps) |
 | **Full** | `/senior-review:team-review`, always-on `cleanup-auditor` dimension across the whole codebase | All five dimensions: dead code, orphan assets, VCS hygiene, dependency and barrel-file hygiene, stale documentation |
-| **Removal** | `/code-review --fix` Step 7c | Seven phases lowest-risk-first, one commit each, build and test gate between phases, `git reset --hard HEAD~1` on failure |
+| **Removal** | `/code-review --commit` Step 7c | Seven phases lowest-risk-first, one commit each, build and test gate between phases, `git reset --hard HEAD~1` on failure |
 
 Removal safety comes from the Step 7c rules: clean working tree before starting, phase isolation so each step is independently revertible, a confirmation Grep returning zero results before any delete, no removal of anything reached through dynamic imports or framework conventions, and explicit user approval for Python functions and classes given vulture's false-positive rate. The `docs` phase is report-only unless removal is explicitly opted into.
 

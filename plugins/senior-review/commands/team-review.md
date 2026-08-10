@@ -109,7 +109,7 @@ Analyze changed files and codebase to determine which review dimensions are rele
 
 Run these checks against the changed files and codebase to decide which extra reviewers to spawn.
 
-Five of these dimensions live in plugins declared as `optionalDependencies` of `senior-review`: React performance (`react-development`), platform compliance (`platform-engineering`), abstraction (`abstraction-architect`), testing quality (`testing`), and TypeScript type safety (`typescript-development`). A dimension whose plugin is absent is **skipped with a note**, never spawned. Attempting the spawn fails with "Agent type not found" and takes the phase down with it. Report the reason as "not installed" so the user can tell it apart from a dimension that simply did not match. Testing quality degrades differently from the other four: when the `testing` plugin is not installed the dimension is not skipped; it falls back to the generic `agent-teams:team-reviewer` with the testing dimension named in the prompt, which is the pre-testing-plugin behavior. Everything else in the table resolves to `senior-review` agents or to the `agent-teams` fallback, both of which are hard dependencies and always present.
+Five of these dimensions live in plugins declared as `optionalDependencies` of `senior-review`: React performance (`react-development`), platform / runtime integration (`platform-engineering`), abstraction (`abstraction-architect`), testing quality (`testing`), and TypeScript type safety (`typescript-development`). A dimension whose plugin is absent is **skipped with a note**, never spawned. Attempting the spawn fails with "Agent type not found" and takes the phase down with it. Report the reason as "not installed" so the user can tell it apart from a dimension that simply did not match. Testing quality degrades differently from the other four: when the `testing` plugin is not installed the dimension is not skipped; it falls back to the generic `agent-teams:team-reviewer` with the testing dimension named in the prompt, which is the pre-testing-plugin behavior. Everything else in the table resolves to `senior-review` agents or to the `agent-teams` fallback, both of which are hard dependencies and always present.
 
 | Signal | Detection rule | Dimension activated | Agent |
 |--------|---------------|---------------------|-------|
@@ -117,10 +117,12 @@ Five of these dimensions live in plugins declared as `optionalDependencies` of `
 | **React project** | `package.json` has `react` in dependencies AND changed files include `.tsx`/`.jsx`. Requires the `react-development` plugin: when it is not installed, skip and note it under Skipped instead of spawning (the spawn would fail) | React performance | `react-development:react-performance-optimizer` |
 | **TypeScript project** | Changed files match `\.tsx?$` AND `tsconfig.json` exists at the project root. Requires the `typescript-development` plugin: when it is not installed, skip and note it under Skipped instead of spawning (the spawn would fail) | TypeScript type safety | `typescript-development:type-safety-auditor` |
 | **Non-React frontend** | Frontend files detected but no React dependency | General performance | `agent-teams:team-reviewer` (performance dimension) |
-| **Fullstack app** | 2+ signals: frontend framework in `package.json`, backend framework config, API route definitions, `docker-compose.yml` with multiple services, Tauri/Electron config. Requires the `platform-engineering` plugin: when it is not installed, skip and note it under Skipped instead of spawning (the spawn would fail) | Platform compliance | `platform-engineering:platform-reviewer` |
+| **Fullstack app** | 2+ signals: frontend framework in `package.json`, backend framework config, API route definitions, `docker-compose.yml` with multiple services, Tauri/Electron config. Requires the `platform-engineering` plugin: when it is not installed, skip and note it under Skipped instead of spawning (the spawn would fail) | Platform / runtime integration | `platform-engineering:platform-reviewer` |
 | **Multi-service / messaging** | Changed files touch API routes, message handlers, gRPC definitions, queue consumers/producers, or `docker-compose.yml` with multiple services | Distributed flows | `senior-review:distributed-flow-auditor` |
 | **Init/startup code** | Changed files touch startup sequences, dependency injection, config bootstrap, migration runners, or service registration | Circular dependencies | `senior-review:chicken-egg-detector` |
 | **Long-running / scheduled execution** | Diff or changed files touch timers, schedulers, polling loops, retry/reconnect logic, cron jobs, queue workers, background daemons, updaters, or watchdogs (see detection command 5b) | Temporal resilience (**what does the user see after this has been failing for a day?**) | `senior-review:temporal-resilience-auditor` |
+| **Persistence code** | Diff or changed files touch schemas, models, ORM entities, repositories, raw SQL, cache layers, or transaction boundaries (see detection command 5c) | Data integrity (**can the store be made to hold an impossible state?**) | `senior-review:data-integrity-auditor` |
+| **Resource acquisition** | Diff or changed files acquire files, sockets, connections, subprocesses, listeners, subscriptions, locks, tasks, or timers, especially in manual-resource languages (C/C++/Rust/Go) or async-heavy code (see detection command 5d) | Resource lifecycle (**does every acquire release on success, error, AND cancellation?**) | `senior-review:resource-lifecycle-auditor` |
 | **Test files** | Changed files match `test_*`, `*_test.*`, `*.spec.*`, `*.test.*`, `conftest.py`, `__tests__/`. Prefers the `testing` plugin: when it is not installed, do not attempt spawning `testing:test-suite-auditor` (the spawn would fail); fall back to `agent-teams:team-reviewer` (testing dimension) and note the fallback under the detection display | Testing quality | `testing:test-suite-auditor` |
 | **API files** | Changed files touch a formal contract file (`*.proto`, `openapi*.y*ml`, `swagger*`, `*.graphql`, `asyncapi*`, JSON Schema), or route definitions, serializers, or DTO/model declarations | API contracts | `senior-review:api-contract-auditor` |
 | **Migration files** | Changed files match database migration patterns (Alembic, Django, Rails, Prisma, SQL migrations) | Data migrations | `agent-teams:team-reviewer` (migration dimension) |
@@ -161,6 +163,12 @@ echo "$DIFF_CONTENT" | grep -qiE 'def main\b|if __name__|app\.on_startup|@app\.o
 # 5b. Check for long-running / scheduled execution patterns (temporal resilience)
 echo "$DIFF_CONTENT" | grep -qiE 'setInterval|setTimeout|cron|schedule|\bretry|reconnect|backoff|watchdog|heartbeat|keepalive|\bpoll(ing)?\b|background.?(task|worker|job)|daemon|updater' && echo "TEMPORAL=true"
 
+# 5c. Check for persistence code (data integrity)
+echo "$DIFF_CONTENT" | grep -qiE '\btransaction\b|\bcommit\b|rollback|UPDATE |INSERT |upsert|\bunique\b|constraint|ON CONFLICT|FOR UPDATE|select_for_update|session\.add|\.objects\.|prisma\.|typeorm|sqlalchemy|redis|cache\.(get|set|del)' && echo "PERSISTENCE=true"
+
+# 5d. Check for resource acquisition (resource lifecycle)
+echo "$DIFF_CONTENT" | grep -qiE 'open\(|createReadStream|createWriteStream|\bsocket\b|getConnection|acquire|addEventListener|subscribe\(|\block\b|mutex|semaphore|new Worker|subprocess|Popen|spawn\(|go func|tokio::spawn|asyncio\.create_task|createObjectURL' && echo "RESOURCES=true"
+
 # 6. Check for test and migration files
 echo "$CHANGED_FILES" | grep -qiE 'test_|_test\.|\.spec\.|\.test\.|conftest|__tests__' && echo "TEST_FILES=true"
 echo "$CHANGED_FILES" | grep -qiE 'migrat|alembic|versions/' && echo "MIGRATION_FILES=true"
@@ -173,7 +181,7 @@ After detection, display the plan:
 ```
 Context detection complete:
   - Always: security, architecture, logic-integrity, codebase-hygiene
-  - Detected: ui-races (6 .tsx files), react-perf (React project), ts-safety (TypeScript project), distributed-flows (API routes + RabbitMQ), temporal-resilience (retry + scheduler code), abstraction (diff adds 4 units)
+  - Detected: ui-races (6 .tsx files), react-perf (React project), ts-safety (TypeScript project), distributed-flows (API routes + RabbitMQ), temporal-resilience (retry + scheduler code), data-integrity (ORM writes + transactions), abstraction (diff adds 4 units)
   - Skipped: platform (not fullstack), chicken-egg (no startup code)
   - Skipped, plugin not installed: react-perf (react-development)
   - Fallback: testing quality -> agent-teams:team-reviewer (testing plugin not installed)
@@ -251,10 +259,12 @@ If the skill is unavailable (not installed) or produces no output, halt the pipe
 | React performance | `react-development:react-performance-optimizer` |
 | TypeScript type safety | `typescript-development:type-safety-auditor` |
 | General performance | `agent-teams:team-reviewer` |
-| Platform compliance | `platform-engineering:platform-reviewer` |
+| Platform / runtime integration | `platform-engineering:platform-reviewer` |
 | Distributed flows | `senior-review:distributed-flow-auditor` |
 | Circular dependencies | `senior-review:chicken-egg-detector` |
 | Temporal resilience (failure-over-time) | `senior-review:temporal-resilience-auditor` |
+| Data integrity (persistence semantics) | `senior-review:data-integrity-auditor` |
+| Resource lifecycle (ownership and release) | `senior-review:resource-lifecycle-auditor` |
 | Testing quality | `testing:test-suite-auditor` (fallback: `agent-teams:team-reviewer` when the `testing` plugin is not installed) |
 | API contracts | `senior-review:api-contract-auditor` |
 | Data migrations | `agent-teams:team-reviewer` |
@@ -344,7 +354,8 @@ Apply the deduplication and calibration rules from the `agent-teams:multi-review
 2. **Co-locate**: same `file:line` but different issues -> keep separate, tag as co-located.
 3. **Resolve severity conflicts**: use the higher rating.
 4. **Cross-reference**: note findings that appear in multiple dimensions (a sign of a likely-real root cause).
-5. **Organize by severity**: Critical, High, Medium, Low.
+5. **Collect `[MAP-GAP]` findings**: any logic-integrity finding carrying the `[MAP-GAP]` marker is also listed in the report as an interconnect-map coverage gap, so the mapper's blind spot is recorded alongside the defect it hid.
+6. **Organize by severity**: Critical, High, Medium, Low.
 
 Write `.team-review/99-consolidated.md`. Mark `phase_3_consolidation` complete.
 
@@ -356,7 +367,7 @@ Skip this phase if `--fast` was passed (mark `phase_4b_verification` as `skipped
 2. Apply the selection rule from the skill:
    - If `--rigorous`, or 25 or fewer findings survive: verify all selected findings.
    - Otherwise (more than 25 findings, no `--rigorous`): narrow to stakes + uncertainty band per the skill, and record the count of findings left `unverified (cost-guard)`.
-3. For each finding to verify, spawn the 3 lenses in parallel using the three lens prompts from the skill (`general-purpose`; `opus` for lenses 1-2, `sonnet` for lens 3; `run_in_background: true`). Substitute the finding, diff, and full file content into each prompt.
+3. For each finding to verify, spawn lenses 1 and 2 in parallel using the lens prompts from the skill (`general-purpose`; inherit the session model; `run_in_background: true`), then spawn lens 3 (`model: sonnet`) only for findings that survive them, per the skill's gated-lens rule. Substitute the finding, diff, and full file content into each prompt.
 4. Apply the survival rule from the skill: survive if `>= 2` of lenses 1-2 vote REAL; discard (`filtered`) if `>= 2` vote FALSE_POSITIVE; tie or fewer-than-2-verdicts means survive and mark `contested`. Final severity is the lens-3 vote when confirmed real, else the original.
 5. Write `.team-review/98-verification.md`: one row per verified finding with the per-lens verdicts, final severity, and flag (`verified` / `contested` / `filtered`), plus a trailing count of `unverified (cost-guard)` findings.
 6. Update `99-consolidated.md` to drop `filtered` findings, apply recalibrated severities, and tag `contested` and `unverified (cost-guard)` findings.

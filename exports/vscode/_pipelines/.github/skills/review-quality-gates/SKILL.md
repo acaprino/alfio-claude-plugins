@@ -43,6 +43,8 @@ Default anchor routing:
 | chicken-egg | `## Assumptions` (initialization order), `## Integration Hot-Spots` (Env / config), `## Invariants` (cross-component) |
 | ui-races | `## Invariants` (temporal), `## Integration Hot-Spots` (UI state) |
 | temporal-resilience | `## Invariants` (temporal, liveness), `## Assumptions` (unverified, timing/retry), `## Integration Hot-Spots` (queues, timers, network loops) |
+| data-integrity | `## Invariants` (uniqueness, state exclusivity, balances), `## Contracts` (structural, persistence shapes), `## Assumptions` (unverified, isolation/consistency) |
+| resource-lifecycle | `## Assumptions` (pool bounds, connection reuse), `## Integration Hot-Spots` (connections, subprocesses, long-lived handles) |
 | api-contracts | `## Contracts` (formal) |
 | abstraction (diff mode) | none. This reviewer does not consume the interconnect map: it reads the X-ray run's `01-structure.md` and `02-interfaces.md` and hunts prior art across the codebase with `#search/textSearch`. Omit the anchors block from its prompt; `/team-review` passes it a named-inputs addendum instead |
 
@@ -117,13 +119,15 @@ Every finding whose damage is behavioral over time (repetition, degradation, sil
 
 ## Adversarial Verification Panel
 
-After findings are consolidated (deduplicated), each selected finding is judged by a **panel of 3 verifiers run in parallel**, each with a distinct lens. This replaces single-judge validation: three independent mandates catch more failure modes than three identical refuters.
+After findings are consolidated (deduplicated), each selected finding is judged by a **panel of 3 verifiers**, each with a distinct lens. This replaces single-judge validation: three independent mandates catch more failure modes than three identical refuters.
 
 This section is the source of truth. `/team-review` Phase 4b drives the panel from here.
 
 ### The three lenses
 
-Dispatch one `review-verification-lens` subagent per lens per finding with `#agent/runSubagent`, passing the lens number and prompt below. Issue all three (and the lenses across several findings) in a single assistant turn so they run concurrently.
+Dispatch one `review-verification-lens` subagent per lens per finding with `#agent/runSubagent`, passing the lens number and prompt below.
+
+**Lens 3 is gated.** Lenses 1 and 2 run first, issued in a single assistant turn across all selected findings so they run concurrently. Lens 3 (severity calibration) is dispatched only for findings that survive them (REAL from both, or the tie that marks them `contested`). Calibrating the severity of a finding the panel is about to discard is spend for nothing; the gate cuts roughly a third of the verifier calls with no change to the survival semantics. Findings killed by lenses 1-2 never reach lens 3 and keep their original severity in the `filtered` record.
 
 All three lenses run on whatever model the session selected. The Claude Code original pinned a cheaper model on lens 3, since calibration is less reasoning-heavy than lenses 1 and 2. VS Code custom agents accept a `model:` field, so pin one on `review-verification-lens` if your setup benefits from it; the default is deliberately unpinned, because the correct model id depends on which Copilot models the user has available.
 
@@ -224,7 +228,7 @@ Each verifier returns: `verdict` (REAL or FALSE_POSITIVE; lens 3 always REAL), `
 
 ### Fail-open
 
-If a verifier errors or returns a malformed verdict, treat it as an abstention. If fewer than 2 valid verdicts return for a finding, apply the tie rule (survives, `contested`). The panel never crashes the pipeline and never silently drops a finding.
+If a verifier errors or returns a malformed verdict, treat it as an abstention. If fewer than 2 valid verdicts return for a finding, apply the tie rule (survives, `contested`). A surviving finding whose lens 3 errored keeps the original reviewer severity. The panel never crashes the pipeline and never silently drops a finding.
 
 ### Selection: what enters the panel
 
