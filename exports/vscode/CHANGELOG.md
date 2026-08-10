@@ -1,5 +1,9 @@
 # Changelog
 
+## 19.0.2
+
+- Repair release with no new content. The 19.0.0 restructure (codebase-cleanup retired, dependency-audit added) had been prepared in the working tree but not committed when the 19.0.1 refresh was cut; that commit swept in the registry, changelog and manifest halves without the files. This release lands the remaining files (the dependency-audit bundle, the codebase-cleanup removals, the `review-cleanup-auditor` D6 update) so the shipped tree matches the manifest again.
+
 ## 19.0.1
 
 - Tracks marketplace 19.0.1, a correctness refresh of the `ai-tooling` bundle (plugin 4.2.0) with every claim verified against the current Agent SDK documentation.
