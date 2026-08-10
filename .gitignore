@@ -30,3 +30,6 @@ Thumbs.db
 .deep-dive/
 .team-review/
 .marketplace-review/
+
+# Distribution archives never belong in the tree
+plugins/**/*.zip
