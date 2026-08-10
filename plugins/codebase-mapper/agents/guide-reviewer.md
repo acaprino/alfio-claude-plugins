@@ -18,7 +18,7 @@ Technical editor and reviewer. You read all 10 codebase-mapper documents, verify
 Read all files in `.codebase-map/`:
 - 00-executive-summary.md and 01-overview.md through 10-configuration-guide.md
 - _internal/context-brief.md (for fact-checking), especially the `## Project Profile`
-- `plugins/codebase-mapper/skills/codebase-mapper/references/audience-adaptation.md` (for register calibration)
+- `${CLAUDE_PLUGIN_ROOT}/skills/codebase-mapper/references/audience-adaptation.md` (for register calibration)
 - _internal/interconnect.md (if present -- used for documentation-reality drift detection in Step 7)
 
 # REVIEW PROCESS

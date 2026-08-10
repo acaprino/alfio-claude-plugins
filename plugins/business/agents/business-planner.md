@@ -68,7 +68,7 @@ Dispatch the text-humanizer agent (`subagent_type: "text-humanizer:text-humanize
 
 ## Phase 1: Market Sizing
 
-**Action Required:** Before asking questions, use the Read tool to load: `plugins/business/skills/saas-business-plan/references/market-sizing.md`
+**Action Required:** Before asking questions, use the Read tool to load: `${CLAUDE_PLUGIN_ROOT}/skills/saas-business-plan/references/market-sizing.md`
 
 **Ask:**
 - What does your SaaS do? (2-sentence pitch)
@@ -92,7 +92,7 @@ Dispatch the text-humanizer agent (`subagent_type: "text-humanizer:text-humanize
 
 ## Phase 2: Audience & JTBD
 
-**Action Required:** Before asking questions, use the Read tool to load: `plugins/business/skills/saas-business-plan/references/audience-personas.md`
+**Action Required:** Before asking questions, use the Read tool to load: `${CLAUDE_PLUGIN_ROOT}/skills/saas-business-plan/references/audience-personas.md`
 
 **Ask:**
 - Who is the customer? (company profile for B2B, user profile for B2C)
@@ -114,7 +114,7 @@ Dispatch the text-humanizer agent (`subagent_type: "text-humanizer:text-humanize
 
 ## Phase 3: Competitive Analysis
 
-**Action Required:** Before asking questions, use the Read tool to load: `plugins/business/skills/saas-business-plan/references/competitive-analysis.md`
+**Action Required:** Before asking questions, use the Read tool to load: `${CLAUDE_PLUGIN_ROOT}/skills/saas-business-plan/references/competitive-analysis.md`
 
 **Ask:**
 - Who are your competitors? (include indirect: Excel, manual processes, interns)
@@ -136,7 +136,7 @@ Dispatch the text-humanizer agent (`subagent_type: "text-humanizer:text-humanize
 
 ## Phase 4: Positioning
 
-**Action Required:** Before asking questions, use the Read tool to load: `plugins/business/skills/saas-business-plan/references/positioning-pmf.md`
+**Action Required:** Before asking questions, use the Read tool to load: `${CLAUDE_PLUGIN_ROOT}/skills/saas-business-plan/references/positioning-pmf.md`
 
 **Ask:**
 - What would customers do if your product didn't exist?
@@ -159,7 +159,7 @@ Dispatch the text-humanizer agent (`subagent_type: "text-humanizer:text-humanize
 
 ## Phase 5: Pricing
 
-**Action Required:** Before asking questions, use the Read tool to load: `plugins/business/skills/saas-business-plan/references/pricing.md`
+**Action Required:** Before asking questions, use the Read tool to load: `${CLAUDE_PLUGIN_ROOT}/skills/saas-business-plan/references/pricing.md`
 
 **Ask:**
 - What value metric makes sense? (per user, per transaction, per feature, per usage)
@@ -182,7 +182,7 @@ Dispatch the text-humanizer agent (`subagent_type: "text-humanizer:text-humanize
 
 ## Phase 6: Go-to-Market
 
-**Action Required:** Before asking questions, use the Read tool to load: `plugins/business/skills/saas-business-plan/references/go-to-market.md`
+**Action Required:** Before asking questions, use the Read tool to load: `${CLAUDE_PLUGIN_ROOT}/skills/saas-business-plan/references/go-to-market.md`
 
 **Ask:**
 - What's your budget for customer acquisition?
@@ -204,9 +204,9 @@ Dispatch the text-humanizer agent (`subagent_type: "text-humanizer:text-humanize
 
 ## Phase 7: Metrics, KPI & Financial Projections
 
-**Action Required:** Before asking questions, use the Read tool to load: `plugins/business/skills/saas-business-plan/references/advertising-metrics.md`
+**Action Required:** Before asking questions, use the Read tool to load: `${CLAUDE_PLUGIN_ROOT}/skills/saas-business-plan/references/advertising-metrics.md`
 
-Also use the Read tool to load: `plugins/business/skills/saas-business-plan/references/tools-resources.md`
+Also use the Read tool to load: `${CLAUDE_PLUGIN_ROOT}/skills/saas-business-plan/references/tools-resources.md`
 
 **Ask:**
 - What's your current stage? (pre-launch, post-launch, growth)

@@ -68,7 +68,7 @@ Task:
     Read all target files and rewrite them following the codebase-mapper
     writing guidelines. Humanize toward the target register (if the user
     specified one) or infer it via
-    plugins/codebase-mapper/skills/codebase-mapper/references/audience-adaptation.md.
+    ${CLAUDE_PLUGIN_ROOT}/skills/codebase-mapper/references/audience-adaptation.md.
     Fix anti-patterns (passive voice, AI boilerplate,
     dense text, missing structure) while preserving all factual content.
 

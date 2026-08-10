@@ -53,7 +53,7 @@ Before analysis, load relevant references from the `defect-taxonomy` skill:
    - Microservices: `distributed-integration.md` + `data-design-ops.md`
 3. **When unsure:** `detection-matrix.md` for detection approach prioritization
 
-Use `#read/readFile` to load these files from `plugins/senior-review/skills/defect-taxonomy/references/`.
+Use `#read/readFile` to load these files from `$SKILLS/defect-taxonomy/references/`.
 
 ## ANALYSIS PHASES
 

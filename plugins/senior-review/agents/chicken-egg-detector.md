@@ -29,7 +29,7 @@ Before analysis, load references from the `defect-taxonomy` skill using Read too
 2. **When infrastructure relevant:** `references/data-design-ops.md` -- categories 15.1-15.5 (build/deploy errors, env-specific code, config injection)
 3. **When scoring:** `references/review-frameworks.md` -- cognitive models and scoring framework
 
-Use Read tool to load from `plugins/senior-review/skills/defect-taxonomy/references/`.
+Use Read tool to load from `${CLAUDE_PLUGIN_ROOT}/skills/defect-taxonomy/references/`.
 
 ## ANALYSIS PHASES
 

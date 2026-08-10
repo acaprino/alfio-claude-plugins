@@ -136,7 +136,7 @@ tasks.register("verifyEmbeddedAssets") {
                     The .so was built from an older dist/ snapshot. Cargo did not rebuild because its
                     rerun-if-changed tracking missed the frontend changes. Confirm src-tauri/build.rs
                     walks the frontend dist directory and emits rerun-if-changed for each file.
-                    See plugins/tauri-development/skills/tauri/references/mobile-stale-builds.md.
+                    See the mobile stale-builds reference.
                     """.trimIndent()
                 )
             }

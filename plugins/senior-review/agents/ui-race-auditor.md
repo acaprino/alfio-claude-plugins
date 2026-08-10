@@ -24,7 +24,7 @@ You are an adversarial UI timing analyst. Your job is to find bugs that only app
 
 When concurrency patterns are relevant to the UI code under review, load additional references from the `defect-taxonomy` skill using Read tool:
 
-- `plugins/senior-review/skills/defect-taxonomy/references/concurrency-state.md` -- race conditions, atomicity violations, async/await anti-patterns, stale closures, variable state errors
+- `${CLAUDE_PLUGIN_ROOT}/skills/defect-taxonomy/references/concurrency-state.md` -- race conditions, atomicity violations, async/await anti-patterns, stale closures, variable state errors
 
 ## ANALYSIS METHODOLOGY
 

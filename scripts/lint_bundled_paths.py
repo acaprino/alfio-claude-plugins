@@ -61,63 +61,14 @@ PATH_REF = re.compile(r"plugins/([a-z0-9][a-z0-9-]*)/([A-Za-z0-9_][A-Za-z0-9_./-
 AUDIENCE = "plugins/codebase-mapper/skills/codebase-mapper/references/audience-adaptation.md"
 TAXONOMY = "plugins/senior-review/skills/defect-taxonomy/references/"
 
-# Existing debt, recorded when the linter landed (marketplace 19.2.0): 33 broken
-# references across 22 files in 4 plugins. These are REAL defects, not heuristic
-# misreads. Every one of them is an instruction to read a file at a path that only
-# resolves in a checkout of this repository, so for an installed user the read
-# fails and the reference silently does not load. senior-review's auditors lose
-# their defect-taxonomy references, codebase-mapper's writers lose their register
-# calibration, business-planner loses all eight of its knowledge-base files, and
-# /stripe:audit-webhooks points at an agent file by path.
+# Debt recorded when a linter lands, keyed by file AND exact path string so a NEW
+# broken path in an already-listed file still fails. Empty since marketplace
+# 19.2.0: the 40 references this linter found on its first run (across
+# business, codebase-mapper, python-development, senior-review, stripe and
+# tauri-development) were all fixed in that release rather than grandfathered.
 #
-# Left as a baseline rather than fixed here because the fix spans four plugins
-# that this pass does not otherwise touch, each needing its own version bump and
-# export mirror. Fix a file, delete its entry; never add one. The map is keyed by
-# file and by the exact path string, so a NEW broken path in an already-listed
-# file still fails.
-GRANDFATHERED: dict[str, set[str]] = {
-    "plugins/business/agents/business-planner.md": {
-        "plugins/business/skills/saas-business-plan/references/advertising-metrics.md",
-        "plugins/business/skills/saas-business-plan/references/audience-personas.md",
-        "plugins/business/skills/saas-business-plan/references/competitive-analysis.md",
-        "plugins/business/skills/saas-business-plan/references/go-to-market.md",
-        "plugins/business/skills/saas-business-plan/references/market-sizing.md",
-        "plugins/business/skills/saas-business-plan/references/positioning-pmf.md",
-        "plugins/business/skills/saas-business-plan/references/pricing.md",
-        "plugins/business/skills/saas-business-plan/references/tools-resources.md",
-    },
-    "plugins/codebase-mapper/agents/codebase-explorer.md": {AUDIENCE},
-    "plugins/codebase-mapper/agents/config-writer.md": {AUDIENCE},
-    "plugins/codebase-mapper/agents/doc-humanizer.md": {AUDIENCE},
-    "plugins/codebase-mapper/agents/documentation-engineer.md": {AUDIENCE},
-    "plugins/codebase-mapper/agents/flow-writer.md": {AUDIENCE},
-    "plugins/codebase-mapper/agents/guide-reviewer.md": {AUDIENCE},
-    "plugins/codebase-mapper/agents/onboarding-writer.md": {AUDIENCE},
-    "plugins/codebase-mapper/agents/ops-writer.md": {AUDIENCE},
-    "plugins/codebase-mapper/agents/overview-writer.md": {AUDIENCE},
-    "plugins/codebase-mapper/agents/tech-writer.md": {AUDIENCE},
-    "plugins/codebase-mapper/commands/map-codebase.md": {AUDIENCE},
-    "plugins/senior-review/agents/chicken-egg-detector.md": {TAXONOMY},
-    "plugins/senior-review/agents/code-auditor.md": {TAXONOMY},
-    "plugins/senior-review/agents/data-integrity-auditor.md": {TAXONOMY},
-    "plugins/senior-review/agents/distributed-flow-auditor.md": {TAXONOMY},
-    "plugins/senior-review/agents/logic-integrity-auditor.md": {
-        TAXONOMY + "concurrency-state.md",
-        TAXONOMY + "logic-integrity.md",
-        TAXONOMY + "review-frameworks.md",
-    },
-    "plugins/senior-review/agents/resource-lifecycle-auditor.md": {TAXONOMY},
-    "plugins/senior-review/agents/security-auditor.md": {
-        TAXONOMY + "detection-matrix.md",
-        TAXONOMY + "distributed-integration.md",
-        TAXONOMY + "security.md",
-    },
-    "plugins/senior-review/agents/temporal-resilience-auditor.md": {TAXONOMY},
-    "plugins/senior-review/agents/ui-race-auditor.md": {TAXONOMY + "concurrency-state.md"},
-    "plugins/stripe/commands/audit-webhooks.md": {
-        "plugins/stripe/agents/stripe-webhooks-auditor.md",
-    },
-}
+# Fix a reference, delete its entry. Never add one to make a build pass.
+GRANDFATHERED: dict[str, set[str]] = {}
 
 failures: list[str] = []
 
@@ -142,12 +93,11 @@ def scan():
     """Yield (owner, path, line_no, target_plugin, matched_path, line) per hit."""
     known = load_plugin_names()
     for owner, path in body_files():
-        in_fence = False
         for line_no, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
-            if line.lstrip().startswith("```"):
-                in_fence = not in_fence
-                continue
-            if in_fence or ATTRIBUTION.search(line):
+            # Fenced blocks are scanned, not skipped: in this repo the runtime
+            # paths live inside them (subagent prompt blocks, `uv run` script
+            # invocations), which is exactly where a broken path does damage.
+            if line.lstrip().startswith("```") or ATTRIBUTION.search(line):
                 continue
             for match in PATH_REF.finditer(line):
                 target = match.group(1)

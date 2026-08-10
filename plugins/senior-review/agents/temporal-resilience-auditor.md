@@ -24,7 +24,7 @@ You are a failure-over-time analyst. Every other reviewer looks at the code as i
 
 ## KNOWLEDGE BASE
 
-Before analysis, load references from the `defect-taxonomy` skill using Read tool from `plugins/senior-review/skills/defect-taxonomy/references/`:
+Before analysis, load references from the `defect-taxonomy` skill using Read tool from `${CLAUDE_PLUGIN_ROOT}/skills/defect-taxonomy/references/`:
 
 1. **Always load:** `concurrency-state.md` -- timers, races, guard flags, state machines under repetition
 2. **When cross-service:** `distributed-integration.md` -- retry storms, reconnect loops, queue backpressure

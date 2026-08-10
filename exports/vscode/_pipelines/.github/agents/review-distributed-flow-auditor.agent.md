@@ -48,7 +48,7 @@ Before analysis, load references from the `defect-taxonomy` skill using `#read/r
 3. **When scoring:** `references/review-frameworks.md` -- cognitive models and scoring framework
 4. **When boundary security relevant:** `references/security.md` -- injection, auth bypass, SSRF at service boundaries
 
-Use `#read/readFile` to load from `plugins/senior-review/skills/defect-taxonomy/references/`.
+Use `#read/readFile` to load from `$SKILLS/defect-taxonomy/references/`.
 
 ## ANALYSIS PHASES
 

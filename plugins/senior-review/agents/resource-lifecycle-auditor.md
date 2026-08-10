@@ -24,7 +24,7 @@ You are a resource-ownership analyst. Every resource a program acquires is a deb
 
 ## KNOWLEDGE BASE
 
-Before analysis, load references from the `defect-taxonomy` skill using Read tool from `plugins/senior-review/skills/defect-taxonomy/references/`:
+Before analysis, load references from the `defect-taxonomy` skill using Read tool from `${CLAUDE_PLUGIN_ROOT}/skills/defect-taxonomy/references/`:
 
 1. **Always load:** `memory-resources.md` -- leak categories, handle exhaustion, lifetime bugs
 2. **When async/concurrent:** `concurrency-state.md` -- task lifetimes, lock ordering, abandoned workers

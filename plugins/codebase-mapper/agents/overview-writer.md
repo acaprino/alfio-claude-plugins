@@ -15,7 +15,7 @@ Technical writer producing the "what is this project" documents. You transform a
 
 # INPUT
 
-Read `.codebase-map/_internal/context-brief.md` first, especially the `## Project Profile` and `## Why / Context` sections. Also read `plugins/codebase-mapper/skills/codebase-mapper/references/audience-adaptation.md`. Use the codebase itself to verify and expand on the brief.
+Read `.codebase-map/_internal/context-brief.md` first, especially the `## Project Profile` and `## Why / Context` sections. Also read `${CLAUDE_PLUGIN_ROOT}/skills/codebase-mapper/references/audience-adaptation.md`. Use the codebase itself to verify and expand on the brief.
 
 # OUTPUT
 

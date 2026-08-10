@@ -1,5 +1,12 @@
 # Changelog
 
+## 19.1.1
+
+- Fixes 40 references that named a path only resolvable in a checkout of the source repository, across `business`, `codebase-mapper`, `python-development`, `senior-review`, `stripe` and `tauri-development`. The bundles were mostly already correct, since the port rewrites paths to `$SKILLS/...`; this release repairs the 22 that had been mirrored verbatim, and the upstream plugins that were broken for every installed user.
+- What was failing in the bundles: `defect-taxonomy` reference loads in six `_pipelines` review agents (chicken-egg, code-auditor, distributed-flow, logic-integrity, security, ui-race), and `audience-adaptation.md` register calibration in ten `codebase-mapper` agents plus the `/docs-create` and `/humanize-docs` prompts. Those reads silently resolved to nothing, so the agents ran without the knowledge base they were written around.
+- `/audit-webhooks` in the `stripe` bundle drops a parenthetical that pointed at an agent file by source path; the agent is spawned by name and always was.
+- Backed by a new consistency check (`scripts/lint_bundled_paths.py`) so the class cannot return. Its grandfathered-debt list is deliberately empty: everything it found on its first run was fixed rather than baselined.
+
 ## 19.1.0
 
 - Tracks marketplace 19.1.0, which restructures the `ai-tooling` bundle (plugin 5.0.0) around the distinction between knowledge that ages and knowledge that does not. Follows the 19.0.1 correctness refresh of the same bundle; this release changes its shape rather than its facts.

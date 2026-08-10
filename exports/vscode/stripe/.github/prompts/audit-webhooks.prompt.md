@@ -9,7 +9,7 @@ Runs the `stripe-webhooks-auditor` agent against the current project.
 
 ## What happens
 
-1. Spawns `stripe-webhooks-auditor` (defined in `plugins/stripe/agents/stripe-webhooks-auditor.md`).
+1. Spawns the `stripe-webhooks-auditor` agent.
 2. Agent enumerates Stripe-side state via `scripts/webhook_audit.py` (reads `STRIPE_SECRET_KEY`; pass `--account` for Connect).
 3. Agent greps the codebase for webhook handlers and verifies each against the pass criteria in `references/webhooks-production.md`.
 4. Agent produces a prioritized remediation report. Does not modify code or Stripe config.

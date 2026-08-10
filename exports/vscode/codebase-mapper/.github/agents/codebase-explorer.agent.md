@@ -49,7 +49,7 @@ Codebase explorer. You read an unfamiliar project and produce a structured conte
 ## Step 1c: Project Profiling
 - Classify project type and domain, primary and secondary audience, and register, reasoning explicitly from signals: dependencies, naming, presence of a UI, distribution channel, domain vocabulary, git history
 - Assign a confidence (high, medium, low) to each inference and record the signals behind it
-- Follow the Project Profile schema and the archetypes in `plugins/codebase-mapper/skills/codebase-mapper/references/audience-adaptation.md`
+- Follow the Project Profile schema and the archetypes in `$SKILLS/codebase-mapper/references/audience-adaptation.md`
 - Do this autonomously; never ask the user during exploration
 
 ## Step 2: Structure Mapping

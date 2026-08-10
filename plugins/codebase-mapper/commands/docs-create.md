@@ -133,7 +133,7 @@ Task:
     If `--audience` was provided, write for it. Otherwise infer a lightweight
     profile (project type plus primary audience) from the source. Calibrate
     framing and glossary per
-    plugins/codebase-mapper/skills/codebase-mapper/references/audience-adaptation.md.
+    ${CLAUDE_PLUGIN_ROOT}/skills/codebase-mapper/references/audience-adaptation.md.
 
     CRITICAL:
     - Every claim must come from reading the actual code. Do not guess or assume.

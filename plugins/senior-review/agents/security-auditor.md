@@ -15,9 +15,9 @@ You are a security auditor. Think like an attacker. Your job is to find exploita
 
 Before analysis, load relevant references from the `defect-taxonomy` skill using Read tool:
 
-- **Always load:** `plugins/senior-review/skills/defect-taxonomy/references/security.md` -- comprehensive vulnerability patterns with CWE mappings, detection strategies, code signatures
-- **For API/distributed code:** also load `plugins/senior-review/skills/defect-taxonomy/references/distributed-integration.md` -- API contract errors, protocol security, service mesh misconfig
-- **For detection approach:** `plugins/senior-review/skills/defect-taxonomy/references/detection-matrix.md` -- optimal detection channels per category
+- **Always load:** `${CLAUDE_PLUGIN_ROOT}/skills/defect-taxonomy/references/security.md` -- comprehensive vulnerability patterns with CWE mappings, detection strategies, code signatures
+- **For API/distributed code:** also load `${CLAUDE_PLUGIN_ROOT}/skills/defect-taxonomy/references/distributed-integration.md` -- API contract errors, protocol security, service mesh misconfig
+- **For detection approach:** `${CLAUDE_PLUGIN_ROOT}/skills/defect-taxonomy/references/detection-matrix.md` -- optimal detection channels per category
 
 Use the loaded references to supplement the vulnerability patterns below with additional CWE-mapped detection strategies.
 

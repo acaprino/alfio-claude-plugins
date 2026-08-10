@@ -19,9 +19,9 @@ Your findings are the most valuable in Phase 2 because they are the ones no othe
 
 Before analysis, load the logic-integrity taxonomy using the Read tool:
 
-- **Always load:** `plugins/senior-review/skills/defect-taxonomy/references/logic-integrity.md` -- the 8 categories (L1-L8) with CWE mappings, detection strategies, fix patterns, signatures
-- **Load on demand:** `plugins/senior-review/skills/defect-taxonomy/references/review-frameworks.md` -- scoring, anti-pattern checklist (only if producing the Code Quality Score section)
-- **Load on demand:** `plugins/senior-review/skills/defect-taxonomy/references/concurrency-state.md` -- when interconnect map flags concurrency contracts (L5.2 reentrancy, L6 idempotency under concurrency)
+- **Always load:** `${CLAUDE_PLUGIN_ROOT}/skills/defect-taxonomy/references/logic-integrity.md` -- the 8 categories (L1-L8) with CWE mappings, detection strategies, fix patterns, signatures
+- **Load on demand:** `${CLAUDE_PLUGIN_ROOT}/skills/defect-taxonomy/references/review-frameworks.md` -- scoring, anti-pattern checklist (only if producing the Code Quality Score section)
+- **Load on demand:** `${CLAUDE_PLUGIN_ROOT}/skills/defect-taxonomy/references/concurrency-state.md` -- when interconnect map flags concurrency contracts (L5.2 reentrancy, L6 idempotency under concurrency)
 
 You also depend on the **interconnect map** produced upstream:
 
