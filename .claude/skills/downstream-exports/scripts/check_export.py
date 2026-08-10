@@ -230,6 +230,21 @@ def main():
             drift.append(f"{rel}: no identical source under plugins/{bundle}/")
     report("byte-copy assets", drift)
 
+    # 9 -----------------------------------------------------------------
+    # Every bundle file that uses $SKILLS must also say what it resolves to.
+    # Agents, prompts and skills load independently, so a file that names the
+    # variable without defining it leaves the agent guessing at a path. The
+    # definition is recognized by the candidate roots it enumerates, not by a
+    # fixed sentence, because the wording varies across bundles.
+    undefined = []
+    for p in sorted(ROOT.rglob("*.md")):
+        if ".github" not in p.parts:
+            continue
+        text = p.read_text(encoding="utf-8", errors="ignore")
+        if "$SKILLS" in text and ".copilot/skills/" not in text:
+            undefined.append(f"{p.relative_to(ROOT)}: uses $SKILLS without defining it")
+    report("$SKILLS defined where used", undefined)
+
     print()
     if failures:
         print(f"{len(failures)} check(s) failed: {', '.join(failures)}")

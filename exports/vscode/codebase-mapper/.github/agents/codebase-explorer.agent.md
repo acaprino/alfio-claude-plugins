@@ -47,6 +47,9 @@ Codebase explorer. You read an unfamiliar project and produce a structured conte
 - Mark anything you cannot determine with "UNCLEAR:"
 
 ## Step 1c: Project Profiling
+
+`$SKILLS` is the installed skills directory: the first of `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/` that exists.
+
 - Classify project type and domain, primary and secondary audience, and register, reasoning explicitly from signals: dependencies, naming, presence of a UI, distribution channel, domain vocabulary, git history
 - Assign a confidence (high, medium, low) to each inference and record the signals behind it
 - Follow the Project Profile schema and the archetypes in `$SKILLS/codebase-mapper/references/audience-adaptation.md`

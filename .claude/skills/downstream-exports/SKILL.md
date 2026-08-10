@@ -145,7 +145,11 @@ Content check, run from the repository root:
 python .claude/skills/downstream-exports/scripts/check_export.py
 ```
 
-Eight passes: frontmatter schema, tool ids, name uniqueness across bundles, prompt `agent:` bindings, `agents:` allowlists, residual Claude Code coupling, malformed markdown code spans, and byte-copy drift against `plugins/`. It exits non-zero on any failure and needs no dependencies.
+Nine passes: frontmatter schema, tool ids, name uniqueness across bundles, prompt `agent:` bindings, `agents:` allowlists, residual Claude Code coupling, malformed markdown code spans, byte-copy drift against `plugins/`, and `$SKILLS` defined wherever it is used. It exits non-zero on any failure and needs no dependencies.
+
+The `$SKILLS` pass recognizes a definition by the candidate roots it enumerates (`~/.copilot/skills/` is the tell), not by a fixed sentence, because the wording legitimately varies. The canonical form, and the one to use for anything new, is a standalone paragraph placed at the start of the block that first uses the variable:
+
+> `` `$SKILLS` is the installed skills directory: the first of `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/` that exists. ``
 
 Packaging check, after any change to an agent or prompt filename:
 
@@ -159,7 +163,7 @@ cd exports/vscode && npx --yes @vscode/vsce package --no-dependencies --out /tmp
 Known blind spots. Do not read a green run as "the export is correct".
 
 - **Pass 2 validates tool ids only in `tools:` frontmatter, never in prose.** Claude Code tool names survive in bodies, headers and budget lines, and the catalog build left them there. The `research` bundle had `WebSearch` and `WebFetch` throughout its prose while its two searcher agents did not even declare `websearch` in `tools:`, so they could not search the web at all. That was fixed; roughly 30 occurrences remain in `digital-marketing`, `business`, `browser-extensions` and `codebase-mapper`. `WebSearch`, `WebFetch`, `TeamCreate`, `AskUserQuestion` and `NotebookEdit` are safe to grep for, being words no English sentence produces. `Read`, `Write`, `Edit`, `Glob`, `Grep` and `Bash` are not.
-- **Nothing checks that a file using `$SKILLS` defines it**, though the convention requires it. Two files in `research` used it undefined.
+- ~~Nothing checks that a file using `$SKILLS` defines it.~~ Pass 9 checks this as of marketplace 19.1.2. Twenty files were using it undefined when the pass landed, eighteen of them introduced by the bundled-path fix one release earlier.
 - **Nothing checks that an adaptation left the markdown coherent.** `team-research.prompt.md` shipped with an empty "Skills to Load" section and a numbered list starting at 2, both from deleted content.
 - **Nothing checks the manifest against the tree.** A renamed agent leaves a dangling `chatAgents` path until the generator is re-run.
 - Pass 8 skips `_pipelines`, and no pass validates that `hooks:` command paths resolve.

@@ -61,6 +61,8 @@ Flag every instance of:
 
 ## Step 3: Rewrite
 
+`$SKILLS` is the installed skills directory: the first of `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/` that exists.
+
 Humanize toward the target register (from the caller or inferred via `$SKILLS/codebase-mapper/references/audience-adaptation.md`), not a single fixed tone. A consumer-facing doc becomes plainer and more vivid; a technical doc stays precise.
 
 Apply the codebase-mapper writing guidelines:

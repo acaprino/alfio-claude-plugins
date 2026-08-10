@@ -30,6 +30,8 @@ Run a comprehensive structural validation of any Claude Code plugin marketplace.
 
 Execute the audit script to get a machine-readable report:
 
+`$SKILLS` is the installed skills directory: the first of `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/` that exists.
+
 ```bash
 # Validate only
 python "$SKILLS/marketplace-audit/scripts/audit_marketplace.py"

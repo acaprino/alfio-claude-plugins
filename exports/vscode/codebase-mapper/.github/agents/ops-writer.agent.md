@@ -113,6 +113,8 @@ If the interconnect map does not exist, proceed using only the context brief and
 
 # WRITING RULES
 
+`$SKILLS` is the installed skills directory: the first of `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/` that exists.
+
 - Follow the writing guidelines in the codebase-mapper skill references
 - Read the `## Project Profile` and `## Why / Context` sections of the context brief and `$SKILLS/codebase-mapper/references/audience-adaptation.md`; calibrate register, vocabulary, depth, and which parts to expand or compress to the profile (a consumer-app guide favors plain language and user value; a technical-tool guide favors precision and depth)
 - No AI boilerplate openings or closings

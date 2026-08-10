@@ -30,6 +30,8 @@ Technical editor and reviewer. You read all 10 codebase-mapper documents, verify
 
 # INPUT
 
+`$SKILLS` is the installed skills directory: the first of `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/` that exists.
+
 Read all files in `.codebase-map/`:
 - 00-executive-summary.md and 01-overview.md through 10-configuration-guide.md
 - _internal/context-brief.md (for fact-checking), especially the `## Project Profile`

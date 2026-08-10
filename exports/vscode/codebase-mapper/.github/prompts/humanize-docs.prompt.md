@@ -58,6 +58,9 @@ Rewrite the following documentation to be human-readable.
 [path and file list]
 
 ### Instructions
+
+`$SKILLS` is the installed skills directory: the first of `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/` that exists.
+
 Read all target files and rewrite them following the codebase-mapper
 writing guidelines. Humanize toward the target register (if the user
 specified one) or infer it via

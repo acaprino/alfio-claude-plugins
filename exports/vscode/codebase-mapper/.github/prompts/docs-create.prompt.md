@@ -123,6 +123,9 @@ For each selected dimension, follow the corresponding procedure in the
 Do not invent procedures the system prompt does not describe.
 
 ### Audience
+
+`$SKILLS` is the installed skills directory: the first of `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/` that exists.
+
 If `--audience` was provided, write for it. Otherwise infer a lightweight
 profile (project type plus primary audience) from the source. Calibrate
 framing and glossary per

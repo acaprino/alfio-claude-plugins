@@ -1,5 +1,11 @@
 # Changelog
 
+## 19.1.2
+
+- Export-only release. Defines `$SKILLS` in the 19 bundle files that used it without saying what it resolves to, so an agent loading any of them alone knows where the skills directory is instead of guessing. Eighteen of those were introduced by 19.1.1 itself, which rewrote paths to `$SKILLS/...` without carrying the definition along: six `_pipelines` review agents, ten `codebase-mapper` agents and two of its prompts, plus the pre-existing `marketplace-audit` skill.
+- The `tauri-development` bundle's stale-builds reference drops a self-referential path inside an example error string, matching the wording the plugin already uses. 19.1.1 had rewritten it to a `$SKILLS` path, which meant nothing in that position and diverged the mirror from its source.
+- A ninth structural check (`$SKILLS defined where used`) now enforces this, closing a blind spot the export checker had carried since the catalog build. It recognizes a definition by the candidate roots it enumerates rather than by a fixed sentence, because the wording legitimately varies across bundles.
+
 ## 19.1.1
 
 - Fixes 40 references that named a path only resolvable in a checkout of the source repository, across `business`, `codebase-mapper`, `python-development`, `senior-review`, `stripe` and `tauri-development`. The bundles were mostly already correct, since the port rewrites paths to `$SKILLS/...`; this release repairs the 22 that had been mirrored verbatim, and the upstream plugins that were broken for every installed user.

@@ -51,6 +51,8 @@ agents: []
 
 ## TONE & AUDIENCE
 
+`$SKILLS` is the installed skills directory: the first of `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/` that exists.
+
 - Follow the writing guidelines in the codebase-mapper skill references for tone, voice, and structure
 - Structure tutorials starting from zero assumptions about prior knowledge
 - When documenting architecture, briefly explain the "why" behind design choices visible in the code

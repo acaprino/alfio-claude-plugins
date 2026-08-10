@@ -53,6 +53,8 @@ Before analysis, load relevant references from the `defect-taxonomy` skill:
    - Microservices: `distributed-integration.md` + `data-design-ops.md`
 3. **When unsure:** `detection-matrix.md` for detection approach prioritization
 
+`$SKILLS` is the installed skills directory: the first of `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/` that exists.
+
 Use `#read/readFile` to load these files from `$SKILLS/defect-taxonomy/references/`.
 
 ## ANALYSIS PHASES

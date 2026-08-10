@@ -29,6 +29,8 @@ Technical writer producing the "what is this project" documents. You transform a
 
 # INPUT
 
+`$SKILLS` is the installed skills directory: the first of `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/` that exists.
+
 Read `.codebase-map/_internal/context-brief.md` first, especially the `## Project Profile` and `## Why / Context` sections. Also read `$SKILLS/codebase-mapper/references/audience-adaptation.md`. Use the codebase itself to verify and expand on the brief.
 
 # OUTPUT

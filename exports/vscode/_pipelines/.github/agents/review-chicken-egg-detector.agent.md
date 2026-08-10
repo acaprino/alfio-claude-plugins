@@ -45,6 +45,8 @@ Before analysis, load references from the `defect-taxonomy` skill using `#read/r
 2. **When infrastructure relevant:** `references/data-design-ops.md` -- categories 15.1-15.5 (build/deploy errors, env-specific code, config injection)
 3. **When scoring:** `references/review-frameworks.md` -- cognitive models and scoring framework
 
+`$SKILLS` is the installed skills directory: the first of `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/` that exists.
+
 Use `#read/readFile` to load from `$SKILLS/defect-taxonomy/references/`.
 
 ## ANALYSIS PHASES
