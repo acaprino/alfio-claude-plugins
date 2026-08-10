@@ -23,6 +23,9 @@ jobs:
       - name: Dependency graph lint
         run: python scripts/lint_dependency_graph.py
 
+      - name: Bundled path lint
+        run: python scripts/lint_bundled_paths.py
+
       - name: VS Code export structural check
         run: python .claude/skills/downstream-exports/scripts/check_export.py
 

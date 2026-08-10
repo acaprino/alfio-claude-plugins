@@ -28,9 +28,22 @@ Classify each plugin into one of four classes. The class determines refresh cade
 | **Very fast** | Versions bump every few months; breaking changes are common; ecosystem reshuffles | Every 3 months | rag-development (embedding models, rerankers, vector DBs), digital-marketing/ga4-implementation (Consent Mode, GA4 events), react-development (React 19, Vercel guidance) |
 | **Fast** | Framework releases 2-3x per year; APIs evolve | Every 6 months | libgdx-development, opentelemetry, tauri-development, stripe (API additions, webhook event types), grabber-development (anti-bot vendor moves), browser-extensions, pwa-expert (browser version churn, WebKit feature rollout, framework PWA library churn) |
 | **Moderate** | Major releases ~yearly; breaking changes rare | Every 12 months | ibkr-trading, mt5-trading, csp (OR-Tools), python-development, typescript-development, messaging (RabbitMQ majors), obsidian-development, abstraction-architect (theory is stable; URL list in further-reading.md decays on a yearly cadence) |
-| **Slow** | Workflow knowledge that ages by behavior change, not version bumps | Opportunistic; review only when symptoms appear | senior-review, codebase-mapper, team pipeline workflows, ai-tooling skills, project-setup, marketplace-ops, system-utils, learning, docs, research, business, clean-code, codebase-xray, platform-engineering, testing methodology, xterm, app-analyzer, text-humanizer |
+| **Slow** | Workflow knowledge that ages by behavior change, not version bumps | Opportunistic; review only when symptoms appear | senior-review, codebase-mapper, team pipeline workflows, project-setup, marketplace-ops, system-utils, learning, docs, research, business, clean-code, codebase-xray, platform-engineering, testing methodology, xterm, app-analyzer, text-humanizer |
 
 If unsure, default to "Fast" (6 months). Reclassify after the first refresh based on how much actually changed.
+
+**`ai-tooling` is the exception to its own class.** Its workflow content is Slow, but `agent-sdk-builder` documents an SDK that ships breaking changes between minor releases, which puts that skill in **Very fast** (every 3 months). A 2026-08-10 fact-check found five drifted API claims at once: `fork_session` had changed type, `plugins` had changed from paths to config objects, `thinking` had moved to object-only shapes, the TypeScript V2 preview had been removed outright, and the migration guide's settings-source default had been superseded. Refresh the SDK skill on the fast cadence even when nothing else in the plugin has moved.
+
+## Version-sensitive content: refresh the policy, not only the fact
+
+A refresh that corrects today's facts leaves the same trap set for the next reader. Where a plugin documents a fast-moving external API, the durable fix is a source-of-truth policy plus a classification of its own claims, so the content tells the agent which of its statements not to trust. `ai-tooling` 5.0.0 is the worked example: a decision core carrying the tiers (the project's installed SDK, then current official documentation, then the bundled references) with the volatile detail moved into on-demand reference files, and a STABLE / API-SENSITIVE / MODEL-SENSITIVE table.
+
+Two mechanics from that pass are reusable:
+
+- **Mark what you could not confirm.** A claim that fails documentation resolution during a refresh is unconfirmed, not confirmed-absent. Tag it `*(verify)*` in place instead of deleting it or leaving it to read as verified. The tag is also the next refresh's work queue.
+- **Prefer relative and substituted paths over repo paths.** `${CLAUDE_PLUGIN_ROOT}/...` and skill-relative `references/...` survive installation; `plugins/<name>/...` resolves only in a checkout of this repo. `python scripts/lint_bundled_paths.py` enforces this and carries the pre-existing debt as a baseline.
+
+Where a refresh produces a behavioral invariant worth keeping (the frontier is never auto-picked; the installed SDK outranks the bundled reference), add a case to that plugin's harness under `evals/` rather than trusting the next reader to notice. `evals/ai-tooling/` is the pattern.
 
 ## Where hard-coded versions hide
 
