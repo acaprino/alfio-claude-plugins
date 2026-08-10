@@ -215,23 +215,49 @@ Follow this structured approach for every prompt design task:
 </anti_patterns>
 
 <evaluation_rubric>
-Score prompts on these dimensions (1-5 scale each):
+## 1. Classify the archetype first
 
-| Dimension | 1 (Poor) | 3 (Adequate) | 5 (Excellent) |
-|---|---|---|---|
-| **Clarity** | Ambiguous, multiple interpretations | Mostly clear, minor ambiguities | Unambiguous, single interpretation |
-| **Specificity** | No format/length/style guidance | Some constraints defined | All outputs precisely specified |
-| **Completeness** | Missing edge cases, no fallbacks | Common cases covered | Edge cases, errors, and fallbacks addressed |
-| **Token Efficiency** | Verbose prose, redundant rules | Some optimization | Minimal tokens, maximum information density |
-| **Robustness** | Breaks on unusual input | Handles common variations | Gracefully handles adversarial and edge input |
-| **Output Consistency** | Different format each run | Mostly consistent | Identical structure every run |
+| Archetype | Typical instance |
+|---|---|
+| extraction / classification | pull fields from a document, label a ticket |
+| structured generation | emit JSON, fill a fixed report template |
+| creative / generative | copy, fiction, naming, brainstorming |
+| reasoning | analysis, diagnosis, math, planning |
+| agentic / tool-use | an agent loop that calls tools |
+| judge / evaluator | LLM-as-judge, scoring a candidate output |
+| system policy | a system prompt governing a product surface |
+| meta-prompt | a prompt whose output is another prompt |
 
-## Scoring Process
-1. Read the prompt and identify the intended task
-2. Score each dimension independently
-3. Flag any anti-patterns found
-4. Calculate weighted average (clarity and robustness weighted 2x)
-5. Provide specific improvement recommendations for any dimension below 4
+## 2. Score only the dimensions that archetype wants
+
+| Dimension | 1 (poor) | 3 (adequate) | 5 (excellent) | Applies to |
+|---|---|---|---|---|
+| **Intent alignment** | solves a different problem | mostly on target | exactly the stated goal | all |
+| **Instruction clarity** | multiple readings | minor ambiguity | one reading only | all |
+| **Constraint correctness** | contradictory or wrong | mostly right | every rule needed, none conflicting | all |
+| **Model fit** | written for another model class | workable | matched to this model's defaults | all |
+| **Context efficiency** | redundant, bloated | some slack | dense, nothing wasted | all |
+| **Robustness** | breaks on unusual input | handles common variation | graceful on adversarial and edge input | all but throwaway one-offs |
+| **Output determinism** | different shape each run | mostly stable | identical structure every run | only when something parses the output |
+| **Tool-use correctness** | tools underspecified | usable descriptions | unambiguous names, triggers calibrated | agentic only |
+| **Trust boundaries** | data can issue instructions | partial separation | data and instructions fully separated | only when untrusted input reaches the prompt |
+| **Evalability** | untestable | some assertions possible | concrete pass/fail criteria | production prompts |
+| **Creative latitude** | over-constrained to boilerplate | some room | room to vary where variation is wanted | generative archetypes |
+
+Mark every other dimension `N/A` with a short clause saying why.
+
+## 3. Scoring rules
+
+- Score against the archetype, never against a generic ideal. Forcing identical structure onto a
+  creative prompt, or maximum specificity onto an exploratory one, makes the prompt worse while
+  making the score look better.
+- The target is the right profile, not 5/5 everywhere. Say so when a dimension is deliberately left
+  mid-scale.
+- Flag anti-patterns from `<anti_patterns>` separately: they are defects, not scores.
+- These scores are diagnostic. They locate weaknesses. They do not demonstrate improvement, and a
+  before/after score pair is not evidence. See `<epistemic_status>`.
+- Revise before presenting when an applicable dimension sits below 4 and the archetype wants it
+  high. Do not revise to raise a dimension the archetype does not want.
 </evaluation_rubric>
 
 <prompt_evals>
