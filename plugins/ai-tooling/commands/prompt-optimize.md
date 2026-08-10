@@ -32,9 +32,10 @@ Agent:
     - Target Model: [--model flag value, default "claude"]
 
     ## Phase 1: Analysis (private)
-    Analyze the prompt thoroughly before writing any output. Evaluate on a 1-5 scale for:
-    Clarity, Specificity, Structure, Token Efficiency, Robustness, Output Control.
-    Identify ambiguities, missing edge cases, structural weaknesses, and injection vulnerabilities.
+    Analyze the prompt thoroughly before writing any output. Extract its behavioral contract
+    first, then classify the archetype and score on a 1-5 scale only the rubric dimensions that
+    archetype wants, marking the rest N/A. Identify ambiguities, missing edge cases, structural
+    weaknesses, and injection vulnerabilities.
     Do not include this working in the response: Phase 2 defines the only output you produce.
 
     Usage-profile check: determine how the prompt is used (one-off, repeated system prompt,
@@ -62,15 +63,20 @@ Agent:
     ## Phase 2: Output
     Based on your analysis, respond strictly in this format:
 
-    ### Prompt Scorecard (original)
+    ### Diagnostic Scorecard (original, predicted)
+    State the archetype in one line, then one row per applicable dimension. Include the
+    conditional dimensions (output determinism, tool-use correctness, trust boundaries,
+    evalability, creative latitude) only when this archetype wants them, and list the ones you
+    marked N/A with a short reason underneath.
+
     | Dimension | Score (1-5) | Key issue |
     |-----------|:---:|-------|
-    | Clarity | X | ... |
-    | Specificity | X | ... |
-    | Structure | X | ... |
-    | Token Efficiency | X | ... |
+    | Intent alignment | X | ... |
+    | Instruction clarity | X | ... |
+    | Constraint correctness | X | ... |
+    | Model fit | X | ... |
+    | Context efficiency | X | ... |
     | Robustness | X | ... |
-    | Output Control | X | ... |
 
     ### Variant Frontier
     Produce 3 variants by default:
@@ -85,14 +91,23 @@ Agent:
     and the prompt mixes instructions, context, or examples; headings suffice for simple prompts.
 
     ### Comparison
-    | Variant | Tokens (est.) | Delta vs original | Technique applied | Predicted gains | What you give up |
+    | Variant | Tokens (est.) | Delta vs original | Technique applied | Predicted effect (unmeasured) | What you give up |
 
     Token estimates: characters/4 on the prompt text, labeled "est.". If a variant also
     constrains reasoning or output length, state the expected output-token effect
     separately: that is where most of the real savings live.
 
+    ### Behavioral changes
+    For each variant, report what changed in behavior rather than in wording: constraints
+    strengthened or relaxed, behaviors removed or added, interface changes, tool-policy or
+    reasoning-strategy changes, trust boundaries hardened or weakened. Print only the lines that
+    are true. If a variant changes nothing behavioral, say so in one line. Lead with any
+    relaxation or removal instead of burying it under the token saving.
+
     ### Honesty note
     Close with these caveats, adapted to the case:
+    - Label every quality claim predicted, measured, or verified. A score this pass assigned is
+      predicted by definition, including the scorecard above.
     - Predicted scores and parity are single-pass estimates by the same model that wrote
       the variants, not measurements; small formatting changes alone are known to swing
       task accuracy, so treat the deltas as hypotheses.
