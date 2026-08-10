@@ -1,5 +1,14 @@
 # Changelog
 
+## 19.1.0
+
+- Tracks marketplace 19.1.0, which restructures the `ai-tooling` bundle (plugin 5.0.0) around the distinction between knowledge that ages and knowledge that does not. Follows the 19.0.1 correctness refresh of the same bundle; this release changes its shape rather than its facts.
+- `agent-sdk-builder` goes from one 1068-line file to a 153-line decision core plus five on-demand references (`sdk-api`, `sessions-subagents`, `permissions-hooks-security`, `mcp-plugins-skills`, `deployment`). The core now carries a three-tier source-of-truth policy: the project's installed SDK first, then current official documentation, then these bundled files, which are explicitly never the last word on a signature, an option shape, a default, or whether a feature still exists. A claim-classification table (STABLE / API-SENSITIVE / MODEL-SENSITIVE) says which of its own statements the agent must re-verify, and environment detection now records the installed version so every answer is relative to it. The 19.0.1 refresh fixed the facts that had drifted; this one is meant to stop the drift from mattering.
+- `prompt-engineer` extracts a behavioral contract before rewriting anything (goal, hard constraints, behavioral invariants, interface, intentional freedoms, trust boundaries, known failure modes) and reports a semantic diff afterwards, so a rewrite that quietly stopped doing its job is a reportable defect rather than a silent one.
+- Its rubric became archetype-aware: eight archetypes, eleven dimensions, five of them conditional, with everything else marked N/A. The old universal rubric rewarded the wrong shape, scoring a creative prompt on output determinism or an exploratory one on maximum specificity. The weighted average is gone; the target is the right profile, not 5/5 everywhere.
+- Mandatory self-evaluation is replaced by audit depth proportional to consequence, split on one question: if this prompt regresses, who finds out?
+- Quality claims are now labeled predicted, measured, or verified, and never interchangeably. `/prompt-optimize` follows: the scorecard is renamed diagnostic and marked predicted, the comparison column reads "predicted effect (unmeasured)", a behavioral-changes section reports what each variant changed in behavior, and Phase 1 classifies the archetype instead of scoring six fixed dimensions.
+
 ## 19.0.3
 
 - Tracks marketplace 19.0.3, which de-dogmatizes four rules of the `testing` bundle (plugin 2.2.0) after an external review found them stated as universal invariants where they hold only under conditions.
