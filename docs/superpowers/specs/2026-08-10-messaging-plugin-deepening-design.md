@@ -13,7 +13,7 @@ Deepen the `messaging` plugin (today a single 218-line `rabbitmq-expert` agent) 
 2. **Code examples become client-neutral pseudocode plus AMQP properties.** The existing Node.js (amqplib) blocks are converted. No client-specific pattern examples.
 3. **Shape: lean agent plus production skill with references** (approach B of 3). A single enriched agent (approach A) was rejected because the research yielded too much high-value operational detail (thresholds, alert rules, upgrade gates) to fit a single file without cuts. Adding an `/messaging:mq-audit` command (approach C) was deferred as a possible follow-up, not part of this design.
 4. **No upstream delegation.** A marketplace scan found no installable upstream covering RabbitMQ. The closest external content (martinholovsky/claude-skills-generator `rabbitmq-expert`, MIT, 1555 lines) is less current than our agent (no 4.x facts, calls mirrored queues "deprecated" when they were removed in 4.0, contains template-assembly artifacts). It is used only as a research pointer for two gaps we do have (security bootstrapping, connection resilience), with every fact verified against official RabbitMQ docs. Nothing is copied, per the standing no-vendored-copies policy.
-5. **RabbitMQ's current version is stated in exactly one file** (the skill's SKILL.md), so future refreshes touch one anchor. Lesson taken from the 2026-08 ibkr-trading refresh.
+5. **The precise current RabbitMQ version (4.3.4) is stated in exactly one file** (the skill's SKILL.md), so future refreshes touch one anchor. Series-level wording ("4.3") may appear in the marketplace description and the agent description, both already listed as refresh hot spots by the custom-plugin-refresh protocol. Lesson taken from the 2026-08 ibkr-trading refresh.
 
 ## Components
 
@@ -42,7 +42,7 @@ New and extended anti-patterns (kept terse in the agent, elaborated in reference
 - Unlimited prefetch: one consumer grabs the whole backlog, risks OOM and mass redelivery.
 - The eight existing anti-patterns stay (unbounded queues, missing confirms, single-node production, queue-per-message, auto-ack for critical messages, connection or channel churn, mirrored queues, basic.get polling), with the mirrored-queues entry reframed from "deprecated" to "removed in 4.0, upgrade gate".
 
-Frontmatter unchanged in shape (`model: inherit`, `color: blue`, YAML `>` description with TRIGGER WHEN / DO NOT TRIGGER WHEN). The description gains "4.3" instead of "4.x" wording only where it does not duplicate the version anchor rule (the description may say "RabbitMQ 4.x" generically; the precise current version lives in SKILL.md).
+Frontmatter unchanged in shape (`model: inherit`, `color: blue`, YAML `>` description with TRIGGER WHEN / DO NOT TRIGGER WHEN). The description names the 4.3 series; the precise patch version appears only in SKILL.md per decision 5.
 
 ### 2. Skill: `plugins/messaging/skills/rabbitmq-production/`
 
