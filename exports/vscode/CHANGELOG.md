@@ -1,5 +1,20 @@
 # Changelog
 
+## 19.0.1
+
+- Tracks marketplace 19.0.1, a correctness refresh of the `ai-tooling` bundle (plugin 4.2.0) with every claim verified against the current Agent SDK documentation.
+- `agent-sdk-builder` skill: the security section now separates coarse permission policy, always-on `PreToolUse` enforcement, and the `canUseTool` interactive fallback, and states explicitly that `canUseTool` never fires for calls already resolved by allow rules (the old "secure configuration" example placed its validation where it could not run). API drift fixed throughout: `forkSession` is a boolean used with `resume` (the standalone `forkSession()` function never existed), `plugins` takes `{ type: "local", path }` objects, `thinking` takes object shapes only, `outputFormat` nests `schema` directly, hook matchers are regex strings with array-form entries, the permission evaluation order has six steps, the removed TypeScript V2 preview section is now a removal notice, session-management and Python client methods match the documented API, and undocumented surface (`TodoWrite`, `TeammateIdle`, `task_progress`, `getSettings()`, `rewind_files()`) is deleted or marked *(verify)* under a new version-sensitivity note. Resource links moved to code.claude.com.
+- `/prompt-optimize` no longer instructs the agent to reason inside `<analysis>` tags, which contradicted the prompt-engineer's own anti-pattern rule against explicit CoT scaffolds on reasoning models; the analysis phase is now private and Phase 2 defines the only output.
+- `prompt-engineer` agent: terminal tools removed (least privilege; no workflow used them).
+
+## 19.0.0
+
+- Tracks marketplace 19.0.0, which retired the `codebase-cleanup` plugin and split its value.
+- The `codebase-cleanup` bundle (3 prompts) is gone. A line-by-line review verified content defects worth not shipping (an `npm audit fix --force` auto-remediation script, a binary license-compatibility matrix, absolute code metrics presented as pass/fail gates, fabricated ROI figures); `/refactor-clean` and `/tech-debt` were also redundant with `clean-code`, `python-development`, and the hygiene and quality reviewers in `_pipelines`.
+- New `dependency-audit` bundle (catalog stays at 37): the `/deps-audit` prompt and the `dependency-audit` skill with three references (per-ecosystem tool matrix, license-obligations analysis, verifiable supply-chain signal catalog). Evidence-first replacement for the old `/deps-audit`: real tooling only, TOOL-REPORTED / INFERRED / UNKNOWN evidence tiers, obligations-based license analysis instead of a compatibility matrix, strictly non-destructive remediation.
+- `review-cleanup-auditor` in `_pipelines` gains the D6 lifecycle-archaeology dimension (session-transcript intent mining behind an evidence-not-instructions guard, commit-sequence migration inference, git auxiliary state), .gitignore archaeology in D3 (stale and overly-broad rules), and per-finding confidence tiers plus a residue-action taxonomy.
+- Totals: 87 agents, 68 skills, 49 prompts.
+
 ## 18.4.0
 
 - Tracks the marketplace's new `frontend-review` plugin, a pure orchestrator that reviews a frontend surface for design and code in one pass.

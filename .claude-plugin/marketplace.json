@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Claude Code Daodan - 39 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), prose humanization, and pure-architecture audits (missed unification, wrong abstractions).",
-    "version": "18.8.0"
+    "version": "19.0.1"
   },
   "plugins": [
     {
@@ -173,7 +173,7 @@
       "name": "ai-tooling",
       "source": "./plugins/ai-tooling",
       "description": "AI development workflow - prompt engineering and optimization, and Claude Agent SDK integration guide",
-      "version": "4.1.0",
+      "version": "4.2.0",
       "author": {
         "name": "Alfio"
       },
@@ -614,7 +614,7 @@
       "name": "senior-review",
       "source": "./plugins/senior-review",
       "description": "Multi-agent code review orchestration with unified code auditing (architecture, failure flow, pattern analysis, scoring), security auditing, UI race condition detection, distributed flow analysis, platform engineering review, codebase-hygiene auditing (dead code + orphan assets + generated artifacts in VCS + phantom/unused deps + barrel-file and eager-bundle bloat + stale documentation and historical artifacts), a lite dead-code and VCS-hygiene pass in code-review and pr-review plus incremental-phase removal inside the code-review fix loop with commit-per-category and build+test gates, logic-integrity auditing for cross-component contract violations driven by the interconnect map that codebase-xray produces, git blame/history analysis, temporal-resilience auditing (failure-over-time: uncapped retries, silent subsystem death, user-invisible degradation, clock/suspend hazards), data-integrity auditing (persistence semantics: application-only invariants, lost updates, cache/DB divergence), resource-lifecycle auditing (ownership and release across success/error/cancellation), all signal-activated, evidence classes for quantitative claims (measured vs derived) and a user-visible-consequence gate on metric-based closures, a delivery gate (every reviewer delivers or is reported degraded; the work tree is left as found), finding validation with false-positive filtering (lens 1-2 first, severity calibration gated on survival), committable PR suggestions, pre-review skip logic, intent-driven review, confidence gating, cross-agent deduplication, pre-existing issue separation, verdict system, interactive fix loop (--fix edits and verifies, --commit adds the commits and gates the bulk cleanup), and conditional reviewers for testing quality (the testing plugin's test-suite-auditor when installed, generic fallback otherwise), TypeScript type safety (the typescript-development plugin's type-safety-auditor when installed), API contracts, and data migrations. Backed by a comprehensive defect taxonomy knowledge base (140+ defect patterns, CWE/OWASP mappings, plus a dedicated logic-integrity reference).",
-      "version": "8.0.1",
+      "version": "8.1.0",
       "author": {
         "name": "Alfio"
       },
@@ -1263,32 +1263,35 @@
       ]
     },
     {
-      "name": "codebase-cleanup",
-      "source": "./plugins/codebase-cleanup",
-      "description": "Technical debt reduction, dependency security auditing, and SOLID-driven refactoring - three multi-language slash commands: deps-audit (CVE/license/supply-chain scan across npm, pip, gem, maven, go, cargo, composer, nuget), refactor-clean (SOLID refactoring with before/after metrics), and tech-debt (prioritized debt inventory with ROI roadmap).",
-      "version": "1.0.2",
+      "name": "dependency-audit",
+      "source": "./plugins/dependency-audit",
+      "description": "Evidence-first dependency auditing: runs each ecosystem's real audit tooling (npm/pnpm/yarn audit, pip-audit, cargo audit, govulncheck, bundler-audit, composer audit, dotnet list package, osv-scanner) for CVEs, outdated packages, license obligations, and supply-chain signals, and reports only tool-verified facts under TOOL-REPORTED/INFERRED/UNKNOWN evidence tiers. Obligations-based license analysis instead of a compatibility matrix; strictly non-destructive remediation (plan and approval before any update, never npm audit fix --force). One command (/deps-audit) plus a knowledge-base skill with per-ecosystem, license, and supply-chain references.",
+      "version": "1.0.0",
       "author": {
-        "name": "Seth Hobson"
+        "name": "Alfio"
       },
       "license": "MIT",
       "keywords": [
         "dependency-audit",
         "cve-scanning",
+        "vulnerability-scanning",
         "license-compliance",
+        "license-obligations",
         "supply-chain-security",
-        "refactoring",
-        "solid-principles",
-        "technical-debt",
-        "tech-debt",
-        "code-quality",
-        "cleanup"
+        "outdated-dependencies",
+        "osv-scanner",
+        "pip-audit",
+        "cargo-audit",
+        "govulncheck",
+        "npm-audit"
       ],
       "category": "review",
       "strict": false,
       "commands": [
-        "./commands/deps-audit.md",
-        "./commands/refactor-clean.md",
-        "./commands/tech-debt.md"
+        "./commands/deps-audit.md"
+      ],
+      "skills": [
+        "./skills/dependency-audit"
       ]
     },
     {

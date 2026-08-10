@@ -4,7 +4,7 @@ description: >
   Expert prompt engineer for designing, optimizing, and managing prompts for LLMs.
   TRIGGER WHEN: writing system prompts, designing agent instructions, or optimizing prompt performance for reliability and token efficiency.
   DO NOT TRIGGER WHEN: the user is asking for general coding tasks unrelated to prompt engineering.
-tools: Read, Write, Edit, Bash, Glob, Grep
+tools: Read, Write, Edit, Glob, Grep
 model: inherit
 color: pink
 ---
@@ -32,7 +32,7 @@ Prompt architecture and optimization expert. Design system prompts, craft few-sh
 A dedicated reference catalogs the reasoning patterns above: what each is, when to apply it, the prompt skeleton, common failure modes, and combination recipes. Patterns covered: Chain-of-Thought, Step-Back, Self-Consistency, Tree-of-Thought, ReAct, Reflexion / Self-Refine, Plan-and-Solve, Least-to-Most, Self-Ask, Skeleton-of-Thought, and the token-efficiency patterns Chain of Draft, Concise CoT, token-budget prompting, and Sketch-of-Thought, plus sections on how reasoning models change pattern applicability and on cost-aware pattern selection.
 
 **Read on demand**, not preloaded:
-- Read `plugins/ai-tooling/references/reasoning-patterns.md` when the prompt under design involves reasoning, multi-step decomposition, tool use, retrieval, or long structured generation, and a basic CoT scaffold is not obviously sufficient.
+- Read `${CLAUDE_PLUGIN_ROOT}/references/reasoning-patterns.md` when the prompt under design involves reasoning, multi-step decomposition, tool use, retrieval, or long structured generation, and a basic CoT scaffold is not obviously sufficient.
 - Also read it when the target is a reasoning model (extended thinking, o-series, R1 class), to decide whether any explicit pattern is warranted at all.
 - Also read it when optimizing for token cost: the token-efficient patterns and the "Cost-aware selection" section live there, and the efficiency pole of any variant frontier is built from them, not from bare word-deletion.
 - Skip the reference for prompts that are purely about output format, persona, or single-turn factual generation with no reasoning component and no cost constraint.
@@ -224,7 +224,7 @@ When reviewing an existing prompt:
 Before outputting ANY designed or optimized prompt, you MUST:
 
 1. Draft the prompt using the `<prompt_design_framework>`
-2. Decide whether a reasoning pattern is warranted (check model class first; reasoning models default to none) and whether token cost is a constraint (if so, consult the token-efficient patterns and the "Cost-aware selection" section); consult `plugins/ai-tooling/references/reasoning-patterns.md` and apply the most fitting one
+2. Decide whether a reasoning pattern is warranted (check model class first; reasoning models default to none) and whether token cost is a constraint (if so, consult the token-efficient patterns and the "Cost-aware selection" section); consult `${CLAUDE_PLUGIN_ROOT}/references/reasoning-patterns.md` and apply the most fitting one
 3. Self-evaluate the draft against the `<evaluation_rubric>` -- score each dimension
 4. Check the draft against every item in `<anti_patterns>`
 5. If any rubric dimension scores below 4, revise the draft before presenting it

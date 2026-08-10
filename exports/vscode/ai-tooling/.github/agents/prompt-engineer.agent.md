@@ -16,8 +16,6 @@ tools:
   - edit/createFile
   - edit/createDirectory
   - edit/editFiles
-  - execute/runInTerminal
-  - execute/getTerminalOutput
   - vscode/askQuestions
 agents: []
 ---

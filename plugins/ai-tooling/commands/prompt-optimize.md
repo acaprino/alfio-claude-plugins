@@ -17,7 +17,7 @@ argument-hint: "<prompt text or file path> [--model claude|gpt|gemini] [--optimi
 
 ## Step 1: Analysis and variant frontier (single subagent pass)
 
-Execute the full analysis and variant generation in a single `prompt-engineer` subagent call. The agent uses `<analysis>` tags for chain-of-thought reasoning before producing the final output.
+Execute the full analysis and variant generation in a single `prompt-engineer` subagent call. The agent analyzes first, natively, and returns only the observable artifacts defined in Phase 2: no explicit reasoning scaffold is imposed on it, per its own anti-pattern rules for reasoning models.
 
 ```
 Agent:
@@ -31,10 +31,11 @@ Agent:
     - Optimization Target: [--optimize-for flag value, or "frontier" when absent]
     - Target Model: [--model flag value, default "claude"]
 
-    ## Phase 1: Analysis (inside <analysis> tags)
-    Think through the prompt inside <analysis> tags. Evaluate on a 1-5 scale for:
+    ## Phase 1: Analysis (private)
+    Analyze the prompt thoroughly before writing any output. Evaluate on a 1-5 scale for:
     Clarity, Specificity, Structure, Token Efficiency, Robustness, Output Control.
     Identify ambiguities, missing edge cases, structural weaknesses, and injection vulnerabilities.
+    Do not include this working in the response: Phase 2 defines the only output you produce.
 
     Usage-profile check: determine how the prompt is used (one-off, repeated system prompt,
     agent loop) and whether prompt caching applies. Which tokens matter follows from this:
@@ -45,11 +46,11 @@ Agent:
     Reasoning-pattern check: first determine the target model class. For reasoning models
     (extended thinking, o-series, R1 class), default to NO explicit scaffold: direct
     instructions plus precise success criteria; consult the "Reasoning models change the
-    defaults" section of `plugins/ai-tooling/references/reasoning-patterns.md` before adding
+    defaults" section of `${CLAUDE_PLUGIN_ROOT}/references/reasoning-patterns.md` before adding
     any pattern. Otherwise, decide whether the task would benefit from a structured
     reasoning scaffold beyond plain instructions (CoT, Step-Back, ReAct, Tree-of-Thought,
     Self-Consistency, Reflexion, Plan-and-Solve, Least-to-Most, Self-Ask, Skeleton-of-Thought).
-    If yes, read `plugins/ai-tooling/references/reasoning-patterns.md`, pick the pattern
+    If yes, read `${CLAUDE_PLUGIN_ROOT}/references/reasoning-patterns.md`, pick the pattern
     that matches the task shape using the selection cheat sheet, and apply it in Phase 2.
     For the efficiency variant, always consult that file's token-efficient patterns
     (Chain of Draft, Concise CoT, token-budget prompting, Sketch-of-Thought) and its
@@ -58,7 +59,7 @@ Agent:
     If the existing prompt already scores 4+ on every dimension, do not add a pattern just
     for completeness -- record the decision in the analysis instead.
 
-    ## Phase 2: Output (outside tags)
+    ## Phase 2: Output
     Based on your analysis, respond strictly in this format:
 
     ### Prompt Scorecard (original)

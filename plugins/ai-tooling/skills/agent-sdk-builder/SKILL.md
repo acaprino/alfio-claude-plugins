@@ -12,6 +12,8 @@ The Claude Agent SDK lets you run Claude Code programmatically -- build AI agent
 
 **Key distinction**: The Agent SDK (`claude-agent-sdk`) runs the full Claude Code agent loop with built-in tools. The Anthropic Client SDK (`anthropic`) is for raw API calls. Use the Agent SDK when you need autonomous tool-using agents.
 
+> **Version-sensitive material.** Option shapes, tool names, and defaults below change between SDK releases. When your installed SDK's type definitions or the official docs (https://code.claude.com/docs/en/agent-sdk/overview) disagree with this file, trust them over this file. Entries marked *(verify)* exist in some SDK versions but are absent from the currently documented API surface: confirm them against your installed SDK before relying on them.
+
 ## Quick Reference
 
 | | TypeScript | Python |
@@ -109,28 +111,28 @@ asyncio.run(main())
 | `allowedTools` / `allowed_tools` | `string[]` | Tools to auto-approve without user confirmation |
 | `disallowedTools` / `disallowed_tools` | `string[]` | Tools to always deny |
 | `permissionMode` / `permission_mode` | `string` | Permission strategy (see Permissions section) |
-| `systemPrompt` / `system_prompt` | `string` | Custom system prompt or `"claude_code"` for default |
-| `model` | `string` | Model ID (e.g., `"claude-fable-5"`, `"claude-opus-4-8"`, `"claude-sonnet-4-6"`) -- short aliases resolve to the latest date-slugged release (e.g., `"claude-haiku-4-5"` resolves to `"claude-haiku-4-5-20251001"`); pin a full slug for reproducibility |
+| `systemPrompt` / `system_prompt` | `string \| object` | Custom system prompt string, or the Claude Code preset as `{ type: "preset", preset: "claude_code" }` (a bare `"claude_code"` string is not valid) |
+| `model` | `string` | Model ID (e.g., `"claude-fable-5"`, `"claude-opus-5"`, `"claude-sonnet-5"`) -- short aliases resolve to the latest date-slugged release (e.g., `"claude-haiku-4-5"` resolves to `"claude-haiku-4-5-20251001"`); pin a full slug for reproducibility |
 | `maxTurns` / `max_turns` | `number` | Maximum agentic loop iterations |
 | `maxBudgetUsd` / `max_budget_usd` | `number` | Spending cap in USD |
-| `effort` | `string` | `"low"`, `"medium"`, `"high"`, `"max"` |
+| `effort` | `string` | `"low"`, `"medium"`, `"high"`, `"xhigh"`, `"max"` |
 | `cwd` | `string` | Working directory for file operations |
 | `mcpServers` / `mcp_servers` | `object` | MCP server configurations |
 | `hooks` | `object` | Lifecycle hook callbacks |
 | `agents` | `object` | Subagent definitions |
 | `resume` | `string` | Session ID to resume |
 | `continue` / `continue_conversation` | `boolean` | Continue most recent session |
-| `forkSession` / `fork_session` | `string` | Fork from an existing session |
-| `settingSources` / `setting_sources` | `string[]` | Load settings from `["user", "project", "local"]` |
-| `plugins` | `string[]` | Local plugin directory paths |
+| `forkSession` / `fork_session` | `boolean` | With `resume`: branch a new session off the resumed one instead of continuing it |
+| `settingSources` / `setting_sources` | `string[]` | Which filesystem settings to load (`"user"`, `"project"`, `"local"`); pass it explicitly rather than relying on version-dependent defaults (see Migration) |
+| `plugins` | `SdkPluginConfig[]` | Plugins to load, e.g. `[{ type: "local", path: "/path/to/plugin" }]` |
 | `sandbox` | `object` | Sandbox/isolation settings |
-| `thinking` | `object` | Extended thinking: `"adaptive"`, `{type: "enabled", budget: N}`, `"disabled"` |
+| `thinking` | `object` | Extended thinking: `{ type: "adaptive" }`, `{ type: "enabled", budget_tokens: N }`, `{ type: "disabled" }` |
 | `outputFormat` / `output_format` | `object` | JSON schema for structured output |
 | `env` | `object` | Environment variables passed to agent |
 | `canUseTool` / `can_use_tool` | `function` | Runtime permission callback |
 | `includePartialMessages` / `include_partial_messages` | `boolean` | Enable token-level streaming |
-| `spawnClaudeCodeProcess` | `function` | Custom process spawner (VMs, containers, remote) |
-| `agentProgressSummaries` | `boolean` | Enable periodic AI-generated progress summaries for running subagents |
+| `spawnClaudeCodeProcess` *(verify)* | `function` | Custom process spawner (VMs, containers, remote) |
+| `agentProgressSummaries` *(verify)* | `boolean` | Enable periodic AI-generated progress summaries for running subagents |
 | `debug` / `debug` | `boolean` | Enable programmatic debug logging |
 | `debugFile` / `debug_file` | `string` | File path for debug log output |
 
@@ -142,16 +144,16 @@ import { query } from "@anthropic-ai/claude-agent-sdk";
 for await (const msg of query({
   prompt: "Refactor the auth module to use JWT tokens",
   options: {
-    model: "claude-sonnet-4-6",
+    model: "claude-sonnet-5",
     allowedTools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep"],
     disallowedTools: ["WebSearch", "WebFetch"],
-    permissionMode: "bypassPermissions",
+    permissionMode: "acceptEdits",
     maxTurns: 25,
     maxBudgetUsd: 1.0,
     effort: "high",
     cwd: "/home/user/project",
     systemPrompt: "You are a senior backend engineer. Follow the project's coding standards.",
-    thinking: "adaptive",
+    thinking: { type: "adaptive" },
     env: { NODE_ENV: "development" },
   },
 })) {
@@ -175,10 +177,9 @@ The agent has access to these tools by default:
 | `Grep` | Search file contents with regex |
 | `WebSearch` | Search the web |
 | `WebFetch` | Fetch and parse web pages |
-| `Agent` | Spawn subagents (required for multi-agent) |
+| `Agent` | Spawn subagents (required for multi-agent); older SDK versions emitted this tool under the name `Task` |
 | `Skill` | Invoke skills from plugins |
 | `AskUserQuestion` | Request user input |
-| `TodoWrite` | Manage task lists |
 | `ToolSearch` | Discover deferred tools |
 
 Control which tools the agent can use:
@@ -341,11 +342,13 @@ for await (const msg of query({
 | `prompt` | `string` | **Required.** System prompt for the subagent |
 | `tools` | `string[]` | Restricted tool set |
 | `model` | `string` | `"sonnet"`, `"opus"`, `"haiku"`, or `"inherit"` |
-| `disallowedTools` | `string[]` | Tools to block (TS only) |
+| `disallowedTools` | `string[]` | Tools to block |
 | `mcpServers` | `object` | MCP servers available to subagent |
 | `skills` | `string[]` | Skills the subagent can invoke |
 | `memory` | `object` | Memory configuration for the subagent |
-| `maxTurns` | `number` | Turn limit for this subagent (TS only) |
+| `maxTurns` | `number` | Turn limit for this subagent |
+
+Also documented: `initialPrompt`, `background`, `effort`, `permissionMode`.
 
 ### Subagent Behavior
 
@@ -354,7 +357,7 @@ for await (const msg of query({
 - **No nesting** -- subagents cannot spawn their own subagents
 - **Resumable** -- subagents can be resumed by ID from tool results
 - **Cost isolated** -- each subagent's token usage is tracked separately
-- **Progress summaries** -- enable `agentProgressSummaries: true` to receive periodic AI-generated progress updates from running subagents
+- **Progress summaries** *(verify)* -- enable `agentProgressSummaries: true` to receive periodic AI-generated progress updates from running subagents
 
 ---
 
@@ -384,6 +387,12 @@ for await (const msg of query({
 })) {
   if ("result" in msg) console.log(msg.result);
 }
+
+// Branch instead of continuing: resume + forkSession leaves the original untouched
+for await (const msg of query({
+  prompt: "Try an alternative approach on a copy of this conversation",
+  options: { resume: sessionId, forkSession: true },
+})) { /* ... */ }
 ```
 
 ### Continue Most Recent Session
@@ -430,7 +439,7 @@ async with ClaudeSDKClient() as client:
 ```typescript
 import {
   listSessions, getSessionInfo, getSessionMessages,
-  forkSession, tagSession, renameSession,
+  tagSession, renameSession,
 } from "@anthropic-ai/claude-agent-sdk";
 
 // List sessions
@@ -446,9 +455,6 @@ console.log(info.tag, info.createdAt);
 // Read conversation history (includes parallel tool results)
 const messages = await getSessionMessages(sessionId);
 
-// Branch a conversation from a specific point
-const forked = await forkSession(sessionId);
-
 // Organize sessions with tags and renames
 await tagSession(sessionId, "auth-refactor");
 await renameSession(sessionId, "auth-refactor-v2");
@@ -457,7 +463,7 @@ await renameSession(sessionId, "auth-refactor-v2");
 ```python
 from claude_agent_sdk import (
     list_sessions, get_session_info, get_session_messages,
-    fork_session, tag_session, rename_session,
+    tag_session, rename_session,
 )
 
 sessions = await list_sessions(dir="/path/to/project", limit=10)
@@ -471,7 +477,7 @@ await rename_session(session_id, "auth-refactor-v2")
 
 ### Session State Events
 
-Session state change events are **opt-in** as of v0.2.83. Enable with environment variable:
+Session state change events are **opt-in** as of v0.2.83 *(verify)*. Enable with environment variable:
 
 ```bash
 export CLAUDE_CODE_EMIT_SESSION_STATE_EVENTS=1
@@ -479,22 +485,20 @@ export CLAUDE_CODE_EMIT_SESSION_STATE_EVENTS=1
 
 ### Exit Reasons
 
-The `ExitReason` type includes: `"end_turn"`, `"max_turns"`, `"budget"`, `"interrupt"`, `"resume"`.
+The `ExitReason` type includes: `"end_turn"`, `"max_turns"`, `"budget"`, `"interrupt"`, `"resume"` *(verify)*.
 
 ---
 
 ## 8. Introspection Utilities
 
 ```typescript
-import { supportedAgents, getSettings } from "@anthropic-ai/claude-agent-sdk";
+import { supportedAgents } from "@anthropic-ai/claude-agent-sdk";
 
 // Discover available subagents
 const agents = await supportedAgents();
-
-// Inspect runtime-resolved settings (includes applied model and effort)
-const settings = await getSettings();
-console.log(settings.applied.model, settings.applied.effort);
 ```
+
+`getSettings()` *(verify)* appears in some SDK versions for inspecting runtime-resolved settings, but is not in the currently documented API.
 
 ---
 
@@ -514,27 +518,29 @@ Control what the agent can do at runtime.
 
 ### Permission Evaluation Order
 
-1. Hooks (`PreToolUse`)
+1. Hooks (`PreToolUse`) -- always run, for every matching tool call
 2. Deny rules (`disallowedTools`) -- **overrides everything, including `bypassPermissions`**
-3. Permission mode
-4. Allow rules (`allowedTools`) -- does NOT constrain `bypassPermissions`
-5. `canUseTool` callback
+3. Ask rules
+4. Permission mode
+5. Allow rules (`allowedTools`) -- does NOT constrain `bypassPermissions`
+6. `canUseTool` callback -- reached only when none of the steps above resolved the call
 
 **Important**: `disallowedTools` is the only hard block. Even `bypassPermissions` cannot override it. Use it for safety-critical restrictions.
 
 ### Runtime Permission Callback
 
+`canUseTool` is the interactive fallback at the END of the evaluation order: it fires only for calls that no hook, rule, or mode has already resolved. A tool listed in `allowedTools` never reaches it. Validation that must run on every invocation belongs in a `PreToolUse` hook, not here.
+
 ```typescript
 for await (const msg of query({
   prompt: "Deploy the application",
   options: {
-    allowedTools: ["Read", "Bash"],
+    allowedTools: ["Read"],  // Bash is NOT pre-approved, so Bash calls reach the callback
     canUseTool: async (toolName, input) => {
-      // Block destructive commands
+      // Decide unresolved requests programmatically instead of prompting a user
       if (toolName === "Bash" && input.command?.includes("rm -rf")) {
         return { behavior: "deny", message: "Destructive commands not allowed" };
       }
-      // Allow everything else
       return { behavior: "allow" };
     },
   },
@@ -567,21 +573,20 @@ Hooks intercept agent lifecycle events for logging, validation, or control flow.
 | `Notification` | Agent sends a notification | Display or forward |
 | `PermissionRequest` | Tool needs permission | Auto-approve or deny |
 | `TaskCompleted` | A task has been completed | Process results |
-| `TeammateIdle` | A teammate agent is idle | Reassign or notify |
 | `ConfigChange` | Configuration changed at runtime | Security auditing |
-| `SessionStart` (TS) | Session initialized | Setup actions |
-| `SessionEnd` (TS) | Session completed | Cleanup actions |
+| `SessionStart` | Session initialized | Setup actions |
+| `SessionEnd` | Session completed | Cleanup actions |
 
 ### Hook Matchers
 
-Hooks can use regex matchers to target specific tools, and support async (fire-and-forget) mode:
+Matchers are regex pattern STRINGS tested against the tool name (never RegExp literals). Hooks also support async (fire-and-forget) mode; Python spells the flag `async_` to avoid the reserved word:
 
 ```typescript
 hooks: {
   PreToolUse: [
     // Matcher targets specific tools by regex on tool name
     {
-      matcher: /^(Write|Edit)$/,
+      matcher: "^(Write|Edit)$",
       hooks: [async (event) => {
         if (event.input.file_path?.includes(".env")) {
           return { behavior: "deny", message: "Cannot modify .env files" };
@@ -592,7 +597,7 @@ hooks: {
     },
     // Async hook -- fire-and-forget logging (does not block)
     {
-      matcher: /.*/,
+      matcher: ".*",
       hooks: [{ async: true, asyncTimeout: 5, handler: async (event) => {
         await fetch("https://logs.example.com/webhook", {
           method: "POST",
@@ -619,20 +624,28 @@ for await (const msg of query({
   prompt: "Analyze the codebase",
   options: {
     hooks: {
-      PreToolUse: async (event) => {
-        console.log(`Tool: ${event.toolName}, Input: ${JSON.stringify(event.input)}`);
-        // Block writes to production config
-        if (event.toolName === "Write" && event.input.file_path?.includes("production")) {
-          return { behavior: "deny", message: "Cannot modify production files" };
-        }
-        return { behavior: "allow" };
-      },
-      PostToolUse: async (event) => {
-        console.log(`Tool ${event.toolName} completed in ${event.duration_ms}ms`);
-      },
-      Stop: async (event) => {
-        console.log(`Agent stopping. Result: ${event.result}`);
-      },
+      PreToolUse: [{
+        matcher: ".*",
+        hooks: [async (event) => {
+          console.log(`Tool: ${event.toolName}, Input: ${JSON.stringify(event.input)}`);
+          // Block writes to production config
+          if (event.toolName === "Write" && event.input.file_path?.includes("production")) {
+            return { behavior: "deny", message: "Cannot modify production files" };
+          }
+          return { behavior: "allow" };
+        }],
+      }],
+      PostToolUse: [{
+        matcher: ".*",
+        hooks: [async (event) => {
+          console.log(`Tool ${event.toolName} completed`);
+        }],
+      }],
+      Stop: [{
+        hooks: [async () => {
+          console.log("Agent stopping");
+        }],
+      }],
     },
   },
 })) { /* ... */ }
@@ -649,11 +662,10 @@ Messages streamed from `query()` include:
 | Type | Description |
 |---|---|
 | `system` (subtype: `init`) | Session initialized -- contains `session_id` |
-| `system` (subtype: `api_retry`) | API retry info -- attempt count, max retries, delay, error status |
+| `system` (subtype: `api_retry`) *(verify)* | API retry info -- attempt count, max retries, delay, error status |
 | `assistant` | Claude's response with `content` blocks (text, tool_use) |
 | `result` | Final result with `result` text, `total_cost_usd`, `usage` |
-| `task_progress` | Real-time usage metrics for running agents |
-| `rate_limit` | Rate limit event with retry timing (Python: `RateLimitEvent`) |
+| `rate_limit` *(verify)* | Rate limit event with retry timing (Python: `RateLimitEvent`) |
 | `stream_event` | Partial token (when `includePartialMessages: true`) |
 
 ### Token-Level Streaming
@@ -684,26 +696,23 @@ for await (const msg of query({
   options: {
     outputFormat: {
       type: "json_schema",
-      json_schema: {
-        name: "api_analysis",
-        schema: {
-          type: "object",
-          properties: {
-            endpoints: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  method: { type: "string" },
-                  path: { type: "string" },
-                  handler: { type: "string" },
-                },
-                required: ["method", "path", "handler"],
+      schema: {
+        type: "object",
+        properties: {
+          endpoints: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                method: { type: "string" },
+                path: { type: "string" },
+                handler: { type: "string" },
               },
+              required: ["method", "path", "handler"],
             },
           },
-          required: ["endpoints"],
         },
+        required: ["endpoints"],
       },
     },
   },
@@ -725,7 +734,7 @@ Load local plugins to give the agent access to custom skills, agents, and comman
 for await (const msg of query({
   prompt: "Review the frontend code",
   options: {
-    plugins: ["/path/to/my-plugin"],
+    plugins: [{ type: "local", path: "/path/to/my-plugin" }],
     allowedTools: ["Read", "Glob", "Grep", "Skill"],
   },
 })) { /* agent can now invoke skills from the plugin */ }
@@ -749,7 +758,7 @@ for await (const msg of query({ prompt: "Analyze auth.py", options: {} })) {
     console.log(`Total cost: $${msg.total_cost_usd}`);
     console.log(`Input tokens: ${msg.usage?.input_tokens}`);
     console.log(`Output tokens: ${msg.usage?.output_tokens}`);
-    // Per-model breakdown (TypeScript)
+    // Per-model breakdown (TypeScript; verify against your installed SDK)
     if (msg.modelUsage) {
       for (const [model, usage] of Object.entries(msg.modelUsage)) {
         console.log(`${model}: $${usage.cost_usd}`);
@@ -802,9 +811,9 @@ for await (const msg of query({
 })) { /* ... */ }
 ```
 
-### Custom Process Spawning
+### Custom Process Spawning *(verify)*
 
-Run agents in VMs, containers, or remote environments:
+Run agents in VMs, containers, or remote environments. `spawnClaudeCodeProcess` ships in some SDK versions but is not in the currently documented API; confirm before building on it:
 
 ```typescript
 for await (const msg of query({
@@ -825,17 +834,7 @@ for await (const msg of query({
 
 ### Sandbox Isolation
 
-Use Anthropic's sandbox runtime for secure execution:
-
-```typescript
-import { createSandbox } from "@anthropic-ai/sandbox-runtime";
-
-const sandbox = await createSandbox({ image: "node:20" });
-for await (const msg of query({
-  prompt: "Run the test suite",
-  options: { sandbox },
-})) { /* ... */ }
-```
+The `sandbox` option enables sandboxed execution for agent tool calls. Anthropic also publishes a standalone sandboxing runtime (`@anthropic-ai/sandbox-runtime`) for isolating the whole agent process; its API surface changes faster than this file, so take exact usage from that package's README rather than from memory.
 
 ---
 
@@ -844,11 +843,21 @@ for await (const msg of query({
 1. **Always set `allowedTools`** -- restrict to minimum necessary tools
 2. **Use `maxBudgetUsd`** -- prevent runaway costs
 3. **Use `maxTurns`** -- prevent infinite loops
-4. **Use `canUseTool` callbacks** -- validate dangerous operations at runtime
+4. **Enforce runtime invariants with `PreToolUse` hooks** -- never with `canUseTool` (see below)
 5. **Sandbox untrusted code** -- use container isolation for user-submitted tasks
 6. **Never pass secrets in prompts** -- use `env` option or MCP tools for credential access
 7. **Use `disallowedTools`** -- explicitly block tools you never want used
 8. **Proxy credentials** -- use a proxy pattern for API keys the agent needs
+
+Three mechanisms, three distinct jobs. Do not substitute one for another:
+
+| Mechanism | Job |
+|---|---|
+| `allowedTools` / `disallowedTools` / `permissionMode` | Coarse permission policy |
+| `PreToolUse` hook | Always-on enforcement: runs for every matching tool call, before permission resolution |
+| `canUseTool` | Interactive fallback: runs only for calls no rule, mode, or hook has already resolved |
+
+**Do not use `canUseTool` as an always-on security interceptor.** Calls already approved by allow rules or the permission mode never reach it, so a security check placed there silently stops running the moment you allow-list the tool. Validation that must hold for every invocation belongs in a `PreToolUse` hook.
 
 ```typescript
 // Secure configuration example
@@ -858,12 +867,17 @@ options: {
   maxTurns: 10,
   maxBudgetUsd: 0.25,
   permissionMode: "dontAsk",                   // deny anything not listed
-  canUseTool: async (tool, input) => {
-    // Additional runtime validation
-    if (input.file_path?.includes("..")) {
-      return { behavior: "deny", message: "Path traversal blocked" };
-    }
-    return { behavior: "allow" };
+  hooks: {
+    PreToolUse: [{
+      matcher: "Read|Glob|Grep",
+      hooks: [async (event) => {
+        // Always-on invariant: runs even for allow-listed tools
+        if (event.input.file_path?.includes("..")) {
+          return { behavior: "deny", message: "Path traversal blocked" };
+        }
+        return { behavior: "allow" };
+      }],
+    }],
   },
 }
 ```
@@ -887,20 +901,17 @@ async function reviewPR(diff: string): Promise<string> {
       maxBudgetUsd: 0.50,
       outputFormat: {
         type: "json_schema",
-        json_schema: {
-          name: "pr_review",
-          schema: {
-            type: "object",
-            properties: {
-              issues: { type: "array", items: { type: "object", properties: {
-                severity: { type: "string" }, file: { type: "string" },
-                line: { type: "number" }, description: { type: "string" },
-              }}},
-              summary: { type: "string" },
-              approved: { type: "boolean" },
-            },
-            required: ["issues", "summary", "approved"],
+        schema: {
+          type: "object",
+          properties: {
+            issues: { type: "array", items: { type: "object", properties: {
+              severity: { type: "string" }, file: { type: "string" },
+              line: { type: "number" }, description: { type: "string" },
+            }}},
+            summary: { type: "string" },
+            approved: { type: "boolean" },
           },
+          required: ["issues", "summary", "approved"],
         },
       },
     },
@@ -996,54 +1007,18 @@ The API surface is mostly identical, but two critical defaults changed:
    systemPrompt: { type: "preset", preset: "claude_code" }
    ```
 
-2. **Settings sources no longer loaded by default** -- CLAUDE.md, .claude/ configs, and user settings are NOT loaded unless you opt in:
+2. **Settings-source defaults are version-dependent** -- early `claude-agent-sdk` releases loaded NO filesystem settings (CLAUDE.md, .claude/ configs, user settings) by default; current releases load the `user` and `project` sources with default `query()` options. Do not rely on either default: pass `settingSources` explicitly:
    ```typescript
    settingSources: ["user", "project", "local"]
    ```
 
-To fully restore old `claude-code-sdk` behavior, use both options together.
+To fully restore old `claude-code-sdk` behavior, set both the system prompt preset and explicit setting sources.
 
 ---
 
-## 19. TypeScript V2 Preview
+## 19. TypeScript V2 API: removed
 
-A simplified session-based API is available as a preview:
-
-```typescript
-import {
-  unstable_v2_createSession,
-  unstable_v2_resumeSession,
-  unstable_v2_prompt,
-} from "@anthropic-ai/claude-agent-sdk";
-
-// Create a session
-await using session = await unstable_v2_createSession({
-  model: "claude-sonnet-4-6",
-  allowedTools: ["Read", "Edit", "Bash"],
-});
-
-// Send a prompt and stream response
-const response = session.send("Find bugs in auth.py");
-for await (const event of response) {
-  // process streaming events
-}
-
-// Or use stream() for full message objects
-const stream = session.stream("Now fix them");
-for await (const msg of stream) {
-  // process messages
-}
-
-// Resume a previous session
-const resumed = await unstable_v2_resumeSession(sessionId);
-
-// One-shot helper (no session management)
-for await (const msg of unstable_v2_prompt("Quick question", { model: "claude-haiku-4-5" })) {
-  // process
-}
-```
-
-`await using` (TypeScript 5.2+) automatically closes the session when the scope exits. The V2 API does not yet support session forking.
+An experimental V2 session API (`unstable_v2_createSession()` with a `send`/`stream` pattern) previously shipped as a preview. It was **removed in TypeScript Agent SDK 0.3.142**. Do not build on it: use `query()` with `resume` (plus `forkSession` for branching) for session workflows.
 
 ---
 
@@ -1059,17 +1034,12 @@ async with ClaudeSDKClient() as client:
         pass
 
     # Runtime controls
-    await client.set_permission_mode("bypassPermissions")
-    await client.set_model("claude-sonnet-4-6")
-
-    # File management
-    await client.rewind_files()  # undo file changes made by agent
+    await client.set_permission_mode("acceptEdits")
+    await client.set_model("claude-sonnet-5")
 
     # MCP server management
     status = await client.get_mcp_status()
-    await client.add_mcp_server("new-server", {"command": "node", "args": ["server.js"]})
-    await client.remove_mcp_server("old-server")
-    info = await client.get_server_info()
+    await client.toggle_mcp_server("my-server", enabled=False)
 
     # Interrupt current generation
     await client.interrupt()
@@ -1082,18 +1052,17 @@ async with ClaudeSDKClient() as client:
 
 ## Official Resources
 
-- [Agent SDK Overview](https://platform.claude.com/docs/en/agent-sdk/overview)
-- [TypeScript Reference](https://platform.claude.com/docs/en/agent-sdk/typescript)
-- [Python Reference](https://platform.claude.com/docs/en/agent-sdk/python)
-- [Subagents Guide](https://platform.claude.com/docs/en/agent-sdk/subagents)
-- [Permissions Guide](https://platform.claude.com/docs/en/agent-sdk/permissions)
-- [Hooks Guide](https://platform.claude.com/docs/en/agent-sdk/hooks)
-- [Custom Tools / MCP](https://platform.claude.com/docs/en/agent-sdk/custom-tools)
-- [Sessions](https://platform.claude.com/docs/en/agent-sdk/sessions)
-- [Hosting](https://platform.claude.com/docs/en/agent-sdk/hosting)
-- [Secure Deployment](https://platform.claude.com/docs/en/agent-sdk/secure-deployment)
-- [Migration Guide](https://platform.claude.com/docs/en/agent-sdk/migration-guide)
-- [V2 Preview (TypeScript)](https://platform.claude.com/docs/en/agent-sdk/typescript-v2-preview)
-- [Structured Output](https://platform.claude.com/docs/en/agent-sdk/structured-outputs)
-- [Cost Tracking](https://platform.claude.com/docs/en/agent-sdk/cost-tracking)
+- [Agent SDK Overview](https://code.claude.com/docs/en/agent-sdk/overview)
+- [TypeScript Reference](https://code.claude.com/docs/en/agent-sdk/typescript)
+- [Python Reference](https://code.claude.com/docs/en/agent-sdk/python)
+- [Subagents Guide](https://code.claude.com/docs/en/agent-sdk/subagents)
+- [Permissions Guide](https://code.claude.com/docs/en/agent-sdk/permissions)
+- [Hooks Guide](https://code.claude.com/docs/en/agent-sdk/hooks)
+- [Custom Tools / MCP](https://code.claude.com/docs/en/agent-sdk/custom-tools)
+- [Sessions](https://code.claude.com/docs/en/agent-sdk/sessions)
+- [Hosting](https://code.claude.com/docs/en/agent-sdk/hosting)
+- [Secure Deployment](https://code.claude.com/docs/en/agent-sdk/secure-deployment)
+- [Migration Guide](https://code.claude.com/docs/en/agent-sdk/migration-guide)
+- [Structured Output](https://code.claude.com/docs/en/agent-sdk/structured-outputs)
+- [Cost Tracking](https://code.claude.com/docs/en/agent-sdk/cost-tracking)
 - [Demo Apps](https://github.com/anthropics/claude-agent-sdk-demos)

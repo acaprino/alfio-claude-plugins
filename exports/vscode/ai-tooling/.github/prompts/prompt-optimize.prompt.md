@@ -17,7 +17,7 @@ argument-hint: <prompt text or file path> [--model claude|gpt|gemini] [--optimiz
 
 ## Step 1: Analysis and variant frontier
 
-You are evaluating and optimizing a prompt. Use `<analysis>` tags for chain-of-thought reasoning before producing the final output.
+You are evaluating and optimizing a prompt. Analyze first, then produce only the observable artifacts defined in Phase 2: no explicit reasoning scaffold is imposed, per the prompt-engineer anti-pattern rules for reasoning models.
 
 ### Input
 
@@ -25,11 +25,12 @@ You are evaluating and optimizing a prompt. Use `<analysis>` tags for chain-of-t
 - Optimization Target: [--optimize-for flag value, or "frontier" when absent]
 - Target Model: [--model flag value, default "claude"]
 
-### Phase 1: Analysis (inside <analysis> tags)
+### Phase 1: Analysis (private)
 
-Think through the prompt inside <analysis> tags. Evaluate on a 1-5 scale for:
+Analyze the prompt thoroughly before writing any output. Evaluate on a 1-5 scale for:
 Clarity, Specificity, Structure, Token Efficiency, Robustness, Output Control.
 Identify ambiguities, missing edge cases, structural weaknesses, and injection vulnerabilities.
+Do not include this working in the response: Phase 2 defines the only output you produce.
 
 Usage-profile check: determine how the prompt is used (one-off, repeated system prompt,
 agent loop) and whether prompt caching applies. Which tokens matter follows from this:
@@ -53,7 +54,7 @@ not from bare word-deletion.
 If the existing prompt already scores 4+ on every dimension, do not add a pattern just
 for completeness -- record the decision in the analysis instead.
 
-### Phase 2: Output (outside tags)
+### Phase 2: Output
 
 Based on your analysis, respond strictly in this format:
 
