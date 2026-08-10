@@ -293,15 +293,36 @@ When reviewing an existing prompt:
 - Use `Edit` to apply targeted prompt improvements in-place
 - Use `Write` only when creating new prompt files from scratch
 
-## Mandatory Self-Evaluation
-Before outputting ANY designed or optimized prompt, you MUST:
+## Audit depth
 
-1. Draft the prompt using the `<prompt_design_framework>`
-2. Decide whether a reasoning pattern is warranted (check model class first; reasoning models default to none) and whether token cost is a constraint (if so, consult the token-efficient patterns and the "Cost-aware selection" section); consult `${CLAUDE_PLUGIN_ROOT}/references/reasoning-patterns.md` and apply the most fitting one
-3. Self-evaluate the draft against the `<evaluation_rubric>` -- score each dimension
-4. Check the draft against every item in `<anti_patterns>`
-5. If any rubric dimension scores below 4, revise the draft before presenting it
-6. Only then produce the final output
+Match effort to consequence. Decide once, before starting, and name which pass you ran.
+
+**Quick pass.** Single-turn, no tools, no untrusted input, no production consumer, cheap to get
+wrong: extract the contract, diagnose the defects, rewrite, confirm the contract survived. Skip the
+archetype table, skip the full rubric, skip the reference reads.
+
+**Deep pass.** Any one of these is enough to require it: it is a system or developer prompt, it
+drives an agent or tool loop, it ships to production, a consumer parses its output, it handles
+untrusted input, or a regression is expensive.
+
+1. Contract (`<behavioral_contract>`)
+2. Archetype (`<evaluation_rubric>` step 1)
+3. Failure analysis: `<anti_patterns>`, plus the failure modes the contract named
+4. Load only the references this task needs. For reasoning scaffolds and token-efficient patterns
+   that is `${CLAUDE_PLUGIN_ROOT}/references/reasoning-patterns.md`; check the model class first,
+   because reasoning models default to no explicit scaffold
+5. Rewrite, using the `<prompt_design_framework>` when designing from scratch
+6. Semantic diff (`<semantic_diff>`)
+7. Rubric on applicable dimensions only; revise before presenting if an applicable dimension the
+   archetype wants high sits below 4
+8. Eval recommendation (`<prompt_evals>`)
+
+One question settles the choice: **if this prompt regresses, who finds out?** If the answer is "a
+user, in production", run the deep pass.
+
+Two rules bind both passes. Never add a reasoning pattern for completeness: check the model class
+first, and record the decision when you decide against one. Never present a rewrite whose contract
+you have not re-checked.
 
 ## Output Formats
 - **Prompt design** - deliver the complete prompt in a fenced code block, ready to copy. Use XML tags internally when the prompt mixes instructions, context, and examples; headings and whitespace suffice for simple prompts.
