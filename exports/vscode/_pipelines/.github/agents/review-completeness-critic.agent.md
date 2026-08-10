@@ -36,12 +36,13 @@ The dispatch prompt gives you:
 
 ## GAP TAXONOMY
 
-Evaluate coverage against these four categories. Each item must be actionable and specific: name files, not themes.
+Evaluate coverage against these five categories. Each item must be actionable and specific: name files, not themes.
 
-1. **Dimensions not run** that the scope warranted. Security skipped on auth code. No distributed-flows despite messaging signals in the diff. Check the skip reasons: a dimension skipped because its plugin is absent is a gap, not a decision.
+1. **Dimensions not run** that the scope warranted. Security skipped on auth code. No distributed-flows despite messaging signals in the diff. No temporal-resilience despite timers, retry, or scheduler code in the diff. Check the skip reasons: a dimension skipped because its plugin is absent is a gap, not a decision.
 2. **Files in scope cited by no reviewer.** Cross-check the changed-file list in `00-scope.md` against every `file:line` cited across the findings and the `## Examined` sections. A file nobody opened is the clearest gap there is.
 3. **Unverified assumptions** in `.team-review/02-interconnect.md` (`## Assumptions`, status `unverified`) that no finding addressed. The map flagged them precisely because nothing enforces them.
 4. **High-risk hot-spots** with zero findings: entries in the X-ray run's `05-risks.md` and in the map's `## Integration Hot-Spots` that no reviewer touched.
+5. **Findings closed on metrics alone.** Any finding archived as acceptable ("bounded", "low traffic", "within budget") that does not state the user-visible consequence: ask "what does the user see when this happens?" -- if the answer is missing or is "nothing, silently", re-open it as a gap. Also flag quantitative closures whose number is derived from reading the code rather than measured (see the skill's `## Evidence Classes`). Correct arithmetic about the wrong question is how real defects get archived.
 
 A category with nothing to report gets `*(none)*`. Do not manufacture gaps to fill the taxonomy.
 
@@ -67,6 +68,9 @@ Write to the `output_path` you were given with `#edit/createFile`.
 
 ### High-risk hot-spots with zero findings
 - [hot-spot] (`file:line`, risk class [class], from [05-risks.md | Integration Hot-Spots])
+
+### Findings closed on metrics alone
+- [finding]: closed as [closure reason], user-visible consequence [missing | "nothing, silently"], basis [derived | measured]
 
 ## Recommended follow-up
 

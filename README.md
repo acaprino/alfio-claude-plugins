@@ -90,7 +90,7 @@ More detail in [Test authoring knowledge bases (TDD and browser E2E)](#test-auth
 | Plugin | Description | A | S | C |
 |--------|-------------|:-:|:-:|:-:|
 | **[python-development](docs/plugins/python-development.md)** | TDD, refactoring, async patterns, packaging, performance, dead code, Pydantic v2, /python-audit | 3 | 9 | 3 |
-| **[senior-review](docs/plugins/senior-review.md)** | 8 agents review architecture, security, patterns, distributed flows, logic integrity, API contracts, startup cycles, UI races, and codebase hygiene in parallel | 8 | 2 | 3 |
+| **[senior-review](docs/plugins/senior-review.md)** | 9 agents review architecture, security, patterns, distributed flows, logic integrity, API contracts, startup cycles, UI races, temporal resilience (failure-over-time), and codebase hygiene in parallel | 9 | 2 | 3 |
 | **[frontend-review](docs/plugins/frontend-review.md)** | Full frontend review in one pass: design/UX audit from the upstream impeccable, ui-ux-pro-max, and frontend-design skills, plus auto-detected React, TypeScript, PWA, and platform code dimensions | - | - | 1 |
 | **[codebase-mapper](docs/plugins/codebase-mapper.md)** | Generate 10 narrative docs with Mermaid diagrams from any codebase | 10 | 1 | 5 |
 | **[ai-tooling](docs/plugins/ai-tooling.md)** | Prompt engineering and optimization, Agent SDK | 1 | 1 | 1 |

@@ -27,6 +27,7 @@ agents:
   - review-ui-race-auditor
   - review-distributed-flow-auditor
   - review-chicken-egg-detector
+  - review-temporal-resilience-auditor
   - review-api-contract-auditor
   - review-react-performance-optimizer
   - type-safety-auditor

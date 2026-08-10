@@ -3,7 +3,7 @@
 A VS Code Copilot port of two multi-agent pipelines from [acaprino/claude-code-daodan](https://github.com/acaprino/claude-code-daodan), plus a port of the [obra/superpowers](https://github.com/obra/superpowers) development methodology:
 
 - **`/xray-team-analyze`**: systematic codebase analysis. Combines mechanical structure extraction with semantic understanding, producing ground-truth documentation of WHAT, WHY, HOW, and CONSEQUENCES, followed by a structured map of contracts, invariants, and integration hot-spots.
-- **`/team-review`**: multi-dimensional adversarial code review. Builds context with an X-ray pass, auto-detects which review dimensions the target warrants, dispatches up to 12 specialized reviewers in parallel, then runs a 3-lens verification panel and a completeness critic before reporting.
+- **`/team-review`**: multi-dimensional adversarial code review. Builds context with an X-ray pass, auto-detects which review dimensions the target warrants, dispatches up to 13 specialized reviewers in parallel, then runs a 3-lens verification panel and a completeness critic before reporting.
 - **the `superpowers` agent**: the development methodology itself. Fourteen skills covering brainstorming, planning, TDD, systematic debugging, subagent-driven execution, and code review, plus the five subagents those skills dispatch.
 
 The second builds on the first: `/team-review` Phase 1 runs the X-ray pipeline to produce the context its reviewers hunt violations against. The third is independent of both, and covers the work that happens before a review exists to run.
@@ -95,10 +95,11 @@ python .github/skills/codebase-xray/hooks/test_xray_guard.py
     ├── xray-{structure,behavior,quality}-worker.agent.md
     ├── xray-synthesizer.agent.md
     ├── xray-interconnect-mapper.agent.md
-    ├── review-orchestrator.agent.md        # 15 review agents
+    ├── review-orchestrator.agent.md        # 16 review agents
     ├── review-{security,code,logic-integrity,cleanup}-auditor.agent.md
     ├── review-{ui-race,distributed-flow,api-contract}-auditor.agent.md
     ├── review-chicken-egg-detector.agent.md
+    ├── review-temporal-resilience-auditor.agent.md
     ├── review-react-performance-optimizer.agent.md
     ├── review-platform-reviewer.agent.md
     ├── review-abstraction-architect.agent.md
@@ -113,7 +114,7 @@ python .github/skills/codebase-xray/hooks/test_xray_guard.py
     └── sp-re-reviewer.agent.md
 ```
 
-27 agents, 2 prompt files, 18 skills. Each worker's phase spec and output template live in its agent definition, not in the workflow references, so the orchestrators read only the role they need.
+28 agents, 2 prompt files, 18 skills. Each worker's phase spec and output template live in its agent definition, not in the workflow references, so the orchestrators read only the role they need.
 
 Three agents are `user-invocable`: the two pipeline orchestrators and the `superpowers` driver. The other 24 stay out of the agents dropdown and declare `agents: []`, so none of them can spawn further subagents. The 14 methodology skills are user-invocable as `/skill-name`; the 4 pipeline skills are not, because their agents load them.
 
@@ -164,13 +165,13 @@ Concurrent runs are safe: a run writes only inside its own directory until the p
 | 0 | `review-orchestrator` | target resolution, `00-scope.md` |
 | 0b | `review-orchestrator` | dimension detection + plan shown to the user |
 | 1 | X-ray pipeline at `--depth=lite` | context + `02-interconnect.md` |
-| 2 | up to 12 reviewers in parallel | `findings-<dimension>.md` each |
+| 2 | up to 13 reviewers in parallel | `findings-<dimension>.md` each |
 | 3 | `review-orchestrator` | dedup, severity calibration, `99-consolidated.md` |
 | 4b | `review-verification-lens` x3 per finding | `98-verification.md` |
 | 4c | `review-completeness-critic` | `97-coverage-gaps.md` |
 | 5 | `review-orchestrator` | report |
 
-Four dimensions always run (security, architecture, logic integrity, codebase hygiene). The rest activate on signals in the changed files: UI races, React performance, general performance, platform compliance, distributed flows, circular dependencies, API contracts, testing quality, TypeScript type safety, data migrations, abstraction.
+Four dimensions always run (security, architecture, logic integrity, codebase hygiene). The rest activate on signals in the changed files: UI races, React performance, general performance, platform compliance, distributed flows, circular dependencies, temporal resilience (failure-over-time), API contracts, testing quality, TypeScript type safety, data migrations, abstraction.
 
 ```
 /team-review main...HEAD                  # review the branch diff, auto-detect dimensions

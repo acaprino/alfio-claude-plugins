@@ -58,7 +58,7 @@ For a monorepo where the bundle lives at the repository root but you open a subf
 
 | Bundle | Entry points | SK / AG / PR | Needs |
 |---|---|---|---|
-| **`_pipelines`** | `/xray-team-analyze`, `/team-review`, `superpowers` | 18 / 27 / 2 | python, playwright-mcp (optional), `testing` and `typescript-development` bundles (optional) |
+| **`_pipelines`** | `/xray-team-analyze`, `/team-review`, `superpowers` | 18 / 28 / 2 | python, playwright-mcp (optional), `testing` and `typescript-development` bundles (optional) |
 | `ai-tooling` | `/prompt-optimize` | 1 / 1 / 1 | |
 | `app-analyzer` | `app-analyzer` | 0 / 1 / 0 | **playwright-mcp** |
 | `browser-extensions` | `/firefox-scaffold`, `/firefox-lint`, `/firefox-publish` | 1 / 1 / 3 | |

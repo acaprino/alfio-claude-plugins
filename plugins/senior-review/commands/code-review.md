@@ -917,6 +917,48 @@ Agent tool call:
     description, concrete fix with a code example.
 ```
 
+### Agent L: Temporal Resilience Review (conditional)
+
+**Only run this agent if the diff touches long-running or scheduled execution machinery**: timers (`setInterval`/`setTimeout` chains, cron), polling loops, retry/reconnect/backoff logic, queue workers, background daemons, updaters, watchdogs, or heartbeats. Detection: grep the diff for `setInterval|setTimeout|cron|schedule|retry|reconnect|backoff|watchdog|heartbeat|keepalive|poll|daemon|updater`. This agent lives in `senior-review` itself, so there is no plugin-availability check.
+
+This dimension exists because the synchronous lenses (A through K) each see the code in an instant; none of them owns the question "what does the user see after this has been failing for a day". Resilience findings otherwise fall on the seam between architecture and performance, and each reviewer sees only half.
+
+```
+Agent tool call:
+  - description: "Temporal resilience review for senior-review command"
+  - subagent_type: "senior-review:temporal-resilience-auditor"
+  - run_in_background: true
+  - prompt: |
+    Review the following changes for failure-over-time behavior.
+
+    [Include shared instructions: Intent + Diff Scope]
+
+    ## Changed Files
+    [list of changed files matching the temporal signals]
+
+    ## Full File Contents
+    [paste full contents of each changed file containing temporal machinery]
+
+    ## Diff
+    [paste the git diff output]
+
+    ## Instructions
+    Follow your agent definition's analysis phases: inventory the temporal
+    machinery, run the three-horizon failure analysis (1st failure, Nth failure,
+    never-ending failure), hunt silent-death paths (unbounded awaits, guard
+    flags without finally, timers that stop re-arming, catch-and-continue
+    erosion, missing escalation), trace the user-visible consequence of every
+    failure path, and check clock/suspend/DST hazards.
+
+    Label every quantitative claim `measured` or `derived` per your EVIDENCE
+    CLASSES section. If you build a measurement harness, keep it outside the
+    work tree and delete it; report the numbers and method in the finding.
+
+    For each finding: severity (Critical/High/Medium/Low), file + line,
+    confidence (0-100), failure chain, quantified damage with evidence class,
+    user-visible consequence, concrete fix.
+```
+
 ---
 
 ## Step 4: Consolidate Findings & Extract Score

@@ -90,7 +90,7 @@ Before starting, invoke these skills to inform the review process:
    - **PR number**: `gh pr diff {number} --name-only` to get changed files
 2. Collect the full diff content for later distribution to reviewers.
 3. Collect the list of changed file paths and extensions for Phase 0b.
-4. Write `.team-review/00-scope.md` with target, files, flags. Mark phase complete in `state.json`.
+4. Write `.team-review/00-scope.md` with target, files, flags. Append a `## Pre-review work tree` section containing the output of `git status --porcelain` at this moment: the Phase 5 workspace hygiene check diffs against it. Mark phase complete in `state.json`.
 
 ## Phase 0b: Context Detection (when `--reviewers auto` or omitted)
 
@@ -120,6 +120,7 @@ Five of these dimensions live in plugins declared as `optionalDependencies` of `
 | **Fullstack app** | 2+ signals: frontend framework in `package.json`, backend framework config, API route definitions, `docker-compose.yml` with multiple services, Tauri/Electron config. Requires the `platform-engineering` plugin: when it is not installed, skip and note it under Skipped instead of spawning (the spawn would fail) | Platform compliance | `platform-engineering:platform-reviewer` |
 | **Multi-service / messaging** | Changed files touch API routes, message handlers, gRPC definitions, queue consumers/producers, or `docker-compose.yml` with multiple services | Distributed flows | `senior-review:distributed-flow-auditor` |
 | **Init/startup code** | Changed files touch startup sequences, dependency injection, config bootstrap, migration runners, or service registration | Circular dependencies | `senior-review:chicken-egg-detector` |
+| **Long-running / scheduled execution** | Diff or changed files touch timers, schedulers, polling loops, retry/reconnect logic, cron jobs, queue workers, background daemons, updaters, or watchdogs (see detection command 5b) | Temporal resilience (**what does the user see after this has been failing for a day?**) | `senior-review:temporal-resilience-auditor` |
 | **Test files** | Changed files match `test_*`, `*_test.*`, `*.spec.*`, `*.test.*`, `conftest.py`, `__tests__/`. Prefers the `testing` plugin: when it is not installed, do not attempt spawning `testing:test-suite-auditor` (the spawn would fail); fall back to `agent-teams:team-reviewer` (testing dimension) and note the fallback under the detection display | Testing quality | `testing:test-suite-auditor` |
 | **API files** | Changed files touch a formal contract file (`*.proto`, `openapi*.y*ml`, `swagger*`, `*.graphql`, `asyncapi*`, JSON Schema), or route definitions, serializers, or DTO/model declarations | API contracts | `senior-review:api-contract-auditor` |
 | **Migration files** | Changed files match database migration patterns (Alembic, Django, Rails, Prisma, SQL migrations) | Data migrations | `agent-teams:team-reviewer` (migration dimension) |
@@ -157,6 +158,9 @@ echo "$CHANGED_FILES" | grep -qiE '\.proto$|\.graphql$|\.gql$|openapi.*\.(ya?ml|
 # 5. Check for init/startup patterns in diff
 echo "$DIFF_CONTENT" | grep -qiE 'def main\b|if __name__|app\.on_startup|@app\.on_event|lifespan|create_app|bootstrap|init_' && echo "STARTUP=true"
 
+# 5b. Check for long-running / scheduled execution patterns (temporal resilience)
+echo "$DIFF_CONTENT" | grep -qiE 'setInterval|setTimeout|cron|schedule|\bretry|reconnect|backoff|watchdog|heartbeat|keepalive|\bpoll(ing)?\b|background.?(task|worker|job)|daemon|updater' && echo "TEMPORAL=true"
+
 # 6. Check for test and migration files
 echo "$CHANGED_FILES" | grep -qiE 'test_|_test\.|\.spec\.|\.test\.|conftest|__tests__' && echo "TEST_FILES=true"
 echo "$CHANGED_FILES" | grep -qiE 'migrat|alembic|versions/' && echo "MIGRATION_FILES=true"
@@ -169,7 +173,7 @@ After detection, display the plan:
 ```
 Context detection complete:
   - Always: security, architecture, logic-integrity, codebase-hygiene
-  - Detected: ui-races (6 .tsx files), react-perf (React project), ts-safety (TypeScript project), distributed-flows (API routes + RabbitMQ), abstraction (diff adds 4 units)
+  - Detected: ui-races (6 .tsx files), react-perf (React project), ts-safety (TypeScript project), distributed-flows (API routes + RabbitMQ), temporal-resilience (retry + scheduler code), abstraction (diff adds 4 units)
   - Skipped: platform (not fullstack), chicken-egg (no startup code)
   - Skipped, plugin not installed: react-perf (react-development)
   - Fallback: testing quality -> agent-teams:team-reviewer (testing plugin not installed)
@@ -250,6 +254,7 @@ If the skill is unavailable (not installed) or produces no output, halt the pipe
 | Platform compliance | `platform-engineering:platform-reviewer` |
 | Distributed flows | `senior-review:distributed-flow-auditor` |
 | Circular dependencies | `senior-review:chicken-egg-detector` |
+| Temporal resilience (failure-over-time) | `senior-review:temporal-resilience-auditor` |
 | Testing quality | `testing:test-suite-auditor` (fallback: `agent-teams:team-reviewer` when the `testing` plugin is not installed) |
 | API contracts | `senior-review:api-contract-auditor` |
 | Data migrations | `agent-teams:team-reviewer` |
@@ -328,7 +333,8 @@ Mark `phase_2_review` as `in_progress`.
 1. Wait for all review tasks to complete (check `TaskList` periodically).
 2. As each reviewer completes, verify `.team-review/findings-{dimension}.md` was written. If a reviewer failed to write its output file, read the task output and save it manually to that path.
 3. Track progress: "{completed}/{total} reviews complete".
-4. Mark `phase_2_review` complete, `phase_3_consolidation` in_progress.
+4. **Delivery gate** (per the `senior-review:review-quality-gates` skill, section `## Delivery Gate`): consolidation does not start until every spawned reviewer has either delivered its findings file or delivered an explicit no-findings report. A reviewer idle past a reasonable deadline gets one direct `SendMessage` nudge; if it stays silent, read whatever task output exists, save it to the findings path marked `[undelivered -- collected by orchestrator]`, and record the dimension as degraded in the report. A silently missing dimension is never presented as a clean one.
+5. Mark `phase_2_review` complete, `phase_3_consolidation` in_progress.
 
 ## Phase 4: Consolidation
 
@@ -403,8 +409,9 @@ Skip this phase if `--fast` was passed (mark `phase_4c_critic` as `skipped`). Ot
 
    Where `{cost_guard_note}` is `, narrowed to stakes+band (N unverified)` when the cost guard fired, else empty.
 
-2. Send `shutdown_request` to all reviewers.
-3. Team resources are cleaned up automatically when the session ends; there is no `TeamDelete` step.
+2. **Workspace hygiene check** (per the `senior-review:review-quality-gates` skill, section `## Delivery Gate`): run `git status --porcelain` and compare against the pre-review state recorded in Phase 0. Any file created by the review that is not under `.team-review/` (probe scripts, scratch harnesses, temp fixtures) is removed now, and its removal is noted in the report. A review must leave the work tree exactly as it found it, plus `.team-review/`.
+3. Send `shutdown_request` to all reviewers.
+4. Team resources are cleaned up automatically when the session ends; there is no `TeamDelete` step.
 4. Update `state.json` -> `status: "complete"`, mark `phase_4_report` complete.
 5. Inform the user that detailed findings and context are preserved in `.team-review/` for future reference (do not auto-delete).
 

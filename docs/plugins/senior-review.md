@@ -1,6 +1,6 @@
 # Senior Review Plugin
 
-> Catch bugs before they ship. Eight specialized agents review code quality, security, UI timing, distributed flows, startup cycles, cross-component logic integrity, formal API contracts, and codebase hygiene in parallel. They read a shared contract/invariant map built by `codebase-xray:semantic-interconnect-mapper`, which is why they find bugs that are invisible from local-only inspection. Backed by a comprehensive defect taxonomy knowledge base with 140+ defect patterns and CWE/OWASP mappings. `/team-review` runs all of it as a single pipeline, with an adversarial verification panel and a completeness critic as quality gates before the report ships.
+> Catch bugs before they ship. Nine specialized agents review code quality, security, UI timing, distributed flows, startup cycles, temporal resilience (failure-over-time), cross-component logic integrity, formal API contracts, and codebase hygiene in parallel. They read a shared contract/invariant map built by `codebase-xray:semantic-interconnect-mapper`, which is why they find bugs that are invisible from local-only inspection. Backed by a comprehensive defect taxonomy knowledge base with 140+ defect patterns and CWE/OWASP mappings. `/team-review` runs all of it as a single pipeline, with an adversarial verification panel and a completeness critic as quality gates before the report ships.
 
 ## Agents
 
@@ -109,6 +109,29 @@ Use the chicken-egg-detector agent to analyze [system/infrastructure]
 - Finds cases where component A requires B to be ready but B requires A - creating deadlocks, flaky startups, or hidden temporal coupling
 - Concrete evidence: every finding includes file:line references for both sides of the dependency cycle
 - References `defect-taxonomy` skill for integration error patterns
+
+---
+
+### `temporal-resilience-auditor`
+
+Adversarial reviewer for failure-over-time behavior in long-running code. Hunts the bugs that only exist on the time axis: retry loops without backoff or cap, errors swallowed until a subsystem silently dies, in-flight guards never cleared, timers that stop re-arming, missing escalation paths, and clock hazards (suspend, DST, throttled timers). Its core question is not "does this code work" but "what does the user see after this has been failing for a day".
+
+| | |
+|---|---|
+| **Model** | `inherit` |
+| **Use for** | Timers, schedulers, polling loops, retry/reconnect logic, queue workers, updaters, watchdogs, any process expected to stay alive for hours |
+
+**Invocation:**
+```
+Use the temporal-resilience-auditor agent to analyze [long-running subsystem]
+```
+
+**Methodology:**
+- 5-phase analysis: temporal machinery inventory, three-horizon failure-repetition analysis (1st failure, Nth failure, never-ending failure), silent-death detection, user-visible consequence tracing, clock and environment hazards
+- Every quantitative claim labeled `measured` or `derived`; a derived number alone cannot justify Critical severity
+- "None (silent)" as user-visible consequence is a severity escalator, never a mitigation
+- Activated in `/senior-review:team-review` and `/senior-review:code-review` (Agent L) by long-running/scheduled-execution signals in the diff
+- References `defect-taxonomy` skill for concurrency and integration patterns
 
 ---
 

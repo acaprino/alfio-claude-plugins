@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Claude Code Daodan - 39 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), prose humanization, and pure-architecture audits (missed unification, wrong abstractions).",
-    "version": "18.5.2"
+    "version": "18.6.0"
   },
   "plugins": [
     {
@@ -610,8 +610,8 @@
     {
       "name": "senior-review",
       "source": "./plugins/senior-review",
-      "description": "Multi-agent code review orchestration with unified code auditing (architecture, failure flow, pattern analysis, scoring), security auditing, UI race condition detection, distributed flow analysis, platform engineering review, codebase-hygiene auditing (dead code + orphan assets + generated artifacts in VCS + phantom/unused deps + barrel-file and eager-bundle bloat + stale documentation and historical artifacts), a lite dead-code and VCS-hygiene pass in code-review and pr-review plus incremental-phase removal inside the code-review fix loop with commit-per-category and build+test gates, logic-integrity auditing for cross-component contract violations driven by the interconnect map that codebase-xray produces, git blame/history analysis, finding validation with false-positive filtering, committable PR suggestions, pre-review skip logic, intent-driven review, confidence gating, cross-agent deduplication, pre-existing issue separation, verdict system, interactive fix loop, and conditional reviewers for testing quality (the testing plugin's test-suite-auditor when installed, generic fallback otherwise), TypeScript type safety (the typescript-development plugin's type-safety-auditor when installed), API contracts, and data migrations. Backed by a comprehensive defect taxonomy knowledge base (140+ defect patterns, CWE/OWASP mappings, plus a dedicated logic-integrity reference).",
-      "version": "7.4.0",
+      "description": "Multi-agent code review orchestration with unified code auditing (architecture, failure flow, pattern analysis, scoring), security auditing, UI race condition detection, distributed flow analysis, platform engineering review, codebase-hygiene auditing (dead code + orphan assets + generated artifacts in VCS + phantom/unused deps + barrel-file and eager-bundle bloat + stale documentation and historical artifacts), a lite dead-code and VCS-hygiene pass in code-review and pr-review plus incremental-phase removal inside the code-review fix loop with commit-per-category and build+test gates, logic-integrity auditing for cross-component contract violations driven by the interconnect map that codebase-xray produces, git blame/history analysis, temporal-resilience auditing (failure-over-time: uncapped retries, silent subsystem death, user-invisible degradation, clock/suspend hazards) with signal-based activation, evidence classes for quantitative claims (measured vs derived) and a user-visible-consequence gate on metric-based closures, a delivery gate (every reviewer delivers or is reported degraded; the work tree is left as found), finding validation with false-positive filtering, committable PR suggestions, pre-review skip logic, intent-driven review, confidence gating, cross-agent deduplication, pre-existing issue separation, verdict system, interactive fix loop, and conditional reviewers for testing quality (the testing plugin's test-suite-auditor when installed, generic fallback otherwise), TypeScript type safety (the typescript-development plugin's type-safety-auditor when installed), API contracts, and data migrations. Backed by a comprehensive defect taxonomy knowledge base (140+ defect patterns, CWE/OWASP mappings, plus a dedicated logic-integrity reference).",
+      "version": "7.5.0",
       "author": {
         "name": "Alfio"
       },
@@ -632,7 +632,9 @@
         "defect-taxonomy",
         "chicken-egg",
         "circular-dependency",
-        "bootstrap"
+        "bootstrap",
+        "temporal-resilience",
+        "silent-failure"
       ],
       "category": "review",
       "strict": false,
@@ -656,7 +658,8 @@
         "./agents/chicken-egg-detector.md",
         "./agents/logic-integrity-auditor.md",
         "./agents/api-contract-auditor.md",
-        "./agents/cleanup-auditor.md"
+        "./agents/cleanup-auditor.md",
+        "./agents/temporal-resilience-auditor.md"
       ],
       "skills": [
         "./skills/defect-taxonomy",

@@ -42,6 +42,7 @@ Default anchor routing:
 | distributed-flows | `## Integration Hot-Spots` (HTTP / queue / IPC), `## Call Graph` (cross-service) |
 | chicken-egg | `## Assumptions` (initialization order), `## Integration Hot-Spots` (Env / config), `## Invariants` (cross-component) |
 | ui-races | `## Invariants` (temporal), `## Integration Hot-Spots` (UI state) |
+| temporal-resilience | `## Invariants` (temporal, liveness), `## Assumptions` (unverified, timing/retry), `## Integration Hot-Spots` (queues, timers, network loops) |
 | api-contracts | `## Contracts` (formal) |
 | abstraction (diff mode) | none. This reviewer does not consume the interconnect map: it reads the X-ray run's `01-structure.md` and `02-interfaces.md` and hunts prior art across the codebase with `#search/textSearch`. Omit the anchors block from its prompt; `/team-review` passes it a named-inputs addendum instead |
 
@@ -96,6 +97,23 @@ Every reviewer agent that runs as part of `/team-review` Phase 2 carries a `## P
 - **No-findings protocol**: reviewers may legitimately return "examined X, Y, Z: no issues" instead of inventing findings. Treat such reports as valid Phase 3 input, not failure.
 - **Cross-Reviewer Notes**: reviewers append observations that belong to other dimensions in a `## Cross-Reviewer Notes` section. Phase 3 consolidation must scan for this section and route the observations to the appropriate reviewer (or surface them in the consolidated report under the recipient dimension).
 - **Interconnect anchor citation**: reviewers cite map anchors when applicable. This is the same signal as the context utilization rate above; the section below quantifies the quality metric.
+
+## Evidence Classes for Quantitative Claims
+
+Any finding that quantifies damage (N times/day, GB transferred, $/month, requests/second) must label the number with one of two classes:
+
+- **`measured`**: obtained by running a harness, simulation, or reproduction, or read from real logs/metrics. The finding states the method in one line (e.g., "24h simulated clock, 3 concordant runs"). Any harness is built outside the work tree and deleted afterwards; the Delivery Gate below checks for leftovers.
+- **`derived`**: computed by reading the code. Permitted, but it is a hypothesis, not a fact: code-derived damage estimates have been wrong by two orders of magnitude in both directions (a "288 downloads/day" claim measured out at 2; a "bounded, negligible" claim can hide the real defect).
+
+Consequences, enforced at consolidation and verification:
+
+1. A `derived` number alone cannot justify **Critical** severity. Either measure it (simulated clocks make a 24-hour scenario cost seconds) or cap the finding at High and name the measurement as the follow-up.
+2. A finding cannot be **closed as acceptable** ("bounded", "self-limiting", "low traffic") on a `derived` number alone -- and not even a `measured` one settles it by itself: closing also requires answering the user-visible-consequence question below. Correct arithmetic about the wrong question is how real defects get archived.
+3. The verification panel treats unlabeled quantitative claims as `derived`. Lens 2 (refutation) should actively check whether a claimed rate or cost survives contact with the code's actual control flow (deduplication, caps, phase transitions the estimate ignored).
+
+### The user-visible-consequence question
+
+Every finding whose damage is behavioral over time (repetition, degradation, silence) must state **what the user or operator sees, and when**. "None (silent)" is a severity escalator, never a mitigation: the absence of a signal over active damage is typically the more severe finding hiding behind a byte count. Reviewers whose dimension thinks in resource terms (performance, cost) must answer this question before archiving anything as within budget.
 
 ## Adversarial Verification Panel
 
@@ -233,10 +251,11 @@ The critic reads: the verified findings, the review scope, the list of dimension
 
 The critic evaluates coverage against a fixed taxonomy and writes a `## Coverage Gaps` block:
 
-1. **Dimensions not run** that the scope warranted (e.g. security skipped on auth code; no distributed-flows despite messaging signals).
+1. **Dimensions not run** that the scope warranted (e.g. security skipped on auth code; no distributed-flows despite messaging signals; no temporal-resilience despite timers/retry/scheduler code in the diff).
 2. **Files in scope cited by no reviewer** (cross-check the changed-file list against files referenced in findings).
 3. **Unverified assumptions** in the interconnect map that no finding addressed.
 4. **High-risk hot-spots** (from the X-ray run's `05-risks.md` or the map's Integration Hot-Spots) with zero findings.
+5. **Findings closed on metrics alone**: any finding archived as acceptable ("bounded", "low traffic", "within budget") that does not state the user-visible consequence, or whose quantitative basis is `derived` and unmeasured (see `## Evidence Classes`). These are re-opened as gaps, not silently accepted.
 
 ### Critic prompt
 
@@ -262,6 +281,10 @@ Produce a "## Coverage Gaps" list across these categories, each item actionable 
 2. In-scope files cited by no finding
 3. Interconnect-map assumptions marked unverified that no finding addressed
 4. High-risk hot-spots (the X-ray run's 05-risks.md, or Integration Hot-Spots) with zero findings
+5. Findings closed as acceptable on a metric alone: for each, ask "what does the
+   user see when this happens?" -- if the answer is missing or is "nothing, silently",
+   re-open it as a gap; also flag any quantitative closure whose number is derived
+   from reading the code rather than measured
 
 Then, if and ONLY if one gap is a high-risk uncovered area, name the single most valuable
 follow-up: which dimension/agent should review which files. Output it under
@@ -275,3 +298,18 @@ If the critic names a high-risk uncovered area, spawn **one** targeted reviewer 
 ### Degradation
 
 Under the cost guard or budget pressure, the critic degrades to **report-only**: it emits the `## Coverage Gaps` list with no follow-up spawn, and the report states that the follow-up was skipped. `--fast` skips the critic entirely.
+
+## Delivery Gate
+
+Value that never gets delivered, and debris that gets left behind, both degrade a review as surely as a missed bug. Two mechanical checks, driven by the orchestrator, close the loop:
+
+### Every reviewer delivers or declares
+
+Consolidation (Phase 3) does not start until every dispatched reviewer has produced one of exactly two artifacts: its findings file, or an explicit no-findings report ("examined X, Y, Z -- no issues"). Neither silence nor a dead dispatch counts as either one.
+
+- If a reviewer returned content but wrote no file, the orchestrator salvages that output, saves it to the findings path marked `[undelivered -- collected by orchestrator]`, and the final report lists the dimension as **degraded**, never as clean.
+- A dimension with no artifact at all is reported as **not delivered** -- the same class of signal as "bundle not installed": the review has a known blind spot and says so.
+
+### The work tree is left as found
+
+The pre-review `git status --porcelain` snapshot (recorded at scope time in `00-scope.md`) is diffed against the post-review state before the report is finalized. Anything created by the review outside its session directory (`.team-review/`) -- probe scripts, measurement harnesses, scratch fixtures -- is removed, and the removal is noted in the report. Measurement evidence belongs in the finding (numbers, method, `measured` label), never as a file in the repository. This is the enforcement arm of the `measured` evidence class above: measure freely, keep the numbers, leave no trace.

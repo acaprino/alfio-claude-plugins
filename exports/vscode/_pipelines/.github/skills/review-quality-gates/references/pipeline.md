@@ -31,6 +31,7 @@ The gate specs (verification panel, completeness critic, context-sharing pattern
 | Platform compliance | `review-platform-reviewer` | conditional |
 | Distributed flows | `review-distributed-flow-auditor` | conditional |
 | Circular dependencies | `review-chicken-egg-detector` | conditional |
+| Temporal resilience | `review-temporal-resilience-auditor` | conditional |
 | API contracts | `review-api-contract-auditor` | conditional |
 | Testing quality | `test-suite-auditor` from the `testing` bundle (fallback: `review-generic-reviewer`, dimension `testing`, when that bundle is not installed) | conditional |
 | Data migrations | `review-generic-reviewer` (dimension `migrations`) | conditional |
@@ -102,7 +103,7 @@ Track the phases with `#todos` so the user sees progress while reviewers run.
    - **Uncommitted work**: `#search/changes` also surfaces the working-tree diff without shelling out
 2. Collect the full diff content for distribution to reviewers.
 3. Collect the changed file paths and extensions for Phase 0b.
-4. Write `.team-review/00-scope.md` with the target, the file list, and the active flags. Mark the phase complete.
+4. Write `.team-review/00-scope.md` with the target, the file list, and the active flags. Append a `## Pre-review work tree` section containing the output of `git status --porcelain` at this moment: the Phase 5 workspace hygiene check diffs against it. Mark the phase complete.
 
 ## Phase 0b: Dimension Detection
 
@@ -125,6 +126,7 @@ Gather these with the search tools rather than a shell pipeline, so detection wo
 | Multi-service compose | `#search/textSearch` for `^\s*(image\|build):` in `docker-compose.y*ml`, more than one match |
 | Messaging | `#search/textSearch` for `rabbitmq\|amqp\|kafka\|grpc\|pubsub\|celery\|dramatiq` in the diff content |
 | Startup code | `#search/textSearch` for `def main\|if __name__\|on_startup\|lifespan\|create_app\|bootstrap\|init_` in the diff content |
+| Long-running / scheduled code | `#search/textSearch` for `setInterval\|setTimeout\|cron\|schedule\|retry\|reconnect\|backoff\|watchdog\|heartbeat\|keepalive\|poll\|daemon\|updater` in the diff content |
 | Test files | Changed files matching `test_*`, `*_test.*`, `*.spec.*`, `*.test.*`, `conftest.py`, `__tests__/` |
 | Migration files | Changed files matching Alembic, Django, Rails, Prisma, or plain SQL migration patterns |
 | Contract files | Changed files matching `*.proto`, `openapi*.y*ml`, `swagger*`, `*.graphql`, `asyncapi*` |
@@ -140,6 +142,7 @@ Gather these with the search tools rather than a shell pipeline, so detection wo
 | Platform compliance | Two or more of: frontend framework, backend framework, API routes, multi-service compose, Tauri or Electron config |
 | Distributed flows | Changed files touch API routes, message handlers, gRPC definitions, or queue consumers/producers, or multi-service compose |
 | Circular dependencies | Changed files touch startup sequences, dependency injection, config bootstrap, migration runners, or service registration |
+| Temporal resilience | Diff or changed files touch timers, schedulers, polling loops, retry/reconnect logic, cron jobs, queue workers, background daemons, updaters, or watchdogs (the long-running / scheduled code signal). Its mandate is failure-over-time: what does the user see after this has been failing for a day |
 | API contracts | Changed files touch contract files, route definitions, serializers, or DTO/schema declarations |
 | Testing quality | Changed files include test files |
 | Data migrations | Changed files include migration files |
@@ -152,7 +155,7 @@ Context detection complete:
   Always:   security, architecture, logic-integrity, hygiene
   Detected: ui-races (6 .tsx files), react-perf (React project),
             ts-safety (TypeScript project), distributed-flows (API routes + RabbitMQ),
-            abstraction (diff adds 4 units)
+            temporal-resilience (retry + scheduler code), abstraction (diff adds 4 units)
   Skipped:  platform (not fullstack), chicken-egg (no startup code),
             testing (no test files changed), api-contracts (no contract files),
             migrations (no migration files)
@@ -255,15 +258,16 @@ Mark `phase_2_review` as `in_progress`.
 ## Phase 3: Collect and Consolidate
 
 1. **Barrier.** Poll with `#search/fileSearch` until `.team-review/findings-<dimension>.md` exists for every dispatched dimension. A reviewer whose file never appears counts as failed; record it and continue with the rest. If a reviewer returned content but wrote no file, save its output to the expected path yourself.
-2. Report progress as `{completed}/{total} reviews complete`.
-3. Apply the consolidation rules:
+2. **Delivery gate** (per `SKILL.md`, section `## Delivery Gate`): consolidation does not start until every dispatched dimension has either a findings file or an explicit no-findings report. Content salvaged from a reviewer's returned text is saved marked `[undelivered -- collected by orchestrator]` and the dimension is reported as **degraded**; a dimension with no artifact at all is reported as **not delivered**. Neither is ever presented as a clean dimension.
+3. Report progress as `{completed}/{total} reviews complete`.
+4. Apply the consolidation rules:
    - **Deduplicate**: merge findings on the same `file:line` describing the same issue. Credit every reviewer that found it.
    - **Co-locate**: same `file:line`, different issues, stay separate and get tagged as co-located.
    - **Severity conflicts**: take the higher rating.
    - **Cross-reference**: flag findings that surfaced in more than one dimension. Independent rediscovery is a strong signal of a real root cause.
    - **Route cross-reviewer notes**: scan every `## Cross-Reviewer Notes` section and fold those observations into the consolidated report under the dimension they belong to.
    - **Organize by severity**: Critical, High, Medium, Low.
-4. Write `.team-review/99-consolidated.md`. Mark `phase_3_consolidation` complete.
+5. Write `.team-review/99-consolidated.md`. Mark `phase_3_consolidation` complete.
 
 ## Phase 4b: Adversarial Verification
 
@@ -315,6 +319,8 @@ Findings citing interconnect anchors: {count} ({pct}%)   <- context utilization 
 ```
 
 `{cost_guard_note}` is `, narrowed to stakes+band (N unverified)` when the guard fired, otherwise empty.
+
+Before finalizing, run the **workspace hygiene check** (per `SKILL.md`, section `## Delivery Gate`): compare `git status --porcelain` against the `## Pre-review work tree` snapshot in `00-scope.md`. Any file the review created outside `.team-review/` (probe scripts, measurement harnesses, scratch fixtures) is removed now and its removal noted in the report. The review leaves the work tree exactly as it found it, plus `.team-review/`.
 
 Set `state.json` to `status: "complete"`, mark `phase_5_report` complete, and tell the user the findings and context are preserved in `.team-review/`. Do not delete the session.
 
