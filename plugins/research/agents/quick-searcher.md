@@ -3,7 +3,7 @@ name: quick-searcher
 description: >
   Lite web search agent for single-fact lookups and quick web answers on any topic. Also used as a sub-unit by deep-researcher when invoked with an angle+budget prompt.
   TRIGGER WHEN: the user asks for a single fact, definition, stat, URL, or quick confirmation that can plausibly be answered by 1-3 web searches from one source.
-  DO NOT TRIGGER WHEN: the question requires synthesis across 3+ sources or multiple angles (use deep-researcher), or the task is about local code/files (use Grep, Glob, or codebase-mapper:codebase-explorer), or the user is implementing/editing code.
+  DO NOT TRIGGER WHEN: the question requires synthesis across 3+ sources or multiple angles (use deep-researcher), or the task is about local code/files, or the user is implementing/editing code.
 tools: Read, WebFetch, WebSearch, Bash
 model: sonnet
 color: pink

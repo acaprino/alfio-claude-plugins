@@ -38,14 +38,14 @@ The gate specs (verification panel, completeness critic, context-sharing pattern
 | API contracts | `review-api-contract-auditor` | conditional |
 | Testing quality | `test-suite-auditor` from the `testing` bundle (fallback: `review-generic-reviewer`, dimension `testing`, when that bundle is not installed) | conditional |
 | Data migrations | `review-generic-reviewer` (dimension `migrations`) | conditional |
-| Abstraction | `review-abstraction-architect` | conditional, diff targets only |
+| Structural entropy | `review-abstraction-architect` | conditional, diff targets only |
 
 Support agents: `review-premise-auditor` (Phase 1c, one per run, blind to the shared context), `review-verification-lens` (Phase 4b, up to four per finding; lens 0 is gated on provenance and lens 3 on survival), `review-completeness-critic` (Phase 4c).
 
 Two scoping rules that are easy to get wrong:
 
 - **`review-cleanup-auditor` scans the whole codebase, not the diff.** It is the only hygiene pass in this bundle, covering all five dimensions (dead code, orphan assets, VCS artifacts, dependency and barrel-file bloat, stale documentation). Every other always-on reviewer is diff-scoped. Do not narrow it to the changed files: orphan assets and phantom deps are by definition in files the diff never touched.
-- **`review-abstraction-architect` also searches the whole codebase.** The diff is only its anchor; the prior art it hunts for lives in files that did not change.
+- **`review-abstraction-architect` also searches the whole codebase.** The diff is only its anchor; the existing representation it hunts for lives in files that did not change.
 
 Every agent in the roster ships inside this bundle except the two cross-bundle rows marked above (testing quality and TypeScript type safety), so a dimension is normally skipped only when its activation rule did not fire. Those two are the exception: each names what happens when its bundle is absent, and neither is ever dispatched blind.
 
@@ -156,7 +156,7 @@ Gather these with the search tools rather than a shell pipeline, so detection wo
 | API contracts | Changed files touch contract files, route definitions, serializers, or DTO/schema declarations |
 | Testing quality | Changed files include test files |
 | Data migrations | Changed files include migration files |
-| Abstraction | The target resolved to a diff (git range, PR, or uncommitted changes) AND the diff adds at least one function, method, class, module, constant table, or block longer than roughly five lines. Never activate for a plain file or directory target: there is no diff to anchor on |
+| Structural entropy | The target resolved to a diff (git range, PR, or uncommitted changes) AND the diff adds at least one function, method, class, module, constant table, or block longer than roughly five lines. Never activate for a plain file or directory target: there is no diff to anchor on |
 
 ### Show the plan
 
@@ -388,7 +388,7 @@ Write your report to .team-review/findings-{dimension}.md with #edit/createFile.
 
 Under `--no-context`, omit the "Context files", epistemic-status and anchors sections entirely and do not dispatch `review-logic-integrity-auditor`. Keep the premise declaration block: in raw mode every finding is `independent` by construction, and saying so explicitly is what lets Phase 3 tell corroboration from echo without special-casing the mode.
 
-### Abstraction dimension addendum
+### Structural entropy dimension addendum
 
 `review-abstraction-architect` takes named inputs rather than a free-form dimension prompt. Append:
 
@@ -404,7 +404,7 @@ severity_floor: medium
 
 Four things invert the default reviewer contract for this one:
 
-- Its search space is the **whole codebase**, not the diff. The diff is only the anchor; the prior art it hunts for is by definition in files that did not change. Do not scope it to the changed files.
+- Its search space is the **whole codebase**, not the diff. The diff is only the anchor; the existing representation it hunts for is by definition in files that did not change. Do not scope it to the changed files.
 - It runs fine on lite-depth output, since it consumes only `01-structure.md` and `02-interfaces.md`. Do not force `--deep` on its account.
 - `--no-context` does NOT skip it. That rule removes only `review-logic-integrity-auditor` and `review-premise-auditor`. It runs with `deep_dive_path: none`, degrades to search-based prior-art hunting, and reports the reduced confidence in its Gaps section.
 - It reads a **concept index** at `.abstraction-architect/concept-index.json` when one exists, which is what makes its knowledge-track dimensions (duplicated domain knowledge, competing sources of truth, redundant representation, duplicated state) worth running on a diff. The index is produced by directly invoking `review-abstraction-architect` in global mode. When it is absent or stale the reviewer degrades to diff-anchored discovery and declares the reduced coverage; it never blocks. This reviewer never writes the index.

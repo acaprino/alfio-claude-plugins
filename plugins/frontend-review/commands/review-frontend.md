@@ -40,12 +40,12 @@ You are a senior frontend reviewer running a single-pass audit that covers both 
 | PWA architecture | Auto-detected | `pwa-expert` plugin |
 | Platform compliance | Auto-detected | `platform-engineering` plugin |
 
-The four code dimensions are declared as optional dependencies of this plugin. Each degrades to "skipped, not installed" when its plugin is absent, and to "skipped, not matched" when the codebase shows no signal for it. The design dimension is a hard dependency gated at Step 0: it either runs in full or the command never reaches Step 1.
+The four code dimensions are declared as hard dependencies of this plugin, so the marketplace installs them with it and none can go missing at runtime. A code dimension is skipped only as "skipped, not matched", when the codebase shows no signal for it. The design dimension rests on three upstream plugins from other marketplaces, which the user installs by hand; it is gated at Step 0, so it either runs in full or the command never reaches Step 1.
 
 ## CRITICAL RULES
 
 1. **Design is hard-gated.** All four design skills from the three upstream plugins must load in Step 0. If any fails, stop and print the install block. Never proceed with fewer than four loaded.
-2. **Code dimensions degrade, never fail.** A missing optional plugin is a skip with a stated reason, not an error and not an attempted spawn.
+2. **Code dimensions skip on signal, never on install.** A code dimension is skipped only when the codebase shows no signal for it. A spawn failing with "Agent type not found" means a broken install: stop and report it rather than scoring a partial review.
 3. **Single report.** Output is always `.frontend-review/report.md`, regardless of how many dimensions ran.
 4. **`frontend-design` is evaluation criteria, not a generator.** Apply it to judge the existing UI. Never use it to redesign, restyle, or rewrite anything in scope.
 5. **Score only what ran.** A skipped dimension is excluded from the weighted mean. It is never counted as a zero.
@@ -131,7 +131,6 @@ Context detection complete:
   - Always: design-and-ux
   - Detected: react-perf (React project), ts-safety (TypeScript project)
   - Skipped: pwa (no manifest or service worker), platform (1 signal, needs 2+)
-  - Skipped, plugin not installed: ts-safety (typescript-development)
 
 Pipeline plan:
   Step 3: deterministic ground truth
@@ -141,7 +140,7 @@ Pipeline plan:
   Step 7: report
 ```
 
-Show the "Skipped, plugin not installed" line only when a dimension matched but its plugin is missing. "Skipped" alone means the codebase did not need the dimension; "Skipped, plugin not installed" means it did and the review has a known blind spot there.
+Every reason on the Skipped line is a statement about the codebase, never about the install: the code dimensions come from hard dependencies and are always present.
 
 ## Step 3: Deterministic Ground Truth
 
@@ -206,7 +205,7 @@ Spawn every dimension that Step 2 activated in a single message, so they run in 
 
 **Activate when** Step 2 detected `REACT=true` and `REACT_FILES=true`.
 
-**Skip if the `react-development` plugin is not installed.** It is an `optionalDependency`, so the spawn fails with "Agent type not found" when it is absent. Report the dimension as skipped for that reason instead, so the gap is visible in the report rather than silent.
+`react-development` is a hard dependency of this plugin, so this agent is always available. Skip the dimension only when its detection signal did not match.
 
 ```
 Agent tool call:
@@ -247,7 +246,7 @@ Agent tool call:
 
 **Activate when** Step 2 detected `TS_PROJECT=true`.
 
-**Skip if the `typescript-development` plugin is not installed.** It is an `optionalDependency`, so the spawn fails with "Agent type not found" when it is absent. Report the dimension as skipped for that reason instead, so the gap is visible in the report rather than silent.
+`typescript-development` is a hard dependency of this plugin, so this agent is always available. Skip the dimension only when its detection signal did not match.
 
 ```
 Agent tool call:
@@ -286,7 +285,7 @@ Agent tool call:
 
 **Activate when** Step 2 detected `PWA=true`.
 
-**Skip if the `pwa-expert` plugin is not installed.** It is an `optionalDependency`, so the spawn fails with "Agent type not found" when it is absent. Report the dimension as skipped for that reason instead, so the gap is visible in the report rather than silent.
+`pwa-expert` is a hard dependency of this plugin, so this agent is always available. Skip the dimension only when its detection signal did not match.
 
 ```
 Agent tool call:
@@ -324,7 +323,7 @@ Agent tool call:
 
 **Activate when** Step 2 counted `PLATFORM_SIGNALS` at 2 or more.
 
-**Skip if the `platform-engineering` plugin is not installed.** It is an `optionalDependency`, so the spawn fails with "Agent type not found" when it is absent. Report the dimension as skipped for that reason instead, so the gap is visible in the report rather than silent.
+`platform-engineering` is a hard dependency of this plugin, so this agent is always available. Skip the dimension only when its detection signal did not match.
 
 ```
 Agent tool call:
@@ -395,10 +394,10 @@ Mode: [diff / full] scope. [N] files reviewed.
 | Dimension | Status | Note |
 |---|---|---|
 | Design and UX | Run | impeccable + ui-ux-pro-max + frontend-design |
-| React performance | Run / Skipped: not matched / Skipped: not installed | [reason; install command if not installed] |
-| TypeScript type safety | Run / Skipped: not matched / Skipped: not installed | [reason; install command if not installed] |
-| PWA architecture | Run / Skipped: not matched / Skipped: not installed | [reason; install command if not installed] |
-| Platform compliance | Run / Skipped: not matched / Skipped: not installed | [reason; install command if not installed] |
+| React performance | Run / Skipped: not matched | [reason] |
+| TypeScript type safety | Run / Skipped: not matched | [reason] |
+| PWA architecture | Run / Skipped: not matched | [reason] |
+| Platform compliance | Run / Skipped: not matched | [reason] |
 
 ## Scores
 

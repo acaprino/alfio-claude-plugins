@@ -1,5 +1,7 @@
 ---
-description: "Launch a multi-reviewer parallel code review with specialized review dimensions, preceded by a context-building pipeline (deep-dive + interconnect map) so reviewers can hunt cross-component logic bugs, not just local issues"
+description: >
+  Six-phase pipeline. Builds X-ray and interconnect context first, then runs specialized dimensions in parallel so cross-component logic bugs surface, not just local ones.
+  TRIGGER WHEN: the user wants a multi-reviewer review of a whole codebase or a large change, or asks for the deepest review available.
 argument-hint: "<target> [--reviewers auto|security,performance,...] [--base-branch main] [--all] [--deep] [--no-context] [--fast] [--rigorous]"
 ---
 
@@ -120,24 +122,24 @@ Analyze changed files and codebase to determine which review dimensions are rele
 
 Run these checks against the changed files and codebase to decide which extra reviewers to spawn.
 
-Five of these dimensions live in plugins declared as `optionalDependencies` of `senior-review`: React performance (`react-development`), platform / runtime integration (`platform-engineering`), abstraction (`abstraction-architect`), testing quality (`testing`), and TypeScript type safety (`typescript-development`). A dimension whose plugin is absent is **skipped with a note**, never spawned. Attempting the spawn fails with "Agent type not found" and takes the phase down with it. Report the reason as "not installed" so the user can tell it apart from a dimension that simply did not match. Testing quality degrades differently from the other four: when the `testing` plugin is not installed the dimension is not skipped; it falls back to the generic `agent-teams:team-reviewer` with the testing dimension named in the prompt, which is the pre-testing-plugin behavior. Everything else in the table resolves to `senior-review` agents or to the `agent-teams` fallback, both of which are hard dependencies and always present.
+Five of these dimensions live in other plugins: React performance (`react-development`), platform / runtime integration (`platform-engineering`), structural entropy (`abstraction-architect`), testing quality (`testing`), and TypeScript type safety (`typescript-development`). All five are **hard dependencies** of `senior-review`, so the marketplace installs them with it and no dimension can go missing at runtime. A dimension is skipped only when its **signal did not match** the codebase, which is a statement about the code and never about the install. If a spawn fails with "Agent type not found", the install is broken: stop and report it rather than continuing with a silently reduced review.
 
 | Signal | Detection rule | Dimension activated | Agent |
 |--------|---------------|---------------------|-------|
 | **UI/frontend files** | Changed files include `.tsx`, `.jsx`, `.vue`, `.svelte`, `.component.ts`, or files containing scroll/focus/layout manipulation | UI race conditions | `senior-review:ui-race-auditor` |
-| **React project** | `package.json` has `react` in dependencies AND changed files include `.tsx`/`.jsx`. Requires the `react-development` plugin: when it is not installed, skip and note it under Skipped instead of spawning (the spawn would fail) | React performance | `react-development:react-performance-optimizer` |
-| **TypeScript project** | Changed files match `\.tsx?$` AND `tsconfig.json` exists at the project root. Requires the `typescript-development` plugin: when it is not installed, skip and note it under Skipped instead of spawning (the spawn would fail) | TypeScript type safety | `typescript-development:type-safety-auditor` |
+| **React project** | `package.json` has `react` in dependencies AND changed files include `.tsx`/`.jsx` | React performance | `react-development:react-performance-optimizer` |
+| **TypeScript project** | Changed files match `\.tsx?$` AND `tsconfig.json` exists at the project root | TypeScript type safety | `typescript-development:type-safety-auditor` |
 | **Non-React frontend** | Frontend files detected but no React dependency | General performance | `agent-teams:team-reviewer` (performance dimension) |
-| **Fullstack app** | 2+ signals: frontend framework in `package.json`, backend framework config, API route definitions, `docker-compose.yml` with multiple services, Tauri/Electron config. Requires the `platform-engineering` plugin: when it is not installed, skip and note it under Skipped instead of spawning (the spawn would fail) | Platform / runtime integration | `platform-engineering:platform-reviewer` |
+| **Fullstack app** | 2+ signals: frontend framework in `package.json`, backend framework config, API route definitions, `docker-compose.yml` with multiple services, Tauri/Electron config | Platform / runtime integration | `platform-engineering:platform-reviewer` |
 | **Multi-service / messaging** | Changed files touch API routes, message handlers, gRPC definitions, queue consumers/producers, or `docker-compose.yml` with multiple services | Distributed flows | `senior-review:distributed-flow-auditor` |
 | **Init/startup code** | Changed files touch startup sequences, dependency injection, config bootstrap, migration runners, or service registration | Circular dependencies | `senior-review:chicken-egg-detector` |
 | **Long-running / scheduled execution** | Diff or changed files touch timers, schedulers, polling loops, retry/reconnect logic, cron jobs, queue workers, background daemons, updaters, or watchdogs (see detection command 5b) | Temporal resilience (**what does the user see after this has been failing for a day?**) | `senior-review:temporal-resilience-auditor` |
 | **Persistence code** | Diff or changed files touch schemas, models, ORM entities, repositories, raw SQL, cache layers, or transaction boundaries (see detection command 5c) | Data integrity (**can the store be made to hold an impossible state?**) | `senior-review:data-integrity-auditor` |
 | **Resource acquisition** | Diff or changed files acquire files, sockets, connections, subprocesses, listeners, subscriptions, locks, tasks, or timers, especially in manual-resource languages (C/C++/Rust/Go) or async-heavy code (see detection command 5d) | Resource lifecycle (**does every acquire release on success, error, AND cancellation?**) | `senior-review:resource-lifecycle-auditor` |
-| **Test files** | Changed files match `test_*`, `*_test.*`, `*.spec.*`, `*.test.*`, `conftest.py`, `__tests__/`. Prefers the `testing` plugin: when it is not installed, do not attempt spawning `testing:test-suite-auditor` (the spawn would fail); fall back to `agent-teams:team-reviewer` (testing dimension) and note the fallback under the detection display | Testing quality | `testing:test-suite-auditor` |
+| **Test files** | Changed files match `test_*`, `*_test.*`, `*.spec.*`, `*.test.*`, `conftest.py`, `__tests__/` | Testing quality | `testing:test-suite-auditor` |
 | **API files** | Changed files touch a formal contract file (`*.proto`, `openapi*.y*ml`, `swagger*`, `*.graphql`, `asyncapi*`, JSON Schema), or route definitions, serializers, or DTO/model declarations | API contracts | `senior-review:api-contract-auditor` |
 | **Migration files** | Changed files match database migration patterns (Alembic, Django, Rails, Prisma, SQL migrations) | Data migrations | `agent-teams:team-reviewer` (migration dimension) |
-| **Diff target adding code** | Target resolved to a diff in Phase 0 (git range, PR number, or uncommitted changes) AND the diff adds at least one function, method, class, module, constant table, or block longer than roughly five lines. Requires the `abstraction-architect` plugin: when it is not installed, skip and note it under Skipped instead of spawning (the spawn would fail). Never activated for plain file/directory targets: there is no diff to anchor on, and the whole-tree question belongs to `/abstraction-architect:audit` | Abstraction (**was the changed code already available elsewhere?** Prior art per added unit + Rule of Three on this diff) | `abstraction-architect:abstraction-architect` (mode `diff`) |
+| **Diff target adding code** | Target resolved to a diff in Phase 0 (git range, PR number, or uncommitted changes) AND the diff adds at least one function, method, class, module, constant table, or block longer than roughly five lines. Never activated for plain file/directory targets: there is no diff to anchor on, and the whole-tree question belongs to `/abstraction-architect:audit` | Structural entropy (**does this diff add a second place where a concept the codebase already owns lives?** Seven dimensions over two evidence tracks, diff-anchored: duplicated domain knowledge, competing sources of truth, redundant representation, duplicated or derivable state, missed unification, prior art available, abstraction fitness) | `abstraction-architect:abstraction-architect` (mode `diff`) |
 
 ### Detection implementation
 
@@ -194,8 +196,6 @@ Context detection complete:
   - Always: security, architecture, logic-integrity, codebase-hygiene
   - Detected: ui-races (6 .tsx files), react-perf (React project), ts-safety (TypeScript project), distributed-flows (API routes + RabbitMQ), temporal-resilience (retry + scheduler code), data-integrity (ORM writes + transactions), abstraction (diff adds 4 units)
   - Skipped: platform (not fullstack), chicken-egg (no startup code)
-  - Skipped, plugin not installed: react-perf (react-development)
-  - Fallback: testing quality -> agent-teams:team-reviewer (testing plugin not installed)
 
 Pipeline plan:
   Phase 0c: review evidence discovery (inline)
@@ -207,7 +207,7 @@ Pipeline plan:
   Phase 4:  report
 ```
 
-Show the last two lines only when a dimension matched but its plugin is missing. The three reasons are different signals: "not fullstack" means the code did not need the dimension, "not installed" means it did and the review has a known blind spot, and "Fallback" means the dimension still ran but generically, without the specialized auditor's detection pipeline.
+Every reason on the Skipped line is a statement about the code, never about the install: "not fullstack" means the code did not need the dimension. Every agent this command can spawn comes from a plugin `senior-review` declares as a hard dependency, so there is no "plugin not installed" reason and no generic fallback. If a spawn fails with "Agent type not found", stop and report the broken install instead of continuing with a silently reduced review.
 
 Mark `phase_0b_detection` complete in `state.json`.
 
@@ -390,7 +390,7 @@ Mark `phase_1d_reconciliation` complete.
 | Security | `senior-review:security-auditor` |
 | Architecture (+ failure flows, patterns, scoring) | `senior-review:code-auditor` |
 | **Logic integrity (contracts/invariants/domain rules)** | `senior-review:logic-integrity-auditor` |
-| **Abstraction (prior art / Rule of Three)** | `abstraction-architect:abstraction-architect` |
+| **Structural entropy (duplicated knowledge, competing owners, redundant representation, derivable state, missed unification, prior art, abstraction fitness)** | `abstraction-architect:abstraction-architect` |
 | Codebase hygiene (full pass: dead code, assets, VCS, deps, docs) | `senior-review:cleanup-auditor` |
 | UI race conditions | `senior-review:ui-race-auditor` |
 | React performance | `react-development:react-performance-optimizer` |
@@ -402,7 +402,7 @@ Mark `phase_1d_reconciliation` complete.
 | Temporal resilience (failure-over-time) | `senior-review:temporal-resilience-auditor` |
 | Data integrity (persistence semantics) | `senior-review:data-integrity-auditor` |
 | Resource lifecycle (ownership and release) | `senior-review:resource-lifecycle-auditor` |
-| Testing quality | `testing:test-suite-auditor` (fallback: `agent-teams:team-reviewer` when the `testing` plugin is not installed) |
+| Testing quality | `testing:test-suite-auditor` |
 | API contracts | `senior-review:api-contract-auditor` |
 | Data migrations | `agent-teams:team-reviewer` |
 
@@ -465,7 +465,7 @@ Write your output to .team-review/findings-{dimension}.md using the structured f
 
 If `--no-context` was set, omit the "Context files" and "Reviewer Hints" sections and do NOT spawn the `logic-integrity-auditor`.
 
-**Abstraction dimension addendum.** `abstraction-architect:abstraction-architect` takes named inputs rather than a free-form dimension prompt. Append this block to its prompt:
+**Structural entropy dimension addendum.** `abstraction-architect:abstraction-architect` takes named inputs rather than a free-form dimension prompt. Append this block to its prompt:
 
 ```
 mode: diff
@@ -477,14 +477,14 @@ report_path: .team-review/findings-abstraction.md
 severity_floor: medium
 ```
 
-Three things about this reviewer, because they invert the default reviewer contract:
+Four things about this reviewer, because they invert the default reviewer contract:
 
-- Its search space is the **whole codebase**, not the diff. The diff is only the anchor; the prior art it is hunting for is by definition in files that did not change. Do not scope it to the changed files.
+- Its search space is the **whole codebase**, not the diff. The diff is only the anchor; the existing representation it is hunting for is by definition in files that did not change. Do not scope it to the changed files.
 - It runs fine on `--depth=lite` output, since it consumes only `01-structure.md` and `02-interfaces.md`. Do not force `--deep` on its account.
 - `--no-context` does NOT skip it (that rule removes only `logic-integrity-auditor`). It runs with `deep_dive_path: none` and degrades to Glob plus Grep, reporting the reduced confidence in its Gaps section.
 - It reads a **concept index** at `.abstraction-architect/concept-index.json` when one exists, which is what makes its knowledge-track dimensions (duplicated domain knowledge, competing sources of truth, redundant representation, duplicated state) worth running on a diff. The index is produced by `/abstraction-architect:audit` in global mode. When it is absent or stale the reviewer degrades to diff-anchored discovery and declares the reduced coverage; it never blocks. This reviewer never writes the index.
 
-**Testing dimension addendum.** `testing:test-suite-auditor` (when the `testing` plugin is installed; the `agent-teams:team-reviewer` fallback needs no addendum) partly inverts the default reviewer contract. Append this to its prompt:
+**Testing dimension addendum.** `testing:test-suite-auditor` partly inverts the default reviewer contract. Append this to its prompt:
 
 ```
 Scope: run D2 to D8 only on tests owned by the changed modules; keep D1/D9

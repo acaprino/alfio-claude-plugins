@@ -1,57 +1,47 @@
 ---
-description: Deep multi-source research with parallel investigators covering codebase, web, and domain-specific analysis.
-argument-hint: <question-or-topic> [--scope codebase|web|all] [--domain <topic-domain>] [--depth quick|standard|deep]
+description: Deep web research with parallel investigators covering complementary source angles plus domain-specific analysis.
+argument-hint: <question-or-topic> [--domain <topic-domain>] [--depth quick|standard|deep]
 agent: research-orchestrator
 ---
 
 # Team Research
 
-Orchestrate a deep research investigation using multiple specialized researchers working in parallel. Each researcher covers a different angle (codebase, web sources, domain expertise) and findings are synthesized into a unified report.
+Orchestrate a deep web research investigation using multiple researchers working in parallel. Each one covers a different source angle, and findings are synthesized into a unified report with cross-checking.
+
+**This command researches the web, and only the web.** It never reads or searches a local codebase, and it dispatches nothing from another bundle. A question about local code belongs to `#search/textSearch`, `#search/fileSearch`, or a codebase-oriented bundle, not here.
 
 ## Pre-flight Checks
 
 1. Load the `web-search-techniques` skill for query formulation, source authority ranking, and the bot-block fallback.
 2. Parse `$ARGUMENTS`:
    - `<question-or-topic>`: the research question, topic, or area to investigate
-   - `--scope`: what to search -- `codebase` (local only), `web` (external only), `all` (both, default)
    - `--domain`: free-form domain hint for the Domain Expert persona (e.g. `security`, `python`, `finance`, `nutrition`, `law`); auto-detected from the topic when omitted
    - `--depth`: research depth -- `quick` (2 researchers), `standard` (3 researchers, default), `deep` (4 researchers with domain expert)
 
 ## Phase 1: Question Analysis
 
 1. Analyze the research question to understand:
-   - Is it about the local codebase, external knowledge, or both? If it has no local-project component at all (a pure general-knowledge or web topic), treat `--scope` as `web` for the rest of the pipeline: no Codebase Analyst, no Context Builder.
-   - What domain does it touch? (security, architecture, frontend, backend, etc.)
-   - What would a complete answer look like? (facts, comparisons, recommendations, code examples)
+   - Which source angles would answer it? Pick from the four `deep-researcher` classifies into: **authoritative** (primary docs, specs, vendor sources), **community** (forums, issue trackers, practitioner write-ups), **comparison** (alternatives weighed against each other), **recency** (what changed lately, release notes, deprecations).
+   - What domain does it touch? (security, architecture, finance, law, nutrition, anything)
+   - What would a complete answer look like? (facts, comparisons, recommendations, worked examples)
+   - If the question turns out to be about local code rather than external knowledge, say so and stop: this command has no local-codebase capability and must not improvise one.
 2. Break the question into sub-questions that can be investigated in parallel
 3. Determine researcher count and roles based on `--depth`:
-   - `quick`: 2 researchers (codebase + web)
-   - `standard`: 3 researchers (codebase + web + docs/context)
-   - `deep`: 4 researchers (codebase + web + docs + domain expert)
+   - `quick`: 2 researchers (the 2 most relevant angles)
+   - `standard`: 3 researchers (the 3 most relevant angles)
+   - `deep`: 4 researchers (3 angles + domain expert)
 
 ## Phase 2: Dispatch
 
 1. Dispatch every researcher with `#agent/runSubagent`, in one turn so they run in parallel. Only the agents in this agent's `agents:` allowlist can be dispatched.
 2. Assign each researcher one role:
 
-**Codebase Analyst** (always, unless `--scope web`):
-- agent: `deep-researcher`
-- Focus: local code, git history, architecture, patterns, dependencies
-- Tools: `#search/textSearch`, `#search/fileSearch`, `#read/readFile`, `#execute/runInTerminal` (for git log/blame)
-- Prompt: "Search the local codebase for {sub-question}. Cite every finding with file:line."
-
-**Web Researcher** (always, unless `--scope codebase`):
-- agent: `deep-researcher`
-- Focus: documentation, articles, comparisons, best practices, release notes
+**Angle Researchers** (2 to 3, one per angle chosen in Phase 1):
+- agent: `deep-researcher`, one instance per angle
+- Focus: the angle's characteristic sources. Authoritative goes to primary documentation, specifications and vendor material; community goes to forums, issue trackers and practitioner write-ups; comparison weighs named alternatives against each other; recency hunts what changed and when.
 - Tools: `#websearch`, `#web/fetch`, `#read/readFile`
-- Prompt: "Search the web for {sub-question}. Cite every finding with source URL."
-
-**Context Builder** (standard + deep, only when the investigation touches a local project):
-- agent: `codebase-explorer` (ships in the `codebase-mapper` bundle; skip this role and note it if that bundle is absent)
-- Requires the `codebase-mapper` plugin (declared as an optional dependency): when it is not installed, skip this role and note it in the final report instead of spawning (the spawn would fail). Also skipped entirely when the effective scope is `web`.
-- Focus: build a context brief of the project/area under investigation
-- Tools: `#read/readFile`, `#search/fileSearch`, `#search/textSearch`, `#execute/runInTerminal`
-- Prompt: "Explore {area} to understand the project structure, entry points, and key patterns."
+- Prompt: "Research {sub-question} from the {angle} angle. Cite every finding with its source URL and the date the source carries."
+- Give each instance a different angle. Two researchers on the same angle produce agreement that means nothing, since they read the same sources.
 
 **Domain Expert** (deep only):
 - agent: `deep-researcher`, a dedicated instance carrying a domain persona in its prompt
@@ -73,9 +63,9 @@ Orchestrate a deep research investigation using multiple specialized researchers
 After all researchers report:
 
 1. **Cross-reference findings**:
-   - Do codebase findings align with web research?
-   - Does the domain expert validate or contradict other findings?
-   - Are there gaps that no researcher covered?
+   - Do the angles agree? Agreement between two angles that read different source families is evidence; agreement between two researchers who read the same page is not.
+   - Does the domain expert validate or contradict the others?
+   - Are there gaps that no angle covered?
 
 2. **Assess confidence**:
    - High: multiple researchers agree with strong evidence
@@ -92,17 +82,13 @@ After all researchers report:
 
 ### Findings
 
-#### From Codebase Analysis
-- {finding 1} -- `file:line` citation
-- {finding 2} -- `file:line` citation
+#### From {angle 1} sources
+- {finding 1} -- {URL} citation, {source date}
+- {finding 2} -- {URL} citation, {source date}
 
-#### From Web Research
-- {finding 1} -- {URL} citation
-- {finding 2} -- {URL} citation
-
-#### From Context Analysis
-- {architectural insight}
-- {pattern observation}
+#### From {angle 2} sources
+- {finding 1} -- {URL} citation, {source date}
+- {finding 2} -- {URL} citation, {source date}
 
 #### Domain Expert Assessment
 - {validation/contradiction of findings}
@@ -120,5 +106,4 @@ After all researchers report:
 
 ## Phase 5: Cleanup
 
-1. Send `shutdown_request` to all researchers
-2. Team resources are cleaned up automatically when the session ends; there is no `TeamDelete` step
+Dispatched subagents end when they return. Leave `.research/` in place: it is the run's evidence.

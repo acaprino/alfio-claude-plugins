@@ -58,7 +58,7 @@ Shared knowledge base for web search: query techniques, source ranking, WebFetch
 
 ### `/research:team-research`
 
-Deep multi-source research with parallel investigators covering the local codebase, the web, and domain-specific expertise, synthesized into one report with confidence levels.
+Deep web research with parallel investigators covering complementary source angles plus domain-specific expertise, synthesized into one report with confidence levels. It researches the web and nothing else: it reads no local codebase and depends on no local plugin.
 
 **Prerequisites:** requires the upstream `agent-teams` plugin (`wshobson/agents`, MIT) for the `agent-teams:team-composition-patterns` and `agent-teams:team-communication-protocols` skills:
 
@@ -69,25 +69,25 @@ Deep multi-source research with parallel investigators covering the local codeba
 
 | | |
 |---|---|
-| **Invoke** | `/research:team-research <question-or-topic> [--scope codebase\|web\|all] [--domain security\|architecture\|frontend\|python\|tauri\|business] [--depth quick\|standard\|deep]` |
+| **Invoke** | `/research:team-research <question-or-topic> [--domain <topic-domain>] [--depth quick\|standard\|deep]` |
 
 **Depth levels:**
 
 | Depth | Researchers | Roles |
 |-------|-------------|-------|
-| `quick` | 2 | Codebase analyst + Web researcher |
-| `standard` | 3 | Codebase analyst + Web researcher + Context builder (`codebase-mapper:codebase-explorer`) |
-| `deep` | 4 | Codebase analyst + Web researcher + Context builder + Domain expert |
+| `quick` | 2 | The 2 most relevant source angles |
+| `standard` | 3 | The 3 most relevant source angles |
+| `deep` | 4 | 3 source angles + Domain expert |
 
-Codebase and web researchers both run as `research:deep-researcher` instances scoped to a different tool set (Grep/Glob/Read/Bash for the codebase angle, WebSearch/WebFetch for the web angle). The domain expert is a dedicated `deep-researcher` instance given a domain persona from `--domain` or the detected topic; any domain works (security, python, finance, nutrition, law), so the plugin stays self-contained and usable on any subject. The codebase-facing roles are conditional: for pure general-knowledge questions the pipeline runs web-only, and the context builder requires the optional `codebase-mapper` plugin (skipped with a note when absent).
+Every researcher is a `research:deep-researcher` instance. The angle researchers each get one of the four angles the agent already classifies into (authoritative, community, comparison, recency), and no two get the same one: overlapping angles produce agreement that means nothing, since they read the same sources. The domain expert is a dedicated instance given a persona from `--domain` or the detected topic; any domain works (security, python, finance, nutrition, law), so the plugin stays usable on any subject. A question about local code belongs to Grep, Glob, or a codebase-oriented plugin: this command has no local-codebase capability and says so rather than improvising one.
 
 ```
-/research:team-research "How does the auth middleware chain work?" --scope codebase
-/research:team-research "Best practices for WebSocket reconnection" --scope web --depth deep
+/research:team-research "Best practices for WebSocket reconnection" --depth deep
+/research:team-research "GDPR retention rules for transaction logs" --domain law
 /research:team-research "Should we migrate from REST to gRPC?" --depth deep --domain architecture
 ```
 
-Synthesis cross-references codebase findings against web research and the domain expert's assessment, assigns an overall confidence level (High/Medium/Low), and lists open questions the researchers could not resolve.
+Synthesis cross-references the angles against each other and against the domain expert's assessment, assigns an overall confidence level (High/Medium/Low), and lists open questions the researchers could not resolve. Agreement counts as evidence only across angles that read different source families; two researchers who read the same page agreeing counts once.
 
 ---
 

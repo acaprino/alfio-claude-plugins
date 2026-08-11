@@ -1,10 +1,11 @@
 ---
 name: review-quality-gates
 description: >
-  Quality gates for multi-reviewer code review pipelines: adversarial verification panel,
-  completeness critic, reviewer pipeline conventions, and the context sharing pattern for parallel
-  reviewers. Loaded by the /team-review orchestrator before consolidation, and by anyone
-  deduplicating or severity-calibrating findings from multiple parallel reviewers.
+  Verification panel, completeness critic, pipeline conventions, and the shared-context provenance
+  rule.
+  Use when running the `/team-review` quality gates, or consolidating or deduplicating findings from
+  multiple parallel reviewers.
+  Not for single-reviewer style review with no consolidation phase, or generic team coordination.
 user-invocable: false
 license: MIT
 metadata:
@@ -62,7 +63,7 @@ Default anchor routing:
 | data-integrity | `## Invariants` (uniqueness, state exclusivity, balances), `## Contracts` (structural, persistence shapes), `## Assumptions` (unverified, isolation/consistency) |
 | resource-lifecycle | `## Assumptions` (pool bounds, connection reuse), `## Integration Hot-Spots` (connections, subprocesses, long-lived handles) |
 | api-contracts | `## Contracts` (formal) |
-| abstraction (diff mode) | none. This reviewer does not consume the interconnect map: it reads the X-ray run's `01-structure.md` and `02-interfaces.md` and hunts prior art across the codebase with `#search/textSearch`. Omit the anchors block from its prompt; `/team-review` passes it a named-inputs addendum instead |
+| structural entropy (diff mode) | none. This reviewer does not consume the interconnect map: it reads the X-ray run's `01-structure.md` and `02-interfaces.md`, plus its own concept index when one exists, and hunts existing representations of the same concept across the codebase with `#search/textSearch`. Omit the anchors block from its prompt; `/team-review` passes it a named-inputs addendum instead |
 
 ### Prompt template for context-aware reviewers
 

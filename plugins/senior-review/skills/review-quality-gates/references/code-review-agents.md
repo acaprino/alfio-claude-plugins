@@ -325,7 +325,7 @@ Agent tool call:
 
 **Only run this agent if fullstack app signals were detected** (2+ signals from auto-detection in Step 1). Skip entirely for libraries, CLI tools, or single-layer projects.
 
-**Skip if the `platform-engineering` plugin is not installed.** It is an `optionalDependency`, so the spawn fails with "Agent type not found" when it is absent. Report the dimension as skipped for that reason instead, so the gap is visible in the report rather than silent.
+`platform-engineering` is a hard dependency of `senior-review`, so this agent is always available. Skip the dimension only when the fullstack signal did not match.
 
 ```
 Agent tool call:
@@ -429,9 +429,7 @@ Agent tool call:
 
 **Only run this agent if the diff touches test files** (`test_*`, `*_test.*`, `*.spec.*`, `*.test.*`, `conftest.py`, `fixtures/`, `__tests__/`).
 
-**Prefer `testing:test-suite-auditor` when the `testing` plugin is installed.** The `testing` plugin is an `optionalDependency` of `senior-review`: when it is not installed the spawn fails with "Agent type not found", so use the generic fallback block further below instead and note the reduced depth in the report, following the same degrade-not-fail rule as Agents D, I, and J.
-
-Preferred variant (testing plugin installed):
+The `testing` plugin is a hard dependency of `senior-review`, so `testing:test-suite-auditor` is always available. There is no generic fallback variant: a spawn failure here means a broken install, not a missing optional plugin.
 
 ```
 Agent tool call:
@@ -458,45 +456,6 @@ Agent tool call:
     confidence (0-100), description, suggested fix path.
 
     If the changed tests look solid, say so explicitly.
-```
-
-Fallback variant (testing plugin not installed):
-
-```
-Agent tool call:
-  - description: "Testing review for senior-review command"
-  - subagent_type: "general-purpose"
-  - run_in_background: true
-  - prompt: |
-    Review the test code changes for quality, coverage gaps, and reliability.
-
-    [Include shared instructions: Intent + Diff Scope]
-
-    ## Changed Files
-    [list of changed test files + their corresponding source files]
-
-    ## Diff
-    [paste the git diff output]
-
-    ## Instructions
-    Analyze the CHANGED test code for:
-    1. **Coverage gaps** -- are there untested branches, edge cases, or error paths
-       in the corresponding source code?
-    2. **Weak assertions** -- tests that pass but don't actually verify behavior
-       (e.g., only checking status code, not response body)
-    3. **Brittle tests** -- tests coupled to implementation details (mocking internals,
-       hardcoded values, order-dependent assertions)
-    4. **Missing edge cases** -- boundary values, empty inputs, null/None handling,
-       concurrent access
-    5. **Test isolation** -- shared mutable state between tests, missing setup/teardown,
-       tests that depend on execution order
-    6. **Fixture quality** -- overly complex fixtures, fixtures that hide important setup,
-       missing factory patterns
-
-    For each finding: severity (Critical/High/Medium/Low), file + line, confidence (0-100),
-    description, suggested fix.
-
-    If test changes look solid, say so explicitly.
 ```
 
 ### Agent G: API Contract Review (conditional)
@@ -579,7 +538,7 @@ Agent tool call:
 
 **Only run this agent if the diff touches `.tsx` or `.jsx` files AND the project has React as a dependency** (check `package.json` for `react` in dependencies/devDependencies).
 
-**Skip if the `react-development` plugin is not installed.** It is an `optionalDependency`, so the spawn fails with "Agent type not found" when it is absent. Report the dimension as skipped for that reason instead, so the gap is visible in the report rather than silent.
+`react-development` is a hard dependency of `senior-review`, so this agent is always available. Skip the dimension only when the React signal did not match.
 
 ```
 Agent tool call:
@@ -621,17 +580,17 @@ Agent tool call:
     description, concrete fix with code example.
 ```
 
-### Agent J: Abstraction & Reuse Review (conditional)
+### Agent J: Structural Entropy Review (conditional)
 
 **Run this agent whenever the diff adds code**, meaning at least one added function, method, class, module, constant table, or block longer than roughly five lines. Skip it for diffs that are purely deletions, renames, formatting, or config edits.
 
-This is the only agent that answers "was this already available?". Every other agent reads the diff and judges it on its own terms; this one takes the diff as an anchor and goes looking through the rest of the codebase for prior art. Since abstraction-architect 2.0 it answers more than that. It also asks whether the diff creates a second authority over a fact the codebase already owns, adds a parallel representation of an existing concept, or stores state that existing state already determines. Those questions are seeded by a concept index at `.abstraction-architect/concept-index.json` when one exists; without it the agent degrades to diff-anchored discovery and says so.
+This is the only agent whose question is about the rest of the codebase rather than about the diff. Every other agent reads the diff and judges it on its own terms; this one takes the diff as an anchor and asks whether it adds a second place where a concept the codebase already owns now lives. It covers seven dimensions over two evidence tracks: duplicated domain knowledge, competing sources of truth, redundant representation, and duplicated or derivable state on the knowledge track, judged by semantic identity and ownership; missed unification, prior art available, and abstraction fitness on the form track, judged by recurrence. The knowledge-track questions are seeded by a concept index at `.abstraction-architect/concept-index.json` when one exists; without it the agent degrades to diff-anchored discovery and says so.
 
-**Skip if the `abstraction-architect` plugin is not installed.** There is no fallback: the check depends on that agent's pattern catalogs and decision frame, and a freelance grep for similar names produces false positives that cost more than the finding is worth.
+`abstraction-architect` is a hard dependency of `senior-review`, so this agent is always available. Skip the dimension only when the diff adds no code. There is no fallback and none is needed: the check depends on that agent's dimension catalog, evidence gates and decision frame, and a freelance grep for similar names produces false positives that cost more than the finding is worth.
 
 ```
 Agent tool call:
-  - description: "Abstraction and reuse review for senior-review command"
+  - description: "Structural entropy review for senior-review command"
   - subagent_type: "abstraction-architect:abstraction-architect"
   - run_in_background: true
   - prompt: |
@@ -651,29 +610,33 @@ Agent tool call:
     ## Instructions
     Follow the `PROCESS (mode = diff)` section of your agent definition.
 
-    Your search space is the WHOLE codebase, not the diff. The prior art you are
-    hunting for is by definition in files that did not change, so never limit
-    Grep to the changed files.
+    Your search space is the WHOLE codebase, not the diff. The prior
+    representation you are hunting for is by definition in files that did not
+    change, so never limit Grep to the changed files.
 
-    Report classes R1 (exact prior art), R2 (near prior art), R3 (Rule of Three
-    reached on this diff), and R5 (wrong abstraction introduced). Note R4 second
-    occurrences in their own section without flagging them.
+    Use your own report contract: sections A to G in precedence order (D2
+    competing sources of truth, D4 duplicated or derivable state, D3 redundant
+    representation, D1 duplicated domain knowledge, D6 prior art available, D5
+    missed unification, D7 abstraction fitness), one primary dimension per
+    finding, then section H for second occurrences noted but not flagged, then
+    section I for confidence and gaps.
 
     Do NOT re-flag single-file smells that `senior-review:code-auditor` already
     owns: leaky abstractions, premature interfaces with one implementation, and
     god objects visible inside one file. Your findings must cite at least one
     site outside the diff.
 
-    For each finding: severity (Critical/High/Medium/Low), file + line for BOTH
-    the new code and the prior art, confidence (0-100), the behavioral difference
-    if any, and the suggested direction in one sentence.
+    For each finding: its primary dimension (D1 to D7), severity
+    (Critical/High/Medium/Low), file + line for BOTH the new code and the
+    existing representation it collides with, confidence (0-100), the
+    behavioral difference if any, and the suggested direction in one sentence.
 ```
 
 ### Agent K: TypeScript Type-Safety Review (conditional)
 
 **Only run this agent if the diff touches `.ts` or `.tsx` files AND `tsconfig.json` exists at the project root.** On React projects both Agent I and Agent K run: the charters are orthogonal (performance vs type safety) and consolidation deduplicates any collision.
 
-**Skip if the `typescript-development` plugin is not installed.** It is an `optionalDependency`, so the spawn fails with "Agent type not found" when it is absent. Report the dimension as skipped for that reason instead, so the gap is visible in the report rather than silent.
+`typescript-development` is a hard dependency of `senior-review`, so this agent is always available. Skip the dimension only when the TypeScript signal did not match.
 
 ```
 Agent tool call:

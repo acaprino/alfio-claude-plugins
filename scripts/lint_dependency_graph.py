@@ -5,7 +5,7 @@ Stdlib only, no dependencies, runs from the repository root:
     python scripts/lint_dependency_graph.py
 
 Cross-plugin references inside plugin bodies are contracts. Until now they were
-enforced only by prose in CLAUDE.md; this linter makes them mechanical. Five
+enforced only by prose in CLAUDE.md; this linter makes them mechanical. Seven
 passes, each independently reported. Exits non-zero if any fails.
 
   1. declarations   every dependencies/optionalDependencies entry resolves:
@@ -24,8 +24,23 @@ passes, each independently reported. Exits non-zero if any fails.
   4. degrade notes  every spawn of an agent from an optionalDependencies
                     plugin carries a nearby skip note ("not installed" /
                     "skip"), so a missing optional plugin degrades a dimension
-                    instead of failing the pipeline
+                    instead of failing the pipeline. Since pass 6 forbids
+                    optional LOCAL dependencies, this pass now only ever fires
+                    on cross-marketplace ones
   5. self edges     no plugin declares itself as a dependency
+  6. internal deps  a dependency on a plugin inside this marketplace is always
+     mandatory      hard. Bare names in optionalDependencies are rejected: they
+                    buy silent degradation ("Skipped: not installed" on a whole
+                    review dimension) and protect against nothing, since local
+                    plugins install together. See CLAUDE.md, "Dependency
+                    policy: every internal dependency is mandatory"
+  7. no local       the other half of pass 6, over prose instead of
+     degrade prose  declarations. A hard local dependency is always present, so
+                    text making something conditional on its install, or naming
+                    a stand-in for it, can only produce a silently reduced
+                    result. Added after the 21.x policy pass deleted every such
+                    branch by hand and still left one behind, with all six other
+                    checks green
 
 What counts as a runtime reference:
 
@@ -61,6 +76,13 @@ FORBIDDEN_EDGES = [
 # Suppressions for pass 2, keyed (relative posix path, namespace). Add an
 # entry only for a reference the linter misreads, with a reason.
 ALLOWLIST = {
+}
+
+# Suppressions for pass 7, keyed (relative posix path, line number). Add an
+# entry only for a line the linter misreads, with a reason. A line that really
+# does make a dimension conditional on a hard local dependency gets fixed, never
+# suppressed: that is the defect the pass exists to catch.
+DEGRADE_PROSE_ALLOWLIST = {
 }
 
 failures = []
@@ -211,6 +233,91 @@ def check_degrade_notes(plugins, refs):
     return problems
 
 
+def check_internal_deps_mandatory(plugins):
+    """Standing rule since marketplace 21.3.0: a dependency on a plugin inside
+    this marketplace is always hard.
+
+    An optional local dependency protects against nothing (local plugins install
+    together from the same marketplace) and buys silent degradation: a review
+    prints "Skipped: not installed" for a whole dimension and hands back a report
+    that reads as complete. Cross-marketplace entries are unaffected; they stay
+    optional-capable because the user installs them by hand.
+    """
+    problems = []
+    for name, meta in plugins.items():
+        for entry in meta["optionalDependencies"]:
+            # Membership, not just the absence of "@": a bare name that is NOT a local
+            # plugin is pass 1's business (a typo, or an external name missing its
+            # marketplace). Claiming it belongs in dependencies would send a maintainer
+            # to break the whole plugin load.
+            if "@" not in entry and entry in plugins:
+                problems.append(
+                    f"{name}: '{entry}' is a plugin in this marketplace and must be "
+                    f"declared in dependencies, not optionalDependencies "
+                    f"(see CLAUDE.md, 'Dependency policy: every internal "
+                    f"dependency is mandatory')")
+    return problems
+
+
+INSTALL_CONDITIONAL = re.compile(
+    r"not installed|\bis installed\b|\bfalls? back\b|\bfallback\b", re.IGNORECASE)
+
+# A line asserting the plugin is always there, or that no fallback exists, states
+# the policy rather than breaching it. Without this the pass fires on its own
+# remedy: "There is no generic fallback variant" trips a bare /fallback/.
+POLICY_AFFIRMATION = re.compile(
+    r"always available|always present|is a hard dependency|are hard dependencies|"
+    r"\bno (generic )?fallback\b|broken install", re.IGNORECASE)
+
+
+def check_no_local_degrade_prose(plugins):
+    """The inverse of pass 4, and the half of the policy pass 6 cannot reach.
+
+    Pass 6 governs declarations. This governs the prose those declarations are
+    supposed to bind. A hard local dependency is always present, so text that
+    makes a dimension conditional on its install, or that names a stand-in for
+    it, can only produce a silently reduced result: the review reports the
+    dimension as run while a generic agent did the work, or drops it with a note
+    nobody reads.
+
+    This pass exists because prose drifts where declarations do not. The 21.x
+    policy pass deleted every such branch by hand and still left one behind
+    (`team-review.md`, the testing-dimension addendum), with all six other
+    checks green. Two independent reviewers found it; no linter did.
+
+    Deliberately narrow. The bare word "skip" is legitimate everywhere in this
+    repo ("Skip the dimension only when its signal did not match"), so a match
+    needs an install-conditional phrase AND a hard local dependency named on the
+    same line.
+    """
+    problems = []
+    for md in sorted(PLUGINS.glob("*/**/*.md")):
+        owner = md.relative_to(PLUGINS).parts[0]
+        if owner not in plugins:
+            continue  # unregistered; pass 2 and lint_plugin_registration.py own it
+        hard_local = {e for e in plugins[owner]["dependencies"]
+                      if "@" not in e and e in plugins}
+        if not hard_local:
+            continue
+        lines = md.read_text(encoding="utf-8", errors="replace").splitlines()
+        for i, line in enumerate(lines, start=1):
+            if (md.as_posix(), i) in DEGRADE_PROSE_ALLOWLIST:
+                continue
+            if not INSTALL_CONDITIONAL.search(line):
+                continue
+            if POLICY_AFFIRMATION.search(line):
+                continue  # states the rule, does not breach it
+            for ns in sorted(hard_local):
+                if re.search(rf"(?<![\w-]){re.escape(ns)}(?![\w-])", line):
+                    problems.append(
+                        f"{md.as_posix()}:{i} makes something conditional on "
+                        f"'{ns}' being installed (or names a fallback for it), "
+                        f"but '{ns}' is a hard dependency of {owner} and is "
+                        f"always present; a dimension is skipped only when its "
+                        f"signal did not match")
+    return problems
+
+
 def check_self_edges(plugins):
     problems = []
     for name, meta in plugins.items():
@@ -242,6 +349,8 @@ def main():
     report("forbidden edge", check_forbidden_edges(refs))
     report("degrade notes", check_degrade_notes(plugins, refs))
     report("self edges", check_self_edges(plugins))
+    report("internal deps mandatory", check_internal_deps_mandatory(plugins))
+    report("no local degrade prose", check_no_local_degrade_prose(plugins))
 
     if failures:
         sys.exit(f"\n{len(failures)} check(s) failed: {', '.join(failures)}")

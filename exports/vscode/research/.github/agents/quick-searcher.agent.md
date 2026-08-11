@@ -6,7 +6,7 @@ description: >
   a single fact, definition, stat, URL, or quick confirmation that can plausibly be answered by
   1-3 web searches from one source. Not for the question requires synthesis across 3+ sources or
   multiple angles (use deep-researcher), or the task is about local code/files (use `#search/textSearch`,
-  `#search/fileSearch`, or the `codebase-explorer` agent in the `codebase-mapper` bundle), or the user is
+  `#search/fileSearch`), or the user is
   implementing/editing code.
 user-invocable: true
 tools:

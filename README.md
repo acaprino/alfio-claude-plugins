@@ -127,14 +127,14 @@ More detail in [Test authoring knowledge bases (TDD and browser E2E)](#test-auth
 | **[libgdx-development](docs/plugins/libgdx-development.md)** | libGDX cross-platform game dev - rendering pipeline, Scene2D + Ashley ECS, Box2D, AssetManager, deploy to Desktop/Android/iOS/HTML5, /libgdx-audit | 1 | 1 | 1 |
 | **[kotlin-development](docs/plugins/kotlin-development.md)** | Idiomatic Kotlin - coroutines, Flow/StateFlow, Kotlin Multiplatform (KMP), Jetpack Compose, Ktor server, type-safe DSLs | - | 1 | - |
 | **[pwa-expert](docs/plugins/pwa-expert.md)** | Progressive Web Apps 2025-2026: manifest, service workers, Web Push, install flows, store distribution | 1 | 1 | 3 |
-| **[abstraction-architect](docs/plugins/abstraction-architect.md)** | Pure-architecture audits: missed unification, wrong abstractions, diff-anchored prior-art search | 1 | 1 | 1 |
+| **[abstraction-architect](docs/plugins/abstraction-architect.md)** | Structural entropy audits: duplicated domain knowledge, competing sources of truth, redundant representation, derivable state, missed unification, prior art, abstraction fitness | 1 | 1 | 1 |
 | **[text-humanizer](docs/plugins/text-humanizer.md)** | Remove AI writing traces from any prose (24 patterns) with /humanize-text; consumed by digital-marketing, codebase-mapper, business, clean-code | 1 | 1 | 1 |
 
 **A** = Agents, **S** = Skills, **C** = Commands
 
 ### Dependency graph
 
-Solid arrows are hard dependencies (`dependencies` in `marketplace.json`: the plugin does not work without them). Dashed arrows are optional dependencies (`optionalDependencies`: used when installed, skipped gracefully otherwise). Plugins with no declared dependencies and no dependents are omitted. External upstream plugins are grouped at the bottom with their marketplace name.
+Every arrow is a hard dependency (`dependencies` in `marketplace.json`: the plugin does not work without it). There are no optional edges: since marketplace 21.3.0 a dependency on a plugin inside this marketplace is always mandatory, so nothing installs half-working. Plugins with no declared dependencies and no dependents are omitted. External upstream plugins are grouped at the bottom with their marketplace name.
 
 ```mermaid
 flowchart TD
@@ -182,31 +182,30 @@ flowchart TD
     codebasemapper --> texthumanizer
     codebasemapper --> agentteams
     codebasemapper --> deepdive
-    codebasemapper -.-> seniorreview
+    codebasemapper --> seniorreview
     seniorreview --> agentteams
     seniorreview --> deepdive
-    seniorreview -.-> abstraction
-    seniorreview -.-> reactdev
-    seniorreview -.-> platformeng
-    seniorreview -.-> pythondev
-    seniorreview -.-> tsdev
-    seniorreview -.-> testing
+    seniorreview --> abstraction
+    seniorreview --> reactdev
+    seniorreview --> platformeng
+    seniorreview --> pythondev
+    seniorreview --> tsdev
+    seniorreview --> testing
     testing --> mattpocockskills
     testing --> deveressentials
     abstraction --> deepdive
     deepdive --> agentteams
     research --> agentteams
-    research -.-> codebasemapper
     frontendreview --> impeccable
     frontendreview --> uiuxpromax
     frontendreview --> frontenddesign
-    frontendreview -.-> reactdev
-    frontendreview -.-> tsdev
-    frontendreview -.-> pwaexpert
-    frontendreview -.-> platformeng
+    frontendreview --> reactdev
+    frontendreview --> tsdev
+    frontendreview --> pwaexpert
+    frontendreview --> platformeng
 ```
 
-Solid arrows are hard dependencies, dotted ones optional. The hard graph is a tree rooted at `codebase-xray`, the plugin that works out how a codebase actually behaves: `senior-review` (review), `codebase-mapper` (documentation), and `abstraction-architect` all build on top of it, and it depends on nothing of ours. That shape is deliberate as of marketplace 16.0.0, when the shared interconnect mapper moved into `codebase-xray` and removed the last near-cycle. `senior-review`'s six optional edges back its conditional review dimensions, each skipped with a note when the plugin is absent rather than failing the review (the `testing` edge degrades differently: its dimension falls back to the generic reviewer instead of skipping). `text-humanizer` is a pure leaf: zero dependencies, four dependents. `frontend-review` sits outside that tree: its three solid arrows are hard dependencies on external design plugins, not on anything of ours, so it does not join the `codebase-xray` root; its four dotted arrows back the auto-detected code dimensions the same way `senior-review`'s optional edges do. `peer-review` sits outside the tree the same way `ai-tooling` does: its one solid arrow is a hard dependency on external `superpowers`, it has no optional edges, and nothing of ours depends on it.
+Every arrow is a hard dependency. As of marketplace 21.3.0 there are no optional edges at all: a dependency on a plugin inside this marketplace is always mandatory, so installing one plugin installs everything it needs and no capability can silently go missing. The graph is rooted at `codebase-xray`, the plugin that works out how a codebase actually behaves: `senior-review` (review), `codebase-mapper` (documentation), and `abstraction-architect` all build on top of it, and it depends on nothing of ours. That shape is deliberate as of marketplace 16.0.0, when the shared interconnect mapper moved into `codebase-xray` and removed the last near-cycle. `senior-review`'s six edges back its review dimensions, each run or skipped on whether the change shows its signal, never on whether a plugin is present. `text-humanizer` is a pure leaf: zero dependencies, four dependents. `frontend-review` sits outside that tree: its three external arrows are hard dependencies on design plugins from other marketplaces, which the user installs by hand, so it does not join the `codebase-xray` root; its four local arrows back the auto-detected code dimensions. `research` depends on no local plugin at all, deliberately: it researches the web and nothing else. `peer-review` sits outside the tree the same way `ai-tooling` does: its one arrow is a hard dependency on external `superpowers`, and nothing of ours depends on it.
 
 ### Frontend and design
 

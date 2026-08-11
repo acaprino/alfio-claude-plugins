@@ -22,7 +22,7 @@ claude plugin install frontend-design@claude-plugins-official
 
 `impeccable` also ships four support agents and a hooks file, and `ui-ux-pro-max` ships five more skills (`design`, `ui-styling`, `brand`, `banner-design`, `slides`); this plugin loads none of them.
 
-The four code dimensions below are bare, local `optionalDependencies` instead: `react-development`, `typescript-development`, `pwa-expert`, `platform-engineering`. Each degrades to a skip with a stated reason when its plugin is absent. There is no install-or-stop gate for these; the design dimension is the only hard gate.
+The four code dimensions below are bare, local hard `dependencies` instead: `react-development`, `typescript-development`, `pwa-expert`, `platform-engineering`. The marketplace installs them with this plugin, so each is skipped only when the codebase shows no signal for it. The design dimension needs its own install-or-stop gate because its three plugins come from other marketplaces and the user installs them by hand.
 
 ---
 
@@ -52,16 +52,16 @@ The four code dimensions below are bare, local `optionalDependencies` instead: `
 
 Design and UX runs inline in the command's own context, against the four loaded skills; it is not a spawned agent, because the upstream plugins ship skills rather than reviewer agents. The four code dimensions spawn as parallel agents, one per matched signal, only when both the signal and the owning plugin are present.
 
-**Degradation, per code dimension:**
+**Activation, per code dimension:**
 
-| Optional plugin | Backs | Skipped: not matched | Skipped: not installed |
-|---|---|---|---|
-| `react-development` | React performance | No `react` dependency in `package.json`, or no `.tsx`/`.jsx` files in scope | React signal detected in scope, but the plugin is absent; install it to close the gap |
-| `typescript-development` | TypeScript type safety | No `.tsx?` files in scope, or no `tsconfig.json` at the project root | TypeScript signal detected, but the plugin is absent |
-| `pwa-expert` | PWA architecture | No manifest, service worker, or Workbox config found | PWA signal detected, but the plugin is absent |
-| `platform-engineering` | Platform compliance | Fewer than 2 of the fullstack/platform signals present | 2 or more signals detected, but the plugin is absent |
+| Plugin | Backs | Skipped: not matched |
+|---|---|---|
+| `react-development` | React performance | No `react` dependency in `package.json`, or no `.tsx`/`.jsx` files in scope |
+| `typescript-development` | TypeScript type safety | No `.tsx?` files in scope, or no `tsconfig.json` at the project root |
+| `pwa-expert` | PWA architecture | No manifest, service worker, or Workbox config found |
+| `platform-engineering` | Platform compliance | Fewer than 2 of the fullstack/platform signals present |
 
-"Skipped, not matched" means the codebase does not need the dimension. "Skipped, not installed" means it does, and the review has a known blind spot there until the plugin is installed. The report states which of the two applies for every dimension that did not run.
+There is one skip reason and it is always about the codebase: the dimension did not match. A missing plugin is not a reason, because all four are hard dependencies. A spawn failing with "Agent type not found" means a broken install, and the command stops and reports it rather than scoring a partial review.
 
 **Scoring model:**
 
@@ -75,7 +75,7 @@ A skipped dimension, whether skipped for lack of a signal or for a missing plugi
 **Report:** `.frontend-review/report.md`, always at that path regardless of how many dimensions ran:
 
 - Header with date and mode (diff or full), and file count
-- Dimension status table (Run / Skipped: not matched / Skipped: not installed, with the install command where relevant)
+- Dimension status table (Run / Skipped: not matched, with the reason)
 - Scores table per dimension plus the weighted overall
 - Findings grouped Critical/High then Medium/Low, each with a `- [ ] Fixed` checkbox
 - `## What's Working Well`

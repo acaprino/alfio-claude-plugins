@@ -23,7 +23,6 @@ tools:
 agents:
   - deep-researcher
   - quick-searcher
-  - codebase-explorer
 ---
 
 <!-- Export-only: no source in acaprino/claude-code-daodan. VS Code gates subagent dispatch behind
@@ -50,9 +49,9 @@ comes back, and synthesize one report.
 community experience, comparison, recency) and, for a domain question, a persona in the prompt
 naming the expertise to reason from.
 
-`codebase-explorer` covers the local-code angle, and only when the question actually touches a
-project in the workspace. It ships in the `codebase-mapper` bundle, installed separately. If it is
-absent, skip that role, say so in the report, and continue with the web angles alone.
+This pipeline researches the web, and only the web. It never reads or searches a local codebase and
+dispatches nothing from another bundle. A question about local code belongs to `#search/textSearch`,
+`#search/fileSearch`, or a codebase-oriented bundle, not here.
 
 `quick-searcher` is for a single fact you need to settle mid-run. It is not one of the angles.
 

@@ -1,8 +1,8 @@
 ---
 description: >
-  Unified code review - auto-detects scope and runs architecture, security, dead-code and VCS-hygiene analysis in parallel, then optionally fixes and cleans up what it found. Automatically uses X-ray context if available.
-  TRIGGER WHEN: the user asks for a code review, PR review, branch audit, security/architecture analysis of recent changes, or asks to find and remove dead code, unused exports, unused dependencies, orphan assets, or generated artifacts committed to git.
-  DO NOT TRIGGER WHEN: a full multi-phase pipeline is needed (use /senior-review:team-review) or reviewing a single file for style (use clean-code).
+  Auto-detects the scope, runs its analysis dimensions in parallel, and applies fixes with --fix or lands them with --commit. Reuses X-ray context when present.
+  TRIGGER WHEN: the user asks for a code review, PR review, branch audit, or a security or architecture pass over recent changes; or asks to find and remove dead code, unused exports, unused dependencies, orphan assets, VCS-hygiene violations, or generated artifacts tracked in git.
+  DO NOT TRIGGER WHEN: a full multi-phase pipeline is wanted (use /senior-review:team-review) or a single file needs a style pass (use clean-code).
 argument-hint: "[PR number | --branch <name> | --commits N] [--fix] [--commit] [--auto-comment] [--strict] [--security-focus] [--fast] [--rigorous]"
 ---
 
@@ -158,7 +158,7 @@ gh api repos/{owner}/{repo}/pulls/{number}/comments --jq '.[].path' | sort -u
    - Read `.deep-dive/05-risks.md` for known risk context
    - Include a "Deep Dive Context" section in each agent's prompt (see template below)
    - Note in the review output that deep-dive context was used
-   - If `.deep-dive/` does not exist or is incomplete, proceed normally without it -- this is expected behavior when the `codebase-xray` plugin is not installed or hasn't been run
+   - If `.deep-dive/` does not exist or is incomplete, proceed normally without it -- this is expected behavior when the X-ray has not been run for this project yet
    - This is a deliberate classification, not an oversight: `code-review` consumes a pre-existing analysis rather than starting a run, so per the X-ray Concurrent Runs Model the mirror is the correct contract for it. If this command is ever changed to invoke the X-ray skill itself, it moves to the immutable run directory (`$XRAY_RUN_DIR`) at that point
 
 ### Deep Dive Context Template
@@ -254,19 +254,19 @@ The full spawn prompt for every agent lives in the `senior-review:review-quality
 | B | Security | `senior-review:security-auditor` | Always |
 | B2 | Dead code, unused parameters, VCS hygiene (lite, diff-scoped) | `general-purpose` | Always |
 | C | UI race conditions | `senior-review:ui-race-auditor` | Changed files include UI/frontend code (`.tsx`, `.jsx`, `.vue`, `.svelte`, `.component.ts`, `.qml`, or scroll/focus/layout manipulation) |
-| D | Platform / runtime integration | `platform-engineering:platform-reviewer` | Fullstack signals (2+, Step 1). Skip with a note if the `platform-engineering` plugin is not installed |
+| D | Platform / runtime integration | `platform-engineering:platform-reviewer` | Fullstack signals (2+, Step 1) |
 | E | Git blame and history | `general-purpose` | Always |
-| F | Testing quality | `testing:test-suite-auditor` (fallback `general-purpose` when the `testing` plugin is not installed) | Diff touches test files |
+| F | Testing quality | `testing:test-suite-auditor` | Diff touches test files |
 | G | API contracts | `general-purpose` | Diff touches API-related files (routes, serializers, OpenAPI/GraphQL/proto specs, DTOs) |
 | H | Data migrations | `general-purpose` | Diff touches migration files |
-| I | React performance | `react-development:react-performance-optimizer` | Diff touches `.tsx`/`.jsx` AND React in dependencies. Skip with a note if the `react-development` plugin is not installed |
-| J | Abstraction and reuse (prior art, Rule of Three) | `abstraction-architect:abstraction-architect` | Diff adds at least one function/method/class/module/constant table or 5+ line block. Skip with a note if the `abstraction-architect` plugin is not installed |
-| K | TypeScript type safety | `typescript-development:type-safety-auditor` | Diff touches `.ts`/`.tsx` AND `tsconfig.json` at project root. Skip with a note if the `typescript-development` plugin is not installed |
+| I | React performance | `react-development:react-performance-optimizer` | Diff touches `.tsx`/`.jsx` AND React in dependencies |
+| J | Structural entropy (duplicated knowledge, competing owners, redundant representation, derivable state, missed unification, prior art, abstraction fitness) | `abstraction-architect:abstraction-architect` | Diff adds at least one function/method/class/module/constant table or 5+ line block |
+| K | TypeScript type safety | `typescript-development:type-safety-auditor` | Diff touches `.ts`/`.tsx` AND `tsconfig.json` at project root |
 | L | Temporal resilience (failure-over-time) | `senior-review:temporal-resilience-auditor` | Diff touches timers, schedulers, polling, retry/reconnect, cron, queue workers, daemons, updaters, watchdogs |
 | M | Data integrity (persistence semantics) | `senior-review:data-integrity-auditor` | Diff touches schemas, models, ORM, raw SQL, caches, or transaction boundaries |
 | N | Resource lifecycle (ownership and release) | `senior-review:resource-lifecycle-auditor` | Diff acquires files, sockets, connections, subprocesses, listeners, locks, tasks, or timers |
 
-Four dimensions live in plugins declared as `optionalDependencies` (D, I, J, K): when the plugin is absent, skip the dimension and report it as "not installed" under Skipped rather than attempting the spawn (which would fail with "Agent type not found"). Agent F degrades differently: it falls back to `general-purpose` with the testing checklist from the reference file. Everything else resolves to `senior-review` agents or `general-purpose` and always runs when its condition matches.
+Every agent in this table resolves to a plugin `senior-review` declares as a hard dependency, so no dimension can be missing at runtime. Agents D, F, I, J and K live in other plugins (`platform-engineering`, `testing`, `react-development`, `abstraction-architect`, `typescript-development`); the marketplace installs them with this one. A dimension appears under Skipped only when its **signal did not match**, never because a plugin is absent. If a spawn fails with "Agent type not found", the install is broken: stop and report it rather than silently continuing with a reduced review.
 
 ---
 

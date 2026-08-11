@@ -7,8 +7,8 @@ description: >
   an open-ended web research question requiring synthesis across multiple sources or angles (e.g.
   "compare X vs Y", "audit the ecosystem around Z", "what are current best practices for W in
   2026"). Not for the question is a single-fact lookup answerable from one source (use
-  quick-searcher), or the task is about local code/files (use `#search/textSearch`, `#search/fileSearch`, or
-  the `codebase-explorer` agent in the `codebase-mapper` bundle), or it is a code-quality audit (use
+  quick-searcher), or the task is about local code/files (use `#search/textSearch`,
+  `#search/fileSearch`), or it is a code-quality audit (use
   the `review-code-auditor` agent in the `_pipelines` bundle), or the user is implementing/editing code.
 user-invocable: true
 tools:
