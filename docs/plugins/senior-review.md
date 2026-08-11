@@ -298,7 +298,7 @@ Multi-dimensional code review as a **4-phase pipeline**: context building first,
 
 | | |
 |---|---|
-| **Invoke** | `/senior-review:team-review <target> [--reviewers auto\|security,performance,...] [--base-branch main] [--all] [--deep] [--skip-interconnect] [--fast] [--rigorous]` |
+| **Invoke** | `/senior-review:team-review <target> [--reviewers auto\|security,performance,...] [--base-branch main] [--all] [--deep] [--no-context] [--fast] [--rigorous]` |
 | **Artifact dir** | `.team-review/` (state, scope, interconnect map, per-dimension findings, consolidated report; preserved, not auto-deleted) |
 
 **Pipeline:**
@@ -315,7 +315,7 @@ Multi-dimensional code review as a **4-phase pipeline**: context building first,
 | 4c. Completeness critic | Quality gate, see `review-quality-gates` above (skipped with `--fast`) |
 | 5. Report & cleanup | Workspace hygiene check against the pre-review `git status` snapshot, then the consolidated report with the context-utilization metric; team resources torn down |
 
-**Always-on dimensions:** security, architecture, logic integrity (skipped under `--skip-interconnect`), codebase hygiene.
+**Always-on dimensions:** security, architecture, logic integrity (skipped under `--no-context`), codebase hygiene.
 
 **Conditional dimensions** (auto-detected): UI races, distributed flows, circular dependencies, temporal resilience (`temporal-resilience-auditor`, activated by timers, schedulers, retry/reconnect, polling, cron, and daemon signals in the diff), data integrity (`data-integrity-auditor`, activated by schema, ORM, raw SQL, cache, and transaction signals), resource lifecycle (`resource-lifecycle-auditor`, activated by file/socket/connection/subprocess/listener/lock/task acquisition signals), and API contracts (`api-contract-auditor`, activated by a formal contract file such as `*.proto`, `openapi*.y*ml`, `*.graphql`, or `asyncapi*`, as well as by route and serializer changes) all resolve to specialized agents in this plugin. React performance, platform / runtime integration, abstraction/reuse, and TypeScript type safety (dimension `ts-safety` in team-review, Agent K in code-review; `typescript-development:type-safety-auditor`, activated when changed files match `\.tsx?$` and `tsconfig.json` exists) resolve to agents in `react-development`, `platform-engineering`, `abstraction-architect`, and `typescript-development`, which are optional dependencies: when one is absent its dimension is skipped and reported as "not installed" rather than failing the review. `logic-integrity-auditor` findings that violate a rule the interconnect map never surfaced carry the `[MAP-GAP]` marker and are also reported as mapper coverage gaps. Testing quality resolves to `testing:test-suite-auditor` (the `testing` plugin is an optional dependency too, but it degrades differently: when absent the dimension falls back to the generic reviewer instead of skipping). General performance and data migrations resolve to the `agent-teams:team-reviewer` fallback with the dimension named in the prompt.
 
@@ -323,10 +323,10 @@ Multi-dimensional code review as a **4-phase pipeline**: context building first,
 /senior-review:team-review src/auth/                                # auto-detected dimensions
 /senior-review:team-review main...HEAD --reviewers security,testing # explicit dimensions on a diff
 /senior-review:team-review #42 --rigorous                           # PR review, verify every finding
-/senior-review:team-review src/ --skip-interconnect                 # legacy parallel-only mode
+/senior-review:team-review src/ --no-context                        # raw mode, no context phase
 ```
 
-`--skip-interconnect` reproduces the pre-pipeline behavior: no context phase, no `logic-integrity-auditor`, reviewers see only the target and diff. Use it for quick scans or targets under roughly 100 LOC.
+`--no-context` reproduces the pre-pipeline behavior: no context phase, no `logic-integrity-auditor`, reviewers see only the target and diff. Use it for quick scans or targets under roughly 100 LOC.
 
 ---
 

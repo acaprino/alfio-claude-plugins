@@ -1,6 +1,6 @@
 ---
 description: "Launch a multi-reviewer parallel code review with specialized review dimensions, preceded by a context-building pipeline (deep-dive + interconnect map) so reviewers can hunt cross-component logic bugs, not just local issues"
-argument-hint: "<target> [--reviewers auto|security,performance,...] [--base-branch main] [--all] [--deep] [--skip-interconnect] [--fast] [--rigorous]"
+argument-hint: "<target> [--reviewers auto|security,performance,...] [--base-branch main] [--all] [--deep] [--no-context] [--fast] [--rigorous]"
 ---
 
 ## Prerequisites
@@ -25,7 +25,7 @@ Orchestrate a multi-dimensional code review as a **4-phase pipeline**:
 
 The pipeline lets reviewers find problems that are invisible from local-only inspection: broken implicit contracts, invariant drift, bypass paths to business rules, non-idempotent retry paths, terminal state mutations.
 
-**Backward compat**: pass `--skip-interconnect` to run the old parallel-only behavior (no context phase, no `logic-integrity-auditor`).
+**Raw mode**: pass `--no-context` to run the old parallel-only behavior (no context phase, no `logic-integrity-auditor`).
 
 ## Skills to Load
 
@@ -44,7 +44,7 @@ Before starting, invoke these skills to inform the review process:
    - `--base-branch`: base branch for diff comparison (default: `main`)
    - `--all`: force all dimensions regardless of auto-detection
    - `--deep`: run Phase 1a `codebase-xray` in full mode (default: `--depth=lite`)
-   - `--skip-interconnect`: skip Phase 1 entirely and run reviewers with raw code only (backward-compat mode; `logic-integrity-auditor` is also skipped)
+   - `--no-context`: skip Phase 1 entirely and run reviewers with raw code only (raw mode; `logic-integrity-auditor` is also skipped)
    - `--fast`: skip the verification + completeness-critic gate entirely (Phase 4b and 4c)
    - `--rigorous`: verify every finding above the confidence floor, ignoring the cost-guard cap
 3. Check for existing `.team-review/state.json`:
@@ -61,7 +61,7 @@ Before starting, invoke these skills to inform the review process:
        "reviewers": "auto",
        "all": false,
        "deep": false,
-       "skip_interconnect": false,
+       "no_context": false,
        "fast": false,
        "rigorous": false
      },
@@ -105,7 +105,7 @@ Analyze changed files and codebase to determine which review dimensions are rele
 |-----------|-------|-----------|
 | Security | `senior-review:security-auditor` | Every change can introduce vulnerabilities |
 | Architecture | `senior-review:code-auditor` | Coupling, abstractions, failure flows, pattern consistency, scoring |
-| **Logic integrity** | `senior-review:logic-integrity-auditor` | **Hunts violations of contracts/invariants/domain rules surfaced in Phase 1b** (skipped if `--skip-interconnect`) |
+| **Logic integrity** | `senior-review:logic-integrity-auditor` | **Hunts violations of contracts/invariants/domain rules surfaced in Phase 1b** (skipped if `--no-context`) |
 | Codebase hygiene | `senior-review:cleanup-auditor` | The **full** hygiene pass across all five dimensions and the whole codebase: dead code, orphan assets, generated artifacts tracked in VCS, phantom/unused deps plus barrel-file and eager-bundle bloat, and stale documentation. `/senior-review:code-review` and `/senior-review:pr-review` run only the lite subset (dead code + VCS hygiene, scoped to the diff), so this dimension is where the other three dimensions get covered at all |
 
 ### Conditional dimensions (auto-detected from context)
@@ -203,7 +203,7 @@ Mark `phase_0b_detection` complete in `state.json`.
 
 ## Phase 0c: Review Evidence Discovery
 
-Runs inline in the orchestrating context, on every invocation **except** raw mode (`--skip-interconnect` at the time this task runs, renamed to `--no-context` in Task 5b). That flag means "give me the raw mode", and a normally-on phase does not override it: `01a-review-knowledge-leads.md` distributed to N reviewers is itself shared context, so keeping this phase alive under the flag would make findings legitimately `shared-context`, let Lens 0 fire, and stop the mode reproducing the pre-pipeline behaviour it exists to provide.
+Runs inline in the orchestrating context, on every invocation **except** raw mode (`--no-context`). That flag means "give me the raw mode", and a normally-on phase does not override it: `01a-review-knowledge-leads.md` distributed to N reviewers is itself shared context, so keeping this phase alive under the flag would make findings legitimately `shared-context`, let Lens 0 fire, and stop the mode reproducing the pre-pipeline behaviour it exists to provide.
 
 This phase owns discovery of **what evidence is relevant to this review**. X-ray owns discovery of how the repository documents itself. The two are different jobs and the division is deliberate.
 
@@ -246,7 +246,7 @@ Mark `phase_0c_evidence_discovery` complete in `state.json`.
 
 ## Phase 1: Context Building
 
-Skip this phase entirely if `--skip-interconnect` was passed. Mark `phase_1a_deep_dive`, `phase_1b_interconnect`, and `phase_0c_evidence_discovery` as `skipped` in `state.json`. Jump to Phase 2 with raw target files only.
+Skip this phase entirely if `--no-context` was passed. Mark `phase_1a_deep_dive`, `phase_1b_interconnect`, and `phase_0c_evidence_discovery` as `skipped` in `state.json`. Jump to Phase 2 with raw target files only.
 
 ### Phase 1a: Deep-Dive Analysis
 
@@ -341,7 +341,7 @@ Follow your agent definition's analysis phases, knowledge-base loading, output f
 Write your output to .team-review/findings-{dimension}.md using the structured format your agent prescribes.
 ```
 
-If `--skip-interconnect` was set, omit the "Context files" and "Reviewer Hints" sections and do NOT spawn the `logic-integrity-auditor`.
+If `--no-context` was set, omit the "Context files" and "Reviewer Hints" sections and do NOT spawn the `logic-integrity-auditor`.
 
 **Abstraction dimension addendum.** `abstraction-architect:abstraction-architect` takes named inputs rather than a free-form dimension prompt. Append this block to its prompt:
 
@@ -358,7 +358,7 @@ Three things about this reviewer, because they invert the default reviewer contr
 
 - Its search space is the **whole codebase**, not the diff. The diff is only the anchor; the prior art it is hunting for is by definition in files that did not change. Do not scope it to the changed files.
 - It runs fine on `--depth=lite` output, since it consumes only `01-structure.md` and `02-interfaces.md`. Do not force `--deep` on its account.
-- `--skip-interconnect` does NOT skip it (that rule removes only `logic-integrity-auditor`). It runs with `deep_dive_path: none` and degrades to Glob plus Grep, reporting the reduced confidence in its Gaps section.
+- `--no-context` does NOT skip it (that rule removes only `logic-integrity-auditor`). It runs with `deep_dive_path: none` and degrades to Glob plus Grep, reporting the reduced confidence in its Gaps section.
 
 **Testing dimension addendum.** `testing:test-suite-auditor` (when the `testing` plugin is installed; the `agent-teams:team-reviewer` fallback needs no addendum) partly inverts the default reviewer contract. Append this to its prompt:
 
@@ -423,7 +423,7 @@ Skip this phase if `--fast` was passed (mark `phase_4b_verification` as `skipped
 
 Skip this phase if `--fast` was passed (mark `phase_4c_critic` as `skipped`). Otherwise drive the critic exactly per the `senior-review:review-quality-gates` skill, section `## Completeness Critic`.
 
-1. Spawn one critic agent (`general-purpose`) with the critic prompt from the skill. Pass the verified findings (post-4b), `.team-review/00-scope.md`, the dimensions that ran, and the context paths (`.deep-dive/` and `.team-review/02-interconnect.md`, or "none" under `--skip-interconnect`).
+1. Spawn one critic agent (`general-purpose`) with the critic prompt from the skill. Pass the verified findings (post-4b), `.team-review/00-scope.md`, the dimensions that ran, and the context paths (`.deep-dive/` and `.team-review/02-interconnect.md`, or "none" under `--no-context`).
 2. Write the critic output to `.team-review/97-coverage-gaps.md`.
 3. If the critic names a single high-risk uncovered area under `## Recommended follow-up` AND neither the cost guard nor `--fast` applies: spawn ONE targeted reviewer (the most specialized agent for that area, per the Phase 2 dimension-to-agent table) for one round, scoped to the files the critic named. Route its findings back through Phase 4 (dedup) and Phase 4b (verification). Do this at most once.
 4. If the cost guard applies, degrade to report-only: keep `97-coverage-gaps.md`, spawn no follow-up, and note the skip.
@@ -474,12 +474,18 @@ Skip this phase if `--fast` was passed (mark `phase_4c_critic` as `skipped`). Ot
 4. Update `state.json` -> `status: "complete"`, mark `phase_4_report` complete.
 5. Inform the user that detailed findings and context are preserved in `.team-review/` for future reference (do not auto-delete).
 
-## Backward Compatibility
+## Raw mode (`--no-context`)
 
-Running `team-review <target> --skip-interconnect` reproduces the legacy parallel-only behavior:
-- No Phase 1
-- No `logic-integrity-auditor`
-- Reviewers receive only the target + diff (no context files)
+Reviewers receive the target and diff only. No context artifact is produced or
+distributed.
+
+- Phases skipped: 0c, 1a, 1c, 1d, 1b
+- Not spawned: `logic-integrity-auditor`, `premise-auditor` (either mode)
+- Every finding is `independent` by construction, so Lens 0 never fires and
+  consolidation never reports an echo
 - Output identical in structure to the pre-pipeline version
 
-Use this mode for quick scans, for targets with fewer than ~100 LOC where the pipeline adds more overhead than value, or when the deep-dive plugin is unavailable.
+Use it for targets under roughly 100 LOC where the context pipeline costs more
+than it returns, for quick scans, and when X-ray produces no usable output.
+
+`--skip-interconnect` was removed in senior-review 9.0.0. Use `--no-context`.

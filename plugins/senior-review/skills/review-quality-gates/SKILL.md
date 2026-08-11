@@ -27,7 +27,7 @@ This is the pipeline's first-level invariant, not quality advice. Three conseque
 
 ## Context Sharing Pattern
 
-When `/team-review` runs in pipeline mode (no `--skip-interconnect`), reviewers do not receive raw code only. They receive two context artifacts produced in Phase 1:
+When `/team-review` runs in pipeline mode (no `--no-context`), reviewers do not receive raw code only. They receive two context artifacts produced in Phase 1:
 
 1. **Deep-dive output** at `.deep-dive/` (from `codebase-xray` plugin): `01-structure.md`, `02-interfaces.md`, `05-risks.md`, and optionally `03-flows.md`, `04-semantics.md`, `06-documentation.md`, `07-final-report.md`.
 2. **Interconnect map** at `.team-review/02-interconnect.md` (from `codebase-xray:semantic-interconnect-mapper`): contracts (formal / structural / implicit), invariants, domain rules, assumptions (verified / documented / unverified), integration hot-spots, change impact radius.
@@ -113,7 +113,7 @@ Quality signals:
 
 Cross-source corroboration is a diagnostic over findings for which multiple semantically relevant sources exist. It is not a number to maximize. Many findings are provable entirely from code, and a low rate on those is correct.
 
-### Fallback: `--skip-interconnect` mode
+### Fallback: raw mode (`--no-context`)
 
 When the pipeline is skipped, reviewers receive only target + diff. In this mode:
 - `logic-integrity-auditor` is not spawned (no map to drive it).
