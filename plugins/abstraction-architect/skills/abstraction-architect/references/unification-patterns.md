@@ -241,6 +241,8 @@ CheckoutController:  if cartValue > 1000 -> managerApproval
 InvoiceWorkflow:     highValue = amount > 1000
 ```
 
+A matched threshold duplication is typically a **D1 or D2 knowledge-track candidate** where two representations suffice behind gates K1 to K6, and specifically **not** a D5 candidate gated by the Rule of Three. See `references/evidence-tracks.md` for those gates and when they apply.
+
 **Forces that want this to change together:** The business changes the number, which happens routinely and without engineering involvement. The rule gains a dimension (a threshold per currency, per tenant, per plan). Audit needs to state what the policy was on a given date. Regulation requires the bound to be documented and evidenced.
 
 **Suggested target layer:** A named policy object that owns both the value and the predicate, for example `ApprovalPolicy.requires_approval(order)`. Call sites ask the policy rather than comparing numbers. The value lives in one place, the predicate lives with it, and a change is one edit with one test.
@@ -260,7 +262,7 @@ InvoiceWorkflow:     highValue = amount > 1000
 
 **Forces that want this to change together:** A new condition is added to the rule and must reach every caller. A support tool must show the user *why* something is not eligible, which requires a structured reason rather than a boolean. The rule must be evaluated in a context that has no request (a batch job, a report), so it must not depend on request-scoped state.
 
-**Suggested target layer:** An eligibility function that returns a reason rather than a boolean: `RefundEligibility.check(order) -> Eligible | Ineligible(reason)`. Callers branch on the result and display the reason. The rule has one implementation and one test suite.
+**Suggested target layer:** An eligibility function that returns a reason rather than a boolean: `RefundEligibility.check(order) -> Eligible | Ineligible(reason)`. Callers branch on the result and display the reason. The rule has one implementation and one test suite. Distinguish from P13: classify as P13 when the duplicated thing is the number or bound itself; classify as P14 when the duplicated thing is a composed decision assembled from more than one condition. A refund window that only compares a day count is P13; refund eligibility that also weighs order state and payment status is P14.
 
 **Common pitfalls:**
 - Returning a bare boolean, which forces every caller that needs to explain the answer to reimplement the rule in order to derive the reason.
