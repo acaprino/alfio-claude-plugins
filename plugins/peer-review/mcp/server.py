@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["mcp"]
+# dependencies = ["mcp>=2.0.0,<3"]
 # ///
 """Transport-only MCP server for the peer-review plugin.
 
@@ -123,7 +123,7 @@ def peer_ask(
                 time.sleep(RETRY_BACKOFF_SECONDS)
                 continue
             return {"error": f"HTTP {error.code} from {url}: {detail}"}
-        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, KeyError) as error:
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, KeyError, IndexError) as error:
             return {"error": _redact(f"request failed: {error}", api_key)}
 
 
