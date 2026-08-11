@@ -1,9 +1,8 @@
 ---
 name: async-python-patterns
 description: >
-  Master Python asyncio, concurrent programming, and async/await patterns for high-performance applications.
-  TRIGGER WHEN: building async APIs, concurrent systems, or I/O-bound applications requiring non-blocking operations.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Structure asyncio code: task management, cancellation, rate limiting, blocking calls kept off the event loop.
+  TRIGGER WHEN: building async APIs, concurrent or I/O-bound systems needing non-blocking operations, or choosing between asyncio, threading and multiprocessing.
 ---
 
 # Async Python Patterns

@@ -1,9 +1,9 @@
 ---
 name: knip
 description: >
-  Knip finds unused files, dependencies, exports, and types in JavaScript/TypeScript projects. Plugin system for frameworks (React, Next.js, Vite), test runners (Vitest, Jest), and build tools.
+  Run Knip to find unused files, exports and types, with per-framework and per-test-runner plugins.
   TRIGGER WHEN: cleaning up TypeScript/JavaScript codebases, optimizing bundle size, or enforcing strict dependency hygiene in CI.
-  DO NOT TRIGGER WHEN: the target is a Python codebase (use python-dead-code with vulture/ruff instead).
+  DO NOT TRIGGER WHEN: the target is a Python codebase (use python-dead-code).
 ---
 
 # Knip Dead Code Detection

@@ -1,9 +1,9 @@
 ---
 name: pydantic-v2
 description: >
-  Pydantic v2 patterns for production Python: validators (`@field_validator`, `@model_validator`), computed fields, strict types, discriminated unions, settings management, `model_validate` / `model_dump`, `condecimal` and `Annotated[Decimal, ...]` for money, performance tips, and a v1 to v2 migration checklist. Also covers FastAPI integration (response_model serialization, request validation, error envelope customization).
-  TRIGGER WHEN: writing or refactoring Pydantic models in Python 3.10+; migrating a codebase from Pydantic v1 to v2; choosing between `Annotated[Decimal, ...]` vs `condecimal`; hitting v2 performance or serialization surprises; designing FastAPI request/response schemas or error envelopes with Pydantic.
-  DO NOT TRIGGER WHEN: the task is Python testing (use python-tdd), generic typing unrelated to Pydantic (use mypy / typing docs), or non-Python schema work (use typescript-development for Zod / io-ts).
+  Deep reference for the data layer of a production service.
+  TRIGGER WHEN: writing or refactoring Pydantic v2 models in Python 3.10+; migrating a codebase from Pydantic v1 to v2; choosing between `Annotated[Decimal, ...]` and `condecimal` for money; hitting v2 validator, serialization or performance surprises; designing FastAPI request/response schemas or error envelopes.
+  DO NOT TRIGGER WHEN: the task is Python testing (use python-tdd) or non-Python schema work (use typescript-development).
 ---
 
 # Pydantic v2

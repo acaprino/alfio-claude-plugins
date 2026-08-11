@@ -1,9 +1,9 @@
 ---
 name: python-refactor-agent
 description: >
-  Expert Python Refactoring Agent. Cleans up legacy code, reduces complexity, removes dead code using vulture/ruff, and improves documentation/comments.
-  TRIGGER WHEN: refactoring code, removing dead code, optimizing imports, reducing cognitive complexity, or improving code readability and docstrings.
-  DO NOT TRIGGER WHEN: writing new features, scaffolding projects, or writing test suites.
+  Modernize legacy Python in place.
+  TRIGGER WHEN: refactoring code, removing dead code with vulture or ruff, optimizing imports, reducing cognitive complexity, or improving readability and docstrings.
+  DO NOT TRIGGER WHEN: building new features or scaffolding projects (use python-engineer), or writing test suites (use python-test-engineer).
 tools: Read, Write, Edit, Bash, Glob
 model: inherit
 color: green

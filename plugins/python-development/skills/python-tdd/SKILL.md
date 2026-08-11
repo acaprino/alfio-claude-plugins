@@ -1,9 +1,9 @@
 ---
 name: python-tdd
 description: >
-  Generate focused, behavior-driven Python tests using TDD methodology with pytest.
+  Generate suites that pin behavior instead of implementation.
   TRIGGER WHEN: writing Python tests, improving coverage, reviewing test quality, or practicing red-green-refactor workflows with pytest.
-  DO NOT TRIGGER WHEN: the target is non-Python (use mattpocock-skills:tdd for language-agnostic TDD or developer-essentials:e2e-testing-patterns for browser E2E; both are upstream plugins that the testing plugin declares as hard dependencies).
+  DO NOT TRIGGER WHEN: the target is non-Python (use mattpocock-skills:tdd for other languages, or developer-essentials:e2e-testing-patterns for browser E2E).
 ---
 
 # Python Testing Patterns

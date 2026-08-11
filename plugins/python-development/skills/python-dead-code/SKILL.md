@@ -1,9 +1,8 @@
 ---
 name: python-dead-code
 description: >
-  Detect and remove unused Python code using vulture and ruff. Covers unused imports, variables, functions, classes, and unreachable code. Framework-aware false positive handling for Django, FastAPI, pytest, click, and more.
+  Find and remove unused variables, functions, classes and unreachable branches with vulture and ruff, filtering framework false positives (Django, FastAPI, pytest, click).
   TRIGGER WHEN: cleaning up Python codebases, enforcing import hygiene, or integrating dead code checks into CI.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
 ---
 
 # Python Dead Code Detection

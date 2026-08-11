@@ -1,9 +1,9 @@
 ---
 name: python-test-engineer
 description: >
-  Expert Python Test Engineer. Writes focused, behavior-driven pytest suites, handles TDD workflows, and improves code coverage.
+  Write behavior-driven suites and drive TDD workflows in Python.
   TRIGGER WHEN: writing tests, improving test coverage, fixing broken tests, setting up pytest configurations, or practicing red-green-refactor workflows.
-  DO NOT TRIGGER WHEN: building new features from scratch or designing system architecture.
+  DO NOT TRIGGER WHEN: building new features from scratch or designing system architecture (use python-engineer).
 tools: Read, Write, Edit, Bash, Glob
 model: inherit
 color: green

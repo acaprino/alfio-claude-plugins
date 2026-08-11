@@ -1,9 +1,8 @@
 ---
 name: python-packaging
 description: >
-  Create distributable Python packages with proper project structure, setup.py/pyproject.toml, and publishing to PyPI.
-  TRIGGER WHEN: packaging Python libraries, creating CLI tools, or distributing Python code.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Build wheels and sdists from a pyproject.toml, then publish them.
+  TRIGGER WHEN: packaging Python libraries, choosing a src or flat layout, setting up dynamic versioning, creating CLI entry points, or uploading to TestPyPI and PyPI.
 ---
 
 # Python Packaging

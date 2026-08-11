@@ -1,9 +1,9 @@
 ---
 name: python-engineer
 description: >
-  Hands-on Python 3.12+ engineer. Designs system architecture and implements production-ready code using modern tooling (uv, ruff, FastAPI, Pydantic). Async-first, type-safe, well-tested.
-  TRIGGER WHEN: planning a new Python project, designing architecture, making tech stack decisions, or implementing Python features.
-  DO NOT TRIGGER WHEN: the user is asking for simple bug fixes, writing tests only, or isolated refactoring.
+  Hands-on Python 3.12+ engineer. Ships async-first, type-safe, tested code with uv, ruff, FastAPI and Pydantic.
+  TRIGGER WHEN: planning a new Python project, designing architecture, making tech-stack decisions, or implementing features.
+  DO NOT TRIGGER WHEN: the task is writing tests (use python-test-engineer) or isolated refactoring (use python-refactor-agent).
 tools: Read, Write, Edit, Bash, Glob
 model: inherit
 color: green

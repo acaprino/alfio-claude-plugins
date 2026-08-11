@@ -1,9 +1,8 @@
 ---
 name: python-performance-optimization
 description: >
-  Profile and optimize Python code using cProfile, memory profilers, and performance best practices.
-  TRIGGER WHEN: debugging slow Python code, optimizing bottlenecks, or improving application performance.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Measure first with cProfile, line_profiler, memory_profiler or py-spy, then fix what the numbers show.
+  TRIGGER WHEN: debugging slow Python code, optimizing bottlenecks, cutting memory usage, or improving application performance.
 ---
 
 # Python Performance Optimization

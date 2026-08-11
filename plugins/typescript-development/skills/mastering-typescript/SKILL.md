@@ -1,9 +1,9 @@
 ---
 name: mastering-typescript
 description: >
-  Enterprise-grade TypeScript depth covering the advanced type system (generics, mapped/conditional types, satisfies operator, branded types, discriminated unions, template literal types), JS-to-TS migration playbooks, modern toolchain setup (tsconfig strict, Vite 7, Vitest, ESLint 9 flat config, pnpm), validation patterns with Zod, type-safe React integration, NestJS API design, and LangChain.js typing.
-  TRIGGER WHEN: migrating a JavaScript codebase to TypeScript, bootstrapping a new TS project (tsconfig + ESLint + Vite/Vitest), writing or refactoring code that uses advanced type patterns (generics, mapped/conditional types, satisfies, branded types), designing Zod schemas for runtime validation, building type-safe NestJS APIs, doing deep React + TypeScript work (typed hooks, generic components, discriminated props), or typing LangChain.js applications. Also trigger when comparing TypeScript with Java/Python enterprise approaches.
-  DO NOT TRIGGER WHEN: writing routine TS/JS without advanced type work (use typescript-development:typescript-write), reviewing React performance specifically (use react-development:review-react), tuning Node.js bundling/packaging unrelated to TS, or doing dead-code detection alone (use typescript-development:knip).
+  Deep reference for advanced TypeScript.
+  TRIGGER WHEN: migrating JavaScript to TypeScript, bootstrapping a TS project (strict tsconfig, ESLint, Vite/Vitest, pnpm), writing generics, mapped or conditional types, `satisfies`, branded types, discriminated unions or template literal types, designing Zod schemas for runtime validation, building type-safe NestJS APIs, deep React and TypeScript typing, typing LangChain.js, or comparing TS with Java/Python enterprise approaches.
+  DO NOT TRIGGER WHEN: routine TS/JS (use typescript-development:typescript-write), React performance (use react-development:review-react), or dead-code detection (use typescript-development:knip).
 ---
 
 Source: SpillwaveSolutions/mastering-typescript-skill - `mastering-typescript/SKILL.md`

@@ -1,9 +1,9 @@
 ---
 name: type-safety-rules
 description: >
-  TypeScript type-safety review rules: 20 rules across 7 categories covering any erosion, unsound casts, missing boundary validation, assertion abuse, tsconfig strictness, exhaustiveness, and generics soundness.
-  TRIGGER WHEN: reviewing TypeScript for type-safety issues, hardening types in existing code, or auditing a codebase for type-system erosion.
-  DO NOT TRIGGER WHEN: style and naming review (use typescript-write), React performance (use react-development), or dead-code detection (use knip).
+  20 rules across 7 categories, each with detection and fix guidance.
+  TRIGGER WHEN: reviewing or hardening TypeScript against type-system erosion: `any` leakage, unsound casts, missing boundary validation, assertion abuse, tsconfig strictness, exhaustiveness and generics soundness.
+  DO NOT TRIGGER WHEN: style and naming review (use typescript-write), or dead-code detection (use knip).
 ---
 
 # TypeScript Type-Safety Rules

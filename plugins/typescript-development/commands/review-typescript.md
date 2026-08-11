@@ -1,8 +1,8 @@
 ---
 description: >
-  TypeScript type-safety review: any leakage, unsound casts, boundary validation, tsconfig strictness, exhaustiveness, and generics soundness. Outputs an actionable markdown report.
-  TRIGGER WHEN: the user asks to review TypeScript for type safety, strictness, unsound types, or missing runtime validation.
-  DO NOT TRIGGER WHEN: style review (use typescript-write), React performance (use /react-development:review-react), or dead-code detection (use the knip skill).
+  Audit a codebase for type-system erosion and write a markdown report.
+  TRIGGER WHEN: the user asks to review TypeScript for type safety, `any` leakage, unsound casts, tsconfig strictness, exhaustiveness, generics soundness, or missing runtime validation at boundaries.
+  DO NOT TRIGGER WHEN: style review (use typescript-write), React performance (use /react-development:review-react), or dead-code detection (use knip).
 argument-hint: "[src-path] [--full]"
 ---
 

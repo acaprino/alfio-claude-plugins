@@ -1,9 +1,8 @@
 ---
 name: python-refactor
 description: >
-  Systematic code refactoring skill that transforms complex, hard-to-understand code into clear, well-documented, maintainable code while preserving correctness. Applies structured refactoring patterns with validation.
-  TRIGGER WHEN: users request "readable", "maintainable", or "clean" code, during code reviews flagging comprehension issues, for legacy code modernization, or in educational/onboarding contexts
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Restructure tangled code into a clear equivalent, preserving behavior.
+  TRIGGER WHEN: the user asks for "readable", "maintainable" or "clean" code, a review flags comprehension issues, or the task is legacy modernization or onboarding cleanup.
 ---
 
 # Python Refactor
