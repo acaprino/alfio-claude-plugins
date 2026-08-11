@@ -1,6 +1,6 @@
 # Codebase X-Ray Plugin
 
-> Understand any codebase in minutes. Seven-phase analysis maps structure, traces flows, identifies risks, and documents the WHY behind the code - not just what it does. Renamed from `deep-dive-analysis` in plugin 2.0.0 (marketplace 14.0.0); the output artifact directory is still `.deep-dive/`.
+> Understand any codebase in minutes. Eight-phase analysis discovers how the project documents itself, maps structure, traces flows, identifies risks, and documents the WHY behind the code - not just what it does. Renamed from `deep-dive-analysis` in plugin 2.0.0 (marketplace 14.0.0); the output artifact directory is still `.deep-dive/`.
 
 ## Concurrent runs
 
@@ -10,7 +10,7 @@ Every analysis is an isolated run under `.deep-dive/runs/<run-id>/` with its own
 
 ### Partition workers
 
-These four agents exist to serve `/codebase-xray:team-analyze` below. The classic `/codebase-xray:analyze` command runs its seven phases inline without spawning these agents; nothing here is used outside the team pipeline.
+These four agents exist to serve `/codebase-xray:team-analyze` below. The classic `/codebase-xray:analyze` command runs its eight phases inline without spawning these agents; nothing here is used outside the team pipeline.
 
 | Agent | Model | Runs during | Produces (inside the run directory) |
 |-------|-------|--------------|----------|
@@ -69,14 +69,16 @@ Systematic codebase analysis that combines structure extraction with semantic un
 
 ### `/codebase-xray:analyze`
 
-7-phase systematic codebase analysis with per-run state management, output files, and phased execution: structure -> interfaces -> flows -> semantics -> risks -> documentation -> report.
+8-phase systematic codebase analysis with per-run state management, output files, and phased execution: project knowledge discovery -> structure -> interfaces -> flows -> semantics -> risks -> documentation -> report.
+
+**Phase 0 (Project Knowledge Discovery)** runs first on every invocation, including `--depth=lite`, `--phase N` and `--docs-only`, and it is a preamble rather than a selectable analysis phase: phases 1 to 7 keep their numbers, so no existing `--phase` invocation changes meaning. It reads the project's own instruction files and indexes and records where the project claims each concept lives, writing `knowledge/navigation.md` and `knowledge/documentation-leads.md`. Both hold **leads, never verified facts**: the phase reads no code, so every row is `documented` or `unverified`. This is the cheap discovery pass, kept deliberately apart from Phase 6, which is the expensive audit of whether those documents are accurate. Conflating the two is what once made lite mode blind to a project's own documentation. `/senior-review:team-review` Phase 1d consumes `knowledge/documentation-leads.md` as one half of its knowledge-provenance join.
 
 ```
 /codebase-xray:analyze src/core/ --critical
 /codebase-xray:analyze src/api --run-name api      # named run, safe to run others concurrently
 ```
 
-**Output:** `.deep-dive/runs/<run-id>/` with 7 phase files and a final consolidated report, published to the `.deep-dive/` root on completion.
+**Output:** `.deep-dive/runs/<run-id>/` with a `knowledge/` directory from Phase 0, 7 phase files, and a final consolidated report, published to the `.deep-dive/` root on completion.
 
 ---
 
@@ -97,7 +99,8 @@ Multi-agent variant of `/codebase-xray:analyze` for large or partitioned codebas
 
 **Pipeline:**
 
-1. **Partition detection** (Phase 0): explicit workspace manifests (pnpm/npm workspaces, Lerna, Nx, Turbo, Cargo, uv) -> convention-based monorepo layout (`apps/`, `packages/`, `services/`) -> frontend/backend layer split -> language-cluster split -> single-partition fallback. Presents a checkpoint to accept, modify, or manually override the partition list before spawning anything. The team forms implicitly when the first worker is spawned (no explicit creation step on Claude Code 2.1.178+).
+0. **Project knowledge discovery**: the same Phase 0 as `/codebase-xray:analyze`, run once inline for the whole run before partition detection. It is global, not per partition, and no worker owns any of its output: `knowledge/navigation.md` and `knowledge/documentation-leads.md`.
+1. **Partition detection** (its own Phase 0): explicit workspace manifests (pnpm/npm workspaces, Lerna, Nx, Turbo, Cargo, uv) -> convention-based monorepo layout (`apps/`, `packages/`, `services/`) -> frontend/backend layer split -> language-cluster split -> single-partition fallback. Presents a checkpoint to accept, modify, or manually override the partition list before spawning anything. The team forms implicitly when the first worker is spawned (no explicit creation step on Claude Code 2.1.178+).
 2. **Wave 1** (parallel): one `partition-structure-worker` per partition writes structure and interfaces.
 3. **Wave 2** (parallel): `partition-behavior-worker` and `partition-quality-worker` per partition write flows/semantics and risks/documentation, each citing sibling partitions' Wave 1 output for cross-partition calls. Under `--depth=lite` the behavior workers are not spawned and quality workers write risks only.
 4. **Synthesis**: `partition-synthesizer` consolidates every partition's output into the standard `01-structure.md` through `07-final-report.md` files inside the run directory, flagging any failed partition inline.
