@@ -84,33 +84,51 @@ description: >
 # Agent description (multiline with >)
 description: >
   <Domain> expert for <specific tasks>.
-  TRIGGER WHEN: the user requires assistance with <triggers>.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  TRIGGER WHEN: <triggers>.
+  DO NOT TRIGGER WHEN: <the confusable case> (use <sibling-component> instead).
 ```
 
 ### Rules
 
 - **Directive voice** -- "ALWAYS invoke" or imperative triggers, not "Can be used for"
 - **Negative constraint** -- "Do not X directly" prevents Claude from bypassing
-- **TRIGGER WHEN / DO NOT TRIGGER WHEN** -- explicit activation boundaries
+- **TRIGGER WHEN always** -- it carries the distinctive vocabulary that routes to this component
+- **DO NOT TRIGGER WHEN only when it names a sibling** -- see the rule below
 - **Third person** -- "Processes X when Y" not "I process X"
 - **Max 1024 characters** per description
 - **Under 300 characters** recommended (token budget)
 - **Specific trigger phrases** -- list exact words/actions that should activate
+- **No term in both the opening sentence and TRIGGER WHEN** -- the trigger line keeps it, the opening sentence yields
+
+### The DO NOT TRIGGER WHEN rule
+
+A `DO NOT TRIGGER WHEN` clause earns its context cost only by naming the component that should handle the case instead. It is a routing instruction, not a disclaimer.
+
+```yaml
+# Useless: states the logical inverse of TRIGGER WHEN and discriminates nothing
+DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+
+# Useful: routes the confusable case to a named sibling
+DO NOT TRIGGER WHEN: the target is a Python codebase (use python-dead-code instead).
+```
+
+When no confusable sibling exists, omit the clause. Adding one anyway costs every session context and buys no routing accuracy.
 
 ### Low-Activation Anti-patterns
 
 - "Helps with stuff" -- vague, no triggers
 - "Use when working with Docker" -- passive suggestion, Claude bypasses it
 - "Docker expert for containerization" -- no negative constraint, no trigger phrases
-- Missing DO NOT TRIGGER WHEN -- causes false activations on adjacent domains
+- A `DO NOT TRIGGER WHEN` clause naming no sibling -- pure context cost, delete it
 
 ## Token Budget
+
+Descriptions are the only part of a component that sits in context in **every** session; the body loads only after invocation. Anything a description restates from its own body is pure cost.
 
 - Each skill/agent costs ~100 tokens at idle (name + description in system prompt)
 - All descriptions share a **15,000 character** budget by default
 - When total exceeds limit, components may be silently dropped
-- Monitor with: `grep -o 'description:.*' marketplace.json | wc -c`
+- Do not enumerate in a description what the body already covers: list the trigger vocabulary, not the feature set
 
 ## Skill SKILL.md Structure
 

@@ -1,8 +1,8 @@
 ---
 name: marketplace-manager
 description: >
-  Expert manager for any Claude Code plugin marketplace. Handles marketplace.json consistency, plugin scaffolding, upstream sync, versioning, and structural validation for marketplaces following the standard Claude Code plugin schema.
-  TRIGGER WHEN: adding, auditing, reorganizing, versioning, or syncing plugins, skills, agents, and commands in any Claude Code plugin marketplace.
+  Maintains any Claude Code plugin marketplace end to end.
+  TRIGGER WHEN: adding, auditing, reorganizing, versioning or syncing plugins, skills, agents and commands; marketplace.json consistency; plugin scaffolding; structural validation.
   DO NOT TRIGGER WHEN: working on an individual plugin's internal logic (route to the plugin's own agents/skills) or on a non-Claude-Code project.
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch
 model: inherit

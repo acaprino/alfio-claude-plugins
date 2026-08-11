@@ -1,8 +1,8 @@
 ---
 description: >
-  Scaffold a new plugin for any Claude Code plugin marketplace with proper directory structure, starter files, and marketplace.json registration.
+  Scaffold a new plugin for any Claude Code plugin marketplace.
   TRIGGER WHEN: the user asks to create a new plugin, bootstrap plugin structure, or add a new entry to marketplace.json.
-  DO NOT TRIGGER WHEN: adding a skill or agent to an existing plugin (use skills-creator) or reviewing existing plugins.
+  DO NOT TRIGGER WHEN: adding a skill or agent to an existing plugin (use skills-creator).
 argument-hint: "<plugin-name> [--with-agent] [--with-skill] [--with-command] [--category <cat>] [--author <name>]"
 ---
 

@@ -1,7 +1,7 @@
 ---
 description: >
-  Quick health check for any Claude Code plugin marketplace - validates marketplace.json, checks file references, reports plugin counts and version status.
-  TRIGGER WHEN: the user asks to validate marketplace.json, check plugin references, or audit structural integrity of a Claude Code plugin marketplace.
+  Quick health check for any Claude Code plugin marketplace.
+  TRIGGER WHEN: the user asks to validate marketplace.json, check plugin file references, report plugin counts and version status, or audit structural integrity.
   DO NOT TRIGGER WHEN: reviewing plugin content quality (use /marketplace-ops:marketplace-review) or authoring new plugins.
 argument-hint: "[--fix] [--verbose]"
 ---

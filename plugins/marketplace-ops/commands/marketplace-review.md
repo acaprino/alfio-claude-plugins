@@ -1,7 +1,7 @@
 ---
 description: >
-  AI-powered quality review of plugin descriptions, trigger keywords, agent prompts, skill instructions, and command definitions in any Claude Code plugin marketplace - evaluates activation accuracy, content quality, and cross-plugin coherence.
-  TRIGGER WHEN: the user asks to review plugin/agent/skill quality, audit triggers, or evaluate marketplace content.
+  Quality review of the content of any Claude Code plugin marketplace.
+  TRIGGER WHEN: the user asks to review plugin, agent or skill quality, audit descriptions or trigger keywords, or evaluate activation accuracy and cross-plugin coherence.
   DO NOT TRIGGER WHEN: just validating marketplace.json structure (use /marketplace-ops:marketplace-health) or authoring new components (use /marketplace-ops:marketplace-scaffold-plugin).
 argument-hint: "[plugin-name] [--all] [--fix]"
 ---
@@ -36,7 +36,7 @@ Evaluate the `description` field:
 Read the agent `.md` file:
 - **Description directive voice**: Uses "ALWAYS invoke", "You MUST", "Use PROACTIVELY" or similar (vs passive "Helps with", "Can be used for")
 - **TRIGGER WHEN clause**: present, specific, uses concrete verbs / domain terms
-- **DO NOT TRIGGER WHEN clause**: present, names sibling conflicts (which other agent should handle this case instead)
+- **DO NOT TRIGGER WHEN clause**: present only where a confusable sibling exists, and naming it (which other agent should handle this case instead). A clause that names none is context cost with no routing value: flag it for deletion
 - **Body structure**: clear sections (ROLE, CAPABILITIES, CONVENTIONS, OUTPUT FORMAT or similar)
 - **Body size**: 60-200 lines for simple agents, up to ~560 lines for complex; flag over 700 lines
 - **Tool restrictions**: minimal but sufficient (e.g., a read-only reviewer should NOT have Write/Edit)

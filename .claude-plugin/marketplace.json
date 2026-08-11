@@ -776,7 +776,7 @@
       "name": "marketplace-ops",
       "source": "./plugins/marketplace-ops",
       "description": "Generic Claude Code plugin marketplace manager - auditing, validation, AI quality review, upstream sync, plugin scaffolding, and health monitoring. Works against any project with the standard .claude-plugin/marketplace.json + plugins/<name>/ layout; reads project-specific conventions (author, license, category taxonomy, upstream sources) from the target marketplace.json and CLAUDE.md",
-      "version": "2.1.0",
+      "version": "2.2.0",
       "author": {
         "name": "Alfio"
       },

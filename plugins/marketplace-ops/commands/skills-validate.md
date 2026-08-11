@@ -1,7 +1,7 @@
 ---
 description: >
-  Validate skill and agent quality - deterministic checks (activation patterns, token budget, body size, examples, frontmatter) plus AI body review (structure, clarity, redundancy, tool restrictions, isolation).
-  TRIGGER WHEN: the user asks to validate skill/agent quality, enforce trigger patterns, check token budgets, or run pre-commit marketplace checks.
+  Validate skill and agent quality: deterministic activation checks plus AI body review.
+  TRIGGER WHEN: the user asks to validate skill/agent quality, enforce trigger patterns, check description token budgets, or run pre-commit marketplace checks.
   DO NOT TRIGGER WHEN: checking structural JSON references only (use /marketplace-ops:marketplace-health) or doing an AI-only content review (use /marketplace-ops:marketplace-review).
 argument-hint: "[plugin-name] [--all] [--skip-ai]"
 ---
@@ -16,7 +16,7 @@ Deterministic activation-quality checks plus AI-powered body review for all skil
 
 1. **Directive voice** -- description uses ALWAYS invoke, MUST use, TRIGGER WHEN, or use PROACTIVELY
 2. **TRIGGER WHEN clause** -- explicit activation boundary present
-3. **DO NOT TRIGGER WHEN clause** -- explicit exclusion boundary present
+3. **DO NOT TRIGGER WHEN clause** -- when present, must name the sibling to route to; absence is fine when no confusable sibling exists
 4. **Negative constraint** -- "Do not X directly" prevents Claude from bypassing (skills only)
 5. **Passive pattern detection** -- flags "Helps with", "Can be used for", "Use when" and similar low-activation wording
 6. **Description length** -- hard limit 1024 chars, recommended under 300
