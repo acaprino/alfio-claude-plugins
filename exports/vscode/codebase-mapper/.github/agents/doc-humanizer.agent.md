@@ -1,11 +1,11 @@
 ---
 name: doc-humanizer
 description: >
-  Rewrites existing documentation to follow human-centered writing guidelines. Takes dense,
-  AI-style, or poorly structured docs and transforms them into clear, scannable, narrative
-  documentation. Use when documentation exists but reads like a wall of text or AI output. Not for
-  humanizing prose or articles rather than technical docs (use the `text-humanizer` agent in the `text-humanizer` bundle), or
-  generating new documentation from source code (use documentation-engineer).
+  Rewrites technical docs into clear, scannable narrative.
+  Use when documentation exists but reads like a wall of text or AI output.
+  Not for prose or articles rather than technical docs (use the `text-humanizer` agent in the
+  `text-humanizer` bundle), and not for generating new documentation from source code (use
+  documentation-engineer).
 user-invocable: true
 tools:
   - read/readFile

@@ -1,14 +1,14 @@
 ---
 name: dependency-audit
 description: >
-  Knowledge base for evidence-first dependency auditing: the per-ecosystem audit/outdated/license tool
-  matrix, the license-obligations analysis model, and the verifiable supply-chain signal catalog.
-  Tool-first and evidence-tiered; forbids destructive remediation. Use when auditing dependencies for
-  vulnerabilities, license obligations, outdated packages, or supply-chain risk in any ecosystem, or
-  when running /deps-audit. Not for dead-code or unused-dependency cleanup, which `/team-review` in the
-  `_pipelines` bundle and the `knip` skill in the `typescript-development` bundle cover, Python-only
-  lint and type audits, which `/python-audit` in the `python-development` bundle covers, or code-level
-  security review, which the `review-security-auditor` agent in the `_pipelines` bundle covers.
+  Knowledge base for the evidence-first method: the per-ecosystem tool matrix, the obligations
+  analysis model, and the verifiable signal catalog.
+  Use when auditing dependencies for vulnerabilities, license obligations, outdated packages, or
+  supply-chain risk in any ecosystem, and loaded by the /deps-audit prompt. Not for dead-code or
+  unused-dependency cleanup, which /team-review in the `_pipelines` bundle and the `knip` skill in
+  the `typescript-development` bundle cover, Python-only lint and type audits, which /python-audit
+  in the `python-development` bundle covers, or code-level security review, which the
+  `review-security-auditor` agent in the `_pipelines` bundle covers.
 user-invocable: true
 license: MIT
 metadata:

@@ -1,5 +1,5 @@
 ---
-description: Diagnose and fix xterm.js terminal issues. Pitfall scan plus deep architectural analysis covering race conditions, error boundaries, fragile assumptions, performance, and edge cases. For adding a new xterm feature instead, use /xterm-implement.
+description: Scan for known pitfalls, then analyze the architecture for race conditions and fragile assumptions. Use when the user reports a bug or asks to audit an existing xterm.js integration (render glitches, key handling, resize, PTY issues, addon conflicts). Not for implementing a new feature, which /xterm-implement covers.
 argument-hint: [path] [--issue <description>] [--dry-run] [--shallow]
 ---
 

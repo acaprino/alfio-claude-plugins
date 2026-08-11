@@ -1,6 +1,10 @@
 ---
 name: xray-structure-worker
-description: Executes Phase 1 (Structure Extraction) and Phase 2 (Interface Analysis) of X-ray analysis on one partition. Writes 01-structure.md and 02-interfaces.md into its assigned output directory. Dispatched by xray-orchestrator in Wave 1, one per partition.
+description: >
+  Runs Structure Extraction and Interface Analysis over one partition, writing 01-structure.md and
+  02-interfaces.md into its owned partition directory.
+  Use when spawned by `/xray-team-analyze` in its first wave.
+  Not for use outside that pipeline.
 user-invocable: false
 tools:
   - read/readFile

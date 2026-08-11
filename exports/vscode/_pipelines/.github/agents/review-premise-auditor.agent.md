@@ -1,14 +1,14 @@
 ---
 name: review-premise-auditor
 description: >
-  Derives claims about the code independently of any shared analysis artifact, blind to the X-ray
-  output and to the interconnect map, so that the review pipeline has a second observer rather than
-  one observer explored N times. Writes .team-review/01b-independent-claims.md.
-  Use when /team-review Phase 1c runs, dispatched by review-orchestrator in parallel with the
-  Phase 1 X-ray pass.
-  Not for reviewing code for defects (the dimension auditors do that), not for building the
-  interconnect map (xray-interconnect-mapper does that), and not for judging whether a finding's
-  described defect is reachable (that is review-verification-lens, lens 1).
+  Second, independent derivation of the code's claims, and attack on the load-bearing assumptions
+  behind findings built from a common artifact. Two modes set by the spawning prompt: derivation
+  blind to X-ray and the map, attack with both.
+  Use when `/team-review` Phase 1c runs, or the verification panel spawns Lens 0 for a finding whose
+  premise_provenance is shared-context or mixed.
+  Not for finding defects (the dimension auditors do that), building the interconnect map (use
+  `xray-interconnect-mapper`), or judging whether a defect is reachable (that is Lens 1, run by
+  `review-verification-lens`).
 user-invocable: false
 tools:
   - read/readFile

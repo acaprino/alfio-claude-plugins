@@ -1,14 +1,12 @@
 ---
 name: skills-creator
 description: >
-  Guided creation of Claude Code plugin components - skills, agents, commands, and full plugins.
-  Walks through requirements gathering, generates production-ready files with real content (not
-  placeholders), registers in marketplace.json, and bumps versions. Also trigger on "new skill",
-  "new agent", "new plugin", "add a skill", "add an agent", "skills-creator", "skills-hammer".
-  Also helps decide skill vs agent architecture when reorganizing plugins. DO NOT TRIGGER for
-  editing or updating existing components - only for new creation or architectural decisions
-  (skill vs agent). Use when the user asks to create, add, scaffold, or build a new skill, agent,
-  command, or plugin.
+  Creates new Claude Code plugin components: skills, agents, commands, full plugins. Also decides
+  skill vs agent architecture.
+  Use when the user asks to create, add, scaffold or build a new skill, agent, command or plugin, or
+  says "new skill", "new agent", "new plugin", "skills-creator", "skills-hammer".
+  Not for editing or updating an existing component, or auditing marketplace integrity (use
+  marketplace-audit instead).
 user-invocable: true
 license: MIT
 metadata:

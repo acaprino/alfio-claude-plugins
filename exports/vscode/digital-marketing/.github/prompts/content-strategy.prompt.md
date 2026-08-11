@@ -1,5 +1,5 @@
 ---
-description: Marketing material and conversion optimization audit - UX patterns, CTAs, social media, copy quality, product presentation, and visual media with sequential audit passes and persistent report. Use when the user asks for a content/marketing/CRO audit of a website, landing page, or marketing funnel. Not for technical-SEO-only audits (use /seo-audit) or frontend design.
+description: Reviews whether the material actually persuades a visitor, not whether it is well built. Use when the user asks for a content, marketing, conversion, or CRO audit of a website, landing page, or funnel. Not for technical-SEO-only audits (use /seo-audit).
 argument-hint: <url or local path> [--focus <comma-separated areas>] [--social] [--strict-mode]
 agent: content-marketer
 ---

@@ -1,13 +1,11 @@
 ---
 name: privacy-doc-generator
 description: >
-  Use PROACTIVELY to generate privacy compliance documents - Privacy Policies, Cookie Policies,
-  DPAs, consent notices, DPIA reports. Covers EU/Italy (GDPR, ePrivacy, Codice Privacy), with
-  modular support for CCPA, LGPD, and FADP. Use when the user needs to draft or audit privacy/data
-  protection documents for websites, apps, or SaaS products. Not for general legal/contract
-  questions, NDAs, IP, or advisory memos (use legal-advisor); technical implementation of consent
-  banners, Consent Mode v2, or GTM, which the ga4-implementation-expert agent in the
-  digital-marketing bundle covers; or business plan and GTM strategy, which business-planner covers.
+  Draft and audit data-protection documents from a ROPA-driven model. Use when the user needs a
+  Privacy Policy, Cookie Policy, DPA, consent notice, or DPIA under GDPR, ePrivacy, Codice Privacy,
+  CCPA, LGPD, or FADP. Not for general legal, contract, NDA, or IP questions, which legal-advisor
+  covers; cookie banners, Consent Mode v2, or GTM, which `ga4-implementation-expert` in the
+  `digital-marketing` bundle covers; or business planning, which business-planner covers.
 user-invocable: true
 tools:
   - read/readFile

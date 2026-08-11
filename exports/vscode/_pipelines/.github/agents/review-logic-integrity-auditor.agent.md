@@ -1,11 +1,13 @@
 ---
 name: review-logic-integrity-auditor
 description: >
-  Adversarial reviewer that hunts for violations of contracts, invariants, assumptions, domain rules,
-  ordering, idempotency, and state machines documented in the interconnect map. Catches bugs no local-only
-  reviewer can see: logic drift across components, implicit contracts silently broken, terminal states
-  mutated, retry paths double-committing. Requires the interconnect map, so it is skipped under
-  --no-context. Runs as the Logic integrity dimension of /team-review.
+  Cross-component reviewer for the guarantees recorded in `.team-review/02-interconnect.md`:
+  ordering, idempotency, state machines, terminal states, domain rules, implicit assumptions.
+  Use when `/team-review` Phase 2 runs (always-on in the review preset), or the user asks for a logic,
+  contract, or invariant audit.
+  Not for surface-level style or lint review (use `review-code-auditor`), pure security auditing (use
+  `review-security-auditor`), or a target whose interconnect map does not exist yet (run
+  `xray-interconnect-mapper` first).
 user-invocable: false
 tools:
   - read/readFile

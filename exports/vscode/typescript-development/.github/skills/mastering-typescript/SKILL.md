@@ -1,20 +1,13 @@
 ---
 name: mastering-typescript
 description: >
-  Enterprise-grade TypeScript depth covering the advanced type system (generics,
-  mapped/conditional types, satisfies operator, branded types, discriminated unions, template
-  literal types), JS-to-TS migration playbooks, modern toolchain setup (tsconfig strict, Vite 7,
-  Vitest, ESLint 9 flat config, pnpm), validation patterns with Zod, type-safe React integration,
-  NestJS API design, and LangChain.js typing. Use when migrating a JavaScript codebase to
-  TypeScript, bootstrapping a new TS project (tsconfig + ESLint + Vite/Vitest), writing or
-  refactoring code that uses advanced type patterns (generics, mapped/conditional types,
-  satisfies, branded types), designing Zod schemas for runtime validation, building type-safe
-  NestJS APIs, doing deep React + TypeScript work (typed hooks, generic components, discriminated
-  props), typing LangChain.js applications, or comparing TypeScript with Java and Python enterprise
-  approaches. Not for routine TypeScript or JavaScript without advanced type work, which
-  typescript-write covers, React performance review, which the react-development bundle covers,
-  Node.js bundling and packaging unrelated to TypeScript, or dead-code detection alone, which knip
-  covers.
+  Deep reference for advanced TypeScript. Use when migrating JavaScript to TypeScript,
+  bootstrapping a TS project (strict tsconfig, ESLint, Vite/Vitest, pnpm), writing generics, mapped
+  or conditional types, `satisfies`, branded types, discriminated unions or template literal types,
+  designing Zod schemas for runtime validation, building type-safe NestJS APIs, deep React and
+  TypeScript typing, typing LangChain.js, or comparing TS with Java/Python enterprise approaches.
+  Not for routine TS/JS, which typescript-write covers, React performance (`/review-react` in the
+  `react-development` bundle), or dead-code detection, which knip covers.
 user-invocable: true
 license: MIT
 metadata:

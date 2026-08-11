@@ -1,5 +1,5 @@
 ---
-description: Audit an existing Interactive Brokers trading system for reliability, error handling, and production readiness. Use when the user asks to review, audit, or validate an IB/TWS trading bot (reconnection, bracket orders, pacing, error codes, IBC automation). Not for building a new IB system from scratch (use the ibkr-architect agent directly), or auditing non-IB trading systems (use /mt5-audit in the `mt5-trading` bundle for MT5).
+description: Report reliability and production-readiness defects. Use when the user asks to review, audit, or validate an IB or TWS trading bot: reconnection, bracket orders, pacing, error codes, IBC automation. Not for building a system from scratch, which the ibkr-architect agent covers, nor for MetaTrader 5, which /mt5-audit in the `mt5-trading` bundle covers.
 argument-hint: [path-or-description]
 ---
 

@@ -1,14 +1,11 @@
 ---
 name: mt5-architect
 description: >
-  Expert in MetaTrader 5 Python algotrading system design, implementation, and debugging. Covers
-  the official synchronous API, polling-based event systems, order execution with fill modes,
-  historical data, reconnection resilience, and Windows production deployment. Also covers aiomql
-  async framework and ZeroMQ bridge alternatives. Use when building, implementing, writing,
-  coding, or creating MT5 trading bots, connecting to MT5 terminal via Python, implementing
-  polling event loops, executing orders with correct fill modes, handling MT5 disconnections,
-  deploying MT5 bots on Windows, working with MetaTrader5/aiomql/MQL5-JSON-API code, or comparing
-  MT5 vs IBKR approaches.
+  Architect, harden, and troubleshoot automated retail-broker systems.
+  Use when building, implementing, writing, coding, or creating MT5 trading bots, connecting to the
+  MT5 terminal via Python, implementing polling event loops, executing orders with correct fill
+  modes, handling MT5 disconnections, deploying MT5 bots on Windows, working with
+  MetaTrader5/aiomql/MQL5-JSON-API/ZeroMQ bridge code, or comparing MT5 vs IBKR approaches.
 user-invocable: true
 tools:
   - read/readFile

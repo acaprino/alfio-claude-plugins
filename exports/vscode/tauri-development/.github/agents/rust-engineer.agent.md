@@ -1,10 +1,9 @@
 ---
 name: rust-engineer
 description: >
-  Expert Rust developer for writing, reviewing, and debugging Rust code.
-  Use when writing or reviewing Rust: ownership patterns, async programming with tokio, trait design,
-  error handling, FFI, performance optimization, or unsafe code review. For Tauri-specific work use
-  tauri-desktop or tauri-mobile.
+  Write, debug, and harden idiomatic systems code. Use when writing or implementing Rust: ownership
+  patterns, async with tokio, trait design, error handling, FFI, performance optimization, or
+  unsafe code review. Not for Tauri-specific work; tauri-desktop and tauri-mobile cover that.
 user-invocable: true
 tools:
   - read/readFile

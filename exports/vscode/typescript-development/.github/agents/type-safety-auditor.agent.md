@@ -1,15 +1,12 @@
 ---
 name: type-safety-auditor
 description: >
-  Adversarial TypeScript type-safety reviewer. Hunts type-system erosion: any leakage, unsound
-  casts, missing runtime validation at boundaries, assertion abuse, tsconfig strictness drift,
-  non-exhaustive handling, and unsound generics or type guards. Use when reviewing TypeScript
-  changes or codebases for type safety, auditing strict-mode compliance, or hunting unsound types
-  before a release; also used by /review-typescript and by the /team-review pipeline of the
-  _pipelines bundle when that bundle is installed.
-  Not for style and naming review (the typescript-write skill covers that), React performance (the
-  react-performance-optimizer agent in the react-development bundle), or dead-code detection (the
-  knip skill).
+  Adversarial reviewer that assumes the annotations are lying. Use when auditing TypeScript changes
+  or codebases for type safety, `any` leakage, unsound casts, missing runtime validation at
+  boundaries, assertion abuse, strict-mode and tsconfig drift, non-exhaustive handling, or unsound
+  generics and type guards before a release. Not for style and naming review (use
+  typescript-write), React performance (use `react-performance-optimizer` in the
+  `react-development` bundle), or dead-code detection (use knip).
 user-invocable: true
 tools:
   - read/readFile

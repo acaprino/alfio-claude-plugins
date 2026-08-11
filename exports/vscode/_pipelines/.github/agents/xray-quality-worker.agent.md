@@ -1,6 +1,9 @@
 ---
 name: xray-quality-worker
-description: Executes Phase 5 (Pattern & Risk Detection) and Phase 6 (Documentation Health) of X-ray analysis on one partition. Writes 05-risks.md and 06-documentation.md into its assigned output directory (05 only in lite mode, 06 only in docs-only mode). Dispatched by xray-orchestrator in Wave 2.
+description: >
+  Runs Pattern and Risk Detection plus Documentation Health over one partition, writing 05-risks.md
+  and 06-documentation.md into its owned partition directory (05 only in lite mode).
+  Use when spawned by `/xray-team-analyze` in its second wave.
 user-invocable: false
 tools:
   - read/readFile

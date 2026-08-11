@@ -1,5 +1,5 @@
 ---
-description: Rewrite source code to be more readable and human-friendly without changing behavior: improves naming, removes AI boilerplate, simplifies structure, adds clarity comments. Use when the user asks to clean up code, improve naming, remove AI-generated boilerplate, simplify structure, or make code more maintainable without changing behavior. Not for prose and text, which /humanize-text in the `text-humanizer` bundle covers, nor for deep architectural refactoring, which /python-refactor in the `python-development` bundle covers.
+description: Readability-only rewrite of existing source. Use when the user asks to clean up code, improve naming, remove AI-generated boilerplate, simplify structure, or make code more maintainable without changing behavior. Not for prose or text, which /humanize-text in the `text-humanizer` bundle covers, nor for deep architectural refactoring, which /python-refactor in the `python-development` bundle covers.
 agent: clean-code-agent
 argument-hint: <file or directory> [--dry-run] [--strict] [--yes] [--force]
 ---

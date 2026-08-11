@@ -1,13 +1,10 @@
 ---
 name: rabbitmq-production
 description: >
-  Production knowledge base for RabbitMQ 4.x: version timeline and upgrade gates,
-  delivery patterns in client-neutral pseudocode, production sizing and monitoring
-  thresholds, and security hardening. Use when designing, operating, upgrading,
-  monitoring, or securing RabbitMQ in production, or implementing delivery patterns
-  (retry, outbox, idempotency, RPC). Not for Kafka, NATS, Redis Streams, or other
-  non-AMQP systems, or a quick conceptual question the rabbitmq-expert agent
-  answers without production detail.
+  Knowledge base for running the broker under real load, split into references loaded on demand.
+  Use when designing, operating, upgrading, monitoring, or securing RabbitMQ in production, or
+  implementing delivery patterns (retry, outbox, idempotency, RPC). Not for a quick conceptual
+  question the rabbitmq-expert agent answers without production detail.
 user-invocable: true
 license: MIT
 metadata:

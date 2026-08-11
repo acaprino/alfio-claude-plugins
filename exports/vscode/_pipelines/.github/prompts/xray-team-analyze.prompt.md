@@ -1,5 +1,5 @@
 ---
-description: Systematic codebase X-ray. Auto-detects partitions (workspaces, dirs, language clusters), dispatches workers per partition across 2 waves, consolidates into a 01..07.md report set, then maps contracts, invariants, and integration hot-spots into 08-interconnect-map.md. Concurrent-safe runs under .deep-dive/.
+description: Multi-agent X-ray for large or multi-workspace codebases. Splits the project into its natural units, works them in parallel, and publishes one consolidated result set to the .deep-dive/ root. Use when the user wants X-ray analysis on a monorepo, or a cross-partition interconnection map produced as part of the same flow. Not for a single small directory; for a documentation-only audit, pass --docs-only.
 agent: xray-orchestrator
 argument-hint: <target> [--critical] [--comments] [--depth=lite|full] [--docs-only] [--partition <path>] [--skip-interconnect] [--skip-synthesis] [--run-name <name>] [--yes]
 ---

@@ -1,9 +1,9 @@
 ---
 name: obsidian-plugin-development
 description: >
-  Ensure compliance with Obsidian's automated plugin review (community.obsidian.md),
-  eslint-plugin-obsidianmd rules, and the official Obsidian plugin guidelines. Use when writing,
-  reviewing, or fixing Obsidian community plugin code.
+  Comply with the automated gate on first submission: eslint-plugin-obsidianmd rules plus the
+  official guidelines.
+  Use when writing, reviewing, or fixing Obsidian community plugin code.
 user-invocable: true
 license: MIT
 metadata:

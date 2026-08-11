@@ -1,9 +1,9 @@
 ---
 name: seo-specialist
 description: >
-  Expert SEO strategist. Covers technical SEO audits, on-page optimization, structured data,
-  content optimization, and competitive analysis to improve search visibility. Use when the user
-  mentions SEO, search rankings, organic traffic, or website optimization.
+  Establishes intent and topical coverage before touching tags, and maps competitive gaps.
+  Use when the user mentions SEO, search rankings, organic traffic, on-page optimization,
+  structured data, or website optimization.
 user-invocable: true
 agents: []
 ---

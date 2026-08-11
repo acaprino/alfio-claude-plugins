@@ -1,5 +1,5 @@
 ---
-description: Technical SEO audit for traditional search-engine ranking (Google and Bing SERP positioning): Core Web Vitals, meta tags, sitemap, redirects, structured data, mobile, and crawlability. Playwright-powered, scored 0-100, with prioritized fixes and a persistent markdown report. To optimize for being cited inside AI answers (ChatGPT, Perplexity, Google AI Overviews) use /llm-seo-audit instead. Use when the user asks for a technical SEO audit, Core Web Vitals check, structured data review, or search visibility / SERP ranking analysis of a site. Not for being cited by AI answer engines (use /llm-seo-audit), conversion/CTA/copy (use /content-strategy), or GA4 tracking (use ga4-implementation-expert).
+description: Diagnoses why a page underperforms in traditional Google and Bing results. Use when the user asks for a technical SEO audit, Core Web Vitals check, sitemap, redirect, or crawlability review, structured data or meta tags, mobile usability, or SERP ranking analysis. Not for being cited by AI answer engines (use /llm-seo-audit), conversion, CTA, or copy quality (use /content-strategy), or GA4 tracking (use ga4-implementation-expert).
 argument-hint: <url or local path> [--focus <comma-separated category names>] [--local] [--strict-mode]
 ---
 

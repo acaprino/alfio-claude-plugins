@@ -1,7 +1,13 @@
 ---
 name: codebase-xray
 description: >
-  AI-powered systematic codebase analysis. Combines mechanical structure extraction with semantic understanding to produce ground-truth documentation capturing WHAT, WHY, HOW, and CONSEQUENCES. Multi-language: Python, Java, JavaScript, TypeScript, SQL, PL/SQL, Rust. Includes pattern recognition, red flag detection, flow tracing, quality assessment, and concurrent analysis runs. Use when encountering unfamiliar code, before major refactoring, when pre-review technical context is needed, or when documentation is stale or missing. Do not use for human-readable narrative docs, public-facing READMEs, or code review verdicts.
+  X-ray method: mechanical structure extraction fused with semantic reading into a ground-truth
+  account of WHAT, WHY, HOW and CONSEQUENCES. Python, Java, JavaScript, TypeScript, SQL, PL/SQL,
+  Rust.
+  Use when encountering an unfamiliar codebase, needing pre-review technical context, before a major
+  refactor, or when documentation is stale or missing.
+  Not for human-readable narrative docs (use `/map-codebase` in the `codebase-mapper` bundle), a
+  public-facing README, or a review verdict (`/team-review` consumes this output instead).
 user-invocable: false
 license: MIT
 compatibility: Requires Python >= 3.10. Optional tree-sitter for higher-fidelity Java, JavaScript, TypeScript, and Rust parsing.
@@ -9,7 +15,7 @@ metadata:
   author: Alfio Caprino
   source: acaprino/claude-code-daodan
   upstream-plugin: codebase-xray
-  version: "3.6.0"
+  version: "3.6.1"
 ---
 
 # Codebase X-Ray Analysis Skill

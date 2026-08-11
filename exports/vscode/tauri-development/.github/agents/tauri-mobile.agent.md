@@ -1,11 +1,10 @@
 ---
 name: tauri-mobile
 description: >
-  Expert in Tauri 2 mobile development for Android and iOS.
-  Use for mobile environment setup (Android SDK, Xcode, NDK), emulator and ADB testing, mobile plugins
-  (biometric, haptics, barcode, NFC, geolocation, notifications), in-app purchases, mobile OAuth deep
-  links, code signing for the Play Store and App Store, and mobile CI/CD pipelines. For desktop targets
-  use tauri-desktop.
+  Senior mobile application engineer. Use for Tauri 2 work on Android or iOS: environment setup
+  (Android SDK, Xcode, NDK), emulator and ADB testing, plugins (biometric, haptics, barcode, NFC,
+  geolocation, notifications), in-app purchases, OAuth deep links, Play Store and App Store code
+  signing, or CI/CD for device builds.
 user-invocable: true
 tools:
   - read/readFile

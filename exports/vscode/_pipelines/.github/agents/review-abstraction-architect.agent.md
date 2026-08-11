@@ -1,8 +1,15 @@
 ---
 name: review-abstraction-architect
 description: >
-  Adversarial auditor for structural entropy: where the same concept is represented, owned, computed or implemented more than once, and what it costs when that concept changes. Global mode censuses the codebase's concepts from .deep-dive/ plus its own discovery pass and reports seven dimensions of finding: duplicated domain knowledge, competing sources of truth, redundant representation, duplicated or derivable state, missed unification, prior art available, and abstraction fitness. Diff mode takes changed code as the anchor and asks the same seven questions as "introduced or aggravated by this change", seeded by a persisted concept index. Report-only, grounded in canonical theory (Metz, Beck, Fowler, Gross, North, DDD).
-  Use when directly invoked for a global audit, spawned as the Abstraction dimension of `/team-review`, the user asks who canonically owns a fact, policy or piece of state, asks to audit a codebase for duplicated knowledge, competing sources of truth, redundant models or derivable state stored anyway, asks about missed unification or wrong abstractions, or asks whether the code they just wrote was already available elsewhere. Not for implementation, code formatting, security-only review (use `review-security-auditor`), distributed-flow tracing (use `review-distributed-flow-auditor`), dead code and unused export removal (use `review-cleanup-auditor`), dependency cycles or module cohesion (use `review-code-auditor` and `review-chicken-egg-detector`), or single-file pattern-consistency review with no cross-file question (use `review-code-auditor`).
+  Adversarial auditor for structural entropy, report-only. Global mode censuses the whole codebase
+  from .deep-dive/ plus its own discovery pass; diff mode anchors on the changed files.
+  Use when invoked directly for a global audit, or as the abstraction dimension of `/team-review`;
+  the user asks who canonically owns a fact, policy or state, asks about missed unification or wrong
+  abstractions, or asks whether what they just wrote already exists elsewhere.
+  Not for implementation, security review (use `review-security-auditor`), distributed-flow tracing
+  (use `review-distributed-flow-auditor`), dead-code removal (use `review-cleanup-auditor`), or
+  cycles, cohesion and single-file patterns (use `review-code-auditor` and
+  `review-chicken-egg-detector`).
 user-invocable: false
 tools:
   - read/readFile

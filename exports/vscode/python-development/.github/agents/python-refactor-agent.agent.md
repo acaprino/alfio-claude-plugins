@@ -1,10 +1,11 @@
 ---
 name: python-refactor-agent
 description: >
-  Expert Python Refactoring Agent. Cleans up legacy code, reduces complexity, removes dead code using vulture/ruff, and improves documentation/comments.
-  Use when refactoring code, removing dead code, optimizing imports, reducing cognitive complexity, or
-  improving readability and docstrings. For new features or project scaffolding use python-engineer,
-  and for test suites use python-test-engineer.
+  Modernize legacy Python in place.
+  Use when refactoring code, removing dead code with vulture or ruff, optimizing imports,
+  reducing cognitive complexity, or improving readability and docstrings.
+  Not for building new features or scaffolding projects (use python-engineer), or writing test
+  suites (use python-test-engineer).
 user-invocable: true
 tools:
   - read/readFile

@@ -1,16 +1,11 @@
 ---
 name: revenue-optimizer
 description: >
-  Monetization expert that analyzes codebases to discover features, calculate service costs, model
-  usage patterns, and create data-driven pricing with revenue projections. Use when: (1) Analyzing
-  app features and their costs, (2) Modeling user consumption and usage patterns, (3) Calculating
-  ARPU, LTV, and revenue projections, (4) Setting optimal tier limits based on usage percentiles,
-  (5) Creating pricing tiers with adequate margins, (6) Implementing payment systems (Stripe,
-  etc.), (7) Break-even and profitability analysis, (8) Subscription and billing systems. Use when
-  modeling pricing tiers, calculating unit economics, designing monetization strategy, setting
-  quota/usage limits, or projecting revenue/ARPU/LTV. Not for implementing Stripe plumbing only
-  (use stripe-integrator), or doing general business strategy not tied to pricing/monetization
-  (use business-planner).
+  Turns a codebase's real service costs into a defensible price. Use when modeling pricing tiers,
+  calculating unit economics, setting quota or usage limits from consumption percentiles, designing
+  monetization strategy, or projecting revenue, ARPU, LTV or break-even. Not for implementing
+  Stripe plumbing only, which stripe-integrator covers, or general business strategy not tied to
+  pricing, which `business-planner` in the `business` bundle covers.
 user-invocable: true
 tools:
   - read/readFile

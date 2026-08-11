@@ -1,5 +1,5 @@
 ---
-description: Generate, filter, score, and validate brand names through a structured naming workflow with market saturation analysis, domain checks, trademark screening, and weighted scoring. Use when the user asks for brand names, startup names, product names, or company names - typically with a brief or industry. Not for renaming source code identifiers (use clean-code), naming files/tests, or picking SEO keywords (use /seo-audit).
+description: Runs the whole workflow from a brief, with optional language and TLD constraints. Use when the user asks for brand, startup, product, or company names. Not for renaming source code identifiers (use the `clean-code` bundle), or picking SEO keywords (use /seo-audit).
 argument-hint: <brief description or industry> [--languages <lang1,lang2>] [--tlds <.com,.app,.io>]
 ---
 

@@ -1,5 +1,5 @@
 ---
-description: Audit an existing MetaTrader 5 trading system for reliability, error handling, and production readiness. Use when the user asks to review, audit, or validate an MT5 Python trading bot (polling loops, fill modes, reconnection, order retcodes, Windows deployment). Not for building a new MT5 system from scratch (use the mt5-architect agent), or auditing non-MT5 systems (use /ibkr-audit in the `ibkr-trading` bundle for IB).
+description: Report on the reliability, error handling, and production readiness of an existing system. Use when the user asks to review, audit, or validate an MT5 Python trading bot (polling loops, fill modes, reconnection, order retcodes, Windows deployment). Not for building a system from scratch, which the mt5-architect agent covers, nor for auditing an IB system, which /ibkr-audit in the `ibkr-trading` bundle covers.
 argument-hint: [path-or-description]
 ---
 

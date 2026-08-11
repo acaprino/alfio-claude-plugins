@@ -1,16 +1,13 @@
 ---
 name: pydantic-v2
 description: >
-  Pydantic v2 patterns for production Python: validators (`@field_validator`, `@model_validator`),
-  computed fields, strict types, discriminated unions, settings management, `model_validate` /
-  `model_dump`, `condecimal` and `Annotated[Decimal, ...]` for money, performance tips, and a v1
-  to v2 migration checklist. Also covers FastAPI integration (response_model serialization,
-  request validation, error envelope customization). Use when writing or refactoring Pydantic
-  models in Python 3.10+; migrating a codebase from Pydantic v1 to v2; choosing between
-  `Annotated[Decimal, ...]` vs `condecimal`; hitting v2 performance or serialization surprises;
-  designing FastAPI request/response schemas or error envelopes with Pydantic. Not for Python
-  testing, which python-tdd covers, generic typing unrelated to Pydantic, or non-Python schema work
-  such as Zod and io-ts, which the typescript-development bundle covers.
+  Deep reference for the data layer of a production service.
+  Use when writing or refactoring Pydantic v2 models in Python 3.10+; migrating a codebase from
+  Pydantic v1 to v2; choosing between `Annotated[Decimal, ...]` and `condecimal` for money;
+  hitting v2 validator, serialization or performance surprises; designing FastAPI
+  request/response schemas or error envelopes.
+  Not for Python testing (use the python-tdd skill) or non-Python schema work (use the
+  `typescript-development` bundle).
 user-invocable: true
 license: MIT
 metadata:

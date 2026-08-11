@@ -1,11 +1,9 @@
 ---
 name: mt5-trading
 description: >
-  Comprehensive MetaTrader 5 Python algotrading knowledge base covering the official synchronous
-  API, polling-based event systems, order execution with fill modes, historical data functions,
-  reconnection resilience, and Windows production deployment. Includes aiomql and ZeroMQ bridge
-  alternatives. Use when building, implementing, writing, coding, creating, optimizing, or
-  debugging MT5 trading systems with Python.
+  Knowledge base for the official API, its polling model, and Windows-side production concerns.
+  Use when building, implementing, writing, coding, creating, optimizing, or debugging MT5 or
+  MetaTrader 5 trading systems with Python, including the aiomql and ZeroMQ bridge alternatives.
 user-invocable: true
 license: MIT
 metadata:

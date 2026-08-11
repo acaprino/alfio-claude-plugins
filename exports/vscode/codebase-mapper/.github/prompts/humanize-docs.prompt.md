@@ -1,5 +1,5 @@
 ---
-description: Rewrite existing documentation to be human-readable - removes AI-style density, applies progressive disclosure, improves scannability. Use when the user asks to humanize existing docs, improve scannability, or rewrite dense technical writing for progressive disclosure. Not for humanizing prose/articles (use /humanize-text in the `text-humanizer` bundle) or creating new docs (use /docs-create).
+description: Edits documentation in place for a human reader. Use when the user asks to humanize existing docs, improve scannability, or rewrite dense technical writing for progressive disclosure. Not for prose or articles (use /humanize-text in the `text-humanizer` bundle) or creating new docs (use /docs-create).
 agent: doc-humanizer
 argument-hint: <path-to-docs>
 ---

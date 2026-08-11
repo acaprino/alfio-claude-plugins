@@ -1,10 +1,8 @@
 ---
 name: tauri
 description: >
-  Unified Tauri 2 development knowledge base covering core patterns, desktop, and mobile. Use when
-  working with Tauri commands, IPC, plugins, project setup, OAuth, CI/CD, window management, shell
-  plugin, desktop bundling, platform WebViews, mobile environment setup, emulator/ADB, mobile
-  plugins, IAP, and store deployment.
+  Knowledge base indexing core, desktop, and mobile references. Use when working with Tauri 2
+  commands, IPC, plugins, project setup, OAuth, or CI/CD.
 user-invocable: true
 license: MIT
 metadata:

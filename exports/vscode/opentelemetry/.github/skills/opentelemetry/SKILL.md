@@ -1,12 +1,9 @@
 ---
 name: opentelemetry
 description: >
-  OpenTelemetry Python instrumentation knowledge base covering distributed tracing, async context
-  propagation, custom transport propagators, sampling strategies, exporter configuration, and
-  production observability patterns. SDK v1.42.1 target. Use when working with OpenTelemetry,
-  distributed tracing, span instrumentation, context propagation, OTLP exporters, sampling
-  strategies, or observability pipelines. Not for general logging without trace correlation, or
-  application monitoring tools unrelated to OTel.
+  Knowledge base for OTel in Python: async gotchas, non-HTTP transports, production patterns.
+  Use when working with OpenTelemetry, distributed tracing, span instrumentation, context
+  propagation, OTLP exporters, sampling strategies, or observability pipelines.
 user-invocable: true
 license: MIT
 metadata:

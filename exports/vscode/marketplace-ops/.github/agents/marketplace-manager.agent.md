@@ -1,12 +1,12 @@
 ---
 name: marketplace-manager
 description: >
-  Expert manager for any Claude Code plugin marketplace. Handles marketplace.json consistency,
-  plugin scaffolding, upstream sync, versioning, and structural validation for marketplaces
-  following the standard Claude Code plugin schema. Use when adding, auditing, reorganizing,
-  versioning, or syncing plugins, skills, agents, and commands in any Claude Code plugin
-  marketplace. Not for working on an individual plugin's internal logic (route to the plugin's own
-  agents/skills) or on a non-Claude-Code project.
+  Maintains any Claude Code plugin marketplace end to end.
+  Use when adding, auditing, reorganizing, versioning or syncing plugins, skills, agents and
+  commands; when the concern is marketplace.json consistency, plugin scaffolding, or structural
+  validation.
+  Not for an individual plugin's internal logic (route to the plugin's own agents/skills) or a
+  non-Claude-Code project.
 user-invocable: true
 tools:
   - read/readFile

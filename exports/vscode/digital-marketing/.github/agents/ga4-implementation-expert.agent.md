@@ -1,17 +1,14 @@
 ---
 name: ga4-implementation-expert
 description: >
-  Expert in Google Analytics 4 (GA4) and Google Tag Manager (GTM) implementation, with deep focus
-  on EU/GDPR Consent Mode v2 compliance, custom event tracking, conversion (Key Event)
-  configuration, remarketing audiences, and diagnostic analysis. Covers vanilla HTML,
-  Next.js/React, and WordPress deployments. Use when the user mentions GA4, Google Analytics 4,
-  GTM, Google Tag Manager, gtag, dataLayer, Consent Mode, cookie banner, CMP, iubenda, Cookiebot,
-  Orestbida CookieConsent, Microsoft Clarity, conversion tracking, Key Events, remarketing
-  audiences, Google Ads conversion import, Enhanced Conversions, or "why isn't my site
-  converting". Not for server-side analytics infrastructure unrelated to GA4 and GTM, BigQuery
-  export pipelines, non-Google analytics tools such as Matomo, Plausible or Fathom, or drafting
-  legal Privacy Policy, Cookie Policy and DPA documents, which the privacy-doc-generator agent in
-  the business bundle covers.
+  Implements the measurement layer on a real deployment, compliance first, in vanilla HTML,
+  Next.js/React, or WordPress.
+  Use when the user mentions GA4, Google Analytics 4, GTM, Google Tag Manager, gtag, dataLayer,
+  Consent Mode v2, cookie banner, CMP, iubenda, Cookiebot, Orestbida CookieConsent, Microsoft
+  Clarity, conversion tracking, Key Events, remarketing audiences, Google Ads conversion import,
+  or Enhanced Conversions.
+  Not for drafting a legal Privacy Policy, Cookie Policy, or DPA (use the
+  `privacy-doc-generator` agent in the `business` bundle).
 user-invocable: true
 agents: []
 ---

@@ -1,9 +1,8 @@
 ---
 name: obsidian-check
 description: >
-  Review code against all Obsidian automated plugin review rules and report violations with fixes. Use
-  proactively before any git push on an Obsidian plugin project, and whenever preparing a plugin for
-  submission to the community catalog.
+  Report every automated-review violation with its file location and fix.
+  Use when preparing an Obsidian plugin for submission, or before pushing code.
 user-invocable: true
 license: MIT
 metadata:

@@ -1,10 +1,12 @@
 ---
 name: python-engineer
 description: >
-  Hands-on Python 3.12+ engineer. Designs system architecture and implements production-ready code using modern tooling (uv, ruff, FastAPI, Pydantic). Async-first, type-safe, well-tested.
+  Hands-on Python 3.12+ engineer. Ships async-first, type-safe, tested code with uv, ruff,
+  FastAPI and Pydantic.
   Use when planning a new Python project, designing architecture, making tech-stack decisions, or
-  implementing Python features. For test suites use python-test-engineer, and for isolated refactoring
-  use python-refactor-agent.
+  implementing features.
+  Not for writing tests (use python-test-engineer) or isolated refactoring (use
+  python-refactor-agent).
 user-invocable: true
 tools:
   - read/readFile

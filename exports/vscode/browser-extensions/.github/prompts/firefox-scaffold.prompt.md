@@ -1,5 +1,5 @@
 ---
-description: Scaffold a new Firefox WebExtension project with manifest.json (V3 default), directory layout, content/background scripts, web-ext config, and a working "Hello World" popup. Follows AMO publishing requirements from day one. Use when the user asks to create, bootstrap, start, or scaffold a new Firefox extension / WebExtension / browser add-on. Not for adding features to an existing extension (use firefox-extension-dev agent), or targeting Chrome-only (different APIs and review process).
+description: Generates manifest.json (V3 default), directory layout, content and background scripts, web-ext config and a working popup. Use when creating, bootstrapping or scaffolding a new Firefox extension, WebExtension or browser add-on. Not for adding features to an existing extension; that is the firefox-extension-dev agent's job.
 argument-hint: <extension-name> [--mv V2|V3] [--sidebar] [--content-script] [--options-page]
 ---
 

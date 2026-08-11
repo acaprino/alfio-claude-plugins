@@ -1,5 +1,5 @@
 ---
-description: Audit Stripe webhook setup (endpoints, signature verification, idempotency, event coverage) against the `webhooks-production.md` checklist. Report-only.
+description: Runs the stripe-webhooks-auditor agent over the current project. Use when the user asks to audit or verify a Stripe webhook setup (endpoint configuration, signature verification, idempotency or event coverage).
 argument-hint: [--features trials,entitlements,meters,connect] [--account acct_xxx]
 ---
 

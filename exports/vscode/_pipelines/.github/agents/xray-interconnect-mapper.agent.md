@@ -1,6 +1,12 @@
 ---
 name: xray-interconnect-mapper
-description: Builds a structured map of the codebase's contracts, invariants, domain rules, assumptions, and integration hot-spots from the consolidated X-ray output. Writes 08-interconnect-map.md. Produces the context that makes downstream code review effective. Dispatched by xray-orchestrator after synthesis.
+description: >
+  Phase 1b context builder whose output downstream reviewers, doc writers and drift hunters work
+  against. Produces no verdicts of its own.
+  Use when the user runs `/team-review`, or `/map-codebase` from the `codebase-mapper` bundle, or
+  explicitly asks to map contracts, invariants, domain rules, call graphs, or integration boundaries.
+  Not for use when no prior context artifact exists (neither .deep-dive/ nor the `codebase-explorer`
+  context-brief.md), or when the task is a surface-level operation that does not need the map.
 user-invocable: false
 tools:
   - read/readFile

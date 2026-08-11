@@ -1,15 +1,12 @@
 ---
 name: test-suite-auditor
 description: >
-  Adversarial whole-suite test hygiene auditor. Detects orphan tests, skipped and disabled
-  tests, failing and flaky tests, duplicate and contradictory coverage, implementation-coupled
-  tests, never-failing tests, layer-distribution and placement violations, and runtime/coverage
-  hot spots. Report-only, no edits. Use when the user asks for a test-suite audit, test hygiene
-  review, flaky or dead test detection, or an assessment of test redundancy and layer
-  distribution; also used by /test-audit and by the /team-review pipeline of the _pipelines
-  bundle when that bundle is installed.
-  Not for writing tests (use test-writer) or applying the quarantine or consolidation
-  (use /test-audit --fix or /test-consolidate).
+  Runs as the testing-quality dimension of the `_pipelines` bundle's `/team-review` pipeline and
+  its unified code review, when that bundle is installed, and as the engine of `/test-audit`. Use
+  when auditing a test suite, reviewing test hygiene, detecting flaky or dead tests, or assessing
+  test redundancy, layer distribution or placement. Not for writing tests; that is test-writer's
+  job. Not for applying the quarantine or consolidation either, which `/test-audit --fix` and
+  `/test-consolidate` do.
 user-invocable: true
 tools:
   - read/readFile

@@ -1,5 +1,5 @@
 ---
-description: Metrics-driven Python refactoring - analyze complexity, plan improvements, execute with test validation, and produce before/after comparison report. Use when the user asks to refactor Python code, reduce cyclomatic complexity, or restructure modules with measured before/after metrics. Not for plain readability renaming and simplification, which the clean-code bundle covers, nor for dead-code removal alone, which the python-dead-code skill covers.
+description: Measure, rewrite, verify against the tests, then report the delta. Use when the user asks to refactor Python code, reduce cyclomatic complexity, or restructure modules with measured before/after metrics. Not for renaming or simplifying for readability alone (use /clean-code in the `clean-code` bundle), or removing dead code (use the python-dead-code skill).
 argument-hint: <target file or directory> [--strict-mode]
 ---
 

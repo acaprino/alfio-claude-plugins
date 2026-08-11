@@ -1,5 +1,5 @@
 ---
-description: Consolidate one module's redundant tests: inventory the BEHAVIORS its tests cover, get the keep/delete lists approved, rewrite one test file per source file, delete the originals in the same commit, and verify coverage did not drop. Also processes the module's quarantine backlog. Use when the user asks to consolidate, dedupe, or rewrite the tests of a module, or to process quarantined tests for code being touched. Not for measuring whole-suite health or quarantining (use /test-audit) or writing tests for untested code (use the test-writer agent).
+description: Turns overlapping suites into one clean file per source file, with the BEHAVIOR inventory approved first, originals deleted in the same commit, coverage verified after. Use when consolidating, deduping or rewriting the tests of a module, or processing quarantined tests for code being touched. Not for measuring or quarantining whole-suite health, which `/test-audit` covers, or writing tests for untested code, which the test-writer agent covers.
 argument-hint: <module-path> [--runner <cmd>] [--coverage-cmd <cmd>] [--dry-run]
 ---
 

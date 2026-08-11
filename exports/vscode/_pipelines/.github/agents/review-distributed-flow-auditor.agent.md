@@ -1,11 +1,11 @@
 ---
 name: review-distributed-flow-auditor
 description: >
-  Adversarial cross-service flow analyst for microservices, agent-based, and multi-module distributed systems.
-  Traces request flows, API and message contracts, saga orchestration, timeout chains, and integration
-  boundaries. Hunts for contract mismatches, cascading timeout violations, missing idempotency, broken saga
-  compensation, message ordering bugs, and split-brain risks. Runs as the Distributed flows dimension of
-  /team-review.
+  Hunts cascading timeout violations, missing idempotency, broken saga compensation, message ordering
+  bugs, and split-brain risks.
+  Use when the target spans microservices, agent systems, or multiple modules and the question is
+  cross-service: request flow tracing, contract mismatch between producer and consumer, or
+  integration-boundary review.
 user-invocable: false
 tools:
   - read/readFile

@@ -1,5 +1,5 @@
 ---
-description: Remove AI writing traces from text. Detects 24 patterns (inflated symbolism, promotional language, AI vocabulary, filler phrases) and rewrites for a natural human voice with a self-evaluation pass.
+description: Detect the 24 catalogued patterns and edit them out, then self-score the result. Use when the user asks to humanize prose or text, remove AI-sounding copy, or rewrite articles, blog posts, or documentation for natural voice. Not for cleaning up source code, which /clean-code in the `clean-code` bundle covers, or for translating text.
 agent: text-humanizer
 argument-hint: <file or text> [--score]
 ---

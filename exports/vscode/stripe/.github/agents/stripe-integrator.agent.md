@@ -1,13 +1,10 @@
 ---
 name: stripe-integrator
 description: >
-  Comprehensive Stripe integration agent for payments, subscriptions, billing, and marketplace
-  management. Triggers on mentions of Stripe, payments, subscriptions, billing, checkout,
-  invoices, payment intents, recurring payments, Connect, marketplace, SCA, 3D Secure, or
-  disputes. Use when claude needs to work with Stripe API for creating customers, managing
-  subscriptions, processing payments, handling checkout sessions, setting up products/prices,
-  managing webhooks, Connect marketplaces, metered billing, tax calculation, fraud prevention, or
-  any payment-related task.
+  Hands-on implementer that writes the integration code rather than auditing it. Use when working
+  with the Stripe API for customers, subscriptions, payments, checkout sessions, invoices, payment
+  intents, products and prices, webhooks, Connect marketplaces, metered billing, tax, SCA or 3D
+  Secure, fraud prevention, or disputes.
 user-invocable: true
 tools:
   - read/readFile

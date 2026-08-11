@@ -1,5 +1,5 @@
 ---
-description: Implement xterm.js features into existing terminal code: addons, PTY wiring, theming, search, resize, decorations, parser hooks, and framework integration. Reads the current setup and adds the feature without conflicts. For debugging existing xterm code instead, use /xterm-debug.
+description: Read the current setup, then insert the feature without conflicting with what is loaded. Use when the user asks to add an xterm.js addon, PTY integration, theme, search, resize, decorations, parser hooks, or framework (React, Vue, Electron, Tauri) wiring. Not for debugging existing code, which /xterm-debug covers.
 argument-hint: <feature-description> [--path <file>]
 ---
 

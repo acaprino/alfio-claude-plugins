@@ -1,10 +1,10 @@
 ---
 name: clean-code-agent
 description: >
-  Rewrites SOURCE CODE to make it more readable and human-friendly without changing its behavior.
-  For prose/text AI trace removal, use text-humanizer instead. Use when the user asks to clean up
-  code, improve naming, remove AI-generated boilerplate, simplify structure, reduce complexity, or
-  make code more maintainable.
+  Readability-only rewrite of existing source, behavior unchanged.
+  Use when the user asks to clean up code, improve naming, remove AI-generated boilerplate,
+  simplify structure, reduce complexity, or make code more maintainable. Not for prose or text;
+  that is the `text-humanizer` agent in the `text-humanizer` bundle.
 user-invocable: true
 tools:
   - read/readFile

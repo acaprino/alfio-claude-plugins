@@ -1,14 +1,12 @@
 ---
 name: ai-scraping-expert
 description: >
-  Expert in AI-assisted scraping: Crawl4AI, Firecrawl, ScrapeGraphAI, Browser Use, Stagehand,
-  Skyvern, Jina Reader, Spider.cloud; Pydantic schema-driven extraction, LLM-repair hybrid
-  pipelines, GraphQL reverse engineering, and cost modelling for LLM-based extraction. Use when
-  picking between LLM-based scraping frameworks, designing schema-driven extraction with Pydantic,
-  building a CSS + LLM-fallback hybrid, reverse-engineering a GraphQL API, or estimating
-  extraction cost at scale. Not for HTTP and TLS fingerprinting (use
-  http-fingerprint-expert), browser stealth / CAPTCHA (use stealth-browser-expert), or pure Python
-  scraper boilerplate with no LLM (use grabber-architect).
+  Specialist for the AI-assisted half of a scraping pipeline. Use when picking between Crawl4AI,
+  Firecrawl, ScrapeGraphAI, Browser Use, Stagehand, Skyvern, Jina Reader and Spider.cloud,
+  designing Pydantic schema-driven extraction, building a CSS plus LLM-fallback hybrid,
+  reverse-engineering a GraphQL API, or estimating extraction cost at scale. Not for TLS
+  fingerprinting (use http-fingerprint-expert), browser stealth or CAPTCHA (use
+  stealth-browser-expert), or boilerplate with no LLM (use grabber-architect).
 user-invocable: true
 tools:
   - read/readFile

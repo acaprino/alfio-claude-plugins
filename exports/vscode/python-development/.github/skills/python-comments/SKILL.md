@@ -1,11 +1,9 @@
 ---
 name: python-comments
 description: >
-  Write and audit Python code comments using antirez's 9-type taxonomy. Two modes - write
-  (add/improve comments in code) and audit (classify and assess existing comments with structured
-  report). Applies systematic comment classification with Python-specific mapping (docstrings,
-  inline comments, type hints). Use when users request comment improvements, docstring additions,
-  comment quality reviews, or documentation audits.
+  Grade and rewrite code prose against antirez's 9-type taxonomy, mapped to PEP 257.
+  Use when the user asks to improve comments, add docstrings, review comment quality, or audit
+  documentation in a Python codebase.
 user-invocable: true
 license: MIT
 metadata:

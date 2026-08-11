@@ -1,9 +1,9 @@
 ---
 name: python-packaging
 description: >
-  Create distributable Python packages with proper project structure, setup.py/pyproject.toml, and
-  publishing to PyPI. Use when packaging Python libraries, creating CLI tools, or distributing
-  Python code.
+  Build wheels and sdists from a pyproject.toml, then publish them.
+  Use when packaging Python libraries, choosing a src or flat layout, setting up dynamic
+  versioning, creating CLI entry points, or uploading to TestPyPI and PyPI.
 user-invocable: true
 license: MIT
 metadata:

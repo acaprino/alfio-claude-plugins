@@ -1,12 +1,11 @@
 ---
 name: agent-sdk-builder
 description: >
-  Build apps with the Claude Agent SDK (formerly Claude Code SDK). Covers programmatic agent
-  loops, tool integration, subagent orchestration, prompt caching, and migration between Claude
-  model versions. Use when code references claude-agent-sdk, user says "agent sdk", "build an
-  agent", "programmatic claude", "claude code sdk", "sidecar", "run claude programmatically". Not
-  for user is using the Claude API client SDK (`anthropic`/`@anthropic-ai/sdk`) for direct chat
-  completions, or doing general programming unrelated to agent orchestration.
+  Run the Claude Agent SDK (formerly Claude Code SDK) loop inside your own program, not the
+  `anthropic` client SDK for chat completions.
+  Use when code references claude-agent-sdk, user says "agent sdk", "build an agent",
+  "programmatic claude", "claude code sdk", "sidecar", "run claude programmatically", or asks about
+  tool integration, subagent orchestration, prompt caching or model migration inside that loop.
 user-invocable: true
 license: MIT
 metadata:

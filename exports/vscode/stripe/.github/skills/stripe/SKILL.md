@@ -1,13 +1,10 @@
 ---
 name: stripe
 description: >
-  Stripe payments knowledge base - API patterns, checkout optimization, subscription lifecycle,
-  pricing strategies, webhook reliability, Firebase integration, cost analysis, and revenue
-  modeling. Loaded by stripe-integrator and revenue-optimizer agents; also consumable directly
-  when the user asks for Stripe-specific patterns without needing an agent. Use when working with
-  Stripe API (Payment Intents, Customers, Subscriptions, Checkout Sessions, Connect, webhooks,
-  tax, usage-based billing), pricing strategy, or revenue modeling. Not for payment work is
-  non-Stripe (PayPal, Square, crypto) or the task is generic e-commerce unrelated to payments.
+  Knowledge base loaded by the stripe-integrator and revenue-optimizer agents, also consumable
+  directly. Use when working with the Stripe API (Payment Intents, Customers, Subscriptions,
+  Checkout Sessions, Connect, webhooks, tax, usage-based billing), Firebase integration, pricing
+  strategy, or revenue modeling.
 user-invocable: true
 license: MIT
 metadata:

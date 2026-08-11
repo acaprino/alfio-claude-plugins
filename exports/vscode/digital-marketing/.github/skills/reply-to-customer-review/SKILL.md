@@ -1,12 +1,11 @@
 ---
 name: reply-to-customer-review
 description: >
-  Generate professional, empathetic, on-brand responses to online customer reviews. Analyzes
-  sentiment, detects severity, adapts tone, and provides operational suggestions. Supports
-  hospitality (Airbnb, Booking, Tripadvisor) and e-commerce/app (Amazon, App Store, Trustpilot)
-  with sector-specific patterns. Use when review, recensione, reply to review, respond to review,
-  risposta recensione, customer review, negative review, bad review, rispondere alla recensione,
-  gestione recensioni, review response.
+  Reads sentiment and severity, then adapts tone and operational advice to the sector,
+  hospitality or e-commerce.
+  Use when review, recensione, reply to review, respond to review, risposta recensione, customer
+  review, negative review, bad review, rispondere alla recensione, gestione recensioni, review
+  response.
 user-invocable: true
 license: MIT
 metadata:

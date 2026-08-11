@@ -1,5 +1,5 @@
 ---
-description: Audit, restructure, and improve an existing README.md. Verifies accuracy against the codebase, fixes stale links and stats, improves structure following readme-craft practices, and optionally rewrites sections. For a README written from scratch, load the readme-craft skill instead.
+description: Verify every claim, path, count, and badge against the codebase before changing anything. Use when the user asks to audit, update, or improve an existing README.md: fix stale stats and links, reorganize sections, or apply readme-craft best practices. Not for creating a new README, which the `readme-craft` skill covers, nor for documentation that is not a README, which /docs-maintain in the `codebase-mapper` bundle covers.
 ---
 
 # Maintain README.md

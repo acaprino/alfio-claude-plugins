@@ -1,11 +1,10 @@
 ---
 name: overview-writer
 description: >
-  Phase 2 writer for codebase-mapper. Produces 01-overview.md and 02-features.md from the context
-  brief. Writes narrative project overview with mindmap diagram and detailed feature catalog.
-  Spawned in parallel with other writer agents. Use when spawned by the /map-codebase command
-  during Phase 2 to produce 01-overview.md and 02-features.md. Not for invoked outside the
-  map-codebase pipeline - this agent expects a context brief in .codebase-map/_internal/.
+  Writes 01-overview.md (project narrative with a mindmap diagram) and 02-features.md (feature
+  catalog) for the /map-codebase pipeline, from the context brief.
+  Use when spawned by that pipeline in Phase 2.
+  Not for use outside it (there is no context brief in .codebase-map/_internal/ to read).
 user-invocable: true
 tools:
   - read/readFile

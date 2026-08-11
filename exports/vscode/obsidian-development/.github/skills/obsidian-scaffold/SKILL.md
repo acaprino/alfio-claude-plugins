@@ -1,9 +1,10 @@
 ---
 name: obsidian-scaffold
 description: >
-  Scaffold project structure, manifest, tsconfig, esbuild config, and a minimal plugin class that passes
-  Obsidian's automated plugin review. Use when the user asks to start, create, bootstrap, or initialize
-  a new Obsidian community plugin.
+  Generate the layout, manifest, tsconfig, esbuild config, and a minimal class that passes
+  automated review.
+  Use when the user asks to start, create, bootstrap, scaffold, or initialize a new Obsidian
+  community plugin.
 user-invocable: true
 license: MIT
 metadata:

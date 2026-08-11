@@ -1,9 +1,10 @@
 ---
 name: file-organizer
 description: >
-  Organize, deduplicate, and restructure file hierarchies safely, proposing a plan before anything moves.
-  Use when tidying cluttered folders (Downloads, Desktop, Documents), finding duplicate files, clearing
-  out old files, restructuring project directories, or separating work from personal files.
+  Scope, plan, and execute the reorganization behind approval gates.
+  Use when organizing messy folders (Downloads, Desktop, Documents), finding duplicate files,
+  cleaning up old files, restructuring project directories, separating work from personal files, or
+  automating file cleanup tasks.
 user-invocable: true
 license: MIT
 metadata:

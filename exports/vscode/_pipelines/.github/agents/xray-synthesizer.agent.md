@@ -1,6 +1,11 @@
 ---
 name: xray-synthesizer
-description: Consolidates per-partition X-ray outputs into the standard 01..07.md layout at the run root. Reads <run-dir>/partitions/*/01..06.md and produces unified files with cross-partition sections plus a final report. Output is indistinguishable from a single-context analysis. Dispatched by xray-orchestrator during synthesis.
+description: >
+  Consolidates per-partition X-ray outputs into the standard 01..07.md layout in the run directory,
+  adding cross-partition sections and a team-mode final report, byte-compatible with a classic
+  single-agent run.
+  Use when spawned by `/xray-team-analyze` in its consolidation phase.
+  Not for use outside that pipeline.
 user-invocable: false
 tools:
   - read/readFile

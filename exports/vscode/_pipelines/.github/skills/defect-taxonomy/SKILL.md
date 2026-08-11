@@ -1,11 +1,11 @@
 ---
 name: defect-taxonomy
 description: >
-  Comprehensive defect taxonomy knowledge base: 16 macro-categories, 140+ subcategories of source
-  code defects with CWE and OWASP mappings, detection strategies, fix patterns, and review
-  frameworks. Loaded on demand by the /team-review reviewer agents (review-code-auditor,
-  review-security-auditor, review-ui-race-auditor, review-logic-integrity-auditor and the rest) to
-  enrich analysis with structured defect knowledge.
+  16 macro-categories and 140+ subcategories of source-code failure modes, with CWE and OWASP
+  mappings, fix patterns, and review frameworks.
+  Use when an audit needs structured defect classification, a detection strategy, or severity
+  calibration; loaded by `review-code-auditor`, `review-security-auditor`, and
+  `review-ui-race-auditor`.
 user-invocable: false
 license: MIT
 metadata:

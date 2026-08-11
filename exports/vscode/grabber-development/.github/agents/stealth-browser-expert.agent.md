@@ -1,14 +1,12 @@
 ---
 name: stealth-browser-expert
 description: >
-  Expert in stealth browser automation for scraping: Patchright, Camoufox, Nodriver,
-  rebrowser-patches, selenium-driverless, behavioral biometrics, and browser-level CAPTCHA solver
-  integration. Use when selecting or configuring a stealth browser driver (Patchright, Camoufox,
-  Nodriver), bypassing Cloudflare Bot Management, DataDome, PerimeterX/HUMAN behavioral detection;
-  extracting cf_clearance for HTTP replay; integrating ghost-cursor / playwright-captcha /
-  playwright-recaptcha; designing a persistent browser context strategy. Not for the target has no
-  anti-bot (use plain Playwright or httpx), the task is pure HTTP fingerprint work (use
-  http-fingerprint-expert), or the task is LLM-based extraction (use ai-scraping-expert).
+  Evasion specialist for the rendered-browser layer of a scraper. Use when selecting or configuring
+  a stealth driver (Patchright, Camoufox, Nodriver, rebrowser-patches, selenium-driverless),
+  bypassing Cloudflare, DataDome or PerimeterX, extracting cf_clearance for HTTP replay, wiring
+  ghost-cursor, playwright-captcha or playwright-recaptcha, or designing a persistent browser
+  context. Not for targets with no anti-bot, where plain Playwright or httpx suffices; HTTP
+  fingerprinting (use http-fingerprint-expert); or LLM extraction (use ai-scraping-expert).
 user-invocable: true
 tools:
   - read/readFile

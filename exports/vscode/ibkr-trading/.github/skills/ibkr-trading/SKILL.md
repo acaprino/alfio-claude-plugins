@@ -1,14 +1,10 @@
 ---
 name: ibkr-trading
 description: >
-  Comprehensive Interactive Brokers algotrading knowledge base covering TWS API architecture,
-  ib_async event-driven programming, market data subscriptions, order execution with bracket orders,
-  order lifecycle verdict contracts, historical data with pacing rules, venue-boundary failure modes,
-  reconnection resilience, Gateway automation with IBC, and Windows production deployment.
-  Use when building, implementing, writing, coding, creating, optimizing, or debugging IB trading
-  systems with Python. Not for MetaTrader 5 work (use the `mt5-trading` bundle), IBKR Web API
-  portfolio/reporting integrations with no TWS connection, or broker-agnostic strategy math with
-  no IBKR integration.
+  Knowledge base for production trading automation in Python.
+  Use when building, optimizing, or debugging Interactive Brokers systems with the TWS API and
+  ib_async. Not for MetaTrader 5 work, which the `mt5-trading` bundle covers, or IBKR Web API
+  integrations with no TWS connection.
 user-invocable: true
 license: MIT
 metadata:

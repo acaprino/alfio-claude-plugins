@@ -1,10 +1,8 @@
 ---
 name: rag-development
 description: >
-  Comprehensive RAG development knowledge base covering chunking, embeddings, vector databases,
-  retrieval strategies, advanced patterns (Graph RAG, CRAG, Self-RAG, Agentic RAG), evaluation,
-  and production deployment. Use when building, implementing, writing, coding, creating,
-  optimizing, or auditing RAG systems.
+  Knowledge base for production question-answering pipelines. Use when building, optimizing, or
+  auditing RAG systems, including Graph RAG, CRAG, Self-RAG, and Agentic RAG.
 user-invocable: true
 license: MIT
 metadata:

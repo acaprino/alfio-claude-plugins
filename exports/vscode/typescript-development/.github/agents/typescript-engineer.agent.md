@@ -1,11 +1,11 @@
 ---
 name: typescript-engineer
 description: >
-  Hands-on TypeScript 5.x engineer. Designs system architecture and implements production-ready code using modern tooling (pnpm/bun, Vite/tsup, Vitest, ESLint 9 flat config, Zod/Valibot). Type-safe, strict-mode, well-tested.
-  Use when planning a new TypeScript project, designing architecture, making tech-stack decisions,
-  implementing TypeScript features, migrating JavaScript to TypeScript, or setting up a monorepo. For
-  React-specific performance optimization, the react-development bundle of the same catalog carries
-  react-performance-optimizer.
+  Hands-on TypeScript 5.x engineer. Ships strict-mode, tested code with pnpm/bun, Vite, Vitest and
+  Zod. Use when planning a new TS project, designing architecture, making tech-stack decisions,
+  implementing features, migrating JavaScript to TypeScript, or setting up a monorepo. Not for
+  React-specific performance optimization, which `react-performance-optimizer` in the
+  `react-development` bundle covers.
 user-invocable: true
 tools:
   - read/readFile

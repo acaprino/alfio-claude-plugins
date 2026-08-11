@@ -1,12 +1,10 @@
 ---
 name: platform-reviewer
 description: >
-  Adversarial cross-platform code reviewer. Audits code against the platform-engineering
-  rulebook - server validation, auth token storage, API security, XSS/CSP, secrets exposure,
-  architecture patterns, and performance. Assumes violations exist and finds them.
-  Use when reviewing a PR or a codebase for security, architecture, or performance compliance across
-  SPA, PWA, mobile, and desktop (Electron, Tauri) platforms. Not for work that is purely UI design,
-  copywriting, or business logic unrelated to platform engineering concerns.
+  Adversarial reviewer that assumes violations of the platform-engineering rulebook exist and
+  proves them.
+  Use when auditing PRs or code for security, architecture, or performance compliance across SPA,
+  PWA, mobile, and desktop (Electron, Tauri) platforms.
 user-invocable: true
 tools:
   - read/readFile

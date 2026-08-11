@@ -1,12 +1,10 @@
 ---
 name: generate-mindmap
 description: >
-  Brainstorm and generate a Buzan-style structured mindmap JSON outline from any content, prioritizing
-  cognitive effectiveness over structural efficiency: single keywords, strong visual associations
-  (emojis), organic radiant thinking, and cross-linking that maximize memory retention and idea
-  generation. Use when the user asks to create a mind map, mappa mentale, concept map, or visual
-  summary, typically to learn, brainstorm, or structure knowledge around a topic. Not for a traditional
-  outline, flowchart, or diagram, where Mermaid is the better tool.
+  Produce a Buzan-style radiant outline as structured JSON, optimized for recall over symmetry:
+  single keywords, emoji anchors, cross-links. Use when the user asks to create a mind map, mappa
+  mentale, concept map, or visual summary of a topic, text, or file, typically to learn or
+  brainstorm.
 user-invocable: true
 license: MIT
 metadata:

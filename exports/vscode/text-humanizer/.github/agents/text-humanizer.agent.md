@@ -1,8 +1,9 @@
 ---
 name: text-humanizer
 description: >
-  Expert Editor Agent that removes AI writing traces from PROSE/TEXT (any language). Detects and fixes 24 patterns including inflated symbolism, promotional language, and formulaic structures.
-  Use when text sounds AI-generated and needs humanization, or the user asks to humanize prose. Not for refactoring source code.
+  Editor for any language: detect the 24 catalogued patterns and fix them in place.
+  Use when text sounds AI-generated and needs humanization, or the user asks to humanize prose or
+  text. Not for refactoring source code; that is `clean-code` in the `clean-code` bundle.
 user-invocable: true
 tools:
   - read/readFile

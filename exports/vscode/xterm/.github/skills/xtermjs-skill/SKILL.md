@@ -1,9 +1,11 @@
 ---
 name: xtermjs-skill
 description: >
-  Expert guidance for building, configuring, and integrating xterm.js terminal emulators in web and Electron applications. Use this skill whenever the user mentions xterm, xterm.js, @xterm/xterm, terminal emulator in the browser, web terminal, WebSSH, in-browser shell, or asks about addons like FitAddon, WebglAddon, SearchAddon, AttachAddon, or integration with node-pty. Also trigger for questions about ANSI/VT sequences, terminal theming, PTY over WebSocket, custom key handlers, parser hooks, or embedding a terminal in React/Vue/Angular/Electron apps.
-  Not for a native OS terminal rather than a browser-based one, nor for a non-xterm terminal library
-  such as a VT100 emulator in Python.
+  Build, configure, debug, and extend in-page console UIs.
+  Use when the user mentions xterm, xterm.js, @xterm/xterm, terminal emulator in the browser, web
+  terminal, WebSSH, in-browser shell, addons like FitAddon, WebglAddon, SearchAddon or
+  AttachAddon, integration with node-pty, ANSI/VT sequences, terminal theming, PTY over WebSocket,
+  custom key handlers, parser hooks, or embedding a terminal in React/Vue/Angular/Electron apps.
 user-invocable: true
 license: MIT
 metadata:

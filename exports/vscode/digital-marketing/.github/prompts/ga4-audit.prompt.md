@@ -1,5 +1,5 @@
 ---
-description: End-to-end Google Analytics 4 + GTM audit with browser-driven verification of dataLayer events, Consent Mode v2 state, conversion (Key Event) configuration, remarketing audiences, and Ads linking - outputs a prioritized fix list with concrete code. Use when the user asks to audit GA4, verify GTM setup, check Consent Mode compliance, debug missing conversions, review remarketing audiences, validate dataLayer events, or check "why isn't my site converting". Not for general SEO, which /seo-audit covers, content and CTA optimization, which /content-strategy covers, or server-side analytics infrastructure unrelated to GA4 and GTM.
+description: Inspects a live deployment in the browser to see what really fires. Use when the user asks to audit GA4, verify GTM setup, check Consent Mode v2 compliance, debug missing conversions, validate dataLayer events, or check "why isn't my site converting". Not for general SEO (use /seo-audit), or content and CTA optimization (use /content-strategy).
 argument-hint: <url or local path> [--gtm <container-id>] [--strict-mode]
 ---
 

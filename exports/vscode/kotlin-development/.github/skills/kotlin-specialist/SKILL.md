@@ -1,7 +1,12 @@
 ---
 name: kotlin-specialist
 description: >
-  Idiomatic Kotlin implementation patterns: coroutines and structured concurrency, Flow / StateFlow / SharedFlow, Kotlin Multiplatform (KMP) shared-code architecture, Jetpack Compose UI, Ktor server with JWT auth and Exposed, and type-safe DSL design (lambdas with receivers, delegated properties, inline reified, value classes). Use when building, writing, or reviewing Kotlin code involving coroutines, Flow, suspend functions, expect/actual, Compose composables and ViewModels, Ktor routing, sealed-class state modeling, scope functions, or DSL builders. Not for libGDX game work, Android Java without Kotlin, or JVM tuning unrelated to Kotlin language features.
+  Idiomatic patterns for concurrent, shared-code, and UI-layer work.
+  Use when building, writing, or reviewing Kotlin code using coroutines, Flow, StateFlow,
+  SharedFlow or suspend functions, Kotlin Multiplatform (KMP) and expect/actual, Compose
+  composables and ViewModels, Ktor routing with JWT auth and Exposed, sealed-class state modeling,
+  scope functions, or DSL builders. Not for libGDX game work, which the `libgdx-development`
+  bundle covers, or Android Java without Kotlin.
 user-invocable: true
 license: MIT
 metadata:

@@ -1,5 +1,5 @@
 ---
-description: Audit an existing libGDX project for correctness, performance, lifecycle hygiene, and production readiness. Use when the user asks to review, audit, or validate a libGDX game (rendering pipeline, asset disposal, Screen lifecycle, GL thread blocking, multi-platform configuration, libGDX 1.14.0 migration). Not for building a new libGDX project from scratch (use the libgdx-architect agent), or auditing non-libGDX engines (jMonkey, KorGE, Godot, Unity).
+description: Report correctness, performance, and lifecycle defects. Use when the user asks to review, audit, or validate a libGDX game: rendering pipeline, asset disposal, Screen lifecycle, GL thread blocking, multi-platform config, version migration. Not for building a new game from scratch, which the libgdx-architect agent covers.
 argument-hint: [path-or-description]
 ---
 

@@ -1,17 +1,11 @@
 ---
 name: libgdx-architect
 description: >
-  Expert in libGDX cross-platform game development with Java and Kotlin.
-  Covers project setup via gdx-liftoff, the rendering pipeline (SpriteBatch, TextureAtlas, ShaderProgram),
-  Scene2D and Ashley ECS architecture, Box2D physics, AssetManager lifecycle, Screen management,
-  Tiled map integration, deployment to Desktop (LWJGL3), Android, iOS (RoboVM), and HTML5 (GWT/TeaVM).
-  Use when building or scaffolding a libGDX project, choosing between gdx-liftoff and gdx-setup,
-  designing the Screen/Game/ApplicationListener structure, integrating Scene2D with Ashley and Box2D,
-  managing OpenGL resource disposal, packing textures with TexturePacker, debugging frame-rate drops
-  or GL thread blocking, configuring multi-platform Gradle builds, migrating to libGDX 1.14.0, or
-  deciding between Kotlin and Java for a libGDX project. Not for general Java or Kotlin development
-  unrelated to libGDX, Android UI work without a game loop, or other engines such as jMonkey, KorGE,
-  Godot, or Unity.
+  Build cross-platform 2D and 3D games in Java or Kotlin.
+  Use when scaffolding, coding, or debugging a libGDX project: gdx-liftoff vs gdx-setup,
+  Game/Screen/ApplicationListener structure, Scene2D, Ashley ECS, Box2D, Tiled maps, AssetManager
+  and OpenGL disposal, TexturePacker, GL thread blocking, frame-rate drops, version migration, or
+  multi-platform Gradle builds.
 user-invocable: true
 tools:
   - read/readFile

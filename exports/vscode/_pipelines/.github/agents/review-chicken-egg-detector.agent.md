@@ -1,9 +1,12 @@
 ---
 name: review-chicken-egg-detector
 description: >
-  Detects chicken-and-egg problems, circular initialization dependencies, and bootstrap deadlocks across
-  services, modules, and infrastructure. Traces startup ordering, init sequences, config bootstrapping, and
-  migration dependencies. Runs as the Circular dependencies dimension of /team-review.
+  Detects the chicken-and-egg cycle where component A needs B ready while B needs A: cold-start
+  hangs, deadlocks, hidden temporal coupling.
+  Use when the target involves startup ordering, initialization sequences, bootstrap or config
+  loading, service discovery, or migration dependencies; or the system comes up correctly only by
+  luck.
+  Not for runtime flow with no initialization phase (use `review-distributed-flow-auditor`).
 user-invocable: false
 tools:
   - read/readFile

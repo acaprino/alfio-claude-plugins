@@ -1,6 +1,10 @@
 ---
 name: xray-behavior-worker
-description: Executes Phase 3 (Flow Tracing) and Phase 4 (Semantic Understanding) of X-ray analysis on one partition. Reads all Wave 1 outputs so flows and ADRs can cite cross-partition boundaries. Writes 03-flows.md and 04-semantics.md into its assigned output directory. Dispatched by xray-orchestrator in Wave 2.
+description: >
+  Runs Flow Tracing and Semantic Understanding over one partition, reading every partition's
+  structure and interface output so flows and contracts can cite cross-partition boundaries, and
+  writing 03-flows.md and 04-semantics.md into its owned partition directory.
+  Use when spawned by `/xray-team-analyze` in its second wave.
 user-invocable: false
 tools:
   - read/readFile

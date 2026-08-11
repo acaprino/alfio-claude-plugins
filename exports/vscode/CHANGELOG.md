@@ -1,5 +1,11 @@
 # Changelog
 
+## 19.5.0
+
+- Mirrors the description trim that cut the plugin corpus by about 35%. 169 agent, skill and prompt descriptions across 35 bundles now carry the shortened text, adapted as usual: routing labels become `Use when` / `Not for` prose, namespaces are de-prefixed, and the `_pipelines` renames (`review-*`, `xray-*`) are applied. Only descriptions changed; no body, no `tools:` list, no contribution path, so `package.json`'s agent and prompt arrays are untouched.
+- A description sits in context in every session while the body loads only on invocation, so anything a description restated from its own body was cost with no routing value. The cut removed enumerations the bodies already carry, sentences repeated inside a single description, and a contentless exclusion clause that a scaffolding template had propagated to 29 components. Every distinctive trigger term and every sibling cross-reference survives.
+- Two same-name pairs that had been describing each other now divide by role: the `abstraction-architect` skill takes the phrases a user types while its agent takes its pipeline coordinates, and the same split applies to the GA4 knowledge base and its expert agent. The six `codebase-mapper` Phase-2 writers, previously near-identical boilerplate, collapse to one line each.
+
 ## 19.3.0
 
 - New `peer-review` bundle, the 38th: the `/review` prompt, the export-only `peer-review-orchestrator` agent, and the `packet-builder` and `respondent` subagents it dispatches, plus the `cross-model-peer-review` skill. Cross-model peer review of plans and specs: a challenge packet with GIVEN-tagged context, challenger findings that each carry their own falsifier, evidence-backed responses at file:line, a verbatim ledger, a certification pass the challenger owns, and a verdict computed from the ledger.

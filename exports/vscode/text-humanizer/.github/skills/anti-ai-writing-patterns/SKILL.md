@@ -1,10 +1,8 @@
 ---
 name: anti-ai-writing-patterns
 description: >
-  Knowledge base defining 24 common AI writing patterns (inflated symbolism, promotional language,
-  filler phrases, formulaic structures) and how to rewrite each one so it reads as naturally human.
-  Loaded by text-humanizer, and available whenever prose is being edited to remove AI traces. Not for
-  refactoring source code.
+  Knowledge base of the 24 catalogued patterns, each with a natural-sounding rewrite.
+  Use when editing or reviewing text to remove AI traces, or when asked to humanize text.
 user-invocable: false
 license: MIT
 metadata:

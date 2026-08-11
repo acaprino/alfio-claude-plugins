@@ -1,12 +1,13 @@
 ---
 name: review-cleanup-auditor
 description: >
-  Adversarial codebase hygiene auditor. Detects dead code, orphan assets, generated artifacts tracked in VCS,
-  phantom and unused dependencies, barrel-file bloat, eager-bundling anti-patterns, rebrand residue,
-  filesystem garbage, stale documentation or historical artifacts, and lifecycle residue (leftovers of
-  completed migrations, temporary debug tooling, stale stashes/worktrees/branches) inferred via git-history
-  and session-transcript archaeology. Report-only, never edits. Runs as the Codebase hygiene dimension of
-  /team-review.
+  Always-on hygiene dimension of `/team-review`.
+  Use when the user asks for a cleanup review, technical-debt audit, dead code, orphan assets,
+  generated artifacts tracked in VCS, unused dependencies, stale docs and historical artifacts, or
+  leftovers of finished work (migrations, debug tooling, stale branches).
+  Not for carrying out the removal (this agent is report-only), architecture or security review (use
+  `review-code-auditor` or `review-security-auditor`), or one language only (use `knip` in the
+  `typescript-development` bundle or `python-dead-code` in the `python-development` bundle).
 user-invocable: false
 tools:
   - read/readFile

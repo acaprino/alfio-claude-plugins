@@ -1,11 +1,10 @@
 ---
 name: typescript-write
 description: >
-  Write TypeScript and JavaScript code following modern best practices and coding standards. Use
-  when writing or reviewing TypeScript/JavaScript code, including types, generics, async patterns,
-  module boundaries, and style conventions. Not for React-specific performance work, which the
-  react-development bundle covers, Node.js build and packaging, or deep enterprise type-system work,
-  which the mastering-typescript skill covers.
+  Apply house coding standards to everyday application work. Use when writing or reviewing
+  TypeScript/JavaScript code, including types, generics, async patterns, module boundaries, and
+  style conventions. Not for React performance, which the `react-development` bundle covers, or
+  advanced type-system depth, which mastering-typescript covers.
 user-invocable: true
 license: MIT
 metadata:

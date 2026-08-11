@@ -1,15 +1,13 @@
 ---
 name: pwa-development
 description: >
-  Progressive Web App knowledge base for 2025-2026: Web App Manifest, Service Workers (Workbox 7,
-  Serwist), Web Push (VAPID, RFC 8030/8291/8292, Declarative Push for Safari 18.4+), install flows
-  (beforeinstallprompt, Window Controls Overlay), OPFS storage, Project Fugu, Core Web Vitals (INP
-  < 200ms), security (HTTPS, CSP, COOP/COEP), and distribution (Bubblewrap, PWA Builder MSIX,
-  Capacitor). Use when building, auditing, or debugging PWAs, including manifest, service worker,
-  Web Push, install flow, OPFS, Background Sync, Wake Lock, vite-plugin-pwa, Next.js Serwist,
-  @angular/pwa, @vite-pwa/nuxt, Bubblewrap, TWA, PWA Builder, or Capacitor wrapping. Not for generic
-  frontend styling, React performance, cross-platform security unrelated to PWAs, Tauri or Electron
-  wrappers, or GA4 and analytics: sibling bundles in the same catalog cover those.
+  Knowledge base for the app layer of the web platform, and the gaps between engines. Use when
+  building or auditing a PWA: Web App Manifest, service workers, Workbox, Serwist, vite-plugin-pwa,
+  @angular/pwa, @vite-pwa/nuxt, Web Push, VAPID, Declarative Push, beforeinstallprompt, Window
+  Controls Overlay, OPFS, Background Sync, Wake Lock, Project Fugu, Bubblewrap, TWA, PWA Builder,
+  Capacitor. Not for React performance (`/review-react` in the `react-development` bundle), non-PWA
+  platform security (the `platform-engineering` bundle), or Tauri and Electron shells (the
+  `tauri-development` bundle).
 user-invocable: true
 license: MIT
 metadata:

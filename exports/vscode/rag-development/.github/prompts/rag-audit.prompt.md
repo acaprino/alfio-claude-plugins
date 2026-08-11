@@ -1,5 +1,5 @@
 ---
-description: Audit an existing RAG implementation for quality, performance, and best practices. Use when the user asks to review, audit, or validate a RAG pipeline - chunking, embeddings, retrieval, reranking, or production readiness. Not for building a new RAG system from scratch (use rag-architect agent) or auditing a pure vector DB (use qdrant-expert).
+description: Report quality and best-practice gaps in an existing implementation. Use when the user asks to review, audit, or validate a RAG pipeline (chunking, embeddings, retrieval, reranking, or production readiness). Not for building from scratch, which rag-architect covers, or auditing a pure vector database, which qdrant-expert covers.
 argument-hint: [path-or-description]
 ---
 

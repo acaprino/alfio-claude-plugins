@@ -1,12 +1,11 @@
 ---
 name: type-safety-rules
 description: >
-  TypeScript type-safety review rules: 20 rules across 7 categories covering any erosion, unsound
-  casts, missing boundary validation, assertion abuse, tsconfig strictness, exhaustiveness, and
-  generics soundness. Use when reviewing TypeScript for type-safety issues, hardening types in
-  existing code, or auditing a codebase for type-system erosion. Not for style and naming review
-  (the typescript-write skill covers that), React performance (the react-development bundle), or
-  dead-code detection (the knip skill).
+  20 rules across 7 categories, each with detection and fix guidance. Use when reviewing or
+  hardening TypeScript against type-system erosion: `any` leakage, unsound casts, missing boundary
+  validation, assertion abuse, tsconfig strictness, exhaustiveness and generics soundness. Not for
+  style and naming review, which typescript-write covers, or dead-code detection, which knip
+  covers.
 user-invocable: true
 license: MIT
 metadata:

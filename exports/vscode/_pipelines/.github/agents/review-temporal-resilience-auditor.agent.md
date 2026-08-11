@@ -1,11 +1,15 @@
 ---
 name: review-temporal-resilience-auditor
 description: >
-  Adversarial reviewer for failure-over-time behavior in long-running code. Hunts the bugs that only exist
-  on the time axis: retry loops without backoff or cap, errors swallowed until a subsystem silently dies,
-  in-flight guards never cleared, timers that stop re-arming, notification floods and notification silence,
-  escalation paths that do not exist, and clock hazards (suspend, DST, throttled timers). Runs as the
-  Temporal resilience dimension of /team-review.
+  Reviewer for failure-over-time behavior: missing backoff or cap, errors swallowed until a subsystem
+  dies silently, guards never cleared, notification floods and silence, clock hazards (suspend, DST,
+  throttling).
+  Use when the diff or target touches timers, schedulers, polling loops, retry and reconnect logic,
+  queues, cron jobs, background workers, or watchdogs; or the pipeline flagged long-running
+  execution.
+  Not for startup and bootstrap cycles (use `review-chicken-egg-detector`), cross-service timeout
+  chains (use `review-distributed-flow-auditor`), or UI rendering races (use
+  `review-ui-race-auditor`).
 user-invocable: false
 tools:
   - read/readFile

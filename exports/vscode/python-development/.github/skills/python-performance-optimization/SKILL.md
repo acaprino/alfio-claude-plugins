@@ -1,9 +1,10 @@
 ---
 name: python-performance-optimization
 description: >
-  Profile and optimize Python code using cProfile, memory profilers, and performance best
-  practices. Use when debugging slow Python code, optimizing bottlenecks, or improving application
-  performance.
+  Measure first with cProfile, line_profiler, memory_profiler or py-spy, then fix what the
+  numbers show.
+  Use when debugging slow Python code, optimizing bottlenecks, cutting memory usage, or improving
+  application performance.
 user-invocable: true
 license: MIT
 metadata:

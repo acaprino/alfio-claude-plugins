@@ -1,9 +1,12 @@
 ---
 name: review-security-auditor
 description: >
-  Adversarial security reviewer with attacker mindset. Hunts for injection vectors, auth bypasses, secret
-  leaks, crypto mistakes, missing headers, and dependency vulnerabilities. Assumes code is exploitable and
-  proves it. Runs as the Security dimension of /team-review.
+  Attacker-mindset pass over the target: assumes it is exploitable and proves it.
+  Use when the user asks for a security review, SAST audit, OWASP or CWE analysis, secret-leak scan,
+  or an authentication or authorization code review; injection vectors, auth bypasses, crypto
+  mistakes, or missing security headers.
+  Not for general code quality (use `review-code-auditor`) or infrastructure and network security
+  (use `review-platform-reviewer`).
 user-invocable: false
 tools:
   - read/readFile

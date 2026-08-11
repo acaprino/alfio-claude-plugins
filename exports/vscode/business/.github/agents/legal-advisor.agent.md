@@ -1,13 +1,11 @@
 ---
 name: legal-advisor
 description: >
-  Use PROACTIVELY for any legal question - contracts, compliance, privacy, IP, employment law,
-  terms of service, NDAs, corporate governance. Expert legal advisor specializing in technology
-  law, compliance, and risk mitigation. For advisory analysis and general legal documents. Use
-  when contracts, NDAs, IP/copyright, employment law, M&A, corporate governance, regulatory
-  compliance, legal risk assessment, or advisory memos. Not for drafting Privacy Policies / Cookie
-  Policies / DPAs / DPIA reports (use privacy-doc-generator), or business plan / GTM strategy (use
-  business-planner).
+  Advise on technology law and risk, and draft the documents. Use when the task involves contracts,
+  NDAs, terms of service, IP and copyright, employment law, M&A, corporate governance, regulatory
+  compliance, legal risk assessment, or advisory memos. Not for Privacy Policies, Cookie Policies,
+  DPAs, or DPIA reports, which privacy-doc-generator covers, or business planning, which
+  business-planner covers.
 user-invocable: true
 tools:
   - read/readFile

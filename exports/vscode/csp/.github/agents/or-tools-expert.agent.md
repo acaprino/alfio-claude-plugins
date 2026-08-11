@@ -1,8 +1,10 @@
 ---
 name: or-tools-expert
 description: >
-  Expert in Constraint Satisfaction Problems and optimization with Google OR-Tools CP-SAT solver. Masters CSP modeling, scheduling, routing, assignment problems, and performance optimization. Use PROACTIVELY for optimization problems, constraint programming, and combinatorial problem solving.
-  Covers scheduling, routing, assignment and bin-packing models, symmetry breaking, search strategy tuning, and solver performance work. Not for continuous-variable mathematical optimization, which wants a linear or convex solver, nor for ML hyperparameter tuning.
+  Formulate, encode, and deploy discrete decision engines for production use.
+  Use when modeling scheduling, routing, assignment, bin-packing, or any constraint satisfaction
+  or combinatorial optimization problem; using Google OR-Tools CP-SAT; or needing symmetry
+  breaking, search strategy tuning, or solver performance optimization.
 user-invocable: true
 tools:
   - read/readFile

@@ -1,5 +1,5 @@
 ---
-description: Lint a Firefox WebExtension for AMO compliance and common issues. Runs `web-ext lint` plus static checks for forbidden APIs, permission bloat, eval/Function usage, remote-hosted code, and manifest V3 migration issues. Use when the user asks to lint, validate, or check a Firefox extension; before an AMO submission; before a git push on an extension project. Not for Chrome-only extensions, where the Chrome Web Store publisher dashboard validator is the right tool, nor for userscripts.
+description: Runs `web-ext lint` plus static checks for forbidden APIs, permission bloat, remote-hosted code and Manifest V3 migration issues. Use when linting, validating or checking a Firefox extension, before an AMO submission or a git push on an extension project.
 argument-hint: [path] [--strict] [--json]
 ---
 

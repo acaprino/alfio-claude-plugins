@@ -1,16 +1,12 @@
 ---
 name: marketplace-audit
 description: >
-  Validate the integrity of any Claude Code plugin marketplace. Use PROACTIVELY before any commit
-  that modifies plugin files or marketplace.json. Checks marketplace.json consistency, verifies
-  all referenced files exist, validates frontmatter fields, detects orphaned
-  plugins/skills/agents/commands, resolves the dependency graph and proves it acyclic, catches
-  stale agent/skill/command counts restated in README and docs index tables, and reports naming
-  convention violations. Use when before any commit that modifies plugin files or
-  marketplace.json; when the user asks to verify marketplace.json integrity, find orphan files,
-  check dependency resolution or cycles, confirm the documented plugin counts still match, or
-  check naming conventions in a Claude Code plugin marketplace. Not for AI-powered
-  content quality review (use marketplace-review) or scaffolding new plugins (use
+  Validates the integrity of any Claude Code plugin marketplace. Use PROACTIVELY before any commit
+  that modifies plugin files or marketplace.json.
+  Use when verifying marketplace.json integrity, finding orphan plugins/skills/agents/commands,
+  checking dependency resolution or cycles, confirming documented plugin counts still match README
+  and docs tables, or checking naming conventions.
+  Not for content quality review (use marketplace-review) or scaffolding new plugins (use
   marketplace-scaffold-plugin / skills-creator).
 user-invocable: true
 license: MIT

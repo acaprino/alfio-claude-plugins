@@ -1,11 +1,10 @@
 ---
 name: qdrant-expert
 description: >
-  Expert in Qdrant vector database configuration, optimization, and production deployment.
-  Use when configuring Qdrant collections, tuning HNSW parameters, setting up quantization, designing
-  Qdrant hybrid search with dense and sparse vectors, payload indexing, Qdrant multi-tenancy, or
-  troubleshooting Qdrant performance. For end-to-end RAG pipeline design, or for any other vector
-  database (Pinecone, Weaviate, Chroma, pgvector), use rag-architect.
+  Configure and operate the vector store in production. Use when creating Qdrant collections,
+  tuning HNSW, quantization, dense plus sparse hybrid search, payload indexing, multi-tenancy, or
+  Qdrant performance troubleshooting. Not for end-to-end RAG design, or another vector database
+  such as Pinecone, Weaviate, Chroma, or pgvector; rag-architect covers those.
 user-invocable: true
 tools:
   - read/readFile

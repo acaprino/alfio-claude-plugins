@@ -1,11 +1,11 @@
 ---
 name: react-performance-optimizer
 description: >
-  Expert in React 19 performance optimization including React Compiler, Server Components, bundle optimization, state management, and profiling. Use proactively for React performance reviews, bundle analysis, state management decisions, or re-render optimization.
-  Use when reviewing or optimizing React 19 performance: re-renders, React Compiler adoption, Server
-  Components, bundle analysis, state management (Zustand, Redux, TanStack), or profiling. Not for CSS
-  and design polish, native desktop backend work (Rust, IPC), or
-  general Next.js infrastructure, where the react-best-practices skill is the direct route.
+  Measure first, then cut the wasted work a component tree does at runtime.
+  Use when reviewing or optimizing React 19 performance: re-renders, React Compiler adoption,
+  Server Components, bundle analysis, state management (Zustand, Redux, TanStack), or profiling.
+  Not for CSS and design polish, native desktop backend work (Rust, IPC), or general Next.js
+  infrastructure, where the `react-best-practices` skill is the direct route.
 user-invocable: true
 tools:
   - read/readFile

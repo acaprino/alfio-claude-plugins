@@ -1,13 +1,11 @@
 ---
 name: codebase-explorer
 description: >
-  Phase 1 of codebase-mapper. Explores an unfamiliar project to build a context brief that writer
-  agents will use to produce human-readable documentation. Reads README, configs, package
-  manifests, entry points, and directory structure. Writes context-brief.md to
-  .codebase-map/_internal/. Spawned by the map-codebase command. Use when spawned by the
-  /map-codebase command during Phase 1 to build the context brief that downstream writer agents
-  consume. Not for invoked outside the map-codebase pipeline - for direct exploration use the
-  built-in Explore subagent.
+  Explores an unfamiliar project and writes .codebase-map/_internal/context-brief.md from README,
+  configs, package manifests, entry points, and directory structure.
+  Use when spawned by the /map-codebase pipeline in Phase 1 to build the brief the writer agents
+  consume.
+  Not for use outside that pipeline; for direct exploration use the built-in Explore subagent.
 user-invocable: true
 tools:
   - read/readFile

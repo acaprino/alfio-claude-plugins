@@ -1,5 +1,5 @@
 ---
-description: Generate a mind map in Obsidian MarkMind Rich format from any topic, text, or file. Chains the generate-mindmap and markmind-exporter skills, then hands back a .md file ready for an Obsidian vault.
+description: Turn a topic, text, or file into a rendered vault-ready file. Use when the user asks for a MarkMind mind map, a mappa mentale for Obsidian, or an Obsidian-compatible concept map. Not for a force-graph web mindmap; that is the forcegraph-exporter skill's job.
 argument-hint: <topic | "text to map" | path/to/file.md>
 ---
 

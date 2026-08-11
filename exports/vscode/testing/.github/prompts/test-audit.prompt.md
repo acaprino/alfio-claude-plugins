@@ -1,5 +1,5 @@
 ---
-description: Measure test-suite health into a versioned TEST_AUDIT.md (counts, runtime, skipped, failing, flaky, orphans, layers, coverage) and optionally quarantine the rot with --fix. Use when the user asks to audit the test suite, measure test health, find dead or flaky or redundant tests, or quarantine failing tests to get CI trustworthy again. Not for consolidating one module's tests (use /test-consolidate) or writing new tests (use the test-writer agent).
+description: Writes a versioned TEST_AUDIT.md; with --fix, quarantines the rot in gated, revertible commits. Use when auditing a test suite, measuring test health, finding dead or flaky or redundant tests, or quarantining failing tests to get CI trustworthy again. Not for consolidating one module's tests, which `/test-consolidate` covers, or writing new tests, which the test-writer agent covers.
 argument-hint: [path] [--fix] [--yes] [--no-run] [--runner <cmd>] [--scope <subpath>]
 ---
 

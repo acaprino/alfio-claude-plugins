@@ -1,5 +1,5 @@
 ---
-description: Scaffold a complete PWA into the current project. Detects framework (Vite, Next.js, Angular, Nuxt, vanilla) and generates manifest, service worker, iOS meta tags, registration code, icon stubs, and recommended security headers documentation.
+description: Generates manifest, service worker, iOS meta tags, registration code and icon stubs, detecting the framework in use. Use when scaffolding, bootstrapping or adding PWA support to a Vite, Next.js, Angular, Nuxt or vanilla project.
 agent: pwa-architect
 argument-hint: [framework]
 ---

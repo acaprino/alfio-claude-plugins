@@ -1,10 +1,11 @@
 ---
 name: python-tdd
 description: >
-  Generate focused, behavior-driven Python tests using TDD methodology with pytest. Use when
-  writing Python tests, improving coverage, reviewing test quality, or practicing
-  red-green-refactor workflows with pytest. Not for non-Python targets: the testing bundle of the
-  same catalog carries language-agnostic TDD and browser E2E patterns.
+  Generate suites that pin behavior instead of implementation.
+  Use when writing Python tests, improving coverage, reviewing test quality, or practicing
+  red-green-refactor workflows with pytest.
+  Not for non-Python targets: language-agnostic TDD lives in the `test-driven-development` skill
+  of the `_pipelines` bundle, and browser E2E patterns are outside this catalog.
 user-invocable: true
 license: MIT
 metadata:

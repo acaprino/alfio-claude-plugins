@@ -1,8 +1,10 @@
 ---
 name: rabbitmq-expert
 description: >
-  RabbitMQ expert covering exchange/queue topology design, message delivery guarantees, clustering and HA (Khepri, quorum queues, streams), MQTT 5, AMQP 1.0, and throughput optimization on RabbitMQ 4.3.
-  Use when configuring RabbitMQ exchanges, designing queue topologies, troubleshooting message delivery, setting up clustering and HA, or optimizing AMQP throughput. Not for Kafka, Redis Streams, NATS, or non-AMQP message brokers.
+  Broker-side architecture and first-aid diagnostics.
+  Use when configuring RabbitMQ exchanges, designing queue topologies, troubleshooting message
+  delivery guarantees, setting up clustering and HA (Khepri, quorum queues, streams), working with
+  MQTT 5 or AMQP 1.0, or optimizing AMQP throughput.
 user-invocable: true
 tools:
   - read/readFile

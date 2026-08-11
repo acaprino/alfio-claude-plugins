@@ -1,11 +1,12 @@
 ---
 name: readme-craft
 description: >
-  Craft magnetic, top-tier README.md files for open-source and public projects. Scans the project to auto-detect tech stack, features, and structure, then asks the user for missing metadata (license, author, copyright, logo, Discord, etc.). Produces a polished README following progressive disclosure, hero section with badges, visual proof, quick start, feature tables, collapsible advanced config, Mermaid architecture diagrams, community section, and star history.
-  Use when the user asks to write, create, draft, or scaffold a README.md for a project, in English or
-  Italian phrasing ("readme", "write a readme", "scrivi il readme", "crea il readme"). Not for auditing
-  or updating an existing README, which `/maintain-readme` covers, nor for documentation that is not a
-  README.
+  Author the front door of an open-source repository: detect stack and structure, gather missing
+  metadata, then write the file.
+  Use when the user asks to write, create, draft, or scaffold a README.md for a project, in English
+  or Italian phrasing ("readme", "write a readme", "create readme", "scrivi il readme", "crea il
+  readme"). Not for auditing an existing README, which /maintain-readme covers, nor for
+  documentation that is not a README, which /docs-create in the `codebase-mapper` bundle covers.
 user-invocable: true
 license: MIT
 metadata:

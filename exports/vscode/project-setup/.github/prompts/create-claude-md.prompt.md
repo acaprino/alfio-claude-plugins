@@ -1,5 +1,5 @@
 ---
-description: Create a new CLAUDE.md file tailored to your project through interactive questionnaire. Use when the user asks to create/generate/scaffold a CLAUDE.md for a project that doesn't have one. Not for auditing or updating an existing CLAUDE.md (use /maintain-claude-md).
+description: Ask the questionnaire first, then write a file sized to the codebase. Use when the user asks to create, generate, or scaffold a CLAUDE.md for a project that doesn't have one. Not for auditing or updating an existing one, which /maintain-claude-md covers.
 ---
 
 # Create CLAUDE.md File

@@ -1,5 +1,5 @@
 ---
-description: TypeScript type-safety review covering any leakage, unsound casts, boundary validation, tsconfig strictness, exhaustiveness, and generics soundness. Outputs an actionable markdown report. Use when the user asks to review TypeScript for type safety, strictness, unsound types, or missing runtime validation. Not for style review (the typescript-write skill covers that), React performance (use /review-react in the react-development bundle), or dead-code detection (the knip skill).
+description: Audit a codebase for type-system erosion and write a markdown report. Use when the user asks to review TypeScript for type safety, `any` leakage, unsound casts, tsconfig strictness, exhaustiveness, generics soundness, or missing runtime validation at boundaries. Not for style review, which the typescript-write skill covers, React performance (`/review-react` in the `react-development` bundle), or dead-code detection, which the knip skill covers.
 agent: type-safety-auditor
 argument-hint: [src-path] [--full]
 ---

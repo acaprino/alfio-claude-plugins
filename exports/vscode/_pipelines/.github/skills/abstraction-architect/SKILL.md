@@ -1,8 +1,17 @@
 ---
 name: abstraction-architect
 description: >
-  Knowledge base for structural entropy: where the same concept is represented, owned, computed or implemented more than once, and what it costs when that concept changes. Covers seven finding dimensions over two evidence tracks (form, judged by recurrence; knowledge, judged by semantic identity and ownership), four lenses applied to every candidate, the concept census method, the concept index protocol, eighteen unification patterns, twelve wrong-abstraction patterns, the canonical theory (Rule of Three, DRY/WET/AHA, Wrong Abstraction, Locality of Behaviour, Bounded Contexts, Tidy First, CUPID), and the written scope boundaries against neighbouring reviewers.
-  Use when deciding whether to centralize, extract or remove a layer; asking who canonically owns a fact, a policy or a piece of state; auditing a codebase for duplicated knowledge, competing sources of truth, redundant models or derivable state that is stored anyway; reviewing an abstraction for premature generality; spawned by `review-abstraction-architect` as the Abstraction dimension of `/team-review`; the user asks "should I extract this", "who owns this rule", "is this DRY enough", "is this the wrong abstraction". Not for code formatting and readability cleanup (use `clean-code` in the `clean-code` bundle), Python-specific refactoring with metrics (use `python-refactor` in the `python-development` bundle), dead-code removal (see `review-cleanup-auditor`), security review (use `review-security-auditor`), dependency cycles or module cohesion (use `review-code-auditor` and `review-chicken-egg-detector`), API surface size or contract drift (use `review-api-contract-auditor`), or single-file pattern-consistency review with no cross-file question (use `review-code-auditor`).
+  Knowledge base for structural entropy: the cost of change when one concept lives in many places.
+  Use when the user asks "should I extract this", "who owns this rule", "is this DRY enough", "is
+  this the wrong abstraction"; when centralizing, inlining or removing a layer; when auditing for
+  duplicated domain knowledge, competing sources of truth, redundant models or derivable state stored
+  anyway; loaded by `review-abstraction-architect` for a global audit or as the abstraction dimension
+  of `/team-review`.
+  Not for formatting (use `clean-code` in the `clean-code` bundle), Python refactoring (use
+  `python-refactor` in the `python-development` bundle), dead-code removal (see
+  `review-cleanup-auditor`), security (use `review-security-auditor`), contract drift (use
+  `review-api-contract-auditor`), or cycles, cohesion and single-file patterns (use
+  `review-code-auditor` and `review-chicken-egg-detector`).
 user-invocable: false
 license: MIT
 metadata:

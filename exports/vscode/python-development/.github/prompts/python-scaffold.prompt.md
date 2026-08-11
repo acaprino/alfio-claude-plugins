@@ -1,5 +1,5 @@
 ---
-description: Scaffold production-ready Python projects with modern tooling (FastAPI, Django, Library, CLI, or Generic) using uv, pytest, ruff. Use when the user asks to start a new Python project, bootstrap FastAPI/Django/CLI/library structure, or set up uv+pytest+ruff from scratch. Not for adding to an existing Python project (use python-engineer agent directly) or scaffolding a non-Python project.
+description: Generate a fresh project skeleton, tests and lint config included. Use when the user asks to start a new Python project, bootstrap FastAPI/Django/CLI/library structure, or set up uv+pytest+ruff from scratch. Not for adding to an existing project (use python-engineer).
 argument-hint: <project-name> [--type fastapi|django|library|cli|generic]
 ---
 

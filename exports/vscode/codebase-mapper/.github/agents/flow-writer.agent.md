@@ -1,12 +1,11 @@
 ---
 name: flow-writer
 description: >
-  Phase 2 writer for codebase-mapper. Produces 05-workflows.md and 06-data-model.md from the
-  context brief. Documents user/system workflows with flowcharts and sequence diagrams, and data
-  structures with ER diagrams. Spawned in parallel with other writer agents. Use when spawned by
-  the /map-codebase command during Phase 2 to produce 05-workflows.md and 06-data-model.md. Not
-  for invoked outside the map-codebase pipeline - this agent expects a context brief in
-  .codebase-map/_internal/.
+  Writes 05-workflows.md (user and system flows, with flowcharts and sequence diagrams) and
+  06-data-model.md (data structures, with ER diagrams) for the /map-codebase pipeline, from the
+  context brief.
+  Use when spawned by that pipeline in Phase 2.
+  Not for use outside it (there is no context brief in .codebase-map/_internal/ to read).
 user-invocable: true
 tools:
   - read/readFile

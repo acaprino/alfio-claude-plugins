@@ -1,17 +1,11 @@
 ---
 name: pwa-architect
 description: >
-  Expert architect for Progressive Web Apps, 2025-2026 baseline. Covers Web App
-  Manifest (id, display_override, scope_extensions, file_handlers, share_target),
-  Service Workers (Workbox 7, Serwist), Web Push (VAPID, Declarative Push for
-  Safari 18.4+), install flows (beforeinstallprompt, Window Controls Overlay),
-  OPFS storage, Project Fugu APIs, Core Web Vitals 2025 (INP < 200ms), framework
-  integration (Vite, Next.js, Angular, Nuxt), and store distribution (Bubblewrap,
-  PWA Builder, Capacitor). Use when building, designing, or auditing PWAs, manifests,
-  service workers, push pipelines, install flows, OPFS storage, framework-specific PWA
-  integration, or store distribution. Not for generic frontend styling, React
-  performance, cross-platform security unrelated to PWAs, Tauri or Electron wrappers,
-  or GA4 and analytics: sibling bundles in the same catalog cover those.
+  Designs and hardens a whole shippable web app across Chromium, iOS WebKit and Firefox, trading
+  capability for reach. Use when building, auditing or scaffolding a PWA end to end, or wiring
+  manifest, service worker, Web Push, install flow and store distribution together. Not for React
+  performance (`/review-react` in the `react-development` bundle), non-PWA platform security (the
+  `platform-engineering` bundle), or Tauri and Electron shells (the `tauri-development` bundle).
 user-invocable: true
 agents: []
 ---

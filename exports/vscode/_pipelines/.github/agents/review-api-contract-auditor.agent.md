@@ -1,10 +1,14 @@
 ---
 name: review-api-contract-auditor
 description: >
-  Adversarial auditor for formal API contracts: OpenAPI and Swagger specs, JSON Schema, GraphQL SDL, gRPC
-  .proto files, AsyncAPI event schemas, TypeScript DTOs, Pydantic models. Hunts for contract-code drift,
-  breaking changes hidden as minor version bumps, missing nullable markers, producer/consumer type mismatches,
-  and underspecified error responses. Runs as the API contracts dimension of /team-review.
+  Auditor for declared interfaces versus the code behind them.
+  Use when checking OpenAPI, Swagger, JSON Schema, GraphQL SDL, gRPC .proto, AsyncAPI, TypeScript
+  DTOs, or Pydantic models for drift against the implementation; a PR that touches an API surface;
+  backwards compatibility before a release; or the interconnect map has a
+  `## Contracts (formal)` section.
+  Not for a target with no contract file (use `review-code-auditor`), cross-service runtime flow (use
+  `review-distributed-flow-auditor`), or invariants beyond the contract surface (use
+  `review-logic-integrity-auditor`).
 user-invocable: false
 tools:
   - read/readFile

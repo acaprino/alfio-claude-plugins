@@ -1,5 +1,5 @@
 ---
-description: Audit and improve existing CLAUDE.md with ground truth verification and guided improvements. Use when the user asks to audit, update, verify, or improve an existing CLAUDE.md against the current codebase. Not for creating a CLAUDE.md from scratch (use /create-claude-md).
+description: Surface every drift and let the user decide each one. Use when the user asks to audit, update, verify, or improve an existing CLAUDE.md against the current codebase. Not for creating one from scratch, which /create-claude-md covers.
 ---
 
 # Maintain CLAUDE.md File

@@ -1,11 +1,9 @@
 ---
 name: claude-md-auditor
 description: >
-  "Expert auditor for CLAUDE.md files. Verifies ground truth against actual codebase, detects
-  obsolete information, ensures the project-structure section documents the evergreen shape
-  (top-level layout + structural patterns + role per category, not exhaustive file-by-file
-  enumeration), and validates proportional sizing.". Use when creating, reviewing, or improving
-  CLAUDE.md files.
+  Check ground truth: obsolete claims, an evergreen project-structure section, and proportional
+  sizing.
+  Use when creating, reviewing, or improving CLAUDE.md files.
 user-invocable: true
 tools:
   - read/readFile

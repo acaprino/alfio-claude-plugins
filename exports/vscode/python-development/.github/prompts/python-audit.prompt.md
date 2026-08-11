@@ -1,5 +1,5 @@
 ---
-description: Consolidated Python code-quality audit - runs ruff, mypy/pyright, vulture, complexity metrics (complexipy/radon), and pytest coverage, then produces a prioritized report with concrete fixes. Use when the user asks to audit a Python codebase, run a quality check across lint/types/complexity/dead-code/coverage, or prepare a codebase for release review. Not for a single dimension on its own: /python-refactor covers restructuring and the python-tdd skill covers test writing.
+description: Run ruff, mypy/pyright, vulture, complexipy/radon and pytest, then report prioritized fixes. Use when the user asks to audit a Python codebase across lint, types, complexity, dead code and coverage, or to prepare a codebase for release review. Not for a single dimension on its own, such as restructuring (use /python-refactor), dead code alone (use the python-dead-code skill), or test writing (use the python-tdd skill).
 argument-hint: <path> [--strict] [--skip-types] [--skip-coverage]
 ---
 

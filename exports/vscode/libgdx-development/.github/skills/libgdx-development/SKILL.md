@@ -1,14 +1,9 @@
 ---
 name: libgdx-development
 description: >
-  Comprehensive libGDX cross-platform game development knowledge base covering project generation
-  via gdx-liftoff, the rendering pipeline, Scene2D and Ashley ECS architecture, Box2D physics,
-  AssetManager lifecycle, Screen management, Tiled map integration, and multi-platform deployment
-  to Desktop (LWJGL3), Android, iOS (RoboVM), and HTML5 (GWT/TeaVM). Includes libGDX 1.14.0
-  breaking changes and Kotlin compatibility caveats. Use when building, optimizing, or debugging
-  libGDX games, scaffolding new libGDX projects, migrating libGDX versions, or choosing libGDX
-  architecture patterns. Not for general Java or Kotlin work unrelated to libGDX, nor for other
-  engines such as jMonkey, KorGE, Godot, or Unity.
+  Knowledge base for shipping production games from one Java or Kotlin codebase.
+  Use when building, optimizing, debugging, or scaffolding libGDX games, migrating libGDX
+  versions, or choosing libGDX architecture patterns.
 user-invocable: true
 license: MIT
 metadata:

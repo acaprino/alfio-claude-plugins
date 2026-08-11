@@ -1,14 +1,13 @@
 ---
 name: test-hygiene
 description: >
-  Test-suite hygiene: binding rules for WHERE tests go and WHEN to create them, plus the
-  remediation ladder for suites that have already degraded (measure, quarantine, consolidate).
-  Use when creating or placing any test file, deciding whether to extend an existing test or
-  create a new one, auditing test-suite health, quarantining failing or flaky tests, or
-  consolidating redundant tests.
-  Not for writing the test content itself or browser E2E mechanics (those knowledge bases are
-  upstream Claude Code plugins, not ported to this catalog), or Python pytest specifics (see
-  the python-development bundle's python-tdd skill).
+  Binding placement rules, plus the measure, quarantine, consolidate remediation ladder for
+  degraded suites. Use when creating or placing any test file, choosing between extending an
+  existing test and writing a new one, auditing test-suite health, quarantining failing or flaky
+  tests, or consolidating redundant tests. Not for writing the test content itself, or browser E2E
+  mechanics like page objects and waiting: those knowledge bases are upstream Claude Code plugins,
+  not ported to this catalog. Not for pytest specifics either, which the `python-development`
+  bundle's python-tdd skill covers.
 user-invocable: true
 license: MIT
 metadata:

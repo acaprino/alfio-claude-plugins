@@ -1,12 +1,12 @@
 ---
 name: tauri-desktop
 description: >
-  Expert in Tauri v2 and React desktop applications, with particular depth on trading and
-  high-frequency streaming-data scenarios. Use for performance reviews, IPC and command design,
-  capabilities and permissions, state management, memory leak detection, Rust backend optimization,
-  WebView tuning (WebView2, WKWebView, WebKitGTK), window and system-tray work, shell plugin
-  integration, desktop bundling, signing, auto-updates, and React-side performance in a Tauri context.
-  For mobile targets use tauri-mobile, and for pure Rust unrelated to Tauri use rust-engineer.
+  Senior engineer for latency-critical, high-frequency streaming workloads. Use when building or
+  reviewing Tauri v2 desktop apps with React: IPC and command design, capabilities and permissions,
+  window and system tray, shell plugin, WebView tuning (WebView2, WKWebView, WebKitGTK), bundling,
+  signing, auto-updates, memory leaks, React-side performance. Not for mobile targets (use
+  tauri-mobile), Rust outside Tauri (use rust-engineer), or React outside Tauri (use
+  `react-performance-optimizer` in the `react-development` bundle).
 user-invocable: true
 tools:
   - read/readFile

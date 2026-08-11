@@ -1,16 +1,10 @@
 ---
 name: ga4-implementation
 description: >
-  Knowledge base for implementing Google Analytics 4 (GA4) and Google Tag Manager (GTM) on
-  websites, with deep coverage of EU/GDPR Consent Mode v2 compliance, CMP selection (iubenda,
-  Orestbida CookieConsent), event taxonomy, conversion (Key Event) configuration, remarketing
-  audiences, framework-specific integration (vanilla HTML, Next.js, React, WordPress), Microsoft
-  Clarity and Search Console integration, and diagnostic patterns for low-traffic sites. Use when
-  implementing or auditing GA4, GTM, gtag, dataLayer, Consent Mode v2, cookie banner, conversion
-  tracking, Key Events, remarketing audiences, Google Ads conversion import, Enhanced Conversions,
-  or diagnosing why a site has traffic but no conversions. Not for non-Google
-  analytics (Matomo, Plausible, Fathom), server-side analytics infrastructure unrelated to
-  GA4/GTM, BigQuery export pipelines, or pure SEO work without a measurement layer.
+  Knowledge base behind the ga4-implementation-expert agent: the EU legal detail, CMP choice,
+  event taxonomy, and per-framework install recipes its workflow cites.
+  Use when a GA4 or GTM task needs that reference material directly, or a site has traffic but no
+  conversions and the diagnostic patterns are wanted.
 user-invocable: true
 license: MIT
 metadata:

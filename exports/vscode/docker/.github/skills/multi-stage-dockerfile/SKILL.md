@@ -1,9 +1,9 @@
 ---
 name: multi-stage-dockerfile
 description: >
-  Create optimized multi-stage Dockerfiles for any language or framework. Use when writing or reviewing
-  a Dockerfile, shrinking a container image, setting up multi-stage builds, choosing a minimal base
-  image, or applying layer-caching and container security practices.
+  Ship a runtime layer that carries only what it executes, for any language or framework.
+  Use when creating Dockerfiles, optimizing container images, setting up multi-stage builds, or
+  applying Docker best practices.
 user-invocable: true
 license: MIT
 metadata:

@@ -1,5 +1,5 @@
 ---
-description: Validate skill and agent quality - deterministic checks (activation patterns, token budget, body size, examples, frontmatter) plus AI body review (structure, clarity, redundancy, tool restrictions, isolation). Use when the user asks to validate skill/agent quality, enforce trigger patterns, check token budgets, or run pre-commit marketplace checks. Not for checking structural JSON references only (use /marketplace-health) or doing an AI-only content review (use /marketplace-review).
+description: Validate skill and agent quality with deterministic activation checks plus AI body review. Use when the user asks to validate skill/agent quality, enforce trigger patterns, check description token budgets, or run pre-commit marketplace checks. Not for checking structural JSON references only (use /marketplace-health) or doing an AI-only content review (use /marketplace-review).
 argument-hint: [plugin-name] [--all] [--skip-ai]
 ---
 

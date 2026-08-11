@@ -1,14 +1,12 @@
 ---
 name: http-fingerprint-expert
 description: >
-  Expert in HTTP/TLS fingerprinting and impersonation for scraping: curl_cffi, primp,
-  async-tls-client, JA3 / JA4 / JA4+ suite, HTTP/2 fingerprinting, proxy tier selection
-  (datacenter / ISP / residential / mobile), and managed Web Unlocker APIs. Use when picking an
-  HTTP client that impersonates a browser TLS fingerprint, debugging why httpx/requests gets
-  blocked on a protected target, reverse-engineering an API for curl_cffi replay, choosing a proxy
-  tier, or integrating a Web Unlocker API. Not for the task needs a rendered browser (use
-  stealth-browser-expert), the target has no TLS fingerprinting (plain httpx is fine), or the task
-  is LLM extraction (use ai-scraping-expert).
+  Specialist for the transport layer of a scraper. Use when picking an HTTP client that
+  impersonates a browser TLS fingerprint (curl_cffi, primp, async-tls-client), debugging why httpx
+  or requests gets blocked, matching JA3, JA4+ or HTTP/2 fingerprints, replaying a
+  reverse-engineered API, choosing a proxy tier (datacenter, ISP, residential, mobile), or
+  integrating a Web Unlocker API. Not for work that needs a rendered browser (use
+  stealth-browser-expert) or LLM extraction (use ai-scraping-expert).
 user-invocable: true
 tools:
   - read/readFile

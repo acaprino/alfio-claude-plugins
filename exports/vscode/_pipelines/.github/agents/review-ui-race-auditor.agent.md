@@ -1,10 +1,11 @@
 ---
 name: review-ui-race-auditor
 description: >
-  Adversarial UI race condition analyst. Detects timing bugs between async data loading, DOM and widget
-  layout, event handlers, and programmatic UI manipulation (scroll, focus, resize). Framework-agnostic across
-  React, Angular, Vue, Qt, GTK, Flutter, SwiftUI, Electron, and Tauri. Runs as the UI race conditions
-  dimension of /team-review.
+  Framework-agnostic UI timing analyst: React, Angular, Vue, Qt, GTK, Flutter, SwiftUI, Electron,
+  Tauri.
+  Use when races appear between async data loading, layout, event handlers, and programmatic scroll,
+  focus, or resize; scroll position corruption, sticky or auto-scroll breakage, focus theft, layout
+  shift, stale measurement closures, layout-dependent reads racing incomplete renders.
 user-invocable: false
 tools:
   - read/readFile

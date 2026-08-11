@@ -1,11 +1,9 @@
 ---
 name: app-analyzer
 description: >
-  Comprehensive app analysis agent for Android (ADB) and web (Playwright MCP) applications.
-  Auto-detects platform. Phase 1 maps the full navigation structure with exhaustive BFS
-  exploration. Phase 2 analyzes design system, UX patterns, psychology, business model, and
-  generates competitive intelligence reports. Use when analyzing competitor apps, mapping app
-  navigation, extracting design systems, or conducting UX audits.
+  Two-phase teardown of a rival product, platform auto-detected.
+  Use when analyzing competitor apps, mapping app navigation, extracting design systems, or
+  conducting UX audits on Android via ADB or on the web via Playwright MCP.
 user-invocable: true
 agents: []
 ---

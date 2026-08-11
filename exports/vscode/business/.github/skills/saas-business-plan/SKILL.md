@@ -1,10 +1,9 @@
 ---
 name: saas-business-plan
 description: >
-  Strategic knowledge base for SaaS business planning and GTM strategy (2025-2026). Market sizing,
-  audience/persona frameworks, competitive analysis, pricing models, positioning (April Dunford,
-  Blue Ocean, Crossing the Chasm), GTM motions (PLG/SLG/hybrid), advertising benchmarks, and KPI
-  targets. Used by the business-planner agent.
+  Knowledge base of strategy frameworks and market data, loaded by business-planner. Use for SaaS
+  business planning or GTM strategy work, including positioning frameworks (April Dunford, Blue
+  Ocean, Crossing the Chasm), PLG/SLG motions, and KPI benchmarks.
 user-invocable: true
 license: MIT
 metadata:

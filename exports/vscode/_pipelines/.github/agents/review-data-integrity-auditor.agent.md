@@ -1,11 +1,14 @@
 ---
 name: review-data-integrity-auditor
 description: >
-  Adversarial reviewer for persistence semantics. Hunts the ways a system can produce, store, or read an
-  impossible or inconsistent state: missing transactions, partial writes, lost updates, read-modify-write
-  races, uniqueness assumed in code but not constrained in the database, cache/database divergence, ORM
-  semantics surprises, unstable pagination, and eventual consistency consumed as strong. Runs as the
-  Data integrity dimension of /team-review.
+  Persistence-layer reviewer: impossible or inconsistent stored state.
+  Use when the diff or target touches schemas, models, ORM entities, repositories, raw SQL, caches,
+  or transaction boundaries; or the concern is partial writes, read-modify-write races, uniqueness
+  enforced in code but not in the database, cache and database divergence, or eventual consistency
+  consumed as strong.
+  Not for domain rules and state machines (use `review-logic-integrity-auditor`), migration mechanics
+  (the data-migrations dimension), or cross-service message flows (use
+  `review-distributed-flow-auditor`).
 user-invocable: false
 tools:
   - read/readFile

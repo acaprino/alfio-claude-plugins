@@ -1,5 +1,5 @@
 ---
-description: Multi-dimensional adversarial code review. Builds context with an X-ray pass plus an interconnect map, derives a second independent set of claims in parallel so the pipeline has two observers rather than one, auto-detects which review dimensions the target warrants, dispatches specialized reviewers in parallel, then runs a 4-lens verification panel and a completeness critic before reporting. Session output under .team-review/.
+description: Six-phase pipeline. Builds X-ray and interconnect context first, then runs specialized dimensions in parallel so cross-component logic bugs surface, not just local ones. Use when the user wants a multi-reviewer review of a whole codebase or a large change, or asks for the deepest review available.
 agent: review-orchestrator
 argument-hint: <target> [--reviewers auto|security,performance,...] [--base-branch main] [--all] [--deep] [--no-context] [--fast] [--rigorous]
 ---

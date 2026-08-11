@@ -1,13 +1,10 @@
 ---
 name: platform-engineering
 description: >
-  Cross-platform development rulebook covering security, architecture, and performance for SPA,
-  PWA, mobile (iOS/Android), and desktop (Electron/Tauri) applications. MUST/DO/DON'T framework
-  with real-world incident references and platform-specific guidance. Use when reviewing or
-  building cross-platform apps, checking security posture, validating architecture decisions,
-  optimizing performance, or auditing code against industry standards (OWASP, Core Web Vitals,
-  OAuth 2.1). Not for work that is purely about UI design, copywriting, or business logic unrelated
-  to platform engineering concerns.
+  Rulebook of MUST/DO/DON'T rules backed by real-world incident references.
+  Use when building or reviewing SPA, PWA, mobile (iOS/Android), or desktop (Electron, Tauri) apps
+  for security posture, architecture decisions, performance, or compliance with OWASP, Core Web
+  Vitals, and OAuth 2.1.
 user-invocable: true
 license: MIT
 metadata:

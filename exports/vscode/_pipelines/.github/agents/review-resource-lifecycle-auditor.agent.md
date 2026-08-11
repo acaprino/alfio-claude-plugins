@@ -1,11 +1,13 @@
 ---
 name: review-resource-lifecycle-auditor
 description: >
-  Adversarial reviewer for resource ownership and release. For every acquired resource (file handle, socket,
-  DB connection, subprocess, listener, subscription, lock, task, timer) it asks: is there a single owner and
-  a guaranteed release path on success, on error, AND on cancellation? Hunts leaks, double-release,
-  use-after-release, unbounded pool growth, and listeners that outlive their subject. Runs as the
-  Resource lifecycle dimension of /team-review.
+  Reviewer for resource ownership and release on the success, error, and cancellation paths: leaks,
+  double-release, use-after-release, unbounded pool growth.
+  Use when the diff or target acquires file handles, sockets, streams, DB connections, subprocesses,
+  event listeners, subscriptions, locks, threads, goroutines, timers, object URLs, or GPU and native
+  memory; especially in C, C++, Rust, Go, or async code.
+  Not for behavior over time AFTER a leak (use `review-temporal-resilience-auditor`), memory-safety
+  exploitation (use `review-security-auditor`), or general architecture (use `review-code-auditor`).
 user-invocable: false
 tools:
   - read/readFile

@@ -1,10 +1,11 @@
 ---
 name: python-test-engineer
 description: >
-  Expert Python Test Engineer. Writes focused, behavior-driven pytest suites, handles TDD workflows, and improves code coverage.
-  Use when writing tests, improving coverage, fixing broken tests, setting up pytest configuration, or
-  working red-green-refactor. For building features from scratch or designing system architecture use
-  python-engineer.
+  Write behavior-driven suites and drive TDD workflows in Python.
+  Use when writing tests, improving test coverage, fixing broken tests, setting up pytest
+  configurations, or practicing red-green-refactor workflows.
+  Not for building new features from scratch or designing system architecture (use
+  python-engineer).
 user-invocable: true
 tools:
   - read/readFile

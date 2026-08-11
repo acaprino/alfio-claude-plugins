@@ -1,14 +1,10 @@
 ---
 name: brand-naming
 description: >
-  Brand naming strategist - generates, filters, scores, and validates brand names through a
-  strategic semantic workflow. Uses 4 Strategic Directions (etymological hijacking, scientific
-  decontextualization, metaphorical shift, phonetic real-word) for creative generation, then
-  filters with 7 naming archetypes, linguistic/phonotactic rules, weighted scoring, domain
-  availability checks, market saturation analysis (existing apps, websites, businesses with same
-  name), trademark pre-screening, and SEO analysis. Use when "brand name", "naming", "name my
-  app", "name my product", "product name", "startup name", "come up with a name", "nome del
-  brand", "naming strategico".
+  Ideates candidates, filters them against archetypes and phonotactic rules, then scores
+  survivors on domain availability, market saturation, and trademark risk.
+  Use when "brand name", "naming", "name my app", "name my product", "product name", "startup
+  name", "come up with a name", "nome del brand", "naming strategico".
 user-invocable: true
 license: MIT
 metadata:

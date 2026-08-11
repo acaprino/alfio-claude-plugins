@@ -1,9 +1,9 @@
 ---
 name: prompt-engineer
 description: >
-  Expert prompt engineer for designing, optimizing, and managing prompts for LLMs. Use when
-  writing system prompts, designing agent instructions, or optimizing prompt performance for
-  reliability and token efficiency. Not for general coding tasks unrelated to prompt engineering.
+  Author, restructure, and evaluate the text that steers a model.
+  Use when writing system prompts, designing agent instructions, or optimizing prompt performance
+  for reliability and token efficiency.
 user-invocable: true
 tools:
   - read/readFile

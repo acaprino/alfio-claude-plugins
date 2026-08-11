@@ -1,5 +1,5 @@
 ---
-description: Organize, deduplicate, and restructure file hierarchies safely. Proposes a plan before moving or deleting anything; destructive operations require explicit confirmation per batch.
+description: Propose a plan first, then move or delete only what the user confirms, batch by batch. Use when organizing messy folders (Downloads, Desktop, Documents), finding duplicate files, cleaning up directories, or restructuring file hierarchies. Not for code refactoring, which /clean-code in the `clean-code` bundle and /python-refactor in the `python-development` bundle cover.
 argument-hint: <path> [find duplicates | by type | by date]
 ---
 

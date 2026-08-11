@@ -1,9 +1,9 @@
 ---
 name: domain-hunter
 description: >
-  Search domains, compare prices, find promo codes, get purchase recommendations. Use when user
-  wants to buy a domain, check domain prices, find domain deals, compare registrars, or search for
-  .ai/.com domains.
+  Finds what is available and what it truly costs, promo codes included.
+  Use when the user wants to buy a domain, check domain prices, compare registrars, find domain
+  deals, or search for .ai/.com names.
 user-invocable: true
 license: MIT
 metadata:

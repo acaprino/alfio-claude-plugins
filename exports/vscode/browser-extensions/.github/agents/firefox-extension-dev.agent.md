@@ -1,10 +1,9 @@
 ---
 name: firefox-extension-dev
 description: >
-  Expert Firefox extension (WebExtension) developer. Covers Manifest V2 and V3, browser.* APIs,
-  cross-browser compatibility, AMO publishing, and the web-ext CLI. Scaffolds projects, generates
-  boilerplate, and pulls MDN documentation live with `#web/fetch`. Use when creating, debugging, or
-  publishing any Firefox extension or browser add-on.
+  Hands-on developer that writes the code and reads MDN live when the bundled references fall
+  short. Use when creating, debugging or publishing any Firefox extension, WebExtension or browser
+  add-on, migrating Manifest V2 to V3, or fixing cross-browser compatibility.
 user-invocable: true
 tools:
   - read/readFile

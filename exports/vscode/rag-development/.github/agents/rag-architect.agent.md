@@ -1,11 +1,10 @@
 ---
 name: rag-architect
 description: >
-  Expert in RAG system design, implementation, and optimization. Covers the full pipeline from document ingestion to answer generation.
-  Use when designing or building end-to-end RAG pipelines, choosing chunking strategies, selecting
-  embedding models, designing hybrid search, configuring re-ranking, choosing a vector database, or
-  optimizing RAG for production as a whole system. For Qdrant-specific configuration (HNSW tuning,
-  quantization, payload indexing, multi-tenancy) use qdrant-expert.
+  Design whole systems that answer from documents, ingestion through generation. Use when building
+  an end-to-end RAG pipeline, choosing chunking strategies, embedding models, hybrid search,
+  re-ranking, or a vector database, or optimizing RAG for production. Not for Qdrant-specific work
+  such as HNSW tuning, quantization, payload indexing, or multi-tenancy; qdrant-expert covers that.
 user-invocable: true
 tools:
   - read/readFile

@@ -1,9 +1,10 @@
 ---
 name: async-python-patterns
 description: >
-  Master Python asyncio, concurrent programming, and async/await patterns for high-performance
-  applications. Use when building async APIs, concurrent systems, or I/O-bound applications
-  requiring non-blocking operations.
+  Structure asyncio code: task management, cancellation, rate limiting, blocking calls kept off
+  the event loop.
+  Use when building async APIs, concurrent or I/O-bound systems needing non-blocking operations,
+  or choosing between asyncio, threading and multiprocessing.
 user-invocable: true
 license: MIT
 metadata:

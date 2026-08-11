@@ -1,12 +1,11 @@
 ---
 name: tech-writer
 description: >
-  Phase 2 writer for codebase-mapper. Produces 03-tech-stack.md and 04-architecture.md from the
-  context brief. Documents technologies, dependencies, code organization, and architectural layers
-  with component diagrams. Spawned in parallel with other writer agents. Use when spawned by the
-  /map-codebase command during Phase 2 to produce 03-tech-stack.md and 04-architecture.md. Not for
-  invoked outside the map-codebase pipeline - this agent expects a context brief in
-  .codebase-map/_internal/.
+  Writes 03-tech-stack.md (technologies and dependencies) and 04-architecture.md (code
+  organization and layers, with component diagrams) for the /map-codebase pipeline, from the
+  context brief.
+  Use when spawned by that pipeline in Phase 2.
+  Not for use outside it (there is no context brief in .codebase-map/_internal/ to read).
 user-invocable: true
 tools:
   - read/readFile
