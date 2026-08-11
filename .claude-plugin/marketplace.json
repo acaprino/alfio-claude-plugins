@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Claude Code Daodan - 40 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), prose humanization, pure-architecture audits (missed unification, wrong abstractions), and cross-model peer review of plans and specs against a challenger on another model family.",
-    "version": "21.5.2"
+    "version": "21.5.3"
   },
   "plugins": [
     {
@@ -608,7 +608,7 @@
       "name": "senior-review",
       "source": "./plugins/senior-review",
       "description": "Multi-agent code review orchestration with unified code auditing (architecture, failure flow, pattern analysis, scoring), security auditing, UI race condition detection, distributed flow analysis, platform engineering review, codebase-hygiene auditing (dead code + orphan assets + generated artifacts in VCS + phantom/unused deps + barrel-file and eager-bundle bloat + stale documentation and historical artifacts), a lite dead-code and VCS-hygiene pass in code-review and pr-review plus incremental-phase removal inside the code-review fix loop with commit-per-category and build+test gates, logic-integrity auditing for cross-component contract violations driven by the interconnect map that codebase-xray produces, git blame/history analysis, temporal-resilience auditing (failure-over-time: uncapped retries, silent subsystem death, user-invisible degradation, clock/suspend hazards), data-integrity auditing (persistence semantics: application-only invariants, lost updates, cache/DB divergence), resource-lifecycle auditing (ownership and release across success/error/cancellation), all signal-activated, evidence classes for quantitative claims (measured vs derived) and a user-visible-consequence gate on metric-based closures, a delivery gate (every reviewer delivers or is reported degraded; the work tree is left as found), epistemic independence between the context pipeline and the reviewers that consume it: every finding declares the load-bearing premise it stands on and whether that premise was derived independently or inherited from shared context, a premise auditor derives a second set of claims blind to the X-ray output, the interconnect map carries a per-row status including disputed, consolidation reports agreement inherited from a shared premise as an echo rather than as corroboration, finding validation with false-positive filtering (a 4-lens panel: premise veto gated on provenance and requiring a file:line counterexample, then reachability and refutation, with severity calibration gated on survival), committable PR suggestions, pre-review skip logic, intent-driven review, confidence gating, cross-agent deduplication, pre-existing issue separation, verdict system, interactive fix loop (--fix edits and verifies, --commit adds the commits and gates the bulk cleanup), and signal-activated reviewers for testing quality (test-suite-auditor), TypeScript type safety (type-safety-auditor), API contracts, and data migrations, all backed by hard dependencies so a dimension is skipped only when the change shows no signal for it. Backed by a comprehensive defect taxonomy knowledge base (140+ defect patterns, CWE/OWASP mappings, plus a dedicated logic-integrity reference).",
-      "version": "10.1.0",
+      "version": "10.1.1",
       "author": {
         "name": "Alfio"
       },

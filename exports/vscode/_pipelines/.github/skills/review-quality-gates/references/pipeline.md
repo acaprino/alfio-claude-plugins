@@ -44,7 +44,7 @@ Support agents: `review-premise-auditor` (Phase 1c, one per run, blind to the sh
 
 Two scoping rules that are easy to get wrong:
 
-- **`review-cleanup-auditor` scans the whole codebase, not the diff.** It is the only hygiene pass in this bundle, covering all five dimensions (dead code, orphan assets, VCS artifacts, dependency and barrel-file bloat, stale documentation). Every other always-on reviewer is diff-scoped. Do not narrow it to the changed files: orphan assets and phantom deps are by definition in files the diff never touched.
+- **`review-cleanup-auditor` scans the whole codebase, not the diff.** It is the only hygiene pass in this bundle, covering all six dimensions (dead code, orphan assets, VCS artifacts, dependency and barrel-file bloat, stale documentation, lifecycle archaeology). Every other always-on reviewer is diff-scoped. Do not narrow it to the changed files: orphan assets and phantom deps are by definition in files the diff never touched.
 - **`review-abstraction-architect` also searches the whole codebase.** The diff is only its anchor; the existing representation it hunts for lives in files that did not change.
 
 Every agent in the roster ships inside this bundle except the two cross-bundle rows marked above (testing quality and TypeScript type safety), so a dimension is normally skipped only when its activation rule did not fire. Those two are the exception: each names what happens when its bundle is absent, and neither is ever dispatched blind.

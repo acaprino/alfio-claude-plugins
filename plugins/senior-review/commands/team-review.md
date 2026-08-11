@@ -116,7 +116,7 @@ Analyze changed files and codebase to determine which review dimensions are rele
 | Security | `senior-review:security-auditor` | Every change can introduce vulnerabilities |
 | Architecture | `senior-review:code-auditor` | Coupling, abstractions, failure flows, pattern consistency, scoring |
 | **Logic integrity** | `senior-review:logic-integrity-auditor` | **Hunts violations of contracts/invariants/domain rules surfaced in Phase 1b** (skipped if `--no-context`) |
-| Codebase hygiene | `senior-review:cleanup-auditor` | The **full** hygiene pass across all five dimensions and the whole codebase: dead code, orphan assets, generated artifacts tracked in VCS, phantom/unused deps plus barrel-file and eager-bundle bloat, and stale documentation. `/senior-review:code-review` and `/senior-review:pr-review` run only the lite subset (dead code + VCS hygiene, scoped to the diff), so this dimension is where the other three dimensions get covered at all |
+| Codebase hygiene | `senior-review:cleanup-auditor` | The **full** hygiene pass across all six dimensions and the whole codebase: dead code, orphan assets, generated artifacts tracked in VCS, phantom/unused deps plus barrel-file and eager-bundle bloat, stale documentation, and lifecycle archaeology (residue of completed migrations, debug tooling, stale stashes and branches). `/senior-review:code-review` and `/senior-review:pr-review` run only the lite subset (dead code + VCS hygiene, scoped to the diff), so this dimension is where the other four dimensions get covered at all |
 
 ### Conditional dimensions (auto-detected from context)
 
@@ -391,7 +391,7 @@ Mark `phase_1d_reconciliation` complete.
 | Architecture (+ failure flows, patterns, scoring) | `senior-review:code-auditor` |
 | **Logic integrity (contracts/invariants/domain rules)** | `senior-review:logic-integrity-auditor` |
 | **Structural entropy (duplicated knowledge, competing owners, redundant representation, derivable state, missed unification, prior art, abstraction fitness)** | `abstraction-architect:abstraction-architect` |
-| Codebase hygiene (full pass: dead code, assets, VCS, deps, docs) | `senior-review:cleanup-auditor` |
+| Codebase hygiene (full pass: dead code, assets, VCS, deps, docs, lifecycle archaeology) | `senior-review:cleanup-auditor` |
 | UI race conditions | `senior-review:ui-race-auditor` |
 | React performance | `react-development:react-performance-optimizer` |
 | TypeScript type safety | `typescript-development:type-safety-auditor` |
