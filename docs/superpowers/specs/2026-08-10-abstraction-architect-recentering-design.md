@@ -433,7 +433,7 @@ Four touch points outside the plugin.
 
 ## 10. Verification
 
-`evals/abstraction-architect/`, following the `evals/ai-tooling/` shape: behavioural invariants rather than recall against ground-truth bugs, because what this redesign risks losing is a philosophy, not a bug list. Assertions target the philosophy and never the wording. A case that fails once keeps its case forever.
+`evals/abstraction-architect/`, following the `evals/ai-tooling/` shape: thirteen behavioural invariants rather than recall against ground-truth bugs, because what this redesign risks losing is a philosophy, not a bug list. Assertions target the philosophy and never the wording. A case that fails once keeps its case forever.
 
 Initial cases:
 
@@ -449,6 +449,7 @@ Initial cases:
 10. No metric, score or gate rewards agreement with the index or with the seed map.
 11. A diff that changes only a threshold, a persisted field or an enum value, with no structural unit added, still produces a semantic unit and a testable hypothesis.
 12. A concern that matches none of P1 to P18 still becomes a finding when its dimension gate passes, reported with `Pattern: uncatalogued`.
+13. Canonical ownership is assignable per decision, not only per file. Two specifications that each own one fact of the same contract correctly resolve to a D2 with split ownership, never to one source declared authoritative in full and never by ranking the sources.
 
 Cases 9 and 10 come from the epistemic-independence doctrine. Cases 11 and 12 guard the two mechanisms this redesign exists to break: a diff extractor that only sees code shapes, and a catalog that quietly becomes the boundary of the findable. All four are the ones that decay first under a well-meaning future edit.
 
