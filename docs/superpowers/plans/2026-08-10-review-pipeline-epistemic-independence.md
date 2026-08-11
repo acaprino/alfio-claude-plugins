@@ -500,10 +500,11 @@ grep -c "Review Evidence Discovery" plugins/senior-review/commands/team-review.m
 grep -c "01a-review-knowledge-leads.md" plugins/senior-review/commands/team-review.md
 grep -c "immutable once written" -i plugins/senior-review/commands/team-review.md
 grep -c "MUST NOT read" plugins/senior-review/commands/team-review.md
-grep -A8 "## Backward Compatibility" plugins/senior-review/commands/team-review.md | grep -c "0c"
 ```
 
-Expected: at least `1`, at least `3`, at least `1`, at least `1`, at least `1`.
+Expected: at least `1`, at least `3`, at least `1`, at least `1`.
+
+Do **not** assert anything about the `## Backward Compatibility` section here. Task 5b rewrites that section wholesale, and the assertion that it names phase 0c lives in Task 5b's verify step, where it can actually be satisfied.
 
 - [ ] **Step 5: Commit**
 
@@ -572,9 +573,10 @@ In `docs/plugins/senior-review.md`, update the invoke row at `:301`, the always-
 grep -rn "skip-interconnect\|skip_interconnect" plugins/senior-review/ docs/plugins/senior-review.md
 grep -c "no-context\|no_context" plugins/senior-review/commands/team-review.md
 grep -rn "skip-interconnect" plugins/codebase-xray/ docs/plugins/codebase-xray.md | wc -l
+grep -A10 "^## Raw mode" plugins/senior-review/commands/team-review.md | grep -c "0c"
 ```
 
-Expected: **no output** from the first, which proves the removal is complete with no alias left behind; at least `9` from the second; and a **non-zero** count from the third, which proves `codebase-xray` was correctly left alone. A zero there means someone over-applied the rename.
+Expected: **no output** from the first, which proves the removal is complete with no alias left behind; at least `9` from the second; a **non-zero** count from the third, which proves `codebase-xray` was correctly left alone (a zero there means someone over-applied the rename); and at least `1` from the fourth, which proves the rewritten mode section names phase 0c among the phases it skips. That last assertion belongs here rather than in Task 5, because this task is what creates the section it inspects.
 
 - [ ] **Step 5: Commit**
 
