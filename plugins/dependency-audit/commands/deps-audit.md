@@ -1,8 +1,8 @@
 ---
 description: >
-  Run each ecosystem's own tooling and report only what tools, registries, and advisory databases actually say. Covers npm/pnpm/yarn/bun, pip/uv/poetry, cargo, go, gem, composer, maven/gradle, nuget.
+  Run each ecosystem's own tooling; report only what tools, registries, and advisory databases say. Covers npm/pnpm/yarn/bun, pip/uv/poetry, cargo, go, gem, composer, maven/gradle, nuget.
   TRIGGER WHEN: the user asks to audit dependencies, scan for CVEs, check license obligations or compatibility, find outdated packages, assess supply-chain risk, or prepare a dependency-update PR.
-  DO NOT TRIGGER WHEN: the task is dead-code or unused-dependency cleanup only (use /senior-review:code-review --fix), a Python-only lint/type/coverage audit (use /python-development:python-audit), or a Stripe-specific webhook event audit (use /stripe:audit-webhooks).
+  DO NOT TRIGGER WHEN: dead-code or unused-dependency cleanup (use /senior-review:code-review --fix), a Python-only lint/type/coverage audit (use /python-development:python-audit), or a Stripe webhook event audit (use /stripe:audit-webhooks).
 argument-hint: "[path] [--ecosystem=npm|python|rust|go|ruby|php|java|dotnet|all] [--security-only] [--license-check] [--update-pr]"
 ---
 

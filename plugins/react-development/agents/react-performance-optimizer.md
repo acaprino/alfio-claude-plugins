@@ -3,7 +3,7 @@ name: react-performance-optimizer
 description: >
   Measure first, then cut the wasted work a component tree does at runtime.
   TRIGGER WHEN: reviewing or optimizing React 19 performance: re-renders, React Compiler adoption, Server Components, bundle analysis, state management (Zustand/Redux/TanStack), or profiling.
-  DO NOT TRIGGER WHEN: the task is CSS/design polish, native desktop backend work (Rust, IPC), or general Next.js infrastructure (use react-best-practices skill directly).
+  DO NOT TRIGGER WHEN: CSS/design polish, native desktop backend work (Rust, IPC), or general Next.js infrastructure (use the react-best-practices skill).
 model: inherit
 color: purple
 tools: Read, Write, Glob, Grep, Bash

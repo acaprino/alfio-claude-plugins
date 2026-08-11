@@ -3,7 +3,7 @@ name: kotlin-specialist
 description: >
   Idiomatic patterns for concurrent, shared-code, and UI-layer work.
   TRIGGER WHEN: building, writing, or reviewing Kotlin code using coroutines / Flow / StateFlow / SharedFlow / suspend functions, Kotlin Multiplatform (KMP) and expect/actual, Compose composables / ViewModels, Ktor routing with JWT auth and Exposed, sealed-class state modeling, scope functions, or DSL builders.
-  DO NOT TRIGGER WHEN: libGDX game work (use libgdx-development), Android Java without Kotlin, or pure JVM tuning unrelated to Kotlin language features.
+  DO NOT TRIGGER WHEN: libGDX game work (use libgdx-development), or Android Java without Kotlin.
 ---
 <!--
 Portions of this file are derived from Jeffallan/claude-skills

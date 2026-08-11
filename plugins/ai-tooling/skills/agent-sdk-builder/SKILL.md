@@ -1,8 +1,8 @@
 ---
 name: agent-sdk-builder
 description: >
-  Run the Claude Agent SDK (formerly Claude Code SDK) loop inside your own program: tool integration, subagent orchestration, prompt caching, and model migration. Not the `anthropic` client SDK for chat completions.
-  TRIGGER WHEN: code references claude-agent-sdk, user says "agent sdk", "build an agent", "programmatic claude", "claude code sdk", "sidecar", "run claude programmatically".
+  Run the Claude Agent SDK (formerly Claude Code SDK) loop inside your own program, not the `anthropic` client SDK for chat completions.
+  TRIGGER WHEN: code references claude-agent-sdk, user says "agent sdk", "build an agent", "programmatic claude", "claude code sdk", "sidecar", "run claude programmatically"; or asks about tool integration, subagent orchestration, prompt caching or model migration inside that loop.
 ---
 
 # Claude Agent SDK

@@ -1,7 +1,7 @@
 ---
 name: obsidian-scaffold
 description: >
-  Generate the directory layout, manifest, tsconfig, esbuild config, and a minimal class that passes automated review on day one.
+  Generate the layout, manifest, tsconfig, esbuild config, and a minimal class that passes automated review.
   TRIGGER WHEN: the user asks to start, create, bootstrap, scaffold, or initialize a new Obsidian community plugin.
 ---
 
