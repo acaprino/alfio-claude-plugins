@@ -216,7 +216,7 @@ Follow this exact structure with stable anchors regardless of output path:
 
 | Assumption | Status | Evidence |
 |-----------|--------|----------|
-| [proposition] | verified / documented / unverified | `file:line` |
+| [proposition] | verified / documented / unverified / disputed | `file:line` |
 
 ## Integration Hot-Spots
 
