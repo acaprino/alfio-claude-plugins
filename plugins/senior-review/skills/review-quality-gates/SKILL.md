@@ -15,6 +15,16 @@ description: >
 
 Gates and consolidation rules shared by /senior-review:team-review and /senior-review:code-review.
 
+## Shared-Context Provenance Rule
+
+> **Evidence derived from a shared artifact cannot independently corroborate the claims contained in that same artifact. N reviewers agreeing on a premise they were all given is one observation, not N.**
+
+This is the pipeline's first-level invariant, not quality advice. Three consequences bind every gate below:
+
+1. A reviewer that consumed a claim from the deep-dive output or the interconnect map has not verified that claim. It must re-derive the claim independently before standing a finding on it.
+2. Concordance between reviewers who share a premise is an **echo**. It raises no confidence and no severity. Consolidation reports it as such.
+3. No metric may reward agreement with a shared artifact. Utilization of the map is an operational number, never a quality signal.
+
 ## Context Sharing Pattern
 
 When `/team-review` runs in pipeline mode (no `--skip-interconnect`), reviewers do not receive raw code only. They receive two context artifacts produced in Phase 1:
@@ -22,9 +32,11 @@ When `/team-review` runs in pipeline mode (no `--skip-interconnect`), reviewers 
 1. **Deep-dive output** at `.deep-dive/` (from `codebase-xray` plugin): `01-structure.md`, `02-interfaces.md`, `05-risks.md`, and optionally `03-flows.md`, `04-semantics.md`, `06-documentation.md`, `07-final-report.md`.
 2. **Interconnect map** at `.team-review/02-interconnect.md` (from `codebase-xray:semantic-interconnect-mapper`): contracts (formal / structural / implicit), invariants, domain rules, assumptions (verified / documented / unverified), integration hot-spots, change impact radius.
 
-### Why context sharing matters
+### Why context sharing matters, and where it stops
 
-Without shared context, each reviewer re-reads the code from scratch. This is wasteful and, more importantly, blinds them to bugs that only manifest across components: broken implicit contracts, invariant drift, bypass paths, non-idempotent retries, terminal state mutations. Phase 1 surfaces those concerns in the interconnect map, and Phase 2 reviewers use the map as a checklist.
+Phase 1 surfaces concerns that are invisible from local inspection: broken implicit contracts, invariant drift, bypass paths, non-idempotent retries, terminal state mutations. Reviewers use the map as a **checklist of things to hunt**, which is where its value is.
+
+The economy argument applies to re-reading the whole codebase. It never applies to re-deriving a premise a finding stands on. Controlled redundancy on load-bearing premises is deliberate: it is the only thing that makes agreement between reviewers mean anything. A pipeline that spends tokens re-verifying one premise and saves them everywhere else is spending them correctly.
 
 ### How reviewers should consume the context
 
@@ -61,6 +73,19 @@ You are reviewing for the {dimension} dimension.
 - Deep-dive output: .deep-dive/
 - Interconnect map: .team-review/02-interconnect.md
 
+### Epistemic status of the shared context
+
+The shared context is NOT ground truth. It is an index of hypotheses produced by
+one upstream observer.
+
+- Claims marked `verified` may be reused directly.
+- Claims marked `documented`, `unverified` or `disputed` are hypotheses. You MUST
+  independently re-derive any such claim before using it as the premise of a finding.
+- Actively search for code paths, tests or documents that contradict the context.
+  Finding one is a result, not a failure.
+- Silence in the context is not evidence of absence. A concern the map does not
+  mention may still be real; look anyway.
+
 Per `## Reviewer Hints` in the interconnect map, focus your reading on these anchors:
 {anchors-for-this-dimension}
 
@@ -72,15 +97,21 @@ also cite the map anchor that surfaced the concern.
 Write your output to .team-review/findings-{dimension}.md.
 ```
 
-### Quality metric: context utilization rate
+### Metrics
 
-A useful quality signal at the end of a review: **what fraction of findings cite an interconnect-map anchor?**
+**Map utilization rate** (operational, not a quality signal): the fraction of findings citing an interconnect anchor. It says how much of the map was consumed. It says nothing about whether the review was good, and a high value on a wrong map is the signature of the failure this pipeline is built to avoid. Do not set a target for it.
 
-- High (>= 30%): reviewers are leveraging the context effectively; the pipeline is paying off.
-- Medium (10-30%): context used but inconsistently; consider refining prompts.
-- Low (< 10%): either reviewers are ignoring the map or the map is too generic to be actionable.
+Quality signals:
 
-The logic-integrity-auditor dimension should be at >= 70% (its findings are almost entirely driven by the map).
+| Metric | Meaning |
+|---|---|
+| **Independent premise reconstruction rate** | fraction of findings whose load-bearing premise was obtained **without exposure to that premise**: derived by the Premise Auditor in Phase 1c, or genuinely re-derived by a reviewer. **Lens 0 does not count.** Mode 2 receives the finding, the declared premise, the map and the deep-dive output, so it is deliberately primed. It falsifies well and derives nothing independently, and counting it here would let dependent observation masquerade as independent corroboration inside the very metrics built to stop that |
+| **Premise challenge rate** | fraction of eligible premises (provenance `shared-context` or `mixed`) actually attacked by Lens 0 |
+| **Map challenge rate** | fraction of consumed map rows explicitly tested rather than assumed |
+| **Map gap rate** | rules, paths and invariants discovered independently that the map never carried, meaning `[MAP-GAP]` findings over total findings |
+| **Cross-source corroboration rate** | findings corroborated across code, tests and documentation |
+
+Cross-source corroboration is a diagnostic over findings for which multiple semantically relevant sources exist. It is not a number to maximize. Many findings are provable entirely from code, and a low rate on those is correct.
 
 ### Fallback: `--skip-interconnect` mode
 

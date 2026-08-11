@@ -411,7 +411,9 @@ Skip this phase if `--fast` was passed (mark `phase_4c_critic` as `skipped`). Ot
    ### Summary
    Total findings: {count} (Critical: N, High: N, Medium: N, Low: N)
    Coverage gaps: see .team-review/97-coverage-gaps.md ({gap_count} gaps, {followup} follow-up round)
-   Findings citing interconnect anchors: {count} ({pct}%) <- quality metric
+   Map utilization: {count} findings cite an anchor ({pct}%, operational)
+   Independent premise reconstruction: {ipr_count} findings ({ipr_pct}%)
+   Premise challenge: {pc_count} of {eligible} eligible premises attacked by Lens 0
    Pipeline time: Phase 1: {t1}, Phase 2: {t2}, total: {total}
 
    ### Coverage Gaps
