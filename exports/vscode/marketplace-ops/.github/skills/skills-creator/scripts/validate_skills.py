@@ -115,10 +115,13 @@ def check_description(desc, component_type, name):
     if not has_trigger_when:
         issues.append(("WARNING", "Missing TRIGGER WHEN clause"))
 
-    # DO NOT TRIGGER WHEN check
+    # DO NOT TRIGGER WHEN check. Advisory only: a clause that names no concrete sibling
+    # discriminates nothing and costs context in every session, so absence is not a defect.
     has_no_trigger = bool(re.search(r"(?i)DO\s+NOT\s+TRIGGER\s+WHEN\b", clean))
     if not has_no_trigger:
-        issues.append(("WARNING", "Missing DO NOT TRIGGER WHEN clause"))
+        issues.append(("INFO", "No DO NOT TRIGGER WHEN clause; add one only when a confusable sibling exists to name"))
+    elif not re.search(r"(?i)DO\s+NOT\s+TRIGGER\s+WHEN\b.*?\b(use|see|route\s+to|handled\s+by)\b", clean, re.S):
+        issues.append(("WARNING", "DO NOT TRIGGER WHEN clause names no alternative component; either name the sibling to route to, or drop the clause"))
 
     # Negative constraint check
     has_negative = any(re.search(p, clean) for p in NEGATIVE_CONSTRAINT_PATTERNS)
