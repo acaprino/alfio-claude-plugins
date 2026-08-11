@@ -139,7 +139,7 @@ On failure, returns exit code 1 and prints:
 
 ```
 FAIL  concept index:
-         Refund eligibility: missing 'concept' name
+         concepts[0]: missing 'concept' name
          Refund eligibility: a representation has no 'file'
 ```
 
