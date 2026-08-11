@@ -710,7 +710,9 @@ python scripts/lint_dependency_graph.py
 python scripts/lint_bundled_paths.py
 ```
 
-Expected: `model: inherit` and `color: orange` present, `0` for the second (this agent names no cross-plugin agent), both linters clean.
+Expected: `model: inherit` and `color: orange` present, `1` for the second, both linters clean.
+
+That count is `1`, not `0`, and the one hit is correct. The agent's own `DO NOT TRIGGER WHEN` frontmatter names `codebase-xray:semantic-interconnect-mapper` as the right agent for a different job, which is routing prose for the model, not a runtime spawn. `lint_dependency_graph.py --refs` is the authority on what counts as an edge, and it does not extract this one. Note also that the forbidden edge runs `codebase-xray -> senior-review`; this direction is already a declared hard dependency.
 
 - [ ] **Step 3: Commit**
 
@@ -850,7 +852,7 @@ grep -c "senior-review:premise-auditor" plugins/senior-review/commands/team-revi
 python scripts/lint_dependency_graph.py
 ```
 
-Expected: at least `3`, at least `3`, at least `1`, linter clean.
+Expected: at least `3`, at least `2`, at least `1`, linter clean.
 
 - [ ] **Step 6: Commit**
 
@@ -982,7 +984,9 @@ grep -lc "Load-bearing premise" plugins/senior-review/agents/*.md | wc -l
 grep -L "premise_provenance" plugins/senior-review/agents/*.md
 ```
 
-Expected: `12` for the first (eleven auditors plus premise-auditor from Task 6), and no output from the second.
+Expected: `11` for the first, and no output from the second.
+
+`11`, not `12`. The twelfth file in that directory is `premise-auditor.md`, which must **not** carry a finding-format field: it does not produce findings, it challenges the premises of other agents' findings and returns a verdict schema instead. It does already contain `premise_provenance` once, in its mode-2 gating text, which is why the second assertion still holds across all twelve files.
 
 - [ ] **Step 3: Commit**
 
@@ -996,9 +1000,10 @@ git commit -m "Document the premise fields in every local reviewer output format
 ### Task 10: Lens 0
 
 **Files:**
-- Modify: `plugins/senior-review/skills/review-quality-gates/SKILL.md` (`## Adversarial Verification Panel` at `:120-240`)
+- Modify: `plugins/senior-review/skills/review-quality-gates/SKILL.md` (`## Adversarial Verification Panel` at `:120-240`, and the `### The three lenses` heading, which becomes four)
 - Modify: `plugins/senior-review/commands/team-review.md` (Phase 4b at `:362-374`)
 - Modify: `plugins/senior-review/commands/code-review.md` (Step 4b at `:284-311`)
+- Modify: `plugins/senior-review/skills/review-quality-gates/references/code-review-output.md`, which describes the panel as a 3-lens panel in two places and reads stale the moment Lens 0 exists
 
 **Interfaces:**
 - Consumes: the premise fields (Task 8), the premise-auditor agent (Task 6), `.team-review/01-knowledge-provenance.md` (Task 7).
@@ -1188,7 +1193,9 @@ In Phase 1a step 2, replace "Record the directory path in `state.json -> files_c
 2. Read `.deep-dive/runs.json` to resolve the run the skill just created, and record it in `state.json -> xray` as `run_id`, `run_dir`, `target` and `depth`. Every later phase derives its paths from this block and never from the `.deep-dive/` root. `$XRAY_RUN_DIR` below always means `state.json -> xray.run_dir`. If the run cannot be resolved, halt: an unresolvable provenance is a broken pipeline, not a reason to fall back to the mirror.
 ```
 
-- [ ] **Step 3: Substitute the three consuming prompts**
+- [ ] **Step 3: Substitute every consuming prompt, not only the three named here**
+
+There are four, not three. Besides the three below, the Phase 4c completeness-critic spawn also passes `.deep-dive/` after Phase 1a started its own run, which is the same race. Substitute it too, and sweep the file for any other read that survives.
 
 Replace `Deep-dive output: .deep-dive/ (files: ...)` at `:231` with `Deep-dive output: $XRAY_RUN_DIR (files: 01-structure.md, 02-interfaces.md, 05-risks.md, knowledge/documentation-leads.md, ...)`. Replace `- Deep-dive output: .deep-dive/ (see ...)` at `:286` with the `$XRAY_RUN_DIR` form. Replace `deep_dive_path: {.deep-dive/ when Phase 1a ran ...}` at `:305` with `deep_dive_path: {$XRAY_RUN_DIR when Phase 1a ran and produced output, otherwise "none"}`.
 
