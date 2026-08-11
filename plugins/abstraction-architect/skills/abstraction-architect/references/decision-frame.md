@@ -1,47 +1,63 @@
 # Decision Frame
 
-The operational classifier the auditor uses to promote a candidate to a finding. Use it as a checklist. If a candidate fails any of the gates, it does not become a high-severity finding.
+What happens **after** a candidate has passed its dimension's gate: whether it is promoted, at what severity, and how the remediation is framed.
 
-This file is the load-bearing filter between "suspicion" and "report". The auditor will see many code shapes that resemble missed unification or wrong abstraction. The job of this frame is to drop the false positives, calibrate severity on the survivors, and force every promoted finding to carry the evidence that justifies its category and level.
+This file does not restate the gates. Track A gates `A1` to `A5` and track B gates `K1` to `K6` live in `references/evidence-tracks.md`, and duplicating them here would create two authorities over one rule, which is the D2 defect this plugin exists to find.
 
-The flow is fixed:
+## Promotion
 
-1. Run the pre-flight questions in order.
-2. If any pre-flight question disqualifies the candidate, drop it or downgrade to Low.
-3. If the candidate survives, calibrate severity using the risk categories below.
-4. Apply the false-positive gates as a final safety net before writing the finding into the report.
+A candidate becomes a finding when all three hold:
 
-## Pre-flight questions (run in order)
+1. **Its dimension's gate passed**, per `references/evidence-tracks.md`.
+2. **Every cited representation has been read against current source.** A finding whose prior art you have not opened and compared is not reportable. Near-identical names routinely hide different behaviour, and an index entry is a search target rather than a proof.
+3. **The lenses have been applied and recorded**, per `references/dimensions.md`. A lens does not veto, with one exception: an L2 verdict of "consolidating adds a hop and saves nothing" changes the suggested direction rather than the finding.
 
-1. **When this concern changes, where do I have to touch?** Count the call sites. If N grows linearly with features, this is a unification candidate. If N stays at 1, this is already a layer and there is nothing to promote.
-
-2. **Has this pattern appeared three or more times?** The Rule of Three. Two is coincidence; three is a pattern. A finding with fewer than three sites is downgraded to Low or omitted. This is the single most common reason to drop a candidate.
-
-3. **Will the two sites realistically diverge under future requirements?** If yes, the duplication is essential to the design, not accidental. Leave it. Examples of essential divergence: two retry policies serving different SLOs; two `User` models in different bounded contexts; two pagination encoders for an internal API versus a public API.
-
-4. **Are these sites in different bounded contexts?** If yes, do not unify even when the code looks identical today. Bounded-context fusion is the most expensive form of wrong abstraction because it leaks domain concerns across team boundaries and turns every future change into a multi-team coordination problem. When in doubt, ask whether the two sites are owned by the same team and serve the same business question; if not, leave them duplicated.
-
-5. **Does every new feature add a flag, branch, or parameter to a shared layer?** If yes, the layer is a wrong abstraction. The growth pattern of a healthy abstraction is "callers use it as-is and the layer rarely changes". The growth pattern of a wrong abstraction is "every caller pushes another knob onto the layer". Look at the layer's commit history: if its parameter list keeps growing without a clear shape, the layer has been forced to host concerns that want to live elsewhere.
-
-6. **Can a future reader understand a call site without chasing definitions across files?** Locality of Behaviour gate. If no, the abstraction has a hidden cognitive cost that may outweigh the deduplication value. Weigh that cost against the change-coupling benefit. A layer that saves 50 lines of duplication but forces every reader to traverse four files to understand one call site is a net loss for the codebase.
+A candidate that fails any of the three is dropped. Silence is the correct output when the proof is not there.
 
 ## Severity calibration
 
-Default to **Medium**. Escalate or de-escalate only when the evidence supports it. Reserve High for findings you can argue for in one paragraph; reserve Low for code smells with no concrete pressure.
+Default to **Medium**. Escalate or de-escalate only when the evidence supports it. Reserve High for findings you can argue for in one paragraph. Reserve Low for smells with no concrete pressure.
 
-- **High** when the missed unification or wrong abstraction creates:
-  - **Security risk**: duplicated authorization checks, scattered token storage, inconsistent input validation, ad-hoc CSRF or rate-limit handling.
-  - **Data-correctness risk**: money arithmetic, date and timezone handling, currency conversion, monotonic identifiers, decimal precision policies.
-  - **Operational risk**: multiple incompatible retry policies on the same external service, inconsistent error handling for the same failure mode, scattered timeout and backoff configurations.
+**Severity follows consequence, never occurrence count.** There is no mapping of the form two equals Low, three equals Medium. Two independent authoritative permission policies can be High on two occurrences; four duplicated formatting constants can be Low on four.
 
-- **Medium** (default) when the pattern creates maintenance drag (god service, flag soup, premature interface, leaky abstraction) but no immediate failure mode. The cost is paid in slow change velocity and onboarding friction, not in production incidents.
+- **High** when the finding creates:
+  - **Security risk**: duplicated authorization rules, scattered token handling, an eligibility predicate that guards access and disagrees with itself, competing authorities over a permission fact.
+  - **Data-correctness risk**: money arithmetic, rounding or pricing sequence, date and timezone handling, derivable state with repair code, two authorities over a value that reconciliation depends on.
+  - **Operational risk**: incompatible retry or timeout policies on the same dependency, a status vocabulary that drifts between a producer and a consumer, a transition rule enforced in one path and not another.
+- **Medium**, the default, when the finding creates maintenance drag: a mechanism repeated three times, a layer that is accumulating flags, a redundant representation with a real but bounded mapping cost. The cost is paid in change velocity, not in incidents.
+- **Low** when the pattern is a smell with no concrete pressure. A stable strategy-for-two on a cold path. A second occurrence noted so the third is recognisable.
 
-- **Low** when the pattern is a code smell with no concrete pressure to fix it now. Example: a strategy-pattern-for-two-strategies that is stable, small, and not on a hot change path. Flagging is informational; the user may close the finding without acting.
+## Confidence
 
-## Gates against false positives
+Severity says how much it matters. Confidence says how sure you are, and they are reported separately.
 
-These gates run after severity calibration and decide what actually appears in the report.
+- **High confidence**: every cited representation was read on current source, and the dimension gate passed on evidence from more than one signal.
+- **Medium confidence**: the gate passed but one input was unavailable, for example a missing deep-dive file or an `unusable` concept index.
+- **Low confidence**: a single signal, worth manual verification. Say what would raise it.
 
-- **Rule of Three downgrade.** Findings citing fewer than three sites under unification are auto-downgraded to Low or omitted. This applies even when the code looks visually similar; two sites are not enough evidence to promote a unification candidate.
-- **Single-source-file confidence flag.** Findings whose evidence comes from a single deep-dive file are marked Medium-confidence in the report. A finding that depends on `01-structure.md` alone has less weight than one corroborated by `03-flows.md` plus `04-semantics.md`.
-- **Bounded-context-unverified flag.** Findings where the bounded-context check has not been performed must be explicitly flagged: "context-membership unverified". This is honest about the limitation: if the auditor cannot tell from deep-dive output whether two sites live in the same domain, the user must verify before acting on the suggested direction.
+Two flags are mandatory when they apply, because they mark the failure modes that cost the most:
+
+- **`Bounded-context exception: unverified`** when context membership could not be determined. On track B this caps the finding at Low confidence and it is never promoted above Medium severity, because unifying across a context boundary is the most expensive wrong move available.
+- **`Index-seeded: yes`** when a concept index entry pointed at the evidence. This is provenance, not a quality signal, and nothing in the report or in any consuming pipeline may reward it.
+
+## Remediation framing
+
+`Suggested direction` names the target layer or the move in one sentence. It is not a refactoring plan, a file list or a migration sequence.
+
+Frame it with L4, the option price, when the recommendation is contested:
+
+> The upfront cost of unifying these three sites is one module plus indirection at each call site. The future value is that a threshold change becomes one edit rather than three, and finance has changed it twice this year. Recommendation: unify.
+
+Frame the reverse the same way. An abstraction whose expected value no longer covers its cost gets an inline recommendation, and the intermediate state is supposed to look worse than both endpoints.
+
+Match the remediation to the dimension. This is the difference between an actionable finding and a shallow one:
+
+| Dimension | The move |
+|---|---|
+| D1 | Give the knowledge one authoritative statement, then have the others call it |
+| D2 | Name the canonical owner first. Extracting a helper before ownership is settled adds an authority |
+| D3 | Collapse the representations, or document the boundary that justifies keeping them |
+| D4 | Derive instead of storing, or make one copy authoritative and the other a cache with a stated invalidation rule |
+| D5 | Design the shared mechanism |
+| D6 | Migrate to the canonical implementation and delete the reimplementation |
+| D7 | Inline the abstraction back to its call sites, then redesign from what they reveal |
