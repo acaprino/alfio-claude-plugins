@@ -35,6 +35,8 @@ Every task's requirements implicitly include this section.
 | `.team-review/01-knowledge-provenance.md` | reconciliation step | derived, post-join |
 | `.team-review/02-interconnect.md` | mapper, Phase 1b | unchanged path, do not renumber |
 
+**Canonical flag rename.** `senior-review`'s `--skip-interconnect` becomes `--no-context`. The old name is **removed, with no alias**, in senior-review 9.0.0. This applies **only to `senior-review`**. `codebase-xray:team-analyze` has a flag with the same string and a different meaning (stop after synthesis, do not produce `08-interconnect-map.md`), where the name is accurate. Do not touch any occurrence under `plugins/codebase-xray/` or under the `xray-*` files in the export.
+
 **Canonical new field names.** `Load-bearing premise` (finding field), `premise_provenance` with values `independent | shared-context | mixed`, Lens 0 return keys `premise_verdict` with values `HOLDS | REFUTED | UNCERTAIN`, `refutation_target` with values `PREMISE | SUPPORT`, `counterexample`.
 
 ---
@@ -441,7 +443,7 @@ Insert after Phase 0b ends at `:199`, before `## Phase 1: Context Building`:
 ```markdown
 ## Phase 0c: Review Evidence Discovery
 
-Runs inline in the orchestrating context, on every invocation **except** `--skip-interconnect`. That flag means "run the legacy raw mode", and a normally-on phase does not override it: `01a-review-knowledge-leads.md` distributed to N reviewers is itself shared context, so keeping this phase alive under the flag would make findings legitimately `shared-context`, let Lens 0 fire, and stop reproducing what `## Backward Compatibility` promises.
+Runs inline in the orchestrating context, on every invocation **except** raw mode (`--skip-interconnect` at the time this task runs, renamed to `--no-context` in Task 5b). That flag means "give me the raw mode", and a normally-on phase does not override it: `01a-review-knowledge-leads.md` distributed to N reviewers is itself shared context, so keeping this phase alive under the flag would make findings legitimately `shared-context`, let Lens 0 fire, and stop the mode reproducing the pre-pipeline behaviour it exists to provide.
 
 This phase owns discovery of **what evidence is relevant to this review**. X-ray owns discovery of how the repository documents itself. The two are different jobs and the division is deliberate.
 
@@ -483,20 +485,11 @@ This phase owns discovery of **what evidence is relevant to this review**. X-ray
 Mark `phase_0c_evidence_discovery` complete in `state.json`.
 ```
 
-- [ ] **Step 3: Keep the backward-compatibility promise honest**
+- [ ] **Step 3: Add the new phase to the raw-mode skip list**
 
-`## Backward Compatibility` at `:429-437` promises that `--skip-interconnect` reproduces the legacy parallel-only behaviour with reviewers receiving only target and diff. Update its bullet list so it names every phase the flag now skips:
+At `:203`, add `phase_0c_evidence_discovery` to the phases marked `skipped` in `state.json` under the raw-mode flag, alongside `phase_1a_deep_dive` and `phase_1b_interconnect`.
 
-```markdown
-- No Phase 0c, 1a, 1c, 1d or 1b
-- No `logic-integrity-auditor`, and no `premise-auditor` in either mode
-- Reviewers receive only the target + diff (no context files, no knowledge leads)
-- Every finding is `independent` by construction, so Lens 0 never fires and
-  consolidation never reports an echo
-- Output identical in structure to the pre-pipeline version
-```
-
-Also add `phase_0c_evidence_discovery` to the list of phases marked `skipped` in `state.json` under that flag, alongside `phase_1a_deep_dive` and `phase_1b_interconnect` at `:203`.
+The prose rewrite of the mode's own section belongs to Task 5b, which renames it. Do not rewrite `## Backward Compatibility` here: touching the same section from two tasks is how the two halves drift.
 
 - [ ] **Step 4: Verify**
 
@@ -515,6 +508,77 @@ Expected: at least `1`, at least `3`, at least `1`, at least `1`, at least `1`.
 ```bash
 git add plugins/senior-review/commands/team-review.md
 git commit -m "Add Review Evidence Discovery as a normally-on review phase"
+```
+
+---
+
+### Task 5b: Rename the raw-mode flag to `--no-context`
+
+A separate task from 5 because a reviewer could reasonably accept the new phase and reject a user-facing flag removal, or the reverse.
+
+**Files:**
+- Modify: `plugins/senior-review/commands/team-review.md` (10 occurrences)
+- Modify: `plugins/senior-review/skills/review-quality-gates/SKILL.md` (2 occurrences)
+- Modify: `docs/plugins/senior-review.md` (4 occurrences)
+
+**Do not touch** anything under `plugins/codebase-xray/`, `docs/plugins/codebase-xray.md`, or the `xray-*` files in the export. `/codebase-xray:team-analyze --skip-interconnect` keeps both its name and its meaning: there it really does skip only the interconnect map, so the name is accurate. Renaming the `senior-review` flag removes a collision between two commands that share one flag string with two different meanings; renaming both would create one.
+
+**Interfaces:**
+- Produces: the flag name `--no-context` and the section title `## Raw mode (--no-context)`, referenced by Tasks 5, 7, 10 and 11.
+
+- [ ] **Step 1: Rename every occurrence in the command**
+
+In `plugins/senior-review/commands/team-review.md`, replace `--skip-interconnect` with `--no-context` and the `state.json` key `"skip_interconnect"` with `"no_context"` at all ten sites: the `argument-hint` frontmatter, the backward-compat sentence in the intro, the always-on dimensions table row for logic integrity, the `flags` block, the Phase 1 skip condition, the Phase 2 context-omission condition, the abstraction addendum, the Phase 4c critic-context line, and the mode section itself.
+
+- [ ] **Step 2: Replace the section with the mode contract**
+
+Replace the whole `## Backward Compatibility` section at `:429-437`:
+
+```markdown
+## Raw mode (`--no-context`)
+
+Reviewers receive the target and diff only. No context artifact is produced or
+distributed.
+
+- Phases skipped: 0c, 1a, 1c, 1d, 1b
+- Not spawned: `logic-integrity-auditor`, `premise-auditor` (either mode)
+- Every finding is `independent` by construction, so Lens 0 never fires and
+  consolidation never reports an echo
+- Output identical in structure to the pre-pipeline version
+
+Use it for targets under roughly 100 LOC where the context pipeline costs more
+than it returns, for quick scans, and when X-ray produces no usable output.
+
+`--skip-interconnect` was removed in senior-review 9.0.0. Use `--no-context`.
+```
+
+The rename is the point of this step, not decoration. "Backward compatibility" describes a promise not to break old callers; this is a mode selector, and the compatibility framing is what let the first draft of the design treat the mode as inert history and quietly leave a new phase running inside it.
+
+- [ ] **Step 3: Rename in the skill and the plugin docs**
+
+In `review-quality-gates/SKILL.md`, update the pipeline-mode sentence at `:20` and retitle `### Fallback: --skip-interconnect mode` at `:85` to `### Fallback: raw mode (--no-context)`.
+
+In `docs/plugins/senior-review.md`, update the invoke row at `:301`, the always-on dimensions line at `:318`, the example at `:326`, and the explanatory sentence at `:329`. Add the removal note to the example so a reader with the old flag in a script finds the migration where they look:
+
+```
+/senior-review:team-review src/ --no-context    # raw mode, no context phase
+```
+
+- [ ] **Step 4: Verify the rename is complete and correctly scoped**
+
+```bash
+grep -rn "skip-interconnect\|skip_interconnect" plugins/senior-review/ docs/plugins/senior-review.md
+grep -c "no-context\|no_context" plugins/senior-review/commands/team-review.md
+grep -rn "skip-interconnect" plugins/codebase-xray/ docs/plugins/codebase-xray.md | wc -l
+```
+
+Expected: **no output** from the first, which proves the removal is complete with no alias left behind; at least `9` from the second; and a **non-zero** count from the third, which proves `codebase-xray` was correctly left alone. A zero there means someone over-applied the rename.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add plugins/senior-review/commands/team-review.md plugins/senior-review/skills/review-quality-gates/SKILL.md docs/plugins/senior-review.md
+git commit -m "Rename the raw-mode flag to --no-context and drop the old name"
 ```
 
 ---
@@ -689,7 +753,7 @@ Spawn immediately when Phase 1a starts. Do not wait for X-ray. The whole point o
 
 3. Wait for both 1a and 1c before starting Phase 1d. Mark `phase_1c_premise_audit` complete.
 
-Under `--skip-interconnect` this phase does not run, because there is no shared derivation for it to be independent of.
+Under raw mode (`--no-context`) this phase does not run, because there is no shared derivation for it to be independent of.
 ```
 
 - [ ] **Step 2: Add Phase 1d, the reconciliation join**
@@ -1278,6 +1342,8 @@ Invoke the `downstream-exports` skill. Do not guess the mapping. The export is a
 
 Apply every content change from Tasks 1 to 12 to the corresponding files in `exports/vscode/_pipelines/.github/`, with the skill's adaptations reapplied. The new `premise-auditor` agent becomes `exports/vscode/_pipelines/.github/agents/review-premise-auditor.agent.md`. Lens 0 goes into `review-verification-lens.agent.md`.
 
+**The flag rename needs care in this bundle, because it carries both plugins.** Rename `--skip-interconnect` to `--no-context` only in the `senior-review` side: `prompts/team-review.prompt.md`, `agents/review-orchestrator.agent.md`, `agents/review-logic-integrity-auditor.agent.md`, `agents/review-generic-reviewer.agent.md`, `skills/review-quality-gates/SKILL.md`, `skills/review-quality-gates/references/pipeline.md`, and the `/team-review` example in `README.md`. Leave every `xray-*` file and the `/xray-team-analyze` example in `README.md` untouched. A blind find-and-replace across `_pipelines` is the specific mistake to avoid here, and Task 5b Step 4's third assertion is what catches it.
+
 - [ ] **Step 3: Bump versions**
 
 ```
@@ -1334,14 +1400,14 @@ Check `git status --porcelain` first and stage only the paths this work touched.
 
 ## Self-Review
 
-**Spec coverage.** A1 Task 2, A2 and A3 Task 3, B1 Tasks 1 and 8, B2 Tasks 8 and 9, B3 Tasks 6 and 7, B4 Task 10, B5 Task 11, C1 Task 4, C2 Task 5, C3 Task 7, C4 Task 12, C5 Task 1, C6 Task 13. The spec's "deliberately not done" list is enforced by the Global Constraints. Release mechanics are Task 14.
+**Spec coverage.** A1 Task 2, A2 and A3 Task 3, B1 Tasks 1 and 8, B2 Tasks 8 and 9, B3 Tasks 6 and 7, B4 Task 10, B5 Task 11, C1 Task 4, C2 Task 5, C3 Task 7, C3b Task 5b, C4 Task 12, C5 Task 1, C6 Task 13. The spec's "deliberately not done" list is enforced by the Global Constraints. Release mechanics are Task 14.
 
 **Placeholders.** One remains and is declared: `review_rev` in Task 13, which cannot be resolved from this repository. Task 13 Step 5 gives the command to resolve it and forbids committing without it. Two content locations use bracketed guidance inside example templates, which is the existing house style for output templates in this repository, not a plan gap.
 
 **Corrections applied after design review.** Five, two of them logic bugs inherited from the first draft of the spec, all now fixed in both documents:
 
 1. Phase 0c may not read `.deep-dive/` in any form, previous runs included. Reading X-ray navigation output would contaminate the one artifact required to be demonstrably independent of X-ray. Task 5.
-2. `--skip-interconnect` now skips Phase 0c too. The earlier text kept 0c alive and simultaneously claimed every finding would be `independent`, which cannot both hold: `01a` distributed to N reviewers is shared context. It also broke the backward-compatibility promise. Task 5, Steps 2 and 3.
+2. Raw mode now skips Phase 0c too. The earlier text kept 0c alive and simultaneously claimed every finding would be `independent`, which cannot both hold: `01a` distributed to N reviewers is shared context. Task 5, Steps 2 and 3.
 3. `code-review` is off the run-directory perimeter. It never starts an X-ray run, so by this work's own rule it is a latest-state consumer and the mirror is its correct contract. Task 12, Steps 4 and 5.
 4. `Missing` and `Disputed` are separate sections with separate mappings. Absence of evidence is not contradictory evidence, and collapsing them would drain `disputed` of its meaning. Task 7.
 5. Lens 0 no longer counts toward independent reconstruction. Mode 2 receives the finding, the premise, the map and the deep-dive output, so it is deliberately primed: it falsifies well and derives nothing independently. The metric splits into independent premise reconstruction rate and premise challenge rate. Task 1.

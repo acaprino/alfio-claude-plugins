@@ -264,13 +264,42 @@ Written to `.team-review/01-knowledge-provenance.md`. This is the canonical arti
 
 Collapsing the two would drain `disputed` of the precise meaning the rest of this design depends on, which is that two derivations reached incompatible conclusions and a reviewer must settle it.
 
-### Behaviour under `--skip-interconnect`
+### C3b. Raw mode, renamed from `--skip-interconnect` to `--no-context`
 
-**Every phase of the context pipeline is skipped, Phase 0c included.** Phases 0c, 1a, 1c, 1d and 1b all sit out, and reviewers receive the raw target and diff only.
+**The flag is renamed and the old name is removed. No alias.** `senior-review` goes to 9.0.0 in this release, which is where a user-facing removal belongs, and an alias kept "just in case" is how a name nobody wants survives forever.
 
-Phase 0c is normally-on, and normally-on does not override a flag whose entire meaning is "run the legacy raw mode". The earlier draft of this spec had Phase 0c surviving the flag, which was self-contradictory: `01a-review-knowledge-leads.md` distributed to N reviewers *is* shared context, so findings could legitimately be `shared-context`, Lens 0 could fire, and the mode would no longer reproduce what `team-review.md` promises under `## Backward Compatibility`.
+**Why the old name had to go.** It named one of the things it skipped. `team-review.md:203` already skipped `phase_1a_deep_dive` **and** `phase_1b_interconnect`, so a user reading `--skip-interconnect` would reasonably expect X-ray to still run and only the map to be dropped. This design adds three more skipped phases (0c, 1c, 1d), so the name drifts further with every phase added. A flag that under-describes what it does is not a cosmetic problem: it is what made the first draft of this spec treat the mode as a legacy leftover and quietly let a new phase survive it.
 
-With no context phase at all, every finding is `independent` by construction, Lens 0 never fires, and the consolidation echo rule never triggers. The mode degrades to the pre-pipeline behaviour exactly, which is the whole point of the flag.
+**The rename also resolves a real collision.** `--skip-interconnect` exists in two commands with two different meanings:
+
+| Command | What it means today | Action |
+|---|---|---|
+| `/senior-review:team-review` | skip the entire context pipeline; reviewers get the raw diff | **renamed** to `--no-context` |
+| `/codebase-xray:team-analyze` | stop after synthesis, do not produce `08-interconnect-map.md` | **unchanged**, because there the name is accurate |
+
+Renaming only the `senior-review` flag does not create a divergence between the two plugins. It removes one, because today a user can carry the wrong mental model from one command to the other.
+
+**The mode contract**, replacing the `## Backward Compatibility` framing. Backward compatibility describes a promise not to break old callers. This is not that: it is a mode selector, the cheap mode of the command, and stating it as a mode contract is what stops a future change from treating it as inert history.
+
+```markdown
+## Raw mode (`--no-context`)
+
+Reviewers receive the target and diff only. No context artifact is produced
+or distributed.
+
+- Phases skipped: 0c, 1a, 1c, 1d, 1b
+- Not spawned: logic-integrity-auditor, premise-auditor (either mode)
+- Every finding is `independent` by construction, so Lens 0 never fires and
+  consolidation never reports an echo
+- Output identical in structure to the pre-pipeline version
+
+Use it for targets under roughly 100 LOC where the context pipeline costs more
+than it returns, for quick scans, and when X-ray produces no usable output.
+```
+
+Phase 0c is normally-on, and normally-on does not override a flag whose entire meaning is "give me the raw mode". The first draft had Phase 0c surviving the flag, which was self-contradictory: `01a-review-knowledge-leads.md` distributed to N reviewers *is* shared context, so findings could legitimately be `shared-context` and Lens 0 could fire.
+
+**Migration**, stated wherever the flag is documented: `--skip-interconnect` is removed in senior-review 9.0.0. Use `--no-context`. The behaviour is the same mode, minus the three phases this release added, which never belonged to it.
 
 ### C4. Run directory provenance
 
@@ -349,7 +378,9 @@ Scoring: reporting a `must_not_report` claim that survives the pipeline's own ve
 |---|---|
 | `codebase-xray` | `skills/analyze/SKILL.md`, `commands/analyze.md`, `commands/team-analyze.md`, `agents/semantic-interconnect-mapper.md`, the partition workers that mirror the phase list |
 | `senior-review` | `commands/team-review.md`, `commands/code-review.md`, `skills/review-quality-gates/SKILL.md`, `skills/review-quality-gates/references/code-review-agents.md`, `agents/premise-auditor.md` (new), `agents/logic-integrity-auditor.md`, plus the finding-format section of every pipeline reviewer agent |
-| repo | `evals/senior-review/` case and README, `exports/vscode/` bundles for both plugins |
+| repo | `evals/senior-review/` case and README, `docs/plugins/senior-review.md` for the flag rename, `exports/vscode/_pipelines/` (both plugins share this one bundle) |
+
+The `--no-context` rename has a wider file footprint than its size suggests, because the old flag string appears in argument hints, pre-flight parsers, `state.json` flag blocks, phase-skip conditions, agent descriptions and README examples. Every occurrence **inside `senior-review` and its export** changes. Every occurrence **inside `codebase-xray` and its export** stays, since there the flag keeps both its name and its meaning.
 
 Marketplace mechanics: bump both plugin versions and `metadata.version`, mirror into `exports/`, regenerate the extension manifest if the new agent changes the contribution lists, bump `exports/vscode/package.json`, and pass the five consistency checks. Stage explicit paths, never `git add -A`, because other sessions run this repository concurrently.
 
