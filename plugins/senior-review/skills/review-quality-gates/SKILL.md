@@ -25,6 +25,8 @@ This is the pipeline's first-level invariant, not quality advice. Three conseque
 2. Concordance between reviewers who share a premise is an **echo**. It raises no confidence and no severity. Consolidation reports it as such.
 3. No metric may reward agreement with a shared artifact. Utilization of the map is an operational number, never a quality signal.
 
+The same rule applied across model families instead of across reviewers is implemented by the `peer-review` plugin (`/peer-review:review`), which sends a plan or spec to a challenger on a different model family and runs an evidence-backed multi-round deliberation over it. There the shared artifact is the challenge packet: facts supplied to the challenger are tagged `GIVEN`, repeating one back never counts as corroboration, and a participant that reaches the authoritative source itself records the promotion `GIVEN -> DERIVED`. That plugin bounds the claim further than this section does, because two frontier models still share a corpus: what earns the second opinion its cost is decorrelated errors, not clean-room independence.
+
 ## Context Sharing Pattern
 
 When `/team-review` runs in pipeline mode (no `--no-context`), reviewers do not receive raw code only. They receive three context artifacts produced in Phase 1:
