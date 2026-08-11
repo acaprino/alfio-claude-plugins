@@ -130,18 +130,32 @@ latency_ms}`:
 3. On return, confirm `00-packet.md` exists in the run directory. If it does not,
    report the agent's failure and stop; nothing was sent, nothing to clean up.
 4. **Independent digest recheck (R15).** Before trusting anything the agent reported,
-   recompute the artifact's own byte length and sha256 directly from the file on disk:
+   verify three values agree, not two:
 
-   ```bash
-   wc -c <artifact path>
-   python -c "import hashlib,sys;print(hashlib.sha256(open(sys.argv[1],'rb').read()).hexdigest())" <artifact path>
-   ```
+   1. Recompute the artifact's own byte length and sha256 directly from the source
+      file on disk:
 
-   Read the `bytes:` and `sha256:` lines `00-packet.md` records immediately above the
-   embedded artifact. If either value differs from the recheck: abort the run before
-   any transport call. Report the mismatch (recorded vs. recomputed) and leave the run
-   directory in place for inspection. This is the run-invalidating defect R15 exists to
-   catch; a mismatch is never a warning.
+      ```bash
+      wc -c <artifact path>
+      python -c "import hashlib,sys;print(hashlib.sha256(open(sys.argv[1],'rb').read()).hexdigest())" <artifact path>
+      ```
+
+   2. Read the `bytes:` and `sha256:` lines `00-packet.md` records immediately above
+      the embedded artifact: the packet's own claim about the source.
+   3. Extract the embedded artifact block itself from `00-packet.md` (the text between
+      those `bytes:`/`sha256:` lines and the start of the next section, `## Ground
+      truth`), and hash and measure that extracted text the same way. This is the
+      text the outgoing request will actually carry. Checking only the recorded digest
+      line (step 2) proves nothing about whether the embedding below it was truncated
+      or altered after that line was written; R15 requires source, packet embedding,
+      and outgoing request to be byte-identical, and the embedding is what step 3
+      checks.
+
+   All three byte-length and sha256 values (source recompute, packet's recorded
+   digest, packet's embedded-text digest) must match exactly. If any pair disagrees:
+   abort the run before any transport call. Report which values disagreed and leave
+   the run directory in place for inspection. This is the run-invalidating defect R15
+   exists to catch; a mismatch is never a warning.
 
 ## Phase 1b: Consent gate
 
@@ -194,16 +208,26 @@ is the byte size of `00-packet.md`.
        - R1: raised (severity <severity>)
    ```
 
-6. **Transmission-artifact check (R15), applied before any finding is left OPEN.** For
-   each finding, verify its `section attacked` field names material that actually
-   exists in `00-packet.md`: a real section heading, a locator that appears in Ground
-   truth or Constraints, or a passage that appears in the embedded Artifact. Phase 1's
-   digest check already proved the packet is byte-identical to the source, so a finding
-   pointing at material absent from that verified packet cannot be a live claim about
-   the artifact; it is noise the challenger introduced. Set that entry's `state`
-   directly to `TRANSMISSION_ARTIFACT`, skipping `OPEN`, and record what was actually
-   found (or not found) at the named locator in place of `respondent evidence`. Do not
-   send these findings to the respondent in Phase 3.
+6. **Transmission-artifact check (R15), applied before any finding is left OPEN.** Key
+   this on substance, not on the free-text `section attacked` label the challenger
+   wrote in its own words. For each finding, locate the specific material its claim
+   and failure scenario actually reference (a quoted phrase, a named decision, a
+   specific fact) inside `00-packet.md`: the embedded Artifact text, Ground truth,
+   Constraints, Considered and rejected, Known weaknesses, Open questions, or Out of
+   scope. Phase 1's digest check already proved the packet is byte-identical to the
+   source, so material that genuinely cannot be located anywhere in the packet cannot
+   be a live claim about the artifact; it is noise the challenger introduced.
+   - **Substance absent everywhere in the packet**: set that entry's `state` directly
+     to `TRANSMISSION_ARTIFACT`, skipping `OPEN`, and record what was actually
+     searched for and not found in place of `respondent evidence`. Do not send these
+     findings to the respondent in Phase 3.
+   - **Substance present, but the `section attacked` label names the wrong section or
+     only paraphrases it**: this is a labeling mismatch, not a transmission artifact.
+     Leave `state = OPEN`, add a soft `section-label mismatch` note to the entry's
+     history (naming the section the substance was actually found at), and send the
+     finding to the respondent in Phase 3 as normal. The respondent has full
+     repository access (R8) and judges the substance on its merits regardless of
+     which section the challenger thought it lived in.
 7. Findings capped at 12 are the challenger prompt's responsibility, not this command's.
    If a reply carries more than 12, record every one of them anyway and note the
    overrun in the ledger's history for round 1.
@@ -334,9 +358,26 @@ For round `r` (2 or 3), files `05-challenge-r2.md`/`07-challenge-r3.md` and
    saturation). No further rounds process this finding. Append history: `R<r>:
    saturation, both sides NO new evidence, positions unchanged -> STANDOFF`.
 8. **Round cap.** After the last round this invocation runs (round 3, or round 2 if
-   `--rounds` was clamped or given as 2), every finding still `OPEN` or `CHALLENGED`
-   (including any still flagged `unexplained withdrawal`) becomes `STANDOFF`, labeled
-   `cap-terminated` in its history line, distinct from the saturation label in step 7.
+   `--rounds` was clamped or given as 2), findings still open are resolved by their
+   most recent respondent position, never swept as one block:
+   - **`CHALLENGED` with the respondent's current position `REFUTE`**: not swept. It
+     carries forward as a proposed `RESOLVED_REFUTE` into Phase 5.
+     `finding-lifecycle.md`'s own transition table has a "proposed RESOLVED_REFUTE ->
+     CHALLENGED" line, which presupposes exactly this proposed state as certification's
+     input; sweeping it to `STANDOFF` here would make that transition, and certification
+     itself, unreachable. Any `unexplained withdrawal` flag on the finding still carries
+     into the verdict regardless of this promotion.
+   - **`CHALLENGED` with position `NEEDS-EVIDENCE`, `DISAGREE`, or no respondent
+     position recorded**: becomes `STANDOFF`, labeled `cap-terminated` in its history
+     line, distinct from the saturation label in step 7. Any `unexplained withdrawal`
+     flag still carries into the verdict.
+   - **`OPEN`** (a `RESTATED` admissibility outcome the challenger never confirmed):
+     terminates `UNTESTABLE`, not `STANDOFF`. It never received a substantive
+     respondent position and its falsifier was never admissible as stated (R9, R10);
+     `finding-lifecycle.md` routes procedural failures to `UNTESTABLE`,
+     `TRANSMISSION_ARTIFACT`, or `CERTIFICATION_FAILED`, never to `STANDOFF`, and an
+     unconfirmed restatement is exactly such a procedural failure, not a substantive
+     contest that survived the evidence.
 
 ## Phase 5: Certification
 
@@ -391,8 +432,12 @@ For round `r` (2 or 3), files `05-challenge-r2.md`/`07-challenge-r3.md` and
    - This is the last exchange for these findings: there is no second certification
      pass (that would make the one-corrective-round cap meaningless). Finalize directly
      from the respondent's corrective answer: `ACCEPT -> RESOLVED_ACCEPT`, `REFUTE ->
-     RESOLVED_REFUTE`, `NEEDS-EVIDENCE` or `DISAGREE -> STANDOFF` (cap-terminated: the
-     round and certification budget for this finding is now exhausted).
+     RESOLVED_REFUTE`, `NEEDS-EVIDENCE` or `DISAGREE -> CERTIFICATION_FAILED`. This is
+     a procedural failure, not a standoff: R12 states outright that a misrepresentation
+     never manufactures a standoff, and `finding-lifecycle.md` routes procedural
+     failures to `UNTESTABLE`, `TRANSMISSION_ARTIFACT`, or `CERTIFICATION_FAILED`,
+     never `STANDOFF`. No round cap is involved here either: the corrective round is a
+     fixed one-shot outside `--rounds`, so a `cap-terminated` label never applies to it.
    - If a corrective round already ran earlier in this same invocation (should not
      normally occur, since certification runs once per run), any further reverted
      finding goes straight to `CERTIFICATION_FAILED` instead.
