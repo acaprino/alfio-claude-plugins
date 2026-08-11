@@ -570,13 +570,16 @@ In `docs/plugins/senior-review.md`, update the invoke row at `:301`, the always-
 - [ ] **Step 4: Verify the rename is complete and correctly scoped**
 
 ```bash
-grep -rn "skip-interconnect\|skip_interconnect" plugins/senior-review/ docs/plugins/senior-review.md
+grep -rn "skip-interconnect\|skip_interconnect" plugins/senior-review/ docs/plugins/senior-review.md | grep -v "removed in senior-review 9.0.0"
+grep -c "removed in senior-review 9.0.0" plugins/senior-review/commands/team-review.md
 grep -c "no-context\|no_context" plugins/senior-review/commands/team-review.md
 grep -rn "skip-interconnect" plugins/codebase-xray/ docs/plugins/codebase-xray.md | wc -l
 grep -A10 "^## Raw mode" plugins/senior-review/commands/team-review.md | grep -c "0c"
 ```
 
-Expected: **no output** from the first, which proves the removal is complete with no alias left behind; at least `9` from the second; a **non-zero** count from the third, which proves `codebase-xray` was correctly left alone (a zero there means someone over-applied the rename); and at least `1` from the fourth, which proves the rewritten mode section names phase 0c among the phases it skips. That last assertion belongs here rather than in Task 5, because this task is what creates the section it inspects.
+Expected, in order: **no output** from the first, which proves the removal is complete with no alias left behind; `1` from the second; at least `9` from the third; a **non-zero** count from the fourth, which proves `codebase-xray` was correctly left alone (a zero there means someone over-applied the rename); and at least `1` from the fifth, which proves the rewritten mode section names phase 0c among the phases it skips. That last assertion belongs here rather than in Task 5, because this task is what creates the section it inspects.
+
+The first command deliberately filters out the migration note. Step 2 requires that note to spell the old flag, precisely so a reader who greps for the flag they had in a script lands on the sentence telling them what replaced it. An unfiltered grep would therefore contradict Step 2 and can never pass. Keep the note and filter the check, never the reverse: rewording the note to satisfy a grep would destroy the discoverability the note exists for.
 
 - [ ] **Step 5: Commit**
 
