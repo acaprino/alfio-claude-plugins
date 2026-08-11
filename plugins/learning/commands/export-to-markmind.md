@@ -1,8 +1,9 @@
 ---
 description: >
-  Generate a mind map in Obsidian MarkMind Rich format from any topic, text, or file.
-  TRIGGER WHEN: the user asks for a MarkMind mind map, mappa mentale for Obsidian, or visual concept map in Obsidian-compatible format.
-  DO NOT TRIGGER WHEN: the user wants a force-graph web mindmap (use learning:forcegraph-exporter) or just a text outline.
+  Turn a topic, text, or file into a rendered vault-ready file.
+  TRIGGER WHEN: the user asks for a MarkMind mind map, a mappa mentale for Obsidian, or an
+  Obsidian-compatible concept map.
+  DO NOT TRIGGER WHEN: the user wants a force-graph web mindmap (use learning:forcegraph-exporter).
 argument-hint: "<topic | \"text to map\" | path/to/file.md>"
 ---
 

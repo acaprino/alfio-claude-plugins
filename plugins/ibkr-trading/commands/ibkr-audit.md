@@ -1,8 +1,9 @@
 ---
 description: >
-  Audit an existing Interactive Brokers trading system for reliability, error handling, and production readiness.
-  TRIGGER WHEN: the user asks to review, audit, or validate an IB/TWS trading bot (reconnection, bracket orders, pacing, error codes, IBC automation).
-  DO NOT TRIGGER WHEN: building a new IB system from scratch (use the ibkr-architect agent directly), or auditing non-IB trading systems (use /mt5-trading:mt5-audit for MT5).
+  Report reliability and production-readiness defects.
+  TRIGGER WHEN: the user asks to review, audit, or validate an IB or TWS trading bot: reconnection,
+  bracket orders, pacing, error codes, IBC automation.
+  DO NOT TRIGGER WHEN: building from scratch (use ibkr-architect), or MetaTrader 5 (use /mt5-trading:mt5-audit).
 argument-hint: "[path-or-description]"
 ---
 

@@ -1,13 +1,10 @@
 ---
 name: ibkr-trading
 description: >
-  Comprehensive Interactive Brokers algotrading knowledge base covering TWS API architecture,
-  ib_async event-driven programming, market data subscriptions, order execution with bracket orders,
-  order lifecycle verdict contracts, historical data with pacing rules, venue-boundary failure modes,
-  reconnection resilience, Gateway automation with IBC, and Windows production deployment.
-  TRIGGER WHEN: building, implementing, writing, coding, creating, optimizing, or debugging IB trading systems with Python.
-  DO NOT TRIGGER WHEN: the task is MetaTrader 5 work (use mt5-trading), IBKR Web API portfolio/reporting
-  integrations with no TWS connection, or broker-agnostic strategy math with no IBKR integration.
+  Knowledge base for production trading automation in Python.
+  TRIGGER WHEN: building, optimizing, or debugging Interactive Brokers systems with the TWS API
+  and ib_async.
+  DO NOT TRIGGER WHEN: MetaTrader 5 (use mt5-trading), or IBKR Web API with no TWS connection.
 ---
 
 # Interactive Brokers Algotrading

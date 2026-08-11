@@ -1,9 +1,10 @@
 ---
 name: markmind-exporter
 description: >
-  Render a mindmap JSON outline into Obsidian MarkMind Rich format. Use this skill after generating a mindmap outline (via generate-mindmap or any other source) to convert it into a .md file ready for the Obsidian MarkMind plugin.
-  TRIGGER WHEN: the user says 'markmind', 'render to markmind', or needs MarkMind Rich output from an existing mindmap JSON structure.
-  DO NOT TRIGGER WHEN: the user wants an interactive HTML mindmap (use forcegraph-exporter) or a plain text outline.
+  Render a JSON outline into a drop-in vault file for the Obsidian plugin.
+  TRIGGER WHEN: the user says 'markmind' or needs MarkMind Rich output from a mindmap structure,
+  typically one produced by generate-mindmap.
+  DO NOT TRIGGER WHEN: the user wants an interactive HTML mindmap (use forcegraph-exporter).
 ---
 
 # MarkMind Exporter

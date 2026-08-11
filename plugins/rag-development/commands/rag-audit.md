@@ -1,8 +1,10 @@
 ---
 description: >
-  Audit an existing RAG implementation for quality, performance, and best practices.
-  TRIGGER WHEN: the user asks to review, audit, or validate a RAG pipeline - chunking, embeddings, retrieval, reranking, or production readiness.
-  DO NOT TRIGGER WHEN: building a new RAG system from scratch (use rag-architect agent) or auditing a pure vector DB (use qdrant-expert).
+  Report quality and best-practice gaps in an existing implementation.
+  TRIGGER WHEN: the user asks to review, audit, or validate a RAG pipeline: chunking, embeddings,
+  retrieval, reranking, or production readiness.
+  DO NOT TRIGGER WHEN: building from scratch (use rag-architect), or auditing a pure vector
+  database (use qdrant-expert).
 argument-hint: "[path-or-description]"
 ---
 

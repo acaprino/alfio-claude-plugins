@@ -1,8 +1,9 @@
 ---
 description: >
-  Standalone cross-platform security, architecture, and performance review - audits code against the platform-engineering rulebook (server validation, auth token storage, WebAuthn/passkeys, API security, XSS/CSP, secrets, architecture patterns, bundle/perf) for SPA, PWA, mobile (iOS/Android), Electron, and Tauri.
-  TRIGGER WHEN: the user asks for a platform-level review, cross-platform security audit, Electron/Tauri hardening check, or "review this for SPA/PWA/mobile/desktop compliance".
-  DO NOT TRIGGER WHEN: reviewing generic code quality without platform-specific concerns (use /senior-review:code-review), UI design only, or pure backend API code without a client-side dimension.
+  Audit a codebase against the platform-engineering rulebook.
+  TRIGGER WHEN: the user asks for a platform-level review, cross-platform security audit, Electron
+  or Tauri hardening check, or an SPA, PWA, mobile, or desktop compliance review.
+  DO NOT TRIGGER WHEN: reviewing generic code quality with no platform dimension (use /senior-review:code-review).
 argument-hint: "[target-path] [--platform spa|pwa|mobile|electron|tauri|auto] [--focus security|arch|perf]"
 ---
 

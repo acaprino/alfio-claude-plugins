@@ -1,13 +1,10 @@
 ---
 name: platform-reviewer
 description: >
-  Adversarial cross-platform code reviewer. Audits code against the platform-engineering
-  rulebook - server validation, auth token storage, API security, XSS/CSP, secrets exposure,
-  architecture patterns, and performance. Assumes violations exist and finds them.
-  TRIGGER WHEN: reviewing PRs or code for security, architecture, or performance compliance
-  across SPA, PWA, mobile, and desktop (Electron/Tauri) platforms.
-  DO NOT TRIGGER WHEN: the task is purely about UI design, copywriting, or business logic
-  unrelated to platform engineering concerns.
+  Adversarial reviewer that assumes violations of the platform-engineering rulebook exist and
+  proves them.
+  TRIGGER WHEN: auditing PRs or code for security, architecture, or performance compliance across
+  SPA, PWA, mobile, and desktop (Electron/Tauri) platforms.
 model: inherit
 tools: Read, Write, Glob, Grep, Bash
 color: red

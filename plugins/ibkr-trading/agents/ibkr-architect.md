@@ -1,15 +1,12 @@
 ---
 name: ibkr-architect
 description: >
-  Expert in Interactive Brokers algotrading system design, implementation, and debugging with the TWS API
-  and ib_async. Covers connection architecture, market data subscriptions, order execution with bracket orders,
-  order lifecycle verdicts, historical data pacing, venue-boundary failure modes, reconnection resilience,
-  IBC automation, and Windows production deployment.
-  TRIGGER WHEN: building, implementing, writing, coding, or creating IB trading bots, connecting to TWS/IB Gateway, implementing market data subscriptions,
-  designing order execution logic, handling IB reconnection, debugging TWS API errors, deploying IB trading
-  systems on Windows, or working with ib_async/ib_insync code.
-  DO NOT TRIGGER WHEN: auditing an existing IB system (use /ibkr-trading:ibkr-audit), MetaTrader 5 work
-  (use mt5-trading agents), or broker-agnostic strategy logic with no IBKR integration.
+  Senior architect for Python broker-integration systems.
+  TRIGGER WHEN: building IB trading bots, connecting to TWS or IB Gateway, market data
+  subscriptions, order execution and bracket orders, reconnection, historical data pacing, TWS API
+  errors, Windows deployment with IBC, or ib_async and ib_insync code.
+  DO NOT TRIGGER WHEN: auditing an existing system (use /ibkr-trading:ibkr-audit), MetaTrader 5
+  (use mt5-trading), or broker-agnostic strategy logic.
 model: inherit
 color: green
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch

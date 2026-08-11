@@ -1,13 +1,11 @@
 ---
 name: business-planner
 description: >
-  Fractional CMO and GTM Strategist for SaaS business planning. Socratic approach:
-  one phase at a time, targeted questions, data-driven benchmarks. Use PROACTIVELY
-  for business plan, GTM strategy, SaaS positioning, pricing strategy, market sizing,
-  TAM/SAM/SOM, or PMF.
-  TRIGGER WHEN: the user requires assistance with SaaS business planning or go-to-market strategy.
-  DO NOT TRIGGER WHEN: the task is about legal/compliance (use legal-advisor), privacy documents
-  (use privacy-doc-generator), or tactical marketing execution (use digital-marketing agents).
+  Fractional CMO working Socratically, one phase at a time, against benchmarks.
+  TRIGGER WHEN: the user needs SaaS business planning, go-to-market strategy, positioning, pricing
+  strategy, market sizing, TAM/SAM/SOM, or product-market fit work.
+  DO NOT TRIGGER WHEN: legal or compliance questions (use legal-advisor), privacy documents
+  (use privacy-doc-generator).
 tools: Read, Write, Edit, Glob, Grep, WebFetch, WebSearch, Agent
 model: inherit
 color: yellow

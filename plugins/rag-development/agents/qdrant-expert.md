@@ -1,9 +1,11 @@
 ---
 name: qdrant-expert
 description: >
-  Expert in Qdrant vector database configuration, optimization, and production deployment.
-  TRIGGER WHEN: configuring Qdrant collections, tuning HNSW parameters, setting up quantization, designing Qdrant hybrid search with dense+sparse vectors, payload indexing, Qdrant multi-tenancy, or troubleshooting Qdrant performance.
-  DO NOT TRIGGER WHEN: the task is end-to-end RAG pipeline design (use rag-architect), or the vector DB is not Qdrant (Pinecone, Weaviate, Chroma, pgvector - use rag-architect for generic guidance).
+  Configure and operate the vector store in production.
+  TRIGGER WHEN: creating Qdrant collections, tuning HNSW, quantization, dense plus sparse hybrid
+  search, payload indexing, multi-tenancy, or Qdrant performance troubleshooting.
+  DO NOT TRIGGER WHEN: end-to-end RAG design, or another vector database such as Pinecone,
+  Weaviate, Chroma, or pgvector (use rag-architect).
 model: inherit
 color: cyan
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch

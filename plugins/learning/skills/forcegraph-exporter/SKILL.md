@@ -1,9 +1,10 @@
 ---
 name: forcegraph-exporter
 description: >
-  Export a mindmap JSON outline as an interactive HTML file using force-graph (requires internet for CDN). Use this skill when the user wants an interactive, web-based, zoomable/draggable visualization of a mindmap.
-  TRIGGER WHEN: the user says 'interactive map', 'force graph', 'web mindmap', 'HTML mindmap', or asks for a visual/interactive export.
-  DO NOT TRIGGER WHEN: the user wants Obsidian MarkMind format (use markmind-exporter) or a static text outline.
+  Render a JSON outline into a standalone browser page; needs internet for the CDN.
+  TRIGGER WHEN: the user says 'interactive map', 'force graph', 'web mindmap', or 'HTML mindmap',
+  or asks for a zoomable, draggable visual export.
+  DO NOT TRIGGER WHEN: the user wants Obsidian MarkMind format (use markmind-exporter).
 ---
 
 # Force Graph Exporter

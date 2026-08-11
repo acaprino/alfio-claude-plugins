@@ -1,10 +1,9 @@
 ---
 description: >
-  Audit an existing libGDX project for correctness, performance, lifecycle hygiene, and production readiness.
-  TRIGGER WHEN: the user asks to review, audit, or validate a libGDX game (rendering pipeline, asset disposal,
-  Screen lifecycle, GL thread blocking, multi-platform configuration, libGDX 1.14.0 migration).
-  DO NOT TRIGGER WHEN: building a new libGDX project from scratch (use the libgdx-architect agent),
-  or auditing non-libGDX engines (jMonkey, KorGE, Godot, Unity).
+  Report correctness, performance, and lifecycle defects.
+  TRIGGER WHEN: the user asks to review, audit, or validate a libGDX game: rendering pipeline,
+  asset disposal, Screen lifecycle, GL thread blocking, multi-platform config, version migration.
+  DO NOT TRIGGER WHEN: building a new game from scratch (use libgdx-architect).
 argument-hint: "[path-or-description]"
 ---
 

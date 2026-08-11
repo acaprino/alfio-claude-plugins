@@ -1,14 +1,10 @@
 ---
 name: platform-engineering
 description: >
-  Cross-platform development rulebook covering security, architecture, and performance
-  for SPA, PWA, mobile (iOS/Android), and desktop (Electron/Tauri) applications.
-  MUST/DO/DON'T framework with real-world incident references and platform-specific guidance.
-  TRIGGER WHEN: reviewing or building cross-platform apps, checking security posture,
-  validating architecture decisions, optimizing performance, or auditing code against
-  industry standards (OWASP, Core Web Vitals, OAuth 2.1).
-  DO NOT TRIGGER WHEN: the task is purely about UI design, copywriting, or business logic
-  unrelated to platform engineering concerns.
+  Rulebook of MUST/DO/DON'T rules backed by real-world incident references.
+  TRIGGER WHEN: building or reviewing SPA, PWA, mobile (iOS/Android), or desktop (Electron/Tauri)
+  apps for security posture, architecture decisions, performance, or compliance with OWASP, Core
+  Web Vitals, and OAuth 2.1.
 ---
 
 # Cross-Platform Development Rulebook
