@@ -110,7 +110,8 @@ Quality signals:
 
 | Metric | Meaning |
 |---|---|
-| **Independent verification rate** | fraction of findings whose load-bearing premise was independently re-derived, by the reviewer or by Lens 0 |
+| **Independent premise reconstruction rate** | fraction of findings whose load-bearing premise was obtained **without exposure to that premise**: derived by the Premise Auditor in Phase 1c, or genuinely re-derived by a reviewer. **Lens 0 does not count.** Mode 2 receives the finding, the declared premise, the map and the deep-dive output, so it is deliberately primed. It falsifies well and derives nothing independently, and counting it here would let dependent observation masquerade as independent corroboration inside the very metrics built to stop that |
+| **Premise challenge rate** | fraction of eligible premises (provenance `shared-context` or `mixed`) actually attacked by Lens 0 |
 | **Map challenge rate** | fraction of consumed map rows explicitly tested rather than assumed |
 | **Map gap rate** | rules, paths and invariants discovered independently that the map never carried, meaning `[MAP-GAP]` findings over total findings |
 | **Cross-source corroboration rate** | findings corroborated across code, tests and documentation |
@@ -130,7 +131,8 @@ with
 
 ```
    Map utilization: {count} findings cite an anchor ({pct}%, operational)
-   Independent verification: {ivr_count} findings had their premise re-derived ({ivr_pct}%)
+   Independent premise reconstruction: {ipr_count} findings ({ipr_pct}%)
+   Premise challenge: {pc_count} of {eligible} eligible premises attacked by Lens 0
 ```
 
 - [ ] **Step 6: Verify the content landed and no dash-aside was introduced**
@@ -320,7 +322,9 @@ Insert immediately before `## Phase 1: Structure Extraction` at `:145`:
 
 Runs in **every depth, including `--depth=lite`**, and runs first. It executes inline in the orchestrating context, not as a spawned agent: reading project instructions and globbing for index files is cheap, and Phase 7 already sets the precedent for inline work.
 
-Phases 1 through 7 keep their numbers. `--phase N` is a user-facing flag and renumbering would break every invocation that names a phase. `--phase 0` runs this phase alone.
+Phases 1 through 7 keep their numbers. `--phase N` is a user-facing flag and renumbering would break every invocation that names a phase.
+
+**Phase 0 is a preamble, not a selectable analysis phase.** It runs before every invocation, `--phase 5` and `--docs-only` included, and it does not change the numbering semantics of phases 1 to 7. `--phase 5` still means "run phase 5 and nothing else from the analysis set", with the preamble in front of it. `--phase 0` runs the preamble alone, which is a legitimate way to ask only "how does this repository document itself".
 
 This phase owns discovery of **how the repository documents itself**. It does not evaluate whether the documentation is accurate, which is Phase 6.
 
@@ -437,11 +441,13 @@ Insert after Phase 0b ends at `:199`, before `## Phase 1: Context Building`:
 ```markdown
 ## Phase 0c: Review Evidence Discovery
 
-Runs always, including under `--skip-interconnect`, because knowledge leads help reviewers whether or not a map exists and the phase is cheap. Runs inline in the orchestrating context.
+Runs inline in the orchestrating context, on every invocation **except** `--skip-interconnect`. That flag means "run the legacy raw mode", and a normally-on phase does not override it: `01a-review-knowledge-leads.md` distributed to N reviewers is itself shared context, so keeping this phase alive under the flag would make findings legitimately `shared-context`, let Lens 0 fire, and stop reproducing what `## Backward Compatibility` promises.
 
 This phase owns discovery of **what evidence is relevant to this review**. X-ray owns discovery of how the repository documents itself. The two are different jobs and the division is deliberate.
 
-1. Read `CLAUDE.md`, `AGENTS.md` and equivalent project instruction files, and follow any navigation rule they state. If the project says a specific file is where to look first to find where a concept lives, open that file before opening any code.
+**This phase MUST NOT read `.deep-dive/` in any form**, including the mirror and the output of previous runs. A previous X-ray run is still an X-ray derivation, and admitting one would contaminate the single artifact that has to be demonstrably independent of X-ray. X-ray's leads enter at the Phase 1d join and nowhere earlier.
+
+1. Read `CLAUDE.md`, `AGENTS.md` and equivalent project instruction files, and follow any navigation rule they state. If the project says a specific file is where to look first to find where a concept lives, open that file before opening any code. Discover the conventions from the repository itself, never from a prior X-ray run.
 2. Extract the concepts, domains and symbols the diff touches. Names of changed functions, classes, modules and config keys are the starting set; add the domain nouns that appear in the diff's own strings and comments.
 3. For each concept, search the project's indexes and documentation for a relevant entry, and search the tests for behaviour that encodes it.
 4. Write `.team-review/01a-review-knowledge-leads.md`.
@@ -477,21 +483,38 @@ This phase owns discovery of **what evidence is relevant to this review**. X-ray
 Mark `phase_0c_evidence_discovery` complete in `state.json`.
 ```
 
-- [ ] **Step 3: Verify**
+- [ ] **Step 3: Keep the backward-compatibility promise honest**
+
+`## Backward Compatibility` at `:429-437` promises that `--skip-interconnect` reproduces the legacy parallel-only behaviour with reviewers receiving only target and diff. Update its bullet list so it names every phase the flag now skips:
+
+```markdown
+- No Phase 0c, 1a, 1c, 1d or 1b
+- No `logic-integrity-auditor`, and no `premise-auditor` in either mode
+- Reviewers receive only the target + diff (no context files, no knowledge leads)
+- Every finding is `independent` by construction, so Lens 0 never fires and
+  consolidation never reports an echo
+- Output identical in structure to the pre-pipeline version
+```
+
+Also add `phase_0c_evidence_discovery` to the list of phases marked `skipped` in `state.json` under that flag, alongside `phase_1a_deep_dive` and `phase_1b_interconnect` at `:203`.
+
+- [ ] **Step 4: Verify**
 
 ```bash
 grep -c "Review Evidence Discovery" plugins/senior-review/commands/team-review.md
 grep -c "01a-review-knowledge-leads.md" plugins/senior-review/commands/team-review.md
 grep -c "immutable once written" -i plugins/senior-review/commands/team-review.md
+grep -c "MUST NOT read" plugins/senior-review/commands/team-review.md
+grep -A8 "## Backward Compatibility" plugins/senior-review/commands/team-review.md | grep -c "0c"
 ```
 
-Expected: at least `1`, at least `3`, at least `1`.
+Expected: at least `1`, at least `3`, at least `1`, at least `1`, at least `1`.
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add plugins/senior-review/commands/team-review.md
-git commit -m "Add Review Evidence Discovery as an always-on review phase"
+git commit -m "Add Review Evidence Discovery as a normally-on review phase"
 ```
 
 ---
@@ -694,14 +717,27 @@ Read `.team-review/01a-review-knowledge-leads.md`, `$XRAY_RUN_DIR/knowledge/docu
 ## Inherited from X-Ray
 [rows from $XRAY_RUN_DIR/knowledge/documentation-leads.md]
 
-## Missing / Disputed
-| Item | Kind | Detail |
-|------|------|--------|
-| [concept] | no-lead | in scope, neither source found documentation |
-| [claim] | disputed | 01b says X at file:line, X-ray says Y at file:line |
+## Missing
+| Concept | In scope because |
+|---------|------------------|
+| [concept] | [where it appears in the diff] |
+
+## Disputed
+| Claim | Independent derivation says | X-ray says |
+|-------|------------------------------|------------|
+| [claim] | [X at file:line] | [Y at file:line] |
 ```
 
-Two asymmetries in this table are diagnostics worth reading, not noise. A row present in `Independently discovered by Senior Review` and absent from `Inherited from X-Ray` means X-ray's discovery had a gap. The reverse means Phase 0c had one. Both are recorded and neither is silently reconciled.
+**Missing and Disputed are different states and must never collapse into one section.** Absence of evidence is not contradictory evidence.
+
+| Section | Maps to in the interconnect map | Never |
+|---|---|---|
+| `Missing` | a coverage gap, and `unverified` on any related row | never `disputed`: nobody finding documentation is not two sources disagreeing |
+| `Disputed` | `disputed`, both `file:line` sides cited | never silently resolved in favour of either derivation |
+
+Collapsing them would drain `disputed` of the precise meaning the rest of this work depends on, which is that two derivations reached incompatible conclusions and a reviewer must settle it.
+
+Two asymmetries here are diagnostics worth reading, not noise. A row present in `Independently discovered by Senior Review` and absent from `Inherited from X-Ray` means X-ray's discovery had a gap. The reverse means Phase 0c had one. Both are recorded and neither is silently reconciled.
 
 Mark `phase_1d_reconciliation` complete.
 ```
@@ -920,7 +956,7 @@ Mode 2: adversarial premise challenge.
 ## Context available
 - Interconnect map: .team-review/02-interconnect.md
 - Knowledge provenance: .team-review/01-knowledge-provenance.md
-- Deep-dive run directory: $XRAY_RUN_DIR
+- Deep-dive: $XRAY_RUN_DIR
 
 ## Instructions
 Follow mode 2 of your agent definition. Attack the premise, not the finding.
@@ -928,7 +964,8 @@ Return REFUTED only with a file:line counterexample; without one, return UNCERTA
 Decide and state whether the counterexample falsifies the PREMISE itself or only
 a piece of shared SUPPORT.
 ```
-```
+
+**Path substitution differs by command, per Task 12.** In `/team-review` the deep-dive line resolves to `$XRAY_RUN_DIR`, the immutable directory of the run that command started. In `/code-review` it resolves to the `.deep-dive/` mirror, because that command consumes a pre-existing analysis it did not produce. The interconnect map and knowledge provenance lines exist only in the `/team-review` path; in `/code-review` they are omitted, and a finding there is `independent` unless the deep-dive context supplied its premise.
 
 - [ ] **Step 2: Add the resolution table**
 
@@ -1084,23 +1121,35 @@ In Phase 1a step 2, replace "Record the directory path in `state.json -> files_c
 
 Replace `Deep-dive output: .deep-dive/ (files: ...)` at `:231` with `Deep-dive output: $XRAY_RUN_DIR (files: 01-structure.md, 02-interfaces.md, 05-risks.md, knowledge/documentation-leads.md, ...)`. Replace `- Deep-dive output: .deep-dive/ (see ...)` at `:286` with the `$XRAY_RUN_DIR` form. Replace `deep_dive_path: {.deep-dive/ when Phase 1a ran ...}` at `:305` with `deep_dive_path: {$XRAY_RUN_DIR when Phase 1a ran and produced output, otherwise "none"}`.
 
-- [ ] **Step 4: Update the skill's context-sharing paths**
+- [ ] **Step 4: Update the skill's context-sharing paths, with the nuance the skill needs**
 
-In `review-quality-gates/SKILL.md`, replace `.deep-dive/` at `:22` and `:61` with `$XRAY_RUN_DIR`, and add one sentence stating that the mirror is never the path an orchestrated pipeline reads.
+`review-quality-gates` is shared by both commands, and the two are on opposite sides of the rule. Do not blanket-replace. At `:22` and `:61`, state the conditional:
 
-- [ ] **Step 5: Leave code-review on the mirror where it is correct**
+```markdown
+Deep-dive output at the path the orchestrating command recorded: `$XRAY_RUN_DIR`
+when that command started the X-ray run itself (`/team-review` Phase 1a), or the
+`.deep-dive/` mirror when it is consuming an analysis that already existed
+(`/code-review` Step 2). A command that started a run never reads the mirror: the
+mirror means "latest published run", not "the run I just produced".
+```
 
-`code-review.md:154-161` checks whether `.deep-dive/` exists as an optional pre-existing artifact it did not produce. That is a latest-state consumer and stays on the mirror. Add one clarifying sentence saying so, and stating that when `code-review` itself triggers an X-ray run it must switch to the run directory.
+- [ ] **Step 5: Leave code-review on the mirror, because the rule puts it there**
+
+`code-review` does **not** migrate. `code-review.md:154-161` checks whether a completed `.deep-dive/` analysis already exists and consumes it; it never starts an X-ray run. By the rule added in Step 1 that makes it a latest-state consumer, for which the mirror is the correct and intended contract. Migrating it would contradict the rule this task exists to establish.
+
+Add one clarifying sentence at `:154-161` recording that this is a deliberate classification and not an oversight, and stating that if `code-review` is ever changed to start an X-ray run itself, it moves to the run directory at that point.
 
 - [ ] **Step 6: Verify**
 
 ```bash
 grep -c 'XRAY_RUN_DIR' plugins/senior-review/commands/team-review.md
-grep -nE '\.deep-dive/[0-9]' plugins/senior-review/commands/team-review.md plugins/senior-review/skills/review-quality-gates/SKILL.md
+grep -nE '\.deep-dive/[0-9]' plugins/senior-review/commands/team-review.md
+grep -c 'XRAY_RUN_DIR' plugins/senior-review/skills/review-quality-gates/SKILL.md
 grep -c "MUST NOT be used by an orchestrated workflow" plugins/codebase-xray/skills/analyze/SKILL.md
+git diff --stat plugins/senior-review/commands/code-review.md
 ```
 
-Expected: at least `5`, **no output** from the second (no direct mirror file reads remain in the pipeline files), `1` for the third.
+Expected: at least `5`; **no output** from the second, which proves no direct mirror file read survives in the command that starts the run; at least `1` for the third; `1` for the fourth; and the last shows a small diff of one or two added lines only, because `code-review` is classified, not migrated. A large diff on `code-review.md` means someone migrated it against the rule.
 
 - [ ] **Step 7: Commit**
 
@@ -1288,5 +1337,13 @@ Check `git status --porcelain` first and stage only the paths this work touched.
 **Spec coverage.** A1 Task 2, A2 and A3 Task 3, B1 Tasks 1 and 8, B2 Tasks 8 and 9, B3 Tasks 6 and 7, B4 Task 10, B5 Task 11, C1 Task 4, C2 Task 5, C3 Task 7, C4 Task 12, C5 Task 1, C6 Task 13. The spec's "deliberately not done" list is enforced by the Global Constraints. Release mechanics are Task 14.
 
 **Placeholders.** One remains and is declared: `review_rev` in Task 13, which cannot be resolved from this repository. Task 13 Step 5 gives the command to resolve it and forbids committing without it. Two content locations use bracketed guidance inside example templates, which is the existing house style for output templates in this repository, not a plan gap.
+
+**Corrections applied after design review.** Five, two of them logic bugs inherited from the first draft of the spec, all now fixed in both documents:
+
+1. Phase 0c may not read `.deep-dive/` in any form, previous runs included. Reading X-ray navigation output would contaminate the one artifact required to be demonstrably independent of X-ray. Task 5.
+2. `--skip-interconnect` now skips Phase 0c too. The earlier text kept 0c alive and simultaneously claimed every finding would be `independent`, which cannot both hold: `01a` distributed to N reviewers is shared context. It also broke the backward-compatibility promise. Task 5, Steps 2 and 3.
+3. `code-review` is off the run-directory perimeter. It never starts an X-ray run, so by this work's own rule it is a latest-state consumer and the mirror is its correct contract. Task 12, Steps 4 and 5.
+4. `Missing` and `Disputed` are separate sections with separate mappings. Absence of evidence is not contradictory evidence, and collapsing them would drain `disputed` of its meaning. Task 7.
+5. Lens 0 no longer counts toward independent reconstruction. Mode 2 receives the finding, the premise, the map and the deep-dive output, so it is deliberately primed: it falsifies well and derives nothing independently. The metric splits into independent premise reconstruction rate and premise challenge rate. Task 1.
 
 **Type consistency.** Artifact paths, field names, status values and Lens 0 return keys are fixed in Global Constraints and used identically in Tasks 3, 6, 7, 8, 9, 10, 11 and 12. `$XRAY_RUN_DIR` is defined once, in Task 12 Step 2, as `state.json -> xray.run_dir`, and Tasks 7 and 10 reference it under that definition. Tasks 7 and 10 are written before Task 12 in file order but consume a name Task 12 defines: execute Task 12 before or immediately after them if executing out of order, or accept that the string is inert until Task 12 lands, since nothing runs at build time.

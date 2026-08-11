@@ -2,7 +2,7 @@
 
 Date: 2026-08-10
 Plugins: `codebase-xray`, `senior-review`
-Status: approved, pending implementation plan
+Status: frozen. Implementation plan at `docs/superpowers/plans/2026-08-10-review-pipeline-epistemic-independence.md`
 
 ## The incident
 
@@ -196,6 +196,8 @@ The report distinguishes the two explicitly. Agreement and independent corrobora
 
 New always-on phase, running in every depth including `--depth=lite`. It is numbered **Phase 0** and runs first, before structure extraction. Phases 1 through 7 keep their current numbers, because `--phase N` is a user-facing flag and renumbering would break every invocation that names a phase. It executes **inline in the orchestrating context**, not as a spawned agent: reading the project instructions and globbing for index files is cheap, and Phase 7 already sets the precedent for inline work.
 
+**Phase 0 is a preamble, not a selectable analysis phase.** It runs before every invocation, including `--phase 5` and `--docs-only`, and it does not change the numbering semantics of phases 1 to 7. `--phase 5` still means "run phase 5 and nothing else from the analysis set", with the preamble in front of it. This is what "always-on" means here, stated so that no invocation form is left ambiguous.
+
 It owns discovery of **how the repository documents itself**:
 
 - read `CLAUDE.md` and equivalent project instruction files,
@@ -219,9 +221,11 @@ The `## CRITICAL PRINCIPLE: ABSOLUTE SOURCE OF TRUTH` block at `skills/analyze/S
 New Phase 0c, owning discovery of **what evidence is relevant to this review**:
 
 - start from the diff, the scope and the concepts it touches,
-- use the navigation conventions when X-ray has already published them for this repository, and discover them independently when it has not,
+- discover the project's navigation conventions directly from the repository instructions and the repository files,
 - find documents, tests and alternate paths pertinent to the change,
 - write `.team-review/01a-review-knowledge-leads.md`, immutable once written.
+
+**Phase 0c MUST NOT read `.deep-dive/` in any form**, including the mirror and the output of previous runs. A previous X-ray run is still an X-ray derivation, and letting one in would contaminate the single artifact that has to be demonstrably independent of X-ray. X-ray's leads enter at the reconciliation join and nowhere earlier.
 
 The duty of autonomous rediscovery is written as an obligation, not a permission:
 
@@ -242,18 +246,31 @@ After Phase 1a and Phase 1c both complete, the orchestrator produces the derived
 ## Inherited from X-Ray
 [rows from <run-dir>/knowledge/documentation-leads.md]
 
-## Missing / Disputed
-[concepts in scope with no lead from either source]
-[claims where 01b-independent-claims.md contradicts an X-ray conclusion]
+## Missing
+[concepts in scope for which neither discovery path found a lead]
+
+## Disputed
+[claims where 01b-independent-claims.md contradicts an X-ray conclusion, both sides cited]
 ```
 
-Written to `.team-review/01-knowledge-provenance.md`. This is the canonical artifact consumed downstream. `01a` and `01b` are the two sources that feed it. Rows in `Missing / Disputed` become `disputed` states in the interconnect map.
+Written to `.team-review/01-knowledge-provenance.md`. This is the canonical artifact consumed downstream. `01a` and `01b` are the two sources that feed it.
+
+**Missing and Disputed are different states and must never collapse into one.** Absence of evidence is not contradictory evidence.
+
+| Section | Maps to | Never |
+|---|---|---|
+| `Missing` | a coverage gap, and `unverified` on any related map row | never `disputed`: nobody finding documentation is not two sources disagreeing |
+| `Disputed` | `disputed`, with both `file:line` sources cited | never silently resolved in favour of either derivation |
+
+Collapsing the two would drain `disputed` of the precise meaning the rest of this design depends on, which is that two derivations reached incompatible conclusions and a reviewer must settle it.
 
 ### Behaviour under `--skip-interconnect`
 
-Phase 0c still runs. Knowledge leads help reviewers whether or not a map exists, and the phase is cheap.
+**Every phase of the context pipeline is skipped, Phase 0c included.** Phases 0c, 1a, 1c, 1d and 1b all sit out, and reviewers receive the raw target and diff only.
 
-Phase 1a, 1c, the reconciliation and Phase 1b are all skipped, as today. With no shared context, every finding is `independent` by construction, so Lens 0 never fires and the consolidation echo rule never triggers. The mode degrades to itself without special cases.
+Phase 0c is normally-on, and normally-on does not override a flag whose entire meaning is "run the legacy raw mode". The earlier draft of this spec had Phase 0c surviving the flag, which was self-contradictory: `01a-review-knowledge-leads.md` distributed to N reviewers *is* shared context, so findings could legitimately be `shared-context`, Lens 0 could fire, and the mode would no longer reproduce what `team-review.md` promises under `## Backward Compatibility`.
+
+With no context phase at all, every finding is `independent` by construction, Lens 0 never fires, and the consolidation echo rule never triggers. The mode degrades to the pre-pipeline behaviour exactly, which is the whole point of the flag.
 
 ### C4. Run directory provenance
 
@@ -276,7 +293,17 @@ The general form: a specific invocation implies the immutable run directory, a l
 
 Every later step derives its paths from that block. A review becomes reproducible, and each artifact traceable to exactly the X-ray run that fed it.
 
-Perimeter: `team-review`, `code-review`, `review-quality-gates` and the mapper prompt. `project-setup`, `abstraction-architect` invoked directly, and `codebase-mapper` keep reading the mirror.
+Perimeter, derived strictly from the rule above rather than from which commands happen to be in scope:
+
+| Consumer | Reads | Because |
+|---|---|---|
+| `team-review` orchestration | `$XRAY_RUN_DIR` | it starts the run and then consumes it |
+| the mapper it spawns | `$XRAY_RUN_DIR` | it consumes the run `team-review` started |
+| `review-quality-gates` | the run directory recorded by the orchestrating command, when there is one | it is shared by both commands and follows whichever invoked it |
+| `code-review` | `.deep-dive/` mirror | **it never starts an X-ray run.** `code-review.md:154-161` checks whether a completed analysis already exists and consumes it. That is the definition of a latest-state consumer, and migrating it would contradict the rule |
+| `project-setup`, `abstraction-architect` direct, `codebase-mapper` | `.deep-dive/` mirror | one-shot latest-state consumers |
+
+`code-review` moves onto the run directory only if it is ever changed into a command that starts an X-ray run itself. Until then it stays on the mirror.
 
 ### C5. Metrics
 
@@ -286,7 +313,8 @@ New metrics:
 
 | Metric | Meaning |
 |---|---|
-| Independent verification rate | fraction of findings whose load-bearing premise was independently reconstructed by a reviewer or by Lens 0 |
+| Independent premise reconstruction rate | fraction of findings whose load-bearing premise was obtained **without exposure to that premise**: derived by the Premise Auditor in Phase 1c, or genuinely re-derived by a reviewer. Lens 0 does not count toward this metric. Mode 2 receives the finding, the declared premise, the map and the deep-dive output, so it is deliberately primed. It falsifies well and derives nothing independently, and counting it here would let dependent observation masquerade as independent corroboration inside the very metrics built to stop that |
+| Premise challenge rate | fraction of eligible premises (provenance `shared-context` or `mixed`) actually attacked by Lens 0 |
 | Map challenge rate | fraction of consumed map rows explicitly tested rather than assumed |
 | Map gap rate | rules, paths and invariants discovered independently that the map never carried |
 | Cross-source corroboration rate | findings corroborated across code, tests and documentation |
