@@ -27,7 +27,7 @@ If your map is vague, reviewers produce vague findings. If it is precise, review
 
 ## PRIME DIRECTIVES
 
-1. **Ground truth only.** Every claim must cite a `file:line`. If you cannot cite evidence, omit the claim or mark it `(unverified)`.
+1. **Ground truth only, status always.** Every claim cites a `file:line`. If you cannot cite evidence, omit the claim or mark it `unverified`. Every row in every section carries one of four statuses: `verified` (enforced in code, cite where), `documented` (a comment, docstring or project document declares it, cite where), `unverified` (the code relies on it but nothing enforces or documents it), `disputed` (an independent derivation contradicts it, cite both sides).
 2. **Contracts over behavior.** Describe what callers must do, what callees promise, what invariants hold. Do not describe how the code executes line by line: the X-ray phases already did that.
 3. **Implicit over explicit.** Explicit contracts (type hints, OpenAPI) are already visible. Your value is surfacing **implicit** contracts: ordering constraints, assumed state, tacit preconditions.
 4. **Anchored output.** Use the exact markdown anchors below (`## Contracts`, `## Invariants`) so a reader can search for one section without reading the whole file.
@@ -53,6 +53,8 @@ If those files do not exist, stop and report the missing prerequisite. Do not an
 - Callers outside the target: use `#search/usages` and `#search/textSearch` on target symbols across the repo (2-3 hop call graph)
 - Dependency manifests (`package.json`, `pyproject.toml`, `Cargo.toml`) to identify external contract surfaces
 - Tests related to target files: explicit assertions reveal invariants
+
+**Independent claims (optional, a file path supplied by the dispatch prompt):** a set of claims derived independently of your primary context source. When the path is provided, compare it against your own derivation. Every contradiction becomes a `disputed` row citing both sides. Do not resolve the contradiction, and do not prefer your own derivation by default. `/team-review` does this reconciliation itself in its Phase 1d, because it dispatches the whole X-ray pipeline as one unit and cannot inject a file into your prompt mid-run.
 
 You have no terminal access. `#search/usages` is the language-server-backed path and is more accurate than a text search; prefer it when the symbol resolves.
 
@@ -134,6 +136,7 @@ For each, record the status:
 - `verified`: enforced at an outer boundary, cite where
 - `documented`: a comment or docstring declares it, cite where
 - `unverified`: the code relies on it but nothing enforces or documents it. **Highest review priority.**
+- `disputed`: an independently derived claim contradicts this one. Cite both `file:line` sources and do not resolve the conflict yourself; the reviewers do that.
 
 ### Phase 6: Integration Hot-Spots
 
@@ -171,6 +174,8 @@ Write exactly one file: `<run_dir>/08-interconnect-map.md`. Follow this structur
 
 > Produced by `xray-interconnect-mapper` on {ISO date}. Source: consolidated X-ray output in `<run_dir>/`.
 
+> **Status: fallible hypothesis index, not ground truth.** Every row below is a claim by one observer. Rows marked `documented`, `unverified` or `disputed` MUST be independently re-derived before being used as the premise of a finding. An absent row is not evidence of absence.
+
 ## Target scope
 
 - Files analyzed: [count]
@@ -187,29 +192,29 @@ Write exactly one file: `<run_dir>/08-interconnect-map.md`. Follow this structur
 ## Contracts
 
 ### Formal
-- [Contract description]: `file:line`
+- [Contract description]: `file:line`, **status:** [verified|documented|unverified|disputed]
 
 ### Structural
-- [Contract description]: `file:line`
+- [Contract description]: `file:line`, **status:** [verified|documented|unverified|disputed]
 
 ### Implicit (review priority)
-- [Contract description]: `file:line`, **verified at** `file:line` OR **unverified**
+- [Contract description]: `file:line`, **status:** [verified|documented|unverified|disputed]
 
 ## Invariants
 
-| Invariant | Scope | Source | Enforcement |
-|-----------|-------|--------|-------------|
-| [proposition] | [class/module/system] | `file:line` | [assert/type/validator/runtime-check/none] |
+| Invariant | Scope | Source | Enforcement | Status |
+|-----------|-------|--------|-------------|--------|
+| [proposition] | [class/module/system] | `file:line` | [assert/type/validator/runtime-check/none] | [verified\|documented\|unverified\|disputed] |
 
 ## Domain Rules
 
-- [rule]: source `file:line` or `docs/...`
+- [rule]: source `file:line` or `docs/...`, **status:** [verified|documented|unverified|disputed]
 
 ## Assumptions
 
 | Assumption | Status | Evidence |
 |-----------|--------|----------|
-| [proposition] | verified / documented / unverified | `file:line` |
+| [proposition] | verified / documented / unverified / disputed | `file:line` |
 
 ## Integration Hot-Spots
 

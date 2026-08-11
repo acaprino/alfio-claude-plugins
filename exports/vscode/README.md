@@ -1,6 +1,6 @@
 # Claude Code Daodan for GitHub Copilot
 
-A VS Code Copilot port of [acaprino/claude-code-daodan](https://github.com/acaprino/claude-code-daodan): **87 agents, 68 skills and 49 prompts**, shipped as one extension. Install it once and every project you open has them. You never copy a `.github/` directory into a repository.
+A VS Code Copilot port of [acaprino/claude-code-daodan](https://github.com/acaprino/claude-code-daodan): **88 agents, 68 skills and 49 prompts**, shipped as one extension. Install it once and every project you open has them. You never copy a `.github/` directory into a repository.
 
 This directory is both the extension source and the catalog documentation. The 37 bundles below are how the content is organized on disk, not 37 separate installs.
 
@@ -30,7 +30,7 @@ Uninstalling the extension removes the skills it installed.
 
 ### The cost of having everything everywhere
 
-VS Code loads the `description` of every agent and skill available in order to route a request. With all 84 agents and 66 skills installed at user level, a Rust project carries the Stripe, MT5 and SEO descriptions too, on every turn. That is a real cost, accepted deliberately in exchange for one install that follows you into every project. Turn off what you do not want in the Agent Customizations editor (**Chat: Open Customizations**), or set `daodan.autoSync` to `false` and manage the skills folder yourself.
+VS Code loads the `description` of every agent and skill available in order to route a request. With all 88 agents and 68 skills installed at user level, a Rust project carries the Stripe, MT5 and SEO descriptions too, on every turn. That is a real cost, accepted deliberately in exchange for one install that follows you into every project. Turn off what you do not want in the Agent Customizations editor (**Chat: Open Customizations**), or set `daodan.autoSync` to `false` and manage the skills folder yourself.
 
 ### Per-project install, without the extension
 

@@ -3,7 +3,7 @@
 A VS Code Copilot port of two multi-agent pipelines from [acaprino/claude-code-daodan](https://github.com/acaprino/claude-code-daodan), plus a port of the [obra/superpowers](https://github.com/obra/superpowers) development methodology:
 
 - **`/xray-team-analyze`**: systematic codebase analysis. Combines mechanical structure extraction with semantic understanding, producing ground-truth documentation of WHAT, WHY, HOW, and CONSEQUENCES, followed by a structured map of contracts, invariants, and integration hot-spots.
-- **`/team-review`**: multi-dimensional adversarial code review. Builds context with an X-ray pass, auto-detects which review dimensions the target warrants, dispatches up to 15 specialized reviewers in parallel, then runs a 3-lens verification panel and a completeness critic before reporting.
+- **`/team-review`**: multi-dimensional adversarial code review. Builds context with an X-ray pass, auto-detects which review dimensions the target warrants, derives a second independent set of claims in parallel so the pipeline has two observers rather than one, dispatches up to 15 specialized reviewers in parallel, then runs a 4-lens verification panel and a completeness critic before reporting.
 - **the `superpowers` agent**: the development methodology itself. Fourteen skills covering brainstorming, planning, TDD, systematic debugging, subagent-driven execution, and code review, plus the five subagents those skills dispatch.
 
 The second builds on the first: `/team-review` Phase 1 runs the X-ray pipeline to produce the context its reviewers hunt violations against. The third is independent of both, and covers the work that happens before a review exists to run.
@@ -70,7 +70,7 @@ python .github/skills/codebase-xray/hooks/test_xray_guard.py
 │   │   ├── hooks/xray_guard.py # the optional PreToolUse guard, shared by all three entry points
 │   │   └── ...
 │   ├── review-quality-gates/   # verification panel, completeness critic, context-sharing pattern
-│   │   └── references/pipeline.md   # the full 6-phase team-review workflow
+│   │   └── references/pipeline.md   # the full team-review workflow, phase by phase
 │   ├── defect-taxonomy/        # 140+ defect subcategories with CWE/OWASP mappings, 9 references
 │   ├── abstraction-architect/  # unification vs wrong-abstraction theory, 5 references
 │   ├── using-superpowers/      # the 14 vendored methodology skills start here
@@ -95,7 +95,7 @@ python .github/skills/codebase-xray/hooks/test_xray_guard.py
     ├── xray-{structure,behavior,quality}-worker.agent.md
     ├── xray-synthesizer.agent.md
     ├── xray-interconnect-mapper.agent.md
-    ├── review-orchestrator.agent.md        # 18 review agents
+    ├── review-orchestrator.agent.md        # 19 review agents
     ├── review-{security,code,logic-integrity,cleanup}-auditor.agent.md
     ├── review-{ui-race,distributed-flow,api-contract}-auditor.agent.md
     ├── review-chicken-egg-detector.agent.md
@@ -105,7 +105,8 @@ python .github/skills/codebase-xray/hooks/test_xray_guard.py
     ├── review-platform-reviewer.agent.md
     ├── review-abstraction-architect.agent.md
     ├── review-generic-reviewer.agent.md    # migrations / general performance, testing fallback
-    ├── review-verification-lens.agent.md   # Phase 4b, up to 3 per finding
+    ├── review-premise-auditor.agent.md     # Phase 1c, blind independent derivation
+    ├── review-verification-lens.agent.md   # Phase 4b, up to 4 per finding
     ├── review-completeness-critic.agent.md # Phase 4c
     ├── superpowers.agent.md                # 6 methodology agents
     ├── sp-implementer.agent.md
@@ -115,9 +116,9 @@ python .github/skills/codebase-xray/hooks/test_xray_guard.py
     └── sp-re-reviewer.agent.md
 ```
 
-30 agents, 2 prompt files, 18 skills. Each worker's phase spec and output template live in its agent definition, not in the workflow references, so the orchestrators read only the role they need.
+31 agents, 2 prompt files, 18 skills. Each worker's phase spec and output template live in its agent definition, not in the workflow references, so the orchestrators read only the role they need.
 
-Three agents are `user-invocable`: the two pipeline orchestrators and the `superpowers` driver. The other 24 stay out of the agents dropdown and declare `agents: []`, so none of them can spawn further subagents. The 14 methodology skills are user-invocable as `/skill-name`; the 4 pipeline skills are not, because their agents load them.
+Three agents are `user-invocable`: the two pipeline orchestrators and the `superpowers` driver. The other 25 stay out of the agents dropdown and declare `agents: []`, so none of them can spawn further subagents. The 14 methodology skills are user-invocable as `/skill-name`; the 4 pipeline skills are not, because their agents load them.
 
 ## Pipeline: `/xray-team-analyze`
 
@@ -165,10 +166,13 @@ Concurrent runs are safe: a run writes only inside its own directory until the p
 |---|---|---|
 | 0 | `review-orchestrator` | target resolution, `00-scope.md` |
 | 0b | `review-orchestrator` | dimension detection + plan shown to the user |
+| 0c | `review-orchestrator` | review evidence discovery, `01a-review-knowledge-leads.md` |
 | 1 | X-ray pipeline at `--depth=lite` | context + `02-interconnect.md` |
+| 1c | `review-premise-auditor`, parallel with phase 1 and blind to it | `01b-independent-claims.md` |
+| 1d | `review-orchestrator` | reconciliation, `01-knowledge-provenance.md`, `disputed` rows in the map |
 | 2 | up to 15 reviewers in parallel | `findings-<dimension>.md` each |
 | 3 | `review-orchestrator` | dedup, severity calibration, `99-consolidated.md` |
-| 4b | `review-verification-lens` x3 per finding | `98-verification.md` |
+| 4b | `review-verification-lens` x4 per finding | `98-verification.md` |
 | 4c | `review-completeness-critic` | `97-coverage-gaps.md` |
 | 5 | `review-orchestrator` | report |
 
@@ -182,12 +186,14 @@ Four dimensions always run (security, architecture, logic integrity, codebase hy
 /team-review main...HEAD --fast           # skip the verification panel and the critic
 /team-review main...HEAD --rigorous       # verify every finding above the confidence floor
 /team-review src/api --reviewers security,api-contracts
-/team-review src/utils/dates.ts --skip-interconnect   # quick scan, no context pass
+/team-review src/utils/dates.ts --no-context          # quick scan, no context pass
 ```
 
 Session output lands in `.team-review/` and stays there after the report. Nothing in this pipeline edits source code.
 
-Two gates keep the findings honest. The **verification panel** judges each finding with three independent lenses (reachability, refutation, severity calibration) and needs 2 of the first 2 to vote REAL for a finding to survive; a tie keeps it alive, tagged `contested`. The **completeness critic** then asks what the review never examined, and may trigger exactly one bounded follow-up round.
+Two gates keep the findings honest. The **verification panel** judges each finding with up to four independent lenses. Lens 0 attacks the finding's load-bearing premise and can veto it outright, but only on a `file:line` counterexample; lenses 1 and 2 test reachability and try to refute the finding, and 2 of those 2 must vote REAL for a finding to survive; a tie keeps it alive, tagged `contested`; lens 3 then calibrates severity. The **completeness critic** then asks what the review never examined, and may trigger exactly one bounded follow-up round.
+
+The pipeline's governing rule is that evidence derived from a shared artifact cannot corroborate the claims in that same artifact. N reviewers agreeing on a premise they were all handed is one observation, not N. That is why every finding declares the premise it stands on and where that premise came from, why phase 1c derives a second set of claims blind to the X-ray output, and why consolidation reports agreement inherited from shared context as an *echo* rather than as corroboration.
 
 ## Methodology: the `superpowers` agent
 

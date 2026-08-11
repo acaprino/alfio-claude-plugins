@@ -9,7 +9,7 @@ metadata:
   author: Alfio Caprino
   source: acaprino/claude-code-daodan
   upstream-plugin: codebase-xray
-  version: "3.5.1"
+  version: "3.6.0"
 ---
 
 # Codebase X-Ray Analysis Skill
@@ -116,6 +116,7 @@ Multiple analyses can run at the same time (different targets, different session
 ├── runs/
 │   └── <run-id>/                      # one directory per analysis run
 │       ├── state.json                 # per-run phase tracking
+│       ├── knowledge/                 # Phase 0: navigation.md, documentation-leads.md
 │       ├── 01-structure.md .. 07-final-report.md
 │       ├── 08-interconnect-map.md     # contracts, invariants, integration hot-spots
 │       └── partitions/<name>/...      # per-partition worker output
@@ -130,6 +131,7 @@ Rules:
 3. **Registry.** `runs.json` holds `{"schema": 2, "active": [{run_id, target, mode, started_at}], "latest_completed": "<run-id>"}`. The orchestrator registers its run at start and updates the registry at completion. Read-modify-write it; never blindly overwrite entries you did not create.
 4. **Publish step.** On successful completion, the orchestrator copies the run's `01..0N.md` files and `state.json` to the `.deep-dive/` root and sets `latest_completed`. The root mirror is the **downstream contract**: any consumer keeps reading `.deep-dive/01-structure.md` etc. unchanged. If two runs finish concurrently, the last one to publish owns the root mirror; both remain intact under `runs/`.
 5. **Resume.** On invocation, the orchestrator reads `runs.json`: active runs are offered for resume; completed runs can be archived or re-published. A root `state.json` containing `current_phase` with no `runs.json` present is a pre-runs legacy layout: offer to migrate it into `runs/legacy-<date>/` before starting.
+6. **Mirror is for latest-state consumers only.** `.deep-dive/` is a mutable convenience mirror of the latest published run. It MUST NOT be used by an orchestrated workflow to consume the output of a specific X-ray invocation: rule 4 makes the root mirror owned by whichever run published last, so a concurrent run can replace it between production and consumption. A workflow that started a run and then consumes it MUST retain and propagate the immutable run directory `.deep-dive/runs/<run-id>/`. The general form: a specific invocation implies the immutable run directory, a latest-state consumer implies the mirror. One-shot prompts asking for the most recent published analysis are correct on the mirror.
 
 ## CRITICAL PRINCIPLE: ABSOLUTE SOURCE OF TRUTH
 
@@ -148,6 +150,14 @@ Rules:
 7. **TREAT** all pre-existing docs as unverified claims requiring validation
 8. **MARK** any unverifiable statement as `[UNVERIFIED - REQUIRES CODE CHECK]`
 9. **USE** qualified symbol names in markers (`file.py::Class.method`), never line numbers. Line numbers break on any edit.
+
+### Documents play two roles, and only one of them is constrained above
+
+As **evidence**, a document is an unverified claim requiring validation. Rules 2 and 7 govern that role and are not negotiable: a document never establishes a technical fact.
+
+As a **discovery lead**, a document is a first-class input that must be collected early. A project's own index telling you that a concept named X exists and lives in module Y is not a claim about behaviour; it is a pointer telling you where to look and what to look for. Refusing to read it does not make the analysis more rigorous, it makes it blind to intent and to code paths the structure alone does not reveal.
+
+Phase 0 collects leads. Phase 6 audits documents as evidence. Never let the second role suppress the first.
 
 See `references/analysis-templates.md` for the full verification trust model, temporal purity principle, and documentation status markers.
 
@@ -335,7 +345,7 @@ SECURITY:
 
 | Stage | Agent | Output |
 |---|---|---|
-| Phase 0 | `xray-orchestrator` | partition detection + checkpoint |
+| Phase 0 | `xray-orchestrator` | project knowledge discovery (`knowledge/navigation.md`, `knowledge/documentation-leads.md`), then partition detection + checkpoint |
 | Phase 1 Wave 1 | `xray-structure-worker` (one per partition) | `01-structure.md`, `02-interfaces.md` |
 | Phase 1 Wave 2 | `xray-behavior-worker` + `xray-quality-worker` (one pair per partition) | `03-flows.md`, `04-semantics.md`, `05-risks.md`, `06-documentation.md` |
 | Phase 2 | `xray-synthesizer` | consolidated `01..07.md` |

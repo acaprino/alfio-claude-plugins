@@ -17,16 +17,30 @@ metadata:
 
 Gates and consolidation rules for the `/team-review` pipeline.
 
+## Shared-Context Provenance Rule
+
+> **Evidence derived from a shared artifact cannot independently corroborate the claims contained in that same artifact. N reviewers agreeing on a premise they were all given is one observation, not N.**
+
+This is the pipeline's first-level invariant, not quality advice. Three consequences bind every gate below:
+
+1. A reviewer that consumed a claim from the X-ray output or the interconnect map has not verified that claim. It must re-derive the claim independently before standing a finding on it.
+2. Concordance between reviewers who share a premise is an **echo**. It raises no confidence and no severity. Consolidation reports it as such.
+3. No metric may reward agreement with a shared artifact. Utilization of the map is an operational number, never a quality signal.
+
 ## Context Sharing Pattern
 
-When `/team-review` runs in pipeline mode (no `--skip-interconnect`), reviewers do not receive raw code only. They receive two context artifacts produced in Phase 1:
+When `/team-review` runs in pipeline mode (no `--no-context`), reviewers do not receive raw code only. They receive two context artifacts produced in Phase 1:
 
 1. **X-ray output** at `<xray_run_dir>/` (from the `codebase-xray` skill): `01-structure.md`, `02-interfaces.md`, `05-risks.md`, and at full depth also `03-flows.md`, `04-semantics.md`, `06-documentation.md`, `07-final-report.md`. Reviewers read the immutable run directory, never the `.deep-dive/` root mirror, which a concurrent X-ray run may republish mid-review.
 2. **Interconnect map** at `.team-review/02-interconnect.md`, copied by Phase 1 from the X-ray run's `08-interconnect-map.md` (produced by `xray-interconnect-mapper`): contracts (formal / structural / implicit), invariants, domain rules, assumptions (verified / documented / unverified), integration hot-spots, change impact radius.
 
-### Why context sharing matters
+A third artifact is produced alongside them and is **not** shared context: `.team-review/01b-independent-claims.md`, derived in Phase 1c by `review-premise-auditor` while blind to both. Phase 1d joins it with the X-ray leads into `.team-review/01-knowledge-provenance.md` and turns every contradiction into a `disputed` row in the map.
 
-Without shared context, each reviewer re-reads the code from scratch. This is wasteful and, more importantly, blinds them to bugs that only manifest across components: broken implicit contracts, invariant drift, bypass paths, non-idempotent retries, terminal state mutations. Phase 1 surfaces those concerns in the interconnect map, and Phase 2 reviewers use the map as a checklist.
+### Why context sharing matters, and where it stops
+
+Phase 1 surfaces concerns that are invisible from local inspection: broken implicit contracts, invariant drift, bypass paths, non-idempotent retries, terminal state mutations. Reviewers use the map as a **checklist of things to hunt**, which is where its value is.
+
+The economy argument applies to re-reading the whole codebase. It never applies to re-deriving a premise a finding stands on. Controlled redundancy on load-bearing premises is deliberate: it is the only thing that makes agreement between reviewers mean anything. A pipeline that spends tokens re-verifying one premise and saves them everywhere else is spending them correctly.
 
 ### How reviewers should consume the context
 
@@ -63,6 +77,19 @@ You are reviewing for the {dimension} dimension.
 - X-ray output: <xray_run_dir>/
 - Interconnect map: .team-review/02-interconnect.md
 
+### Epistemic status of the shared context
+
+The shared context is NOT ground truth. It is an index of hypotheses produced by
+one upstream observer.
+
+- Claims marked `verified` may be reused directly.
+- Claims marked `documented`, `unverified` or `disputed` are hypotheses. You MUST
+  independently re-derive any such claim before using it as the premise of a finding.
+- Actively search for code paths, tests or documents that contradict the context.
+  Finding one is a result, not a failure.
+- Silence in the context is not evidence of absence. A concern the map does not
+  mention may still be real; look anyway.
+
 Per `## Review Focus Hints` in the interconnect map, focus your reading on these anchors:
 {anchors-for-this-dimension}
 
@@ -71,23 +98,53 @@ Follow your agent definition's phases and output format. Cite file:line for ever
 Every finding that relates to a contract/invariant/assumption in the interconnect map should
 also cite the map anchor that surfaced the concern.
 
+## Premise declaration (required on every finding)
+
+Every finding carries two extra fields:
+
+- **Load-bearing premise:** the single proposition whose falsity collapses this
+  finding. It must be minimal, falsifiable and scoped.
+    Bad:  "The implementation is broken."
+    Bad:  "Heartbeat handling is incorrect."   (a paraphrase of your finding)
+    Good: "No credential-bearing response path exists after registration."
+- **premise_provenance:** one of `independent`, `shared-context`, `mixed`.
+  This records CAUSAL DEPENDENCE, not citation. If you absorbed the premise from
+  the X-ray output or the interconnect map, it is `shared-context`, even if
+  your finding never cites an anchor. `mixed` means part of the premise rests on
+  shared context and part on evidence you derived yourself. Declare `independent`
+  only when you re-derived the whole premise from code, tests or documents you
+  read yourself.
+
 Write your output to .team-review/findings-{dimension}.md.
 ```
 
-### Quality metric: context utilization rate
+The X-ray output path is always the **run directory** of the run Phase 1 started, never the `.deep-dive/` root mirror. Per rule 6 of the Concurrent Runs Model in `$SKILLS/codebase-xray/SKILL.md`, the mirror means "latest published run", not "the run I just produced", and a concurrent run can replace it between production and consumption.
 
-A useful quality signal at the end of a review: **what fraction of findings cite an interconnect-map anchor?**
+`$SKILLS` is the installed skills directory: the first of `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/` that exists.
 
-- High (>= 30%): reviewers are leveraging the context effectively; the pipeline is paying off.
-- Medium (10-30%): context used but inconsistently; consider refining prompts.
-- Low (< 10%): either reviewers are ignoring the map or the map is too generic to be actionable.
+### Metrics
 
-The logic-integrity-auditor dimension should be at >= 70% (its findings are almost entirely driven by the map).
+**Map utilization rate** (operational, not a quality signal): the fraction of findings citing an interconnect anchor. It says how much of the map was consumed. It says nothing about whether the review was good, and a high value on a wrong map is the signature of the failure this pipeline is built to avoid. Do not set a target for it.
 
-### Fallback: `--skip-interconnect` mode
+Quality signals:
+
+| Metric | Meaning |
+|---|---|
+| **Independent premise reconstruction rate** | fraction of findings whose load-bearing premise was obtained **without exposure to that premise**: derived by `review-premise-auditor` in Phase 1c, or genuinely re-derived by a reviewer. **Lens 0 does not count.** It receives the finding, the declared premise, the map and the X-ray output, so it is deliberately primed. It falsifies well and derives nothing independently, and counting it here would let dependent observation masquerade as independent corroboration inside the very metrics built to stop that |
+| **Premise challenge rate** | fraction of eligible premises (provenance `shared-context` or `mixed`) actually attacked by Lens 0 |
+| **Map challenge rate** | fraction of consumed map rows explicitly tested rather than assumed |
+| **Map gap rate** | rules, paths and invariants discovered independently that the map never carried, meaning `[MAP-GAP]` findings over total findings |
+| **Cross-source corroboration rate** | findings corroborated across code, tests and documentation |
+
+Cross-source corroboration is a diagnostic over findings for which multiple semantically relevant sources exist. It is not a number to maximize. Many findings are provable entirely from code, and a low rate on those is correct.
+
+### Fallback: raw mode (`--no-context`)
 
 When the pipeline is skipped, reviewers receive only target + diff. In this mode:
 - `review-logic-integrity-auditor` is not spawned (no map to drive it).
+- `review-premise-auditor` is not dispatched either, in either phase: there is no shared derivation for it to be independent of.
+- Phase 0c does not run. The flag means "give me the raw mode", and a normally-on phase does not override it: `01a-review-knowledge-leads.md` distributed to N reviewers is itself shared context, so keeping the phase alive under the flag would make findings legitimately `shared-context`, let Lens 0 fire, and stop the mode reproducing the pre-pipeline behaviour it exists to provide.
+- Every finding is `independent` by construction, so Lens 0 never fires and consolidation never reports an echo.
 - All other reviewers fall back to their pre-pipeline behavior.
 - No X-ray run directory or `.team-review/02-interconnect.md` references should appear in reviewer prompts.
 
@@ -98,7 +155,7 @@ Every reviewer agent that runs as part of `/team-review` Phase 2 carries a `## P
 - **Scope budget**: each reviewer stops after ~15 file reads without a finding and returns a "scope-off-topic" report. The orchestrator should plan targets at a granularity that respects this budget.
 - **No-findings protocol**: reviewers may legitimately return "examined X, Y, Z: no issues" instead of inventing findings. Treat such reports as valid Phase 3 input, not failure.
 - **Cross-Reviewer Notes**: reviewers append observations that belong to other dimensions in a `## Cross-Reviewer Notes` section. Phase 3 consolidation must scan for this section and route the observations to the appropriate reviewer (or surface them in the consolidated report under the recipient dimension).
-- **Interconnect anchor citation**: reviewers cite map anchors when applicable. This is the same signal as the context utilization rate above; the section below quantifies the quality metric.
+- **Interconnect anchor citation**: reviewers cite map anchors when applicable. This is the same signal the map utilization rate measures: an operational number, not a quality signal. See `### Metrics` for the quality signals that actually matter.
 
 ## Evidence Classes for Quantitative Claims
 
@@ -119,22 +176,60 @@ Every finding whose damage is behavioral over time (repetition, degradation, sil
 
 ## Adversarial Verification Panel
 
-After findings are consolidated (deduplicated), each selected finding is judged by a **panel of 3 verifiers**, each with a distinct lens. This replaces single-judge validation: three independent mandates catch more failure modes than three identical refuters.
+After findings are consolidated (deduplicated), each selected finding is judged by a **panel of up to 4 verifiers**, each with a distinct lens. This replaces single-judge validation: independent mandates catch more failure modes than identical refuters.
 
 This section is the source of truth. `/team-review` Phase 4b drives the panel from here.
 
-### The three lenses
+### The four lenses
 
 Dispatch one `review-verification-lens` subagent per lens per finding with `#agent/runSubagent`, passing the lens number and prompt below.
 
-**Lens 3 is gated.** Lenses 1 and 2 run first, issued in a single assistant turn across all selected findings so they run concurrently. Lens 3 (severity calibration) is dispatched only for findings that survive them (REAL from both, or the tie that marks them `contested`). Calibrating the severity of a finding the panel is about to discard is spend for nothing; the gate cuts roughly a third of the verifier calls with no change to the survival semantics. Findings killed by lenses 1-2 never reach lens 3 and keep their original severity in the `filtered` record.
+**Lens 0 is gated on provenance and runs first**, before lenses 1 and 2, for the same reason lens 3 is gated last: a finding a veto will discard should not consume the other lenses. Lens 3 stays gated on survival.
 
-All three lenses run on whatever model the session selected. The Claude Code original pinned a cheaper model on lens 3, since calibration is less reasoning-heavy than lenses 1 and 2. VS Code custom agents accept a `model:` field, so pin one on `review-verification-lens` if your setup benefits from it; the default is deliberately unpinned, because the correct model id depends on which Copilot models the user has available.
+Lens 0 runs only for findings whose `premise_provenance` is `shared-context` or `mixed`. A finding declared `independent` skips it. A finding that declares nothing is treated as `shared-context` when the pipeline ran, and the report records the reviewer as format-non-compliant. A finding with no `Load-bearing premise` has one derived by Lens 0, with the same note. The pipeline never drops a finding over a missing field.
+
+**Lens 3 is gated on survival.** Lenses 1 and 2 run next, issued in a single assistant turn across all selected findings so they run concurrently. Lens 3 (severity calibration) is dispatched only for findings that survive them (REAL from both, or the tie that marks them `contested`). Calibrating the severity of a finding the panel is about to discard is spend for nothing; the gate cuts roughly a third of the verifier calls with no change to the survival semantics. Findings killed by lenses 1-2 never reach lens 3 and keep their original severity in the `filtered` record.
+
+All four lenses run on whatever model the session selected. The Claude Code original pinned a cheaper model on lens 3, since calibration is less reasoning-heavy than the others. VS Code custom agents accept a `model:` field, so pin one on `review-verification-lens` if your setup benefits from it; the default is deliberately unpinned, because the correct model id depends on which Copilot models the user has available.
+
+**Export divergence, deliberate.** Upstream, Lens 0 is mode 2 of the `premise-auditor` agent, the same agent that derives blind in Phase 1c. Here the two are separate agents: `review-premise-auditor` derives blind and never sees the shared context, and `review-verification-lens` runs Lens 0 with full context. Splitting them makes the blindness structural rather than instruction-dependent, which is worth more than matching the upstream file layout.
+
+**Lens 0 prompt (Premise Challenge):**
+
+```
+You are verifier LENS 0 of 4 (Premise Challenge) for one code-review finding.
+Your job: attack the PREMISE, not the finding. Full context is correct here.
+
+## The Finding
+[severity, file:line, description, suggested fix]
+
+## The declared load-bearing premise
+[the finding's Load-bearing premise field verbatim, or "none declared"]
+
+## Context available
+- Interconnect map: .team-review/02-interconnect.md
+- Knowledge provenance: .team-review/01-knowledge-provenance.md
+- X-ray output: <xray_run_dir>/
+
+## Instructions
+Follow the lens 0 mandate in your agent definition. Restate the premise with its
+full scope, then hunt for a counterexample anywhere in that scope.
+Return REFUTED only with a file:line counterexample; without one, return UNCERTAIN.
+Decide and state whether the counterexample falsifies the PREMISE itself or only
+a piece of shared SUPPORT.
+
+Respond with EXACTLY:
+- premise_verdict: HOLDS or REFUTED or UNCERTAIN
+- refutation_target: PREMISE or SUPPORT        (only when REFUTED)
+- counterexample: file:line                    (required when REFUTED)
+- premise_form: compliant or non-compliant
+- reason: 1-2 sentences citing file:line
+```
 
 **Lens 1 prompt (Reachability / Correctness):**
 
 ```
-You are verifier LENS 1 of 3 (Reachability / Correctness) for one code-review finding.
+You are verifier LENS 1 of 4 (Reachability / Correctness) for one code-review finding.
 Your job: determine whether the described defect REALLY exists and is reachable.
 
 ## The Finding
@@ -161,7 +256,7 @@ Respond with EXACTLY:
 **Lens 2 prompt (False-Positive Causes):**
 
 ```
-You are verifier LENS 2 of 3 (False-Positive Causes) for one code-review finding.
+You are verifier LENS 2 of 4 (False-Positive Causes) for one code-review finding.
 Your job: actively try to REFUTE the finding. Default to FALSE_POSITIVE if uncertain.
 
 ## The Finding
@@ -190,7 +285,7 @@ Respond with EXACTLY:
 **Lens 3 prompt (Severity Calibration):**
 
 ```
-You are verifier LENS 3 of 3 (Severity Calibration) for one code-review finding.
+You are verifier LENS 3 of 4 (Severity Calibration) for one code-review finding.
 Assume the finding is REAL. Your only job is to vote the correct severity.
 
 ## The Finding
@@ -219,8 +314,27 @@ Respond with EXACTLY:
 
 Each verifier returns: `verdict` (REAL or FALSE_POSITIVE; lens 3 always REAL), `confidence` (0-100), `severity_vote` (lens 3 only), `reason` (with a file:line citation).
 
+Lens 0 does not use this schema. It returns `premise_verdict` (`HOLDS`, `REFUTED`, or `UNCERTAIN`), `refutation_target` (`PREMISE` or `SUPPORT`, present only when `REFUTED`), `counterexample` (a `file:line`, required when `REFUTED`), and `premise_form` (`compliant` or `non-compliant`).
+
+### Lens 0 resolution
+
+Refutation type is resolved first, provenance second. Provenance decides only what can survive after a source is invalidated.
+
+| Lens 0 result | Effect |
+|---|---|
+| `REFUTED`, target `PREMISE` | Finding discarded, counted `filtered: premise-refuted`. Regardless of provenance, and regardless of lenses 1-2, which are not dispatched. |
+| `REFUTED`, target `SUPPORT`, provenance `mixed` | Strike the shared leg. Restate the finding from the surviving independent evidence and run lenses 1-2 on the reduced finding. |
+| `REFUTED`, target `SUPPORT`, provenance `shared-context` | Nothing survives the strike. Discarded, counted `filtered: premise-refuted`. |
+| `UNCERTAIN` | Finding proceeds to lenses 1-2, tagged `premise-contested`. |
+| `HOLDS` | Finding proceeds to lenses 1-2 unchanged. |
+
+Local correctness cannot outvote a refuted premise. A verifier can be entirely right that the code at the cited line does what the finding says, while the inference from that fact to the finding's conclusion is dead because another path exists. That is why Lens 0 is a veto and not a fourth vote.
+
+A `premise_form: non-compliant` return is recorded in the verification file and reported, whatever the verdict. It means a reviewer declared a paraphrase instead of a premise, and it is a defect in the review, not in the code.
+
 ### Survival rule
 
+- Lens 0 is evaluated **before** the rule below. A finding discarded by Lens 0 never reaches lenses 1-2. A finding whose Lens 0 returned `UNCERTAIN` or `HOLDS` is judged by the rule below exactly as before.
 - A finding **survives** if **at least 2 of lenses 1-2 vote REAL**.
 - If **>= 2 of lenses 1-2 vote FALSE_POSITIVE**, the finding is **discarded** and counted as `filtered` (never silently dropped: the count appears in the report).
 - **Tie or inconclusive** (1 REAL / 1 FALSE on lenses 1-2, or fewer than 2 valid verdicts returned) means the finding **survives, marked `contested`**. A flagged false positive is cheaper than a killed real bug.
@@ -229,6 +343,8 @@ Each verifier returns: `verdict` (REAL or FALSE_POSITIVE; lens 3 always REAL), `
 ### Fail-open
 
 If a verifier errors or returns a malformed verdict, treat it as an abstention. If fewer than 2 valid verdicts return for a finding, apply the tie rule (survives, `contested`). A surviving finding whose lens 3 errored keeps the original reviewer severity. The panel never crashes the pipeline and never silently drops a finding.
+
+A Lens 0 that errors, returns malformed output, or returns `REFUTED` without a `file:line` counterexample is treated as `UNCERTAIN`. Lens 0 never kills a finding by failing.
 
 ### Selection: what enters the panel
 
@@ -249,7 +365,7 @@ This section is the source of truth. `/team-review` Phase 4c drives the critic f
 
 ### Inputs
 
-The critic reads: the verified findings, the review scope, the list of dimensions that ran, and whatever context exists (the X-ray run directory and the interconnect map, or "none" under `--skip-interconnect`).
+The critic reads: the verified findings, the review scope, the list of dimensions that ran, and whatever context exists (the X-ray run directory and the interconnect map, or "none" under `--no-context`).
 
 ### Gap taxonomy
 

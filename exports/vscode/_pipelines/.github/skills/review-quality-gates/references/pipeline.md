@@ -2,7 +2,7 @@
 
 The complete workflow driven by `/team-review <target> [flags]`, running on the `review-orchestrator` agent.
 
-Six phases. Context building feeds parallel adversarial review, which feeds consolidation, which feeds two quality gates, which feed the report.
+Evidence discovery and context building feed parallel adversarial review, which feeds consolidation, which feeds two quality gates, which feed the report. Two derivations run side by side during context building, so that the review has a second observer rather than one observer explored N times.
 
 The gate specs (verification panel, completeness critic, context-sharing pattern, anchor routing) live in `SKILL.md` alongside this file. This reference drives the sequence; `SKILL.md` is the source of truth for what each gate does.
 
@@ -15,6 +15,7 @@ The gate specs (verification panel, completeness critic, context-sharing pattern
 5. **Report-only.** No agent in this pipeline edits source code.
 6. **Session isolation.** All output goes under `.team-review/`. The X-ray pass owns `.deep-dive/`; do not write there.
 7. **Resume-safe.** Re-dispatch only the reviewers whose findings file is missing.
+8. **Shared context is not corroboration.** Per `## Shared-Context Provenance Rule` in `SKILL.md`, a claim a reviewer took from the X-ray output or the map is not a claim that reviewer verified, and agreement between reviewers who share a premise is an echo. Phase 1c, Phase 3 and Phase 4b all enforce this.
 
 ## Reviewer roster
 
@@ -22,7 +23,7 @@ The gate specs (verification panel, completeness critic, context-sharing pattern
 |---|---|---|
 | Security | `review-security-auditor` | always |
 | Architecture | `review-code-auditor` | always |
-| Logic integrity | `review-logic-integrity-auditor` | always, unless `--skip-interconnect` |
+| Logic integrity | `review-logic-integrity-auditor` | always, unless `--no-context` |
 | Codebase hygiene | `review-cleanup-auditor` | always |
 | UI race conditions | `review-ui-race-auditor` | conditional |
 | React performance | `review-react-performance-optimizer` | conditional |
@@ -39,7 +40,7 @@ The gate specs (verification panel, completeness critic, context-sharing pattern
 | Data migrations | `review-generic-reviewer` (dimension `migrations`) | conditional |
 | Abstraction | `review-abstraction-architect` | conditional, diff targets only |
 
-Support agents: `review-verification-lens` (Phase 4b, up to three per finding; lens 3 is gated on survival), `review-completeness-critic` (Phase 4c).
+Support agents: `review-premise-auditor` (Phase 1c, one per run, blind to the shared context), `review-verification-lens` (Phase 4b, up to four per finding; lens 0 is gated on provenance and lens 3 on survival), `review-completeness-critic` (Phase 4c).
 
 Two scoping rules that are easy to get wrong:
 
@@ -56,7 +57,7 @@ Every agent in the roster ships inside this bundle except the two cross-bundle r
    - `--base-branch`: base for diff comparison (default `main`)
    - `--all`: force every dimension regardless of detection
    - `--deep`: run the Phase 1 X-ray at full depth (default `--depth=lite`)
-   - `--skip-interconnect`: skip Phase 1 entirely; reviewers get raw code only and `review-logic-integrity-auditor` is not spawned
+   - `--no-context`: raw mode. Skip Phases 0c and 1 entirely; reviewers get raw code only, and neither `review-logic-integrity-auditor` nor `review-premise-auditor` is dispatched
    - `--fast`: skip both quality gates (Phase 4b and 4c)
    - `--rigorous`: verify every finding above the confidence floor, ignoring the cost-guard cap
 
@@ -75,14 +76,17 @@ Every agent in the roster ships inside this bundle except the two cross-bundle r
   "status": "in_progress",
   "flags": {
     "reviewers": "auto", "all": false, "deep": false,
-    "skip_interconnect": false, "fast": false, "rigorous": false
+    "no_context": false, "fast": false, "rigorous": false
   },
   "xray_run_dir": null,
   "dimensions": [],
   "phases": {
     "phase_0_resolution": "pending",
     "phase_0b_detection": "pending",
+    "phase_0c_evidence_discovery": "pending",
     "phase_1_context": "pending",
+    "phase_1c_premise_audit": "pending",
+    "phase_1d_reconciliation": "pending",
     "phase_2_review": "pending",
     "phase_3_consolidation": "pending",
     "phase_4b_verification": "pending",
@@ -167,17 +171,63 @@ Context detection complete:
             migrations (no migration files)
 
 Pipeline plan:
+  Phase 0c: review evidence discovery (inline)
   Phase 1:  X-ray pass (--depth=lite) + interconnect map
+            |  Phase 1c: review-premise-auditor (parallel, blind)
+  Phase 1d: knowledge reconciliation (inline)
   Phase 2:  {N} reviewers in parallel
-  Phase 4b: verification panel, 3 lenses per selected finding
+  Phase 4b: verification panel, up to 4 lenses per selected finding
   Phase 4c: completeness critic
 ```
 
 Mark `phase_0b_detection` complete.
 
+## Phase 0c: Review Evidence Discovery
+
+Runs inline on the orchestrator, on every invocation **except** raw mode (`--no-context`). That flag means "give me the raw mode", and a normally-on phase does not override it: `01a-review-knowledge-leads.md` distributed to N reviewers is itself shared context, so keeping this phase alive under the flag would make findings legitimately `shared-context`, let Lens 0 fire, and stop the mode reproducing the pre-pipeline behaviour it exists to provide.
+
+This phase owns discovery of **what evidence is relevant to this review**. X-ray owns discovery of how the repository documents itself. The two are different jobs and the division is deliberate.
+
+**This phase MUST NOT read `.deep-dive/` in any form**, including the mirror and the output of previous runs. A previous X-ray run is still an X-ray derivation, and admitting one would contaminate the single artifact that has to be demonstrably independent of X-ray. X-ray's leads enter at the Phase 1d join and nowhere earlier.
+
+1. Read `AGENTS.md`, `.github/copilot-instructions.md`, `CLAUDE.md` and equivalent project instruction files, and follow any navigation rule they state. If the project says a specific file is where to look first to find where a concept lives, open that file before opening any code. Discover the conventions from the repository itself, never from a prior X-ray run.
+2. Extract the concepts, domains and symbols the diff touches. Names of changed functions, classes, modules and config keys are the starting set; add the domain nouns that appear in the diff's own strings and comments.
+3. For each concept, search the project's indexes and documentation for a relevant entry with `#search/textSearch`, and search the tests for behaviour that encodes it.
+4. Write `.team-review/01a-review-knowledge-leads.md` with `#edit/createFile`.
+
+**This file is immutable once written.** No later phase appends to it. X-ray's own leads are joined into a separate derived artifact in Phase 1d, precisely so that the snapshot Phase 1c consumes cannot change underneath it.
+
+**The duty of autonomous rediscovery.** X-ray's documentation leads are an input, never a completeness guarantee. When no lead exists for a concept the diff touches, search the available indexes yourself and record what you find under `Independently discovered by Senior Review`. Without this duty, the completeness of X-ray's discovery becomes the next shared premise, which is the failure this pipeline exists to prevent.
+
+**Output:** `.team-review/01a-review-knowledge-leads.md`
+
+```markdown
+# Review Knowledge Leads
+
+> Leads, not truth. Immutable once written.
+> Discovered by the review pipeline independently of any X-ray output.
+
+## Navigation rules followed
+| Source | Rule |
+|--------|------|
+
+## Concepts touched by this diff
+| Concept | Where it appears in the diff |
+|---------|------------------------------|
+
+## Leads
+| Concept | Document / test | Anchor | Status |
+|---------|-----------------|--------|--------|
+
+## Concepts with no lead found
+[One line each. This list is the honest statement of what nobody documented.]
+```
+
+Mark `phase_0c_evidence_discovery` complete.
+
 ## Phase 1: Context Building
 
-Skip entirely if `--skip-interconnect`. Mark `phase_1_context` as `skipped` and jump to Phase 2 with raw target files only.
+Skip entirely if `--no-context`. Mark `phase_1_context`, `phase_1c_premise_audit`, `phase_1d_reconciliation` and `phase_0c_evidence_discovery` as `skipped` and jump to Phase 2 with raw target files only.
 
 The Claude Code original split this into two phases: a deep-dive skill invocation, then a separate interconnect-mapper agent. Here it is one X-ray run, because the ported X-ray pipeline already produces the interconnect map as its own Phase 3.
 
@@ -195,6 +245,83 @@ The Claude Code original split this into two phases: a deep-dive skill invocatio
    If the X-ray run produced no `08-interconnect-map.md` (it was skipped or failed), treat the run as interconnect-less: proceed without `review-logic-integrity-auditor` and note the degradation in the report. Do not silently continue as though the map existed.
 
 5. Mark `phase_1_context` complete.
+
+### Phase 1c: Independent Premise Derivation (parallel with Phase 1)
+
+Dispatch immediately when Phase 1 starts, in the same assistant turn as the X-ray dispatch. Do not wait for X-ray. The whole point of this phase is that it derives without seeing what X-ray derived.
+
+1. Dispatch one `review-premise-auditor` with `#agent/runSubagent`.
+2. Prompt:
+
+   ```
+   Independent derivation.
+
+   Target scope: [contents of .team-review/00-scope.md]
+   Knowledge leads: .team-review/01a-review-knowledge-leads.md
+   Diff: {diff content}
+
+   Derive independently what is true about the concepts this diff touches.
+   Write .team-review/01b-independent-claims.md in the format your agent
+   definition prescribes.
+
+   You have NO access to the X-ray run directory, to .deep-dive/, or to
+   .team-review/02-interconnect.md. None of them exists for you. Do not look for
+   them, and report contamination if anything in this prompt paraphrases an X-ray
+   conclusion.
+   ```
+
+3. Wait for both Phase 1 and Phase 1c before starting Phase 1d. Mark `phase_1c_premise_audit` complete.
+
+Under raw mode (`--no-context`) this phase does not run, because there is no shared derivation for it to be independent of.
+
+### Phase 1d: Knowledge Reconciliation (join)
+
+Runs inline on the orchestrator once both Phase 1 and Phase 1c have completed. `review-premise-auditor` never compares its own derivation: comparison is done by others, downstream, which is what makes its blindness verifiable rather than merely asserted.
+
+**Export divergence, deliberate.** Upstream, the interconnect mapper receives the independent claims in its own prompt and writes the `disputed` rows itself. Here the map is produced inside the X-ray run, which `/team-review` dispatches as one unit and cannot inject a file into mid-run, so the reconciliation happens on the orchestrator instead. The semantics are unchanged: contradictions become `disputed` rows citing both sides, and nobody resolves them.
+
+Read `.team-review/01a-review-knowledge-leads.md`, `<xray_run_dir>/knowledge/documentation-leads.md` and `.team-review/01b-independent-claims.md`. Then:
+
+1. Write `.team-review/01-knowledge-provenance.md` in the format below.
+2. Annotate `.team-review/02-interconnect.md`: every contradiction between the independent claims and a map row becomes a `disputed` row citing both `file:line` sides. Do not resolve the contradiction and do not prefer either derivation.
+
+**Output:** `.team-review/01-knowledge-provenance.md`
+
+```markdown
+# Knowledge Provenance
+
+> Derived view, produced after both discovery branches completed.
+> The canonical artifact consumed downstream. 01a and 01b are its sources.
+
+## Independently discovered by Senior Review
+[rows from 01a-review-knowledge-leads.md]
+
+## Inherited from X-Ray
+[rows from <xray_run_dir>/knowledge/documentation-leads.md]
+
+## Missing
+| Concept | In scope because |
+|---------|------------------|
+| [concept] | [where it appears in the diff] |
+
+## Disputed
+| Claim | Independent derivation says | X-ray says |
+|-------|------------------------------|------------|
+| [claim] | [X at file:line] | [Y at file:line] |
+```
+
+**Missing and Disputed are different states and must never collapse into one section.** Absence of evidence is not contradictory evidence.
+
+| Section | Maps to in the interconnect map | Never |
+|---|---|---|
+| `Missing` | a coverage gap, and `unverified` on any related row | never `disputed`: nobody finding documentation is not two sources disagreeing |
+| `Disputed` | `disputed`, both `file:line` sides cited | never silently resolved in favour of either derivation |
+
+Collapsing them would drain `disputed` of the precise meaning the rest of this pipeline depends on, which is that two derivations reached incompatible conclusions and a reviewer must settle it.
+
+Two asymmetries here are diagnostics worth reading, not noise. A row present in `Independently discovered by Senior Review` and absent from `Inherited from X-Ray` means X-ray's discovery had a gap. The reverse means Phase 0c had one. Both are recorded and neither is silently reconciled.
+
+Mark `phase_1d_reconciliation` complete.
 
 ## Phase 2: Adversarial Review (parallel)
 
@@ -214,6 +341,20 @@ You are reviewing for the {dimension} dimension.
 ## Context files (read these before analyzing code)
 - X-ray output: {xray_run_dir}/ (01-structure.md, 02-interfaces.md, 05-risks.md)
 - Interconnect map: .team-review/02-interconnect.md
+- Knowledge provenance: .team-review/01-knowledge-provenance.md
+
+### Epistemic status of the shared context
+
+The shared context is NOT ground truth. It is an index of hypotheses produced by
+one upstream observer.
+
+- Claims marked `verified` may be reused directly.
+- Claims marked `documented`, `unverified` or `disputed` are hypotheses. You MUST
+  independently re-derive any such claim before using it as the premise of a finding.
+- Actively search for code paths, tests or documents that contradict the context.
+  Finding one is a result, not a failure.
+- Silence in the context is not evidence of absence. A concern the map does not
+  mention may still be real; look anyway.
 
 Per `## Review Focus Hints` in the interconnect map, focus your reading on these anchors:
 {anchors for this dimension, from the routing table in SKILL.md}
@@ -223,10 +364,27 @@ Follow your agent definition's analysis phases, knowledge-base loading, output f
 severity classification. Cite file:line for every finding. Score every finding 0-100 for
 confidence.
 
+## Premise declaration (required on every finding)
+
+Every finding carries two extra fields:
+
+- **Load-bearing premise:** the single proposition whose falsity collapses this
+  finding. It must be minimal, falsifiable and scoped.
+    Bad:  "The implementation is broken."
+    Bad:  "Heartbeat handling is incorrect."   (a paraphrase of your finding)
+    Good: "No credential-bearing response path exists after registration."
+- **premise_provenance:** one of `independent`, `shared-context`, `mixed`.
+  This records CAUSAL DEPENDENCE, not citation. If you absorbed the premise from
+  the X-ray output or the interconnect map, it is `shared-context`, even if
+  your finding never cites an anchor. `mixed` means part of the premise rests on
+  shared context and part on evidence you derived yourself. Declare `independent`
+  only when you re-derived the whole premise from code, tests or documents you
+  read yourself.
+
 Write your report to .team-review/findings-{dimension}.md with #edit/createFile.
 ```
 
-Under `--skip-interconnect`, omit the "Context files" and anchors sections entirely and do not spawn `review-logic-integrity-auditor`.
+Under `--no-context`, omit the "Context files", epistemic-status and anchors sections entirely and do not dispatch `review-logic-integrity-auditor`. Keep the premise declaration block: in raw mode every finding is `independent` by construction, and saying so explicitly is what lets Phase 3 tell corroboration from echo without special-casing the mode.
 
 ### Abstraction dimension addendum
 
@@ -245,7 +403,7 @@ Three things invert the default reviewer contract for this one:
 
 - Its search space is the **whole codebase**, not the diff. The diff is only the anchor; the prior art it hunts for is by definition in files that did not change. Do not scope it to the changed files.
 - It runs fine on lite-depth output, since it consumes only `01-structure.md` and `02-interfaces.md`. Do not force `--deep` on its account.
-- `--skip-interconnect` does NOT skip it. That rule removes only `review-logic-integrity-auditor`. It runs with `deep_dive_path: none`, degrades to search-based prior-art hunting, and reports the reduced confidence in its Gaps section.
+- `--no-context` does NOT skip it. That rule removes only `review-logic-integrity-auditor` and `review-premise-auditor`. It runs with `deep_dive_path: none`, degrades to search-based prior-art hunting, and reports the reduced confidence in its Gaps section.
 
 ### Generic-reviewer dimensions
 
@@ -270,7 +428,10 @@ Mark `phase_2_review` as `in_progress`.
    - **Deduplicate**: merge findings on the same `file:line` describing the same issue. Credit every reviewer that found it.
    - **Co-locate**: same `file:line`, different issues, stay separate and get tagged as co-located.
    - **Severity conflicts**: take the higher rating.
-   - **Cross-reference**: flag findings that surfaced in more than one dimension. Independent rediscovery is a strong signal of a real root cause.
+   - **Cross-reference, weighted by provenance**: per `## Shared-Context Provenance Rule` in `SKILL.md`, agreement is only corroboration when the agreeing findings did not inherit the same premise.
+     - Findings that agree and are all `independent`, or whose load-bearing premises are disjoint: **corroborated**. Report as a likely-real root cause.
+     - Findings that agree and share the same `shared-context` premise: **echo**. Report under the finding as `Echo: N dimensions agreed from the shared premise "[premise text]"`. This raises no confidence and no severity, and it is not evidence that the finding is real.
+     - Mixed sets: corroboration counts only the independent members.
    - **Route cross-reviewer notes**: scan every `## Cross-Reviewer Notes` section and fold those observations into the consolidated report under the dimension they belong to.
    - **Collect `[MAP-GAP]` findings**: any logic-integrity finding carrying the `[MAP-GAP]` marker is also listed in the report as an interconnect-map coverage gap, so the mapper's blind spot is recorded alongside the defect it hid.
    - **Organize by severity**: Critical, High, Medium, Low.
@@ -282,11 +443,12 @@ Skip if `--fast` (mark `skipped`). Otherwise drive the panel exactly per `SKILL.
 
 1. Apply the confidence floor: findings at `>= 50%`. An unscored finding counts as 60, so it is not silently skipped.
 2. Selection: verify everything if `--rigorous` or 25 or fewer findings survive. Otherwise narrow to stakes plus uncertainty band per the skill, and record how many are left `unverified (cost-guard)`.
-3. For each selected finding, dispatch two `review-verification-lens` subagents (lenses 1 and 2), all in the same turn across findings. Substitute the finding, the diff, and the full file content into each prompt. Dispatch lens 3 only for findings that survive lenses 1-2, per the skill's gated-lens rule.
-4. Apply the survival rule: survives if at least 2 of lenses 1-2 vote REAL; `filtered` if at least 2 vote FALSE_POSITIVE; a tie or fewer than 2 valid verdicts means it survives, marked `contested`. Final severity is the lens-3 vote when confirmed real, otherwise the original.
-5. Write `.team-review/98-verification.md`: one row per verified finding with per-lens verdicts, final severity, and flag, plus the trailing `unverified (cost-guard)` count.
-6. Update `99-consolidated.md`: drop `filtered` findings, apply recalibrated severities, tag `contested` and `unverified (cost-guard)`.
-7. Mark `phase_4b_verification` complete.
+3. **Lens 0 first.** For each selected finding whose `premise_provenance` is `shared-context` or `mixed`, dispatch one `review-verification-lens` with `lens: 0` using the Lens 0 prompt from the skill, resolving the X-ray line to `{xray_run_dir}/`. Apply the skill's Lens 0 resolution table: a `REFUTED` verdict targeting `PREMISE` discards the finding (`filtered: premise-refuted`) without dispatching lenses 1-2; targeting `SUPPORT` on `mixed` provenance strikes the shared leg and restates the finding from the surviving independent evidence before it proceeds; targeting `SUPPORT` on `shared-context` provenance discards it the same way. `UNCERTAIN` and `HOLDS` proceed to lenses 1-2, `UNCERTAIN` tagged `premise-contested`. Findings declared `independent` skip lens 0 entirely.
+4. For each finding that reaches this step, dispatch two `review-verification-lens` subagents (lenses 1 and 2), all in the same turn across findings. Substitute the finding, the diff, and the full file content into each prompt. Dispatch lens 3 only for findings that survive lenses 1-2, per the skill's gated-lens rule.
+5. Apply the survival rule: survives if at least 2 of lenses 1-2 vote REAL; `filtered` if at least 2 vote FALSE_POSITIVE; a tie or fewer than 2 valid verdicts means it survives, marked `contested`. Final severity is the lens-3 vote when confirmed real, otherwise the original.
+6. Write `.team-review/98-verification.md`: one row per verified finding with per-lens verdicts (including, for findings that reached lens 0, its verdict, refutation target, and counterexample), final severity, and flag (`verified` / `contested` / `filtered: premise-refuted` / `filtered`), plus the trailing `unverified (cost-guard)` count.
+7. Update `99-consolidated.md`: drop `filtered` findings, apply recalibrated severities, tag `contested`, `premise-contested` and `unverified (cost-guard)`.
+8. Mark `phase_4b_verification` complete.
 
 ## Phase 4c: Completeness Critic
 
@@ -307,7 +469,7 @@ Session: .team-review/
 Context: X-ray ({lite|full}) + interconnect map ({anchor count} anchors)
 Reviewed by: {dimensions} ({N} reviewers)
 Files reviewed: {count}
-Verification: {verified} verified, {filtered} false positives, {contested} contested{cost_guard_note}
+Verification: {verified} verified (4-lens panel), {filtered} false positives, {contested} contested, {premise_refuted} premise-refuted{cost_guard_note}
 
 ### Critical ({count})
 [findings with file:line, category, and map anchor where applicable]
@@ -319,7 +481,11 @@ Verification: {verified} verified, {filtered} false positives, {contested} conte
 ### Summary
 Total findings: {count} (Critical: N, High: N, Medium: N, Low: N)
 Coverage gaps: see .team-review/97-coverage-gaps.md ({gap_count} gaps, {followup} follow-up round)
-Findings citing interconnect anchors: {count} ({pct}%)   <- context utilization rate
+Map utilization: {count} findings cite an anchor ({pct}%, operational)
+Independent premise reconstruction: {ipr_count} findings ({ipr_pct}%)
+Premise challenge: {pc_count} of {eligible} eligible premises attacked by Lens 0
+Corroborated findings: {n_corroborated} (independent agreement)
+Echoes: {n_echo} (agreement inherited from a shared premise, not corroboration)
 
 ### Coverage Gaps
 [the ## Coverage Gaps list from 97-coverage-gaps.md]
@@ -337,23 +503,30 @@ If pre-flight finds `status: "in_progress"`:
 
 - `phase_0_resolution` incomplete: restart from zero
 - `phase_0b_detection` incomplete: re-run detection from the existing `00-scope.md`
+- `phase_0c_evidence_discovery` incomplete: re-run it. If `01a-review-knowledge-leads.md` already exists, it is immutable and complete; do not append to it
 - `phase_1_context` incomplete: re-run the X-ray pass, or reuse `xray_run_dir` if it is already populated
+- `phase_1c_premise_audit` incomplete: re-dispatch `review-premise-auditor`. Its blindness contract is unchanged on resume
+- `phase_1d_reconciliation` incomplete: re-run the join from `01a`, `01b` and the X-ray leads on disk
 - `phase_2_review` incomplete: re-dispatch only the dimensions whose findings file is missing
 - `phase_3_consolidation` incomplete: re-consolidate from the findings on disk
 - `phase_4b_verification` incomplete: re-run the panel
 - `phase_4c_critic` incomplete: re-run the critic
 - everything complete: present the report from the files on disk
 
-## `--skip-interconnect` mode
+## Raw mode (`--no-context`)
 
-Reproduces the legacy parallel-only behavior:
-- No Phase 1
-- No `review-logic-integrity-auditor`
+Reviewers receive the target and diff only. No context artifact is produced or distributed.
+
+- Phases skipped: 0c, 1, 1c, 1d
+- Not dispatched: `review-logic-integrity-auditor`, `review-premise-auditor`
 - Reviewers receive target plus diff only, with no context paths and no anchors
+- Every finding is `independent` by construction, so Lens 0 never fires and consolidation never reports an echo
 - `review-abstraction-architect` still runs, with `deep_dive_path: none`
 - Report structure unchanged
 
-Use it for quick scans, for targets under roughly 100 LOC where the context pass costs more than it returns, or when the X-ray skill is not installed.
+Use it for targets under roughly 100 LOC where the context pass costs more than it returns, for quick scans, and when the X-ray skill is not installed or produces no usable output.
+
+`--skip-interconnect` was the old name for this flag and no longer exists. Use `--no-context`. The X-ray pipeline keeps its own `--skip-interconnect`, which is a different flag with a different meaning: there it skips only the interconnect map.
 
 ## Quick Examples
 
@@ -364,4 +537,4 @@ Use it for quick scans, for targets under roughly 100 LOC where the context pass
 - `/team-review main...HEAD --fast`: skip the verification panel and the critic
 - `/team-review main...HEAD --rigorous`: verify every finding above the floor
 - `/team-review src/api --reviewers security,api-contracts`: two dimensions, no detection
-- `/team-review src/utils/dates.ts --skip-interconnect`: quick scan, no context pass
+- `/team-review src/utils/dates.ts --no-context`: quick scan, no context pass

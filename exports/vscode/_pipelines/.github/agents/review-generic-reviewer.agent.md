@@ -36,7 +36,7 @@ The dispatch prompt gives you:
 - `dimension`: one of `testing`, `migrations`, `performance`, or another name the orchestrator assigns
 - `target` and `diff`: the scope under review
 - `output_path`: normally `.team-review/findings-<dimension>.md`
-- `context_paths`: the X-ray run directory and `.team-review/02-interconnect.md`, or "none" under `--skip-interconnect`
+- `context_paths`: the X-ray run directory and `.team-review/02-interconnect.md`, or "none" under `--no-context`
 - `anchors`: which interconnect-map anchors to read first
 
 ## DIMENSION CHECKLISTS
@@ -93,6 +93,8 @@ Write to the `output_path` you were given with `#edit/createFile`.
 - **Why it matters:** [the concrete consequence, with the triggering condition]
 - **Evidence:** [the code path that proves it]
 - **Map anchor:** [the interconnect-map anchor this relates to, or omit]
+- **Load-bearing premise:** [the single proposition whose falsity collapses this finding: minimal, falsifiable, scoped. Not a paraphrase of the finding itself]
+- **premise_provenance:** independent | shared-context | mixed [causal dependence, not citation: shared-context if you absorbed the premise from the X-ray output or the interconnect map, even when your finding cites no anchor]
 - **Suggested fix:** [one or two lines, no patch]
 
 ## Examined

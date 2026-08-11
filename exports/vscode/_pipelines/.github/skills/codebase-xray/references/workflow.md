@@ -83,7 +83,7 @@ When agent hooks are enabled, `$XRAY/hooks/xray_guard.py` denies these at the to
 
 Track the four phases with `#todos` so the user sees progress while workers run.
 
-## Phase 0: Partition Detection
+## Phase 0: Knowledge Discovery and Partition Detection
 
 ### Initialize state
 
@@ -98,6 +98,7 @@ Create `$RUN_DIR/` with `#edit/createDirectory` and `$RUN_DIR/state.json` with `
   "flags": { "critical": false, "comments": false, "docs_only": false, "depth": "full" },
   "partitions": [],
   "phases": {
+    "phase_0_knowledge": "pending",
     "phase_0_detection": "pending",
     "phase_1_partition_workers": "pending",
     "phase_2_synthesis": "pending",
@@ -108,6 +109,53 @@ Create `$RUN_DIR/` with `#edit/createDirectory` and `$RUN_DIR/state.json` with `
   "started_at": "<ISO_TIMESTAMP>",
   "completed_at": null
 }
+```
+
+### Project Knowledge Discovery (X-ray Phase 0)
+
+Runs once for the whole run, inline on the orchestrator, before partition detection. It is **global**: it does not run per partition, and no partition worker owns any of its output. It also runs at every depth, `--depth=lite` included. It is the cheap discovery pass; Phase 6 is the expensive audit, and conflating the two is what made lite mode blind to a project's own documentation.
+
+This phase owns discovery of **how the repository documents itself**. It does not evaluate whether the documentation is accurate, which is Phase 6.
+
+1. Read `AGENTS.md`, `.github/copilot-instructions.md`, `CLAUDE.md` and any equivalent project instruction file at the workspace root and in the target's ancestors. Record any navigation instruction they give, especially a statement of the form "look here first to find where a concept lives".
+2. Locate the canonical indexes the project actually uses. Search with `#search/fileSearch` for, at minimum: `**/SEARCH_INDEX.md`, `**/INDEX.md`, `docs/README.md`, `README.md`, `**/BY_DOMAIN.md`, `**/adr/**`, `**/decisions/**`, `**/architecture/**`, `**/domains/**`, `.codebase-map/INDEX.md`. Record what exists, not what you expected to exist.
+3. For each concept, symbol and subsystem the run will cover across all partitions, search the located documents for an entry with `#search/textSearch`. Record the concept, the document, and the anchor or heading that matched.
+4. Write both output files with `#edit/createFile`. Every row is a lead with status `documented` or `unverified`. Nothing here is `verified`, because this phase reads no code.
+
+**Output file:** `$RUN_DIR/knowledge/navigation.md`
+
+```markdown
+# Project Knowledge Navigation
+
+## Project instructions read
+| File | Navigation rule it states |
+|------|---------------------------|
+
+## Canonical indexes found
+| Index | Path | What it indexes |
+|-------|------|-----------------|
+
+## Conventions observed
+[How this repository organizes its knowledge, in prose. Name the file the project treats as its semantic index, if it has one.]
+
+## Not found
+[Index kinds searched for and absent. An absent index is a fact worth recording.]
+```
+
+**Output file:** `$RUN_DIR/knowledge/documentation-leads.md`
+
+```markdown
+# Documentation Leads
+
+> Leads, not truth. Every row is a pointer to where the project claims a concept lives.
+> Status is `documented` or `unverified`. No row here is `verified`: this phase reads no code.
+
+| Concept / symbol | Document | Anchor | Status |
+|------------------|----------|--------|--------|
+
+## Concepts in scope with no lead
+[Concepts the scope touches for which no document was found. This list is what a
+downstream consumer must discover independently.]
 ```
 
 ### Detection algorithm
@@ -339,6 +387,7 @@ Run: <run-id> (published to .deep-dive/ root)
 Partitions: <N> (<list of names + status>)
 
 Output Files:
+  Knowledge discovery:   .deep-dive/runs/<run-id>/knowledge/navigation.md, documentation-leads.md (Phase 0)
   Per-partition reports: .deep-dive/runs/<run-id>/partitions/*/01..06.md
   Consolidated reports:  .deep-dive/runs/<run-id>/01-structure.md .. 07-final-report.md
   Interconnect map:      .deep-dive/runs/<run-id>/08-interconnect-map.md (if Phase 3 ran)

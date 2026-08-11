@@ -287,6 +287,8 @@ Every finding carries a confidence tier and a recommended action alongside its s
 **[CRITICAL] [Title]**
 - **Location:** `path` or `file:line`
 - **Evidence:** [concrete count, ratio, or command output line]
+- **Load-bearing premise:** [the single proposition whose falsity collapses this finding: minimal, falsifiable, scoped. Not a paraphrase of the finding itself]
+- **premise_provenance:** independent | shared-context | mixed [causal dependence, not citation: shared-context if you absorbed the premise from the X-ray output or the interconnect map, even when your finding cites no anchor]
 - **Impact:** [one sentence]
 - **Confidence:** `CONFIRMED|HIGH|MEDIUM|LOW`
 - **Action:** `DELETE|KEEP|KEEP+IGNORE|DELETE+IGNORE|DELETE+PREVENT-GENERATION|UNIGNORE|REVIEW`

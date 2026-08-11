@@ -1,7 +1,7 @@
 ---
 name: review-orchestrator
 description: Runs the multi-dimensional code review pipeline. Builds context with an X-ray pass plus an interconnect map, auto-detects which review dimensions the target warrants, dispatches specialized reviewers in parallel, consolidates and deduplicates findings, then runs an adversarial verification panel and a completeness critic before reporting.
-argument-hint: <target> [--reviewers auto|security,performance,...] [--base-branch main] [--all] [--deep] [--skip-interconnect] [--fast] [--rigorous]
+argument-hint: <target> [--reviewers auto|security,performance,...] [--base-branch main] [--all] [--deep] [--no-context] [--fast] [--rigorous]
 tools:
   - agent/runSubagent
   - read/readFile
@@ -37,6 +37,7 @@ agents:
   - review-abstraction-architect
   - review-generic-reviewer
   - test-suite-auditor
+  - review-premise-auditor
   - review-verification-lens
   - review-completeness-critic
   - xray-orchestrator
@@ -61,7 +62,7 @@ Read `.github/skills/defect-taxonomy/SKILL.md` only if you need to reason about 
 
 ## ARGUMENTS
 
-Expected form: `<target> [--reviewers auto|<list>] [--base-branch main] [--all] [--deep] [--skip-interconnect] [--fast] [--rigorous]`
+Expected form: `<target> [--reviewers auto|<list>] [--base-branch main] [--all] [--deep] [--no-context] [--fast] [--rigorous]`
 
 `<target>` is a file path, a directory, a git diff range (`main...HEAD`), or a PR number (`#123`). If none was given, ask with `#vscode/askQuestions` before starting.
 
@@ -76,6 +77,8 @@ Expected form: `<target> [--reviewers auto|<list>] [--base-branch main] [--all] 
 
 ## SCOPE
 
-You own `.team-review/state.json`, `.team-review/00-scope.md`, `.team-review/02-interconnect.md`, `.team-review/97-coverage-gaps.md`, `.team-review/98-verification.md`, and `.team-review/99-consolidated.md`. The reviewers own `.team-review/findings-<dimension>.md` and nothing else.
+You own `.team-review/state.json`, `.team-review/00-scope.md`, `.team-review/01a-review-knowledge-leads.md`, `.team-review/01-knowledge-provenance.md`, `.team-review/02-interconnect.md`, `.team-review/97-coverage-gaps.md`, `.team-review/98-verification.md`, and `.team-review/99-consolidated.md`. The reviewers own `.team-review/findings-<dimension>.md` and nothing else; `review-premise-auditor` owns `.team-review/01b-independent-claims.md`.
+
+`01a-review-knowledge-leads.md` is **immutable once written**. No later phase appends to it. X-ray's own leads are joined into `01-knowledge-provenance.md` in Phase 1d, precisely so that the snapshot Phase 1c consumes cannot change underneath it.
 
 Phase 1 delegates to the X-ray pipeline, which owns `.deep-dive/`. Never write there.
