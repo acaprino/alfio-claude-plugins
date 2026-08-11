@@ -129,24 +129,27 @@ Review delta sources, in precedence order: `--changed-files` (one path per line,
 - Verifies all required top-level keys are present: `schema_version`, `generated_from_commit`, `generated_from_tree`, `generated_at`, `scope`, `concepts`.
 - Verifies per-concept structural validity: a non-empty `concept` name, a non-empty `representations` list, and a `file` field on every representation.
 
-On success, `validate` returns exit code 0 and outputs:
+On success, `validate` returns exit code 0 and prints a plain-text line:
 
-```json
-{
-  "status": "valid",
-  "schema_version": 1,
-  "concept_count": 42
-}
+```
+ok    concept index: 42 concept(s), schema 1, baseline a13fe2f
 ```
 
-On failure, returns exit code 1 and outputs:
+On failure, returns exit code 1 and prints:
 
-```json
-{
-  "status": "invalid",
-  "error": "missing required key: concepts"
-}
 ```
+FAIL  concept index:
+         Refund eligibility: missing 'concept' name
+         Refund eligibility: a representation has no 'file'
+```
+
+or, for a schema-level failure such as a missing required key:
+
+```
+FAIL  index is missing required keys: generated_from_commit, concepts
+```
+
+Plain text rather than JSON is deliberate: `validate` has no machine consumer (the agent invokes `status`, and CI runs the unittest suite, not `validate`), and plain text matches the shape this repository's other checkers already use, for example `scripts/check_version_bumps.py` and `scripts/lint_dependency_graph.py`, both of which print `ok    ...` or `FAIL  ...` lines. Do not "fix" this back to JSON; there is no reader for it.
 
 The key difference from `status`: `validate` returns non-zero only when the index is structurally invalid. `status` always returns zero, even when it reports `unusable`, because for `status` an unusable index is a normal outcome the agent degrades around rather than an error.
 
