@@ -93,6 +93,15 @@ Create `$RUN_DIR/` and `$RUN_DIR/state.json`:
 }
 ```
 
+### Project Knowledge Discovery (X-ray Phase 0)
+
+Runs once for the whole run, inline in the orchestrating context, before partition detection. This is the same Phase 0 as `/codebase-xray:analyze`, and it is global: it does not run per partition, and no partition worker owns any of its output. Read `CLAUDE.md`, `AGENTS.md`, and any equivalent project instruction file at the repository root and in the target's ancestors. Locate the canonical indexes the project actually uses, at minimum `**/SEARCH_INDEX.md`, `**/INDEX.md`, `docs/README.md`, `README.md`, `**/BY_DOMAIN.md`, `**/adr/**`, `**/decisions/**`, `**/architecture/**`, `**/domains/**`, `.codebase-map/INDEX.md`. For each concept, symbol and subsystem the run will cover across all partitions, search the located documents for an entry and record the concept, the document, and the anchor or heading that matched. Every row is a lead with status `documented` or `unverified`; nothing here is `verified`, because this phase reads no code.
+
+**Output file:** `$RUN_DIR/knowledge/navigation.md`
+**Output file:** `$RUN_DIR/knowledge/documentation-leads.md`
+
+See `## Phase 0: Project Knowledge Discovery` in `/codebase-xray:analyze` for the full output templates.
+
 ### Run partition detection algorithm
 
 If `--partition` was provided one or more times, skip auto-detect: use the manual list directly. Apply `--partition-name` mappings if provided; otherwise derive names from path basename.
@@ -325,6 +334,7 @@ Run: <run-id> (published to .deep-dive/ root)
 Partitions: <N> (<list of names + status>)
 
 Output Files:
+  Knowledge discovery:      .deep-dive/runs/<run-id>/knowledge/navigation.md, documentation-leads.md (Phase 0)
   Per-partition reports:    .deep-dive/runs/<run-id>/partitions/*/01..06.md
   Consolidated reports:     .deep-dive/runs/<run-id>/01-structure.md .. 07-final-report.md
   Interconnect map:         .deep-dive/runs/<run-id>/08-interconnect-map.md (if Phase 3 ran)

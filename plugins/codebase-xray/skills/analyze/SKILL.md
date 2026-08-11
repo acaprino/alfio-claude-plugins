@@ -92,6 +92,7 @@ Multiple analyses can run at the same time (different targets, different session
 ├── runs/
 │   └── <run-id>/                      # one directory per analysis run
 │       ├── state.json                 # per-run phase tracking
+│       ├── knowledge/                   # Phase 0: navigation.md, documentation-leads.md
 │       ├── 01-structure.md .. 07-final-report.md
 │       ├── partitions/<name>/...      # team mode only
 │       └── 08-interconnect-map.md     # team mode only
@@ -124,6 +125,14 @@ Rules:
 7. **TREAT** all pre-existing docs as unverified claims requiring validation
 8. **MARK** any unverifiable statement as `[UNVERIFIED - REQUIRES CODE CHECK]`
 9. **USE** qualified symbol names in markers (`file.py::Class.method`), never line numbers -- line numbers break on any edit
+
+### Documents play two roles, and only one of them is constrained above
+
+As **evidence**, a document is an unverified claim requiring validation. Rules 2 and 7 govern that role and are not negotiable: a document never establishes a technical fact.
+
+As a **discovery lead**, a document is a first-class input that must be collected early. A project's own index telling you that a concept named X exists and lives in module Y is not a claim about behaviour; it is a pointer telling you where to look and what to look for. Refusing to read it does not make the analysis more rigorous, it makes it blind to intent and to code paths the structure alone does not reveal.
+
+Phase 0 collects leads. Phase 6 audits documents as evidence. Never let the second role suppress the first.
 
 See `references/analysis-templates.md` for the full verification trust model, temporal purity principle, and documentation status markers.
 

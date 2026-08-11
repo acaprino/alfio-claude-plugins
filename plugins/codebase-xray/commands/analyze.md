@@ -91,6 +91,7 @@ Files to analyze: [count] ([language breakdown])
 Flags: [active flags]
 
 Analysis phases:
+0. Project Knowledge Discovery (always runs)
 1. Structure Extraction -- file inventory, dependency graph
 2. Interface Analysis -- public APIs, contracts, exports
 3. Flow Tracing -- data flow, control flow, critical paths
@@ -112,6 +113,8 @@ After scope confirmation, execute in two waves. All agents write output files di
 
 ### Full depth (default)
 
+**Phase 0 (inline, before any agent spawns):** Project Knowledge Discovery. Writes `$RUN_DIR/knowledge/navigation.md` and `$RUN_DIR/knowledge/documentation-leads.md`.
+
 **Wave 1 -- Structure (sequential, must complete first):**
 
 - **Agent A (Structure):** Executes Phase 1 + Phase 2. Writes `$RUN_DIR/01-structure.md` and `$RUN_DIR/02-interfaces.md`.
@@ -132,13 +135,66 @@ Lightweight mode for smaller projects, MVPs, or quick assessments. Spawn 2 agent
 - **Agent A (Structure):** Executes Phase 1 + Phase 2. Writes `$RUN_DIR/01-structure.md` and `$RUN_DIR/02-interfaces.md`.
 - **Agent B (Risks):** Executes Phase 5 only. Writes `$RUN_DIR/05-risks.md`.
 
-Skip Phase 3 (Flow Tracing), Phase 4 (Semantic Understanding), and Phase 6 (Documentation Health). In Phase 5, skip detailed state machine diagrams and Mermaid flowcharts for non-critical files, focusing on anti-patterns, red flags, and tech debt items.
+Skip Phase 3 (Flow Tracing), Phase 4 (Semantic Understanding), and Phase 6 (Documentation Health). **Phase 0 (Project Knowledge Discovery) is not skippable and runs in lite exactly as in full**: it is the cheap discovery pass, while Phase 6 is the expensive audit. Conflating the two is what made lite mode blind to a project's own documentation. In Phase 5, skip detailed state machine diagrams and Mermaid flowcharts for non-critical files, focusing on anti-patterns, red flags, and tech debt items.
 
 Wait for both agents to complete, then generate a condensed `$RUN_DIR/07-final-report.md` covering structure, interfaces, and risks only. The report omits the "Critical Paths", "Design Insights", "Key Process Diagrams", and "Documentation vs Reality" sections.
 
 ### Overrides
 
 If `--phase N` or `--docs-only` flags are set, skip parallel execution and run only the requested phase(s) sequentially.
+
+---
+
+## Phase 0: Project Knowledge Discovery
+
+Runs in **every depth, including `--depth=lite`**, and runs first. It executes inline in the orchestrating context, not as a spawned agent: reading project instructions and globbing for index files is cheap, and Phase 7 already sets the precedent for inline work.
+
+Phases 1 through 7 keep their numbers. `--phase N` is a user-facing flag and renumbering would break every invocation that names a phase.
+
+**Phase 0 is a preamble, not a selectable analysis phase.** It runs before every invocation, `--phase 5` and `--docs-only` included, and it does not change the numbering semantics of phases 1 to 7. `--phase 5` still means "run phase 5 and nothing else from the analysis set", with the preamble in front of it. `--phase 0` runs the preamble alone, which is a legitimate way to ask only "how does this repository document itself".
+
+This phase owns discovery of **how the repository documents itself**. It does not evaluate whether the documentation is accurate, which is Phase 6.
+
+1. Read `CLAUDE.md`, `AGENTS.md` and any equivalent project instruction file at the repository root and in the target's ancestors. Record any navigation instruction they give, especially a statement of the form "look here first to find where a concept lives".
+2. Locate the canonical indexes the project actually uses. Glob for, at minimum: `**/SEARCH_INDEX.md`, `**/INDEX.md`, `docs/README.md`, `README.md`, `**/BY_DOMAIN.md`, `**/adr/**`, `**/decisions/**`, `**/architecture/**`, `**/domains/**`, `.codebase-map/INDEX.md`. Record what exists, not what you expected to exist.
+3. For each concept, symbol and subsystem in the analysis scope, search the located documents for an entry. Record the concept, the document, and the anchor or heading that matched.
+4. Write both output files. Every row is a lead with status `documented` or `unverified`. Nothing here is `verified`, because this phase reads no code.
+
+**Output file:** `$RUN_DIR/knowledge/navigation.md`
+
+```markdown
+# Project Knowledge Navigation
+
+## Project instructions read
+| File | Navigation rule it states |
+|------|---------------------------|
+
+## Canonical indexes found
+| Index | Path | What it indexes |
+|-------|------|-----------------|
+
+## Conventions observed
+[How this repository organizes its knowledge, in prose. Name the file the project treats as its semantic index, if it has one.]
+
+## Not found
+[Index kinds searched for and absent. An absent index is a fact worth recording.]
+```
+
+**Output file:** `$RUN_DIR/knowledge/documentation-leads.md`
+
+```markdown
+# Documentation Leads
+
+> Leads, not truth. Every row is a pointer to where the project claims a concept lives.
+> Status is `documented` or `unverified`. No row here is `verified`: this phase reads no code.
+
+| Concept / symbol | Document | Anchor | Status |
+|------------------|----------|--------|--------|
+
+## Concepts in scope with no lead
+[Concepts the scope touches for which no document was found. This list is what a
+downstream consumer must discover independently.]
+```
 
 ---
 
