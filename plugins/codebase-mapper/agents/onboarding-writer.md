@@ -1,9 +1,9 @@
 ---
 name: onboarding-writer
 description: >
-  Phase 2 writer for codebase-mapper. Produces 07-getting-started.md and 08-open-questions.md from the context brief. Documents developer onboarding steps and flags knowledge gaps. Spawned in parallel with other writer agents.
-  TRIGGER WHEN: spawned by the /codebase-mapper:map-codebase command during Phase 2 to produce 07-getting-started.md and 08-open-questions.md.
-  DO NOT TRIGGER WHEN: invoked outside the map-codebase pipeline - this agent expects a context brief in .codebase-map/_internal/.
+  Writes 07-getting-started.md (developer onboarding steps) and 08-open-questions.md (knowledge gaps) for the /codebase-mapper:map-codebase pipeline, from the context brief.
+  TRIGGER WHEN: spawned by that pipeline in Phase 2.
+  DO NOT TRIGGER WHEN: invoked outside it (there is no context brief in .codebase-map/_internal/ to read).
 model: inherit
 tools: Read, Write, Glob, Grep
 color: cyan

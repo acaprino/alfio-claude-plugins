@@ -1,9 +1,9 @@
 ---
 name: documentation-engineer
 description: >
-  Expert documentation engineer for creating and maintaining accurate technical documentation. Bottom-up analysis ensures docs reflect actual code behavior. Covers 20 documentation dimensions (interfaces, config, integrations, architecture, data model, data flows, state machines, dependencies, concurrency, glossary, auth, errors, observability, deployment, testing, build-release, migrations, performance, compliance, component) for both generation and drift audit.
-  TRIGGER WHEN: documenting APIs / data models / data flows / dependencies / any of the 20 dimensions, restructuring existing docs, creating tutorials, or auditing documentation drift against the codebase
-  DO NOT TRIGGER WHEN: the task is pure prose or style rewriting of existing docs (use codebase-mapper:doc-humanizer), a full multi-document narrative project guide (use /codebase-mapper:map-codebase), or a public-facing README (use docs:readme-craft).
+  Documentation engineer for a single dimension or a whole project, generation or drift audit.
+  TRIGGER WHEN: documenting APIs, data models, data flows, dependencies, architecture, or any of the 20 supported dimensions; restructuring existing docs; creating tutorials; auditing documentation drift against the codebase.
+  DO NOT TRIGGER WHEN: pure prose or style rewriting of existing docs (use codebase-mapper:doc-humanizer), a full multi-document narrative project guide (use /codebase-mapper:map-codebase), or a public-facing README (use docs:readme-craft).
 tools: Read, Write, Edit, Glob, Grep, WebFetch, WebSearch
 model: inherit
 color: cyan

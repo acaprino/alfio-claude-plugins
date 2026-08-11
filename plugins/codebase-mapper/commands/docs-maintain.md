@@ -1,7 +1,7 @@
 ---
 description: >
-  Audit and improve existing project documentation with ground truth verification and guided improvements. Detects drift across 20 documentation dimensions (interfaces, config, integrations, architecture, data model and schema, data flows, state machines, internal and external dependencies, concurrency, glossary, auth/security, error handling, observability, deployment, testing, build-release, migrations, performance, compliance) and produces a refactoring plan with surgical Edits.
-  TRIGGER WHEN: the user asks to audit, update, or verify existing technical docs against the current codebase, or to detect documentation drift on any dimension (endpoints removed but still documented, env vars renamed, schema fields added/dropped, dependencies upgraded, alerts removed, etc.).
+  Checks shipped documentation against the code and plans the fixes.
+  TRIGGER WHEN: the user asks to audit, update, or verify existing technical docs against the current codebase, or to detect documentation drift on any of the 20 dimensions (endpoints removed but still documented, env vars renamed, schema fields added/dropped, dependencies upgraded, alerts removed, etc.).
   DO NOT TRIGGER WHEN: creating new docs from scratch (use /codebase-mapper:docs-create) or humanizing prose style (use /codebase-mapper:humanize-docs).
 ---
 

@@ -1,6 +1,6 @@
 ---
 description: >
-  Create accurate technical documentation by analyzing the codebase first. Covers public interfaces (APIs, CLI, library exports, emitted events), configuration, integrations, architecture, data model and schema, data flows, state machines, dependencies (internal + external), concurrency, domain glossary, auth/security, error handling, observability, deployment, testing strategy, performance, compliance, or full project documentation. One artifact per invocation; multiple flags combine into a single document with sections.
+  Documents a project from its source, on one dimension or many.
   TRIGGER WHEN: the user asks to create technical documentation, API docs, architecture guides, data model / schema docs, data flow / pipeline docs, dependency maps, or any new documentation for a codebase.
   DO NOT TRIGGER WHEN: the user wants to audit existing docs (use /codebase-mapper:docs-maintain) or just a README (use /docs:maintain-readme) or a full multi-document project guide (use /codebase-mapper:map-codebase).
 argument-hint: "<target path or description> [--interfaces] [--config] [--integrations] [--architecture] [--data-model] [--data-flows] [--state-machines] [--dependencies] [--concurrency] [--glossary] [--auth] [--errors] [--observability] [--deployment] [--testing] [--build-release] [--migrations] [--performance] [--compliance] [--component] [--full] [--scope <dim1,dim2,...>] [--format markdown|html] [--output <path>] [--audience technical|general|mixed]"

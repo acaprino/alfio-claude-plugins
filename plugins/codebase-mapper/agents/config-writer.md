@@ -1,9 +1,9 @@
 ---
 name: config-writer
 description: >
-  Phase 2 writer for codebase-mapper. Produces 10-configuration-guide.md from the context brief. Documents how to configure and use the project in practice - environment setup, configuration scenarios, common operations, and troubleshooting. Spawned in parallel with other writer agents.
-  TRIGGER WHEN: spawned by the /codebase-mapper:map-codebase command during Phase 2 to produce 10-configuration-guide.md.
-  DO NOT TRIGGER WHEN: invoked outside the map-codebase pipeline - this agent expects a context brief in .codebase-map/_internal/.
+  Writes 10-configuration-guide.md (environment setup, configuration scenarios, common operations, troubleshooting) for the /codebase-mapper:map-codebase pipeline, from the context brief.
+  TRIGGER WHEN: spawned by that pipeline in Phase 2.
+  DO NOT TRIGGER WHEN: invoked outside it (there is no context brief in .codebase-map/_internal/ to read).
 model: inherit
 tools: Read, Write, Glob, Grep
 color: cyan

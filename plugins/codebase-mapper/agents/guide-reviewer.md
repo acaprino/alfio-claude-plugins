@@ -1,9 +1,9 @@
 ---
 name: guide-reviewer
 description: >
-  Phase 3 of codebase-mapper. Reviews all 10 generated documents for consistency, adds cross-references, uniformizes tone, and produces INDEX.md. Flags gaps and contradictions. Spawned by the map-codebase command after all writer agents complete.
-  TRIGGER WHEN: spawned by the /codebase-mapper:map-codebase command in Phase 3 after all writer agents produce their documents.
-  DO NOT TRIGGER WHEN: invoked outside the map-codebase pipeline - this agent expects the 10 writer outputs in .codebase-map/.
+  Reviews the 10 generated documents for consistency, adds cross-references, uniformizes tone, flags gaps and contradictions, and produces INDEX.md.
+  TRIGGER WHEN: spawned by the /codebase-mapper:map-codebase pipeline in Phase 3, after all writer agents complete.
+  DO NOT TRIGGER WHEN: invoked outside it (the 10 writer outputs are not in .codebase-map/).
 model: inherit
 tools: Read, Write, Edit, Glob, Grep
 color: cyan
@@ -62,7 +62,7 @@ Read all files in `.codebase-map/`:
 
 Skip this step if `.codebase-map/_internal/interconnect.md` is absent.
 
-- Optionally load the `senior-review:defect-taxonomy` skill and read `references/logic-integrity.md` for detection patterns (L2 invariant violations, L4 domain rule violations)
+- Load the `senior-review:defect-taxonomy` skill and read `references/logic-integrity.md` for detection patterns (L2 invariant violations, L4 domain rule violations). `senior-review` is a hard dependency of this plugin, so the skill is always available.
 - For each row in interconnect's `## Invariants`: verify that the document describing the affected entity/module does not contradict it. If 06-data-model.md says "status can be anything", but interconnect says "status must be one of {draft, published, archived}", that is drift.
 - For each row in interconnect's `## Domain Rules`: verify that 02-features.md and 05-workflows.md reflect the rule. If the rule is enforced in code but unstated in docs, add it to the relevant doc.
 - For each row in interconnect's `## Assumptions` with status `unverified`: if the assumption is not already surfaced in 08-open-questions.md, add it there (it is genuine uncertainty the team should know about).

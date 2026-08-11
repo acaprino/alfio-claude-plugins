@@ -1,7 +1,7 @@
 ---
 name: codebase-mapper
 description: >
-  Knowledge base for the codebase-mapper plugin. Provides writing guidelines, tone rules, and diagram conventions for generating human-readable project guides. Referenced by all codebase-mapper agents during document generation.
+  Writing guidelines, tone rules, and diagram conventions for this plugin's project guides.
   TRIGGER WHEN: referenced by codebase-mapper pipeline agents (codebase-explorer, overview-writer, tech-writer, flow-writer, onboarding-writer, ops-writer, config-writer, guide-reviewer) during document generation.
   DO NOT TRIGGER WHEN: outside the /map-codebase pipeline (general documentation work should use docs:readme-craft or codebase-mapper:docs-create).
 ---
