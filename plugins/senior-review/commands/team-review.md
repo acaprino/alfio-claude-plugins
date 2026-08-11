@@ -69,6 +69,9 @@ Before starting, invoke these skills to inform the review process:
      "phases": {
        "phase_0_resolution": "pending",
        "phase_0b_detection": "pending",
+       "phase_0c_evidence_discovery": "pending",
+       "phase_1c_premise_audit": "pending",
+       "phase_1d_reconciliation": "pending",
        "phase_1a_deep_dive": "pending",
        "phase_1b_interconnect": "pending",
        "phase_2_review": "pending",
@@ -198,9 +201,52 @@ Show the last two lines only when a dimension matched but its plugin is missing.
 
 Mark `phase_0b_detection` complete in `state.json`.
 
+## Phase 0c: Review Evidence Discovery
+
+Runs inline in the orchestrating context, on every invocation **except** raw mode (`--skip-interconnect` at the time this task runs, renamed to `--no-context` in Task 5b). That flag means "give me the raw mode", and a normally-on phase does not override it: `01a-review-knowledge-leads.md` distributed to N reviewers is itself shared context, so keeping this phase alive under the flag would make findings legitimately `shared-context`, let Lens 0 fire, and stop the mode reproducing the pre-pipeline behaviour it exists to provide.
+
+This phase owns discovery of **what evidence is relevant to this review**. X-ray owns discovery of how the repository documents itself. The two are different jobs and the division is deliberate.
+
+**This phase MUST NOT read `.deep-dive/` in any form**, including the mirror and the output of previous runs. A previous X-ray run is still an X-ray derivation, and admitting one would contaminate the single artifact that has to be demonstrably independent of X-ray. X-ray's leads enter at the Phase 1d join and nowhere earlier.
+
+1. Read `CLAUDE.md`, `AGENTS.md` and equivalent project instruction files, and follow any navigation rule they state. If the project says a specific file is where to look first to find where a concept lives, open that file before opening any code. Discover the conventions from the repository itself, never from a prior X-ray run.
+2. Extract the concepts, domains and symbols the diff touches. Names of changed functions, classes, modules and config keys are the starting set; add the domain nouns that appear in the diff's own strings and comments.
+3. For each concept, search the project's indexes and documentation for a relevant entry, and search the tests for behaviour that encodes it.
+4. Write `.team-review/01a-review-knowledge-leads.md`.
+
+**This file is immutable once written.** No later phase appends to it. X-ray's own leads are joined into a separate derived artifact in Phase 1d, precisely so that the snapshot Phase 1c consumes cannot change underneath it.
+
+**The duty of autonomous rediscovery.** X-ray's documentation leads are an input, never a completeness guarantee. When no lead exists for a concept the diff touches, search the available indexes yourself and record what you find under `Independently discovered by Senior Review`. Without this duty, the completeness of X-ray's discovery becomes the next shared premise, which is the failure this pipeline exists to prevent.
+
+**Output:** `.team-review/01a-review-knowledge-leads.md`
+
+```markdown
+# Review Knowledge Leads
+
+> Leads, not truth. Immutable once written.
+> Discovered by senior-review independently of any X-ray output.
+
+## Navigation rules followed
+| Source | Rule |
+|--------|------|
+
+## Concepts touched by this diff
+| Concept | Where it appears in the diff |
+|---------|------------------------------|
+
+## Leads
+| Concept | Document / test | Anchor | Status |
+|---------|-----------------|--------|--------|
+
+## Concepts with no lead found
+[One line each. This list is the honest statement of what nobody documented.]
+```
+
+Mark `phase_0c_evidence_discovery` complete in `state.json`.
+
 ## Phase 1: Context Building
 
-Skip this phase entirely if `--skip-interconnect` was passed. Mark `phase_1a_deep_dive` and `phase_1b_interconnect` as `skipped` in `state.json`. Jump to Phase 2 with raw target files only.
+Skip this phase entirely if `--skip-interconnect` was passed. Mark `phase_1a_deep_dive`, `phase_1b_interconnect`, and `phase_0c_evidence_discovery` as `skipped` in `state.json`. Jump to Phase 2 with raw target files only.
 
 ### Phase 1a: Deep-Dive Analysis
 
