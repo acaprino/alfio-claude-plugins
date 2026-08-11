@@ -367,3 +367,55 @@ reason rather than silently present. Case 7 is the one open item: it needs an
 actual `/peer-review:review --dry-run` run, with the MCP server connected and
 a real challenger profile configured, to close out as a full pass rather than
 a supported-but-unproven claim.
+
+## Acceptance run: status 2026-08-11
+
+The plugin shipped and its CI is green, but the end-to-end acceptance defined
+in the implementation plan is **not complete**, and nothing below should be
+read as if it were. What was executed, and what was not:
+
+**Executed and passing, verified directly against the shipped server:**
+
+- MCP handshake. `uv run --script plugins/peer-review/mcp/server.py` over
+  stdio: `initialize` returns `serverInfo.name = peer-review`, and
+  `tools/list` returns exactly `peer_ask` and `peer_profiles`.
+- The Phase 0 availability gate. With a profile whose `api_key_env` names an
+  unset variable, `peer_profiles()` reports `available: false` and names the
+  variable, `peer_ask` returns `api key environment variable 'OPENAI_API_KEY'
+  is not set; refusing to send` without issuing a request, and no key value
+  appears anywhere in either payload.
+- Everything in the Results table above, on shipped content.
+
+**Not executed, and why:**
+
+- The `--dry-run` packet build, the real end-to-end deliberation, and the
+  portability smoke test all require two things this environment lacks: a
+  challenger API key, and an editing session started after the plugin was
+  registered, so that its MCP server is actually connected. The plugin was
+  registered mid-session, so `/peer-review:review` was not invokable in the
+  session that built it.
+
+**To finish the acceptance**, in a session started after installing or
+updating the plugin, with a key exported:
+
+1. Copy `plugins/peer-review/mcp/profiles.example.json` to
+   `~/.peer-review/profiles.json` and export the key its `api_key_env` names.
+2. Confirm the transport is live: `claude mcp list` should show the
+   `peer-review` server connected.
+3. Dry run first, against a profile whose `base_url` points at an unreachable
+   host, to prove no call precedes consent:
+   `/peer-review:review docs/superpowers/plans/2026-08-11-cross-model-peer-review.md --dry-run`
+   Expected: a complete `00-packet.md` with all nine sections and the digest
+   recorded, and zero network calls. This closes Case 7.
+4. Real run, same artifact, real challenger, default rounds. Success is not
+   that the challenger found something. It is that at least one finding
+   reaches a terminal state through cited evidence on both sides, and that
+   `04-verdict.md` presents either a real standoff or a documented genuine
+   convergence.
+5. Portability smoke test, one call: send `protocol/PROTOCOL.md` plus the
+   Round 1 prompt as the system message and the packet as the user message,
+   with no harness context at all, and confirm the reply executes the
+   challenger role from the protocol text alone. If it cannot, the protocol
+   layer is not portable and the protocol text is what to fix, not the prompt.
+
+Append the outcome here when it runs.
