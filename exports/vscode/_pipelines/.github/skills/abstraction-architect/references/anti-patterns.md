@@ -6,6 +6,12 @@ For each pattern: structural signature, why it is wrong, how to escape (inline, 
 
 The escape move is almost always *temporarily worse-looking*: you will have more total lines after re-inlining, but the call sites become honest about what they do, which lets the real pattern reveal itself later.
 
+> Patterns are discovery aids and classification examples, never an exhaustive catalog or a prerequisite for a finding.
+
+These twelve serve **D7 abstraction fitness**, whose proof is friction inside one abstraction and not a count of copies. An abstraction that is fighting its callers in a way none of these describes is still a D7 finding, reported with `Pattern: uncatalogued`.
+
+Anti-patterns keep their `A1.` to `A12.` ids inside this file. Elsewhere they are cited as `anti-pattern A1` to avoid colliding with the form gates `A1` to `A5` in `references/evidence-tracks.md`.
+
 ---
 
 ## A1. God service / utils dumping ground

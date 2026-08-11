@@ -1,8 +1,9 @@
-# Marketplace consistency checks. All content in this repo is static markdown,
-# so there is no build or test job: these are the mechanical versions of the
-# contracts documented in CLAUDE.md. Every script is stdlib-only Python and
-# runs from the repository root, so failures reproduce locally with the same
-# commands.
+# Marketplace consistency checks. Content in this repo is static markdown with
+# a small number of stdlib-only helper scripts, so there is no build job: these
+# are the mechanical versions of the contracts documented in CLAUDE.md, plus
+# unit tests for the helper scripts that have branching logic. Every script is
+# stdlib-only Python and runs from the repository root, so failures reproduce
+# locally with the same commands.
 name: consistency
 
 on:
@@ -25,6 +26,9 @@ jobs:
 
       - name: Bundled path lint
         run: python scripts/lint_bundled_paths.py
+
+      - name: Concept index script tests
+        run: python -m unittest discover -s tests -v
 
       - name: Plugin registration lint
         run: python scripts/lint_plugin_registration.py

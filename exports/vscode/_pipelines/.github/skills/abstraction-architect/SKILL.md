@@ -1,8 +1,8 @@
 ---
 name: abstraction-architect
 description: >
-  Knowledge base for pure-architecture decisions on when to unify duplicated logic into a shared abstraction versus leave it duplicated. Covers the canonical theory (Rule of Three, DRY/WET/AHA, Wrong Abstraction, Locality of Behaviour, Bounded Contexts, Tidy First options framing, CUPID vs SOLID), 12 essential-duplication patterns that justify unification, 12 wrong-abstraction patterns that justify inlining or decomposition, an operational decision frame, and a verified reading list.
-  Loaded by review-abstraction-architect when it runs as the Abstraction dimension of /team-review, and available whenever the user is deciding whether to centralize, extract, or remove a layer, reviewing an abstraction for premature generality, auditing scattered cross-cutting concerns, or asking "should I extract this into a service", "is this DRY enough", "is this a wrong abstraction".
+  Knowledge base for structural entropy: where the same concept is represented, owned, computed or implemented more than once, and what it costs when that concept changes. Covers seven finding dimensions over two evidence tracks (form, judged by recurrence; knowledge, judged by semantic identity and ownership), four lenses applied to every candidate, the concept census method, the concept index protocol, eighteen unification patterns, twelve wrong-abstraction patterns, the canonical theory (Rule of Three, DRY/WET/AHA, Wrong Abstraction, Locality of Behaviour, Bounded Contexts, Tidy First, CUPID), and the written scope boundaries against neighbouring reviewers.
+  Use when deciding whether to centralize, extract or remove a layer; asking who canonically owns a fact, a policy or a piece of state; auditing a codebase for duplicated knowledge, competing sources of truth, redundant models or derivable state that is stored anyway; reviewing an abstraction for premature generality; spawned by `review-abstraction-architect` as the Abstraction dimension of `/team-review`; the user asks "should I extract this", "who owns this rule", "is this DRY enough", "is this the wrong abstraction". Not for code formatting and readability cleanup (use `clean-code` in the `clean-code` bundle), Python-specific refactoring with metrics (use `python-refactor` in the `python-development` bundle), dead-code removal (see `review-cleanup-auditor`), security review (use `review-security-auditor`), dependency cycles or module cohesion (use `review-code-auditor` and `review-chicken-egg-detector`), API surface size or contract drift (use `review-api-contract-auditor`), or single-file pattern-consistency review with no cross-file question (use `review-code-auditor`).
 user-invocable: false
 license: MIT
 metadata:
@@ -13,47 +13,62 @@ metadata:
 
 # Abstraction Architect Knowledge Base
 
-This skill gives the agent the conceptual frame for the *pure-architecture* question: when does duplicated logic want to be unified into a layer, and when does an existing layer want to be inlined or decomposed?
+The question this knowledge base answers:
 
-Two opposite failure modes coexist in real codebases. Both have well-documented theory:
+> Where is the same concept represented, owned, computed or implemented more than once, and what does it cost when that concept changes?
 
-- **Missed unification.** A cross-cutting concern is duplicated across many call sites. Each site is local-looking but they form a single concern that wants to change together. Drift between sites becomes the source of bugs, security holes, or fiscal errors.
-- **Wrong abstraction.** An existing shared layer is fighting its callers. Every new feature adds a flag, branch, or parameter to it. The layer should be inlined back to duplication so the real pattern can emerge later.
+Structural entropy accumulates in ways that look locally reasonable. A support team implements an eligibility check because the domain one was hard to reach. A config value is added next to the code that reads it. A DTO is copied because the original had a field the new caller did not want. Each decision is defensible; the sum is a codebase where a single conceptual change touches nine files and misses two.
 
-The skill exists because both failures look superficially like "the right thing": missed unification is hidden under "we already have similar code elsewhere", and wrong abstraction is defended by "but we DRY'd this last quarter".
+## The two evidence tracks
+
+Everything here rests on one distinction, developed in `references/theory.md` section 9 and operationalized in `references/evidence-tracks.md`.
+
+**The track determines the nature of the evidence. The dimension determines the gate.**
+
+- **Form** is the same mechanism written more than once. The risk is premature extraction, the instrument is the count, and the Rule of Three is the gate for D5.
+- **Knowledge** is the same fact holding more than one authoritative representation. The risk is drift between owners, the count is the wrong instrument, and two representations are sufficient behind a much stricter semantic proof.
+
+The discriminating question for the knowledge track: **can these representations legitimately disagree?** If yes, there is no finding, whatever the surface similarity. If no, two is enough.
 
 ## When to use this skill
 
-Load this skill when:
+Load it when:
 
-- Deciding whether to extract three similar functions into a shared layer
+- Deciding whether to extract, centralize or inline
+- Asking who canonically owns a fact, a policy, a threshold or a piece of state
+- Auditing for duplicated knowledge, competing authorities, redundant models, or stored state that is derivable
 - Evaluating whether an existing abstraction is paying for itself
-- Auditing a codebase for missed unification or wrong abstraction (`/team-review` spawns `review-abstraction-architect`, which loads this skill)
-- Onboarding teammates to the canonical literature on the abstraction-vs-duplication question
+- Directly invoking `review-abstraction-architect` for a global audit, or automatically as the Abstraction dimension of `/team-review`
 
-Do not load this skill for:
-
-- Style and readability fixes
-- Language-specific complexity reduction driven by metrics
-- Dead-code removal (that is `review-cleanup-auditor` territory)
-- Security and authorization review (use `review-security-auditor`)
-- Generic code review (use `review-code-auditor`)
+Do not load it for the concerns listed in `references/scope-boundaries.md`, which names the owner of each.
 
 ## Reference index
 
-Load references on demand, not all up front. Each file is focused on one dimension of the problem.
+Load on demand, not all up front.
 
-- **`references/theory.md`** — the principles: Rule of Three, DRY/WET/AHA, Wrong Abstraction, Locality of Behaviour, Bounded Contexts, Tidy First options framing, CUPID vs SOLID. Read this first when the user asks "why does this matter".
-- **`references/unification-patterns.md`** — 12 canonical *essential duplication* cases. Read when scanning a codebase for missed unification or when the user asks "should this be a service".
-- **`references/anti-patterns.md`** — 12 canonical *wrong abstraction* cases. Read when reviewing an existing shared layer or when the user asks "is this a god service".
-- **`references/decision-frame.md`** — the operational classifier with pre-flight questions and severity calibration. Read when promoting a candidate to a finding or deciding whether the gate has been cleared.
-- **`references/further-reading.md`** — verified URL list (Metz, Beck, Dodds, Abramov, Gross, North, Acton, Italian-language DDD canon). Read when the user asks for resources or when citing a position in a report.
+| File | Read it when |
+|---|---|
+| `references/dimensions.md` | Classifying a candidate. D1 to D7 with proof rules, lenses L1 to L4, the single-primary-classification precedence. **Start here.** |
+| `references/evidence-tracks.md` | Deciding whether a candidate has enough evidence. Tracks A and B, gates `A1` to `A5` and `K1` to `K6`. |
+| `references/concept-census.md` | Running a global audit. Seed map, concept extraction, the four search families, the Concept Evidence Index. |
+| `references/concept-index-protocol.md` | Reading or writing `.abstraction-architect/concept-index.json`. Schema, freshness states, the script contract. |
+| `references/decision-frame.md` | Promoting a candidate, calibrating severity, framing the remediation. |
+| `references/unification-patterns.md` | Matching a form candidate. P1 to P12 infrastructural, P13 to P18 domain-facing. Not an admission gate. |
+| `references/anti-patterns.md` | Judging D7. Twelve wrong-abstraction shapes, cited as `anti-pattern A1` to `A12`. Not an admission gate. |
+| `references/scope-boundaries.md` | Deciding whether a concern belongs here at all. The five exclusions and their owners. |
+| `references/theory.md` | Arguing a position, or when the user asks why this matters. Nine principles plus the single rule of thumb. |
+| `references/further-reading.md` | Citing a source. Verified URLs. |
 
 ## The single rule of thumb
 
-When the concern changes, where do you have to touch?
+When this concern changes, where do you have to touch?
 
 - If N grows linearly with features, the concern is a unification candidate.
-- If every new requirement adds a flag, branch, or parameter to a shared layer, that layer is a wrong abstraction.
+- If every new requirement adds a flag, branch or parameter to a shared layer, that layer is a wrong abstraction.
+- If N is greater than one and the sites must agree but nothing makes them agree, you have found a competing authority, and that is the more serious finding.
 
-This question subsumes most of the principles in `theory.md` and is the load-bearing classifier the auditor agent applies.
+## Two rules that are easy to lose
+
+> Structural simplification is the desired outcome of the audit, not a finding category.
+
+> Patterns are discovery aids and classification examples, never an exhaustive catalog or a prerequisite for a finding.

@@ -396,16 +396,18 @@ Under `--no-context`, omit the "Context files", epistemic-status and anchors sec
 mode: diff
 codebase_path: {target root}
 deep_dive_path: {xray_run_dir, or "none"}
+concept_index_path: {target root}/.abstraction-architect/concept-index.json
 changed_files: {the same file list used to build the diff above}
 report_path: .team-review/findings-abstraction.md
 severity_floor: medium
 ```
 
-Three things invert the default reviewer contract for this one:
+Four things invert the default reviewer contract for this one:
 
 - Its search space is the **whole codebase**, not the diff. The diff is only the anchor; the prior art it hunts for is by definition in files that did not change. Do not scope it to the changed files.
 - It runs fine on lite-depth output, since it consumes only `01-structure.md` and `02-interfaces.md`. Do not force `--deep` on its account.
 - `--no-context` does NOT skip it. That rule removes only `review-logic-integrity-auditor` and `review-premise-auditor`. It runs with `deep_dive_path: none`, degrades to search-based prior-art hunting, and reports the reduced confidence in its Gaps section.
+- It reads a **concept index** at `.abstraction-architect/concept-index.json` when one exists, which is what makes its knowledge-track dimensions (duplicated domain knowledge, competing sources of truth, redundant representation, duplicated state) worth running on a diff. The index is produced by directly invoking `review-abstraction-architect` in global mode. When it is absent or stale the reviewer degrades to diff-anchored discovery and declares the reduced coverage; it never blocks. This reviewer never writes the index.
 
 ### Generic-reviewer dimensions
 

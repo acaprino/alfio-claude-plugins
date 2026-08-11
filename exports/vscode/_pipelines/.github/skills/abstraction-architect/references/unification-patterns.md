@@ -4,7 +4,15 @@ Twelve canonical cases where centralizing duplicated logic into a unified layer 
 
 For each pattern: structural signature (what the duplicated code looks like), why unification is right (which forces want it to change together), the suggested target layer, common pitfalls when implementing the unification.
 
-The Rule of Three (see `theory.md`) still applies: do not promote a pattern with fewer than three call sites. Two may diverge; three signals a real shape.
+The Rule of Three (see `theory.md`) applies to **D5 missed unification**, which is the dimension this catalog primarily serves: do not promote a D5 finding with fewer than three call sites. Two may diverge; three signals a real shape. It does not apply to D6 or D7, and it does not apply to the knowledge track at all. See `references/evidence-tracks.md`.
+
+> Patterns are discovery aids and classification examples, never an exhaustive catalog or a prerequisite for a finding.
+
+This rule is load-bearing. The defect that motivated rewriting this plugin was not that the first twelve patterns were infrastructural. It was that a catalog consulted as a matching step silently became the boundary of what could be found: a duplicated business rule matched nothing, so it fell out of the report. Adding six domain patterns fixes the coverage and would reproduce the same mechanism at a larger size if the rule above were not stated.
+
+A candidate that passes its dimension's gate is a finding whether or not it matches anything here. When it matches, cite the pattern. When it does not, name the concern in your own words and set the finding's `Pattern` field to `uncatalogued`.
+
+**P1 to P12 are infrastructural. P13 to P18 are domain-facing and deliberately broad**, written as illustrations of a kind of concern rather than as an enumeration of the concerns that exist.
 
 ---
 
@@ -220,3 +228,113 @@ The Rule of Three (see `theory.md`) still applies: do not promote a pattern with
 - Over-instrumenting low-level utilities (string formatting, math helpers) so the trace is noisy and the business operations are buried. Reserve spans for boundaries and business-critical operations.
 
 **Retrospective indicator that you did this right:** The day production has an incident, the on-call engineer can follow one request from HTTP entry through every downstream service in a single trace. Adding a metric or a span to a new operation follows the same pattern as the last one. The dashboard for "p99 latency by business operation" already exists because every operation is a span with a stable name.
+
+---
+
+## P13. Business rule or policy threshold
+
+**Structural signature:** A numeric or categorical bound that encodes a business decision appears in more than one place, usually without textual similarity. An order value above which approval is required, a refund window in days, a retry budget a customer is entitled to, a discount tier boundary, a rate limit tied to a plan. One site holds it as a named constant, another inlines the literal, a third derives it from a config key, a fourth restates it as a differently phrased predicate.
+
+```
+OrderService:        if total > 1000 -> requiresApproval
+CheckoutController:  if cartValue > 1000 -> managerApproval
+InvoiceWorkflow:     highValue = amount > 1000
+```
+
+A matched threshold duplication is typically a **D1 or D2 knowledge-track candidate** where two representations suffice behind gates K1 to K6, and specifically **not** a D5 candidate gated by the Rule of Three. See `references/evidence-tracks.md` for those gates and when they apply.
+
+**Forces that want this to change together:** The business changes the number, which happens routinely and without engineering involvement. The rule gains a dimension (a threshold per currency, per tenant, per plan). Audit needs to state what the policy was on a given date. Regulation requires the bound to be documented and evidenced.
+
+**Suggested target layer:** A named policy object that owns both the value and the predicate, for example `ApprovalPolicy.requires_approval(order)`. Call sites ask the policy rather than comparing numbers. The value lives in one place, the predicate lives with it, and a change is one edit with one test.
+
+**Common pitfalls:**
+- Extracting the constant but leaving the predicate duplicated. Three sites comparing against one shared constant still encode three copies of the rule, and the next requirement ("above 1000 *and* the customer is not trusted") has to be applied three times.
+- Putting the policy in a shared kernel used by two bounded contexts whose thresholds only coincidentally agree today.
+- Making the policy read configuration at every call without a documented default, which trades a duplicated literal for an undocumented runtime dependency.
+
+**Retrospective indicator that you did this right:** Finance changes the approval threshold and one pull request delivers it. The question "what was our approval rule in March" is answered by reading one file's history.
+
+---
+
+## P14. Eligibility predicate
+
+**Structural signature:** A question of the form "is this thing allowed to do that" is answered independently in several places. Can this order be refunded, can this user access this feature, is this account in good standing, is this shipment cancellable. Each site assembles the answer from raw fields, and the assemblies have already drifted: one checks state and age, another checks state, age and payment status, a third forgot the payment check.
+
+**Forces that want this to change together:** A new condition is added to the rule and must reach every caller. A support tool must show the user *why* something is not eligible, which requires a structured reason rather than a boolean. The rule must be evaluated in a context that has no request (a batch job, a report), so it must not depend on request-scoped state.
+
+**Suggested target layer:** An eligibility function that returns a reason rather than a boolean: `RefundEligibility.check(order) -> Eligible | Ineligible(reason)`. Callers branch on the result and display the reason. The rule has one implementation and one test suite. Distinguish from P13: classify as P13 when the duplicated thing is the number or bound itself; classify as P14 when the duplicated thing is a composed decision assembled from more than one condition. A refund window that only compares a day count is P13; refund eligibility that also weighs order state and payment status is P14.
+
+**Common pitfalls:**
+- Returning a bare boolean, which forces every caller that needs to explain the answer to reimplement the rule in order to derive the reason.
+- Folding authorization into eligibility. "Is this refundable" and "may this user issue it" are different questions with different owners; see P3.
+- Letting the predicate reach into infrastructure to fetch what it needs, which makes it unusable from a batch context and untestable without a database.
+
+**Retrospective indicator that you did this right:** The support portal and the customer-facing API give the same answer with the same wording. Adding a condition is one edit.
+
+---
+
+## P15. State machine transition table
+
+**Structural signature:** The legal transitions of a lifecycle are encoded implicitly across the code that performs them. Order status moves through `pending`, `paid`, `shipped`, `cancelled`, `refunded`, and the rules about which move is legal live inside the handlers that make the moves. Some handlers guard, some do not. Nothing states the full set of transitions, so nobody can answer whether a cancelled order can become paid without reading every handler.
+
+**Forces that want this to change together:** A new state is added and every guard must be reconsidered. An audit needs the state history and the reason for each transition. A bug report claims an impossible state was reached, and answering it requires knowing what was possible. A terminal state must become genuinely terminal.
+
+**Suggested target layer:** An explicit transition table plus one `transition(entity, to_state, reason)` entry point that consults it. Handlers request a transition and receive a refusal when it is illegal. The table is readable in one screen and is the answer to "what can happen to an order".
+
+**Common pitfalls:**
+- Encoding the table and leaving the old inline guards in place, which produces two authorities and a D2 finding on the next audit.
+- Building a general workflow engine for six states, which is anti-pattern A9.
+- Forgetting that retries and idempotent replays traverse transitions twice, so the table must say whether a self-transition is legal.
+
+**Retrospective indicator that you did this right:** "Can a refunded order ship" is answered by reading one table. Adding a state produces a compile error or a test failure at every place that must consider it.
+
+---
+
+## P16. Pricing or discount computation
+
+**Structural signature:** The amount a customer pays is computed in more than one place: the cart preview, the checkout confirmation, the invoice, the accounting export, the analytics job. Each applies discounts, taxes and rounding in its own order. The preview and the invoice disagree by a cent, and which one is right depends on who is asking.
+
+**Forces that want this to change together:** A new discount type is introduced and must apply everywhere consistently. The order of operations changes, for example discount before tax rather than after, which is a legal question with one right answer per jurisdiction. Rounding policy changes. A reconciliation report must tie the invoice total to the line items.
+
+**Suggested target layer:** One pricing pipeline that takes a cart and a context and returns a priced result with its breakdown. Every surface renders that result; none recomputes it. Related to P4 money arithmetic, which owns the representation, while this pattern owns the sequence of operations.
+
+**Common pitfalls:**
+- Letting the presentation layer round for display and then persisting the rounded figure.
+- Recomputing on the invoice "to be safe" instead of storing the priced result, which guarantees the two will diverge the moment the pipeline changes.
+- Treating tax as a discount, which produces the wrong answer for jurisdictions where tax applies to the pre-discount amount.
+
+**Retrospective indicator that you did this right:** The cart, the invoice and the accounting export agree to the cent, by construction rather than by testing.
+
+---
+
+## P17. Identifier and code format
+
+**Structural signature:** A structured identifier has a format that is parsed, validated, generated or rendered in several places with slightly different rules. An invoice number, a SKU, a tenant slug, an external reference, a coupon code. One validator accepts lowercase, another rejects it. The generator pads to eight digits; a parser assumes seven. A display function inserts separators that the parser does not tolerate on the way back in.
+
+**Forces that want this to change together:** The format gains a segment (a year prefix, a region code, a check digit). A migration must accept both the old and the new format for a period. Validation must be identical at every entry point or data arrives that later reads cannot parse. Rendering for humans and storing for machines must round-trip.
+
+**Suggested target layer:** A value object owning `parse`, `validate`, `generate` and `format` for that identifier, with the regex or grammar stated once. Nothing else constructs or destructures the identifier as a string.
+
+**Common pitfalls:**
+- Sharing one identifier type across two contexts that only coincidentally use the same shape today.
+- Validating on write and not on read, so that data written before the rule tightened crashes the reader.
+- Putting the display separators in the stored value.
+
+**Retrospective indicator that you did this right:** Adding a check digit is one class change plus a migration. No entry point accepts an identifier that another rejects.
+
+---
+
+## P18. Status or lifecycle vocabulary
+
+**Structural signature:** The set of allowed values for a status is declared more than once and the declarations have drifted. A TypeScript union, a database `CHECK` constraint, a Python enum, a set of magic strings in a front-end switch, and a mapping table for an external CRM. Adding a value requires finding all five, and the last one added is missing from two of them.
+
+**Forces that want this to change together:** A value is added, renamed or retired. The external system's vocabulary changes and the mapping must move with it. A report groups by status and must not silently drop an unmapped value. Exhaustiveness checking must actually fail when a case is unhandled.
+
+**Suggested target layer:** One declaration that the others are derived from or validated against: an enum that generates the database constraint, or a schema that both sides import. Where derivation is impossible across a language boundary, one test that asserts the two declarations agree, so drift fails the build rather than production.
+
+**Common pitfalls:**
+- Unifying a status vocabulary across bounded contexts because the values coincide today. `Shipping.Status` and `Payment.Status` may both read `PENDING`, `COMPLETE`, `FAILED` and still be different knowledge; see `references/evidence-tracks.md`.
+- Mapping to an external vocabulary with a silent default, which turns an unmapped new value into a wrong value rather than an error.
+- Adding a value without deciding what existing rows mean.
+
+**Retrospective indicator that you did this right:** Adding a status breaks the build in every place that must handle it and nowhere else. The CRM mapping is exhaustive by construction.
