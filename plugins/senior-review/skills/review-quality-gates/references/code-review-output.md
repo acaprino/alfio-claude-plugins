@@ -18,7 +18,7 @@ After validation completes, synthesize everything into the final structured revi
 - Files reviewed: [N]
 - Lines changed: +X / -Y
 - CLAUDE.md compliance: [checked / not found]
-- Verification: X of Y findings verified (4-lens panel), Z false positives, W contested{cost_guard_note}
+- Verification: X of Y findings verified (4-lens panel), Z false positives, W contested, V premise-refuted, U premise-contested{cost_guard_note}
 
 ### Overall Score: X/10 (confidence: X%)
 

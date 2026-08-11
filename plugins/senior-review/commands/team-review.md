@@ -16,16 +16,18 @@ The team infrastructure itself is a native Claude Code feature and needs no plug
 
 # Team Review (Pipeline)
 
-Orchestrate a multi-dimensional code review as a **4-phase pipeline**:
+Orchestrate a multi-dimensional code review as a **6-phase pipeline**:
 
-1. **Phase 1 -- Context Building (sequential)**: one agent runs deep-dive analysis, another builds an interconnect map (contracts, invariants, assumptions, domain rules, integration hot-spots). Output goes to `.team-review/`.
-2. **Phase 2 -- Adversarial Review (parallel)**: specialized reviewers read the context files and hunt for violations within their dimension. Each writes structured findings to `.team-review/findings-<dim>.md`.
-3. **Phase 3 -- Consolidation**: findings are deduplicated and organized by severity.
-4. **Phase 4 -- Report & Cleanup**.
+0. **Phase 0 -- Scope and Discovery**: resolve the target (0), detect which dimensions the change warrants (0b), and discover independently what evidence this review needs (0c), reading no X-ray output at all.
+1. **Phase 1 -- Context Building**: deep-dive analysis (1a) runs in parallel with a blind second derivation of the same premises (1c); the two are joined into `01-knowledge-provenance.md` (1d); an interconnect map is built last (1b), covering contracts, invariants, assumptions, domain rules and integration hot-spots. Output goes to `.team-review/`.
+2. **Phase 2 -- Adversarial Review (parallel)**: specialized reviewers read the context files and hunt for violations within their dimension. Every finding declares the load-bearing premise it stands on and where that premise came from. Each reviewer writes structured findings to `.team-review/findings-<dim>.md`.
+3. **Phase 3 -- Monitor and Collect**: every spawned reviewer delivers findings or an explicit no-findings report before consolidation starts.
+4. **Phase 4 -- Consolidation and Gates**: findings are deduplicated and organized by severity, with agreement weighted by premise provenance; then the verification panel runs (4b, Lens 0's premise veto first) and the completeness critic asks what the review missed (4c).
+5. **Phase 5 -- Report & Cleanup**.
 
-The pipeline lets reviewers find problems that are invisible from local-only inspection: broken implicit contracts, invariant drift, bypass paths to business rules, non-idempotent retry paths, terminal state mutations.
+The pipeline lets reviewers find problems that are invisible from local-only inspection: broken implicit contracts, invariant drift, bypass paths to business rules, non-idempotent retry paths, terminal state mutations. Two derivations run side by side in Phase 1 so that the review has a second observer, rather than one observer consulted N times.
 
-**Raw mode**: pass `--no-context` to run the old parallel-only behavior (no context phase, no `logic-integrity-auditor`).
+**Raw mode**: pass `--no-context` to run the old parallel-only behavior (no Phase 0c, no context phase, no `logic-integrity-auditor`, no `premise-auditor` in either mode).
 
 ## Skills to Load
 
@@ -44,7 +46,7 @@ Before starting, invoke these skills to inform the review process:
    - `--base-branch`: base branch for diff comparison (default: `main`)
    - `--all`: force all dimensions regardless of auto-detection
    - `--deep`: run Phase 1a `codebase-xray` in full mode (default: `--depth=lite`)
-   - `--no-context`: skip Phase 1 entirely and run reviewers with raw code only (raw mode; `logic-integrity-auditor` is also skipped)
+   - `--no-context`: skip Phase 0c and Phase 1 entirely and run reviewers with raw code only (raw mode; `logic-integrity-auditor` and `premise-auditor` are also skipped)
    - `--fast`: skip the verification + completeness-critic gate entirely (Phase 4b and 4c)
    - `--rigorous`: verify every finding above the confidence floor, ignoring the cost-guard cap
 3. Check for existing `.team-review/state.json`:
@@ -252,7 +254,9 @@ Mark `phase_0c_evidence_discovery` complete in `state.json`.
 
 ## Phase 1: Context Building
 
-Skip this phase entirely if `--no-context` was passed. Mark `phase_1a_deep_dive`, `phase_1b_interconnect`, and `phase_0c_evidence_discovery` as `skipped` in `state.json`. Jump to Phase 2 with raw target files only.
+The sub-phases below are listed in **execution order**, not in label order: 1a and 1c start together, 1d joins them, 1b runs last on the joined result. Nothing named here is missing.
+
+Skip this phase entirely if `--no-context` was passed. Mark `phase_1a_deep_dive`, `phase_1c_premise_audit`, `phase_1d_reconciliation`, `phase_1b_interconnect`, and `phase_0c_evidence_discovery` as `skipped` in `state.json`. Jump to Phase 2 with raw target files only.
 
 ### Phase 1a: Deep-Dive Analysis
 
@@ -418,6 +422,7 @@ You are reviewing for the {dimension} dimension.
 ## Context files (read these before analyzing code)
 - Deep-dive output: $XRAY_RUN_DIR (see 01-structure.md, 02-interfaces.md, 05-risks.md)
 - Interconnect map: .team-review/02-interconnect.md
+- Knowledge provenance: .team-review/01-knowledge-provenance.md
 
 ### Epistemic status of the shared context
 
@@ -533,7 +538,7 @@ Skip this phase if `--fast` was passed (mark `phase_4b_verification` as `skipped
 2. Apply the selection rule from the skill:
    - If `--rigorous`, or 25 or fewer findings survive: verify all selected findings.
    - Otherwise (more than 25 findings, no `--rigorous`): narrow to stakes + uncertainty band per the skill, and record the count of findings left `unverified (cost-guard)`.
-3. **Lens 0 first.** For each finding to verify whose `premise_provenance` is `shared-context` or `mixed`, spawn lens 0 (`subagent_type: senior-review:premise-auditor`, mode 2, inheriting the session model) using the Lens 0 prompt from the skill, with the deep-dive line resolved to `$XRAY_RUN_DIR`. Apply the skill's Lens 0 resolution table: a `REFUTED` verdict targeting `PREMISE` discards the finding (`filtered: premise-refuted`) without spawning lenses 1-2; targeting `SUPPORT` on `mixed` provenance strikes the shared leg and restates the finding from the surviving independent evidence before it proceeds; targeting `SUPPORT` on `shared-context` provenance discards it the same way. `UNCERTAIN` and `HOLDS` proceed to lenses 1-2, `UNCERTAIN` tagged `premise-contested`. Findings declared `independent` skip lens 0 entirely and proceed directly to lenses 1-2.
+3. **Lens 0 first.** For each finding to verify whose `premise_provenance` is `shared-context` or `mixed`, **or whose declared premise carries a universal or negative quantifier (`no`, `never`, `cannot`, `always`, `only`) at any provenance**, spawn lens 0 (`subagent_type: senior-review:premise-auditor`, mode 2, inheriting the session model) using the Lens 0 prompt from the skill, with the deep-dive line resolved to `$XRAY_RUN_DIR`. Apply the skill's Lens 0 resolution table: a `REFUTED` verdict targeting `PREMISE` discards the finding (`filtered: premise-refuted`) without spawning lenses 1-2; targeting `SUPPORT` on `mixed` provenance strikes the shared leg and restates the finding from the surviving independent evidence before it proceeds; targeting `SUPPORT` on `shared-context` provenance discards it the same way. `UNCERTAIN` and `HOLDS` proceed to lenses 1-2, `UNCERTAIN` tagged `premise-contested`. Findings declared `independent` whose premise carries no such quantifier skip lens 0 entirely and proceed directly to lenses 1-2.
 4. For each finding that reaches this step, spawn lenses 1 and 2 in parallel using the lens prompts from the skill (`general-purpose`; inherit the session model; `run_in_background: true`), then spawn lens 3 (`model: sonnet`) only for findings that survive them, per the skill's gated-lens rule. Substitute the finding, diff, and full file content into each prompt.
 5. Apply the survival rule from the skill: survive if `>= 2` of lenses 1-2 vote REAL; discard (`filtered`) if `>= 2` vote FALSE_POSITIVE; tie or fewer-than-2-verdicts means survive and mark `contested`. Final severity is the lens-3 vote when confirmed real, else the original.
 6. Write `.team-review/98-verification.md`: one row per verified finding with the per-lens verdicts (including, for findings that reached lens 0, its verdict, refutation target, and counterexample), final severity, and flag (`verified` / `contested` / `filtered: premise-refuted` / `filtered`), plus a trailing count of `unverified (cost-guard)` findings.
@@ -561,7 +566,7 @@ Skip this phase if `--fast` was passed (mark `phase_4c_critic` as `skipped`). Ot
    Context: deep-dive ({lite|full}) + interconnect map ({anchor count} anchors)
    Reviewed by: {dimensions} ({N} reviewers)
    Files reviewed: {count}
-   Verification: {verified} verified, {filtered} false positives, {contested} contested{cost_guard_note}
+   Verification: {verified} verified, {filtered} false positives, {contested} contested, {premise_refuted} premise-refuted, {premise_contested} premise-contested{cost_guard_note}
 
    ### Critical ({count})
    [findings with file:line + category + map anchor where applicable]
