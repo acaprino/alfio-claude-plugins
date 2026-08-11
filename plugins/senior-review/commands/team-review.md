@@ -508,7 +508,10 @@ Apply the deduplication and calibration rules from the `agent-teams:multi-review
 1. **Deduplicate**: merge findings that reference the same `file:line` + same issue. Credit all reviewers.
 2. **Co-locate**: same `file:line` but different issues -> keep separate, tag as co-located.
 3. **Resolve severity conflicts**: use the higher rating.
-4. **Cross-reference**: note findings that appear in multiple dimensions (a sign of a likely-real root cause).
+4. **Cross-reference, weighted by provenance.** Per `## Shared-Context Provenance Rule` in the `senior-review:review-quality-gates` skill, agreement is only corroboration when the agreeing findings did not inherit the same premise.
+   - Findings that agree and are all `independent`, or whose load-bearing premises are disjoint: **corroborated**. Report as a likely-real root cause.
+   - Findings that agree and share the same `shared-context` premise: **echo**. Report under the finding as `Echo: N dimensions agreed from the shared premise "[premise text]"`. This raises no confidence and no severity, and it is not evidence that the finding is real.
+   - Mixed sets: corroboration counts only the independent members.
 5. **Collect `[MAP-GAP]` findings**: any logic-integrity finding carrying the `[MAP-GAP]` marker is also listed in the report as an interconnect-map coverage gap, so the mapper's blind spot is recorded alongside the defect it hid.
 6. **Organize by severity**: Critical, High, Medium, Low.
 
@@ -570,6 +573,8 @@ Skip this phase if `--fast` was passed (mark `phase_4c_critic` as `skipped`). Ot
    Map utilization: {count} findings cite an anchor ({pct}%, operational)
    Independent premise reconstruction: {ipr_count} findings ({ipr_pct}%)
    Premise challenge: {pc_count} of {eligible} eligible premises attacked by Lens 0
+   Corroborated findings: {n_corroborated} (independent agreement)
+   Echoes: {n_echo} (agreement inherited from a shared premise, not corroboration)
    Pipeline time: Phase 1: {t1}, Phase 2: {t2}, total: {total}
 
    ### Coverage Gaps

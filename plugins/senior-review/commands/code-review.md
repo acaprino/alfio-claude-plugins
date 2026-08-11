@@ -292,8 +292,11 @@ When multiple agents flag the same issue, merge them:
    - Keep the **highest severity**
    - Keep the **highest confidence** with strongest evidence
    - **Union** the evidence from all agents
-   - Note which agents flagged it (shows cross-agent agreement)
-3. Record the dedup count
+   - Weigh the agreement by provenance, per `## Shared-Context Provenance Rule` in the `senior-review:review-quality-gates` skill, instead of just noting which agents flagged it:
+     - All agreeing agents report `independent` `premise_provenance`, or their load-bearing premises are disjoint: **corroborated**. Note the agreeing agents; the merge is a likely-real root cause.
+     - All agreeing agents share the same `shared-context` premise: **echo**. Note it as `Echo: N agents agreed from the shared premise "[premise text]"`. This raises no confidence and no severity, and it is not evidence the finding is real.
+     - Mixed: count only the independent agents toward corroboration.
+3. Record the dedup count, split into corroborated merges and echo merges
 
 ### 4c. Separate Pre-existing
 
