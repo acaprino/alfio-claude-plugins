@@ -15,6 +15,8 @@ For each case in `cases/`:
    - Claude Code's built-in `/code-review` as the vanilla baseline
    Run each in a FRESH session so no context leaks between runs, and never in the same session that is scoring.
 3. **Score against the ground truth.** For every bug in the case's table: `found` (a finding matches the defect, regardless of wording), `partial` (the right location or mechanism but the wrong conclusion), `missed`. Matching is by mechanism, not by phrasing.
+
+   A case may also carry a `must_not_report` block. Each entry is a claim the review must NOT produce at that revision, because it is false at the system level even though a plausible local reading supports it. Scoring an entry: `avoided` (no finding matches the claim), `reported` (a finding matching the claim survived the pipeline's own verification), `caught` (a finding matching the claim was produced but killed by the verification panel, and the record names the lens that killed it). Only `reported` is a failure. `caught` is the outcome the panel exists to produce, and the case notes which lens did it.
 4. **Count false positives.** Findings that survive the pipeline's own verification but do not correspond to a real defect at that revision. Pre-existing findings correctly tagged `[PRE-EXISTING]` are excluded from the FP count.
 5. **Record cost**: wall-clock time and, where visible, token spend or agent count.
 6. Fill a copy of `scorecard-template.md` into the case directory (`scorecard-<command>-<date>.md`) and add one row to `RESULTS.md`.
@@ -25,6 +27,7 @@ For each case in `cases/`:
 - **FP rate** = false positives / total findings reported.
 - **Dimension attribution**: which dimension found each true positive. This is the metric that says which auditors earn their keep.
 - **Evidence discipline**: fraction of quantitative claims labeled `measured` vs `derived` vs unlabeled.
+- **Anti-finding rate** = `reported` / total `must_not_report` entries. This measures precision against known-plausible falsehoods, which recall cannot see. A pipeline that finds every real bug and also reports a confident falsehood is not a better reviewer.
 
 ## Rules
 
@@ -39,5 +42,6 @@ For each case in `cases/`:
 | Jupiter updater post-mortem (2026-08-10, production ground truth) | `jupiter-updater` |
 | Jupiter fix-commit history (bug = what the later fix commit repaired) | `jupiter-market-state-tristate`, `jupiter-economic-events-upsert`, `jupiter-cache-convergence`, `jupiter-trade-failure-drop`, `jupiter-position-notice-owner` |
 | Synthetic, bug injected by construction (targets the newest dimensions) | `synthetic-payment-double-insert`, `synthetic-cache-stale-read`, `synthetic-connection-pool-leak`, `synthetic-retry-storm` |
+| Jupiter false-positive incident (2026-08-10, precision ground truth) | `jupiter-credential-refill` |
 
 Synthetic cases carry their buggy code inline in the case file; materialize it into a scratch repo before running (instructions per case).
