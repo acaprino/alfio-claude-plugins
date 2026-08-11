@@ -1,8 +1,8 @@
 # Claude Code Daodan for GitHub Copilot
 
-A VS Code Copilot port of [acaprino/claude-code-daodan](https://github.com/acaprino/claude-code-daodan): **88 agents, 68 skills and 49 prompts**, shipped as one extension. Install it once and every project you open has them. You never copy a `.github/` directory into a repository.
+A VS Code Copilot port of [acaprino/claude-code-daodan](https://github.com/acaprino/claude-code-daodan): **91 agents, 69 skills and 50 prompts**, shipped as one extension. Install it once and every project you open has them. You never copy a `.github/` directory into a repository.
 
-This directory is both the extension source and the catalog documentation. The 37 bundles below are how the content is organized on disk, not 37 separate installs.
+This directory is both the extension source and the catalog documentation. The 38 bundles below are how the content is organized on disk, not 38 separate installs.
 
 ## Install
 
@@ -81,6 +81,7 @@ For a monorepo where the bundle lives at the repository root but you open a subf
 | `mt5-trading` | `/mt5-audit` | 1 / 1 / 1 | |
 | `obsidian-development` | `obsidian-scaffold`, `obsidian-check` | 3 / 0 / 0 | |
 | `opentelemetry` | `/otel-audit` | 1 / 1 / 1 | |
+| `peer-review` | `/review` | 1 / 3 / 1 | **MCP** (bundled `peer-review` server, see [bundle README](peer-review/README.md)), uv, python 3.11+, an OpenAI-compatible API key |
 | `platform-engineering` | `/platform-review` | 1 / 1 / 1 | |
 | `project-setup` | `/create-claude-md`, `/maintain-claude-md` | 0 / 1 / 2 | |
 | `pwa-expert` | `/pwa-audit`, `/pwa-scaffold`, `/pwa-checklist` | 1 / 1 / 3 | **playwright-mcp** for live-URL mode |
@@ -173,6 +174,6 @@ Every file in every bundle follows the same shape.
 - **Agents** carry `name`, `description`, `user-invocable`, `tools` (a YAML list of VS Code tool ids), and `agents` (the dispatch allowlist, `[]` for leaf agents). Each begins with an HTML comment naming the file it was vendored from.
 - **Prompts** carry `description`, an optional `agent` binding, and an optional unquoted `argument-hint`.
 - Agent and skill names are unique across the entire catalog, so bundles can be combined freely.
-- Export-only files, which have no upstream source, say so in a comment explaining why they exist. There are four: the three orchestrators (`map-codebase-orchestrator`, `research-orchestrator`, `frontend-review-orchestrator`) and the `_pipelines` support agents.
+- Export-only files, which have no upstream source, say so in a comment explaining why they exist. There are five: the four orchestrators (`map-codebase-orchestrator`, `research-orchestrator`, `frontend-review-orchestrator`, `peer-review-orchestrator`) and the `_pipelines` support agents.
 
 `plugins/` upstream is the source of truth and this directory is derived. Never edit a bundle and back-port: fix it upstream, then mirror.

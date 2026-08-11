@@ -1,8 +1,8 @@
 {
   "name": "claude-code-daodan",
   "displayName": "Claude Code Daodan",
-  "description": "88 agents, 68 skills and 49 prompts for GitHub Copilot: code review, documentation, testing, research, frontend, trading, observability and more.",
-  "version": "19.2.0",
+  "description": "91 agents, 69 skills and 50 prompts for GitHub Copilot: code review, documentation, testing, research, frontend, trading, observability and more.",
+  "version": "19.3.0",
   "publisher": "acaprino",
   "license": "MIT",
   "engines": {
@@ -263,6 +263,15 @@
         "path": "./opentelemetry/.github/agents/otel-architect.agent.md"
       },
       {
+        "path": "./peer-review/.github/agents/packet-builder.agent.md"
+      },
+      {
+        "path": "./peer-review/.github/agents/peer-review-orchestrator.agent.md"
+      },
+      {
+        "path": "./peer-review/.github/agents/respondent.agent.md"
+      },
+      {
         "path": "./platform-engineering/.github/agents/platform-reviewer.agent.md"
       },
       {
@@ -419,6 +428,9 @@
       },
       {
         "path": "./opentelemetry/.github/prompts/otel-audit.prompt.md"
+      },
+      {
+        "path": "./peer-review/.github/prompts/review.prompt.md"
       },
       {
         "path": "./platform-engineering/.github/prompts/platform-review.prompt.md"

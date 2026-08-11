@@ -1,5 +1,13 @@
 # Changelog
 
+## 19.3.0
+
+- New `peer-review` bundle, the 38th: the `/review` prompt, the export-only `peer-review-orchestrator` agent, and the `packet-builder` and `respondent` subagents it dispatches, plus the `cross-model-peer-review` skill. Cross-model peer review of plans and specs: a challenge packet with GIVEN-tagged context, challenger findings that each carry their own falsifier, evidence-backed responses at file:line, a verbatim ledger, a certification pass the challenger owns, and a verdict computed from the ledger.
+- The bundle ships the same transport-only MCP server the upstream plugin ships (`.github/skills/cross-model-peer-review/mcp/server.py`, byte-identical to the Claude Code copy), because it names no Claude Code mechanism anywhere in its own source and runs unchanged under any MCP-compliant client. Wiring it into Copilot needs a hand-added `.vscode/mcp.json` entry, documented with a snippet in the bundle's own README, since VS Code has no plugin-root auto-discovery equivalent to the path-expanding `.mcp.json` Claude Code reads on install.
+- `peer_profiles` and `peer_ask`, the two MCP tool calls the orchestrator makes, are referenced by bare name rather than Claude Code's `mcp__<server>__<tool>` convention, and the orchestrator ships with no `tools:` allowlist at all: an MCP server's tool ids depend on the name the user gave that server, the same reasoning that already left the catalog's five browser-driving agents without one.
+- `respondent.agent.md` restates the `receiving-code-review` discipline inline instead of loading it: that skill belongs to the upstream Claude Code plugin `superpowers`, not ported to this catalog, matching how the `testing` bundle already treats `mattpocock/skills` and `wshobson/agents`.
+- The protocol itself (`PROTOCOL.md`, `finding-lifecycle.md`, `packet-anatomy.md`, `round-prompts.md`) travels byte-identical to the plugin's copy: it is deliberately harness-independent and names no tool, vendor, model, or transport, so this is the one part of the mirror with nothing to adapt.
+
 ## 19.2.0
 
 - Tracks marketplace 19.2.0 (`senior-review` 9.0.0, `codebase-xray` 2.2.0). The `_pipelines` bundle now enforces one rule end to end: evidence derived from a shared artifact cannot corroborate the claims in that same artifact. N reviewers agreeing on a premise they were all handed is one observation, not N. The old pipeline derived context once and then explored it with fifteen agents, which produced confident agreement about whatever the first observer got wrong.

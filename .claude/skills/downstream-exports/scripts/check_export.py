@@ -219,13 +219,18 @@ def main():
         if not f.is_file() or f.suffix == ".md" or "_pipelines" in f.parts:
             continue
         rel = f.relative_to(ROOT)
-        bundle, tail = rel.parts[0], str(Path(*rel.parts[1:]))
+        # Posix-joined deliberately: on Windows, str(Path(...)) uses backslashes, which
+        # would never match the forward-slash literal below and silently skip every file.
+        bundle, tail = rel.parts[0], "/".join(rel.parts[1:])
         skills = tail.split(".github/skills/", 1)
         if len(skills) != 2:
             continue
         candidates = [Path("plugins") / bundle / "skills" / skills[1]]
-        # research/scripts/webfetch.py lives at the plugin root upstream.
+        # research/scripts/webfetch.py and peer-review/mcp/server.py live at the plugin
+        # root upstream, in a subdirectory named for what they are rather than for the
+        # skill that consumes them.
         candidates.append(Path("plugins") / bundle / "scripts" / Path(skills[1]).name)
+        candidates.append(Path("plugins") / bundle / "mcp" / Path(skills[1]).name)
         if not any(c.exists() and c.read_bytes() == f.read_bytes() for c in candidates):
             drift.append(f"{rel}: no identical source under plugins/{bundle}/")
     report("byte-copy assets", drift)
