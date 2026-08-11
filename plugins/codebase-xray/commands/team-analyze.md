@@ -1,8 +1,8 @@
 ---
 description: >
-  Multi-agent variant of /codebase-xray:analyze for large or partitioned codebases. Auto-detects partitions (workspaces / dirs / language clusters), spawns 3 analysis workers per partition across 2 waves, synthesizes a consolidated 01..07.md set plus a global 08-interconnect-map.md inside an isolated run directory, then publishes to the .deep-dive/ root.
-  TRIGGER WHEN: the user wants X-ray analysis on a monorepo or wants a cross-partition interconnection map produced as part of the same flow.
-  DO NOT TRIGGER WHEN: the project is a single small directory (use /codebase-xray:analyze) or the user wants a documentation-only audit (use /codebase-xray:analyze --docs-only).
+  Multi-agent X-ray for large or multi-workspace codebases: splits the project into its natural units, works them in parallel, and publishes one consolidated result set to the .deep-dive/ root.
+  TRIGGER WHEN: the user wants X-ray analysis on a monorepo, or a cross-partition interconnection map produced as part of the same flow.
+  DO NOT TRIGGER WHEN: the target is a single small directory, or the user wants a documentation-only audit (use /codebase-xray:analyze, optionally with --docs-only).
 argument-hint: "<target> [--critical] [--comments] [--depth=lite|full] [--partition <path>] [--partition-name <name>] [--skip-interconnect] [--skip-synthesis] [--run-name <name>] [--yes]"
 ---
 

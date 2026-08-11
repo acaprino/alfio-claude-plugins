@@ -1,9 +1,9 @@
 ---
 name: partition-synthesizer
 description: >
-  Spawned by /codebase-xray:team-analyze Phase 2 to consolidate per-partition X-ray outputs into the standard 01..07.md layout inside the run directory. Reads <run-dir>/partitions/*/01..06.md and produces unified files with cross-partition sections plus a team-mode final report (07-final-report.md). Output is byte-compatible with what team-review and codebase-mapper pick up from the published .deep-dive/ mirror.
-  TRIGGER WHEN: spawned by the /codebase-xray:team-analyze command during Phase 2 to consolidate partition outputs.
-  DO NOT TRIGGER WHEN: invoked outside the team-analyze pipeline - the classic /codebase-xray:analyze writes phase files directly.
+  Consolidates per-partition X-ray outputs into the standard 01..07.md layout in the run directory, adding cross-partition sections and a team-mode final report, byte-compatible with a classic single-agent run.
+  TRIGGER WHEN: spawned by /codebase-xray:team-analyze in its consolidation phase.
+  DO NOT TRIGGER WHEN: outside that pipeline; /codebase-xray:analyze writes its phase files directly.
 tools: Read, Glob, Grep, Write
 model: inherit
 color: purple

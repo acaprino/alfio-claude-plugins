@@ -1,9 +1,9 @@
 ---
 name: semantic-interconnect-mapper
 description: >
-  Phase 1b for pipelines that need a structured map of the code's contracts, invariants, domain rules, and integration hot-spots. Used by /team-review (fed by codebase-xray) and by /map-codebase (fed by codebase-explorer's context brief). Output drives downstream reviewers, writers, and reviewers hunting documentation drift.
-  TRIGGER WHEN: the user runs /team-review or /map-codebase, or explicitly asks to map contracts, invariants, call graphs, or integration boundaries.
-  DO NOT TRIGGER WHEN: no prior context artifact exists (neither .deep-dive/ nor a context-brief.md), or the task is a surface-level operation that does not need the map.
+  Phase 1b context builder whose output downstream reviewers, doc writers and drift hunters work against. Produces no verdicts of its own.
+  TRIGGER WHEN: the user runs /team-review or /map-codebase, or explicitly asks to map contracts, invariants, domain rules, call graphs, or integration boundaries.
+  DO NOT TRIGGER WHEN: no prior context artifact exists (neither .deep-dive/ nor codebase-explorer's context-brief.md), or the task is a surface-level operation that does not need the map.
 tools: Read, Write, Glob, Grep
 model: inherit
 color: cyan

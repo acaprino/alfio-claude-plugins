@@ -1,9 +1,9 @@
 ---
 name: analyze
 description: >
-  AI-powered systematic codebase analysis. Combines structure extraction with semantic understanding to produce ground-truth documentation capturing WHAT, WHY, HOW, and CONSEQUENCES. Multi-language: Python, Java, JavaScript, TypeScript, SQL, PL/SQL, Rust. Includes pattern recognition, red flag detection, flow tracing, quality assessment, and concurrent analysis runs.
-  TRIGGER WHEN: encountering unfamiliar code, before major refactoring, when pre-review technical context is needed, or when documentation is stale or missing.
-  DO NOT TRIGGER WHEN: the user wants human-readable narrative docs (use codebase-mapper:map-codebase), a public-facing README (use docs plugins), or a code review verdict (use senior-review skills; they consume this skill's output instead).
+  X-ray method: mechanical structure extraction fused with semantic reading into a ground-truth account of WHAT, WHY, HOW and CONSEQUENCES. Python, Java, JavaScript, TypeScript, SQL, PL/SQL, Rust.
+  TRIGGER WHEN: encountering an unfamiliar codebase, needing pre-review technical context, before a major refactor, or when documentation is stale or missing.
+  DO NOT TRIGGER WHEN: the user wants human-readable narrative docs (use /codebase-mapper:map-codebase), a public-facing README, or a review verdict (senior-review consumes this output instead).
 ---
 
 # Codebase X-Ray Analysis Skill

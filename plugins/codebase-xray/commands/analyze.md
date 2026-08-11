@@ -1,6 +1,6 @@
 ---
 description: >
-  Systematic codebase analysis (X-ray) combining structure extraction with semantic understanding - documents WHAT, WHY, HOW, and CONSEQUENCES of code with phased output and concurrent run support.
+  Run an X-ray: document WHAT, WHY, HOW and CONSEQUENCES into phased files, with concurrent-run support.
   TRIGGER WHEN: the user asks for a deep analysis of an unfamiliar codebase, pre-review context, or a structure-plus-semantics snapshot.
   DO NOT TRIGGER WHEN: the user wants human-readable narrative docs (use /codebase-mapper:map-codebase) or a shallow overview.
 argument-hint: "<target path> [--critical] [--comments] [--docs-only] [--phase N] [--depth=lite|full] [--run-name <name>]"

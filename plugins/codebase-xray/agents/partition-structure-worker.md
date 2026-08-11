@@ -1,9 +1,9 @@
 ---
 name: partition-structure-worker
 description: >
-  Spawned by /codebase-xray:team-analyze Phase 1 Wave 1 to execute Phase 1 (Structure Extraction) and Phase 2 (Interface Analysis) of X-ray analysis on a single partition of a multi-partition codebase. Writes ownership-restricted output to <run-dir>/partitions/<name>/01-structure.md and 02-interfaces.md.
-  TRIGGER WHEN: spawned by the /codebase-xray:team-analyze command during Phase 1 Wave 1 to handle one partition's structural extraction.
-  DO NOT TRIGGER WHEN: invoked outside the team-analyze pipeline - the classic /codebase-xray:analyze command runs structure extraction inline without an agent.
+  Runs Structure Extraction and Interface Analysis over one partition, writing 01-structure.md and 02-interfaces.md into its owned partition directory.
+  TRIGGER WHEN: spawned by /codebase-xray:team-analyze in its first wave.
+  DO NOT TRIGGER WHEN: outside that pipeline; /codebase-xray:analyze extracts structure inline without an agent.
 tools: Read, Glob, Grep, Bash, Write
 model: inherit
 color: cyan

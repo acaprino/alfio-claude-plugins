@@ -1,9 +1,8 @@
 ---
 name: partition-quality-worker
 description: >
-  Spawned by /codebase-xray:team-analyze Phase 1 Wave 2 to execute Phase 5 (Pattern & Risk Detection) and Phase 6 (Documentation Health) of X-ray analysis on a single partition. Writes ownership-restricted output to <run-dir>/partitions/<name>/05-risks.md and 06-documentation.md (05 only in lite mode).
-  TRIGGER WHEN: spawned by the /codebase-xray:team-analyze command during Phase 1 Wave 2 to handle one partition's risk and documentation audit.
-  DO NOT TRIGGER WHEN: invoked outside the team-analyze pipeline.
+  Runs Pattern and Risk Detection plus Documentation Health over one partition, writing 05-risks.md and 06-documentation.md into its owned partition directory (05 only in lite mode).
+  TRIGGER WHEN: spawned by /codebase-xray:team-analyze in its second wave.
 tools: Read, Glob, Grep, Bash, Write
 model: inherit
 color: cyan

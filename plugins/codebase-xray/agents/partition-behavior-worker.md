@@ -1,9 +1,8 @@
 ---
 name: partition-behavior-worker
 description: >
-  Spawned by /codebase-xray:team-analyze Phase 1 Wave 2 to execute Phase 3 (Flow Tracing) and Phase 4 (Semantic Understanding) of X-ray analysis on a single partition. Reads all partitions' Wave 1 outputs to cite cross-partition flows and contracts. Writes ownership-restricted output to <run-dir>/partitions/<name>/03-flows.md and 04-semantics.md.
-  TRIGGER WHEN: spawned by the /codebase-xray:team-analyze command during Phase 1 Wave 2 to handle one partition's behavioral and semantic analysis.
-  DO NOT TRIGGER WHEN: invoked outside the team-analyze pipeline.
+  Runs Flow Tracing and Semantic Understanding over one partition, reading every partition's structure and interface output so flows and contracts can cite cross-partition boundaries, and writing 03-flows.md and 04-semantics.md into its owned partition directory.
+  TRIGGER WHEN: spawned by /codebase-xray:team-analyze in its second wave.
 tools: Read, Glob, Grep, Bash, Write
 model: inherit
 color: cyan
