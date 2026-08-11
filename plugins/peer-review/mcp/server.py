@@ -24,6 +24,71 @@ REQUEST_TIMEOUT_SECONDS = 180
 RETRY_STATUSES = {429, 500, 502, 503, 504}
 RETRY_BACKOFF_SECONDS = 5
 
+# Phrases an OpenAI-compatible endpoint uses when it does not know a parameter we
+# send. Matching one downgrades the request shape once, rather than failing a run
+# because the endpoint predates the modern field names.
+LEGACY_PARAM_HINTS = (
+    "max_completion_tokens",
+    "stream_options",
+    "unsupported_parameter",
+    "unsupported parameter",
+    "unrecognized request argument",
+    "unknown field",
+    "extra fields not permitted",
+)
+
+
+def _rejects_modern_params(error_body: str) -> bool:
+    low = error_body.lower()
+    return any(hint in low for hint in LEGACY_PARAM_HINTS)
+
+
+def _read_completion(response) -> tuple[str, dict, str | None, str | None]:
+    """Read one chat completion, streamed or not.
+
+    Returns (text, usage, model, finish_reason). Server-sent events are the normal
+    path; a single JSON body is still accepted, because an endpoint may ignore
+    `stream` and answer whole.
+    """
+    content_type = (response.headers.get("Content-Type") or "").lower()
+    if "text/event-stream" not in content_type:
+        data = json.loads(response.read().decode("utf-8"))
+        choice = data["choices"][0]
+        return (
+            choice["message"]["content"],
+            data.get("usage", {}),
+            data.get("model"),
+            choice.get("finish_reason"),
+        )
+
+    parts: list[str] = []
+    usage: dict = {}
+    model_name: str | None = None
+    finish: str | None = None
+    for raw in response:
+        line = raw.decode("utf-8", "replace").strip()
+        if not line or line.startswith(":") or not line.startswith("data:"):
+            continue
+        chunk = line[len("data:"):].strip()
+        if chunk == "[DONE]":
+            break
+        try:
+            event = json.loads(chunk)
+        except json.JSONDecodeError:
+            # A malformed chunk is not worth failing the whole round over; the
+            # finish_reason and usage checks upstream catch a truncated result.
+            continue
+        model_name = event.get("model") or model_name
+        if event.get("usage"):
+            usage = event["usage"]
+        for choice in event.get("choices") or []:
+            piece = (choice.get("delta") or {}).get("content")
+            if piece:
+                parts.append(piece)
+            if choice.get("finish_reason"):
+                finish = choice["finish_reason"]
+    return "".join(parts), usage, model_name, finish
+
 mcp = FastMCP("peer-review")
 
 
@@ -159,23 +224,41 @@ def peer_ask(
     if not model:
         return {"error": f"profile '{profile}' is missing required field 'model'"}
 
-    payload: dict = {
-        "model": model,
-        "messages": [{"role": "system", "content": system}, *messages],
-    }
     tokens = max_output_tokens or entry.get("max_output_tokens")
-    if tokens:
-        payload["max_tokens"] = tokens
-    if temperature is not None:
-        payload["temperature"] = temperature
-    body = json.dumps(payload).encode("utf-8")
+
+    def _build(legacy: bool) -> bytes:
+        """The request body. `legacy` is the pre-reasoning-model parameter shape."""
+        payload: dict = {
+            "model": model,
+            "messages": [{"role": "system", "content": system}, *messages],
+            # Streamed deliberately. A challenge round is a long generation, and a
+            # non-streamed request must complete inside one response, which is what
+            # turns a slow answer into a gateway 504. Streaming also converts
+            # REQUEST_TIMEOUT_SECONDS from a total-duration cap into an idle cap,
+            # since the socket timeout below then applies per chunk read.
+            "stream": True,
+        }
+        if tokens:
+            # max_tokens is deprecated for chat completions and reasoning models
+            # reject it. Send the modern field, and fall back only if the endpoint
+            # says it does not know it.
+            payload["max_tokens" if legacy else "max_completion_tokens"] = tokens
+        if not legacy:
+            # Without this, a streamed response carries no usage block at all, and
+            # the verdict's token accounting would silently report nothing.
+            payload["stream_options"] = {"include_usage": True}
+        if temperature is not None:
+            payload["temperature"] = temperature
+        return json.dumps(payload).encode("utf-8")
+
+    body = _build(legacy=False)
     if len(body) > MAX_PAYLOAD_BYTES:
         return {"error": f"payload is {len(body)} bytes, over the {MAX_PAYLOAD_BYTES} byte cap; not sent"}
 
     url = entry["base_url"].rstrip("/") + "/chat/completions"
-    attempts = 0
+    retried = False
+    downgraded = False
     while True:
-        attempts += 1
         request = urllib.request.Request(
             url,
             data=body,
@@ -185,19 +268,37 @@ def peer_ask(
         started = time.monotonic()
         try:
             with urllib.request.urlopen(request, timeout=REQUEST_TIMEOUT_SECONDS) as response:
-                data = json.loads(response.read().decode("utf-8"))
+                text, usage, resp_model, finish = _read_completion(response)
             latency_ms = int((time.monotonic() - started) * 1000)
+            if finish == "length":
+                # A reply cut off at the cap is not a short reply, it is a corrupt
+                # one: the round's findings stop mid-list with nothing marking the
+                # cut. Refuse it rather than hand the caller a partial challenge.
+                return {
+                    "error": f"completion truncated at the token cap after {latency_ms} ms "
+                    f"(finish_reason=length, {len(text)} chars received); raise "
+                    f"max_output_tokens for profile '{profile}' and run again"
+                }
+            if not text:
+                return {"error": f"empty completion after {latency_ms} ms (finish_reason={finish})"}
             return {
-                "text": data["choices"][0]["message"]["content"],
-                "usage": data.get("usage", {}),
-                "model": data.get("model", entry["model"]),
+                "text": text,
+                "usage": usage,
+                "model": resp_model or model,
                 "latency_ms": latency_ms,
+                "finish_reason": finish,
             }
         except urllib.error.HTTPError as error:
-            # Never rebind `body`: it is the request payload and the retry below resends it.
             error_body = error.read().decode("utf-8", "replace")
             detail = _redact(error_body, api_key)[:500]
-            if error.code in RETRY_STATUSES and attempts == 1:
+            if error.code == 400 and not downgraded and _rejects_modern_params(error_body):
+                # Endpoint predates max_completion_tokens / stream_options. Rebuild
+                # once in the legacy shape. This does not consume the network retry.
+                downgraded = True
+                body = _build(legacy=True)
+                continue
+            if error.code in RETRY_STATUSES and not retried:
+                retried = True
                 time.sleep(RETRY_BACKOFF_SECONDS)
                 continue
             return {"error": f"HTTP {error.code} from {url}: {detail}"}
