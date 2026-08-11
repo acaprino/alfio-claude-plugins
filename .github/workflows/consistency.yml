@@ -26,6 +26,9 @@ jobs:
       - name: Bundled path lint
         run: python scripts/lint_bundled_paths.py
 
+      - name: Plugin registration lint
+        run: python scripts/lint_plugin_registration.py
+
       - name: VS Code export structural check
         run: python .claude/skills/downstream-exports/scripts/check_export.py
 
