@@ -2,14 +2,14 @@
 
 # Claude Code Daodan
 
-**39 specialized plugins that augment Claude Code into a specialized toolkit - so you spend less time prompting and more time shipping.**
+**40 specialized plugins that augment Claude Code into a specialized toolkit - so you spend less time prompting and more time shipping.**
 
 > The Daodan is the symbiote that enhances its host. This marketplace is the Daodan of Claude Code.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat)](LICENSE)
 [![Consistency](https://github.com/acaprino/claude-code-daodan/actions/workflows/consistency.yml/badge.svg)](https://github.com/acaprino/claude-code-daodan/actions/workflows/consistency.yml)
 [![Marketplace](https://img.shields.io/badge/dynamic/json?label=marketplace&prefix=v&query=%24.metadata.version&url=https%3A%2F%2Fraw.githubusercontent.com%2Facaprino%2Fclaude-code-daodan%2Fmaster%2F.claude-plugin%2Fmarketplace.json&style=flat&color=green)](.claude-plugin/marketplace.json)
-[![Plugins](https://img.shields.io/badge/plugins-39-orange?style=flat)](#plugins)
+[![Plugins](https://img.shields.io/badge/plugins-40-orange?style=flat)](#plugins)
 [![Agents](https://img.shields.io/badge/agents-71-purple?style=flat)](#plugins)
 [![Skills](https://img.shields.io/badge/skills-54-teal?style=flat)](#plugins)
 [![Commands](https://img.shields.io/badge/commands-54-red?style=flat)](#plugins)
@@ -92,6 +92,7 @@ More detail in [Test authoring knowledge bases (TDD and browser E2E)](#test-auth
 | **[python-development](docs/plugins/python-development.md)** | TDD, refactoring, async patterns, packaging, performance, dead code, Pydantic v2, /python-audit | 3 | 9 | 3 |
 | **[senior-review](docs/plugins/senior-review.md)** | 11 agents review architecture, security, patterns, distributed flows, logic integrity, API contracts, startup cycles, UI races, temporal resilience (failure-over-time), data integrity (persistence semantics), resource lifecycle, and codebase hygiene in parallel | 11 | 2 | 3 |
 | **[frontend-review](docs/plugins/frontend-review.md)** | Full frontend review in one pass: design/UX audit from the upstream impeccable, ui-ux-pro-max, and frontend-design skills, plus auto-detected React, TypeScript, PWA, and platform code dimensions | - | - | 1 |
+| **[peer-review](docs/plugins/peer-review.md)** | Cross-model peer review of plans and specs: an external challenger model attacks your artifact, the local session refutes with repository evidence, and the run terminates in a ledger-computed verdict | 2 | 1 | 1 |
 | **[codebase-mapper](docs/plugins/codebase-mapper.md)** | Generate 10 narrative docs with Mermaid diagrams from any codebase | 10 | 1 | 5 |
 | **[ai-tooling](docs/plugins/ai-tooling.md)** | Prompt engineering and optimization, Agent SDK | 1 | 1 | 1 |
 | **[tauri-development](docs/plugins/tauri-development.md)** | Tauri 2 desktop + mobile, Rust backend, IPC optimization | 3 | 1 | - |
@@ -156,6 +157,7 @@ flowchart TD
     tsdev[typescript-development]
     testing[testing]
     frontendreview[frontend-review]
+    peerreview[peer-review]
 
     subgraph external [External marketplaces]
         superpowers["superpowers<br/>(claude-plugins-official)"]
@@ -169,6 +171,7 @@ flowchart TD
     end
 
     aitooling --> superpowers
+    peerreview --> superpowers
     appanalyzer --> playwright
     pwaexpert --> playwright
     grabber --> playwright
@@ -203,7 +206,7 @@ flowchart TD
     frontendreview -.-> platformeng
 ```
 
-Solid arrows are hard dependencies, dotted ones optional. The hard graph is a tree rooted at `codebase-xray`, the plugin that works out how a codebase actually behaves: `senior-review` (review), `codebase-mapper` (documentation), and `abstraction-architect` all build on top of it, and it depends on nothing of ours. That shape is deliberate as of marketplace 16.0.0, when the shared interconnect mapper moved into `codebase-xray` and removed the last near-cycle. `senior-review`'s six optional edges back its conditional review dimensions, each skipped with a note when the plugin is absent rather than failing the review (the `testing` edge degrades differently: its dimension falls back to the generic reviewer instead of skipping). `text-humanizer` is a pure leaf: zero dependencies, four dependents. `frontend-review` sits outside that tree: its three solid arrows are hard dependencies on external design plugins, not on anything of ours, so it does not join the `codebase-xray` root; its four dotted arrows back the auto-detected code dimensions the same way `senior-review`'s optional edges do.
+Solid arrows are hard dependencies, dotted ones optional. The hard graph is a tree rooted at `codebase-xray`, the plugin that works out how a codebase actually behaves: `senior-review` (review), `codebase-mapper` (documentation), and `abstraction-architect` all build on top of it, and it depends on nothing of ours. That shape is deliberate as of marketplace 16.0.0, when the shared interconnect mapper moved into `codebase-xray` and removed the last near-cycle. `senior-review`'s six optional edges back its conditional review dimensions, each skipped with a note when the plugin is absent rather than failing the review (the `testing` edge degrades differently: its dimension falls back to the generic reviewer instead of skipping). `text-humanizer` is a pure leaf: zero dependencies, four dependents. `frontend-review` sits outside that tree: its three solid arrows are hard dependencies on external design plugins, not on anything of ours, so it does not join the `codebase-xray` root; its four dotted arrows back the auto-detected code dimensions the same way `senior-review`'s optional edges do. `peer-review` sits outside the tree the same way `ai-tooling` does: its one solid arrow is a hard dependency on external `superpowers`, it has no optional edges, and nothing of ours depends on it.
 
 ### Frontend and design
 
@@ -383,7 +386,7 @@ claude-code-daodan/
 │   │   ├── skills/            # SKILL.md + optional references/
 │   │   └── commands/          # slash-command .md files
 │   ├── senior-review/
-│   └── ...                    # 39 plugins total
+│   └── ...                    # 40 plugins total
 ├── LICENSE
 └── README.md
 ```
@@ -403,7 +406,7 @@ claude plugin install ./claude-code-daodan/plugins/python-development
 <details>
 <summary><b>Recommended Settings (skill visibility)</b></summary>
 
-With 39 plugins installed, Claude Code's default skill-listing budget can truncate the list of available skills shown at conversation start. Raise the fraction of context allocated to the skill listing in `~/.claude/settings.json`:
+With 40 plugins installed, Claude Code's default skill-listing budget can truncate the list of available skills shown at conversation start. Raise the fraction of context allocated to the skill listing in `~/.claude/settings.json`:
 
 ```json
 {
