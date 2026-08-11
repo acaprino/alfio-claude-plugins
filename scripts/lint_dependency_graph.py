@@ -157,9 +157,18 @@ def check_declarations(plugins):
 
 def check_runtime_refs(plugins, refs):
     problems = []
+    unregistered = set()
     for owner, path, line_no, ns, kind, _lines in refs:
         rel = path.as_posix()
         if (rel, ns) in ALLOWLIST:
+            continue
+        if owner not in plugins:
+            # Files on disk under plugins/<owner>/ with no marketplace.json
+            # entry. Nothing here can be judged, since the declarations to
+            # check against do not exist yet. Report it once and keep going:
+            # crashing would abort the scan and hide every later undeclared
+            # reference. lint_plugin_registration.py owns this condition.
+            unregistered.add(owner)
             continue
         declared = {dep_base(e) for e in plugins[owner]["dependencies"]}
         declared |= {dep_base(e) for e in plugins[owner]["optionalDependencies"]}
@@ -167,6 +176,11 @@ def check_runtime_refs(plugins, refs):
             problems.append(
                 f"{rel}:{line_no} {kind} of '{ns}:*' but '{ns}' is not in "
                 f"{owner}'s dependencies or optionalDependencies")
+    for owner in sorted(unregistered):
+        problems.append(
+            f"plugins/{owner}: has runtime references but no entry in "
+            f".claude-plugin/marketplace.json; its declarations cannot be "
+            f"checked until it is registered (see lint_plugin_registration.py)")
     return problems
 
 
