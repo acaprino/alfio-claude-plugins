@@ -81,6 +81,12 @@ Before starting, invoke these skills to inform the review process:
        "phase_4_report": "pending"
      },
      "files_created": [],
+     "xray": {
+       "run_id": null,
+       "run_dir": null,
+       "target": null,
+       "depth": null
+     },
      "started_at": "ISO_TIMESTAMP"
    }
    ```
@@ -261,7 +267,7 @@ Skip this phase entirely if `--no-context` was passed. Mark `phase_1a_deep_dive`
    - Default mode: `--depth=lite` (structure + interfaces + risks only)
    - If `--deep` flag: full analysis
    - Target scope: the files from Phase 0
-2. Deep-dive writes its output to `.deep-dive/` (or a session directory it chooses). Record the directory path in `state.json -> files_created`.
+2. Read `.deep-dive/runs.json` to resolve the run the skill just created, and record it in `state.json -> xray` as `run_id`, `run_dir`, `target` and `depth`. Every later phase derives its paths from this block and never from the `.deep-dive/` root. `$XRAY_RUN_DIR` below always means `state.json -> xray.run_dir`. If the run cannot be resolved, halt: an unresolvable provenance is a broken pipeline, not a reason to fall back to the mirror.
 3. Verify on completion that at minimum `01-structure.md`, `02-interfaces.md`, and `05-risks.md` exist.
 4. Mark `phase_1a_deep_dive` complete.
 
@@ -347,11 +353,11 @@ Mark `phase_1d_reconciliation` complete.
    Build the interconnect map for this review.
 
    Target scope: [contents of .team-review/00-scope.md]
-   Deep-dive output: .deep-dive/ (files: 01-structure.md, 02-interfaces.md, 05-risks.md, ...)
+   Deep-dive output: $XRAY_RUN_DIR (files: 01-structure.md, 02-interfaces.md, 05-risks.md, knowledge/documentation-leads.md, ...)
    Independent claims: .team-review/01b-independent-claims.md
    Knowledge provenance: .team-review/01-knowledge-provenance.md
 
-   Read .deep-dive/ and the target files. Produce .team-review/02-interconnect.md
+   Read $XRAY_RUN_DIR and the target files. Produce .team-review/02-interconnect.md
    following the exact output format in your agent definition (Call Graph,
    Contracts formal/structural/implicit, Invariants, Domain Rules, Assumptions,
    Integration Hot-Spots, Change Impact Radius, Reviewer Hints).
@@ -408,7 +414,7 @@ You are reviewing for the {dimension} dimension.
 {diff content}
 
 ## Context files (read these before analyzing code)
-- Deep-dive output: .deep-dive/ (see 01-structure.md, 02-interfaces.md, 05-risks.md)
+- Deep-dive output: $XRAY_RUN_DIR (see 01-structure.md, 02-interfaces.md, 05-risks.md)
 - Interconnect map: .team-review/02-interconnect.md
 
 ### Epistemic status of the shared context
@@ -457,7 +463,7 @@ If `--no-context` was set, omit the "Context files" and "Reviewer Hints" section
 ```
 mode: diff
 codebase_path: {target root}
-deep_dive_path: {.deep-dive/ when Phase 1a ran and produced output, otherwise "none"}
+deep_dive_path: {$XRAY_RUN_DIR when Phase 1a ran and produced output, otherwise "none"}
 changed_files: {the same file list used to build the diff above}
 report_path: .team-review/findings-abstraction.md
 severity_floor: medium
@@ -536,7 +542,7 @@ Skip this phase if `--fast` was passed (mark `phase_4b_verification` as `skipped
 
 Skip this phase if `--fast` was passed (mark `phase_4c_critic` as `skipped`). Otherwise drive the critic exactly per the `senior-review:review-quality-gates` skill, section `## Completeness Critic`.
 
-1. Spawn one critic agent (`general-purpose`) with the critic prompt from the skill. Pass the verified findings (post-4b), `.team-review/00-scope.md`, the dimensions that ran, and the context paths (`.deep-dive/` and `.team-review/02-interconnect.md`, or "none" under `--no-context`).
+1. Spawn one critic agent (`general-purpose`) with the critic prompt from the skill. Pass the verified findings (post-4b), `.team-review/00-scope.md`, the dimensions that ran, and the context paths (`$XRAY_RUN_DIR` and `.team-review/02-interconnect.md`, or "none" under `--no-context`).
 2. Write the critic output to `.team-review/97-coverage-gaps.md`.
 3. If the critic names a single high-risk uncovered area under `## Recommended follow-up` AND neither the cost guard nor `--fast` applies: spawn ONE targeted reviewer (the most specialized agent for that area, per the Phase 2 dimension-to-agent table) for one round, scoped to the files the critic named. Route its findings back through Phase 4 (dedup) and Phase 4b (verification). Do this at most once.
 4. If the cost guard applies, degrade to report-only: keep `97-coverage-gaps.md`, spawn no follow-up, and note the skip.

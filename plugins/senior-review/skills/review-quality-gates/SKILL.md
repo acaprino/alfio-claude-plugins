@@ -29,7 +29,7 @@ This is the pipeline's first-level invariant, not quality advice. Three conseque
 
 When `/team-review` runs in pipeline mode (no `--no-context`), reviewers do not receive raw code only. They receive two context artifacts produced in Phase 1:
 
-1. **Deep-dive output** at `.deep-dive/` (from `codebase-xray` plugin): `01-structure.md`, `02-interfaces.md`, `05-risks.md`, and optionally `03-flows.md`, `04-semantics.md`, `06-documentation.md`, `07-final-report.md`.
+1. **Deep-dive output** (from `codebase-xray` plugin) at the path the orchestrating command recorded: `$XRAY_RUN_DIR` when that command started the X-ray run itself (`/team-review` Phase 1a), or the `.deep-dive/` mirror when it is consuming an analysis that already existed (`/code-review` Step 2). A command that started a run never reads the mirror: the mirror means "latest published run", not "the run I just produced". Files: `01-structure.md`, `02-interfaces.md`, `05-risks.md`, and optionally `03-flows.md`, `04-semantics.md`, `06-documentation.md`, `07-final-report.md`.
 2. **Interconnect map** at `.team-review/02-interconnect.md` (from `codebase-xray:semantic-interconnect-mapper`): contracts (formal / structural / implicit), invariants, domain rules, assumptions (verified / documented / unverified), integration hot-spots, change impact radius.
 
 ### Why context sharing matters, and where it stops
@@ -70,7 +70,7 @@ You are reviewing for the {dimension} dimension.
 [...]
 
 ## Context files
-- Deep-dive output: .deep-dive/
+- Deep-dive output: $XRAY_RUN_DIR
 - Interconnect map: .team-review/02-interconnect.md
 
 ### Epistemic status of the shared context
@@ -96,6 +96,8 @@ also cite the map anchor that surfaced the concern.
 
 Write your output to .team-review/findings-{dimension}.md.
 ```
+
+**Path substitution, per Task 12.** This template is `/team-review`'s: the deep-dive line resolves to `$XRAY_RUN_DIR`, the immutable directory of the run Phase 1a started. A command that started a run never reads the mirror, per the X-ray Concurrent Runs Model: the mirror means "latest published run", not "the run I just produced". `/code-review` does not use this template; it builds its own Deep Dive Context Template and reads the `.deep-dive/` mirror there, because it consumes an analysis it did not produce.
 
 ### Metrics
 

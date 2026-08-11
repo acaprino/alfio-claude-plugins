@@ -159,6 +159,7 @@ gh api repos/{owner}/{repo}/pulls/{number}/comments --jq '.[].path' | sort -u
    - Include a "Deep Dive Context" section in each agent's prompt (see template below)
    - Note in the review output that deep-dive context was used
    - If `.deep-dive/` does not exist or is incomplete, proceed normally without it -- this is expected behavior when the `codebase-xray` plugin is not installed or hasn't been run
+   - This is a deliberate classification, not an oversight: `code-review` consumes a pre-existing analysis rather than starting a run, so per the X-ray Concurrent Runs Model the mirror is the correct contract for it. If this command is ever changed to invoke the X-ray skill itself, it moves to the immutable run directory (`$XRAY_RUN_DIR`) at that point
 
 ### Deep Dive Context Template
 
