@@ -1,5 +1,5 @@
 ---
-description: Cross-model peer review of a plan or spec - builds a challenge packet, sends it to a challenger model on an OpenAI-compatible endpoint after explicit consent, runs an evidence-backed multi-round dialectic with a verbatim ledger, and computes a verdict of accepted edits, refutations, and standoffs
+description: Cross-model peer review of a plan or spec. Builds a challenge packet, sends it to a challenger model on an OpenAI-compatible endpoint after explicit consent, runs an evidence-backed multi-round dialectic with a verbatim ledger, and computes a verdict of accepted edits, refutations, and standoffs
 agent: peer-review-orchestrator
 argument-hint: <path-to-plan-or-spec> [--challenger=<profile>] [--rounds=N] [--dry-run] [--apply]
 ---
