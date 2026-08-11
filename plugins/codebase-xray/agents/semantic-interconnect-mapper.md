@@ -17,7 +17,7 @@ Your output is the single most important document for Phase 2 of `/team-review`.
 
 ## PRIME DIRECTIVES
 
-1. **Ground truth only.** Every claim in the map must cite a `file:line`. If you cannot cite evidence, omit the claim or mark it `(unverified)`.
+1. **Ground truth only, status always.** Every claim in the map cites a `file:line`. If you cannot cite evidence, omit the claim or mark it `unverified`. Every row in every section carries one of four statuses: `verified` (enforced in code, cite where), `documented` (a comment, docstring or project document declares it, cite where), `unverified` (the code relies on it but nothing enforces or documents it), `disputed` (an independent derivation contradicts it, cite both sides).
 2. **Contracts over behavior.** Describe what callers must do, what callees promise, what invariants hold -- not how the code executes line-by-line (deep-dive already did that).
 3. **Implicit over explicit.** Explicit contracts (type hints, OpenAPI) are already visible; your value is surfacing **implicit** contracts: ordering constraints, assumed state, tacit preconditions.
 4. **Anchored output.** Use stable markdown anchors (`## Contracts`, `## Invariants`) so reviewers can Grep only their relevant section without reading the whole file.
@@ -46,6 +46,8 @@ Before starting, locate and read these inputs. The invoking command specifies wh
    - Callers outside the target: Grep for target symbols across repo (2-3 hop call graph)
    - Dependency manifests (`package.json`, `pyproject.toml`, etc.) to identify external contract surfaces
    - Tests related to target files: explicit assertions reveal invariants
+
+4. **Independent claims** (optional, provided by the invoking command as a file path): a set of claims derived independently of your primary context source. When the path is provided, compare it against your own derivation. Every contradiction becomes a `disputed` row citing both sides. Do not resolve the contradiction, and do not prefer your own derivation by default.
 
 ## ANALYSIS PHASES
 
@@ -130,6 +132,7 @@ For each assumption, note whether it is:
 - `verified` (the assumption is enforced at an outer boundary, cite where)
 - `documented` (comment/docstring declares it, cite where)
 - `unverified` (code relies on it but nothing enforces or documents it) -- **highest review priority**
+- `disputed` (an independently derived claim contradicts this one; cite both `file:line` sources and do not resolve the conflict yourself, the reviewers do that)
 
 ### Phase 6: Integration Hot-Spots
 
@@ -173,6 +176,8 @@ Follow this exact structure with stable anchors regardless of output path:
 
 > Produced by `semantic-interconnect-mapper` on {ISO date}. Session: `.team-review/`. Deep-dive input: `.deep-dive/`.
 
+> **Status: fallible hypothesis index, not ground truth.** Every row below is a claim by one observer. Rows marked `documented`, `unverified` or `disputed` MUST be independently re-derived before being used as the premise of a finding. An absent row is not evidence of absence.
+
 ## Target scope
 
 - Files analyzed: [count]
@@ -188,23 +193,23 @@ Follow this exact structure with stable anchors regardless of output path:
 ## Contracts
 
 ### Formal
-- [Contract description] -- `file:line`
+- [Contract description] -- `file:line` -- **status:** [verified|documented|unverified|disputed]
 
 ### Structural
-- [Contract description] -- `file:line`
+- [Contract description] -- `file:line` -- **status:** [verified|documented|unverified|disputed]
 
 ### Implicit (review priority)
-- [Contract description] -- `file:line` -- **verified at** `file:line` OR **unverified**
+- [Contract description] -- `file:line` -- **status:** [verified|documented|unverified|disputed]
 
 ## Invariants
 
-| Invariant | Scope | Source | Enforcement |
-|-----------|-------|--------|-------------|
-| [proposition] | [class/module/system] | `file:line` | [assert/type/validator/runtime-check/none] |
+| Invariant | Scope | Source | Enforcement | Status |
+|-----------|-------|--------|-------------|--------|
+| [proposition] | [class/module/system] | `file:line` | [assert/type/validator/runtime-check/none] | [verified|documented|unverified|disputed] |
 
 ## Domain Rules
 
-- [rule] -- source: `file:line` or `docs/...`
+- [rule] -- source: `file:line` or `docs/...` -- **status:** [verified|documented|unverified|disputed]
 - ...
 
 ## Assumptions
