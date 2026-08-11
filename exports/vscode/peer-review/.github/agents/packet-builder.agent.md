@@ -100,16 +100,68 @@ mode's lack of a confirmation gate.
 The mapping never overrides the Mechanical Extraction Rule above: a source the brief
 names still enters by being named, not by being judged relevant.
 
-## Digest Step
+## Artifact Embedding and Digest
 
-Compute and record above the embedded artifact:
+The embedded artifact must be byte-identical to the source (R15). **Never retype it,
+and never let it pass through a read-then-write path.** Reproducing it through your own
+output normalizes CRLF to LF on a Windows checkout, which makes the recorded digest
+describe bytes the packet does not contain, and it risks a transcription error the
+digest then misdescribes rather than catches. Splice the bytes in instead.
+
+Write the packet with a marker where the artifact goes, then run one script that
+splices and verifies. Section 2 (Artifact) is composed as:
+
+````
+bytes: <N>
+sha256: <hex>
+````
+`````markdown
+<<<ARTIFACT_SPLICE>>>
+`````
+
+Leave `<N>` and `<hex>` as literal placeholders: the script below fills them in from the
+same bytes it splices, so they cannot disagree. Pick a fence longer than the longest
+backtick run inside the artifact; the script refuses to proceed if the fence it is given
+appears in the artifact.
+
+Run it with `#execute/runInTerminal`:
+
+```bash
+python - <<'PY'
+import hashlib, pathlib
+ART   = pathlib.Path("<artifact path>")
+PKT   = pathlib.Path("<run dir>/00-packet.md")
+FENCE = b"`````"                      # must match the fence written above
+
+raw    = ART.read_bytes()
+digest = hashlib.sha256(raw).hexdigest()
+if FENCE in raw:
+    raise SystemExit("fence appears inside the artifact; use a longer fence and rewrite")
+
+padded = raw if raw.endswith(b"\n") else raw + b"\n"   # layout only, never hashed
+data   = PKT.read_bytes()
+
+marker = b"<<<ARTIFACT_SPLICE>>>\n"
+if data.count(marker) != 1:
+    raise SystemExit(f"marker appears {data.count(marker)} times, expected exactly 1")
+data = data.replace(marker, padded)
+data = data.replace(b"bytes: <N>", f"bytes: {len(raw)}".encode())
+data = data.replace(b"sha256: <hex>", f"sha256: {digest}".encode())
+PKT.write_bytes(data)
+
+# Verify the EMBEDDING, not the source. This is the comparison that can fail.
+after   = data.split(FENCE + b"markdown\n", 1)[1]
+emb     = after[: after.rindex(FENCE)]
+if not raw.endswith(b"\n"):
+    emb = emb[:-1]
+if hashlib.sha256(emb).hexdigest() != digest or len(emb) != len(raw):
+    raise SystemExit(f"embedding mismatch: embedded {len(emb)}B, source {len(raw)}B")
+print(f"embedded OK: {len(raw)} bytes, sha256 {digest}")
+PY
 ```
-bytes: $(stat -c %s <artifact>)   [or wc -c]
-sha256: python -c "import hashlib,sys;print(hashlib.sha256(open(sys.argv[1],'rb').read()).hexdigest())" <artifact>
-```
-Both values sit immediately above the verbatim artifact text (R3, R15). The verdict
-later checks these against the source file and the outgoing request. A wrong digest
-here is a run-invalidating defect, not a style nit.
+
+A non-zero exit from that script is a run-invalidating defect, not a style nit. Do not
+hand-repair the packet and re-report; fix the cause and rebuild.
 
 ## Known-Weaknesses Duty
 
@@ -127,8 +179,11 @@ Before returning, confirm:
 - Every Ground truth and Constraints line carries `GIVEN` and a locator.
 - Every Considered-and-rejected entry is split into `decision (GIVEN)` and
   `rationale (TO JUDGE)`.
-- `bytes` and `sha256` recorded immediately above the embedded artifact, and match
-  the artifact file on disk.
+- `bytes` and `sha256` recorded immediately above the embedded artifact, and the
+  splice script exited zero. Its check compares the digest against **the text embedded
+  in the packet**, which is the only comparison that can fail: comparing the recorded
+  digest against the source file passes by construction, since both are computed from
+  the same file by the same method, and reports confidence it has not earned.
 - Section 6 carries three or more weaknesses, or an explicit statement that none
   could be named.
 - Section 9 is the Round 1 block from `round-prompts.md`, verbatim.
