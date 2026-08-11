@@ -32,7 +32,7 @@ Load the skill `abstraction-architect:abstraction-architect`. Read `references/d
 - `codebase_path` — the codebase root.
 - `mode` (optional, default `global`) — `global` audits the whole codebase. `diff` audits what just changed. Separate PROCESS sections below.
 - `deep_dive_path` — path to `.deep-dive/`. Required for `global`, optional for `diff`.
-- `concept_index_path` (optional) — path to `concept-index.json`. Defaults to `<codebase_path>/.abstraction-architect/concept-index.json`. Absent or unusable is a supported condition, not an error.
+- `concept_index_path` (optional) — path to `concept-index.json`. Defaults to `<codebase_path>/.abstraction-architect/concept-index.json`. Absent or unusable is a supported condition, not an error. The literal value `none` disables both reading and writing the index.
 - `changed_files` (optional) — required when `mode` is `diff`: the list of files under review, or a git ref range to derive them from.
 - `report_path` (optional) — defaults per mode, see PROCESS.
 - `scope` (optional) — a subpath. Only emit findings whose evidence falls inside it.
@@ -61,7 +61,7 @@ Mode `diff` needs only `01-structure.md` and `02-interfaces.md`, both produced b
 6. **Build the Concept Evidence Index.** One entry per concept: representations with roles, writers, consumers, canonical owner status, evidence.
 7. **Test hypotheses.** For each concept with more than one representation: assign the track, run the dimension gate from `references/evidence-tracks.md`, apply lenses L1 to L4, classify to a single primary dimension using the precedence in `references/dimensions.md`.
 8. **Promote and calibrate.** Per `references/decision-frame.md`. Re-read every cited representation on current source before promoting. Severity follows consequence; occurrence count is evidence strength only.
-9. **Write the index** to `concept_index_path`, per the schema in `references/concept-index-protocol.md`. Record `generated_from_commit` and `generated_from_tree` from the current HEAD.
+9. **Write the index** to `concept_index_path`, per the schema in `references/concept-index-protocol.md`. Record `generated_from_commit` and `generated_from_tree` from the current HEAD, and `scope` as the audited scope: the value of the `scope` input, or `.` for a whole-repo run. When an index already on disk at `concept_index_path` carries a broader `scope` than this run's, do not overwrite it: refuse the write and record the conflict in Gaps instead. Skip the write entirely when `concept_index_path` is `none`, and note the skip in Gaps.
 10. **Write the report** to `report_path`, default `<codebase_path>/.abstraction-architect/findings.md`.
 
 # PROCESS (mode = diff)
@@ -76,12 +76,12 @@ This mode answers: **does this change introduce or aggravate structural entropy 
    A changed literal inside an existing function is a semantic unit even when no structural unit changed. A diff that moves a threshold from 1000 to 1500, adds a field to a persisted model, or introduces an enum value produces no structural unit at all, and without semantic extraction D1 to D4 cannot form a hypothesis.
 
    Ignore pure renames, formatting and deletions.
-3. **Load the concept index and check freshness.** Run the script:
+3. **Load the concept index and check freshness.** Write `changed_files` to a temporary file, one path per line, then run the script with that file's path as `--changed-files`:
 
    ```bash
    python "${CLAUDE_PLUGIN_ROOT}/skills/abstraction-architect/scripts/concept_index.py" \
      status --index <concept_index_path> --repo <codebase_path> \
-     --changed-files <file listing changed_files, one per line>
+     --changed-files <path to that temporary file>
    ```
 
    Read `freshness_state`, `dirty_indexed_concepts` and `unmapped_changed_files` from its JSON. On `unusable`, on a script failure, or with no Python available, proceed without the index and record the specific condition in Gaps. Never assume `fresh`.
@@ -100,6 +100,8 @@ This mode answers: **does this change introduce or aggravate structural entropy 
    | D6 | Was this already available? |
    | D7 | Does this diff introduce or worsen abstraction friction? |
 
+   For each candidate that answers yes, assign the track, run the dimension gate from `references/evidence-tracks.md`, apply lenses L1 to L4, and classify to a single primary dimension using the precedence in `references/dimensions.md`.
+
 8. **Promote and calibrate.** Per `references/decision-frame.md`, including the mandatory re-read of every cited representation.
 9. **Write the report** to `report_path`, default `<codebase_path>/.abstraction-architect/findings-diff.md`. **Do not write the concept index.** New concepts and contradictions go in Gaps; the next global audit consolidates them.
 
@@ -107,7 +109,7 @@ This mode answers: **does this change introduce or aggravate structural entropy 
 
 Both modes use the same section letters so consolidation is uniform. Omit an empty section.
 
-```markdown
+````markdown
 # Abstraction-architect findings[ (diff-anchored)]
 
 **Generated:** <ISO timestamp>
@@ -149,6 +151,7 @@ Occurrences: 2                       Independent implementations: yes
 Must remain consistent: yes          Shared lifecycle: yes
 Bounded-context exception: none      Rule of Three: satisfied
 Canonical owner: ambiguous           Index-seeded: no
+Index-seeded: <yes|no>
 ```
 
 ## H. Second occurrences noted, not flagged
@@ -167,7 +170,7 @@ One line per pair, exempt from `severity_floor`, so the next occurrence is recog
   Or, when degraded, the specific condition and what coverage was lost.
 - **Index contradictions:** entries the source disproved, with what the source says
 - **Gaps:** deep-dive files missing, directories not covered, units skipped and why
-```
+````
 
 # CONSTRAINTS
 

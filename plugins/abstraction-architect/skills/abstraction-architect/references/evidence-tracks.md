@@ -89,4 +89,5 @@ Occurrences: 2                       Independent implementations: yes
 Must remain consistent: yes          Shared lifecycle: yes
 Bounded-context exception: none      Rule of Three: satisfied
 Canonical owner: ambiguous           Index-seeded: no
+Index-seeded: <yes|no>
 ```
