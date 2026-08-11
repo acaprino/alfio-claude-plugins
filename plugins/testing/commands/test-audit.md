@@ -1,11 +1,8 @@
 ---
 description: >
-  Measure test-suite health into a versioned TEST_AUDIT.md (counts, runtime, skipped, failing,
-  flaky, orphans, layers, coverage) and optionally quarantine the rot with --fix.
-  TRIGGER WHEN: the user asks to audit the test suite, measure test health, find dead or flaky
-  or redundant tests, or quarantine failing tests to get CI trustworthy again.
-  DO NOT TRIGGER WHEN: consolidating one module's tests (use /testing:test-consolidate), or
-  writing new tests (use the test-writer agent).
+  Writes a versioned TEST_AUDIT.md; with --fix, quarantines the rot in gated, revertible commits.
+  TRIGGER WHEN: auditing a test suite, measuring test health, finding dead or flaky or redundant tests, or quarantining failing tests to get CI trustworthy again.
+  DO NOT TRIGGER WHEN: one module's tests are consolidated (use /testing:test-consolidate), or new tests written (use the test-writer agent).
 argument-hint: "[path] [--fix] [--yes] [--no-run] [--runner <cmd>] [--scope <subpath>]"
 ---
 

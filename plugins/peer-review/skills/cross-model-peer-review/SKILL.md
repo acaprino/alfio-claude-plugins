@@ -74,9 +74,10 @@ model time. Three situations do not earn that cost:
   ends up debating what the artifact might mean instead of whether it holds up.
   Sharpen the plan or spec into decidable claims first, then run the review.
 - **The decision was already made for reasons outside the artifact.** The protocol
-  judges the artifact, never its author or the reasoning behind it (R1); it has no way
-  to weigh a constraint that is not written down. Record the outside reason directly
-  instead of asking a challenger to attack a document that cannot represent it.
+  judges the artifact, never its author (R1). It also has no way to weigh a
+  constraint that is not written down, so the reasoning behind the decision goes
+  unjudged too. Record the outside reason directly instead of asking a challenger to
+  attack a document that cannot represent it.
 - **The target is a diff.** This plugin reviews plans and specs, not code changes; the
   command itself refuses anything that looks like a unified diff or a source file.
   `senior-review` owns diff and PR review.

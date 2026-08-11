@@ -1,8 +1,8 @@
 ---
 description: >
-  Scaffold a new Firefox WebExtension project with manifest.json (V3 default), directory layout, content/background scripts, web-ext config, and a working "Hello World" popup. Follows AMO publishing requirements from day one.
-  TRIGGER WHEN: the user asks to create, bootstrap, start, or scaffold a new Firefox extension / WebExtension / browser add-on.
-  DO NOT TRIGGER WHEN: adding features to an existing extension (use firefox-extension-dev agent), or targeting Chrome-only (different APIs and review process).
+  Generates manifest.json (V3 default), directory layout, content and background scripts, web-ext config and a working popup.
+  TRIGGER WHEN: creating, bootstrapping or scaffolding a new Firefox extension, WebExtension or browser add-on.
+  DO NOT TRIGGER WHEN: features are added to an existing extension (use the firefox-extension-dev agent).
 argument-hint: "<extension-name> [--mv V2|V3] [--sidebar] [--content-script] [--options-page]"
 ---
 

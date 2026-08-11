@@ -1,19 +1,9 @@
 ---
 name: pwa-development
 description: >
-  Progressive Web App knowledge base for 2025-2026: Web App Manifest, Service Workers
-  (Workbox 7, Serwist), Web Push (VAPID, RFC 8030/8291/8292, Declarative Push for
-  Safari 18.4+), install flows (beforeinstallprompt, Window Controls Overlay), OPFS
-  storage, Project Fugu, Core Web Vitals (INP < 200ms), security (HTTPS, CSP,
-  COOP/COEP), and distribution (Bubblewrap, PWA Builder MSIX, Capacitor).
-  TRIGGER WHEN: building, auditing, or debugging PWAs, including manifest, service
-  worker, Web Push, install flow, OPFS, Background Sync, Wake Lock, vite-plugin-pwa,
-  Next.js Serwist, @angular/pwa, @vite-pwa/nuxt, Bubblewrap, TWA, PWA Builder, or
-  Capacitor wrapping.
-  DO NOT TRIGGER WHEN: the task is generic frontend styling (use frontend), React
-  performance (use react-development:review-react), cross-platform security unrelated
-  to PWA (use platform-engineering), Tauri or Electron wrappers (use
-  tauri-development), or GA4 / analytics (use digital-marketing).
+  Knowledge base for the app layer of the web platform, and the gaps between engines.
+  TRIGGER WHEN: building or auditing a PWA: Web App Manifest, service workers, Workbox, Serwist, vite-plugin-pwa, @angular/pwa, @vite-pwa/nuxt, Web Push, VAPID, Declarative Push, beforeinstallprompt, Window Controls Overlay, OPFS, Background Sync, Wake Lock, Project Fugu, Bubblewrap, TWA, PWA Builder, Capacitor.
+  DO NOT TRIGGER WHEN: React performance (use react-development:review-react), non-PWA platform security (use platform-engineering), or Tauri and Electron shells (use tauri-development).
 ---
 
 # Progressive Web App Development

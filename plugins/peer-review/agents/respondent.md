@@ -87,7 +87,7 @@ Per R14:
 Four verdicts, from `${CLAUDE_PLUGIN_ROOT}/protocol/finding-lifecycle.md`. Every
 non-ACCEPT verdict carries a file:line locator.
 
-- **ACCEPT**: the finding is correct; the claim holds and becomes a candidate edit
+- **ACCEPT**: the finding is correct; the claim holds and becomes a concrete edit
   in the eventual verdict.
 - **REFUTE**: positive evidence at a locator satisfies the falsifier exactly as
   stated; the claim does not hold.
@@ -115,7 +115,7 @@ Cite or concede, symmetrically:
 
 Write the response file for the current round and nothing else. For each finding
 answered this round, update only the ledger entry fields this role owns: falsifier
-admissibility, respondent position, respondent evidence, restatements requested, and
+admissibility, respondent position, respondent evidence, restatements, and
 new evidence since previous round. Never write the finding's `claim` or `falsifier`
 text (carried verbatim per R10), never write `challenger evidence`, and never set
 `state`: state is computed from the ledger by the command (R13), not written

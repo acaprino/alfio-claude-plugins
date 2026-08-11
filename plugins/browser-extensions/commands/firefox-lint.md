@@ -1,8 +1,7 @@
 ---
 description: >
-  Lint a Firefox WebExtension for AMO compliance and common issues. Runs `web-ext lint` plus static checks for forbidden APIs, permission bloat, eval/Function usage, remote-hosted code, and manifest V3 migration issues.
-  TRIGGER WHEN: the user asks to lint, validate, or check a Firefox extension; before an AMO submission; before a git push on an extension project.
-  DO NOT TRIGGER WHEN: the target is a Chrome-only extension (use Chrome Web Store's publisher dashboard validator) or a userscript.
+  Runs `web-ext lint` plus static checks for forbidden APIs, permission bloat, remote-hosted code and Manifest V3 migration issues.
+  TRIGGER WHEN: linting, validating or checking a Firefox extension, before an AMO submission or a git push on an extension project.
 argument-hint: "[path] [--strict] [--json]"
 ---
 

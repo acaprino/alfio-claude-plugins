@@ -1,5 +1,7 @@
 ---
-description: Audit a PWA implementation. Auto-detects local-code mode (path or omitted) vs live-URL mode (Playwright). Produces a prioritized markdown report with file-line citations.
+description: >
+  Checks manifest, install criteria, offline behavior, security headers and performance, locally or against a live URL, citing file and line.
+  TRIGGER WHEN: auditing a PWA, or verifying one is installable and production-ready.
 argument-hint: "[path | URL]"
 ---
 

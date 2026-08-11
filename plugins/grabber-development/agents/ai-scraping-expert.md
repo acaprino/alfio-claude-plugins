@@ -1,9 +1,9 @@
 ---
 name: ai-scraping-expert
 description: >
-  Expert in AI-assisted scraping: Crawl4AI, Firecrawl, ScrapeGraphAI, Browser Use, Stagehand, Skyvern, Jina Reader, Spider.cloud; Pydantic schema-driven extraction, LLM-repair hybrid pipelines, GraphQL reverse engineering, and cost modelling for LLM-based extraction.
-  TRIGGER WHEN: picking between LLM-based scraping frameworks, designing schema-driven extraction with Pydantic, building a CSS + LLM-fallback hybrid, reverse-engineering a GraphQL API, or estimating extraction cost at scale.
-  DO NOT TRIGGER WHEN: the task is HTTP/TLS fingerprinting (use http-fingerprint-expert), browser stealth / CAPTCHA (use stealth-browser-expert), or pure Python scraper boilerplate with no LLM (use grabber-architect).
+  Specialist for the AI-assisted half of a scraping pipeline.
+  TRIGGER WHEN: picking between Crawl4AI, Firecrawl, ScrapeGraphAI, Browser Use, Stagehand, Skyvern, Jina Reader and Spider.cloud, designing Pydantic schema-driven extraction, building a CSS plus LLM-fallback hybrid, reverse-engineering a GraphQL API, or estimating extraction cost at scale.
+  DO NOT TRIGGER WHEN: the work is TLS fingerprinting (use http-fingerprint-expert), browser stealth or CAPTCHA (use stealth-browser-expert), or boilerplate with no LLM (use grabber-architect).
 model: inherit
 color: pink
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch

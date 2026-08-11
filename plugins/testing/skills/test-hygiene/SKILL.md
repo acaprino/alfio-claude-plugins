@@ -1,15 +1,9 @@
 ---
 name: test-hygiene
 description: >
-  Test-suite hygiene: binding rules for WHERE tests go and WHEN to create them, plus the
-  remediation ladder for suites that have already degraded (measure, quarantine, consolidate).
-  TRIGGER WHEN: creating or placing any test file, deciding whether to extend an existing test
-  or create a new one, auditing test-suite health, quarantining failing or flaky tests, or
-  consolidating redundant tests.
-  DO NOT TRIGGER WHEN: the task is writing the test content itself (use mattpocock-skills:tdd),
-  browser E2E mechanics like page objects and waiting strategies (use
-  developer-essentials:e2e-testing-patterns), or Python pytest specifics (the python-development
-  plugin covers those in its python-tdd skill).
+  Binding placement rules, plus the measure, quarantine, consolidate remediation ladder for degraded suites.
+  TRIGGER WHEN: creating or placing any test file, choosing between extending an existing test and writing a new one, auditing test-suite health, quarantining failing or flaky tests, or consolidating redundant tests.
+  DO NOT TRIGGER WHEN: writing the test content itself (use mattpocock-skills:tdd), browser E2E mechanics like page objects and waiting (use developer-essentials:e2e-testing-patterns), or pytest specifics (python-development's python-tdd skill).
 ---
 
 # Test-Suite Hygiene

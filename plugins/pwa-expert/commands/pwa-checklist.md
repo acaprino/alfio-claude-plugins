@@ -1,5 +1,8 @@
 ---
-description: Walk the production deploy checklist interactively. Reports pass / fail / N/A per category against the codebase (and optional deployed URL). Distinct from /pwa-audit: this is a deterministic checklist walk, not an open-ended adversarial audit.
+description: >
+  Walks the production deploy checklist, reporting pass, fail or N/A per category against the codebase and an optional URL.
+  TRIGGER WHEN: checking PWA launch readiness, or walking a deterministic go/no-go list before deploying.
+  DO NOT TRIGGER WHEN: an open-ended adversarial audit fits better (use /pwa-expert:pwa-audit).
 argument-hint: "[path or URL]"
 ---
 

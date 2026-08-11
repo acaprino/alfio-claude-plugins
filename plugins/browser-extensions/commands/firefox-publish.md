@@ -1,8 +1,7 @@
 ---
 description: >
-  Publish a Firefox WebExtension to AMO (addons.mozilla.org) - runs pre-publish lint, signs via web-ext and AMO API, uploads, and walks the user through the review workflow. Handles both listed (public) and unlisted (self-distribution) channels.
-  TRIGGER WHEN: the user asks to publish, release, submit, upload, or sign a Firefox extension; when preparing an AMO submission.
-  DO NOT TRIGGER WHEN: publishing to Chrome Web Store (different API, use CWS publisher dashboard) or to Edge Add-ons (Microsoft Partner Center).
+  Lints, signs and uploads a build on the listed or unlisted channel, then walks the user through the review workflow.
+  TRIGGER WHEN: publishing, releasing, submitting, uploading or signing a Firefox extension, or preparing an addons.mozilla.org (AMO) submission.
 argument-hint: "[path] [--channel listed|unlisted] [--version <semver>] [--dry-run]"
 ---
 

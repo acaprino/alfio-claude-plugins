@@ -1,17 +1,9 @@
 ---
 name: test-suite-auditor
 description: >
-  Adversarial whole-suite test hygiene auditor. Detects orphan tests, skipped and disabled
-  tests, failing and flaky tests, duplicate and contradictory coverage, implementation-coupled
-  tests, never-failing tests, layer-distribution and placement violations, and runtime/coverage
-  hot spots. Report-only, no edits. Wired as the testing-quality dimension of
-  /senior-review:team-review and /senior-review:code-review when this plugin is installed.
-  TRIGGER WHEN: the user asks for a test-suite audit, test hygiene review, flaky or dead test
-  detection, or an assessment of test redundancy and layer distribution. Spawned by
-  /testing:test-audit and by senior-review commands as the testing dimension.
-  DO NOT TRIGGER WHEN: the user wants tests WRITTEN (use test-writer), wants the quarantine or
-  consolidation applied (use /testing:test-audit --fix or /testing:test-consolidate), or wants
-  general code review (use senior-review agents).
+  Runs as the testing-quality dimension of /senior-review:team-review and /senior-review:code-review, and as the engine of /testing:test-audit.
+  TRIGGER WHEN: auditing a test suite, reviewing test hygiene, detecting flaky or dead tests, or assessing test redundancy, layer distribution or placement.
+  DO NOT TRIGGER WHEN: tests should be written (use test-writer), or quarantine or consolidation applied (use /testing:test-audit --fix or /testing:test-consolidate).
 model: inherit
 color: yellow
 tools: Read, Write, Glob, Grep, Bash

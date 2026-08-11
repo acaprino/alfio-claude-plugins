@@ -1,12 +1,8 @@
 ---
 name: grabber-development
 description: >
-  Comprehensive Python web scraping knowledge base covering stealth browser automation (Patchright, Camoufox, Nodriver),
-  TLS/HTTP fingerprint impersonation (curl_cffi, primp), anti-bot bypass (Cloudflare, DataDome, PerimeterX),
-  CAPTCHA solving, proxy architecture, AI-assisted extraction (Crawl4AI, Firecrawl, ScrapeGraphAI),
-  framework selection (Scrapy, Crawlee), rate limiting, and production observability.
-  TRIGGER WHEN: building, implementing, writing, coding, creating, optimizing, or debugging Python web scrapers.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Knowledge base for production crawlers, from target assessment through observability.
+  TRIGGER WHEN: building, debugging or optimizing a Python web scraper, or working on anti-bot bypass for Cloudflare, DataDome or PerimeterX, CAPTCHA solving, proxy architecture or rate limiting.
 ---
 
 # Python Web Scraping

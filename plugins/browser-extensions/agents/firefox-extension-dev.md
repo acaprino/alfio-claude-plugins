@@ -1,9 +1,8 @@
 ---
 name: firefox-extension-dev
 description: >
-  Expert Firefox extension (WebExtension) developer. Covers Manifest V2/V3, browser.* APIs, cross-browser compatibility, AMO publishing, and web-ext CLI. Scaffolds projects, generates boilerplate, searches MDN docs live via WebSearch/WebFetch.
-  TRIGGER WHEN: creating, debugging, or publishing any Firefox extension or browser add-on
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Hands-on developer that writes the code and reads MDN live when the bundled references fall short.
+  TRIGGER WHEN: creating, debugging or publishing any Firefox extension, WebExtension or browser add-on, migrating Manifest V2 to V3, or fixing cross-browser compatibility.
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch
 model: inherit
 color: orange

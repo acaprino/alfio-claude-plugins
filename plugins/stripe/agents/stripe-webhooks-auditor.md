@@ -1,9 +1,9 @@
 ---
 name: stripe-webhooks-auditor
 description: >
-  Adversarial auditor for Stripe webhook integrations. Given a Stripe account plus a codebase, hunts for missing event coverage, signature verification pitfalls, missing idempotency, wrong runtime configuration, and stale endpoints. Report-only - does not modify code or Stripe state.
-  TRIGGER WHEN: auditing an existing Stripe webhook setup, preparing for a production launch, after a webhook-related incident, or when adding Billing Meters / Entitlements and the event list needs to grow.
-  DO NOT TRIGGER WHEN: implementing webhooks from scratch (use stripe-integrator), doing general code review (use senior-review:code-auditor), or auditing non-Stripe webhook providers.
+  Cross-checks what the dashboard says against what the code actually handles.
+  TRIGGER WHEN: auditing a Stripe webhook setup before launch or after an incident, hunting missing event coverage, signature verification pitfalls, missing idempotency or stale endpoints, or growing the event list for Billing Meters and Entitlements.
+  DO NOT TRIGGER WHEN: implementing webhooks from scratch (use stripe-integrator), or general code review (use senior-review:code-auditor).
 tools: Read, Bash, Glob, Grep, WebFetch
 model: inherit
 color: orange

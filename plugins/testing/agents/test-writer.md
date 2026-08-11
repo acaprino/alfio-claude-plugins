@@ -1,9 +1,8 @@
 ---
 name: test-writer
 description: >
-  Generate tests for existing code or guide TDD for new features. Analyzes targets (function, class, module, area) and produces behavior-driven test suites. Language-agnostic - auto-detects test framework from project config. Follows the test-hygiene search-before-write protocol: extends existing test files instead of creating parallel ones.
-  TRIGGER WHEN: user asks to write tests, add test coverage, or do TDD.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Authors behavior-driven suites for existing code, or drives new ones red-green. Auto-detects the framework, and follows the test-hygiene search-before-write protocol instead of creating parallel files.
+  TRIGGER WHEN: the user asks to write tests, add test coverage, or do TDD.
 model: inherit
 tools: Read, Write, Edit, Bash, Glob, Grep
 color: green

@@ -1,19 +1,9 @@
 ---
 name: pwa-architect
 description: >
-  Expert architect for Progressive Web Apps, 2025-2026 baseline. Covers Web App
-  Manifest (id, display_override, scope_extensions, file_handlers, share_target),
-  Service Workers (Workbox 7, Serwist), Web Push (VAPID, Declarative Push for
-  Safari 18.4+), install flows (beforeinstallprompt, Window Controls Overlay),
-  OPFS storage, Project Fugu APIs, Core Web Vitals 2025 (INP < 200ms), framework
-  integration (Vite, Next.js, Angular, Nuxt), and store distribution (Bubblewrap,
-  PWA Builder, Capacitor). TRIGGER WHEN: building, implementing, designing, or
-  auditing PWAs, manifests, service workers, push pipelines, install flows, OPFS
-  storage, framework-specific PWA integration, or store distribution. DO NOT
-  TRIGGER WHEN: generic frontend styling (use frontend), React performance (use
-  react-development:review-react), cross-platform security unrelated to PWAs (use
-  platform-engineering), Tauri or Electron wrappers (use tauri-development), or
-  GA4 / analytics (use digital-marketing).
+  Designs and hardens a whole shippable web app across Chromium, iOS WebKit and Firefox, trading capability for reach.
+  TRIGGER WHEN: building, auditing or scaffolding a PWA end to end, or wiring manifest, service worker, Web Push, install flow and store distribution together.
+  DO NOT TRIGGER WHEN: React performance (use react-development:review-react), non-PWA platform security (use platform-engineering), or Tauri and Electron shells (use tauri-development).
 model: inherit
 color: cyan
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch

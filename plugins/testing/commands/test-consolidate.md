@@ -1,12 +1,8 @@
 ---
 description: >
-  Consolidate one module's redundant tests: inventory the BEHAVIORS its tests cover, get the
-  keep/delete lists approved, rewrite one test file per source file, delete the originals in the
-  same commit, and verify coverage did not drop. Also processes the module's quarantine backlog.
-  TRIGGER WHEN: the user asks to consolidate, dedupe, or rewrite the tests of a module, or to
-  process quarantined tests for code being touched.
-  DO NOT TRIGGER WHEN: measuring whole-suite health or quarantining (use /testing:test-audit),
-  or writing tests for untested code (use the test-writer agent).
+  Turns overlapping suites into one clean file per source file: BEHAVIOR inventory approved first, originals deleted in the same commit, coverage verified after.
+  TRIGGER WHEN: consolidating, deduping or rewriting the tests of a module, or processing quarantined tests for code being touched.
+  DO NOT TRIGGER WHEN: whole-suite health is measured or quarantined (use /testing:test-audit), or tests written for untested code (use the test-writer agent).
 argument-hint: "<module-path> [--runner <cmd>] [--coverage-cmd <cmd>] [--dry-run]"
 ---
 
