@@ -90,6 +90,26 @@ For the abstraction-vs-duplication question, the CUPID lens is more useful than 
 
 ---
 
+## 9. Form versus knowledge
+
+The eight principles above are usually taught as if they addressed one problem. They address two, and conflating them is what makes a codebase audit either noisy or blind.
+
+**Duplicated form** is the same mechanism written more than once: three retry loops, four pagination encoders, five ways to build the same SDK client. The risk here is premature extraction. Two similar mechanisms may be a coincidence and may diverge under requirements that have not arrived yet, so unifying on a sample of two produces an abstraction anchored to an accident. The Rule of Three, AHA and the Tidy First option price all speak to this risk, and the count is the right instrument for it.
+
+**Duplicated knowledge** is the same fact holding more than one authoritative representation: a refund window in a config file and in a policy class, an approval threshold restated in three services, a status vocabulary maintained in an enum and in a database table. The risk here is the opposite one. There is no premature extraction to fear, because the fact is already singular in the domain; what exists is two owners of one truth, and they will drift. Waiting for a third representation before acting means waiting for the drift to get worse.
+
+DRY, read as its authors wrote it, is about the second kind. Section 2 of this file quotes the formal statement: every piece of knowledge must have a single, unambiguous, authoritative representation. The load-bearing word is knowledge. The popular misreading, that no two lines should look alike, collapses the two problems into one and then applies the instrument of the first to both.
+
+Three consequences the auditor works with directly:
+
+- **The count is the right instrument for form and the wrong one for knowledge.** Two authoritative representations of one fact is already a defect. Three similar mechanisms is a signal, and two is not.
+- **Textual similarity is evidence for neither.** Two identical status enums in different bounded contexts are not duplicated knowledge. One policy written three different ways, with no shared token between them, is.
+- **The remediations differ.** Duplicated form wants a shared mechanism. Duplicated knowledge wants an owner. Extracting a helper without settling ownership creates one more authority rather than fewer.
+
+`references/evidence-tracks.md` turns this distinction into the two gates the auditor actually runs.
+
+---
+
 ## The single rule of thumb
 
 When this concern changes, where do you have to touch?
