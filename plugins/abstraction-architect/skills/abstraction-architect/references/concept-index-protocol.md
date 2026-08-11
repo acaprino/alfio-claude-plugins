@@ -121,6 +121,35 @@ status   --index PATH [--repo PATH] [--base REF] [--head REF]
 
 Review delta sources, in precedence order: `--changed-files` (one path per line, which is how `senior-review` passes scope), then `--base` with optional `--head`, then `--working-tree`. With none of them the review delta is empty and only the baseline drift drives revalidation.
 
+### Validate mode
+
+`validate` checks schema conformance of an index file without accessing git:
+
+- Verifies `schema_version` is compatible (currently only version 1 is valid).
+- Verifies all required top-level keys are present: `schema_version`, `generated_from_commit`, `generated_from_tree`, `generated_at`, `scope`, `concepts`.
+- Verifies per-concept structural validity: a non-empty `concept` name, a non-empty `representations` list, and a `file` field on every representation.
+
+On success, `validate` returns exit code 0 and outputs:
+
+```json
+{
+  "status": "valid",
+  "schema_version": 1,
+  "concept_count": 42
+}
+```
+
+On failure, returns exit code 1 and outputs:
+
+```json
+{
+  "status": "invalid",
+  "error": "missing required key: concepts"
+}
+```
+
+The key difference from `status`: `validate` returns non-zero only when the index is structurally invalid. `status` always returns zero, even when it reports `unusable`, because for `status` an unusable index is a normal outcome the agent degrades around rather than an error.
+
 ### Output
 
 ```json
@@ -135,6 +164,12 @@ Review delta sources, in precedence order: `--changed-files` (one path per line,
   "unmapped_changed_files": []
 }
 ```
+
+All eight output keys are always present in `status` output, including in the `unusable` state. When a key could not be computed, its value is empty (an empty object, empty array, or `null`) rather than absent. A consumer must never test for key presence.
+
+Field notes on the output:
+
+- `changed_files` is the union of the index-to-repository drift and the review delta. It is the input to the partition: `dirty_indexed_concepts` and `unmapped_changed_files` are computed from it, and together they account for all of it. The two differ from `review_delta.files` only when the index is stale. When the index is `fresh`, `changed_files` and `review_delta.files` are equal.
 
 Exit code 0 on success including `unusable`, 2 on bad invocation. An `unusable` result is a normal outcome, not an error: the agent degrades and reports it.
 
