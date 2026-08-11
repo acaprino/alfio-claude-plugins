@@ -97,6 +97,47 @@ This command reviews plans and specs only. Point it at a `.md` or `.markdown` fi
 refuses anything that looks like a unified diff or a source file and names
 `/senior-review:code-review` as the right tool for that target instead.
 
+## What you get back
+
+Everything lands in one run directory, `.peer-review/YYYY-MM-DD-HHMM-<slug>/`. Read
+`04-verdict.md` first: it is the only file written for a human, and it is computed
+from the ledger rather than composed, so its prose can explain a finding's outcome but
+never change one.
+
+| File | What it holds |
+|---|---|
+| `00-packet.md` | Everything that left your machine, exactly as the challenger saw it |
+| `01-challenge-r1.md` | The challenger's frame challenge, findings with falsifiers, and what it could not assess |
+| `01b-amendment.md` | Repository material it asked for: what was granted, and every refusal with its reason |
+| `02-response.md` | Your side's verdict per finding, with a locator for every non-ACCEPT |
+| `03-ledger.md` | Run state, one entry per finding, claim and falsifier carried verbatim throughout |
+| `04-verdict.md` | The outcome |
+| later rounds, `09-certification.md`, `10-corrective.md` | The exchange, and the challenger's last word on how its own findings were rendered |
+
+The verdict's first three sections are the ones that carry decisions. **Accepted
+changes** are concrete edits, applied for you if you passed `--apply`. **Refutations**
+each cite the evidence that satisfied the finding's falsifier. **Standoffs** are the
+point of the exercise: one line per side plus what would settle it, which is a decision
+that is genuinely yours rather than a bug either party can close.
+
+The sections after those describe the run's own health, and they are worth a look
+before trusting it. Untestable findings, certification failures, and transmission
+artifacts are findings that died procedurally rather than on the merits, so none of
+them is evidence that the artifact is sound. Unexplained withdrawals and refused
+context requests both point at gaps: the first at a challenger that dropped a claim
+without saying why, the second at material it wanted and did not get. A run with
+several refusals reviewed less than it appears to have reviewed.
+
+Two habits pay off. Read `Cannot assess` in `01-challenge-r1.md`: what the challenger
+could not judge is a statement about your packet, not about your plan. And check the
+provenance block in the verdict, which records model, runtime, context, and human
+axes per role without collapsing them into a score. A challenger whose context axis
+reads `packet-only` has no path to the authoritative source, so its agreement with any
+fact you supplied is repetition rather than confirmation.
+
+Runs are cheap to keep and cheap to discard. The directory is git-ignored, and every
+file in it is plain markdown you can diff, grep, or hand to someone else.
+
 ## The MCP server
 
 This plugin ships a plugin-root `.mcp.json` declaring one stdio server, `peer-review`,
