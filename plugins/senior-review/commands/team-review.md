@@ -296,7 +296,7 @@ Under raw mode (`--no-context`) this phase does not run, because there is no sha
 
 ### Phase 1d: Knowledge Reconciliation (join)
 
-Runs inline once both 1a and 1c have completed. This is the only place the two derivations are compared, which is what makes the independence of 1c demonstrable rather than asserted.
+Runs inline once both 1a and 1c have completed. The premise auditor never compares its own derivation: comparison is done by others, downstream, which is what makes its blindness verifiable rather than merely asserted.
 
 Read `.team-review/01a-review-knowledge-leads.md`, `$XRAY_RUN_DIR/knowledge/documentation-leads.md` and `.team-review/01b-independent-claims.md`. Write:
 
