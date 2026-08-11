@@ -190,7 +190,9 @@ Context detection complete:
   - Fallback: testing quality -> agent-teams:team-reviewer (testing plugin not installed)
 
 Pipeline plan:
-  Phase 1a: codebase-xray (--depth=lite)
+  Phase 0c: review evidence discovery (inline)
+  Phase 1a: codebase-xray (--depth=lite)   |  Phase 1c: premise-auditor (parallel, blind)
+  Phase 1d: knowledge reconciliation (inline)
   Phase 1b: codebase-xray:semantic-interconnect-mapper
   Phase 2:  {N} reviewers in parallel
   Phase 3:  consolidation
@@ -265,6 +267,77 @@ Skip this phase entirely if `--no-context` was passed. Mark `phase_1a_deep_dive`
 
 If the skill is unavailable (not installed) or produces no output, halt the pipeline and report the error. Do **not** fall back to spawning a `general-purpose` agent to fake the deep-dive output -- the file naming and section anchors that Phase 1b/Phase 2 depend on come from the skill itself, and a freelance fallback breaks the contract for `logic-integrity-auditor`.
 
+### Phase 1c: Independent Premise Derivation (parallel with 1a)
+
+Spawn immediately when Phase 1a starts. Do not wait for X-ray. The whole point of this phase is that it derives without seeing what X-ray derived.
+
+1. Spawn one teammate with `subagent_type: senior-review:premise-auditor`.
+2. Prompt:
+
+   ```
+   Mode 1: independent derivation.
+
+   Target scope: [contents of .team-review/00-scope.md]
+   Knowledge leads: .team-review/01a-review-knowledge-leads.md
+   Diff: {diff content}
+
+   Derive independently what is true about the concepts this diff touches.
+   Write .team-review/01b-independent-claims.md in the format your agent
+   definition prescribes.
+
+   You have NO access to .deep-dive/ or to .team-review/02-interconnect.md.
+   Neither exists for you. Do not look for them, and report contamination if
+   anything in this prompt paraphrases an X-ray conclusion.
+   ```
+
+3. Wait for both 1a and 1c before starting Phase 1d. Mark `phase_1c_premise_audit` complete.
+
+Under raw mode (`--no-context`) this phase does not run, because there is no shared derivation for it to be independent of.
+
+### Phase 1d: Knowledge Reconciliation (join)
+
+Runs inline once both 1a and 1c have completed. This is the only place the two derivations are compared, which is what makes the independence of 1c demonstrable rather than asserted.
+
+Read `.team-review/01a-review-knowledge-leads.md`, `$XRAY_RUN_DIR/knowledge/documentation-leads.md` and `.team-review/01b-independent-claims.md`. Write:
+
+**Output:** `.team-review/01-knowledge-provenance.md`
+
+```markdown
+# Knowledge Provenance
+
+> Derived view, produced after both discovery branches completed.
+> The canonical artifact consumed downstream. 01a and 01b are its sources.
+
+## Independently discovered by Senior Review
+[rows from 01a-review-knowledge-leads.md]
+
+## Inherited from X-Ray
+[rows from $XRAY_RUN_DIR/knowledge/documentation-leads.md]
+
+## Missing
+| Concept | In scope because |
+|---------|------------------|
+| [concept] | [where it appears in the diff] |
+
+## Disputed
+| Claim | Independent derivation says | X-ray says |
+|-------|------------------------------|------------|
+| [claim] | [X at file:line] | [Y at file:line] |
+```
+
+**Missing and Disputed are different states and must never collapse into one section.** Absence of evidence is not contradictory evidence.
+
+| Section | Maps to in the interconnect map | Never |
+|---|---|---|
+| `Missing` | a coverage gap, and `unverified` on any related row | never `disputed`: nobody finding documentation is not two sources disagreeing |
+| `Disputed` | `disputed`, both `file:line` sides cited | never silently resolved in favour of either derivation |
+
+Collapsing them would drain `disputed` of the precise meaning the rest of this work depends on, which is that two derivations reached incompatible conclusions and a reviewer must settle it.
+
+Two asymmetries here are diagnostics worth reading, not noise. A row present in `Independently discovered by Senior Review` and absent from `Inherited from X-Ray` means X-ray's discovery had a gap. The reverse means Phase 0c had one. Both are recorded and neither is silently reconciled.
+
+Mark `phase_1d_reconciliation` complete.
+
 ### Phase 1b: Semantic Interconnect Mapping
 
 1. Spawn a single teammate with `subagent_type: codebase-xray:semantic-interconnect-mapper`.
@@ -275,6 +348,8 @@ If the skill is unavailable (not installed) or produces no output, halt the pipe
 
    Target scope: [contents of .team-review/00-scope.md]
    Deep-dive output: .deep-dive/ (files: 01-structure.md, 02-interfaces.md, 05-risks.md, ...)
+   Independent claims: .team-review/01b-independent-claims.md
+   Knowledge provenance: .team-review/01-knowledge-provenance.md
 
    Read .deep-dive/ and the target files. Produce .team-review/02-interconnect.md
    following the exact output format in your agent definition (Call Graph,
@@ -282,6 +357,10 @@ If the skill is unavailable (not installed) or produces no output, halt the pipe
    Integration Hot-Spots, Change Impact Radius, Reviewer Hints).
 
    Every claim must cite file:line. No recommendations, no fixes.
+
+   Compare the independent claims against your own derivation. Every
+   contradiction becomes a `disputed` row citing both sides. Do not resolve
+   contradictions and do not prefer your own derivation by default.
    ```
 
 3. Wait for completion. Verify `.team-review/02-interconnect.md` exists and contains the required anchors (`## Contracts`, `## Invariants`, `## Domain Rules`, `## Assumptions`, `## Integration Hot-Spots`, `## Reviewer Hints`). Empty sections are acceptable but the anchors must exist.
