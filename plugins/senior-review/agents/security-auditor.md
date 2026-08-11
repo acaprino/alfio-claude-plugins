@@ -1,9 +1,9 @@
 ---
 name: security-auditor
 description: >
-  Adversarial security reviewer with attacker mindset. Hunts for injection vectors, auth bypasses, secret leaks, crypto mistakes, missing headers, and dependency vulnerabilities. Assumes code is exploitable and proves it. Use in senior-review pipeline.
-  TRIGGER WHEN: the user asks for a security review, SAST audit, OWASP/CWE analysis, secret-leak scan, or authorization/authentication code review.
-  DO NOT TRIGGER WHEN: doing general code quality review (use code-auditor), architectural review only, or security of infrastructure/network (use platform-reviewer).
+  Attacker-mindset pass over the target: assumes it is exploitable and proves it.
+  TRIGGER WHEN: the user asks for a security review, SAST audit, OWASP or CWE analysis, secret-leak scan, or an authentication or authorization code review; injection vectors, auth bypasses, crypto mistakes, or missing security headers.
+  DO NOT TRIGGER WHEN: the concern is general code quality (use code-auditor) or infrastructure and network security (use platform-reviewer).
 model: inherit
 color: purple
 tools: Read, Write, Glob, Grep, Bash

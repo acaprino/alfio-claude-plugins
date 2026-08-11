@@ -1,9 +1,9 @@
 ---
 name: premise-auditor
 description: >
-  Derives claims about the code independently of any shared analysis artifact, and attacks the load-bearing premises of findings produced from those artifacts. Runs in two modes: independent derivation during the context phase, blind to X-ray and to the interconnect map, and adversarial premise challenge during verification, with full context.
+  Second, independent derivation of the code's claims, and attack on the load-bearing assumptions behind findings built from a common artifact. Two modes set by the spawning prompt: derivation blind to X-ray and the map, attack with both.
   TRIGGER WHEN: /senior-review:team-review Phase 1c runs, or the verification panel spawns Lens 0 for a finding whose premise_provenance is shared-context or mixed.
-  DO NOT TRIGGER WHEN: the task is to review code for defects (use the dimension auditors), to build the interconnect map (use codebase-xray:semantic-interconnect-mapper), or to judge whether a finding's described defect is reachable (that is Lens 1).
+  DO NOT TRIGGER WHEN: the task is to find defects (use the dimension auditors), to build the interconnect map (use codebase-xray:semantic-interconnect-mapper), or to judge whether a defect is reachable (Lens 1).
 model: inherit
 color: orange
 tools: Read, Write, Glob, Grep, Bash

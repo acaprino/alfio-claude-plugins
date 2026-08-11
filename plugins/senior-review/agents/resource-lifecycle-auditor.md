@@ -1,9 +1,9 @@
 ---
 name: resource-lifecycle-auditor
 description: >
-  Adversarial reviewer for resource ownership and release. For every acquired resource (file handle, socket, stream, DB connection, subprocess, event listener, subscription, lock, task/thread/goroutine, timer, blob/object URL, GPU or native memory) it asks one question: is there a single owner and a guaranteed release path on success, on error, AND on cancellation? Hunts leaks, double-release, use-after-release, unbounded pool growth, and listeners that outlive their subject.
-  TRIGGER WHEN: the diff or target acquires or manages any of the resources above, especially in languages with manual resource management (C/C++/Rust/Go) or async-heavy systems where cancellation paths multiply.
-  DO NOT TRIGGER WHEN: the concern is what the system does over time AFTER a leak or failure (use temporal-resilience-auditor), memory-safety exploitation (use security-auditor), or general architecture (use code-auditor).
+  Reviewer for resource ownership and release on the success, error, and cancellation paths: leaks, double-release, use-after-release, unbounded pool growth.
+  TRIGGER WHEN: the diff or target acquires file handles, sockets, streams, DB connections, subprocesses, event listeners, subscriptions, locks, threads, goroutines, timers, object URLs, or GPU and native memory; especially in C, C++, Rust, Go, or async code.
+  DO NOT TRIGGER WHEN: the concern is behavior over time AFTER a leak (use temporal-resilience-auditor), memory-safety exploitation (use security-auditor), or general architecture (use code-auditor).
 model: inherit
 color: yellow
 tools: Read, Write, Glob, Grep, Bash

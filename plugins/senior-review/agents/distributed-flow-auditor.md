@@ -1,9 +1,8 @@
 ---
 name: distributed-flow-auditor
 description: >
-  Adversarial cross-service flow analyst for microservices, agent-based, and multi-module distributed systems. Traces request flows, API/message contracts, saga orchestration, timeout chains, and integration boundaries across multiple services or modules. Hunts for contract mismatches, cascading timeout violations, missing idempotency, broken saga compensation, message ordering bugs, and split-brain risks.
-  TRIGGER WHEN: the user requires assistance with cross-service analysis, distributed flow tracing, contract verification, or multi-service code review.
-  DO NOT TRIGGER WHEN: the task involves a single monolithic module with no cross-boundary interactions.
+  Hunts cascading timeout violations, missing idempotency, broken saga compensation, message ordering bugs, and split-brain risks.
+  TRIGGER WHEN: the target spans microservices, agent systems, or multiple modules and the question is cross-service: request flow tracing, contract mismatch between producer and consumer, or integration-boundary review.
 model: inherit
 color: purple
 tools: Read, Write, Glob, Grep, Bash

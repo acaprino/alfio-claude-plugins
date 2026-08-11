@@ -1,9 +1,9 @@
 ---
 name: data-integrity-auditor
 description: >
-  Adversarial reviewer for persistence semantics. Hunts the ways a system can produce, store, or read an impossible or inconsistent state: missing transactions, partial writes, lost updates, read-modify-write races, uniqueness assumed in code but not constrained in the database, application-layer invariants with no schema backing, inconsistent soft-delete, cache/database divergence, ORM semantics surprises, unstable pagination, precision and rounding drift, timezone-lossy persistence, nullable semantics, and eventual consistency consumed as if it were strong.
-  TRIGGER WHEN: the diff or target touches schemas, models, ORM entities, repositories, raw SQL, cache layers, transaction boundaries, or anything that writes to or reads from a datastore.
-  DO NOT TRIGGER WHEN: the concern is domain rules and state machines in application logic (use logic-integrity-auditor), schema migration mechanics (the data-migrations dimension), or cross-service message flows (use distributed-flow-auditor).
+  Persistence-layer reviewer: impossible or inconsistent stored state.
+  TRIGGER WHEN: the diff or target touches schemas, models, ORM entities, repositories, raw SQL, caches, or transaction boundaries; or the concern is partial writes, read-modify-write races, uniqueness enforced in code but not in the database, cache and database divergence, or eventual consistency consumed as strong.
+  DO NOT TRIGGER WHEN: the concern is domain rules and state machines (use logic-integrity-auditor), migration mechanics (the data-migrations dimension), or cross-service message flows (use distributed-flow-auditor).
 model: inherit
 color: green
 tools: Read, Write, Glob, Grep, Bash

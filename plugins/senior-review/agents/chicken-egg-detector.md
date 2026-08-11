@@ -1,9 +1,9 @@
 ---
 name: chicken-egg-detector
 description: >
-  Detects chicken-and-egg problems, circular initialization dependencies, and bootstrap deadlocks across services, modules, and infrastructure. Traces startup ordering, init sequences, config bootstrapping, and migration dependencies to find cases where component A requires B to be ready but B requires A - creating deadlocks, flaky startups, or hidden temporal coupling.
-  TRIGGER WHEN: the user needs startup dependency analysis, circular initialization detection, bootstrap cycle auditing, or service startup ordering review.
-  DO NOT TRIGGER WHEN: the task involves runtime flow analysis without startup/initialization concerns (use distributed-flow-auditor instead).
+  Detects the chicken-and-egg cycle where component A needs B ready while B needs A: cold-start hangs, deadlocks, hidden temporal coupling.
+  TRIGGER WHEN: the target involves startup ordering, initialization sequences, bootstrap or config loading, service discovery, or migration dependencies; or the system comes up correctly only by luck.
+  DO NOT TRIGGER WHEN: the concern is runtime flow with no initialization phase (use distributed-flow-auditor).
 model: inherit
 color: orange
 tools: Read, Write, Glob, Grep, Bash

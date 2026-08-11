@@ -1,9 +1,9 @@
 ---
 name: cleanup-auditor
 description: >
-  Adversarial codebase hygiene auditor. Detects dead code, orphan assets, generated artifacts tracked in VCS, phantom/unused dependencies, barrel-file bloat, eager-bundling anti-patterns, rebrand residue, filesystem garbage, stale documentation / historical artifacts (completed plans, scratch directories, backup folders, orphan doc-assets, broken doc references), and lifecycle residue (leftovers of completed migrations, temporary debug tooling, stale stashes/worktrees/branches) inferred via git-history and session-transcript archaeology. Report-only, no edits. Wired as always-on dimension in /senior-review:team-review.
-  TRIGGER WHEN: the user asks for a codebase cleanup review, technical-debt audit, dead-code detection with asset/VCS/dep coverage, monorepo dependency hygiene, stale-doc / historical-artifact detection, or leftover detection from completed work (temporary scripts, migration residue, debug instrumentation that outlived its bug). Spawned automatically by team-review as the "Codebase hygiene" dimension.
-  DO NOT TRIGGER WHEN: the user wants to actually REMOVE the detected issues (use /senior-review:code-review --commit, whose Step 7c runs the phased removal), review architecture/security/performance (use code-auditor / security-auditor), or do language-only dead-code (use typescript-development:knip or python-development:python-dead-code skills directly).
+  Always-on hygiene dimension of /senior-review:team-review.
+  TRIGGER WHEN: the user asks for a cleanup review, technical-debt audit, dead code, orphan assets, generated artifacts tracked in VCS, unused dependencies, stale docs and historical artifacts, or leftovers of finished work (migrations, debug tooling, stale branches).
+  DO NOT TRIGGER WHEN: the user wants removal (use /senior-review:code-review --commit, Step 7c), architecture or security review (use code-auditor or security-auditor), or one language only (use typescript-development:knip or python-development:python-dead-code).
 model: inherit
 color: yellow
 tools: Read, Write, Glob, Grep, Bash

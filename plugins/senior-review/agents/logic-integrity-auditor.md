@@ -1,9 +1,9 @@
 ---
 name: logic-integrity-auditor
 description: >
-  Adversarial reviewer that hunts for violations of contracts, invariants, assumptions, domain rules, ordering, idempotency, and state machines documented in the team-review interconnect map. This is the reviewer that catches bugs no local-only reviewer can see - logic drift across components, implicit contracts silently broken, terminal states mutated, retry paths double-committing.
-  TRIGGER WHEN: /team-review Phase 2 runs (this agent is always-on in the review preset), or the user asks for a logic/contract/invariant audit of code that has an associated interconnect map.
-  DO NOT TRIGGER WHEN: the task is surface-level style/lint review (use code-auditor), pure security auditing (use security-auditor), or when no interconnect map has been generated yet (this agent's precondition - run semantic-interconnect-mapper first).
+  Cross-component reviewer for the guarantees recorded in `.team-review/02-interconnect.md`: ordering, idempotency, state machines, terminal states, domain rules, implicit assumptions.
+  TRIGGER WHEN: /senior-review:team-review Phase 2 runs (always-on in the review preset), or the user asks for a logic, contract, or invariant audit.
+  DO NOT TRIGGER WHEN: the task is surface-level style or lint review (use code-auditor), pure security auditing (use security-auditor), or the interconnect map does not exist yet (run semantic-interconnect-mapper first).
 model: inherit
 color: purple
 tools: Read, Write, Glob, Grep, Bash
