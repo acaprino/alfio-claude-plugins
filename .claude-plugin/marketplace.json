@@ -5,8 +5,8 @@
     "email": ""
   },
   "metadata": {
-    "description": "Claude Code Daodan - 39 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), prose humanization, and pure-architecture audits (missed unification, wrong abstractions).",
-    "version": "20.0.0"
+    "description": "Claude Code Daodan - 40 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), prose humanization, pure-architecture audits (missed unification, wrong abstractions), and cross-model peer review of plans and specs against a challenger on another model family.",
+    "version": "20.1.0"
   },
   "plugins": [
     {
@@ -1459,6 +1459,42 @@
       ],
       "commands": [
         "./commands/review-frontend.md"
+      ]
+    },
+    {
+      "name": "peer-review",
+      "source": "./plugins/peer-review",
+      "description": "Cross-model peer review of plans and specs: a harness-agnostic deliberation protocol (challenge packet with GIVEN-tagged context, challenger findings that each carry their own falsifier, evidence-backed responses at file:line, a verbatim ledger, a certification pass the challenger owns, and a verdict computed from the ledger) plus a transport-only MCP server for any OpenAI-compatible endpoint. The challenger attacks the artifact, the local session refutes with repository evidence, and unresolved disagreements terminate as precise standoffs for the user to settle",
+      "version": "1.0.0",
+      "author": {
+        "name": "Alfio"
+      },
+      "license": "MIT",
+      "keywords": [
+        "peer-review",
+        "cross-model",
+        "deliberation",
+        "epistemic-independence",
+        "second-opinion",
+        "plan-review",
+        "spec-review",
+        "mcp"
+      ],
+      "category": "review",
+      "strict": false,
+      "dependencies": [
+        "superpowers@claude-plugins-official"
+      ],
+      "mcpServers": "./.mcp.json",
+      "agents": [
+        "./agents/packet-builder.md",
+        "./agents/respondent.md"
+      ],
+      "skills": [
+        "./skills/cross-model-peer-review"
+      ],
+      "commands": [
+        "./commands/review.md"
       ]
     }
   ]
