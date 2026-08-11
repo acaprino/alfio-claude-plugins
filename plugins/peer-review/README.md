@@ -153,12 +153,17 @@ than raised as an exception.
 
 ## What never leaves the machine
 
-The only bytes that cross the wire are the packet (round 1) and each subsequent
-round's payload, sent to the single profile named at the consent gate, and even those
-never go out without an explicit `yes` shown against the destination, size, and
-section list first, every time a packet is about to be sent. Everything else stays
-local: the rest of your repository, `profiles.json` itself (only the resolved
-`base_url` and `model` are transmitted as part of the request, never the file), the
+Explicit consent is given exactly once, at the single consent gate before round 1,
+never per round. The prompt shows the destination, the packet's byte size, and its
+section list, and only a literal `yes` proceeds. That one `yes` covers the whole run:
+the user approves the packet, and afterward the run may send round 2 and round 3
+challenge payloads, the certification pass, and the corrective round if one runs, with
+no further prompt. It also covers Phase 2b context amendments: repository material
+granted to the challenger's context requests, mechanically capped at 10 files / 200 KB,
+is sent as part of round 2's payload, tagged GIVEN, without a second approval step.
+Everything else stays local: the rest of your repository beyond whatever the packet
+and any granted amendments carried, `profiles.json` itself (only the resolved
+`base_url` and `model` are transmitted as part of each request, never the file), the
 ledger, the verdict, and the packet-building and response-answering work that happens
 inside Claude Code subagents with full repository access. The API key travels only in
 the outgoing request's `Authorization` header; the server never logs or returns it,
