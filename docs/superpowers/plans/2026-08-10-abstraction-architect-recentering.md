@@ -22,6 +22,13 @@ Every task's requirements implicitly include this section.
 - **Push once, at the end of Task 15.** Not before.
 - **`codebase-xray` is not modified by this plan.** The concept census lives in this plugin. Promoting it to a shared xray capability is deferred until two or three consumers need it.
 - **The agent stays an orchestrator.** Target under 300 lines. If a task would push catalog content into `agents/abstraction-architect.md`, it belongs in a reference instead.
+- **Deliberate duplication, and where it is forbidden.** Two rules below are duplicated verbatim across two files each, and one task explicitly forbids duplicating something else. This is not an inconsistency, and a reviewer flagging either case should be pointed here.
+
+  **Duplicate a rule when it must be impossible to miss at the point of use.** A rule that governs how an agent reads a catalog belongs in that catalog, because an agent under context pressure loads the catalog and not the file that would have told it how to read one. `Patterns are discovery aids...` therefore appears in both `unification-patterns.md` and `anti-patterns.md`, and `Index entries nominate search targets...` appears in both `concept-index-protocol.md` and the agent.
+
+  **Never duplicate a rule whose restatement would create a second authority over a decision.** The gates `A1` to `A5` and `K1` to `K6` live only in `evidence-tracks.md`. Restating them in `decision-frame.md` would produce two places that decide when a candidate passes, which is the D2 defect this plugin exists to find, and the two copies would drift.
+
+  The distinguishing test: does the second copy tell the reader **how to use what is in front of them** (duplicate), or does it **decide something** that the first copy also decides (do not duplicate)?
 
 ### Verbatim rules and where each one lands
 
