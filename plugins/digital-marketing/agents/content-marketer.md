@@ -1,9 +1,8 @@
 ---
 name: content-marketer
 description: >
-  Expert content marketer. Covers multi-channel content creation, analytics, and conversion optimization.
-  TRIGGER WHEN: the user asks about marketing materials, conversion optimization, content strategy, social media, CTAs, or landing page copy
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Audits and rewrites what a visitor actually reads before deciding.
+  TRIGGER WHEN: the user asks about marketing materials, conversion optimization, content strategy, social media, CTAs, product presentation, or landing page copy.
 model: inherit
 color: orange
 ---

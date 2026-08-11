@@ -1,8 +1,8 @@
 ---
 description: >
-  Marketing material and conversion optimization audit - UX patterns, CTAs, social media, copy quality, product presentation, and visual media with parallel analysis and persistent report.
-  TRIGGER WHEN: the user asks for a content/marketing/CRO audit of a website, landing page, or marketing funnel.
-  DO NOT TRIGGER WHEN: the audit is technical SEO only (use /digital-marketing:seo-audit) or frontend design.
+  Reviews whether the material actually persuades a visitor, not whether it is well built.
+  TRIGGER WHEN: the user asks for a content, marketing, conversion, or CRO audit of a website, landing page, or funnel.
+  DO NOT TRIGGER WHEN: the audit is technical SEO only (use /digital-marketing:seo-audit).
 argument-hint: "<url or local path> [--focus <comma-separated areas>] [--social] [--strict-mode]"
 ---
 

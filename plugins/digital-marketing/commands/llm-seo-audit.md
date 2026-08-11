@@ -1,8 +1,8 @@
 ---
 description: >
-  Answer-engine optimization (AEO) audit: optimize for being cited inside AI-generated answers (ChatGPT, Perplexity, Google AI Overviews / SGE, Claude, Bing Copilot), not classic Google ranking. Checks AI-bot crawler access, E-E-A-T signals, passage-level extractability, JSON-LD / Schema.org structured data, citation readiness, prompt-injection hardening, and llms.txt. Produces a prioritized fix list with concrete code. For traditional Google and Bing SERP ranking use /digital-marketing:seo-audit instead.
-  TRIGGER WHEN: the user asks to audit for AI search / answer engines, check Google AI Overviews / SGE visibility, optimize for Perplexity / ChatGPT Search / Claude Search / Bing Copilot, verify crawler allowlist for AI bots, check E-E-A-T signals, or diagnose low citation rate in LLM answers.
-  DO NOT TRIGGER WHEN: the task is traditional organic / SERP ranking SEO (use /digital-marketing:seo-audit), paid search, content tone / voice only (use content-marketer agent), or generic copywriting with no search dimension.
+  Checks whether a page is quotable by generative assistants, not merely rankable.
+  TRIGGER WHEN: the user asks to audit for AI search or answer engines, check visibility in Google AI Overviews / SGE, Perplexity, ChatGPT Search, Claude Search, or Bing Copilot, verify the AI-bot crawler allowlist, or check E-E-A-T, llms.txt, JSON-LD citation readiness, passage extractability, and prompt-injection hardening.
+  DO NOT TRIGGER WHEN: the task is traditional organic / SERP ranking SEO (use /digital-marketing:seo-audit), or content tone and voice only (use the content-marketer agent).
 argument-hint: "<url or local path> [--focus <comma-separated: crawlers,eeat,schema,passages,injection | all>] [--strict-mode]"
 ---
 

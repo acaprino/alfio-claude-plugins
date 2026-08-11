@@ -1,9 +1,9 @@
 ---
 name: llm-seo-optimize
 description: >
-  Answer-engine optimization (AEO) specialist for Google AI Overviews / SGE, Perplexity, ChatGPT Search, Claude with web search, and Bing Copilot. Audits content for citation-worthiness, E-E-A-T signals, structured data (JSON-LD Schema.org), passage-level clarity, primary-source attribution, llms.txt files, and prompt-injection hardening.
-  TRIGGER WHEN: the user asks to optimize for AI search, answer engines, Google AI Overviews, SGE, Perplexity, ChatGPT Search, Claude Search, or Bing Copilot; asks about E-E-A-T, llms.txt, citation rate in LLM answers, or AI-readable content structure.
-  DO NOT TRIGGER WHEN: the task is traditional organic-ranking SEO (use seo-specialist), paid search (Google Ads / Microsoft Ads), content marketing tone/voice (use content-marketer), or generic copywriting with no search dimension.
+  Rewrites prose and markup for verbatim quotability rather than ranking position.
+  TRIGGER WHEN: prose or markup needs answer-engine (AEO) treatment, whether spawned by /digital-marketing:llm-seo-audit or asked for directly.
+  DO NOT TRIGGER WHEN: the task is traditional organic-ranking SEO (use seo-specialist), or content marketing tone and voice (use content-marketer).
 model: inherit
 color: orange
 ---

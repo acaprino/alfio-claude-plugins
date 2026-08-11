@@ -1,9 +1,8 @@
 ---
 name: seo-specialist
 description: >
-  Expert SEO strategist. Covers technical SEO audits, on-page optimization, structured data, content optimization, and competitive analysis to improve search visibility.
-  TRIGGER WHEN: the user mentions SEO, search rankings, organic traffic, or website optimization
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Establishes intent and topical coverage before touching tags, and maps competitive gaps.
+  TRIGGER WHEN: the user mentions SEO, search rankings, organic traffic, on-page optimization, structured data, or website optimization.
 model: inherit
 color: orange
 ---

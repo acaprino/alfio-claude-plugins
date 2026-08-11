@@ -1,8 +1,8 @@
 ---
 description: >
-  Reply to a customer review with sentiment analysis, adaptive tone, and operational suggestions.
-  TRIGGER WHEN: the user pastes a customer review (Airbnb, Booking, Amazon, Trustpilot, App Store, Google) and asks for a reply or response.
-  DO NOT TRIGGER WHEN: writing general marketing copy (use content-marketer) or responding to code review comments.
+  Drafts a ready-to-post answer, with brand, tone, language, and sector flags.
+  TRIGGER WHEN: the user pastes a customer review (Airbnb, Booking, Tripadvisor, Amazon, Trustpilot, App Store, Google) and asks for a reply or response.
+  DO NOT TRIGGER WHEN: writing general marketing copy (use content-marketer).
 argument-hint: "\"<review text>\" [--brand <name>] [--tone formal|friendly|casual] [--lang <code>] [--sector hospitality|ecommerce|auto]"
 ---
 

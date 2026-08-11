@@ -1,8 +1,8 @@
 ---
 description: >
-  Generate, filter, score, and validate brand names through a structured naming workflow with market saturation analysis, domain checks, trademark screening, and weighted scoring.
-  TRIGGER WHEN: the user asks for brand names, startup names, product names, or company names - typically with a brief or industry.
-  DO NOT TRIGGER WHEN: renaming source code identifiers (use clean-code), naming files/tests, or picking SEO keywords (use /digital-marketing:seo-audit).
+  Runs the whole workflow from a brief, with optional language and TLD constraints.
+  TRIGGER WHEN: the user asks for brand, startup, product, or company names.
+  DO NOT TRIGGER WHEN: renaming source code identifiers (use clean-code), or picking SEO keywords (use /digital-marketing:seo-audit).
 argument-hint: "<brief description or industry> [--languages <lang1,lang2>] [--tlds <.com,.app,.io>]"
 ---
 
