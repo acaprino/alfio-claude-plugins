@@ -150,15 +150,44 @@ Every finding whose damage is behavioral over time (repetition, degradation, sil
 
 ## Adversarial Verification Panel
 
-After findings are consolidated (deduplicated), each selected finding is judged by a **panel of 3 verifiers run in parallel**, each with a distinct lens. This replaces single-judge validation: three independent mandates catch more failure modes than three identical refuters.
+After findings are consolidated (deduplicated), each selected finding is judged by a **panel of up to 4 verifiers**, each with a distinct lens. This replaces single-judge validation: independent mandates catch more failure modes than identical refuters.
 
 This section is the source of truth. `/senior-review:team-review` (Phase 4b) and `/senior-review:code-review` (Step 4b) both drive the panel from here.
 
-### The three lenses
+### The four lenses
 
-Spawn one `Agent` per lens per finding. Use `subagent_type: general-purpose`. Omit `model` for lenses 1 and 2 so they inherit the session model (reasoning-heavy), `model: sonnet` for lens 3 (calibration).
+Spawn one `Agent` per lens per finding. Use `subagent_type: general-purpose` for lenses 1-3 and `subagent_type: senior-review:premise-auditor` for lens 0. Omit `model` for lenses 0, 1 and 2 so they inherit the session model (reasoning-heavy), `model: sonnet` for lens 3 (calibration).
 
 **Lens 3 is gated.** Lenses 1 and 2 run first, in parallel across findings (`run_in_background: true`). Lens 3 (severity calibration) is spawned only for findings that survive them (REAL from both, or the tie that marks them `contested`). Calibrating the severity of a finding the panel is about to discard is spend for nothing; the gate cuts roughly a third of the verifier calls with no change to the survival semantics. Findings killed by lenses 1-2 never reach lens 3 and keep their original severity in the `filtered` record.
+
+The panel has four lenses. **Lens 0 is gated on provenance and runs first**, before lenses 1 and 2, for the same reason lens 3 is gated last: a finding a veto will discard should not consume the other lenses. Lens 3 stays gated on survival.
+
+Lens 0 runs only for findings whose `premise_provenance` is `shared-context` or `mixed`. A finding declared `independent` skips it. A finding that declares nothing is treated as `shared-context` when the pipeline ran, and the report records the reviewer as format-non-compliant. A finding with no `Load-bearing premise` has one derived by Lens 0, with the same note. The pipeline never drops a finding over a missing field.
+
+**Lens 0 prompt (Premise Challenge):** spawn with `subagent_type: senior-review:premise-auditor`, mode 2, inheriting the session model.
+
+```
+Mode 2: adversarial premise challenge.
+
+## The Finding
+[severity, file:line, description, suggested fix]
+
+## The declared load-bearing premise
+[the finding's Load-bearing premise field verbatim, or "none declared"]
+
+## Context available
+- Interconnect map: .team-review/02-interconnect.md
+- Knowledge provenance: .team-review/01-knowledge-provenance.md
+- Deep-dive: $XRAY_RUN_DIR
+
+## Instructions
+Follow mode 2 of your agent definition. Attack the premise, not the finding.
+Return REFUTED only with a file:line counterexample; without one, return UNCERTAIN.
+Decide and state whether the counterexample falsifies the PREMISE itself or only
+a piece of shared SUPPORT.
+```
+
+**Path substitution differs by command, per Task 12.** In `/team-review` the deep-dive line resolves to `$XRAY_RUN_DIR`, the immutable directory of the run that command started. In `/code-review` it resolves to the `.deep-dive/` mirror, because that command consumes a pre-existing analysis it did not produce. The interconnect map and knowledge provenance lines exist only in the `/team-review` path; in `/code-review` they are omitted, and a finding there is `independent` unless the deep-dive context supplied its premise.
 
 **Lens 1 prompt (Reachability / Correctness):**
 
@@ -248,8 +277,27 @@ Respond with EXACTLY:
 
 Each verifier returns: `verdict` (REAL or FALSE_POSITIVE; lens 3 always REAL), `confidence` (0-100), `severity_vote` (lens 3 only), `reason` (with a file:line citation).
 
+Lens 0 does not use this schema. Per its agent definition it returns `premise_verdict` (`HOLDS`, `REFUTED`, or `UNCERTAIN`), `refutation_target` (`PREMISE` or `SUPPORT`, present only when `REFUTED`), `counterexample` (a `file:line`, required when `REFUTED`), and `premise_form` (`compliant` or `non-compliant`).
+
+### Lens 0 resolution
+
+Refutation type is resolved first, provenance second. Provenance decides only what can survive after a source is invalidated.
+
+| Lens 0 result | Effect |
+|---|---|
+| `REFUTED`, target `PREMISE` | Finding discarded, counted `filtered: premise-refuted`. Regardless of provenance, and regardless of lenses 1-2, which are not spawned. |
+| `REFUTED`, target `SUPPORT`, provenance `mixed` | Strike the shared leg. Restate the finding from the surviving independent evidence and run lenses 1-2 on the reduced finding. |
+| `REFUTED`, target `SUPPORT`, provenance `shared-context` | Nothing survives the strike. Discarded, counted `filtered: premise-refuted`. |
+| `UNCERTAIN` | Finding proceeds to lenses 1-2, tagged `premise-contested`. |
+| `HOLDS` | Finding proceeds to lenses 1-2 unchanged. |
+
+Local correctness cannot outvote a refuted premise. A verifier can be entirely right that the code at the cited line does what the finding says, while the inference from that fact to the finding's conclusion is dead because another path exists. That is why Lens 0 is a veto and not a fourth vote.
+
+A `premise_form: non-compliant` return is recorded in the verification file and reported, whatever the verdict. It means a reviewer declared a paraphrase instead of a premise, and it is a defect in the review, not in the code.
+
 ### Survival rule
 
+- Lens 0 is evaluated **before** the rule below. A finding discarded by Lens 0 never reaches lenses 1-2. A finding whose Lens 0 returned `UNCERTAIN` or `HOLDS` is judged by the rule below exactly as before.
 - A finding **survives** if **at least 2 of lenses 1-2 vote REAL**.
 - If **>= 2 of lenses 1-2 vote FALSE_POSITIVE**, the finding is **discarded** and counted as `filtered` (never silently dropped: the count appears in the report).
 - **Tie or inconclusive** (1 REAL / 1 FALSE on lenses 1-2, or fewer than 2 valid verdicts returned) means the finding **survives, marked `contested`**. A flagged false positive is cheaper than a killed real bug.
@@ -258,6 +306,8 @@ Each verifier returns: `verdict` (REAL or FALSE_POSITIVE; lens 3 always REAL), `
 ### Fail-open
 
 If a verifier errors or returns a malformed verdict, treat it as an abstention. If fewer than 2 valid verdicts return for a finding, apply the tie rule (survives, `contested`). A surviving finding whose lens 3 errored keeps the original reviewer severity. The panel never crashes the pipeline and never silently drops a finding.
+
+A Lens 0 that errors, returns malformed output, or returns `REFUTED` without a `file:line` counterexample is treated as `UNCERTAIN`. Lens 0 never kills a finding by failing.
 
 ### Selection: what enters the panel
 

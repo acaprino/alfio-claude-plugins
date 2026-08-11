@@ -522,11 +522,12 @@ Skip this phase if `--fast` was passed (mark `phase_4b_verification` as `skipped
 2. Apply the selection rule from the skill:
    - If `--rigorous`, or 25 or fewer findings survive: verify all selected findings.
    - Otherwise (more than 25 findings, no `--rigorous`): narrow to stakes + uncertainty band per the skill, and record the count of findings left `unverified (cost-guard)`.
-3. For each finding to verify, spawn lenses 1 and 2 in parallel using the lens prompts from the skill (`general-purpose`; inherit the session model; `run_in_background: true`), then spawn lens 3 (`model: sonnet`) only for findings that survive them, per the skill's gated-lens rule. Substitute the finding, diff, and full file content into each prompt.
-4. Apply the survival rule from the skill: survive if `>= 2` of lenses 1-2 vote REAL; discard (`filtered`) if `>= 2` vote FALSE_POSITIVE; tie or fewer-than-2-verdicts means survive and mark `contested`. Final severity is the lens-3 vote when confirmed real, else the original.
-5. Write `.team-review/98-verification.md`: one row per verified finding with the per-lens verdicts, final severity, and flag (`verified` / `contested` / `filtered`), plus a trailing count of `unverified (cost-guard)` findings.
-6. Update `99-consolidated.md` to drop `filtered` findings, apply recalibrated severities, and tag `contested` and `unverified (cost-guard)` findings.
-7. Mark `phase_4b_verification` complete.
+3. **Lens 0 first.** For each finding to verify whose `premise_provenance` is `shared-context` or `mixed`, spawn lens 0 (`subagent_type: senior-review:premise-auditor`, mode 2, inheriting the session model) using the Lens 0 prompt from the skill, with the deep-dive line resolved to `$XRAY_RUN_DIR`. Apply the skill's Lens 0 resolution table: a `REFUTED` verdict targeting `PREMISE` discards the finding (`filtered: premise-refuted`) without spawning lenses 1-2; targeting `SUPPORT` on `mixed` provenance strikes the shared leg and restates the finding from the surviving independent evidence before it proceeds; targeting `SUPPORT` on `shared-context` provenance discards it the same way. `UNCERTAIN` and `HOLDS` proceed to lenses 1-2, `UNCERTAIN` tagged `premise-contested`. Findings declared `independent` skip lens 0 entirely and proceed directly to lenses 1-2.
+4. For each finding that reaches this step, spawn lenses 1 and 2 in parallel using the lens prompts from the skill (`general-purpose`; inherit the session model; `run_in_background: true`), then spawn lens 3 (`model: sonnet`) only for findings that survive them, per the skill's gated-lens rule. Substitute the finding, diff, and full file content into each prompt.
+5. Apply the survival rule from the skill: survive if `>= 2` of lenses 1-2 vote REAL; discard (`filtered`) if `>= 2` vote FALSE_POSITIVE; tie or fewer-than-2-verdicts means survive and mark `contested`. Final severity is the lens-3 vote when confirmed real, else the original.
+6. Write `.team-review/98-verification.md`: one row per verified finding with the per-lens verdicts (including, for findings that reached lens 0, its verdict, refutation target, and counterexample), final severity, and flag (`verified` / `contested` / `filtered: premise-refuted` / `filtered`), plus a trailing count of `unverified (cost-guard)` findings.
+7. Update `99-consolidated.md` to drop `filtered` findings, apply recalibrated severities, and tag `contested`, `premise-contested`, and `unverified (cost-guard)` findings.
+8. Mark `phase_4b_verification` complete.
 
 ## Phase 4c: Completeness Critic
 

@@ -306,7 +306,7 @@ Pull out findings with `[PRE-EXISTING]` prefix into a separate list. These are r
 
 ## Step 4b: Adversarial Verification Panel
 
-Skip this step if `--fast` was passed. Otherwise verify findings with the 3-lens panel defined in the `senior-review:review-quality-gates` skill, section `## Adversarial Verification Panel`. This replaces the former single-validator step: three independent lenses (reachability/correctness, false-positive causes, severity) catch more failure modes than one judge, and the scope widens from Critical/High only to every finding above the confidence floor.
+Skip this step if `--fast` was passed. Otherwise verify findings with the 4-lens panel defined in the `senior-review:review-quality-gates` skill, section `## Adversarial Verification Panel`. This replaces the former single-validator step: four independent lenses (premise veto, reachability/correctness, false-positive causes, severity) catch more failure modes than one judge, and the scope widens from Critical/High only to every finding above the confidence floor.
 
 If the skill is unavailable, fall back to the legacy behavior: one `general-purpose` validator per Critical/High finding returning VALID/FALSE_POSITIVE (opus for bug/logic/architecture findings, sonnet for style/CLAUDE.md findings).
 
@@ -320,15 +320,17 @@ The cost-guard threshold is a finding-count proxy (no token budget exists in thi
 
 ### Panel
 
-For each selected finding, spawn lenses 1 and 2 in parallel using the lens prompts from the skill (`general-purpose`; inherit the session model; `run_in_background: true`), substituting the finding, the diff, and the full file content. Spawn lens 3 (`model: sonnet`) only for findings that survive lenses 1-2, per the skill's gated-lens rule: calibrating a finding about to be discarded is spend for nothing.
+**Lens 0 first.** For each selected finding whose `premise_provenance` is `shared-context` or `mixed`, spawn lens 0 (`subagent_type: senior-review:premise-auditor`, mode 2, inheriting the session model) using the Lens 0 prompt from the skill, with the deep-dive line resolved to the `.deep-dive/` mirror and the interconnect-map and knowledge-provenance lines omitted, since this command builds neither. A finding declaring no provenance is `independent` unless the `.deep-dive/` context supplied its premise. Apply the skill's Lens 0 resolution table: a `REFUTED` verdict targeting `PREMISE` discards the finding (`filtered: premise-refuted`) without spawning lenses 1-2; targeting `SUPPORT` on `mixed` provenance strikes the shared leg and restates the finding from the surviving independent evidence before it proceeds; targeting `SUPPORT` on `shared-context` provenance discards it the same way. `UNCERTAIN` and `HOLDS` proceed to lenses 1-2, `UNCERTAIN` tagged `premise-contested`. Findings declared `independent` skip lens 0 entirely and proceed directly to lenses 1-2.
+
+For each finding that reaches this step, spawn lenses 1 and 2 in parallel using the lens prompts from the skill (`general-purpose`; inherit the session model; `run_in_background: true`), substituting the finding, the diff, and the full file content. Spawn lens 3 (`model: sonnet`) only for findings that survive lenses 1-2, per the skill's gated-lens rule: calibrating a finding about to be discarded is spend for nothing.
 
 ### Survival rule
 
-Apply the skill's rule: survive on `>= 2` of lenses 1-2 voting REAL; discard (`filtered`, counted) on `>= 2` FALSE_POSITIVE; tie or fewer-than-2-verdicts means survive and mark `contested`. Final severity is the lens-3 vote when confirmed real, else the original.
+A finding discarded by Lens 0 never reaches this rule. Otherwise apply the skill's rule: survive on `>= 2` of lenses 1-2 voting REAL; discard (`filtered`, counted) on `>= 2` FALSE_POSITIVE; tie or fewer-than-2-verdicts means survive and mark `contested`. Final severity is the lens-3 vote when confirmed real, else the original.
 
 **After the panel completes:**
-- Drop `filtered` findings; apply recalibrated severities; tag `contested` and `unverified (cost-guard)` findings.
-- Add to the report: `Verification: X of Y (3-lens panel), Z false positives, W contested`.
+- Drop `filtered` findings; apply recalibrated severities; tag `contested`, `premise-contested`, and `unverified (cost-guard)` findings.
+- Add to the report: `Verification: X of Y (4-lens panel), Z false positives, W contested, V premise-refuted`.
 
 Medium and Low findings are no longer skipped by default: they enter the panel like any other finding above the floor (subject to the cost guard).
 
