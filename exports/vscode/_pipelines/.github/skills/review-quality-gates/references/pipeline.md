@@ -197,8 +197,6 @@ This phase owns discovery of **what evidence is relevant to this review**. X-ray
 
 **This file is immutable once written.** No later phase appends to it. X-ray's own leads are joined into a separate derived artifact in Phase 1d, precisely so that the snapshot Phase 1c consumes cannot change underneath it.
 
-**The duty of autonomous rediscovery.** X-ray's documentation leads are an input, never a completeness guarantee. When no lead exists for a concept the diff touches, search the available indexes yourself and record what you find under `Independently discovered by Senior Review`. Without this duty, the completeness of X-ray's discovery becomes the next shared premise, which is the failure this pipeline exists to prevent.
-
 **Output:** `.team-review/01a-review-knowledge-leads.md`
 
 ```markdown
@@ -282,6 +280,8 @@ Runs inline on the orchestrator once both Phase 1 and Phase 1c have completed. `
 
 Read `.team-review/01a-review-knowledge-leads.md`, `<xray_run_dir>/knowledge/documentation-leads.md` and `.team-review/01b-independent-claims.md`. Then:
 
+**Degradation when X-ray produced no leads.** If `<xray_run_dir>/knowledge/documentation-leads.md` does not exist, record `Inherited from X-Ray: not produced` under that heading and **suppress the asymmetry diagnostic** described below for this run. An absent file is not a discovery gap, and treating it as one would report an X-ray gap on every row: a systematically false signal from the mechanism built to stop false signals. A reused older run and a Phase 0 that failed both land here. Everything else in this phase proceeds normally: `Missing` and `Disputed` are still computed from `01a` and `01b`.
+
 1. Write `.team-review/01-knowledge-provenance.md` in the format below.
 2. Annotate `.team-review/02-interconnect.md`: every contradiction between the independent claims and a map row becomes a `disputed` row citing both `file:line` sides. Do not resolve the contradiction and do not prefer either derivation.
 
@@ -319,7 +319,9 @@ Read `.team-review/01a-review-knowledge-leads.md`, `<xray_run_dir>/knowledge/doc
 
 Collapsing them would drain `disputed` of the precise meaning the rest of this pipeline depends on, which is that two derivations reached incompatible conclusions and a reviewer must settle it.
 
-Two asymmetries here are diagnostics worth reading, not noise. A row present in `Independently discovered by Senior Review` and absent from `Inherited from X-Ray` means X-ray's discovery had a gap. The reverse means Phase 0c had one. Both are recorded and neither is silently reconciled.
+**The duty of autonomous rediscovery.** X-ray's documentation leads are an input, never a completeness guarantee. Any concept `01a` carried that X-ray's leads missed stays under `Independently discovered by Senior Review`; a concept neither branch found goes to `Missing`. Neither is downgraded because the other branch was silent. Without this duty, the completeness of X-ray's discovery becomes the next shared premise, which is the failure this pipeline exists to prevent.
+
+Two asymmetries here are diagnostics worth reading, not noise. A row present in `Independently discovered by Senior Review` and absent from `Inherited from X-Ray` means X-ray's discovery had a gap. The reverse means Phase 0c had one. Both are recorded and neither is silently reconciled. Neither is reportable when X-ray produced no leads file at all: the degradation rule above governs that case.
 
 Mark `phase_1d_reconciliation` complete.
 
@@ -443,7 +445,7 @@ Skip if `--fast` (mark `skipped`). Otherwise drive the panel exactly per `SKILL.
 
 1. Apply the confidence floor: findings at `>= 50%`. An unscored finding counts as 60, so it is not silently skipped.
 2. Selection: verify everything if `--rigorous` or 25 or fewer findings survive. Otherwise narrow to stakes plus uncertainty band per the skill, and record how many are left `unverified (cost-guard)`.
-3. **Lens 0 first.** For each selected finding whose `premise_provenance` is `shared-context` or `mixed`, dispatch one `review-verification-lens` with `lens: 0` using the Lens 0 prompt from the skill, resolving the X-ray line to `{xray_run_dir}/`. Apply the skill's Lens 0 resolution table: a `REFUTED` verdict targeting `PREMISE` discards the finding (`filtered: premise-refuted`) without dispatching lenses 1-2; targeting `SUPPORT` on `mixed` provenance strikes the shared leg and restates the finding from the surviving independent evidence before it proceeds; targeting `SUPPORT` on `shared-context` provenance discards it the same way. `UNCERTAIN` and `HOLDS` proceed to lenses 1-2, `UNCERTAIN` tagged `premise-contested`. Findings declared `independent` skip lens 0 entirely.
+3. **Lens 0 first.** For each selected finding whose `premise_provenance` is `shared-context` or `mixed`, **or whose declared premise carries a universal or negative quantifier (`no`, `never`, `cannot`, `always`, `only`) at any provenance**, dispatch one `review-verification-lens` with `lens: 0` using the Lens 0 prompt from the skill, resolving the X-ray line to `{xray_run_dir}/`. Apply the skill's Lens 0 resolution table: a `REFUTED` verdict targeting `PREMISE` discards the finding (`filtered: premise-refuted`) without dispatching lenses 1-2; targeting `SUPPORT` on `mixed` provenance strikes the shared leg and restates the finding from the surviving independent evidence before it proceeds; targeting `SUPPORT` on `shared-context` provenance discards it the same way. `UNCERTAIN` and `HOLDS` proceed to lenses 1-2, `UNCERTAIN` tagged `premise-contested`. Findings declared `independent` whose premise carries no such quantifier skip lens 0 entirely.
 4. For each finding that reaches this step, dispatch two `review-verification-lens` subagents (lenses 1 and 2), all in the same turn across findings. Substitute the finding, the diff, and the full file content into each prompt. Dispatch lens 3 only for findings that survive lenses 1-2, per the skill's gated-lens rule.
 5. Apply the survival rule: survives if at least 2 of lenses 1-2 vote REAL; `filtered` if at least 2 vote FALSE_POSITIVE; a tie or fewer than 2 valid verdicts means it survives, marked `contested`. Final severity is the lens-3 vote when confirmed real, otherwise the original.
 6. Write `.team-review/98-verification.md`: one row per verified finding with per-lens verdicts (including, for findings that reached lens 0, its verdict, refutation target, and counterexample), final severity, and flag (`verified` / `contested` / `filtered: premise-refuted` / `filtered`), plus the trailing `unverified (cost-guard)` count.
@@ -469,7 +471,7 @@ Session: .team-review/
 Context: X-ray ({lite|full}) + interconnect map ({anchor count} anchors)
 Reviewed by: {dimensions} ({N} reviewers)
 Files reviewed: {count}
-Verification: {verified} verified (4-lens panel), {filtered} false positives, {contested} contested, {premise_refuted} premise-refuted{cost_guard_note}
+Verification: {verified} verified (4-lens panel), {filtered} false positives, {contested} contested, {premise_refuted} premise-refuted, {premise_contested} premise-contested{cost_guard_note}
 
 ### Critical ({count})
 [findings with file:line, category, and map anchor where applicable]

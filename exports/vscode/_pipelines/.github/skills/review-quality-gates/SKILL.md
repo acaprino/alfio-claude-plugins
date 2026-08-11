@@ -29,12 +29,14 @@ This is the pipeline's first-level invariant, not quality advice. Three conseque
 
 ## Context Sharing Pattern
 
-When `/team-review` runs in pipeline mode (no `--no-context`), reviewers do not receive raw code only. They receive two context artifacts produced in Phase 1:
+When `/team-review` runs in pipeline mode (no `--no-context`), reviewers do not receive raw code only. They receive three context artifacts produced in Phase 1:
 
 1. **X-ray output** at `<xray_run_dir>/` (from the `codebase-xray` skill): `01-structure.md`, `02-interfaces.md`, `05-risks.md`, and at full depth also `03-flows.md`, `04-semantics.md`, `06-documentation.md`, `07-final-report.md`. Reviewers read the immutable run directory, never the `.deep-dive/` root mirror, which a concurrent X-ray run may republish mid-review.
 2. **Interconnect map** at `.team-review/02-interconnect.md`, copied by Phase 1 from the X-ray run's `08-interconnect-map.md` (produced by `xray-interconnect-mapper`): contracts (formal / structural / implicit), invariants, domain rules, assumptions (verified / documented / unverified), integration hot-spots, change impact radius.
 
-A third artifact is produced alongside them and is **not** shared context: `.team-review/01b-independent-claims.md`, derived in Phase 1c by `review-premise-auditor` while blind to both. Phase 1d joins it with the X-ray leads into `.team-review/01-knowledge-provenance.md` and turns every contradiction into a `disputed` row in the map.
+3. **Knowledge provenance** at `.team-review/01-knowledge-provenance.md` (written by the orchestrator in Phase 1d): which concepts each discovery branch found, which neither found, and which they disagree about. Reviewers derive candidate concerns from it, so it is distributed with the other two.
+
+A fourth artifact is produced alongside them and is **not** shared context: `.team-review/01b-independent-claims.md`, derived in Phase 1c by `review-premise-auditor` while blind to both of the above. Phase 1d joins it with the X-ray leads into `.team-review/01-knowledge-provenance.md` and turns every contradiction into a `disputed` row in the map.
 
 ### Why context sharing matters, and where it stops
 
@@ -76,6 +78,7 @@ You are reviewing for the {dimension} dimension.
 ## Context files
 - X-ray output: <xray_run_dir>/
 - Interconnect map: .team-review/02-interconnect.md
+- Knowledge provenance: .team-review/01-knowledge-provenance.md
 
 ### Epistemic status of the shared context
 
@@ -131,7 +134,7 @@ Quality signals:
 | Metric | Meaning |
 |---|---|
 | **Independent premise reconstruction rate** | fraction of findings whose load-bearing premise was obtained **without exposure to that premise**: derived by `review-premise-auditor` in Phase 1c, or genuinely re-derived by a reviewer. **Lens 0 does not count.** It receives the finding, the declared premise, the map and the X-ray output, so it is deliberately primed. It falsifies well and derives nothing independently, and counting it here would let dependent observation masquerade as independent corroboration inside the very metrics built to stop that |
-| **Premise challenge rate** | fraction of eligible premises (provenance `shared-context` or `mixed`) actually attacked by Lens 0 |
+| **Premise challenge rate** | fraction of eligible premises actually attacked by Lens 0. Eligible means provenance `shared-context` or `mixed`, or a premise carrying a universal or negative quantifier at any provenance |
 | **Map challenge rate** | fraction of consumed map rows explicitly tested rather than assumed |
 | **Map gap rate** | rules, paths and invariants discovered independently that the map never carried, meaning `[MAP-GAP]` findings over total findings |
 | **Cross-source corroboration rate** | findings corroborated across code, tests and documentation |
@@ -144,7 +147,7 @@ When the pipeline is skipped, reviewers receive only target + diff. In this mode
 - `review-logic-integrity-auditor` is not spawned (no map to drive it).
 - `review-premise-auditor` is not dispatched either, in either phase: there is no shared derivation for it to be independent of.
 - Phase 0c does not run. The flag means "give me the raw mode", and a normally-on phase does not override it: `01a-review-knowledge-leads.md` distributed to N reviewers is itself shared context, so keeping the phase alive under the flag would make findings legitimately `shared-context`, let Lens 0 fire, and stop the mode reproducing the pre-pipeline behaviour it exists to provide.
-- Every finding is `independent` by construction, so Lens 0 never fires and consolidation never reports an echo.
+- Every finding is `independent` by construction, so Lens 0 never fires and consolidation never reports an echo. The quantifier route in `### The four lenses` cannot rescue this: with no `review-premise-auditor` dispatched there is no premise phase to feed it. Raw mode trades the premise gate away along with the shared context, which is what the flag is for.
 - All other reviewers fall back to their pre-pipeline behavior.
 - No X-ray run directory or `.team-review/02-interconnect.md` references should appear in reviewer prompts.
 
@@ -186,13 +189,15 @@ Dispatch one `review-verification-lens` subagent per lens per finding with `#age
 
 **Lens 0 is gated on provenance and runs first**, before lenses 1 and 2, for the same reason lens 3 is gated last: a finding a veto will discard should not consume the other lenses. Lens 3 stays gated on survival.
 
-Lens 0 runs only for findings whose `premise_provenance` is `shared-context` or `mixed`. A finding declared `independent` skips it. A finding that declares nothing is treated as `shared-context` when the pipeline ran, and the report records the reviewer as format-non-compliant. A finding with no `Load-bearing premise` has one derived by Lens 0, with the same note. The pipeline never drops a finding over a missing field.
+Lens 0 runs for findings whose `premise_provenance` is `shared-context` or `mixed`, **and, regardless of provenance, for any finding whose declared premise carries a universal or negative quantifier** (`no`, `never`, `cannot`, `always`, `only`). A finding declared `independent` with no such quantifier skips it. A finding that declares nothing is treated as `shared-context` when the pipeline ran, and the report records the reviewer as format-non-compliant. A finding with no `Load-bearing premise` has one derived by Lens 0, with the same note. The pipeline never drops a finding over a missing field.
+
+The quantifier route exists because sharing is how an over-scoped premise *spreads*, not how it is *born*. The incident this pipeline was built from was a true local observation ("no credential-bearing response path exists") generalized to all paths by a reviewer that had read only one of them. Declared honestly as `independent`, it would pass a provenance-only gate untouched. A universal claim is exactly the claim one counterexample kills, which is the thing Lens 0 is good at.
 
 **Lens 3 is gated on survival.** Lenses 1 and 2 run next, issued in a single assistant turn across all selected findings so they run concurrently. Lens 3 (severity calibration) is dispatched only for findings that survive them (REAL from both, or the tie that marks them `contested`). Calibrating the severity of a finding the panel is about to discard is spend for nothing; the gate cuts roughly a third of the verifier calls with no change to the survival semantics. Findings killed by lenses 1-2 never reach lens 3 and keep their original severity in the `filtered` record.
 
 All four lenses run on whatever model the session selected. The Claude Code original pinned a cheaper model on lens 3, since calibration is less reasoning-heavy than the others. VS Code custom agents accept a `model:` field, so pin one on `review-verification-lens` if your setup benefits from it; the default is deliberately unpinned, because the correct model id depends on which Copilot models the user has available.
 
-**Export divergence, deliberate.** Upstream, Lens 0 is mode 2 of the `premise-auditor` agent, the same agent that derives blind in Phase 1c. Here the two are separate agents: `review-premise-auditor` derives blind and never sees the shared context, and `review-verification-lens` runs Lens 0 with full context. Splitting them makes the blindness structural rather than instruction-dependent, which is worth more than matching the upstream file layout.
+**Export divergence, deliberate.** Upstream, Lens 0 is mode 2 of the `premise-auditor` agent, the same agent that derives blind in Phase 1c. Here the two are separate agents: `review-premise-auditor` derives blind and never sees the shared context, and `review-verification-lens` runs Lens 0 with full context. What the split makes structural is **mode confusion**: one agent cannot be dispatched into the wrong mode, and no instruction has to keep the two roles apart. The blindness itself stays instruction-dependent, since `review-premise-auditor` holds unrestricted read and search tools and its `--confine .team-review` hook governs writes only. What makes the blindness auditable is the derive-only mandate: because that agent never compares, its output can be checked after the fact for X-ray-shaped conclusions.
 
 **Lens 0 prompt (Premise Challenge):**
 
