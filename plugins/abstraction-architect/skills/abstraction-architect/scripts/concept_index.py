@@ -112,31 +112,37 @@ def worktree_files(repo, scope):
     return files
 
 
-def index_relpath(repo, index_path):
-    """Repo-relative, forward-slash path of the index file, or None when it
-    does not live inside repo.
+def own_artifact_dir(repo, index_path):
+    """Repo-relative, forward-slash, trailing-slash directory that holds the
+    index file, or None when it cannot be resolved or sits at repo root.
 
-    The concept index is this script's own output, not a file under
-    review. Without this exclusion, writing or updating the index would
-    make the index itself look like changed content, and it would show up
-    as a spurious unmapped file: a concept in need of discovery that is
+    That directory is this script's and the agent's own report directory:
+    concept-index.json alongside findings.md and findings-diff.md (see
+    agents/abstraction-architect.md). None of the three is a file under
+    review. Excluding the whole directory, derived from the resolved
+    --index path rather than a hardcoded string, rather than only the
+    index file, keeps writing or updating any of them from making itself
+    look like changed content, a concept in need of discovery that is
     actually the discovery record.
     """
     try:
         repo_abs = os.path.realpath(repo)
-        index_abs = os.path.realpath(index_path)
+        index_dir_abs = os.path.dirname(os.path.realpath(index_path))
     except OSError:
         return None
-    rel = os.path.relpath(index_abs, repo_abs)
+    rel = os.path.relpath(index_dir_abs, repo_abs)
+    if rel == os.curdir:
+        return None            # index sits at repo root: nothing to exclude
     if rel == os.pardir or rel.startswith(os.pardir + os.sep):
         return None
-    return rel.replace(os.sep, "/")
+    rel = rel.replace(os.sep, "/")
+    return rel if rel.endswith("/") else rel + "/"
 
 
-def without_own_path(files, own_path):
-    if own_path is None:
+def without_own_artifacts(files, own_dir):
+    if own_dir is None:
         return files
-    return [path for path in files if path != own_path]
+    return [path for path in files if not path.startswith(own_dir)]
 
 
 def partition(index, changed_files):
@@ -154,10 +160,10 @@ def partition(index, changed_files):
     return sorted(name for name in dirty if name), unmapped
 
 
-def resolve_review_delta(repo, args, scope, own_path=None):
+def resolve_review_delta(repo, args, scope, own_dir=None):
     if args.changed_files:
         # An explicit list is the caller's deliberate scope, so it is never
-        # filtered against own_path: only autodetected git state is.
+        # filtered against own_dir: only autodetected git state is.
         try:
             with open(args.changed_files, encoding="utf-8") as handle:
                 files = [line.strip() for line in handle if line.strip()]
@@ -167,10 +173,10 @@ def resolve_review_delta(repo, args, scope, own_path=None):
         return {"source": "changed-files", "files": files}
     if args.base:
         head = args.head or "HEAD"
-        files = without_own_path(diff_files(repo, args.base, head, scope), own_path)
+        files = without_own_artifacts(diff_files(repo, args.base, head, scope), own_dir)
         return {"source": f"{args.base}..{head}", "files": files}
     if args.working_tree:
-        files = without_own_path(worktree_files(repo, scope), own_path)
+        files = without_own_artifacts(worktree_files(repo, scope), own_dir)
         return {"source": "working-tree", "files": files}
     return {"source": "none", "files": []}
 
@@ -210,15 +216,15 @@ def status(args):
     if head_tree is None:
         return unusable(f"scope {scope!r} does not resolve at HEAD", baseline)
 
-    own_path = index_relpath(repo, args.index)
-    dirty_paths = without_own_path(worktree_files(repo, scope), own_path)
+    own_dir = own_artifact_dir(repo, args.index)
+    dirty_paths = without_own_artifacts(worktree_files(repo, scope), own_dir)
     repository_state = {
         "head_commit": head_commit,
         "head_tree": head_tree,
         "dirty": bool(dirty_paths),
     }
 
-    review_delta = resolve_review_delta(repo, args, scope, own_path)
+    review_delta = resolve_review_delta(repo, args, scope, own_dir)
 
     if not commit_exists(repo, baseline["commit"]):
         result = unusable(
@@ -227,8 +233,8 @@ def status(args):
         result["repository_state"] = repository_state
         return result
 
-    baseline_drift = without_own_path(
-        diff_files(repo, baseline["commit"], "HEAD", scope), own_path)
+    baseline_drift = without_own_artifacts(
+        diff_files(repo, baseline["commit"], "HEAD", scope), own_dir)
     drift = baseline_drift + dirty_paths
     changed_files = sorted(set(drift) | set(review_delta["files"]))
 
