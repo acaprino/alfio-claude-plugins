@@ -1,11 +1,11 @@
 ---
-description: Audit a codebase for missed unification opportunities and wrong abstractions, or check with --diff whether newly written code was already available for reuse. Auto-launches /codebase-xray:analyze when .deep-dive/ is missing or incomplete. Report-only.
-argument-hint: "[path] [--diff [<base-ref>]] [--scope <subpath>] [--severity-floor low|medium|high] [--focus unification|wrong-abstraction|both]"
+description: Audit a codebase for structural entropy (where the same concept is represented, owned, computed or implemented more than once) across seven dimensions, or check with --diff whether a change introduces new entropy. Auto-launches /codebase-xray:analyze when .deep-dive/ is missing. Report-only.
+argument-hint: "[path] [--diff [<base-ref>]] [--scope <subpath>] [--severity-floor low|medium|high] [--focus all|knowledge|form|D1..D7] [--no-index] [--rebuild-index]"
 ---
 
 # /abstraction-architect:audit
 
-Audit a codebase for the two failure modes of pure architecture: missed unification (cross-cutting concerns scattered across call sites that should be a single layer) and wrong abstractions (god services, flag-soup functions, premature interfaces, leaky abstractions). Report-only.
+Audit a codebase for structural entropy: duplicated domain knowledge, competing sources of truth, redundant representations, duplicated or derivable state, missed unification, prior art that already exists, and abstractions that are fighting their callers. Report-only.
 
 ## Usage
 
@@ -13,40 +13,48 @@ Audit a codebase for the two failure modes of pure architecture: missed unificat
 /abstraction-architect:audit                                    # audit current directory
 /abstraction-architect:audit src/services                       # audit a subpath
 /abstraction-architect:audit --severity-floor high              # only high-severity findings
-/abstraction-architect:audit --focus wrong-abstraction          # restrict to one category
-/abstraction-architect:audit --scope src/api --focus unification
-/abstraction-architect:audit --diff                             # did the code I just wrote already exist?
+/abstraction-architect:audit --focus knowledge                  # D1-D4 only
+/abstraction-architect:audit --focus D2                         # competing sources of truth only
+/abstraction-architect:audit --diff                             # does my change add entropy?
 /abstraction-architect:audit --diff origin/master               # same, against an explicit base ref
+/abstraction-architect:audit --rebuild-index                    # ignore any existing concept index
 ```
 
 ## Arguments
 
 - `[path]` (optional) — codebase root. Default: current working directory.
-- `--diff [<base-ref>]` (optional) — run the agent in diff-anchored mode instead of a whole-codebase audit. Takes the changed code as the anchor and searches the rest of the codebase for prior art, reporting whether an added unit duplicates something that already exists or has become the third occurrence that justifies unifying. Base ref defaults to the merge base with the default branch, falling back to `HEAD` for uncommitted work.
-- `--scope <subpath>` (optional) — limit findings to a subtree. Deep-dive is still run on the full codebase; the agent filters findings by scope.
-- `--severity-floor low|medium|high` (optional) — drop findings below this severity. Default: `medium`.
-- `--focus unification|wrong-abstraction|both` (optional) — restrict to one finding category. Default: `both`. Under `--diff`, `unification` maps to classes R1-R4 (prior art and Rule of Three) and `wrong-abstraction` to R5 (wrong abstraction introduced by the diff).
+- `--diff [<base-ref>]` (optional) — run diff-anchored instead of a whole-codebase audit. Asks the same seven questions as "introduced or aggravated by this change". Base ref defaults to the merge base with the default branch, falling back to `HEAD` for uncommitted work.
+- `--scope <subpath>` (optional) — limit findings to a subtree. Deep-dive still runs on the full codebase.
+- `--severity-floor low|medium|high` (optional) — default `medium`.
+- `--focus all|knowledge|form|D1..D7` (optional) — default `all`. `knowledge` is D1 to D4, `form` is D5 to D7, or name a single dimension.
+- `--no-index` (optional) — do not read or write `concept-index.json`. Use when auditing a directory that is not a git repository, or to measure what the audit finds without a seed.
+- `--rebuild-index` (optional, global mode only) — ignore any existing index and census the codebase from scratch. Use after a large refactor or a history rewrite.
 
 ## What this command does
 
-1. **Resolves the target path.** Defaults to the current working directory if `[path]` is omitted.
+1. **Resolves the target path.** Defaults to the current working directory.
 
-2. **Checks for `.deep-dive/`.** Looks for the required files: `01-structure.md`, `02-interfaces.md`, `03-flows.md`, `04-semantics.md`. The optional `08-interconnect-map.md` is also checked; if absent the audit proceeds without bounded-context fusion analysis.
+2. **Checks for `.deep-dive/`.** Looks for `01-structure.md`, `02-interfaces.md`, `03-flows.md`, `04-semantics.md`. The optional `08-interconnect-map.md` enables the bounded-context check; without it, knowledge-track findings carry `Bounded-context exception: unverified`.
 
-3. **Auto-launches deep-dive if needed.** If `.deep-dive/` is missing or incomplete, prints the status message *"No deep-dive output found at `.deep-dive/`. Launching `/codebase-xray:analyze` first. This may take several minutes on a large codebase."* then invokes `/codebase-xray:analyze` automatically without a confirmation prompt. If deep-dive fails, aborts with the path of the deep-dive log.
+3. **Auto-launches deep-dive if needed.** If `.deep-dive/` is missing or incomplete, prints *"No deep-dive output found at `.deep-dive/`. Launching `/codebase-xray:analyze` first. This may take several minutes on a large codebase."* then invokes it without a confirmation prompt. Aborts with the log path if deep-dive fails.
 
-   Under `--diff` this step is skipped. Diff mode consumes only `01-structure.md` and `02-interfaces.md`, uses whatever is already on disk, and runs on `Glob` plus `Grep` alone when nothing is. Launching a full deep-dive to review a handful of changed files is not worth the wait.
+   Under `--diff` this step is skipped. Diff mode consumes only `01-structure.md` and `02-interfaces.md`, uses whatever is on disk, and runs on the concept index plus `Glob` and `Grep` when nothing is.
 
-4. **Resolves the diff (`--diff` only).** Runs `git diff --name-only <base-ref>...HEAD` plus `git diff --name-only` for uncommitted work, and passes the union as `changed_files`. Aborts with a clear message when the path is not a git repository.
+4. **Resolves the concept index.** Unless `--no-index`, checks `<path>/.abstraction-architect/concept-index.json` and runs the freshness script. Reports the state to the user before spawning, so a `delta-stale` index is visible rather than silent:
 
-5. **Spawns the `abstraction-architect` agent** via the `Agent` tool, passing the codebase path, the mode, the deep-dive path when present, `changed_files` under `--diff`, and the parsed scope / severity-floor / focus flags.
+   ```
+   Concept index: delta-stale (baseline a13fe2, HEAD 92ac10, 4 concepts to revalidate)
+   ```
 
-6. **The agent writes the report** to `<path>/.abstraction-architect/findings.md`, or `findings-diff.md` under `--diff`.
+   An absent or unusable index is not an error. The audit proceeds and declares the reduced coverage in its Gaps section.
 
-7. **Prints to the user:**
-   - The absolute path of the report.
-   - Summary counts: total findings, high / medium / low breakdown.
-   - The top three high-severity findings as one-line previews.
+5. **Resolves the diff (`--diff` only).** Runs `git diff --name-only <base-ref>...HEAD` plus `git diff --name-only` for uncommitted work, and passes the union as `changed_files`. Aborts with a clear message when the path is not a git repository.
+
+6. **Spawns the `abstraction-architect` agent** via the `Agent` tool with `codebase_path`, `mode`, `deep_dive_path`, `concept_index_path`, `changed_files` under `--diff`, and the parsed scope, severity-floor and focus flags.
+
+7. **The agent writes the report** to `<path>/.abstraction-architect/findings.md`, or `findings-diff.md` under `--diff`. In global mode it also rewrites `concept-index.json`. **Diff mode never writes the index.**
+
+8. **Prints to the user:** the report path, summary counts, the concept index state, and the top three findings as one-line previews.
 
 The full report stays in the file so the user opens it deliberately.
 
