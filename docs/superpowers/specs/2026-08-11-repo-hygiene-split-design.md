@@ -1,330 +1,120 @@
-# repo-hygiene: splitting repo maintenance out of senior-review
+# repo-hygiene: splitting workspace tidying out of code review
 
-**Date**: 2026-08-11
-**Status**: design, awaiting implementation plan
-**Affects**: new plugin `repo-hygiene`; `senior-review` (agent `cleanup-auditor`, commands `code-review`, `pr-review`, `team-review`, skill `review-quality-gates`); `.claude-plugin/marketplace.json`; `exports/vscode/`; `docs/plugins/`
+Date: 2026-08-11
+Plugins: `repo-hygiene` (new), `senior-review` (modified)
+Status: draft, not frozen. Written for external challenge via `/peer-review:review` before any implementation plan exists.
 
-## Problem
+## Context
 
-`senior-review:cleanup-auditor` currently detects six dimensions under one name: dead code (D1),
-asset hygiene (D2), VCS hygiene (D3), dependency hygiene (D4), documentation and historical-artifact
-hygiene (D5), and lifecycle archaeology (D6). Removal for all of them lives in Step 7c of
-`/senior-review:code-review --commit`, as seven phases: `garbage`, `brand`, `assets`, `gitignore`,
-`deps`, `exports`, `docs`.
+Step 7c of `/senior-review:code-review --commit` is the only place in this marketplace that performs bulk removal of application code. It runs seven phases in ascending risk order (`garbage`, `brand`, `assets`, `gitignore`, `deps`, `exports`, `docs`), each committed separately, each gated by a build-and-test run against a baseline captured before the first phase. Its detection half is `senior-review:cleanup-auditor`, an always-on dimension of `/senior-review:team-review` covering six dimensions: dead code (D1), assets (D2), VCS hygiene (D3), dependencies (D4), documentation and historical artifacts (D5), lifecycle archaeology (D6).
 
-Two unrelated kinds of work are bundled here.
+The seven phases are not the same kind of work. Removing a tracked `nul` file and removing a dead export are both subtraction, but only one of them can break the build, and only one of them requires understanding what the code means. Today they share a pre-flight, a gate, and a command, because they arrived together.
 
-Finding a dead export is a code-comprehension problem. It needs to know about dynamic imports,
-dependency-injection registration, framework conventions such as Next.js `pages/` and `app/`, and
-module augmentation in `*.d.ts`. Getting it wrong breaks the build or, worse, breaks runtime in a
-path no test covers. That is why the `exports` phase runs ruff, then Knip verified by Grep, then
-vulture behind explicit user approval, in ascending order of risk.
+The cost of that shared home is concrete. Deleting `.DS_Store` from git sits behind a full build-and-test gate that exists to protect the `exports` phase. Appending `node_modules/` to `.gitignore` requires a clean working tree, `--commit`, and a review that produced hygiene findings in the first place. A user who wants to tidy a workspace has to run a code review to get there.
 
-Finding a tracked `dist/` directory, a `nul` file from a shell redirection, or a `.gitignore` missing
-`__pycache__/` is a filesystem-and-git problem. It needs `git ls-files` and a regex. Getting it wrong
-breaks nothing, which is why the `garbage` phase is documented as "safest phase, no build or
-dependency impact expected".
+## The load-bearing distinction
 
-Three concrete consequences of the bundling, each independently sufficient to motivate the split:
+Every phase is classified by **what kind of evidence decides it**:
 
-1. **The Step 7c pre-flight blocks trivial work on a broken repo.** Step 7c halts if the baseline
-   build or tests already fail. Correct for `exports`. Absurd for `garbage`: a repository with a red
-   build currently cannot have a `.DS_Store` removed by this toolkit, because a gate protecting
-   something the phase does not touch refuses to open.
+- **Filesystem and git evidence.** The question is answered by `git ls-files`, `git check-ignore`, `git stash list`, or a directory listing. No source file has to be read, and no symbol has to be understood. Being wrong here costs a `git revert`, never a broken build.
+- **Code comprehension.** The question is answered by understanding what a symbol is for, whether a reference reaches it, and whether removing it changes behavior. Dynamic imports, decorators, framework conventions, and module augmentation are all failure modes of this class. Being wrong here breaks the build, which is exactly what the gate exists to catch.
 
-2. **The install cost is disproportionate.** `senior-review` 10.1.0 declares seven hard dependencies
-   (`agent-teams@claude-code-workflows`, `codebase-xray`, `abstraction-architect`, `react-development`,
-   `platform-engineering`, `typescript-development`, `testing`), and `codebase-xray` and
-   `abstraction-architect` pull further. Fixing a `.gitignore` should not require the review stack.
-   This is the same objection that removed the Context Builder role from `research` in marketplace
-   21.0.0.
+This is the boundary the split follows. It is not a size or a risk boundary: it is a boundary about which tool answers the question.
 
-3. **The scope seam is a symptom, not an accident.** Whole-codebase hygiene detection is only
-   reachable through `/senior-review:team-review`, because `/senior-review:code-review` is diff-scoped
-   by construction (Cases A through E all resolve to a diff). Repo hygiene is repo-scoped by nature.
-   Hosting it inside a diff-scoped review command is what forces the awkward handoff where
-   `team-review` detects across the repo and `code-review` executes against a diff.
+## Section 1: phase ownership (agreed in discussion)
 
-## Decisions
-
-Each decision below records the alternatives that were considered and why they were rejected. The
-rationale is part of the artifact deliberately: a decision presented as a bare conclusion cannot be
-judged, only accepted or contradicted.
-
-### D-1: `repo-hygiene` owns its own removal
-
-The new plugin performs detection **and** removal for its categories. It is not detection-only.
-
-**Rationale.** The point of the split is that this class of work should cost one command and a few
-seconds. If removal stayed in Step 7c, a user wanting to delete a stray `nul` file would still
-install `senior-review`, still pull its dependency tree, and still run a diff-scoped review. That
-reproduces the problem the split exists to solve.
-
-**Rejected: detection-only, removal stays in Step 7c.** Keeps Step 7c intact at seven phases and
-avoids duplicating any removal machinery. Rejected because it preserves every ergonomic defect
-listed in the Problem section while adding a plugin boundary, which is the worst of both.
-
-**Rejected: detection-only, no executor anywhere.** The removal commands appear in the finding text
-and the user runs them, which is what `cleanup-auditor` already does for stashes and worktrees.
-Maximum safety, zero automation. Rejected as a regression against the current state: Step 7c already
-automates `garbage` and `gitignore` today, so shipping this would remove a working capability.
-
-### D-2: the boundary rule is "does resolving it require reading source code?"
-
-If resolving a finding requires understanding the source, it stays in `senior-review`. If the
-filesystem and git are sufficient, it moves to `repo-hygiene`.
-
-**Rationale.** The rule is stateable in one sentence, decidable per finding without judgment calls in
-most cases, and it generates the allocation rather than enumerating it, so it also governs dimensions
-added later. It aligns the boundary with the actual difference in required competence, which is also
-what determines whether a build-and-test gate is needed.
-
-**Rejected: "files or symbols?"** Whole files move, symbols inside files stay. Produces a larger and
-arguably more useful standalone plugin, since orphan assets and dead whole files would move too.
-Rejected because orphan assets carry their code comprehension with them: the fix-loop rule for the
-`assets` phase requires grepping partial basenames to catch references built from template literals.
-The boundary would leak.
-
-**Rejected: "can removal break the build?"** Aligns the boundary to the gates instead of to the work.
-Rejected because it moves the entire `docs` phase into `repo-hygiene`, and that phase has the highest
-false-positive rate of the seven and requires per-item confirmation with last-modified date and
-checklist completion shown. Judging whether a plan document is stale is not a filesystem operation.
-
-### D-3: `team-review` gains a second always-on dimension
-
-`senior-review` declares `repo-hygiene` as a hard dependency and `/senior-review:team-review` gains a
-second always-on dimension, "Repo hygiene", spawning the new plugin's agent. The existing "Codebase
-hygiene" dimension survives, slimmed.
-
-**Rationale.** This is the established pattern in this marketplace: `testing:test-suite-auditor` and
-`typescript-development:type-safety-auditor` both live in the plugin that owns them and are spawned by
-`senior-review` as dimensions. `cleanup-auditor` is currently the only dimension agent that lives
-inside `senior-review` while addressing something other than correctness of the code. A full review
-stays full.
-
-**Rejected: `team-review` drops repo hygiene entirely.** Follows the `research` precedent from 21.0.0:
-remove the capability rather than soften the dependency. Rejected because the transitive cost runs the
-other way here. `senior-review` already pulls seven plugins, so one more is marginal, whereas a review
-that stops reporting a tracked `dist/` loses real coverage.
-
-**Rejected: `team-review` prints a pointer without spawning.** Explicitly forbidden by the
-mandatory-dependency policy of marketplace 21.0.0, which bans "skip with a note" prose precisely
-because a blind spot announced in a status line is still a blind spot.
-
-### D-4: the lite pass keeps its VCS check, sourced from `repo-hygiene`
-
-Agent B2 inside `/senior-review:code-review` and `/senior-review:pr-review` continues to check the
-diff for newly tracked generated artifacts and `.gitignore` gaps. The rule set it applies (the path
-regexes, the per-ecosystem expected-pattern table) lives in `repo-hygiene`'s skill and is loaded from
-there via the declared hard dependency from D-3.
-
-**Rationale.** Catching a `dist/` added to git costs least at review time, before the merge. Removing
-that check would trade a real detection for boundary purity. Sourcing the rules from one place keeps
-the split from introducing the duplication it is meant to remove.
-
-**Rejected: drop VCS hygiene from the lite pass.** Sharper boundary, `senior-review` genuinely
-slimmer. Rejected on the coverage argument above.
-
-**Rejected: keep a duplicate rule set in `senior-review`.** No runtime cross-plugin load needed.
-Rejected because two copies of the same regexes and the same per-ecosystem pattern table will
-diverge, which is the defect this split should eliminate rather than introduce.
-
-### D-5: the removal flags mirror `senior-review`
-
-`--fix` edits and verifies, leaving the working tree modified with no commits. `--commit` implies
-`--fix` and adds one commit per category.
-
-**Rationale.** This is the contract `/senior-review:code-review` has carried since senior-review 8.0.0,
-so a user who knows one command knows the other. Unlike Step 7c, `--fix` without commits is genuinely
-safe here, because there is no build-and-test gate whose revert mechanism the commits would be.
-
-**Rejected: `--commit` only.** Mirrors Step 7c's requirement. Rejected because Step 7c requires
-`--commit` for a specific reason that does not apply: its per-phase commits are how it reverts a
-failed build gate. With no gate, forcing a commit on someone who wanted to delete two `.DS_Store`
-files is friction without a purpose.
-
-**Rejected: interactive confirmation per category, no flags.** Safest against the irreversible-deletion
-problem below. Rejected because it is not scriptable and diverges from every other command here. The
-irreversibility problem is addressed directly by D-6 instead.
-
-### D-6: untracked deletions are quarantined, never removed
-
-Two tiers, decided by whether git already has the file:
-
-- **Tracked**: `git rm` or `git rm --cached`. Recoverable from history. Proceeds under `--fix` or
-  `--commit` normally.
-- **Untracked**: never `rm`. The file is **moved** into `.repo-hygiene/quarantine/<timestamp>/`,
-  preserving its path relative to the repo root. The quarantine directory is added to `.gitignore` by
-  the same run. The user deletes the quarantine directory when satisfied.
-
-**Rationale.** For an untracked file, neither git nor a per-category commit is a revert mechanism:
-once deleted it is gone. Since D-5 chose a `--fix` mode that leaves no commits, an untracked deletion
-under `--fix` would be the only unrecoverable operation in the design. Quarantine costs a move instead
-of a delete and makes every operation in the plugin reversible. The marketplace already uses this
-shape: `/testing:test-audit --fix` quarantines to `tests/_quarantine/` rather than deleting.
-
-This is not a separate safety feature bolted on. It is what makes D-5's choice defensible.
-
-## Boundary allocation
-
-Applying D-2 to the existing seven Step 7c phases:
-
-| Step 7c phase today | Destination | Why |
+| Phase | Owner | Why |
 |---|---|---|
-| 1 `garbage` | **repo-hygiene** | Filesystem and git suffice |
-| 2 `brand` | senior-review | Requires grepping the old name across source |
-| 3 `assets` | senior-review | Requires grepping dynamic references built from template literals |
-| 4 `gitignore` | **repo-hygiene** | Filesystem and git suffice |
-| 5 `deps` | senior-review | Requires real usage of imported symbols |
-| 6 `exports` | senior-review | Code comprehension, the pure case |
-| 7 `docs` | **splits** | Scratch directories and orphan doc-assets move; stale plans, ADRs, and stale references stay, being judgments about content |
+| 1 `garbage` | `repo-hygiene` | Filesystem and git are enough |
+| 2 `brand` | `senior-review` | Needs a grep of the old name in the source |
+| 3 `assets` | `senior-review` | Needs a grep of dynamic references built from template literals |
+| 4 `gitignore` | `repo-hygiene` | Filesystem and git are enough |
+| 5 `deps` | `senior-review` | Real use of the imported symbols |
+| 6 `exports` | `senior-review` | Code comprehension, the pure case |
+| 7 `docs` | splits | Scratch directories and orphan doc-assets go to `repo-hygiene`; plans, ADRs, and stale references stay, they are judgments about content |
 
-Also moving: all of D3 (VCS hygiene), and D6's git auxiliary state (stashes idle beyond 90 days,
-worktrees pointing at deleted branches or paths, local branches whose upstream is gone,
-merged-but-undeleted branches).
+Also moving: the git auxiliary state of D6 (stale stashes, orphan worktrees, gone-upstream branches, merged-but-undeleted branches) and the whole of D3.
 
-Staying: D1, D2, D4, D5's plan and ADR judgment, and D6's archaeology over code artifacts (the
-session-transcript and commit-sequence inference that establishes whether a migration completed).
+Consequences of the table:
 
-**Resulting phase sets.** Step 7c goes from seven phases to five: `brand`, `assets`, `deps`,
-`exports`, `docs`. Its pre-flight, baseline capture, gate-after-every-phase rule, and grep-before-delete
-rule are unchanged, and now guard only things that can actually break a build.
+- **Step 7c goes from seven phases to five**: `brand`, `assets`, `deps`, `exports`, `docs`. Its clean-tree pre-flight, its baseline capture, its per-phase commits, and its build-and-test gate stay exactly as written, and now they finally cover only things that can actually break a build.
+- **`repo-hygiene` gets its own phases, with no build-and-test gate**: `garbage`, `gitignore`, `scratch`, `git-state`. Removing a stash cannot fail a test run, so a gate there is ceremony.
 
-`repo-hygiene` gets four of its own, with no build-and-test gate: `garbage`, `gitignore`, `scratch`,
-`git-state`.
+## Section 2: what `repo-hygiene` is (proposed, not yet discussed)
 
-## Architecture
+A small leaf plugin. It vendors nothing, depends on no local plugin, and is the single source of truth for the checks it owns.
 
-Three components, chosen so that detection is described once and consumed three times.
+| Component | Purpose |
+|---|---|
+| `commands/tidy.md` (`/repo-hygiene:tidy`) | Detection plus gated application, four phases, per-phase commits, no build gate |
+| `agents/workspace-auditor.md` | Detection-only dimension agent, spawnable by other pipelines |
+| `skills/repo-hygiene/SKILL.md` | The check catalog: what counts as garbage, the per-ecosystem `.gitignore` signal table, the ignore-archaeology rules, the scratch-directory patterns, the git auxiliary-state queries |
 
-### Command: `/repo-hygiene:audit`
+Content moved verbatim rather than rewritten: D3 in full (generated artifacts, filesystem garbage, `.gitignore` completeness, `.gitignore` archaeology with its `git check-ignore -v` provenance rule), the scratch and orphan-doc-asset halves of D5, the git auxiliary-state block of D6, and phases 1, 4, and the scratch clauses of phase 7 from the 7c reference. Moving the text unchanged is what keeps this a relocation instead of a rewrite, and it is what makes the diff reviewable.
 
-Runs detection **inline**, not through a subagent. The detection is roughly ten git invocations plus
-a handful of file reads, and the value of this command depends on it being fast enough to run
-casually. Owns removal under `--fix` and `--commit` per D-5, and owns the quarantine mechanism per
-D-6.
+Three rules bind the new plugin, by direct analogy to the ones that keep the existing dependency graph a tree:
 
-Argument shape: `[path] [--fix] [--commit] [--categories=garbage,gitignore,scratch,git-state]`.
+1. **`repo-hygiene` never references a `senior-review` agent, skill, or command at runtime.** Prose next-step pointers are fine. This is the same rule that binds `codebase-xray` and `frontend-review`.
+2. **`repo-hygiene` declares no local dependency.** It stays a leaf, so nothing it acquires can close a cycle back through `senior-review`.
+3. **`repo-hygiene` never removes application code.** Bulk removal of application code stays with Step 7c, and bulk removal of test files stays with `/testing:test-consolidate`. Three owners, no overlap.
 
-### Agent: `repo-hygiene:repo-hygiene-auditor`
+## Section 3: two decisions the discussion has not reached
 
-Exists because `/senior-review:team-review` needs a `subagent_type` to spawn for the dimension added
-in D-3. Report-only: it never removes anything, matching `cleanup-auditor`'s existing prime directive
-and this marketplace's general split between detection and removal. Writes to the output path the
-pipeline gives it, inline otherwise.
+Both follow from the table above rather than being separate ideas, and both are places where the split can quietly reduce coverage.
 
-### Skill: `repo-hygiene:repo-hygiene`
+### 3a. The always-on hygiene dimension of `team-review`
 
-Holds the rule tables, and is the single source of truth for all three consumers:
+`cleanup-auditor` is always-on in `/senior-review:team-review`. If D3 leaves it, that pipeline loses VCS hygiene entirely unless something replaces it. Under the dependency policy of marketplace 21.3.0, a dimension going dark is exactly the failure mode that policy exists to prevent, and "not installed" is not an available excuse.
 
-1. `/repo-hygiene:audit`, inline
-2. `repo-hygiene:repo-hygiene-auditor`, when spawned by `team-review`
-3. `senior-review`'s Agent B2 lite pass, per D-4
+**Proposed:** `senior-review` hard-depends on `repo-hygiene` and `/senior-review:team-review` spawns `repo-hygiene:workspace-auditor` as a second always-on hygiene dimension. The transitive cost is one small leaf plugin with no dependencies of its own, which is the cheapest edge in the graph.
 
-Contents: the tracked-generated-artifact path regexes, the filesystem-garbage regexes, the
-per-ecosystem `.gitignore` expected-pattern table (Node, Vite, Next.js, Tauri, Rust, Python, Android,
-iOS, platform), the ignore-rule archaeology procedure including the `git check-ignore -v` provenance
-step, the git auxiliary state queries and their thresholds, and the residue classification vocabulary
-this plugin shares with `cleanup-auditor` (confidence tiers CONFIRMED / HIGH / MEDIUM / LOW; actions
-DELETE, KEEP, KEEP+IGNORE, DELETE+IGNORE, DELETE+PREVENT-GENERATION, UNIGNORE, REVIEW).
+**Rejected alternative:** dropping the coverage and telling users to run `/repo-hygiene:tidy` separately. That trades a guaranteed check for a remembered one.
 
-**Constraint.** `senior-review` must load this through the skill mechanism
-(`repo-hygiene:repo-hygiene`), never by reading `plugins/repo-hygiene/skills/...` by path. The
-bundled-path linter (`scripts/lint_bundled_paths.py`) forbids one plugin reaching into another's
-files by path, and such a read fails at runtime for any installed user, since plugins install into
-Claude Code's cache rather than into a checkout of this repository.
+### 3b. The lite pass in `code-review` and `pr-review`
 
-## Changes to `senior-review`
+The lite hygiene pass is D1 plus D3 scoped to the diff, and it deliberately adds no spawn: it rides inside `/senior-review:code-review` Agent B2 and inside `/senior-review:pr-review` Agent A. If D3 moves out, either that pass loses its VCS half or the content gets duplicated in two plugins.
+
+**Proposed:** the lite pass keeps both halves and keeps its zero-spawn property, but its VCS check list stops being written inline and is loaded from the `repo-hygiene` skill. One source of truth, no extra agent, and the dependency from 3a already covers the load.
+
+**Rejected alternative:** copying the check list into `senior-review`. Two copies of a check list is how the two copies drift.
+
+## Section 4: blast radius
+
+Files that name the seven phases or the moved dimensions, and therefore change together:
 
 | File | Change |
 |---|---|
-| `agents/cleanup-auditor.md` | Remove D3 entirely. Remove the git auxiliary state block from D6. Remove scratch directories and orphan doc-assets from D5. Update the agent description, the dimension count (six becomes five), the statistics table, and the recommended execution order, which currently lists all seven Step 7c phases. Add a cross-reference naming `repo-hygiene` as the owner of what left, so a user reading a report knows where the rest is. |
-| `commands/code-review.md` | Step 7c drops from seven phases to five. Update the Step 7c summary line and the phase list. |
-| `skills/review-quality-gates/references/code-review-fix-loop.md` | Same, in the authoritative copy: remove phases 1 and 4, renumber, split phase 7's scratch-directory clause out. |
-| `skills/review-quality-gates/references/code-review-agents.md` | Agent B2 keeps its VCS check but sources the rules from the `repo-hygiene` skill per D-4, instead of carrying inline regexes. Its `Fix phase:` instruction now names phases across two plugins, so the finding format needs to say which. |
-| `commands/team-review.md` | Add "Repo hygiene" to the always-on dimensions table and to the dimension-to-agent mapping table. Narrow the existing "Codebase hygiene" row to the five surviving dimensions. |
-| `commands/pr-review.md` | Same lite-pass rule sourcing as `code-review`. |
+| `plugins/senior-review/agents/cleanup-auditor.md` | Remove D3, the scratch and orphan-doc-asset parts of D5, and the git auxiliary-state block of D6. Rewrite the `Fix phase` enum, the dimension header, the statistics table, and the recommended execution order for five phases |
+| `plugins/senior-review/skills/review-quality-gates/references/code-review-fix-loop.md` | Step 7c phase order goes to five. Renumber. Keep pre-flight, baseline, gate, per-phase template, docs-phase gating, cleanup report |
+| `plugins/senior-review/commands/code-review.md` | The 7c summary line names five phases. Agent B2 row and its lite-pass wording |
+| `plugins/senior-review/commands/pr-review.md` | The lite-pass description at its two mentions |
+| `plugins/senior-review/skills/review-quality-gates/references/code-review-agents.md` | Agent B2 section, the D1-plus-D3 sentence |
+| `plugins/repo-hygiene/**` | New |
+| `.claude-plugin/marketplace.json` | New plugin entry at `1.0.0`, `senior-review` version bump, `metadata.version` bump, marketplace description count from 40 to 41 |
+| `docs/plugins/senior-review.md` | The `cleanup-auditor` paragraph and the lite-versus-full table |
+| `docs/plugins/repo-hygiene.md` | New |
+| `CLAUDE.md` | The marketplace 18.3.0 paragraph that describes the capability split by scope, plus a new row in the workflow tables if one is warranted |
+| `exports/vscode/_pipelines/.github/agents/review-cleanup-auditor.agent.md` | Mirror of the `cleanup-auditor` edits |
+| `exports/vscode/repo-hygiene/.github/**` | New bundle, plus manifest regeneration and `exports/vscode/package.json` version bump |
 
-## Marketplace and CI contracts
+CI obligations that follow: `lint_plugin_registration.py` requires every new file to be declared in `marketplace.json`; `lint_dependency_graph.py` pass 8 requires the new `senior-review` to `repo-hygiene` edge to be backed by a real spawn or skill load, which 3a and 3b both provide; `check_version_bumps.py` requires both version bumps in the same commit range; `check_export.py` and `gen_extension_manifest.py --check` require the mirror in the same commit.
 
-Six CI checks run on push to `master`. Each is satisfied as follows.
+The migration note for anything pointing at the old shape: `Fix phase: garbage` becomes `/repo-hygiene:tidy` phase `garbage`, and the same for `gitignore` and the scratch half of `docs`. The other four phase names keep their meaning at Step 7c.
 
-1. **`scripts/lint_dependency_graph.py`**: `senior-review` gains `"repo-hygiene"` in `dependencies`
-   (bare name, since it is local to this marketplace). `repo-hygiene` itself declares no
-   dependencies. The forbidden edge `codebase-xray → senior-review` is untouched. Per the 21.0.0
-   policy, `optionalDependencies` is not used, and `repo-hygiene` must not appear in any plugin's
-   `optionalDependencies`, which the linter enforces mechanically.
+## Section 5: weaknesses of this design
 
-2. **`scripts/lint_bundled_paths.py`**: the new plugin's self-references use `${CLAUDE_PLUGIN_ROOT}/...`
-   or skill-relative `references/...`. `senior-review` reaches `repo-hygiene` only through the skill
-   mechanism, never by path. See the constraint under Architecture.
+Stated by the author, per the packet contract of the peer-review protocol.
 
-3. **`scripts/lint_plugin_registration.py`**: the `repo-hygiene` entry in `marketplace.json` must list
-   its command, its agent, and its skill. An agent present on disk but absent from the array does not
-   exist at runtime, and `subagent_type: repo-hygiene:repo-hygiene-auditor` would fail with "Agent
-   type not found", taking the new `team-review` dimension down with it. This check exists because
-   senior-review 9.0.0 shipped exactly that defect.
+1. **The boundary needs a split in its first application.** Six phases classify cleanly and the seventh, `docs`, has to be cut in half. A distinction that cannot decide its own last case may be a description of the current phase list rather than a principle. The alternative reading is that `docs` was always two phases wearing one name, which the current 7c reference half-admits by giving it the only per-item confirmation rule of the seven.
+2. **The `brand` assignment may be wrong.** It is assigned to `senior-review` because renaming needs a grep of the old name in the source. But the detection in D2 is mostly filename matching plus `git log --diff-filter=R --name-status -M`, which is filesystem and git evidence, exactly the class assigned to `repo-hygiene`. Detection and application may fall on opposite sides of the boundary for this phase alone.
+3. **The pain is asserted, not measured.** The claim that the build-and-test gate is a real cost for the `garbage` and `gitignore` phases rests on reading the workflow, not on a record of runs where it hurt. No 7c run log was consulted for this document, and none may exist.
+4. **Discoverability regresses.** A user who wants "clean up my repo" now has to know which of two commands owns their case, and the answer depends on a distinction about evidence classes that is invisible from the outside. The current single entry point is worse architecture and better ergonomics.
+5. **A 41st plugin is permanent surface.** Every plugin carries a marketplace entry, a docs page, a VS Code bundle, and a mirror obligation on every future change. The moved content is roughly one dimension and three phases, which is small for a plugin.
 
-4. **`.claude/skills/downstream-exports/scripts/check_export.py`**: a new bundle
-   `exports/vscode/repo-hygiene/.github/` is required, and the `_pipelines` bundle that carries
-   `senior-review` needs its mirrored copies updated for every file changed above.
+## Non-goals
 
-5. **`gen_extension_manifest.py --check`**: the export adds one agent and one prompt, so the manifest
-   must be regenerated and `exports/vscode/package.json` `version` bumped.
-
-6. **`scripts/check_version_bumps.py`**: `senior-review` goes to **11.0.0** (breaking: Step 7c loses
-   phases and `cleanup-auditor` loses dimensions), `repo-hygiene` starts at **1.0.0**, and
-   `metadata.version` goes from 21.4.0 to **22.0.0**.
-
-Documentation: a new `docs/plugins/repo-hygiene.md`, and edits to `docs/plugins/senior-review.md`,
-whose Lite / Full / Removal table describes the current seven-phase shape. `CLAUDE.md` needs the new
-plugin recorded in the dependency table and the split rule stated, since it currently documents
-`cleanup-auditor` as the single owner of all five hygiene dimensions.
-
-## Known weaknesses of this design
-
-Declared deliberately, because a design that presents no weaknesses has usually hidden them.
-
-1. **The boundary rule has a genuinely ambiguous case, and this design resolves it by assertion.**
-   Orphan doc-assets (an image in `docs/` referenced by no `.md` file) require grepping content, not
-   just listing files, which is the same shape of work as an orphan source asset. D-2 sends orphan
-   source assets to `senior-review` and orphan doc-assets to `repo-hygiene`, on the grounds that the
-   latter greps documentation rather than source. That distinction is real but thin, and a reasonable
-   reviewer could put both on either side. If the rule needs an exception this early, that is evidence
-   against the rule.
-
-2. **Removing the build-and-test gate is a removal of protection, justified by a claim about the
-   categories rather than by measurement.** The design asserts that `garbage`, `gitignore`, `scratch`,
-   and `git-state` cannot break a build. This is true for the documented detection patterns, but the
-   `.gitignore` phase appends patterns and runs `git rm --cached`, and an over-broad appended pattern
-   could untrack a file some build step reads. The `UNIGNORE` action in the residue vocabulary exists
-   precisely because ignore rules can hide files that should be version-controlled, which is the same
-   hazard in the other direction. No gate means nothing catches that mistake automatically.
-
-3. **The split raises the cost of every future change to hygiene detection, and the estimate of that
-   cost is unmeasured.** Today one agent file changes. Afterwards, a rule change may touch the
-   `repo-hygiene` skill, the command that consumes it inline, the agent, `senior-review`'s Agent B2,
-   and two export bundles. D-4's single-source-of-truth rule is what keeps this bounded, but it is a
-   convention enforced by review, not by any of the six CI checks. Nothing mechanically prevents a
-   future edit from reintroducing an inline copy of the regexes in `senior-review`.
-
-## Open questions
-
-- **Command name.** `/repo-hygiene:audit` reads well and matches `--fix` signalling removal, as
-  `/testing:test-audit --fix` already does. `/repo-hygiene:tidy` states the removal intent more
-  directly. Not decided.
-
-- **Whether `.repo-hygiene/` is the right quarantine location.** It mirrors `.frontend-review/`,
-  `.team-review/`, and `.deep-dive/`, but those hold reports rather than user files, and a directory
-  holding recoverable data has a different lifetime from one holding a regenerable report.
-
-## Out of scope
-
-- Any change to `dependency-audit`. Its boundary with hygiene work is already documented in both
-  directions: it covers CVEs, licenses, and versions from registries, while unused and phantom
-  dependency detection stays with `cleanup-auditor` D4.
-- Any change to `/testing:test-consolidate`, which keeps ownership of bulk test-file removal.
-- Re-litigating the mandatory-dependency policy of marketplace 21.0.0.
-- The `python-development` dependency drift noted while reading `CLAUDE.md`, which documents it as a
-  `senior-review` dependency though `marketplace.json` no longer lists it. Real, unrelated, tracked
-  separately.
+- Not rewriting any moved check. The content moves verbatim; behavior changes only where the phase list forces it.
+- Not changing the 7c pre-flight, baseline, gate, or commit shape for the five phases that stay.
+- Not touching `/testing:test-consolidate`, which keeps ownership of test-file bulk removal.
+- Not reviving `/senior-review:cleanup-dead-code`, retired in marketplace 18.3.0.
+- Not adding a `repo-hygiene` degrade path. Per the standing dependency policy, the dependency is hard and a failed spawn is a broken install to report, never a dimension to skip.
