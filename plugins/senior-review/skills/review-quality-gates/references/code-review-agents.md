@@ -254,6 +254,10 @@ Agent tool call:
     - Severity (High / Medium / Low)
     - File + line (for VCS findings, the path alone)
     - Confidence score (0-100)
+    - Load-bearing premise: the single proposition whose falsity collapses this
+      finding. Minimal, falsifiable, scoped. Not a paraphrase of the finding
+    - premise_provenance: independent | shared-context | mixed (causal dependence
+      on the deep-dive output or interconnect map, not citation of it)
     - What is unused or misplaced, and why
     - Recommended action (remove, prefix with _, verify dynamic usage, add to
       __all__, `git rm --cached` plus a .gitignore pattern)

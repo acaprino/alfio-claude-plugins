@@ -167,10 +167,16 @@ When deep-dive output is available, append this section to each agent prompt aft
 ```
 ## Deep Dive Context
 
-The following context was gathered from a prior deep-dive analysis. Use it to
-strengthen your review. Do NOT re-report findings already covered here --
-instead focus on new issues or issues that become apparent when combining
-this context with your specialized perspective.
+The following context was gathered from a prior deep-dive analysis. It is an index
+of hypotheses produced by one upstream observer, not ground truth.
+
+Use it to know WHERE to look. Do not use it to know WHAT IS TRUE: re-derive any
+claim you intend to stand a finding on. Actively look for code paths that
+contradict it; finding one is a result, not a failure. Silence in this context is
+not evidence of absence.
+
+Do not restate findings already reported here as if they were your own; add the
+issues your specialized perspective reveals.
 
 ### Structure & Flows
 [Insert relevant excerpts from 01-structure.md and 03-flows.md]
@@ -216,6 +222,23 @@ Classify every finding into one of three tiers:
 
 Rule: if you'd flag the same issue on an identical diff without the surrounding file,
 it's pre-existing. If the diff makes it newly relevant, it's secondary.
+
+## Premise declaration (required on every finding)
+
+Every finding carries two extra fields:
+
+- **Load-bearing premise:** the single proposition whose falsity collapses this
+  finding. It must be minimal, falsifiable and scoped.
+    Bad:  "The implementation is broken."
+    Bad:  "Heartbeat handling is incorrect."   (a paraphrase of your finding)
+    Good: "No credential-bearing response path exists after registration."
+- **premise_provenance:** one of `independent`, `shared-context`, `mixed`.
+  This records CAUSAL DEPENDENCE, not citation. If you absorbed the premise from
+  the deep-dive output or the interconnect map, it is `shared-context`, even if
+  your finding never cites an anchor. `mixed` means part of the premise rests on
+  shared context and part on evidence you derived yourself. Declare `independent`
+  only when you re-derived the whole premise from code, tests or documents you
+  read yourself.
 ```
 
 Run all selected agents **in parallel** in a single response; conditional agents run only when their dispatch condition matches:

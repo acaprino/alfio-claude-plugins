@@ -411,11 +411,41 @@ You are reviewing for the {dimension} dimension.
 - Deep-dive output: .deep-dive/ (see 01-structure.md, 02-interfaces.md, 05-risks.md)
 - Interconnect map: .team-review/02-interconnect.md
 
+### Epistemic status of the shared context
+
+The shared context is NOT ground truth. It is an index of hypotheses produced by
+one upstream observer.
+
+- Claims marked `verified` may be reused directly.
+- Claims marked `documented`, `unverified` or `disputed` are hypotheses. You MUST
+  independently re-derive any such claim before using it as the premise of a finding.
+- Actively search for code paths, tests or documents that contradict the context.
+  Finding one is a result, not a failure.
+- Silence in the context is not evidence of absence. A concern the map does not
+  mention may still be real; look anyway.
+
 Per `## Reviewer Hints` in the interconnect map, focus your reading on these anchors:
 {anchors-for-this-dimension from the map's Reviewer Hints section}
 
 ## Instructions
 Follow your agent definition's analysis phases, knowledge-base loading, output format, and severity classification. Cite file:line for every finding.
+
+## Premise declaration (required on every finding)
+
+Every finding carries two extra fields:
+
+- **Load-bearing premise:** the single proposition whose falsity collapses this
+  finding. It must be minimal, falsifiable and scoped.
+    Bad:  "The implementation is broken."
+    Bad:  "Heartbeat handling is incorrect."   (a paraphrase of your finding)
+    Good: "No credential-bearing response path exists after registration."
+- **premise_provenance:** one of `independent`, `shared-context`, `mixed`.
+  This records CAUSAL DEPENDENCE, not citation. If you absorbed the premise from
+  the deep-dive output or the interconnect map, it is `shared-context`, even if
+  your finding never cites an anchor. `mixed` means part of the premise rests on
+  shared context and part on evidence you derived yourself. Declare `independent`
+  only when you re-derived the whole premise from code, tests or documents you
+  read yourself.
 
 Write your output to .team-review/findings-{dimension}.md using the structured format your agent prescribes.
 ```
