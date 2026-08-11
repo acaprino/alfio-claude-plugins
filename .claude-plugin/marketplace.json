@@ -666,7 +666,8 @@
         "./agents/cleanup-auditor.md",
         "./agents/temporal-resilience-auditor.md",
         "./agents/data-integrity-auditor.md",
-        "./agents/resource-lifecycle-auditor.md"
+        "./agents/resource-lifecycle-auditor.md",
+        "./agents/premise-auditor.md"
       ],
       "skills": [
         "./skills/defect-taxonomy",

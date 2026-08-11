@@ -224,8 +224,6 @@ This phase owns discovery of **what evidence is relevant to this review**. X-ray
 
 **This file is immutable once written.** No later phase appends to it. X-ray's own leads are joined into a separate derived artifact in Phase 1d, precisely so that the snapshot Phase 1c consumes cannot change underneath it.
 
-**The duty of autonomous rediscovery.** X-ray's documentation leads are an input, never a completeness guarantee. When no lead exists for a concept the diff touches, search the available indexes yourself and record what you find under `Independently discovered by Senior Review`. Without this duty, the completeness of X-ray's discovery becomes the next shared premise, which is the failure this pipeline exists to prevent.
-
 **Output:** `.team-review/01a-review-knowledge-leads.md`
 
 ```markdown
@@ -306,6 +304,8 @@ Runs inline once both 1a and 1c have completed. The premise auditor never compar
 
 Read `.team-review/01a-review-knowledge-leads.md`, `$XRAY_RUN_DIR/knowledge/documentation-leads.md` and `.team-review/01b-independent-claims.md`. Write:
 
+**Degradation when X-ray produced no leads.** If `$XRAY_RUN_DIR/knowledge/documentation-leads.md` does not exist, record `Inherited from X-Ray: not produced` under that heading and **suppress the asymmetry diagnostic** described below for this run. An absent file is not a discovery gap, and treating it as one would report an X-ray gap on every row: a systematically false signal from the mechanism built to stop false signals. A reused older run, a Phase 0 that failed, and an X-ray version predating Phase 0 all land here. Everything else in this phase proceeds normally: `Missing` and `Disputed` are still computed from `01a` and `01b`.
+
 **Output:** `.team-review/01-knowledge-provenance.md`
 
 ```markdown
@@ -340,7 +340,9 @@ Read `.team-review/01a-review-knowledge-leads.md`, `$XRAY_RUN_DIR/knowledge/docu
 
 Collapsing them would drain `disputed` of the precise meaning the rest of this work depends on, which is that two derivations reached incompatible conclusions and a reviewer must settle it.
 
-Two asymmetries here are diagnostics worth reading, not noise. A row present in `Independently discovered by Senior Review` and absent from `Inherited from X-Ray` means X-ray's discovery had a gap. The reverse means Phase 0c had one. Both are recorded and neither is silently reconciled.
+**The duty of autonomous rediscovery.** X-ray's documentation leads are an input, never a completeness guarantee. Any concept `01a` carried that X-ray's leads missed stays under `Independently discovered by Senior Review`; a concept neither branch found goes to `Missing`. Neither is downgraded because the other branch was silent. Without this duty, the completeness of X-ray's discovery becomes the next shared premise, which is the failure this pipeline exists to prevent.
+
+Two asymmetries here are diagnostics worth reading, not noise. A row present in `Independently discovered by Senior Review` and absent from `Inherited from X-Ray` means X-ray's discovery had a gap. The reverse means Phase 0c had one. Both are recorded and neither is silently reconciled. Neither is reportable when X-ray produced no leads file at all: the degradation rule above governs that case.
 
 Mark `phase_1d_reconciliation` complete.
 

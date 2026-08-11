@@ -196,6 +196,8 @@ This phase owns discovery of **how the repository documents itself**. It does no
 downstream consumer must discover independently.]
 ```
 
+The canonical copy of this section lives in `## Phase 0: Project Knowledge Discovery` of the `codebase-xray:analyze` skill, because `/senior-review:team-review` reaches this phase by invoking the skill and never loads this command. The copy here keeps the command path self-contained. Edit both together.
+
 ---
 
 ## Phase 1: Structure Extraction
