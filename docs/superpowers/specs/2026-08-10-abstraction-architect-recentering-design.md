@@ -151,6 +151,16 @@ The rule in one line: **report the deepest architectural reason, and record the 
 
 No mapping of the form 2 equals Low, 3 equals Medium, 4 equals High. Two independent authoritative permission policies can be High on two occurrences. Two duplicated formatting constants can be Low on four. Severity follows consequence, using the existing calibration in `references/decision-frame.md` (security, data correctness, operational risk for High; maintenance drag for Medium; smell without pressure for Low). Occurrence count is reported as evidence strength.
 
+### The catalogs are not admission gates
+
+The original defect analysed in Section 1 was not that the twelve unification patterns were infrastructural. It was that an infrastructural catalog, consulted as a matching step, silently became the boundary of what could be found. Adding six domain patterns fixes the coverage and reproduces the mechanism at a larger size unless the mechanism itself is addressed.
+
+The following sentence is written verbatim into `unification-patterns.md` and `anti-patterns.md`:
+
+> Patterns are discovery aids and classification examples, never an exhaustive catalog or a prerequisite for a finding.
+
+Operationally: a candidate that passes its dimension's gate is a finding whether or not it matches a catalogued pattern. When it matches, the finding cites the pattern. When it does not, the finding names the concern in its own words and the `Pattern` field reads `uncatalogued`. A strange semantic policy that fits none of P1 to P18 must not disappear from the report a second time.
+
 ## 4. Pipelines
 
 ### Global audit
@@ -176,15 +186,22 @@ Step 2 is seeded by step 1 deliberately. The census must not begin by sweeping e
 ### Diff review
 
 ```
-0  resolve diff          added units: functions, methods, classes, modules, constant
-                         tables, inline blocks longer than roughly five lines
+0  resolve diff and      STRUCTURAL units: functions, methods, classes, modules,
+   extract changed       constant tables, inline blocks longer than roughly five lines
+   units                 SEMANTIC units: new or modified rules and policies, predicates
+                         and thresholds, persisted fields and state, models, DTOs, types
+                         and enums, mappings, configuration and defaults, formulas and
+                         transformations
 1  load index            plus freshness check (script)
 2  map                   changed files and symbols -> indexed concepts, marked dirty
 3  discover              concepts NEW to the index, introduced by this diff
 4  revalidate            re-read the neighbourhood of dirty concepts against current source
 5  test D1-D7            each reformulated as "introduced or aggravated by this change"
-6  report                plus updated index when the run is authorised to write it
+6  report                new concepts and index contradictions go to Gaps, never to the
+                         index: diff mode does not write it in 2.0
 ```
+
+Step 0 extracts two kinds of unit, and the second kind is the load-bearing addition. Extracting structural units alone is the current model, and under it a diff that changes a threshold from 1000 to 1500, adds a field to a persisted model, or introduces a new status enum produces no unit at all. D1 to D4 would then be unable to form the hypothesis in the first place, and the recentering would be strong in global mode while diff mode stayed where it is. A changed literal inside an existing function is a semantic unit even when no structural unit changed.
 
 All seven dimensions mirror into diff mode, including D5. In diff mode D5 is the current R3 class, "this diff is the third occurrence and the Rule of Three fires now, on this commit", and it is the only moment at which the Rule of Three can be applied in real time rather than retrospectively. It is among the most useful outputs the plugin produces inside a code review and it is not dropped.
 
@@ -219,6 +236,8 @@ Discovery is deliberately liberal. Promotion to a finding is deliberately strict
 
 No twin Markdown copy of the index. The report is the human-readable layer; duplicating the index in prose creates two truths that drift.
 
+**Only global mode writes `concept-index.json`, in 2.0.** Diff mode reads it and never updates it. Concepts the diff discovers and contradictions it finds are reported in Gaps, and the next global audit consolidates them. The reason is that a diff run sees one change against a partial revalidation, so letting it write would let a narrow view overwrite a broad one, and would make the index's provenance depend on whichever review ran last. Making diff mode a writer is a candidate for a later version, once the global writer has proven stable.
+
 ### Schema
 
 ```yaml
@@ -249,7 +268,28 @@ concepts:
       - support implementation bypasses RefundPolicy
 ```
 
-### Freshness
+### Three distinct notions of "what changed"
+
+Freshness and review scope are not the same question, and collapsing them produces false freshness. Three separate things must be tracked:
+
+```
+INDEX BASELINE      the commit and tree the concept index was generated from
+REPOSITORY STATE    HEAD plus staged plus working tree, as it exists right now
+REVIEW DELTA        the change actually under review (base branch to HEAD, a PR range,
+                    uncommitted work, or an explicit changed-files list)
+```
+
+A comparison of `baseline..HEAD` alone answers none of them completely. The hazard it misses is common and silent: the indexed tree can equal the HEAD tree while uncommitted local modifications are exactly what is under review, which reports **fresh** for an index that does not describe the code being judged. Staged-only work has the same shape.
+
+The script therefore accepts the review delta as an input rather than inferring it:
+
+- `--base <ref> --head <ref>` for a branch or PR range
+- `--working-tree` to include staged and unstaged changes in the repository state
+- `--changed-files <path>` for an explicit list, which is how `senior-review` already passes scope
+
+Freshness is computed against the **repository state**. The revalidation set is computed from the **union of the index-to-repository drift and the review delta**, because a concept can need revalidation either because the index is behind or because the review touches it.
+
+### Freshness states
 
 Three states, computed from the **tree hash** and not from the date. A date is not a validity criterion: an index from yesterday can be perfectly valid and one from thirty seconds ago can be stale after a commit. Two different commits with the same tree do not make the index semantically stale.
 
@@ -348,8 +388,7 @@ plugins/abstraction-architect/
       concept-index-protocol.md          NEW   schema, three freshness states, revalidation
       unification-patterns.md         222 ->   adds domain patterns P13-P18
       anti-patterns.md                   151   unchanged
-      decision-frame.md                 47 ->   rewritten around the two tracks (provisional,
-                                               see Section 12)
+      decision-frame.md                 47 ->   narrowed to promotion, severity, remediation
       scope-boundaries.md                NEW   the five exclusions with owners, non-goals
       further-reading.md                  95   unchanged
     scripts/
@@ -358,9 +397,27 @@ plugins/abstraction-architect/
 
 The agent stays an orchestrator and holds no catalog content: inputs, the pipeline phases, the output contract, the constraints. Content lives in references loaded on demand.
 
-`concept_index.py` exists because freshness is deterministic work that a language model does badly: `git rev-parse HEAD^{tree}`, comparison against the recorded baseline, `git diff --name-only baseline..HEAD`, intersection with indexed files, and emission of the state plus the dirty-concept list. It must be invoked through `${CLAUDE_PLUGIN_ROOT}/skills/abstraction-architect/scripts/concept_index.py`, since a `plugins/...` path fails for installed users and `scripts/lint_bundled_paths.py` rejects it in CI.
+`concept_index.py` exists because freshness and delta computation are deterministic work that a language model does badly. The division of labour is a hard line, and the script's output contract is what enforces it:
 
-New domain patterns P13 to P18 for `unification-patterns.md`, covering the half the catalog currently lacks: business rule or policy threshold, eligibility predicate, state machine transition table, pricing or discount computation, identifier and code format, and status or lifecycle vocabulary.
+```
+SCRIPT (deterministic, Python)          AGENT (semantic, model)
+  freshness_state                         semantic discovery over
+  index_baseline / repository_state         unmapped_changed_files
+  review_delta                            new concepts
+  changed_files                           semantic neighbourhood of
+  dirty_indexed_concepts                    dirty_indexed_concepts
+  unmapped_changed_files                  every promotion to a finding
+```
+
+`unmapped_changed_files` is the field that keeps the duty of autonomous rediscovery mechanical rather than aspirational: it is the explicit list of changed files that no indexed concept claims, handed to the agent as work to do. Without it, "discover concepts the index does not contain" is an instruction that quietly evaporates on a busy run.
+
+**The script never discovers concepts.** It validates the schema, resolves the three notions of change above, intersects the delta with indexed file paths, and emits the partition. Every semantic judgement, including whether two representations are the same knowledge, belongs to the agent.
+
+It must be invoked through `${CLAUDE_PLUGIN_ROOT}/skills/abstraction-architect/scripts/concept_index.py`, since a `plugins/...` path fails for installed users and `scripts/lint_bundled_paths.py` rejects it in CI.
+
+New domain patterns P13 to P18 for `unification-patterns.md`, covering the half the catalog currently lacks: business rule or policy threshold, eligibility predicate, state machine transition table, pricing or discount computation, identifier and code format, and status or lifecycle vocabulary. They are written as **general semantic examples, not as a closed taxonomy**, and the file carries the non-exhaustiveness rule stated in Section 3. The six are deliberately broad rather than specific, so that they read as illustrations of a kind of concern rather than as an enumeration of the concerns that exist.
+
+`decision-frame.md` survives as a file and narrows to what it alone owns: promotion, severity calibration and remediation framing. It does not restate A1 to A5 or K1 to K6, which live in `evidence-tracks.md`. This settles the open item recorded in the first draft of this spec.
 
 ## 9. External surface
 
@@ -390,8 +447,10 @@ Initial cases:
 8. A missing index does not block diff mode.
 9. The agent can contradict its own index and reports the contradiction rather than silently preferring one source.
 10. No metric, score or gate rewards agreement with the index or with the seed map.
+11. A diff that changes only a threshold, a persisted field or an enum value, with no structural unit added, still produces a semantic unit and a testable hypothesis.
+12. A concern that matches none of P1 to P18 still becomes a finding when its dimension gate passes, reported with `Pattern: uncatalogued`.
 
-Cases 9 and 10 come from the epistemic-independence doctrine and are the ones that decay first under a well-meaning future edit.
+Cases 9 and 10 come from the epistemic-independence doctrine. Cases 11 and 12 guard the two mechanisms this redesign exists to break: a diff extractor that only sees code shapes, and a catalog that quietly becomes the boundary of the findable. All four are the ones that decay first under a well-meaning future edit.
 
 ## 11. Decisions taken, and what was rejected
 
@@ -412,8 +471,9 @@ Cases 9 and 10 come from the epistemic-independence doctrine and are the ones th
 
 ## 12. Open items for the implementation plan
 
-- Exact wording of the P13 to P18 domain patterns, following the existing five-part shape of P1 to P12 (structural signature, forces, target layer, pitfalls, retrospective indicator).
-- Whether `decision-frame.md` survives as a file or is absorbed into `evidence-tracks.md`, decided when both are drafted.
-- Whether diff mode is ever authorised to write the index, or only global mode is. The conservative default is global-only, with diff mode reporting newly discovered concepts in Gaps.
+Three items open in the first draft are now settled and recorded in the sections above: `decision-frame.md` survives, narrowed to promotion, severity and remediation (Section 8); only global mode writes the index in 2.0 (Section 5); P13 to P18 ship as general semantic examples under an explicit non-exhaustiveness rule (Sections 3 and 8). What remains:
+
+- Exact wording of the P13 to P18 domain patterns, following the existing five-part shape of P1 to P12 (structural signature, forces, target layer, pitfalls, retrospective indicator), kept deliberately broad per Section 3.
+- The precise `--changed-files` input format for `concept_index.py`, which must match what `senior-review` already passes to the agent so the two do not diverge.
 - The eval harness needs a target codebase. `D:\Projects\jupiter` is the standing proving ground for this marketplace and is a plausible fixture source.
 - Commit shape. The marketplace workflow requires the plugin files, `marketplace.json` and the `exports/` mirror in a single commit. `evals/` is a development asset and is not registered in `marketplace.json`, so the eval layer can ship as a second commit without breaking `scripts/check_version_bumps.py`. The plan should decide whether to split.
