@@ -1,7 +1,9 @@
 ---
 name: kotlin-specialist
 description: >
-  Idiomatic Kotlin implementation patterns: coroutines and structured concurrency, Flow / StateFlow / SharedFlow, Kotlin Multiplatform (KMP) shared-code architecture, Jetpack Compose UI, Ktor server with JWT auth and Exposed, and type-safe DSL design (lambdas with receivers, delegated properties, inline reified, value classes). TRIGGER WHEN: building, writing, or reviewing Kotlin code using coroutines / Flow / suspend functions, expect/actual, Compose composables / ViewModels, Ktor routing, sealed-class state modeling, scope functions, or DSL builders. DO NOT TRIGGER WHEN: libGDX game work (use libgdx-development), Android Java without Kotlin, or pure JVM tuning unrelated to Kotlin language features.
+  Idiomatic patterns for concurrent, shared-code, and UI-layer work.
+  TRIGGER WHEN: building, writing, or reviewing Kotlin code using coroutines / Flow / StateFlow / SharedFlow / suspend functions, Kotlin Multiplatform (KMP) and expect/actual, Compose composables / ViewModels, Ktor routing with JWT auth and Exposed, sealed-class state modeling, scope functions, or DSL builders.
+  DO NOT TRIGGER WHEN: libGDX game work (use libgdx-development), Android Java without Kotlin, or pure JVM tuning unrelated to Kotlin language features.
 ---
 <!--
 Portions of this file are derived from Jeffallan/claude-skills

@@ -1,9 +1,8 @@
 ---
 name: multi-stage-dockerfile
 description: >
-  Create optimized multi-stage Dockerfiles for any language or framework.
+  Ship a runtime layer that carries only what it executes, for any language or framework.
   TRIGGER WHEN: creating Dockerfiles, optimizing container images, multi-stage builds, Docker best practices.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
 ---
 
 Source: github/awesome-copilot - `skills/multi-stage-dockerfile/SKILL.md`

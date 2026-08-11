@@ -1,6 +1,6 @@
 ---
 description: >
-  Organize, deduplicate, and restructure file hierarchies safely. Proposes a plan before moving or deleting anything; destructive operations require explicit confirmation per batch.
+  Propose a plan first, then move or delete only what the user confirms, batch by batch.
   TRIGGER WHEN: organizing messy folders (Downloads, Desktop, Documents), finding duplicate files, cleaning up directories, or restructuring file hierarchies.
   DO NOT TRIGGER WHEN: the task is about code refactoring (use clean-code or python-refactor).
 argument-hint: "<path> [find duplicates | by type | by date]"

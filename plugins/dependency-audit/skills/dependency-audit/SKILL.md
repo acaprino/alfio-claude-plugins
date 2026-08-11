@@ -1,7 +1,7 @@
 ---
 name: dependency-audit
 description: >
-  Knowledge base for evidence-first dependency auditing: the per-ecosystem audit/outdated/license tool matrix, the license-obligations analysis model, and the verifiable supply-chain signal catalog. Tool-first and evidence-tiered; forbids destructive remediation.
+  Knowledge base for the evidence-first method: the per-ecosystem tool matrix, the obligations analysis model, and the verifiable signal catalog.
   TRIGGER WHEN: auditing dependencies for vulnerabilities, license obligations, outdated packages, or supply-chain risk in any ecosystem; loaded by the /dependency-audit:deps-audit command.
   DO NOT TRIGGER WHEN: dead-code or unused-dependency cleanup (use senior-review:code-review or typescript-development:knip), Python-only lint/type audits (use python-development:python-audit), or code-level security review (use senior-review:security-auditor).
 ---

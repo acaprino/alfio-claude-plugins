@@ -1,11 +1,8 @@
 ---
 name: mt5-trading
 description: >
-  Comprehensive MetaTrader 5 Python algotrading knowledge base covering the official synchronous API,
-  polling-based event systems, order execution with fill modes, historical data functions, reconnection
-  resilience, and Windows production deployment. Includes aiomql and ZeroMQ bridge alternatives.
-  TRIGGER WHEN: building, implementing, writing, coding, creating, optimizing, or debugging MT5 trading systems with Python.
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Knowledge base for the official API, its polling model, and Windows-side production concerns.
+  TRIGGER WHEN: building, implementing, writing, coding, creating, optimizing, or debugging MT5 or MetaTrader 5 trading systems with Python, including the aiomql and ZeroMQ bridge alternatives.
 ---
 
 # MetaTrader 5 Python Algotrading

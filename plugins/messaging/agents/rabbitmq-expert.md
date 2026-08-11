@@ -1,9 +1,8 @@
 ---
 name: rabbitmq-expert
 description: >
-  RabbitMQ expert covering exchange/queue topology design, message delivery guarantees, clustering and HA (Khepri, quorum queues, streams), MQTT 5, AMQP 1.0, and throughput optimization on RabbitMQ 4.3.
-  TRIGGER WHEN: configuring RabbitMQ exchanges, designing queue topologies, troubleshooting message delivery, setting up clustering/HA, or optimizing AMQP throughput.
-  DO NOT TRIGGER WHEN: the task is about Kafka, Redis Streams, NATS, or non-AMQP message brokers.
+  Broker-side architecture and first-aid diagnostics.
+  TRIGGER WHEN: configuring RabbitMQ exchanges, designing queue topologies, troubleshooting message delivery guarantees, setting up clustering/HA (Khepri, quorum queues, streams), working with MQTT 5 or AMQP 1.0, or optimizing AMQP throughput.
 model: inherit
 color: blue
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch

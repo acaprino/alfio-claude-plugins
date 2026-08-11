@@ -1,9 +1,8 @@
 ---
 name: claude-md-auditor
 description: >
-  "Expert auditor for CLAUDE.md files. Verifies ground truth against actual codebase, detects obsolete information, ensures the project-structure section documents the evergreen shape (top-level layout + structural patterns + role per category, not exhaustive file-by-file enumeration), and validates proportional sizing.".
-  TRIGGER WHEN: creating, reviewing, or improving CLAUDE.md files
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Check ground truth: obsolete claims, an evergreen project-structure section, and proportional sizing.
+  TRIGGER WHEN: creating, reviewing, or improving CLAUDE.md files.
 tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch
 model: inherit
 color: yellow

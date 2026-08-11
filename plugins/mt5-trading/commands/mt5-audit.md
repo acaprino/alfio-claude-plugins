@@ -1,8 +1,8 @@
 ---
 description: >
-  Audit an existing MetaTrader 5 trading system for reliability, error handling, and production readiness.
+  Report on the reliability, error handling, and production readiness of an existing system.
   TRIGGER WHEN: the user asks to review, audit, or validate an MT5 Python trading bot (polling loops, fill modes, reconnection, order retcodes, Windows deployment).
-  DO NOT TRIGGER WHEN: building a new MT5 system from scratch (use the mt5-architect agent), or auditing non-MT5 systems (use /ibkr-trading:ibkr-audit for IB).
+  DO NOT TRIGGER WHEN: building from scratch (use the mt5-architect agent), or auditing an IB system (use /ibkr-trading:ibkr-audit).
 argument-hint: "[path-or-description]"
 ---
 

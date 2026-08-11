@@ -1,9 +1,8 @@
 ---
 name: obsidian-scaffold
 description: >
-  Scaffolds project structure, manifest, tsconfig, esbuild config, and a minimal plugin class that passes Obsidian's automated plugin review.
-  TRIGGER WHEN: the user asks to start, create, bootstrap, or initialize a new Obsidian community plugin
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Generate the directory layout, manifest, tsconfig, esbuild config, and a minimal class that passes automated review on day one.
+  TRIGGER WHEN: the user asks to start, create, bootstrap, scaffold, or initialize a new Obsidian community plugin.
 ---
 
 # Obsidian Plugin Scaffold

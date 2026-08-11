@@ -1,9 +1,8 @@
 ---
 name: anti-ai-writing-patterns
 description: >
-  Knowledge base defining 24 common AI writing patterns (inflated symbolism, promotional language, etc.) and guidelines on how to rewrite them to sound naturally human.
+  Knowledge base of the 24 catalogued patterns, each with a natural-sounding rewrite.
   TRIGGER WHEN: editing or reviewing text to remove AI traces, or when asked to humanize text.
-  DO NOT TRIGGER WHEN: the task involves refactoring source code or when the task does not involve prose/text refinement.
 ---
 
 # Anti-AI Writing Patterns

@@ -1,13 +1,8 @@
 ---
 name: opentelemetry
 description: >
-  OpenTelemetry Python instrumentation knowledge base covering distributed tracing,
-  async context propagation, custom transport propagators, sampling strategies,
-  exporter configuration, and production observability patterns. SDK v1.42.1 target.
-  TRIGGER WHEN: working with OpenTelemetry, distributed tracing, span instrumentation,
-  context propagation, OTLP exporters, sampling strategies, or observability pipelines.
-  DO NOT TRIGGER WHEN: general logging without trace correlation, or application
-  monitoring tools unrelated to OTel.
+  Knowledge base for OTel in Python: async gotchas, non-HTTP transports, and production patterns, held in references loaded on demand.
+  TRIGGER WHEN: working with OpenTelemetry, distributed tracing, span instrumentation, context propagation, OTLP exporters, sampling strategies, or observability pipelines.
 ---
 
 # OpenTelemetry Python

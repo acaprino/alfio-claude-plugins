@@ -1,8 +1,7 @@
 ---
 description: >
-  Analyze, evaluate, and optimize prompts for LLMs - improve clarity, reduce token usage, add structure, and test variations.
+  Present the efficiency-versus-effectiveness frontier as labelled variants and let the user pick.
   TRIGGER WHEN: the user wants to review or optimize a prompt, system message, or agent instructions for clarity/tokens/reliability.
-  DO NOT TRIGGER WHEN: generating new prompts from scratch.
 argument-hint: "<prompt text or file path> [--model claude|gpt|gemini] [--optimize-for clarity|tokens|reliability] [--compare]"
 ---
 

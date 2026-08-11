@@ -1,9 +1,8 @@
 ---
 name: obsidian-plugin-development
 description: >
-  Ensures compliance with Obsidian's automated plugin review (community.obsidian.md), eslint-plugin-obsidianmd rules, and official Obsidian plugin guidelines.
-  TRIGGER WHEN: writing, reviewing, or fixing Obsidian community plugin code
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Comply with the automated gate on first submission: eslint-plugin-obsidianmd rules plus the official guidelines.
+  TRIGGER WHEN: writing, reviewing, or fixing Obsidian community plugin code.
 ---
 
 # Obsidian Plugin Development

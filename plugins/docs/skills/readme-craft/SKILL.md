@@ -1,7 +1,7 @@
 ---
 name: readme-craft
 description: >
-  Craft magnetic, top-tier README.md files for open-source and public projects. Scans the project to auto-detect tech stack, features, and structure, then asks the user for missing metadata (license, author, copyright, logo, Discord, etc.). Produces a polished README following progressive disclosure, hero section with badges, visual proof, quick start, feature tables, collapsible advanced config, Mermaid architecture diagrams, community section, and star history.
+  Author the front door of an open-source repository: detect stack and structure, gather the missing metadata, then produce the polished file.
   TRIGGER WHEN: the user asks to write, create, draft, or scaffold a README.md for a project (English or Italian phrasing: "readme", "write a readme", "create readme", "scrivi il readme", "crea il readme").
   DO NOT TRIGGER WHEN: auditing/updating an existing README (use /docs:maintain-readme), or writing non-README docs (use /codebase-mapper:docs-create).
 ---

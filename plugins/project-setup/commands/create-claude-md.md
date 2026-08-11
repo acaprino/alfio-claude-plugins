@@ -1,9 +1,9 @@
 ---
 name: create-claude-md
 description: >
-  Create a new CLAUDE.md file tailored to your project through interactive questionnaire.
+  Ask the questionnaire first, then write a file sized to the codebase.
   TRIGGER WHEN: the user asks to create/generate/scaffold a CLAUDE.md for a project that doesn't have one.
-  DO NOT TRIGGER WHEN: auditing or updating an existing CLAUDE.md (use /project-setup:maintain-claude-md).
+  DO NOT TRIGGER WHEN: auditing or updating an existing one (use /project-setup:maintain-claude-md).
 subagent: project-setup:claude-md-auditor
 ---
 

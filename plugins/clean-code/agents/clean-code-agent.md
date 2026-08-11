@@ -1,9 +1,9 @@
 ---
 name: clean-code-agent
 description: >
-  Rewrites SOURCE CODE to make it more readable and human-friendly without changing its behavior. For prose/text AI trace removal, use text-humanizer instead.
-  TRIGGER WHEN: the user asks to clean up code, improve naming, remove AI-generated boilerplate, simplify structure, reduce complexity, or make code more maintainable
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Readability-only rewrite of existing source, behavior unchanged.
+  TRIGGER WHEN: the user asks to clean up code, improve naming, remove AI-generated boilerplate, simplify structure, reduce complexity, or make code more maintainable.
+  DO NOT TRIGGER WHEN: the target is prose or text (use text-humanizer).
 tools: Read, Edit, Write, Glob, Grep, Bash, Task
 model: inherit
 color: blue

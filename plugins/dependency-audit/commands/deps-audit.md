@@ -1,6 +1,6 @@
 ---
 description: >
-  Audit project dependencies for known vulnerabilities, outdated packages, license obligations, and supply-chain risk by running each ecosystem's real audit tooling and reporting only what tools, registries, and advisory databases actually say. Multi-ecosystem: npm/pnpm/yarn/bun, pip/uv/poetry, cargo, go, gem, composer, maven/gradle, nuget. Read-only by default; never applies destructive updates.
+  Run each ecosystem's own tooling and report only what tools, registries, and advisory databases actually say. Covers npm/pnpm/yarn/bun, pip/uv/poetry, cargo, go, gem, composer, maven/gradle, nuget.
   TRIGGER WHEN: the user asks to audit dependencies, scan for CVEs, check license obligations or compatibility, find outdated packages, assess supply-chain risk, or prepare a dependency-update PR.
   DO NOT TRIGGER WHEN: the task is dead-code or unused-dependency cleanup only (use /senior-review:code-review --fix), a Python-only lint/type/coverage audit (use /python-development:python-audit), or a Stripe-specific webhook event audit (use /stripe:audit-webhooks).
 argument-hint: "[path] [--ecosystem=npm|python|rust|go|ruby|php|java|dotnet|all] [--security-only] [--license-check] [--update-pr]"

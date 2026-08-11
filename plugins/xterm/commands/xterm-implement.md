@@ -1,8 +1,8 @@
 ---
 description: >
-  Implement xterm.js features into existing terminal code - addons, PTY wiring, theming, search, resize, decorations, parser hooks, framework integration. Reads current setup and adds the feature without conflicts.
-  TRIGGER WHEN: the user asks to add an xterm.js addon, PTY integration, theme, search, or framework (React/Vue/Electron/Tauri) wiring.
-  DO NOT TRIGGER WHEN: debugging existing xterm code (use /xterm:xterm-debug).
+  Read the current setup, then insert the feature surgically without conflicting with what is already loaded.
+  TRIGGER WHEN: the user asks to add an xterm.js addon, PTY integration, theme, search, resize, decorations, parser hooks, or framework (React/Vue/Electron/Tauri) wiring.
+  DO NOT TRIGGER WHEN: debugging existing code (use /xterm:xterm-debug).
 argument-hint: "<feature-description> [--path <file>]"
 ---
 

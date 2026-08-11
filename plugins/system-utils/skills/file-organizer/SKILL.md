@@ -1,9 +1,8 @@
 ---
 name: file-organizer
 description: >
-  Triggers on cluttered folders, file chaos, storage cleanup, or directory restructuring needs.
-  TRIGGER WHEN: organizing messy folders (Downloads, Desktop, Documents), finding duplicate files, cleaning up old files, restructuring project directories, separating work from personal files, or automating file cleanup tasks
-  DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+  Scope, plan, and execute the reorganization behind approval gates.
+  TRIGGER WHEN: organizing messy folders (Downloads, Desktop, Documents), finding duplicate files, cleaning up old files, restructuring project directories, separating work from personal files, or automating file cleanup tasks.
 ---
 
 # File Organizer

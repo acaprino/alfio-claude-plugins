@@ -1,9 +1,8 @@
 ---
 name: otel-architect
 description: >
-  Expert in OpenTelemetry Python instrumentation, distributed tracing architecture, and observability pipelines. Instruments code with spans and propagators, audits existing OTel setups, designs context propagation for custom transports (AMQP, ZMQ, gRPC), configures exporters and Collectors, and reviews OTel code for anti-patterns.
-  TRIGGER WHEN: instrumenting, implementing, writing, coding, or building code with OpenTelemetry, designing distributed tracing, auditing observability pipelines, configuring OTLP exporters, or reviewing tracing code for correctness.
-  DO NOT TRIGGER WHEN: general logging, application monitoring unrelated to OTel, or infrastructure provisioning.
+  Architect and harden the telemetry layer of a Python service.
+  TRIGGER WHEN: instrumenting, implementing, writing, coding, or building code with OpenTelemetry, designing distributed tracing, auditing observability pipelines, configuring OTLP exporters and Collectors, wiring context propagation over custom transports (AMQP, ZMQ, gRPC), or reviewing tracing code for correctness.
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch
 model: inherit
 color: red
