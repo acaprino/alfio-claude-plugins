@@ -307,10 +307,14 @@ is the byte size of `00-packet.md`.
 
 ## Phase 4: Challenge rounds (2..N)
 
-Runs for round 2, and round 3 if `--rounds` is 3. Each round processes only findings
-whose `state` is `OPEN` or `CHALLENGED` after the previous round; anything terminal
-(`RESOLVED_*`, `STANDOFF`, `UNTESTABLE`, `TRANSMISSION_ARTIFACT`) is excluded from the
-payload.
+Runs for round 2, and round 3 if `--rounds` is 3. Each round processes only the
+**still-open set**: findings whose `state` is `OPEN` or `CHALLENGED` after the
+previous round, minus anything terminal (`RESOLVED_*`, `STANDOFF`, `UNTESTABLE`,
+`TRANSMISSION_ARTIFACT`), minus any `CHALLENGED` finding flagged `saturated: no
+further rounds` by step 7 below. A saturated `REFUTE` finding is not terminal, but it
+is also not resent: its outcome is already settled pending certification. Every step
+below that says "still-open finding" or "still-open subset" means exactly this set;
+this is where that exclusion is enforced.
 
 For round `r` (2 or 3), files `05-challenge-r2.md`/`07-challenge-r3.md` and
 `06-response-r2.md`/`08-response-r3.md`:
@@ -354,9 +358,26 @@ For round `r` (2 or 3), files `05-challenge-r2.md`/`07-challenge-r3.md` and
 7. **Saturation test**, per still-open finding, per `finding-lifecycle.md`: if the
    challenger side's `new evidence since previous round` is `NO` and the respondent
    side's is also `NO`, and neither side's position changed from the previous round,
-   set `state = STANDOFF` immediately (not cap-terminated: this is evidence
-   saturation). No further rounds process this finding. Append history: `R<r>:
-   saturation, both sides NO new evidence, positions unchanged -> STANDOFF`.
+   saturation has occurred. What happens next depends on the respondent's current
+   position, mirroring step 8's `REFUTE` branch below rather than treating every
+   saturated finding alike:
+   - **Position `REFUTE`**: do not set `STANDOFF`. Leave `state = CHALLENGED` and add
+     `saturated: no further rounds` to the entry (a dedicated field or a history tag).
+     This excludes the finding from every later round's payload (enforced by the
+     still-open set definition in this phase's intro, which steps 2 and 6 both draw
+     from) without finalizing it, so it falls through unresolved into Phase 5 step 1's
+     existing collection clause, which already treats a `CHALLENGED` finding whose
+     current position is `REFUTE` as a proposed `RESOLVED_REFUTE` and sends it to
+     certification. Certification is the point where R12 actually applies: the
+     challenger compares its own verbatim original words against the respondent's
+     one-line closing rendering, a comparison a mid-debate `MAINTAIN` reply never
+     shows it, so saturating early does not substitute for that check. Append history:
+     `R<r>: saturation, both sides NO new evidence, positions unchanged, REFUTE
+     carried to certification (not STANDOFF)`.
+   - **Position `NEEDS-EVIDENCE`, `DISAGREE`, or no position recorded**: set `state =
+     STANDOFF` immediately (not cap-terminated: this is evidence saturation). No
+     further rounds process this finding. Append history: `R<r>: saturation, both
+     sides NO new evidence, positions unchanged -> STANDOFF`.
 8. **Round cap.** After the last round this invocation runs (round 3, or round 2 if
    `--rounds` was clamped or given as 2), findings still open are resolved by their
    most recent respondent position, never swept as one block:
