@@ -8,7 +8,7 @@ description: >
   Known-weaknesses section written against its own side, open questions, out of scope,
   and the response contract copied from the protocol round prompts. Use when spawned by
   the peer-review-orchestrator agent during Phase 1 to construct the packet. Not for
-  invoked outside the cross-model peer review flow, or when the target is a diff or
+  use outside the cross-model peer review flow, or when the target is a diff or
   source code rather than a plan or spec.
 user-invocable: true
 tools:

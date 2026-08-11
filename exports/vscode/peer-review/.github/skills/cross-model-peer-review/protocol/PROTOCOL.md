@@ -1,6 +1,6 @@
 # Cross-Model Peer Review Protocol
 
-Version: 1.0.0
+Version: 1.1.0
 Status: normative. Requirement numbers are stable identifiers; binding documents cite them.
 
 This protocol is harness-independent and provider-independent. No requirement names a
@@ -57,10 +57,14 @@ derive consequences from the artifact, but it has no independent path to the
 authoritative source and therefore can never promote a GIVEN source fact to DERIVED.
 
 ### R5. Egress consent
-The packet is the complete set of bytes leaving the local environment. Before any
-transmission the operator is shown its size, its section list, and the destination,
-and gives explicit consent. A dry-run mode MUST exist that builds the packet and stops
-without any transmission.
+Before any transmission, the operator is shown the packet's size, its section list,
+and the destination, and gives explicit consent at a single gate. That one consent
+covers everything the run may later build from the packet and the ledger and send: a
+later round, certification, a corrective round, and repository material later granted
+to a context request under a fixed, disclosed cap. A conforming binding MUST disclose
+that cap and the possibility of these later payloads at the same gate, before asking
+for consent, rather than gating each one separately. A dry-run mode MUST exist that
+builds the packet and stops without any transmission.
 
 ### R6. Challenge contract
 The first challenge round contains, in order: a frame challenge (is the mandate the
@@ -95,11 +99,17 @@ can support a refutation.
 
 ### R11. Mechanical termination
 A run terminates when all findings are terminal, or by evidence saturation (same
-claim, same evidence, same positions across a round set STANDOFF for that finding
-immediately), or at the round cap (remaining findings become STANDOFF, labeled
-cap-terminated). A run with findings never terminates after the first challenge round.
-STANDOFF means exactly one thing: both substantive positions survive the evidence
-available at termination. Procedural failures never produce it.
+claim, same evidence, same positions across a round), or at the round cap. Both
+triggers stop a finding from taking further rounds, but neither assigns its terminal
+state directly: that depends on the respondent's position at the moment the trigger
+fires. A finding whose position is a refutation is not set to STANDOFF by either
+trigger; a surviving refutation is not both substantive positions surviving, so the
+finding instead carries forward, unresolved, to certification as a proposed
+refutation. Every other finding caught by either trigger becomes STANDOFF
+immediately, labeled by which trigger stopped it (saturation, or cap-terminated). A
+run with findings never terminates after the first challenge round. STANDOFF means
+exactly one thing: both substantive positions survive the evidence available at
+termination. Procedural failures never produce it.
 
 ### R12. Certification
 Before the verdict, the challenger sees the proposed terminal state of its own
@@ -109,7 +119,10 @@ refutation: it invalidates the proposed closure, strikes the restatement, and re
 the finding to CHALLENGED. If the round budget allows, one corrective round runs
 against the original claim; otherwise the finding terminates as CERTIFICATION_FAILED,
 neither accepted nor refuted, reported separately. A misrepresentation never
-manufactures a standoff. An unsubstantiated flag is discarded.
+manufactures a standoff. An unsubstantiated flag is discarded. A flag against a
+finding whose proposed closure was not a refutation has nothing to invalidate: the
+mechanism is scoped to a refutation's rendering, so the finding's state stands and
+the flag is recorded as a rendering dispute instead.
 
 ### R13. Ledger-computed verdict
 The verdict is computed from the ledger, never written freehand. Prose may explain a

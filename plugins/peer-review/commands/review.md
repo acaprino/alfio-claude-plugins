@@ -92,11 +92,15 @@ latency_ms}`:
    api_key_env, available}], source}`.
    - Chosen name: `--challenger` value if given, else `default`.
    - If `default` is null and no `--challenger` was given: stop. No profile is
-     configured. Point at `${CLAUDE_PLUGIN_ROOT}/mcp/profiles.example.json` and the
+     configured (`peer_profiles`'s `source` field is `null` when no profiles file was
+     found at all). Point at `${CLAUDE_PLUGIN_ROOT}/mcp/profiles.example.json`, the
      `.peer-review/profiles.json` / `~/.peer-review/profiles.json` locations it can be
-     placed at.
+     placed at, and the `PEER_REVIEW_PROFILES` environment variable, which names any
+     other path to check first, ahead of both defaults.
    - If the chosen name does not appear in `profiles`: stop, listing the configured
-     profile names, pointing at `${CLAUDE_PLUGIN_ROOT}/mcp/profiles.example.json`.
+     profile names, the `source` path `peer_profiles` reported (which file was
+     actually loaded), and pointing at `${CLAUDE_PLUGIN_ROOT}/mcp/profiles.example.json`
+     and `PEER_REVIEW_PROFILES` for placing or relocating a profiles file.
    - If the chosen profile's `available` is `false`: stop, naming its `api_key_env`
      value as the environment variable that must be set, pointing at
      `${CLAUDE_PLUGIN_ROOT}/mcp/profiles.example.json`.
@@ -159,13 +163,20 @@ latency_ms}`:
 
 ## Phase 1b: Consent gate
 
-No transport call of any kind precedes this phase. Present verbatim, with the actual
-values substituted for the placeholders:
+No transport call of any kind precedes this phase.
+
+1. **Byte cap pre-flight.** Compare `00-packet.md`'s byte size (`<N>` below) against
+   the transport's payload cap, 400000 bytes (the `peer_ask` tool refuses anything
+   larger outright, per `mcp/server.py`). If `<N>` exceeds the cap, do not present the
+   gate below: report the packet's size against the cap and stop. Approving a packet
+   the transport will refuse is not a real consent decision; the artifact or the
+   material it names must be reduced and the run repeated.
+2. Present verbatim, with the actual values substituted for the placeholders:
 
 ```
 About to send this packet to an external service:
   destination: <base_url>  model: <model>
-  size: <N> bytes
+  size: <N> bytes (transport cap: 400000 bytes)
   sections: Mandate, Artifact, Ground truth, Constraints, Considered and rejected,
             Known weaknesses, Open questions, Out of scope, Response contract
 Nothing else leaves this machine. Send it? (yes / no)
@@ -324,12 +335,18 @@ For round `r` (2 or 3), files `05-challenge-r2.md`/`07-challenge-r3.md` and
    `## Challenge round (2..N)`.
 2. Build the round payload: for each still-open finding, its `claim` and `falsifier`
    verbatim, the respondent's current `position` and `evidence`, and (round 2 only) any
-   material granted in Phase 2b, each fact tagged `GIVEN` with its locator.
+   material granted in Phase 2b, each fact tagged `GIVEN` with its locator. If a
+   finding's ledger entry carries a pending proposed restatement (`restatements:
+   RESTATED AS "<wording>"`, not yet confirmed), include that wording too, labeled
+   plainly as the respondent's proposed restatement awaiting the challenger's
+   confirmation, so there is something for the challenger's `CONFIRM-RESTATEMENT` or
+   `REJECT-RESTATEMENT` reply to answer.
 3. Call `mcp__peer-review__peer_ask` with this prompt as `system` and the payload as the
    user message. Handle the error shape per "Transport error handling" above.
 4. On success, write the reply to the round's challenge file. Note `usage`, `model`,
    `latency_ms` under this round in the token-accounting list.
-5. **Per finding, apply the reply** (`WITHDRAW`, `MAINTAIN`, or `REFINE`):
+5. **Per finding, apply the reply** (`WITHDRAW`, `MAINTAIN`, `REFINE`,
+   `CONFIRM-RESTATEMENT`, or `REJECT-RESTATEMENT`):
    - `WITHDRAW` naming specific falsifying evidence: `state = RESOLVED_WITHDRAWN`.
      Append history: `R<r>: withdrawn, evidence <cited>`.
    - `WITHDRAW` naming no evidence: the finding does not close. `state` stays
@@ -346,10 +363,20 @@ For round `r` (2 or 3), files `05-challenge-r2.md`/`07-challenge-r3.md` and
      respondent answers in this round's response step, and confirmation of the
      restatement is implicit in the respondent's willingness to answer it (there is no
      separate confirmation step defined beyond the respondent's next reply).
+   - `CONFIRM-RESTATEMENT`, answering a proposed falsifier restatement shown in this
+     round's payload (step 2): set the falsifier's admissibility to `OK` using the
+     restated wording, and record `restatements: RESTATED AS "<wording>" confirmed by
+     challenger in R<r>`. `state` stays `OPEN`; the finding rejoins the still-open set
+     for this round's response step (step 6) so the respondent can investigate the
+     now-admissible falsifier for the first time.
+   - `REJECT-RESTATEMENT`, answering the same proposal: the one restatement request R9
+     allows is now spent and refused. The original falsifier was already inadmissible
+     as stated (that is why a restatement was proposed at all), so `state =
+     UNTESTABLE` now.
    - If a `RESTATED` (pending) admissibility finding was carried in from Phase 3 and
-     this round's challenger reply does not confirm the restated falsifier explicitly,
-     it remains `OPEN` and is carried forward again; do not force a transition on an
-     unconfirmed restatement.
+     this round's challenger reply does not use `CONFIRM-RESTATEMENT` or
+     `REJECT-RESTATEMENT` for it, it remains `OPEN` and is carried forward again; do
+     not force a transition on an unconfirmed restatement.
 6. Spawn `peer-review:respondent` for the still-open subset, same shape as Phase 3,
    targeting this round's response file (`06-response-r2.md` or `08-response-r3.md`).
    Handle its reply with the same transition table as Phase 3 step 3, plus: the
@@ -435,6 +462,14 @@ For round `r` (2 or 3), files `05-challenge-r2.md`/`07-challenge-r3.md` and
      to step 4.
    - `MISREPRESENTED`, unsubstantiated (no real contradiction, or no quote given):
      discard the flag, note it in history, finalize the state as `CERTIFIED` would.
+   - `MISREPRESENTED`, substantiated, flagged against a finding that did **not** enter
+     this phase as `CHALLENGED` with a `REFUTE` position (a `RESOLVED_WITHDRAWN`,
+     `STANDOFF`, or `UNTESTABLE` closure): R12 ties this mechanism to a procedural
+     failure of the refutation, and none of these closures was produced by the
+     respondent's rendering, so there is nothing to invalidate. `state` does not
+     change. Record the flag and the challenger's quote in `09-certification.md` and
+     carry it as a rendering dispute alongside that finding's normal reporting in
+     Phase 6, distinct from a certified refutation's substantiated misrepresentation.
 4. **Corrective round, at most once for the whole run**, only for findings reverted in
    step 3. If a corrective round has not already run in this invocation:
    - Call `mcp__peer-review__peer_ask` once more, `system` built from the same Challenge
@@ -479,8 +514,11 @@ not already a ledger field. Sections, in order:
 3. **Standoffs.** One entry per `STANDOFF` finding: the challenger's position, the
    respondent's position, which label applies (saturation or cap-terminated), and what
    additional evidence or action would settle it.
-4. **Untestable.** One entry per `UNTESTABLE` finding: the falsifier as given, why it
-   failed admissibility even after the one restatement request.
+4. **Untestable.** One entry per `UNTESTABLE` finding: the falsifier as given, and
+   which failure produced it, distinguishing the two routes R9's one-restatement cap
+   allows: a restated falsifier the respondent checked a second time and still could
+   not admit, versus a proposed restatement the challenger explicitly rejected or
+   never confirmed before the run moved on.
 5. **Certification failures.** One entry per `CERTIFICATION_FAILED` finding: the
    original claim, the substantiated misrepresentation that reverted it, and why no
    corrective round resolved it (budget already spent, or the corrective round itself

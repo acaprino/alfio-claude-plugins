@@ -1,7 +1,8 @@
 # Packet Anatomy
 
-The packet is the single unit of egress (R5) and the challenger's whole world. Build
-it against these rules; the order is fixed by R3.
+The packet is the first thing to leave the local environment under R5's consent gate,
+and the challenger's whole world at round 1. Build it against these rules; the order
+is fixed by R3.
 
 1. **Mandate.** What to judge and what to leave alone. One paragraph.
 2. **Artifact.** Verbatim, unabridged. Record `bytes: <N>` and `sha256: <hex>`

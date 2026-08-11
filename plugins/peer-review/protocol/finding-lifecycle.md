@@ -12,7 +12,7 @@ whole run (R10).
 | RESOLVED_ACCEPT | yes | respondent accepted; becomes a concrete edit in the verdict |
 | RESOLVED_REFUTE | yes | refuted with positive evidence satisfying the falsifier as stated |
 | RESOLVED_WITHDRAWN | yes | challenger withdrew, naming the evidence that falsified it |
-| STANDOFF | yes | both substantive positions survive the available evidence |
+| STANDOFF | yes | both substantive positions survive the available evidence (R11) |
 | UNTESTABLE | yes | falsifier inadmissible after one restatement (R9) |
 | TRANSMISSION_ARTIFACT | yes | the finding attacks material absent from the source (R15) |
 | CERTIFICATION_FAILED | yes | closure invalidated at certification, no round budget left (R12) |
@@ -26,8 +26,13 @@ UNTESTABLE, TRANSMISSION_ARTIFACT, or CERTIFICATION_FAILED, never to STANDOFF.
   DISAGREE, plus evidence at a locator for every non-ACCEPT verdict.
 - CHALLENGED -> RESOLVED_*: the challenger concedes (naming the falsifying evidence)
   or the respondent accepts.
-- CHALLENGED -> STANDOFF: evidence saturation, or the round cap (labeled
-  cap-terminated).
+- CHALLENGED -> STANDOFF: evidence saturation, or the round cap, whenever the
+  respondent's position is not a refutation (labeled saturation or cap-terminated).
+- CHALLENGED -> CHALLENGED, proposed RESOLVED_REFUTE: evidence saturation, or the
+  round cap, whenever the respondent's position is a refutation. Not STANDOFF: a
+  surviving refutation is not both substantive positions surviving (R11). The
+  finding is flagged saturated or cap-terminated and carries to certification, the
+  only place RESOLVED_REFUTE is assigned (R12).
 - any non-terminal -> UNTESTABLE: falsifier fails admissibility twice.
 - any -> TRANSMISSION_ARTIFACT: the attacked material is absent from the source at
   the recorded digest.
@@ -40,7 +45,9 @@ UNTESTABLE, TRANSMISSION_ARTIFACT, or CERTIFICATION_FAILED, never to STANDOFF.
 
 new evidence since previous round = NO on both sides
 AND both positions unchanged
-=> STANDOFF now. No further rounds for this finding.
+=> no further rounds for this finding. If the respondent's position is REFUTE, the
+   finding stays CHALLENGED, flagged saturated, and carries to certification as a
+   proposed refutation. Otherwise it becomes STANDOFF now (R11).
 
 ## Ledger entry template
 

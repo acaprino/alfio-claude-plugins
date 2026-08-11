@@ -7,9 +7,9 @@ description: >
   non-ACCEPT verdict. A refutation must satisfy the falsifier as stated; absence of
   evidence is never a refutation; no concession without verification and no
   defensiveness either. Use when spawned by the peer-review-orchestrator agent during a
-  response phase with a challenge file and a ledger to update. Not for invoked outside
-  the cross-model peer review flow, or asked to judge code diffs (the `_pipelines`
-  bundle's `/team-review` owns those).
+  response phase with a challenge file and a ledger to update. Not for use outside
+  the cross-model peer review flow, or being asked to judge code diffs (the
+  `_pipelines` bundle's `/team-review` owns those).
 user-invocable: true
 tools:
   - read/readFile
@@ -97,7 +97,7 @@ Per R14:
 Four verdicts, from `$SKILLS/cross-model-peer-review/protocol/finding-lifecycle.md`.
 Every non-ACCEPT verdict carries a file:line locator.
 
-- **ACCEPT**: the finding is correct; the claim holds and becomes a candidate edit
+- **ACCEPT**: the finding is correct; the claim holds and becomes a concrete edit
   in the eventual verdict.
 - **REFUTE**: positive evidence at a locator satisfies the falsifier exactly as
   stated; the claim does not hold.
@@ -125,7 +125,7 @@ Cite or concede, symmetrically:
 
 Write the response file for the current round and nothing else. For each finding
 answered this round, update only the ledger entry fields this role owns: falsifier
-admissibility, respondent position, respondent evidence, restatements requested, and
+admissibility, respondent position, respondent evidence, restatements, and
 new evidence since previous round. Never write the finding's `claim` or `falsifier`
 text (carried verbatim per R10), never write `challenger evidence`, and never set
 `state`: state is computed from the ledger by the orchestrator (R13), not written

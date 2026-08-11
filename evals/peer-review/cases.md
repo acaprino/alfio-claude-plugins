@@ -136,14 +136,21 @@ certification, because a `REFUTE` position surviving unchallenged is not
 "both positions surviving" under R11's own definition of STANDOFF, and
 because sweeping it to `STANDOFF` here would make the certification
 transition in `finding-lifecycle.md` ("proposed RESOLVED_REFUTE ->
-CHALLENGED") unreachable. **Note for the results table:** the literal phrase
-"forces STANDOFF" does not hold for every saturated finding, only for the
-non-REFUTE branch; the deeper invariant, that the disposition is fully
-determined by recorded flags and never left to discretion, holds for both
-branches. A version that decided the REFUTE-saturation branch by asking "does
-this refutation seem solid" instead of routing it unconditionally to
-certification would fail this case even though it might still literally set
-`STANDOFF` somewhere.
+CHALLENGED") unreachable. **Note for the results table:** an earlier version
+of this note flagged that the literal phrase "forces STANDOFF" did not hold
+for every saturated finding, only for the non-REFUTE branch, because R11 and
+`finding-lifecycle.md` still described saturation as producing STANDOFF
+unconditionally at the time, even though `commands/review.md` Phase 4 step 7
+already implemented the position-aware behavior described above. That
+wording was corrected on 2026-08-11: R11 and `finding-lifecycle.md` now state
+the position-aware rule directly, so the protocol text and the command's
+behavior agree, and the gap this note used to document is closed. The deeper
+invariant, that the disposition is fully determined by recorded flags and
+never left to discretion, held for both branches throughout and is what this
+case has always graded. A version that decided the REFUTE-saturation branch
+by asking "does this refutation seem solid" instead of routing it
+unconditionally to certification would fail this case even though it might
+still literally set `STANDOFF` somewhere.
 
 ---
 
@@ -345,7 +352,7 @@ probe time).
 | 1 | GIVEN agreement is never corroboration | PASS | No corroboration/agreement-scoring section anywhere in the verdict template or any shipped file |
 | 2 | Refutation needs a locator | PASS | R7 plus `respondent.md` plus the ledger template all require a locator; no argument-only closure path exists |
 | 3 | Unexplained withdrawal never closes | PASS | Consistent across `finding-lifecycle.md`, `round-prompts.md`, and `commands/review.md` Phase 4 step 5 |
-| 4 | Saturation is mechanical, not discretionary | PASS | Disposition is fully determined by recorded flags in both branches; the literal word "STANDOFF" applies only to the non-REFUTE branch, by design (see Case 4's Pass note), not to every saturated finding |
+| 4 | Saturation is mechanical, not discretionary | PASS | Disposition is fully determined by recorded flags in both branches; the literal word "STANDOFF" applies only to the non-REFUTE branch, by design (see Case 4's Pass note). R11 and `finding-lifecycle.md` were corrected 2026-08-11 to state the REFUTE branch directly, closing the wording/behavior gap this note used to flag |
 | 5 | Certification is never skipped | PASS | One documented, reasoned exception (`TRANSMISSION_ARTIFACT`, which never reaches a respondent verdict); no undocumented bypass found |
 | 6 | Consent gate precedes all egress | PASS | Textual ordering confirmed: every `peer_ask` call site is at or after `## Phase 2`, none in Phase 0/1/1b |
 | 7 | `--dry-run` opens no socket | NOT EXECUTED (full claim) | Full claim needs a live orchestrating run with the MCP server connected, unavailable in this environment. Supporting check executed and passed: importing `server.py` and calling `peer_profiles()` against a local stub server produced zero requests; every network call site in `server.py` is inside `peer_ask`'s body |

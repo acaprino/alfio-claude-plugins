@@ -83,8 +83,12 @@ def peer_ask(
     if not api_key:
         return {"error": f"api key environment variable '{key_env or '<unset>'}' is not set; refusing to send"}
 
+    model = entry.get("model")
+    if not model:
+        return {"error": f"profile '{profile}' is missing required field 'model'"}
+
     payload: dict = {
-        "model": entry["model"],
+        "model": model,
         "messages": [{"role": "system", "content": system}, *messages],
     }
     tokens = max_output_tokens or entry.get("max_output_tokens")
@@ -118,7 +122,8 @@ def peer_ask(
                 "latency_ms": latency_ms,
             }
         except urllib.error.HTTPError as error:
-            detail = _redact(error.read().decode("utf-8", "replace")[:500], api_key)
+            body = error.read().decode("utf-8", "replace")
+            detail = _redact(body, api_key)[:500]
             if error.code in RETRY_STATUSES and attempts == 1:
                 time.sleep(RETRY_BACKOFF_SECONDS)
                 continue
