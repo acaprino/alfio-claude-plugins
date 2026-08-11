@@ -2,7 +2,7 @@
 
 Date: 2026-08-11
 Plugin: `peer-review` (new)
-Status: frozen. No implementation plan written yet.
+Status: frozen. Implementation plan at `docs/superpowers/plans/2026-08-11-cross-model-peer-review.md`
 
 ## Context
 
