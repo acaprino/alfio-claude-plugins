@@ -471,6 +471,7 @@ If `--no-context` was set, omit the "Context files" and "Reviewer Hints" section
 mode: diff
 codebase_path: {target root}
 deep_dive_path: {$XRAY_RUN_DIR when Phase 1a ran and produced output, otherwise "none"}
+concept_index_path: {target root}/.abstraction-architect/concept-index.json
 changed_files: {the same file list used to build the diff above}
 report_path: .team-review/findings-abstraction.md
 severity_floor: medium
@@ -481,6 +482,7 @@ Three things about this reviewer, because they invert the default reviewer contr
 - Its search space is the **whole codebase**, not the diff. The diff is only the anchor; the prior art it is hunting for is by definition in files that did not change. Do not scope it to the changed files.
 - It runs fine on `--depth=lite` output, since it consumes only `01-structure.md` and `02-interfaces.md`. Do not force `--deep` on its account.
 - `--no-context` does NOT skip it (that rule removes only `logic-integrity-auditor`). It runs with `deep_dive_path: none` and degrades to Glob plus Grep, reporting the reduced confidence in its Gaps section.
+- It reads a **concept index** at `.abstraction-architect/concept-index.json` when one exists, which is what makes its knowledge-track dimensions (duplicated domain knowledge, competing sources of truth, redundant representation, duplicated state) worth running on a diff. The index is produced by `/abstraction-architect:audit` in global mode. When it is absent or stale the reviewer degrades to diff-anchored discovery and declares the reduced coverage; it never blocks. This reviewer never writes the index.
 
 **Testing dimension addendum.** `testing:test-suite-auditor` (when the `testing` plugin is installed; the `agent-teams:team-reviewer` fallback needs no addendum) partly inverts the default reviewer contract. Append this to its prompt:
 

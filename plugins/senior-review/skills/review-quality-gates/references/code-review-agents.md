@@ -625,7 +625,7 @@ Agent tool call:
 
 **Run this agent whenever the diff adds code**, meaning at least one added function, method, class, module, constant table, or block longer than roughly five lines. Skip it for diffs that are purely deletions, renames, formatting, or config edits.
 
-This is the only agent that answers "was this already available?". Every other agent reads the diff and judges it on its own terms; this one takes the diff as an anchor and goes looking through the rest of the codebase for prior art.
+This is the only agent that answers "was this already available?". Every other agent reads the diff and judges it on its own terms; this one takes the diff as an anchor and goes looking through the rest of the codebase for prior art. Since abstraction-architect 2.0 it answers more than that. It also asks whether the diff creates a second authority over a fact the codebase already owns, adds a parallel representation of an existing concept, or stores state that existing state already determines. Those questions are seeded by a concept index at `.abstraction-architect/concept-index.json` when one exists; without it the agent degrades to diff-anchored discovery and says so.
 
 **Skip if the `abstraction-architect` plugin is not installed.** There is no fallback: the check depends on that agent's pattern catalogs and decision frame, and a freelance grep for similar names produces false positives that cost more than the finding is worth.
 
@@ -640,6 +640,7 @@ Agent tool call:
     mode: diff
     codebase_path: [repo root]
     deep_dive_path: [.deep-dive/ if Step 2 produced one, otherwise "none"]
+    concept_index_path: [repo root]/.abstraction-architect/concept-index.json
     changed_files: [list of changed files]
     report_path: [scratch path for this review]
     severity_floor: medium
