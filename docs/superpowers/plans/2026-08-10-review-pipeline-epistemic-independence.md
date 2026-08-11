@@ -15,6 +15,8 @@
 Every task's requirements implicitly include this section.
 
 - **No dash-aside construct anywhere**, in content, comments or commit messages. This targets the rhetorical pattern of bracketing a clause between dashes in any form: em dash, double hyphen, spaced hyphen. Substituting `--` for an em dash is not the fix. Rewrite into separate sentences, parentheses, or colons. Hyphenated compounds are unrelated and fine.
+
+  **Scope the check to lines you added.** These files already use `--` as a field separator and as a single appositive dash, which is house style and is not the banned construct: the ban is on *wrapping* a clause between two dashes. A whole-file grep therefore returns pre-existing hits that are not defects, and chasing them is out of scope for every task in this plan. Always pipe through the added lines only, as the verify steps do. Never "fix" a pre-existing `--` you did not introduce.
 - **Stage explicit paths, never `git add -A`.** Other sessions run this repository concurrently. Diff `marketplace.json`, `exports/vscode/package.json` and any CHANGELOG before staging.
 - **Bundled paths**: any self-reference to a plugin file uses `${CLAUDE_PLUGIN_ROOT}/...` or a skill-relative `references/...` path inside that same skill. No plugin reaches into another plugin's files by path.
 - **The forbidden edge stays closed**: nothing in `codebase-xray` may reference a `senior-review` agent, skill or command at runtime. Passing a file path into a prompt is not a reference; naming an agent or invoking a skill is.
@@ -143,7 +145,7 @@ with
 grep -c "Shared-Context Provenance Rule" plugins/senior-review/skills/review-quality-gates/SKILL.md
 grep -c "Epistemic status of the shared context" plugins/senior-review/skills/review-quality-gates/SKILL.md
 grep -c "quality metric" plugins/senior-review/commands/team-review.md
-grep -nE '—| -- ' plugins/senior-review/skills/review-quality-gates/SKILL.md plugins/senior-review/commands/team-review.md
+git diff -U0 | grep -E '^\+' | grep -nE '—|[a-z] -- [a-z]|[a-z] - [a-z]'
 ```
 
 Expected: `1`, `1`, `0`, and no output from the last command.
