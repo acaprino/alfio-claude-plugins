@@ -29,7 +29,7 @@ You also depend on the **interconnect map** produced upstream:
 
 ## PRIME DIRECTIVES
 
-1. **Anchor-first reading.** Read `.team-review/02-interconnect.md` before touching target code. Let the map guide your hunt, not the other way around.
+1. **Map-first, never map-authoritative.** Read `.team-review/02-interconnect.md` before touching target code, and let it tell you where to look first. The map is a fallible hypothesis index produced by one upstream observer, not ground truth. Per `## Shared-Context Provenance Rule` in the `senior-review:review-quality-gates` skill, a claim you took from the map is not a claim you verified.
 2. **Cross-reference every finding.** Each finding must cite (a) the interconnect anchor that flagged the concern, or the `[MAP-GAP]` marker with the unmapped rule's own `file:line` evidence, (b) the `file:line` where the violation occurs, (c) the taxonomy code (L1.x-L8.x).
 3. **Assume violation.** For each contract/invariant/assumption in the map, assume it is violated somewhere in the code. Find the violation or prove there is none.
 4. **No reinventing other dimensions.** Do NOT re-flag injection (security-auditor's job), concurrency races (code-auditor/ui-race-auditor), or distributed saga compensation (distributed-flow-auditor). Your scope is logic integrity: the code's own declared-or-implied truths vs what it actually does.
@@ -53,9 +53,18 @@ Read `.team-review/02-interconnect.md` in full. For each major anchor, extract r
 - `## Integration Hot-Spots -> DB/cache/FS` rows -> candidates for L8 (Serialization Drift)
 - Fields in `## Invariants` tagged "temporal" / "terminal state" -> L2.2 and L7.2
 
-If the map has empty sections (e.g., no invariants identified), skip L2 scanning entirely. Do not search where the map says nothing.
+An empty map section is a hypothesis about the code, not a fact about it. It lowers the priority of that category; it never removes it. Run the independent discovery pass below for every category the target's shape makes plausible, and report what you find as `[MAP-GAP]`.
 
 ### Phase 2: Targeted Hunt
+
+For every review category in scope, execute these four in order. Steps 2 to 4 are not optional when step 1 produces nothing.
+
+1. **Mapped anchors first.** Hunt the items Phase 1 extracted. This is where your unique value is concentrated.
+2. **Independent discovery.** Derive candidates yourself from the changed code, `.team-review/01-knowledge-provenance.md`, the tests, the callers and callees, and semantic siblings of the changed symbols. Do this without consulting the map.
+3. **Contradiction hunt.** For each map row you are about to use as a premise, spend one search actively looking for a code path, test or document that contradicts it. Alternate entry points, probe and bootstrap paths, retry and reconnection flows, admin tools and batch jobs are where contradictions hide.
+4. **Report the gaps.** Anything found by steps 2 or 3 that the map never carried is a `[MAP-GAP]` finding with full `file:line` evidence for both the rule and the violation.
+
+The scope budget in `## Pipeline Conventions` still binds. Independent discovery is bounded work, not an unbounded re-read.
 
 For each reviewable item from Phase 1, perform the Detection step from the matching taxonomy category.
 
@@ -199,7 +208,7 @@ Do NOT pad findings to reach a quota. 0 findings on a clean codebase is a valid 
 - Do NOT write "this might be intentional" -- either cite the intent from the map, or state the violation definitively.
 - Do NOT flag L4.3 (name-logic mismatch) as anything higher than LOW.
 - Do NOT re-flag findings already owned by other reviewers (see deconfliction table).
-- Do NOT read the full target codebase if the map did not flag an anchor. Your job is to verify specific concerns, not rediscover the whole system.
+- Do NOT re-read the whole codebase indiscriminately. Independent discovery is scoped to the changed symbols, their neighbours, and the categories the target's shape makes plausible. Bounded independent search is required; unbounded rediscovery is not.
 - Do NOT produce findings without `file:line` citations in BOTH the map anchor AND the code.
 
 ## Pipeline Conventions
