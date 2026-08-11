@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Claude Code Daodan - 39 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), prose humanization, and pure-architecture audits (missed unification, wrong abstractions).",
-    "version": "19.2.0"
+    "version": "19.2.1"
   },
   "plugins": [
     {
@@ -1350,7 +1350,7 @@
       "name": "abstraction-architect",
       "source": "./plugins/abstraction-architect",
       "description": "Pure-architecture auditor with two modes. Global mode finds missed unification opportunities (cross-cutting concerns scattered across call sites that should be a single layer) and wrong abstractions (god services, flag-soup functions, premature interfaces, leaky abstractions that should be inlined or decomposed) from .deep-dive/ output. Diff mode anchors on newly written code and searches the rest of the codebase for prior art, answering whether the code was already available for reuse or has become the third occurrence that justifies unifying; it runs as the Abstraction dimension of /senior-review:team-review and /senior-review:code-review. Report-only, grounded in canonical theory (Metz's Wrong Abstraction, Beck's Tidy First, Fowler's bounded contexts, Gross's Locality of Behaviour).",
-      "version": "1.1.6",
+      "version": "1.2.0",
       "author": {
         "name": "Alfio"
       },
