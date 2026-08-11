@@ -1,5 +1,7 @@
 ---
-description: Cross-model peer review of a plan or spec - builds a challenge packet, sends it to a challenger model on an OpenAI-compatible endpoint after explicit consent, runs an evidence-backed multi-round dialectic with a verbatim ledger, and computes a verdict of accepted edits, refutations, and standoffs
+description: >
+  Runs the deliberation protocol end to end: consent gate, external call, multi-round dialectic, verdict computed from a verbatim ledger.
+  TRIGGER WHEN: the user asks to have a plan or spec challenged by a second model family, stress-tested across models, or peer-reviewed outside this session.
 argument-hint: <path-to-plan-or-spec> [--challenger=<profile>] [--rounds=N] [--dry-run] [--apply]
 ---
 

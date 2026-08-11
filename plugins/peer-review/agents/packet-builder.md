@@ -1,15 +1,8 @@
 ---
 name: packet-builder
 description: >
-  Builds the immutable challenge packet (00-packet.md) for a /peer-review:review run:
-  the artifact verbatim with byte length and sha256 digest, GIVEN-flagged ground truth
-  extracted mechanically from every file the artifact names, constraints, each
-  considered-and-rejected entry split into decision (GIVEN) and rationale (TO JUDGE),
-  a Known-weaknesses section written against its own side, open questions, out of
-  scope, and the response contract copied from the protocol round prompts.
-  TRIGGER WHEN: spawned by the /peer-review:review command during Phase 1 to construct
-  the packet. DO NOT TRIGGER WHEN: invoked outside the peer-review pipeline, or the
-  target is a diff or source code rather than a plan or spec.
+  Builds the immutable challenge packet (00-packet.md) from a plan or spec: the artifact verbatim with its digest, mechanically extracted GIVEN ground truth, and the response contract.
+  TRIGGER WHEN: spawned by the /peer-review:review command during Phase 1.
 model: inherit
 color: cyan
 ---

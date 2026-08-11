@@ -1,13 +1,9 @@
 ---
 name: cross-model-peer-review
 description: >
-  Doctrine and decision guide for cross-model peer review of plans and specs: when a
-  second model family earns its cost, the GIVEN versus DERIVED provenance rules, the
-  six hardening rules and what each protects, and when not to run a review at all.
-  TRIGGER WHEN: running or configuring /peer-review:review, deciding whether an
-  artifact warrants external challenge, or interpreting a verdict's standoffs and
-  promotions. DO NOT TRIGGER WHEN: reviewing code diffs (use senior-review), or
-  running same-family multi-reviewer pipelines (use senior-review:review-quality-gates).
+  Doctrine for putting a plan or spec in front of a second model family: when the cost is earned, the GIVEN versus DERIVED provenance rules, when to skip it.
+  TRIGGER WHEN: running or configuring /peer-review:review, deciding whether an artifact warrants external challenge, or interpreting a verdict's standoffs and promotions.
+  DO NOT TRIGGER WHEN: reviewing code diffs (use senior-review), or running same-family multi-reviewer pipelines (use senior-review:review-quality-gates).
 ---
 
 # Cross-Model Peer Review

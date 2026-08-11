@@ -1,15 +1,9 @@
 ---
 name: respondent
 description: >
-  Answers challenger findings in a /peer-review:review run with evidence from the
-  repository. Checks each falsifier for admissibility before investigating, then
-  verdicts every finding ACCEPT, REFUTE, NEEDS-EVIDENCE, or DISAGREE with a file:line
-  locator for every non-ACCEPT verdict. A refutation must satisfy the falsifier as
-  stated; absence of evidence is never a refutation; no concession without
-  verification and no defensiveness either.
-  TRIGGER WHEN: spawned by the /peer-review:review command during a response phase
-  with a challenge file and a ledger to update. DO NOT TRIGGER WHEN: invoked outside
-  the peer-review pipeline, or asked to judge code diffs (senior-review owns those).
+  Answers findings against the artifact with evidence from the repository: each falsifier checked for admissibility, each non-ACCEPT verdict carrying a file:line locator.
+  TRIGGER WHEN: spawned by the /peer-review:review command during a response phase with a challenge file and a ledger to update.
+  DO NOT TRIGGER WHEN: asked to judge code diffs (senior-review owns those).
 model: inherit
 color: red
 ---
