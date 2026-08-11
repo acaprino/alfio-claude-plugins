@@ -18,7 +18,7 @@ After validation completes, synthesize everything into the final structured revi
 - Files reviewed: [N]
 - Lines changed: +X / -Y
 - CLAUDE.md compliance: [checked / not found]
-- Verification: X of Y findings verified (3-lens panel), Z false positives, W contested{cost_guard_note}
+- Verification: X of Y findings verified (4-lens panel), Z false positives, W contested{cost_guard_note}
 
 ### Overall Score: X/10 (confidence: X%)
 
@@ -180,7 +180,7 @@ cat > .code-review-tmp/temp_summary_comment.md << 'SUMMARY_EOF'
 [top 3 recommended actions]
 
 ---
-*Reviewed by: code-auditor, security-auditor, dead-code-and-lint-detector, ui-race-auditor, git-history-analyzer | Findings verified by 3-lens panel*
+*Reviewed by: code-auditor, security-auditor, dead-code-and-lint-detector, ui-race-auditor, git-history-analyzer | Findings verified by 4-lens panel*
 SUMMARY_EOF
 
 gh pr comment {number} -F .code-review-tmp/temp_summary_comment.md
