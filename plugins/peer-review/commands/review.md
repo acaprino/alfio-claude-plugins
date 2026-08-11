@@ -1,8 +1,8 @@
 ---
 description: >
-  Runs the deliberation protocol end to end: consent gate, external call, multi-round dialectic, verdict computed from a verbatim ledger.
-  TRIGGER WHEN: the user asks to have a plan or spec challenged by a second model family, stress-tested across models, or peer-reviewed outside this session.
-argument-hint: <path-to-plan-or-spec> [--challenger=<profile>] [--rounds=N] [--dry-run] [--apply]
+  Runs the deliberation protocol end to end: consent gate, external call, multi-round dialectic, verdict computed from a verbatim ledger. With no path, materializes the session's context and decisions into a brief and challenges that.
+  TRIGGER WHEN: the user asks to have a plan, a spec, or the session's own context and decisions (taken or still open) challenged by a second model family, stress-tested across models, or peer-reviewed outside this session.
+argument-hint: "[<path-to-plan-or-spec> | <topic>] [--challenger=<profile>] [--rounds=N] [--dry-run] [--apply]"
 ---
 
 # Cross-Model Peer Review
@@ -36,6 +36,7 @@ All paths are relative to the run directory `.peer-review/YYYY-MM-DD-HHMM-<slug>
 
 | File | Written by | Phase |
 |---|---|---|
+| `00-brief.md` | `peer-review:brief-builder`, brief mode only | 0b |
 | `00-packet.md` | `peer-review:packet-builder` | 1 |
 | `01-challenge-r1.md` | command, from the challenger's transport reply | 2 |
 | `01b-amendment.md` | command | 2b |
@@ -68,24 +69,45 @@ latency_ms}`:
 
 ## Phase 0: Setup
 
-1. Parse `$ARGUMENTS`. The first non-flag token is the artifact path. Flags:
-   `--challenger=<profile>` (optional), `--rounds=N` (default `3`), `--dry-run`,
-   `--apply`. If no path is given, print the usage from `argument-hint` and stop.
+This command has **two modes**, decided in step 1 and differing only in where the
+artifact comes from. **Artifact mode** judges a plan or spec already on disk. **Brief
+mode** materializes the session's context and decisions into `00-brief.md` first, then
+judges that. From Phase 1 onward the two are the same run: every later phase reads
+`<artifact path>`, and Phase 0b is what sets it in brief mode.
+
+1. Parse `$ARGUMENTS`. Flags: `--challenger=<profile>` (optional), `--rounds=N`
+   (default `3`), `--dry-run`, `--apply`. The first non-flag token, if any, selects the
+   mode:
+   - **Resolves to an existing readable file**: artifact mode, that file is the
+     artifact path.
+   - **Looks like a path but does not exist** (contains `/` or `\`, or ends in `.md` or
+     `.markdown`): stop with a not-found error naming the path, and print the usage
+     from `argument-hint`. Never fall through to brief mode here: a mistyped path must
+     not silently become a topic.
+   - **Anything else**: brief mode, and the token is the topic hint that scopes which
+     decisions the brief covers.
+   - **No non-flag token at all**: brief mode with no topic hint, covering the
+     session's decisions as a whole.
 2. **Validate `--rounds`.** Valid range is `2` to `3`: round 1 always runs in Phase 2,
    and the canonical file layout only names challenge/response files through round 3
    (`05-challenge-r2.md`/`06-response-r2.md`, `07-challenge-r3.md`/`08-response-r3.md`).
    A value below `2` is rejected outright, citing R11 (a run with findings may never
    terminate after round 1). A value above `3` is clamped to `3` with a printed note,
    since no canonical file names exist beyond it. Default `3`.
-3. **Validate the artifact.** Read the file at the given path.
+3. **Validate the artifact** (artifact mode only; brief mode has no file yet and skips
+   this step). Read the file at the given path.
    - Refuse if it does not exist, or is not readable as text.
    - Refuse anything that looks like a unified diff (starts with `diff --git`, or
      contains `--- a/` / `+++ b/` header pairs) or a source file (extension outside
      `.md`/`.markdown`), with a message pointing at `/senior-review:code-review` for
      that kind of target instead.
-   - This command reviews plans and specs, not code changes.
-4. **Compute the run directory.** Slug: the artifact's basename without extension,
-   lowercased, non-alphanumeric runs collapsed to a single hyphen. Timestamp: local
+   - This command reviews intent artifacts, never code changes. The diff refusal holds
+     in both modes: a brief describes decisions, and a request to challenge a diff is
+     redirected the same way.
+4. **Compute the run directory.** Slug: in artifact mode, the artifact's basename
+   without extension; in brief mode, the topic hint, or `session-brief` when there is
+   none. Either way lowercased, with non-alphanumeric runs collapsed to a single
+   hyphen and the result truncated to 48 characters. Timestamp: local
    `YYYY-MM-DD-HHMM`. Directory: `.peer-review/<timestamp>-<slug>/`. On a name collision
    (a concurrent invocation in the same minute), append `-2`, `-3`, ... Create the
    directory before any write.
@@ -111,12 +133,59 @@ latency_ms}`:
 6. Initialize an empty transport-failures list and an empty token-accounting list, both
    held in memory for Phase 6.
 
+## Phase 0b: Brief
+
+**Brief mode only.** In artifact mode, skip this phase entirely and go to Phase 1.
+
+This phase runs after profile resolution, not before it, so an unconfigured or
+unavailable profile stops the run before an agent is spent building a brief.
+
+1. Spawn `peer-review:brief-builder` with the run directory and the topic hint:
+
+   ```
+   Task:
+     subagent_type: "peer-review:brief-builder"
+     description: "Materialize the decision brief"
+     prompt: |
+       Run directory: <run directory>
+       Topic hint: <topic hint, or "none: cover the session's decisions as a whole">
+
+       Materialize this session's context and decisions into 00-brief.md per your
+       protocol. Report back the brief's byte size, the count of taken decisions,
+       the count of open decisions, and the "could not be sharpened" list verbatim.
+   ```
+
+2. On return, confirm `00-brief.md` exists in the run directory. If it does not, report
+   the agent's failure and stop; nothing was sent, nothing to clean up.
+3. **Freeze.** From this point the brief is the artifact, and `<artifact path>` in every
+   later phase means `<run directory>/00-brief.md`. It is never edited again for the
+   rest of the run: that is what makes R2 hold for a materialized artifact, and what
+   lets Phase 1's independent digest recheck compare three values that were never
+   supposed to diverge. Wanting a different brief means a new run, not an edit.
+4. **Vagueness stop (doctrine).** If the brief carries no taken decision and no open
+   decision that passed the builder's decidability self-check, stop here and say so.
+   A packet built from that brief would produce findings standing on air, which is the
+   one case the doctrine says not to spend a run on. Report the "could not be
+   sharpened" list so the user can see exactly what was too vague.
+5. Print the brief's path, its byte size, and the two decision counts, followed by the
+   "could not be sharpened" list when it is non-empty. The full brief text is disclosed
+   inside the packet at the Phase 1b consent gate, which is where a look before egress
+   belongs; this line is a pointer, not a substitute for reading it.
+
 ## Phase 1: Packet
 
-1. Compose the mandate text: "Judge whether `<artifact path>`'s decisions, its plan of
-   action, and each rejected alternative's rationale hold up under scrutiny. Prose
-   style, formatting, and any file the artifact merely mentions without proposing a
-   change to it are out of scope."
+1. Compose the mandate text. Use the template for the mode this run is in.
+
+   **Artifact mode**: "Judge whether `<artifact path>`'s decisions, its plan of action,
+   and each rejected alternative's rationale hold up under scrutiny. Prose style,
+   formatting, and any file the artifact merely mentions without proposing a change to
+   it are out of scope."
+
+   **Brief mode**: "Judge whether the situation as described is the right framing of
+   what is being decided, whether each taken decision's rationale holds, and whether
+   each open decision's option set is complete. The taken decisions themselves are
+   settled and are not to be relitigated: their reasoning is what is on trial. Prose
+   style and formatting are out of scope."
 2. Spawn `peer-review:packet-builder` with the artifact path, the run directory, and
    the mandate text:
 
@@ -549,6 +618,11 @@ not already a ledger field. Sections, in order:
    - **Respondent**: model, the orchestrating session's own model; runtime, Claude
      Code subagent `peer-review:respondent` with full repository access (R8); context,
      the full repository; human, none.
+   - **Artifact origin** (R13), one line: `pre-existing` in artifact mode, naming the
+     path, or `materialized for this run by peer-review:brief-builder` in brief mode.
+     A materialized artifact shares its author's context with the side being judged,
+     which a reader must weigh and no requirement can remove. State it plainly rather
+     than leaving it to be inferred from the run directory's contents.
 10. **Promotions.** Every `GIVEN -> DERIVED` line recorded in the ledger's respondent
     evidence fields, with the deriving role and locator (R14).
 11. **Token accounting**, from every `peer_ask` call's `usage`, `model`, and
@@ -566,6 +640,14 @@ exists).
 ## `--apply`
 
 Only after `04-verdict.md` is written.
+
+**Artifact mode only.** In brief mode `--apply` is refused, with the reason: the
+artifact is `00-brief.md`, a frozen record of what the session had decided at the
+moment the run started, and editing it changes nothing downstream because nothing
+downstream reads it. The deliverable is the verdict's Accepted changes list, which
+names decisions to revisit rather than text to rewrite. Print that list and stop, the
+same as a run without the flag. Say plainly that the flag was refused and why, rather
+than silently ignoring it.
 
 - **Without `--apply`**: print the Accepted changes edit list from the verdict and
   stop. Nothing is modified.

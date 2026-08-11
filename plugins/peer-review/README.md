@@ -1,8 +1,8 @@
 # peer-review
 
-Cross-model peer review of plans and specs: a second, independently-vendored model
-family attacks your artifact through an evidence-backed, multi-round dialectic before
-you act on it.
+Cross-model peer review of plans, specs, and the decisions a session has just made: a
+second, independently-vendored model family attacks your artifact through an
+evidence-backed, multi-round dialectic before you act on it.
 
 ## What this is
 
@@ -62,10 +62,29 @@ These steps assume the plugin is already installed
    }
    ```
 
-   `api_key_env` names an environment variable, never a literal key. The server reads
-   it at call time and never returns it, not even in its own availability check.
-3. Export that variable in the shell Claude Code runs in, matching whichever profile
-   you intend to use: `export OPENAI_API_KEY=...` for the example above.
+   A profile takes its key from one of two fields:
+
+   | Field | Holds | Use it when |
+   |---|---|---|
+   | `api_key_env` | the **name** of an environment variable | the key already lives in your environment, or a machine sets it |
+   | `api_key` | the key itself | you would rather not manage an environment variable |
+
+   When both are present the environment wins if that variable is set, so a machine can
+   override the file without editing it, and `api_key` is the fallback. The server reads
+   the key at call time and never returns it, not even in its own availability check.
+
+   Pasting a key into `api_key_env` is the one mistake worth naming: it is looked up as
+   a variable name, resolves to nothing, and the profile reports `available: false`.
+   `peer_profiles` catches it and reports `key_source: "malformed_env_name"` with an
+   explanation, and it never echoes the offending value back, because in that situation
+   the value is the key.
+
+   A literal key belongs in `~/.peer-review/profiles.json`, which sits outside every
+   repository. If you keep one in a project-scoped file instead, `peer_profiles` checks
+   whether git ignores that file and warns when it does not.
+3. If you chose `api_key_env`, export that variable in the shell Claude Code runs in,
+   matching whichever profile you intend to use: `export OPENAI_API_KEY=...` for the
+   example above.
 
 ## Usage
 
@@ -93,9 +112,35 @@ is computed, apply its accepted changes to the artifact with the Edit tool and a
 a changelog section). `--challenger` may be omitted once `profiles.json` names a
 `default`.
 
-This command reviews plans and specs only. Point it at a `.md` or `.markdown` file; it
-refuses anything that looks like a unified diff or a source file and names
-`/senior-review:code-review` as the right tool for that target instead.
+### Two modes
+
+**Artifact mode** judges a document already on disk. Point the command at a `.md` or
+`.markdown` file. It refuses anything that looks like a unified diff or a source file
+and names `/senior-review:code-review` as the right tool for that target instead.
+
+**Brief mode** judges what exists only in the session. Run the command with no path,
+optionally with a topic to scope it:
+
+```
+/peer-review:review
+/peer-review:review "the repo-hygiene split"
+```
+
+Phase 0b materializes the session's situation, its decisions already taken with their
+rationale, its still-open decisions with their options, and its constraints into
+`00-brief.md`, freezes that file, and puts it on trial. Everything after Phase 0b is
+the same run as artifact mode.
+
+A mistyped path is not a topic: a token containing a path separator or ending in `.md`
+that does not exist stops the run, rather than quietly becoming a brief-mode subject.
+
+Two things differ in brief mode. The brief is drafted by the same session that made the
+decisions, so the verdict records that the artifact was materialized rather than
+independently authored (R13), and `brief-builder`'s "could not be sharpened" list is
+carried into the packet's Known-weaknesses section instead of being hidden. And
+`--apply` is refused, because the brief is a frozen record that nothing downstream
+reads: the verdict's Accepted changes list names decisions to revisit, not text to
+rewrite.
 
 ## What you get back
 

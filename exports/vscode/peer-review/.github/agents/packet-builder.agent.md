@@ -9,7 +9,7 @@ description: >
   and the response contract copied from the protocol round prompts. Use when spawned by
   the peer-review-orchestrator agent during Phase 1 to construct the packet. Not for
   use outside the cross-model peer review flow, or when the target is a diff or
-  source code rather than a plan or spec.
+  source code rather than a plan, spec, or decision brief.
 user-invocable: true
 tools:
   - read/readFile
@@ -44,7 +44,7 @@ it.
 
 Read from the dispatching prompt:
 
-- **artifact path**: the plan or spec on trial. Read it whole. Never summarize it into
+- **artifact path**: the plan, spec, or decision brief on trial. Read it whole. Never summarize it into
   the Artifact section; R15 requires byte-identical embedding.
 - **run directory**: where `00-packet.md` is written.
 - **mandate text**: what to judge, what to leave alone. Goes into section 1 (Mandate)
@@ -78,6 +78,27 @@ about which sources matter (R3):
    recorded: one line naming it and the reason it was skipped. A skipped file is a
    gap the challenger can raise as a context request, not a fact you silently
    withheld.
+
+## When the artifact is a decision brief
+
+A brief written by the `brief-builder` agent in Phase 0b carries five fixed sections
+that map onto the packet without interpretation. Use the mapping; do not re-derive it.
+
+| Brief section | Packet section |
+|---|---|
+| Situation | 3 Ground truth, after extracting the sources it names |
+| Decisions taken (`decision:` / `rationale:`) | 5 Considered and rejected, the two parts becoming `GIVEN` and `TO JUDGE` |
+| Open decisions | 7 Open questions, options and settling criterion kept |
+| Constraints | 4 Constraints |
+| Named sources | extraction targets for section 3 |
+
+The brief's own "Could not be sharpened" list belongs in section 6, Known weaknesses.
+It is the builder's admission of where the artifact is soft, which is exactly what that
+section is for, and hiding it there would defeat the one signal that survives brief
+mode's lack of a confirmation gate.
+
+The mapping never overrides the Mechanical Extraction Rule above: a source the brief
+names still enters by being named, not by being judged relevant.
 
 ## Digest Step
 

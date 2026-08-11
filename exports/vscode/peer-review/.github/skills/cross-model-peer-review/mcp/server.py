@@ -10,6 +10,8 @@ disk writes. The command owns the run directory.
 """
 import json
 import os
+import re
+import subprocess
 import time
 import urllib.error
 import urllib.request
@@ -47,21 +49,89 @@ def _redact(text: str, secret: str | None) -> str:
     return text.replace(secret, "<redacted>") if secret else text
 
 
+ENV_NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+
+MALFORMED_ENV_HINT = (
+    "api_key_env must hold the NAME of an environment variable, not a key. "
+    "Put a literal key in the 'api_key' field instead. The offending value is "
+    "deliberately not echoed: if it is the key, it is a secret."
+)
+
+
+def _resolve_key(entry: dict) -> tuple[str | None, str, list[str]]:
+    """Resolve a profile's API key.
+
+    Returns (key, key_source, warnings). Never returns the offending value of a
+    malformed api_key_env: in that situation the value is itself the secret.
+
+    Order: api_key_env when the named variable is set, then the literal api_key.
+    The environment wins so a machine can override the file without editing it.
+    """
+    raw_env = entry.get("api_key_env") or ""
+    literal = entry.get("api_key") or ""
+    warnings: list[str] = []
+
+    malformed = bool(raw_env) and not ENV_NAME.match(raw_env)
+    if malformed:
+        warnings.append(MALFORMED_ENV_HINT)
+        raw_env = ""
+
+    if raw_env:
+        from_env = os.environ.get(raw_env)
+        if from_env:
+            return from_env, "env", warnings
+        warnings.append(f"environment variable '{raw_env}' is not set")
+
+    if literal:
+        return literal, "literal", warnings
+
+    return None, "malformed_env_name" if malformed else "none", warnings
+
+
+def _git_ignored(path: Path) -> bool | None:
+    """Whether git ignores path. None when git cannot decide (no repo, no git)."""
+    try:
+        result = subprocess.run(
+            ["git", "check-ignore", "-q", str(path)],
+            cwd=str(path.parent),
+            capture_output=True,
+            timeout=5,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if result.returncode == 0:
+        return True
+    if result.returncode == 1:
+        return False
+    return None
+
+
 @mcp.tool()
 def peer_profiles() -> dict:
     """List configured challenger profiles with availability. Never returns a key."""
     config, source = _load_profiles()
     profiles = []
+    any_literal = False
     for name, entry in config.get("profiles", {}).items():
-        key_env = entry.get("api_key_env", "")
+        key, key_source, warnings = _resolve_key(entry)
+        any_literal = any_literal or key_source == "literal"
         profiles.append({
             "name": name,
             "base_url": entry.get("base_url", ""),
             "model": entry.get("model", ""),
-            "api_key_env": key_env,
-            "available": bool(key_env and os.environ.get(key_env)),
+            "api_key_env": entry.get("api_key_env", "") if ENV_NAME.match(entry.get("api_key_env", "") or "") else "",
+            "key_source": key_source,
+            "warnings": warnings,
+            "available": bool(key),
         })
-    return {"default": config.get("default"), "profiles": profiles, "source": source}
+
+    result = {"default": config.get("default"), "profiles": profiles, "source": source}
+    if any_literal and source and _git_ignored(Path(source)) is False:
+        result["warning"] = (
+            f"{source} holds a literal api_key and is NOT ignored by git. Move it to "
+            "~/.peer-review/profiles.json, or add it to .gitignore, before committing."
+        )
+    return result
 
 
 @mcp.tool()
@@ -78,10 +148,12 @@ def peer_ask(
     if entry is None:
         known = ", ".join(sorted(config.get("profiles", {}))) or "none configured"
         return {"error": f"unknown profile '{profile}' (known: {known})"}
-    key_env = entry.get("api_key_env", "")
-    api_key = os.environ.get(key_env) if key_env else None
+    api_key, key_source, warnings = _resolve_key(entry)
     if not api_key:
-        return {"error": f"api key environment variable '{key_env or '<unset>'}' is not set; refusing to send"}
+        reason = "; ".join(warnings) if warnings else (
+            f"profile '{profile}' configures neither 'api_key_env' nor 'api_key'"
+        )
+        return {"error": f"no api key resolved ({key_source}): {reason}; refusing to send"}
 
     model = entry.get("model")
     if not model:
@@ -122,8 +194,9 @@ def peer_ask(
                 "latency_ms": latency_ms,
             }
         except urllib.error.HTTPError as error:
-            body = error.read().decode("utf-8", "replace")
-            detail = _redact(body, api_key)[:500]
+            # Never rebind `body`: it is the request payload and the retry below resends it.
+            error_body = error.read().decode("utf-8", "replace")
+            detail = _redact(error_body, api_key)[:500]
             if error.code in RETRY_STATUSES and attempts == 1:
                 time.sleep(RETRY_BACKOFF_SECONDS)
                 continue

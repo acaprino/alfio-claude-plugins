@@ -1,7 +1,7 @@
 ---
 name: respondent
 description: >
-  Answers findings against the artifact with evidence from the repository: each falsifier checked for admissibility, each non-ACCEPT verdict carrying a file:line locator.
+  Answers findings against the artifact with evidence from the authoritative source, a repository or a named external corpus: each falsifier checked for admissibility, each non-ACCEPT verdict carrying a locator.
   TRIGGER WHEN: spawned by the /peer-review:review command during a response phase with a challenge file and a ledger to update.
   DO NOT TRIGGER WHEN: asked to judge code diffs (senior-review owns those).
 model: inherit
@@ -56,8 +56,9 @@ Outcome: `OK | RESTATED | INADMISSIBLE`.
 
 Per R7:
 
-- A refutation requires positive evidence at a stable file:line locator in the
-  authoritative source.
+- A refutation requires positive evidence at a stable locator in the authoritative
+  source: `file:line` for a repository, and a URL plus the quoted passage for a named
+  external corpus. Stability is the requirement, not the syntax.
 - Absence of evidence is not a refutation. Absence and contradiction are different
   states: "the source does not say X" is not the same claim as "the source says
   not-X."
@@ -79,7 +80,8 @@ Per R14:
 ## Verdict Vocabulary
 
 Four verdicts, from `${CLAUDE_PLUGIN_ROOT}/protocol/finding-lifecycle.md`. Every
-non-ACCEPT verdict carries a file:line locator.
+non-ACCEPT verdict carries a stable locator, `file:line` or a URL with the quoted
+passage.
 
 - **ACCEPT**: the finding is correct; the claim holds and becomes a concrete edit
   in the eventual verdict.

@@ -1,7 +1,7 @@
 ---
 name: packet-builder
 description: >
-  Builds the immutable challenge packet (00-packet.md) from a plan or spec: the artifact verbatim with its digest, mechanically extracted GIVEN ground truth, and the response contract.
+  Builds the immutable challenge packet (00-packet.md) from a plan, spec, or decision brief: the artifact verbatim with its digest, mechanically extracted GIVEN ground truth, and the response contract.
   TRIGGER WHEN: spawned by the /peer-review:review command during Phase 1.
 model: inherit
 color: cyan
@@ -23,8 +23,8 @@ No review, no opinion on the artifact's merits. Build the brief; do not argue it
 
 Read from the invoking command's prompt:
 
-- **artifact path**: the plan or spec on trial. Read it whole. Never summarize it into
-  the Artifact section; R15 requires byte-identical embedding.
+- **artifact path**: the plan, spec, or decision brief on trial. Read it whole. Never
+  summarize it into the Artifact section; R15 requires byte-identical embedding.
 - **run directory**: where `00-packet.md` is written.
 - **mandate text**: what to judge, what to leave alone. Goes into section 1 (Mandate)
   as supplied. Do not editorialize it.
@@ -57,6 +57,27 @@ about which sources matter (R3):
    recorded: one line naming it and the reason it was skipped. A skipped file is a
    gap the challenger can raise as a context request, not a fact you silently
    withheld.
+
+## When the artifact is a decision brief
+
+A brief written by `peer-review:brief-builder` in Phase 0b carries five fixed sections
+that map onto the packet without interpretation. Use the mapping; do not re-derive it.
+
+| Brief section | Packet section |
+|---|---|
+| Situation | 3 Ground truth, after extracting the sources it names |
+| Decisions taken (`decision:` / `rationale:`) | 5 Considered and rejected, the two parts becoming `GIVEN` and `TO JUDGE` |
+| Open decisions | 7 Open questions, options and settling criterion kept |
+| Constraints | 4 Constraints |
+| Named sources | extraction targets for section 3 |
+
+The brief's own "Could not be sharpened" list belongs in section 6, Known weaknesses.
+It is the builder's admission of where the artifact is soft, which is exactly what that
+section is for, and hiding it there would defeat the one signal that survives brief
+mode's lack of a confirmation gate.
+
+The mapping never overrides the Mechanical Extraction Rule above: a source the brief
+names still enters by being named, not by being judged relevant.
 
 ## Digest Step
 

@@ -11,8 +11,9 @@ is fixed by R3.
    Enter facts by mechanical extraction from the material the artifact names:
    judgment controls how much of each source, never which sources.
 4. **Constraints.** Conventions and non-negotiables. All `GIVEN`.
-5. **Considered and rejected.** One entry per dismissed alternative:
-   `decision (GIVEN):` what was dismissed; `rationale (TO JUDGE):` why. The decision
+5. **Considered and rejected.** One entry per settled choice, whether the artifact
+   framed it as an alternative dismissed or a direction taken:
+   `decision (GIVEN):` what was settled; `rationale (TO JUDGE):` why. The decision
    is settled; the reasoning is attackable. This split is what lets the challenger
    reopen a bad reason without relitigating every settled choice.
 6. **Known weaknesses of this artifact.** Written by the builder against its own

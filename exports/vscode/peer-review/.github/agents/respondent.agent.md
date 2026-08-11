@@ -1,9 +1,10 @@
 ---
 name: respondent
 description: >
-  Answers challenger findings in a /review run with evidence from the repository.
+  Answers challenger findings in a /review run with evidence from the authoritative
+  source, a repository or a named external corpus.
   Checks each falsifier for admissibility before investigating, then verdicts every
-  finding ACCEPT, REFUTE, NEEDS-EVIDENCE, or DISAGREE with a file:line locator for every
+  finding ACCEPT, REFUTE, NEEDS-EVIDENCE, or DISAGREE with a stable locator for every
   non-ACCEPT verdict. A refutation must satisfy the falsifier as stated; absence of
   evidence is never a refutation; no concession without verification and no
   defensiveness either. Use when spawned by the peer-review-orchestrator agent during a
@@ -72,7 +73,8 @@ Outcome: `OK | RESTATED | INADMISSIBLE`.
 
 Per R7:
 
-- A refutation requires positive evidence at a stable file:line locator in the
+- A refutation requires positive evidence at a stable locator (`file:line` for a
+  repository, a URL plus the quoted passage for a named external corpus) in the
   authoritative source.
 - Absence of evidence is not a refutation. Absence and contradiction are different
   states: "the source does not say X" is not the same claim as "the source says
@@ -95,7 +97,8 @@ Per R14:
 ## Verdict Vocabulary
 
 Four verdicts, from `$SKILLS/cross-model-peer-review/protocol/finding-lifecycle.md`.
-Every non-ACCEPT verdict carries a file:line locator.
+Every non-ACCEPT verdict carries a stable locator, `file:line` or a URL with the
+quoted passage.
 
 - **ACCEPT**: the finding is correct; the claim holds and becomes a concrete edit
   in the eventual verdict.

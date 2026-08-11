@@ -1,7 +1,7 @@
 ---
 name: cross-model-peer-review
 description: >
-  Doctrine for putting a plan or spec in front of a second model family: when the cost is earned, the GIVEN versus DERIVED provenance rules, when to skip it.
+  Doctrine for putting a plan, a spec, or a session's own decisions in front of a second model family: when the cost is earned, the GIVEN versus DERIVED provenance rules, when to skip it.
   TRIGGER WHEN: running or configuring /peer-review:review, deciding whether an artifact warrants external challenge, or interpreting a verdict's standoffs and promotions.
   DO NOT TRIGGER WHEN: reviewing code diffs (use senior-review), or running same-family multi-reviewer pipelines (use senior-review:review-quality-gates).
 ---
@@ -68,13 +68,19 @@ model time. Three situations do not earn that cost:
 - **The artifact is too vague to attack.** A packet built from a vague plan produces
   ground truth with nothing pinned down and findings that stand on air; the challenger
   ends up debating what the artifact might mean instead of whether it holds up.
-  Sharpen the plan or spec into decidable claims first, then run the review.
-- **The decision was already made for reasons outside the artifact.** The protocol
-  judges the artifact, never its author (R1). It also has no way to weigh a
-  constraint that is not written down, so the reasoning behind the decision goes
-  unjudged too. Record the outside reason directly instead of asking a challenger to
-  attack a document that cannot represent it.
-- **The target is a diff.** This plugin reviews plans and specs, not code changes; the
+  Sharpen the plan or spec into decidable claims first, then run the review. In brief
+  mode this is the dominant risk rather than an edge case, because the brief is drafted
+  rather than written by hand: `brief-builder`'s decidability self-check is what catches
+  it, its "could not be sharpened" list is what makes the softness visible, and the
+  command stops outright when nothing in the brief passes.
+- **The reason for the decision cannot be written down.** The protocol judges the
+  artifact, never its author (R1), and it has no way to weigh a constraint that is
+  absent from the artifact. A reason that came from outside every document (a budget, a
+  date, someone's call) does not disqualify a run: write it into the Constraints
+  section, where it becomes GIVEN and judgeable, which is what brief mode's Constraints
+  section exists for. What disqualifies a run is a reason that cannot be stated at all,
+  because then the challenger attacks a document that does not represent the decision.
+- **The target is a diff.** This plugin reviews intent artifacts, not code changes; the
   command itself refuses anything that looks like a unified diff or a source file.
   `senior-review` owns diff and PR review.
 

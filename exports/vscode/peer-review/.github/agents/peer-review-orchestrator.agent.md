@@ -8,8 +8,9 @@ description: >
   hand-edits. Owns the phase order, the consent gate, the dispatch, and the transport
   error handling.
 user-invocable: true
-argument-hint: <path-to-plan-or-spec> [--challenger=<profile>] [--rounds=N] [--dry-run] [--apply]
+argument-hint: [<path-to-plan-or-spec> | <topic>] [--challenger=<profile>] [--rounds=N] [--dry-run] [--apply]
 agents:
+  - brief-builder
   - packet-builder
   - respondent
 ---
@@ -37,13 +38,30 @@ compute a verdict from a ledger that is never hand-edited.
 ## Dispatch rules
 
 - Dispatch with `#agent/runSubagent`, using the exact name from the `agents:` list
-  above: `packet-builder` once, in Phase 1; `respondent` once per response phase
-  (Phase 3, each pass of Phase 4, and the corrective round of Phase 5 if it runs).
+  above: `brief-builder` once, in Phase 0b, and only in brief mode; `packet-builder`
+  once, in Phase 1; `respondent` once per response phase (Phase 3, each pass of
+  Phase 4, and the corrective round of Phase 5 if it runs).
 - Each `respondent` dispatch is a fresh, independent invocation scoped to its own
   round; never batch multiple rounds into one dispatch and never reuse a prior
   response file.
-- Never dispatch either agent to judge or edit the artifact directly. `packet-builder`
-  only builds `00-packet.md`; `respondent` only answers findings with evidence.
+- Never dispatch any of them to judge or edit the artifact directly. `brief-builder`
+  only writes `00-brief.md`; `packet-builder` only builds `00-packet.md`; `respondent`
+  only answers findings with evidence.
+
+## Two modes
+
+**Artifact mode** judges a document already on disk. **Brief mode** materializes the
+session's context and decisions into `00-brief.md` first, then judges that. From
+Phase 1 onward the two are the same run.
+
+The first non-flag argument, if any, decides:
+
+- **Resolves to an existing readable file**: artifact mode, that file is the artifact.
+- **Looks like a path but does not exist** (contains `/` or `\`, or ends in `.md` or
+  `.markdown`): stop with a not-found error. Never fall through to brief mode: a
+  mistyped path must not silently become a topic.
+- **Anything else**: brief mode, and the token is the topic hint.
+- **No non-flag argument**: brief mode with no topic hint.
 
 ## Step order
 
@@ -52,8 +70,17 @@ gate, the state-transition tables, and the verdict template; pass each phase's
 instructions through as written, never paraphrased, especially the consent gate text
 in Phase 1b.
 
-1. **Setup**: parse arguments, validate rounds and the artifact, compute the run
-   directory, resolve the challenger profile via `peer_profiles`.
+1. **Setup**: parse arguments, pick the mode, validate rounds and (in artifact mode)
+   the artifact, compute the run directory, resolve the challenger profile via
+   `peer_profiles`.
+1b. **Brief** (brief mode only): dispatch `brief-builder`, confirm `00-brief.md`
+   exists, and treat it as the artifact for every later step. It is frozen from that
+   moment and never edited again, which is what makes R2 hold and what lets the digest
+   recheck compare three values that were never supposed to diverge. This runs after
+   profile resolution, so an unavailable profile stops the run before an agent is spent
+   on a brief. If the brief carries no taken decision and no open decision that passed
+   the builder's decidability self-check, stop here: a packet built from it would
+   produce findings standing on air.
 2. **Packet**: dispatch `packet-builder`, then run the independent digest recheck
    before trusting anything it reported.
 3. **Consent gate**: the one point in the whole run where the operator is asked
@@ -66,8 +93,11 @@ in Phase 1b.
 7. **Certification**: call `peer_ask` once more, apply any substantiated
    misrepresentation flag, run the one-shot corrective round if needed.
 8. **Verdict**: compute `04-verdict.md` from the ledger alone.
-9. **`--apply`**: only after the verdict exists, apply accepted changes with
-   `#edit/editFiles` and append the changelog section.
+9. **`--apply`**: artifact mode only, and only after the verdict exists. Apply accepted
+   changes with `#edit/editFiles` and append the changelog section. In brief mode the
+   flag is refused, stated plainly rather than ignored: the artifact is a frozen record
+   nothing downstream reads, so the deliverable is the verdict's Accepted changes list,
+   which names decisions to revisit rather than text to rewrite.
 
 ## Transport error handling
 

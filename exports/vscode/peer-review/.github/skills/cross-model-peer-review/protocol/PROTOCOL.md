@@ -1,6 +1,6 @@
 # Cross-Model Peer Review Protocol
 
-Version: 1.1.0
+Version: 1.2.0
 Status: normative. Requirement numbers are stable identifiers; binding documents cite them.
 
 This protocol is harness-independent and provider-independent. No requirement names a
@@ -13,7 +13,9 @@ settle. Finding count is never a quality measure.
 
 ## Vocabulary
 
-- **artifact**: the intent document on trial (a plan or a spec).
+- **artifact**: the intent document on trial (a plan, a spec, or a decision brief). It
+  may pre-exist the run or be materialized for it; either way R2 fixes it from the
+  moment the packet build begins.
 - **packet**: the self-contained challenge brief built from the artifact.
 - **packet builder**: the role that constructs the packet.
 - **challenger**: the role that attacks the artifact. It sees only the packet plus any
@@ -36,13 +38,17 @@ its author. No rule may condition on which vendor, model, or person fills a role
 
 ### R2. Artifact immutability
 The artifact does not change during a run. Accepted changes are applied after the
-verdict. A changed artifact means a new run.
+verdict. A changed artifact means a new run. An artifact materialized for the run is
+fixed at the moment it is written, before the packet build begins, and is never edited
+afterwards; wanting a different one is a new run, not an edit.
 
 ### R3. Packet contract
 The packet is immutable once sent and contains, in order: Mandate; Artifact (verbatim,
 with byte length and content digest); Ground truth (source facts with locators, each
 flagged GIVEN); Constraints; Considered and rejected (each entry split into a decision,
-flagged GIVEN, and a rationale, flagged TO JUDGE); Known weaknesses of this artifact
+flagged GIVEN, and a rationale, flagged TO JUDGE; a settled choice enters here the same
+way as a dismissed alternative, since the split is about what is settled versus what is
+attackable, not about which way the choice went); Known weaknesses of this artifact
 (written against the builder's own side); Open questions; Out of scope; Response
 contract. Material named by the artifact enters by mechanical extraction: judgment
 controls how much of each source, never which sources.
@@ -130,7 +136,10 @@ state; it may never change one. The verdict reports, at minimum: accepted change
 refutations with evidence, standoffs with what would settle each, untestable findings,
 certification failures, transmission artifacts, unexplained withdrawals (reported as a
 weakness of the run), refused context requests, the four-axis provenance of each role,
-and any GIVEN -> DERIVED promotions.
+any GIVEN -> DERIVED promotions, and whether the artifact was materialized for this run
+rather than independently authored. That last fact is reported because a materialized
+artifact shares its author's context with the side being judged, which a reader must
+weigh and no requirement can remove.
 
 ### R14. Repetition of a GIVEN is never independent corroboration
 Within a participant's contribution, repeating a GIVEN fact corroborates nothing. The

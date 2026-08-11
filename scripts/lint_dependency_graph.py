@@ -5,7 +5,7 @@ Stdlib only, no dependencies, runs from the repository root:
     python scripts/lint_dependency_graph.py
 
 Cross-plugin references inside plugin bodies are contracts. Until now they were
-enforced only by prose in CLAUDE.md; this linter makes them mechanical. Seven
+enforced only by prose in CLAUDE.md; this linter makes them mechanical. Eight
 passes, each independently reported. Exits non-zero if any fails.
 
   1. declarations   every dependencies/optionalDependencies entry resolves:
@@ -41,6 +41,12 @@ passes, each independently reported. Exits non-zero if any fails.
                     result. Added after the 21.x policy pass deleted every such
                     branch by hand and still left one behind, with all six other
                     checks green
+  8. deps are used  the reverse of pass 2: every hard local dependency is
+                    backed by a runtime reference, or by an entry in
+                    ARTIFACT_DEPENDENCIES naming the artifact that carries the
+                    contract. A declaration nothing uses is a prose pointer with
+                    an install cost. This is also the only check that notices a
+                    dependency silently reintroduced by a concurrent writer
 
 What counts as a runtime reference:
 
@@ -83,6 +89,13 @@ ALLOWLIST = {
 # does make a dimension conditional on a hard local dependency gets fixed, never
 # suppressed: that is the defect the pass exists to catch.
 DEGRADE_PROSE_ALLOWLIST = {
+}
+
+# Real dependencies pass 8 cannot see, because the edge is an artifact contract
+# rather than a spawn or a skill load. (owner, dependency): the artifact.
+ARTIFACT_DEPENDENCIES = {
+    ("abstraction-architect", "codebase-xray"):
+        "reads the .deep-dive/ run output; deep_dive_path is required in global mode",
 }
 
 failures = []
@@ -318,6 +331,44 @@ def check_no_local_degrade_prose(plugins):
     return problems
 
 
+def check_deps_are_used(plugins, refs):
+    """The reverse direction of pass 2, and the one nothing checked before.
+
+    Pass 2 asks whether every runtime reference is declared. Nobody asked the
+    opposite: whether every declaration is used. A hard local dependency that
+    nothing spawns, loads or reads is not a dependency, it is a prose pointer
+    with an install cost. CLAUDE.md already draws that line for runtime edges
+    ("prose next-steps suggestions are fine; a spawn or Skill invocation is
+    not"); this pass applies it to declarations.
+
+    Two defects found on 2026-08-11 both live here. `senior-review` required
+    `python-development`, the heaviest plugin in the set at 501 KB, to back one
+    "see also" line in one agent. And a concurrent session silently restored
+    `research -> codebase-mapper` after it was removed, with every other check
+    green, because a declared-but-unused dependency was an error for nobody.
+
+    ARTIFACT_DEPENDENCIES is for the real dependencies this cannot see: an edge
+    expressed by reading files another plugin produces, rather than by spawning
+    it. Those are legitimate and must be declared, so name them here with the
+    artifact that carries the contract.
+    """
+    used = {(owner, ns) for owner, _p, _l, ns, _k, _lines in refs}
+    problems = []
+    for name, meta in plugins.items():
+        for dep in meta["dependencies"]:
+            if "@" in dep or dep not in plugins:
+                continue  # cross-marketplace; pass 1 owns those
+            if (name, dep) in used or (name, dep) in ARTIFACT_DEPENDENCIES:
+                continue
+            problems.append(
+                f"{name}: declares '{dep}' but never spawns it, loads a skill "
+                f"from it, or declares an artifact contract with it. A prose "
+                f"pointer is not a dependency: drop the declaration, or add it "
+                f"to ARTIFACT_DEPENDENCIES with the artifact that carries the "
+                f"contract")
+    return problems
+
+
 def check_self_edges(plugins):
     problems = []
     for name, meta in plugins.items():
@@ -351,6 +402,7 @@ def main():
     report("self edges", check_self_edges(plugins))
     report("internal deps mandatory", check_internal_deps_mandatory(plugins))
     report("no local degrade prose", check_no_local_degrade_prose(plugins))
+    report("deps are used", check_deps_are_used(plugins, refs))
 
     if failures:
         sys.exit(f"\n{len(failures)} check(s) failed: {', '.join(failures)}")
