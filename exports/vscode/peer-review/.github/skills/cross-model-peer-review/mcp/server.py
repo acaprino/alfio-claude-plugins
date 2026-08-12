@@ -20,7 +20,14 @@ from pathlib import Path
 from mcp.server.mcpserver import MCPServer as FastMCP
 
 MAX_PAYLOAD_BYTES = 400_000
-REQUEST_TIMEOUT_SECONDS = 180
+# Applies per socket read, not to the request as a whole, because every request is
+# streamed. That makes it an idle allowance, and the idle stretch that matters is the
+# one before the first content chunk: reasoning tokens are not emitted as content
+# deltas, so a model thinking hard produces nothing to read for as long as it thinks.
+# 180 seconds was short enough to kill a high-effort round on a 50 KB packet after the
+# gateway timeout in front of it had already been raised. Override per profile with
+# `timeout_seconds` for an endpoint that should be given more or less rope.
+REQUEST_TIMEOUT_SECONDS = 600
 RETRY_STATUSES = {429, 500, 502, 503, 504}
 RETRY_BACKOFF_SECONDS = 5
 
@@ -236,6 +243,7 @@ def peer_ask(
     token_param = entry.get("token_param", "max_tokens")
     if token_param not in ("max_tokens", "max_completion_tokens"):
         return {"error": f"profile '{profile}' has invalid token_param '{token_param}'"}
+    timeout_s = entry.get("timeout_seconds") or REQUEST_TIMEOUT_SECONDS
 
     def _build(legacy: bool) -> bytes:
         """The request body. `legacy` drops fields older endpoints may not know."""
@@ -275,7 +283,7 @@ def peer_ask(
         )
         started = time.monotonic()
         try:
-            with urllib.request.urlopen(request, timeout=REQUEST_TIMEOUT_SECONDS) as response:
+            with urllib.request.urlopen(request, timeout=timeout_s) as response:
                 text, usage, resp_model, finish = _read_completion(response)
             latency_ms = int((time.monotonic() - started) * 1000)
             if finish == "length":
@@ -321,7 +329,17 @@ def peer_ask(
                 time.sleep(RETRY_BACKOFF_SECONDS)
                 continue
             return {"error": f"HTTP {error.code} from {url}: {detail}"}
-        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, KeyError, IndexError) as error:
+        except TimeoutError as error:
+            # The socket timeout is an idle allowance, not a total-duration cap, so
+            # hitting it means nothing arrived for that long. Say which number was hit
+            # and where to change it, rather than leaving the operator to guess whether
+            # the ceiling was ours or the endpoint's.
+            return {
+                "error": f"no data for {timeout_s}s ({error}); the endpoint accepted the "
+                f"request and sent nothing back in that window. Raise timeout_seconds on "
+                f"profile '{profile}' if the model is expected to think for longer"
+            }
+        except (urllib.error.URLError, json.JSONDecodeError, KeyError, IndexError) as error:
             return {"error": _redact(f"request failed: {error}", api_key)}
 
 
