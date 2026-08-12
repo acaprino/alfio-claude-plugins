@@ -68,6 +68,8 @@ git tag vscode-v20.1.0 && git push origin vscode-v20.1.0
 
 `python scripts/extension_release_notes.py <tag-or-version>` is the guard the workflow runs first, and it is worth running locally before tagging. It fails unless the tag's version equals `version` in `exports/vscode/package.json`, and unless `exports/vscode/CHANGELOG.md` carries a `## <version>` section with content, which it prints for use as the release body. **Write the CHANGELOG entry in the same commit as the version bump.** The file had drifted seven versions behind `package.json` before this check existed, which is exactly the state that makes a release impossible to describe after the fact.
 
+One prerequisite lives outside the repository and is invisible in every file here: the Actions token needs `default_workflow_permissions: write` at repository level (**Settings**, **Actions**, **General**, **Workflow permissions**). It was `read` until the first release, and a workflow's own `permissions:` block cannot grant more than that ceiling, so `gh release create` answers 403 with no other symptom. If releases start failing on permissions, check that setting before the workflow.
+
 There is no Marketplace publish and no auto-update: `publisher` is still the placeholder `acaprino`, so the GitHub Release asset is the only distribution channel, and installing an update means downloading the `.vsix` and running `code --install-extension`. Creating the publisher and adding a `vsce publish` step is the change that would replace this, along with confirming `engines.vscode`, which was chosen from when subagents shipped rather than from when `chatAgents` did.
 
 ## Documentation
