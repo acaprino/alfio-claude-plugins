@@ -345,7 +345,7 @@ References across this marketplace use the upstream namespaces (`mattpocock-skil
 As of marketplace 19.0.0, the `codebase-cleanup` plugin (3 commands cherry-picked from `wshobson/agents`) is retired. Unlike the delegated areas above it was deleted rather than handed back: a line-by-line review verified content defects worth not recommending even by delegation (an `npm audit fix --force` auto-remediation script, a binary license-compatibility matrix, absolute code metrics presented as pass/fail gates, fabricated ROI figures), and delegating would also have pulled in the two upstream agents originally excluded for overlap with senior-review and testing. The capability lives on locally, split by concern:
 
 - Structural refactoring: [clean-code](docs/plugins/clean-code.md) and [python-development](docs/plugins/python-development.md)'s `/python-refactor`
-- Tech-debt inventory and repository hygiene: [senior-review](docs/plugins/senior-review.md)'s `cleanup-auditor` dimension (extended with lifecycle archaeology in the same release) and `code-auditor`
+- Tech-debt inventory: [senior-review](docs/plugins/senior-review.md)'s `cleanup-auditor` dimension (extended with lifecycle archaeology in the same release). Workspace hygiene, meaning everything the filesystem and git decide without reading a symbol: [repo-hygiene](docs/plugins/repo-hygiene.md)'s `/tidy` and `code-auditor`
 - Dependency auditing (CVE, licenses, supply chain, outdated packages): the new hand-authored [dependency-audit](docs/plugins/dependency-audit.md) plugin and its `/dependency-audit:deps-audit` command
 
 Users who want the original trio can install it from upstream:
@@ -385,7 +385,7 @@ claude-code-daodan/
 │   │   ├── skills/            # SKILL.md + optional references/
 │   │   └── commands/          # slash-command .md files
 │   ├── senior-review/
-│   └── ...                    # 40 plugins total
+│   └── ...                    # 41 plugins total
 ├── LICENSE
 └── README.md
 ```
@@ -405,7 +405,7 @@ claude plugin install ./claude-code-daodan/plugins/python-development
 <details>
 <summary><b>Recommended Settings (skill visibility)</b></summary>
 
-With 40 plugins installed, Claude Code's default skill-listing budget can truncate the list of available skills shown at conversation start. Raise the fraction of context allocated to the skill listing in `~/.claude/settings.json`:
+With 41 plugins installed, Claude Code's default skill-listing budget can truncate the list of available skills shown at conversation start. Raise the fraction of context allocated to the skill listing in `~/.claude/settings.json`:
 
 ```json
 {

@@ -1,7 +1,7 @@
 # Code-review fix loop (Step 7)
 
 The complete `--fix` / `--commit` workflow for `/senior-review:code-review`:
-severity acceptance, targeted fixes (7b), and the gated seven-phase cleanup
+severity acceptance, targeted fixes (7b), and the gated five-phase cleanup
 removal (7c). Loaded on demand by the command when the fix loop is entered.
 
 ## Step 7: Fix Loop (if --fix, --commit, or verdict is "Ready with fixes")
@@ -76,13 +76,11 @@ Before the first phase, record the starting commit (`git rev-parse HEAD`), run t
 
 Lowest risk first, stopping at the first gate failure. Run only the phases the accepted findings actually require.
 
-1. `garbage` -- filesystem cruft (`nul`, `.DS_Store`, shell-redirection artifacts). Safest phase, no build or dependency impact expected.
-2. `brand` -- rebrand residue. Requires the user to confirm the old brand name first.
-3. `assets` -- orphan static files. Watch for dynamic references built from template literals, so Grep partial basenames too. For eager `import.meta.glob` bloat, switch to `{ eager: false }` with lazy resolution rather than removing the glob, unless every file in it is provably unused; removing the glob needs user sign-off.
-4. `gitignore` -- append missing patterns, then `git rm --cached` for currently-tracked files the new patterns now match. Regenerate `.gitignore` only if it was empty or clearly minimal; otherwise append.
-5. `deps` -- unused and phantom dependencies. Move phantom deps to the correct workspace's manifest instead of deleting them unless confirmed unused everywhere. Re-install after editing and commit the manifest together with the lockfile. Never touch implicitly-used devDependencies (`prettier`, `eslint`, `typescript`, `@types/*` matching runtime deps) without grepping config files first.
-6. `exports` -- dead exports, types, files, and unused Python symbols, in ascending risk order: ruff `F401` and `F841` auto-fix, then Knip unused exports and types verified by Grep across all workspaces, then Knip unused files verified against dynamic require and framework-convention paths, then vulture functions and classes under rule 6.
-7. `docs` -- stale documentation and historical artifacts. Last on purpose, so it also catches doc references made stale by the `exports` phase. Detection-only unless the user explicitly opts into removal.
+1. `brand` -- rebrand residue. Requires the user to confirm the old brand name first.
+2. `assets` -- orphan static files. Watch for dynamic references built from template literals, so Grep partial basenames too. For eager `import.meta.glob` bloat, switch to `{ eager: false }` with lazy resolution rather than removing the glob, unless every file in it is provably unused; removing the glob needs user sign-off.
+3. `deps` -- unused and phantom dependencies. Move phantom deps to the correct workspace's manifest instead of deleting them unless confirmed unused everywhere. Re-install after editing and commit the manifest together with the lockfile. Never touch implicitly-used devDependencies (`prettier`, `eslint`, `typescript`, `@types/*` matching runtime deps) without grepping config files first.
+4. `exports` -- dead exports, types, files, and unused Python symbols, in ascending risk order: ruff `F401` and `F841` auto-fix, then Knip unused exports and types verified by Grep across all workspaces, then Knip unused files verified against dynamic require and framework-convention paths, then vulture functions and classes under rule 6.
+5. `docs` -- stale documentation and historical artifacts. Last on purpose, so it also catches doc references made stale by the `exports` phase. Detection-only unless the user explicitly opts into removal.
 
 #### Per-phase template
 
@@ -96,11 +94,10 @@ For every phase `P`:
 
 #### The docs phase
 
-Highest false-positive rate of the seven, so removal is opt-in and gated per item.
+Highest false-positive rate of the five, so removal is opt-in and gated per item.
 
 - Without an explicit opt-in, output the categorized report and stop.
 - Plans, ADRs, and archive folders need per-item confirmation. A stale plan is indistinguishable from an active one to a tool. Show path, last-modified date, checklist completion percentage, and the first few lines of the body.
-- Scratch directories: untracked and already in `.gitignore` means safe local cleanup with no commit. Tracked means `git rm -r` plus a `.gitignore` entry, committed normally.
 - Stale doc references are edits, not deletions. Rewrite the paragraph or strike the bullet; never delete a whole document over one stale link. If a document ends up effectively empty, propose its deletion as a separate confirmed item.
 - Orphan doc-assets follow the same Grep-before-delete rule, searching only `*.md`, `*.mdx`, `*.rst`, `*.adoc`. Watch for inline base64 images that reference no filename.
 - ADRs are historical record. The default action for `Status: Superseded` is to move them under a `superseded/` subfolder, not to delete them.
@@ -108,6 +105,8 @@ Highest false-positive rate of the seven, so removal is opt-in and gated per ite
 #### Cleanup report
 
 After the last phase, or at the first gate failure, present one row per phase with status, items removed, and the commit sha, plus the before-and-after test counts and the reverted phase if any. Then run the alignment check: Grep the removed symbols, paths, and dependency names against `CLAUDE.md` and propose updates for any hit, since a cleanup that leaves the project instructions describing deleted code has only moved the problem.
+
+Four phase names that used to live here now belong to `/repo-hygiene:tidy`: `garbage`, `gitignore`, `scratch` and `git-state`. They left because the filesystem and git decide them without reading a symbol, so the build-and-test gate below protects nothing there. A hygiene finding naming one of those is not this loop's to apply.
 
 This step is pure subtraction. It does not refactor architecture, does not touch test files unless they reference removed symbols, and does not run a bundle analyzer.
 

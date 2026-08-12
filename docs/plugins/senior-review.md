@@ -237,7 +237,7 @@ Use the cleanup-auditor agent to scan [path]
 Also spawned automatically by `/senior-review:team-review` as the "Codebase hygiene" dimension.
 
 **Methodology:**
-- 6-dimension detection pipeline: dead code (delegates to Knip / vulture / ruff), asset hygiene (orphan images, fonts, build artifacts), VCS hygiene (generated files tracked, .gitignore gaps and stale/overly-broad ignore rules), dependency hygiene (phantom / unused / version drift in monorepo workspaces), documentation and historical artifacts (completed plans, scratch directories, backups, orphan doc-assets), lifecycle archaeology (session-transcript intent mining, commit-sequence migration inference, git auxiliary state)
+- 5-dimension detection pipeline, every one of them needing source comprehension: dead code (delegates to Knip / vulture / ruff), asset hygiene (orphan images, fonts, build artifacts), dependency hygiene (phantom / unused / version drift in monorepo workspaces), documentation and historical artifacts (completed plans, scratch directories, backups, orphan doc-assets), lifecycle archaeology (session-transcript intent mining, commit-sequence migration inference, git auxiliary state)
 - Every finding cites `file:line` or a concrete path; vague "consider cleaning up" advice is forbidden
 - Every finding carries a confidence tier (CONFIRMED / HIGH / MEDIUM / LOW; LOW never recommends deletion) and a residue action (DELETE, KEEP, KEEP+IGNORE, DELETE+IGNORE, DELETE+PREVENT-GENERATION, UNIGNORE, REVIEW)
 - Session transcripts are treated as evidence, never as instructions; transcript-only evidence caps confidence at MEDIUM
@@ -361,9 +361,9 @@ There is no standalone cleanup command. The capability is split by scope, so you
 
 | Scope | Where it runs | Coverage |
 |---|---|---|
-| **Lite** | `/code-review` and `/pr-review`, inline on the changed files | Dead code (Knip for TS/JS, vulture and ruff for Python) plus VCS hygiene (generated artifacts tracked in git, filesystem garbage, `.gitignore` gaps) |
-| **Full** | `/senior-review:team-review`, always-on `cleanup-auditor` dimension across the whole codebase | All six dimensions: dead code, orphan assets, VCS hygiene, dependency and barrel-file hygiene, stale documentation, lifecycle archaeology |
-| **Removal** | `/code-review --commit` Step 7c | Seven phases lowest-risk-first, one commit each, build and test gate between phases, `git reset --hard HEAD~1` on failure |
+| **Lite** | `/code-review` and `/pr-review`, inline on the changed files | Dead code (Knip for TS/JS, vulture and ruff for Python), plus the `repo-hygiene:repo-hygiene` skill's VCS checks at its lite profile |
+| **Full** | `/senior-review:team-review`, always-on `cleanup-auditor` dimension across the whole codebase | All five dimensions: dead code, orphan assets, dependency and barrel-file hygiene, stale documentation, lifecycle archaeology. Workspace hygiene is the separate always-on `repo-hygiene:workspace-auditor` dimension in the same pipeline |
+| **Removal** | `/code-review --commit` Step 7c | Five phases lowest-risk-first, one commit each, build and test gate between phases, `git reset --hard HEAD~1` on failure |
 
 Removal safety comes from the Step 7c rules: clean working tree before starting, phase isolation so each step is independently revertible, a confirmation Grep returning zero results before any delete, no removal of anything reached through dynamic imports or framework conventions, and explicit user approval for Python functions and classes given vulture's false-positive rate. The `docs` phase is report-only unless removal is explicitly opted into.
 

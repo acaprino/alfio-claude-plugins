@@ -1,7 +1,7 @@
 ---
 description: >
   Auto-detects the scope, runs its analysis dimensions in parallel, and applies fixes with --fix or lands them with --commit. Reuses X-ray context when present.
-  TRIGGER WHEN: the user asks for a code review, PR review, branch audit, or a security or architecture pass over recent changes; or asks to find and remove dead code, unused exports, unused dependencies, orphan assets, VCS-hygiene violations, or generated artifacts tracked in git.
+  TRIGGER WHEN: the user asks for a code review, PR review, branch audit, or a security or architecture pass over recent changes; or asks to find and remove dead code, unused exports, unused dependencies, or orphan assets. For workspace tidying decided by the filesystem and git alone (committed build output, `.gitignore`, scratch directories, git state) use `/repo-hygiene:tidy`.
   DO NOT TRIGGER WHEN: a full multi-phase pipeline is wanted (use /senior-review:team-review) or a single file needs a style pass (use clean-code).
 argument-hint: "[PR number | --branch <name> | --commits N] [--fix] [--commit] [--auto-comment] [--strict] [--security-focus] [--fast] [--rigorous]"
 ---
@@ -252,7 +252,7 @@ The full spawn prompt for every agent lives in the `senior-review:review-quality
 |-------|-----------|---------------|----------|
 | A | Code audit: architecture, failure flow, patterns, scoring | `senior-review:code-auditor` | Always |
 | B | Security | `senior-review:security-auditor` | Always |
-| B2 | Dead code, unused parameters, VCS hygiene (lite, diff-scoped) | `general-purpose` | Always |
+| B2 | Dead code, unused parameters, VCS hygiene (lite, diff-scoped, rules from `repo-hygiene`) | `general-purpose` | Always |
 | C | UI race conditions | `senior-review:ui-race-auditor` | Changed files include UI/frontend code (`.tsx`, `.jsx`, `.vue`, `.svelte`, `.component.ts`, `.qml`, or scroll/focus/layout manipulation) |
 | D | Platform / runtime integration | `platform-engineering:platform-reviewer` | Fullstack signals (2+, Step 1) |
 | E | Git blame and history | `general-purpose` | Always |
@@ -370,6 +370,6 @@ The complete workflow lives in the `senior-review:review-quality-gates` skill, f
 
 - **7a Severity acceptance**: one multi-select prompt over the severity levels that have findings.
 - **7b Apply fixes**: fix subagents apply the minimal correct fix per finding, run tests, and commit only under `--commit`.
-- **7c Cleanup phases**: bulk removal of hygiene findings across seven phases (garbage, brand, assets, gitignore, deps, exports, docs), each gated by build+test and committed separately. **7c requires `--commit`**: its per-phase commits are its revert mechanism (`git reset --hard HEAD~1` on a failed gate). Under plain `--fix`, skip 7c and say why. This is the only place in the marketplace that bulk-removes application code; test-file bulk removal belongs to `/testing:test-consolidate`.
+- **7c Cleanup phases**: bulk removal of hygiene findings across five phases (brand, assets, deps, exports, docs), each gated by build+test and committed separately. **7c requires `--commit`**: its per-phase commits are its revert mechanism (`git reset --hard HEAD~1` on a failed gate). Under plain `--fix`, skip 7c and say why. This is the only place in the marketplace that bulk-removes application code; test-file bulk removal belongs to `/testing:test-consolidate`.
 
 Follow the reference file exactly for 7c's critical rules (clean-tree pre-flight, phase isolation, gate-after-every-phase, grep-before-delete, side-effect protections, vulture approval), the baseline capture, the per-phase template, the docs-phase gating, and the cleanup report.

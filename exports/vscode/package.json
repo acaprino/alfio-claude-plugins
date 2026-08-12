@@ -2,7 +2,7 @@
   "name": "claude-code-daodan",
   "displayName": "Claude Code Daodan",
   "description": "91 agents, 69 skills and 50 prompts for GitHub Copilot: code review, documentation, testing, research, frontend, trading, observability and more.",
-  "version": "19.6.5",
+  "version": "20.0.0",
   "publisher": "acaprino",
   "license": "MIT",
   "engines": {
@@ -302,6 +302,9 @@
         "path": "./react-development/.github/agents/react-performance-optimizer.agent.md"
       },
       {
+        "path": "./repo-hygiene/.github/agents/workspace-auditor.agent.md"
+      },
+      {
         "path": "./research/.github/agents/deep-researcher.agent.md"
       },
       {
@@ -467,6 +470,9 @@
       },
       {
         "path": "./react-development/.github/prompts/review-react.prompt.md"
+      },
+      {
+        "path": "./repo-hygiene/.github/prompts/tidy.prompt.md"
       },
       {
         "path": "./research/.github/prompts/team-research.prompt.md"

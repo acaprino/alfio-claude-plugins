@@ -116,7 +116,8 @@ Analyze changed files and codebase to determine which review dimensions are rele
 | Security | `senior-review:security-auditor` | Every change can introduce vulnerabilities |
 | Architecture | `senior-review:code-auditor` | Coupling, abstractions, failure flows, pattern consistency, scoring |
 | **Logic integrity** | `senior-review:logic-integrity-auditor` | **Hunts violations of contracts/invariants/domain rules surfaced in Phase 1b** (skipped if `--no-context`) |
-| Codebase hygiene | `senior-review:cleanup-auditor` | The **full** hygiene pass across all six dimensions and the whole codebase: dead code, orphan assets, generated artifacts tracked in VCS, phantom/unused deps plus barrel-file and eager-bundle bloat, stale documentation, and lifecycle archaeology (residue of completed migrations, debug tooling, stale stashes and branches). `/senior-review:code-review` and `/senior-review:pr-review` run only the lite subset (dead code + VCS hygiene, scoped to the diff), so this dimension is where the other four dimensions get covered at all |
+| Codebase hygiene | `senior-review:cleanup-auditor` | The **full** pass across all five dimensions that need source comprehension, over the whole codebase: dead code, orphan assets, phantom/unused deps plus barrel-file and eager-bundle bloat, stale documentation, and lifecycle archaeology. `/senior-review:code-review` and `/senior-review:pr-review` run only the lite subset (dead code, scoped to the diff), so this dimension is where the other four get covered at all |
+| Workspace hygiene | `repo-hygiene:workspace-auditor` | Everything the filesystem and git decide without reading a symbol: filesystem garbage, generated artifacts tracked in VCS, `.gitignore` completeness and archaeology, scratch and pipeline-output directories, orphan doc-assets, git auxiliary state. Disjoint from the row above by construction, so the two never contest the same finding |
 
 ### Conditional dimensions (auto-detected from context)
 
@@ -193,7 +194,7 @@ After detection, display the plan:
 
 ```
 Context detection complete:
-  - Always: security, architecture, logic-integrity, codebase-hygiene
+  - Always: security, architecture, logic-integrity, codebase-hygiene, workspace-hygiene
   - Detected: ui-races (6 .tsx files), react-perf (React project), ts-safety (TypeScript project), distributed-flows (API routes + RabbitMQ), temporal-resilience (retry + scheduler code), data-integrity (ORM writes + transactions), abstraction (diff adds 4 units)
   - Skipped: platform (not fullstack), chicken-egg (no startup code)
 
@@ -391,7 +392,8 @@ Mark `phase_1d_reconciliation` complete.
 | Architecture (+ failure flows, patterns, scoring) | `senior-review:code-auditor` |
 | **Logic integrity (contracts/invariants/domain rules)** | `senior-review:logic-integrity-auditor` |
 | **Structural entropy (duplicated knowledge, competing owners, redundant representation, derivable state, missed unification, prior art, abstraction fitness)** | `abstraction-architect:abstraction-architect` |
-| Codebase hygiene (full pass: dead code, assets, VCS, deps, docs, lifecycle archaeology) | `senior-review:cleanup-auditor` |
+| Codebase hygiene (full pass: dead code, assets, deps, docs, lifecycle archaeology) | `senior-review:cleanup-auditor` |
+| Workspace hygiene (garbage, tracked build output, .gitignore, scratch, doc-assets, git state) | `repo-hygiene:workspace-auditor` |
 | UI race conditions | `senior-review:ui-race-auditor` |
 | React performance | `react-development:react-performance-optimizer` |
 | TypeScript type safety | `typescript-development:type-safety-auditor` |
@@ -495,6 +497,36 @@ severity format. Write your output to .team-review/findings-testing.md.
 ```
 
 Two notes on why: a review is diff-anchored, so a whole-suite execution would dominate the phase's wall clock for findings mostly outside the diff; and suite-wide inventory statistics still matter because parallel-file and cross-layer-duplicate findings are invisible when only the changed test file is read.
+
+### The workspace-hygiene dimension
+
+This dimension is not a `senior-review` agent. Spawn one teammate with
+`subagent_type: repo-hygiene:workspace-auditor`, which owns every check the
+filesystem and git decide without reading a symbol.
+
+```
+You are auditing workspace hygiene for a team review of {target}.
+
+Load the repo-hygiene:repo-hygiene skill and run its catalog at the FULL
+profile: C1 filesystem garbage, C2 generated artifacts tracked in git,
+C3 .gitignore completeness, C4 .gitignore archaeology, C5 scratch and
+pipeline-output directories, C6 orphan doc-assets, C7 git auxiliary state.
+
+Report only. Remove nothing, and never run a destructive git command: C7 is
+detection-only because a dropped stash or a removed worktree leaves no diff
+for any commit to revert.
+
+Anything that needs source comprehension is not yours. Put it under "Not
+mine" and name senior-review:cleanup-auditor. The two dimensions are disjoint
+by construction, so a finding either of you could have raised means one of
+you widened.
+
+Write your output to .team-review/findings-workspace-hygiene.md.
+```
+
+Its perimeter and `cleanup-auditor`'s do not overlap, so Phase 4 consolidation
+has nothing to deduplicate between them. A finding appearing in both reports is
+a boundary violation to investigate, not an `echo` to fold.
 
 ### Spawn and task creation
 

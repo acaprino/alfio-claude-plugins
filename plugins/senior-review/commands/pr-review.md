@@ -105,7 +105,10 @@ Task:
        - Security risk: auth, input handling, crypto, secrets
     4. **Breaking changes**: Any API contract changes, removed exports, schema changes
     5. **PR split opportunities**: If >500 lines, suggest logical split points
-    6. **Lite hygiene pass**: dimensions D1 and D3, scoped to the changed files.
+    6. **Lite hygiene pass**: dead code (D1) plus the `repo-hygiene:repo-hygiene`
+       skill's VCS checks at its lite profile, scoped to the changed files. Load
+       that skill rather than restating its patterns: the full and lite passes
+       share one set of check definitions and differ only in perimeter.
        This is the same perimeter /senior-review:code-review runs. Do not widen
        it to orphan assets, dependency hygiene, or stale docs: those belong to
        the full pass in /senior-review:team-review.
@@ -139,9 +142,11 @@ Task:
        the pattern existed.
 
     Report hygiene findings in their own section, each with the path and the
-    cleanup phase that would resolve it (`exports`, `garbage`, or `gitignore`).
-    Never remove anything: this command only describes the PR. Removal lives in
-    `/senior-review:code-review --commit` Step 7c.
+    owner-qualified phase that would resolve it: `/senior-review:code-review
+    --commit` phase `exports` for dead code, `/repo-hygiene:tidy` phase
+    `garbage` or `gitignore` for what the filesystem and git decide. A bare
+    phase name is ambiguous now that two commands own disjoint phase sets.
+    Never remove anything: this command only describes the PR.
 
     Output a structured risk assessment with an overall risk level (Low/Medium/High/Critical).
 ```

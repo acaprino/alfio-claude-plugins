@@ -25,6 +25,7 @@ The gate specs (verification panel, completeness critic, context-sharing pattern
 | Architecture | `review-code-auditor` | always |
 | Logic integrity | `review-logic-integrity-auditor` | always, unless `--no-context` |
 | Codebase hygiene | `review-cleanup-auditor` | always |
+| Workspace hygiene | `workspace-auditor` from the `repo-hygiene` bundle (skipped with a note when that bundle is not installed) | always |
 | UI race conditions | `review-ui-race-auditor` | conditional |
 | React performance | `review-react-performance-optimizer` | conditional |
 | TypeScript type safety | `type-safety-auditor` from the `typescript-development` bundle (skipped with a note when that bundle is not installed) | conditional |
@@ -44,10 +45,10 @@ Support agents: `review-premise-auditor` (Phase 1c, one per run, blind to the sh
 
 Two scoping rules that are easy to get wrong:
 
-- **`review-cleanup-auditor` scans the whole codebase, not the diff.** It is the only hygiene pass in this bundle, covering all six dimensions (dead code, orphan assets, VCS artifacts, dependency and barrel-file bloat, stale documentation, lifecycle archaeology). Every other always-on reviewer is diff-scoped. Do not narrow it to the changed files: orphan assets and phantom deps are by definition in files the diff never touched.
+- **`review-cleanup-auditor` scans the whole codebase, not the diff.** It is the only hygiene pass in this bundle, covering the five dimensions that need source comprehension (dead code, orphan assets, dependency and barrel-file bloat, stale documentation, lifecycle archaeology). Workspace hygiene, meaning everything the filesystem and git decide alone, is the separate `workspace-auditor` agent in the `repo-hygiene` bundle. Every other always-on reviewer is diff-scoped. Do not narrow it to the changed files: orphan assets and phantom deps are by definition in files the diff never touched.
 - **`review-abstraction-architect` also searches the whole codebase.** The diff is only its anchor; the existing representation it hunts for lives in files that did not change.
 
-Every agent in the roster ships inside this bundle except the two cross-bundle rows marked above (testing quality and TypeScript type safety), so a dimension is normally skipped only when its activation rule did not fire. Those two are the exception: each names what happens when its bundle is absent, and neither is ever dispatched blind.
+Every agent in the roster ships inside this bundle except the three cross-bundle rows marked above (testing quality, TypeScript type safety, workspace hygiene), so a dimension is normally skipped only when its activation rule did not fire. Those three are the exception: each names what happens when its bundle is absent, and none is ever dispatched blind.
 
 ## Pre-flight
 

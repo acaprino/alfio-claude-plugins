@@ -16,7 +16,7 @@ Five structural concerns are deliberately outside this plugin. Each has an owner
 |---|---|---|
 | Dependency structure: cycles, missed inversions, depth | `senior-review:code-auditor` for coupling, `senior-review:chicken-egg-detector` for initialization cycles | A dependency may be cited as supporting evidence for D1 to D7. "This dependency is wrong" is never an autonomous finding here. |
 | Responsibility cohesion inside a module | `senior-review:code-auditor` | Two modules owning the same policy is evidence of D2. "This class has too many responsibilities" is not ours. |
-| API surface size and contract drift | `senior-review:api-contract-auditor`, `senior-review:cleanup-auditor` D4 for barrel and unused-export bloat | May appear incidentally inside a D7 remediation. Never a category. |
+| API surface size and contract drift | `senior-review:api-contract-auditor`, `senior-review:cleanup-auditor` D3 for barrel and unused-export bloat | May appear incidentally inside a D7 remediation. Never a category. |
 | Indirection cost | absorbed as lens L2 | Contributes to D7. "Too much indirection" never opens a finding alone. |
 | Structural simplification | none, it is the goal | See the rule above. |
 
@@ -31,7 +31,7 @@ Do not re-flag a smell that is fully visible inside one file without reference t
 
 ## Other neighbours
 
-- **Dead code, unused exports, orphan assets, VCS hygiene**: `senior-review:cleanup-auditor`. A duplicated representation that is simply unused is a cleanup finding, not a D3.
+- **Dead code, unused exports, orphan assets**: `senior-review:cleanup-auditor`. **Workspace hygiene** (tracked build output, `.gitignore`, scratch directories, git state): `repo-hygiene:workspace-auditor`. A duplicated representation that is simply unused is a cleanup finding, not a D3.
 - **Style and readability**: `clean-code:clean-code`. Renaming for clarity is not a structural finding.
 - **Contract violations against a documented invariant**: `senior-review:logic-integrity-auditor`. That agent hunts code that *breaks* a documented rule. This one hunts a rule that has *two authoritative statements*. The two are complementary and neither subsumes the other.
 - **Persistence semantics**: `senior-review:data-integrity-auditor`. A derivable column with no constraint backing it is theirs. The same column with four repair functions around it is D4 here. When both apply, report D4 and note the overlap in Cross-Reviewer Notes.

@@ -99,15 +99,25 @@ Agent tool call:
 
 ### Agent B2: Dead Code, Unused Parameters & VCS Hygiene
 
-This is the **lite** codebase-hygiene pass: dimensions D1 (dead code) and D3
-(VCS hygiene) scoped to the diff. The **full** pass, covering orphan assets,
-dependency and barrel-file hygiene, and stale documentation across the whole
-codebase, belongs to `senior-review:cleanup-auditor` in
-`/senior-review:team-review`. Do not widen this agent's scope to reach it.
+This is the **lite** codebase-hygiene pass, and it draws from two owners. Dead
+code is `senior-review:cleanup-auditor` D1. The VCS half is the
+`repo-hygiene:repo-hygiene` skill at its **lite** profile, which is the same
+check definitions the full pass uses with the perimeter narrowed to files the
+diff adds. Load the `repo-hygiene:repo-hygiene` skill rather than restating its patterns here: one
+definition, two perimeters, no drift.
+
+Both halves are diff-scoped. The **full** passes belong elsewhere and this agent
+never reaches for them: orphan assets, dependency and barrel-file hygiene and
+stale documentation to `senior-review:cleanup-auditor` in
+`/senior-review:team-review`, and whole-tree workspace hygiene to
+`repo-hygiene:workspace-auditor`. The lite profile exists precisely so this
+agent cannot widen: its checks C4 through C7 are repository-historical and are
+not available at this perimeter, because a stale ignore rule or an old stash
+cannot have been caused by the diff under review.
 
 ```
 Agent tool call:
-  - description: "Dead code, lint and VCS hygiene detection for senior-review command"
+  - description: "Dead code and diff-scoped VCS hygiene detection for senior-review command"
   - subagent_type: "general-purpose"
   - run_in_background: true
   - prompt: |
@@ -212,10 +222,10 @@ Agent tool call:
     git check-ignore -v <path>
     ```
 
-    Report each hit as a finding. Never delete anything here: this command's
-    Step 7c owns removal, and its `gitignore` phase owns the `git rm --cached`
-    plus pattern append. Name the phase in your finding so Step 7c can act on
-    it without re-deriving the classification.
+    Report each hit as a finding. Never delete anything here. Removal of what
+    this half finds belongs to `/repo-hygiene:tidy`, not to Step 7c, which no
+    longer owns the `garbage` or `gitignore` phases. Name the owning command
+    alongside the phase so the finding routes without being re-derived.
 
     ## Phase 3: Manual Diff Analysis
 
@@ -260,9 +270,11 @@ Agent tool call:
       on the deep-dive output or interconnect map, not citation of it)
     - What is unused or misplaced, and why
     - Recommended action (remove, prefix with _, verify dynamic usage, add to
-      __all__, `git rm --cached` plus a .gitignore pattern)
-    - Fix phase: the Step 7c cleanup phase that would resolve it
-      (`exports` for dead code, `garbage` or `gitignore` for VCS findings)
+      __all__, or `/repo-hygiene:tidy` for anything the filesystem and git decide)
+    - Fix phase, owner-qualified: `/senior-review:code-review --commit` phase
+      `exports` for dead code, `/repo-hygiene:tidy` phase `garbage` or
+      `gitignore` for VCS findings. A bare phase name is ambiguous now that two
+      commands own disjoint phase sets, so always name the command
 ```
 
 ### Agent C: UI Race Condition Analysis

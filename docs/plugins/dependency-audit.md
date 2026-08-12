@@ -44,6 +44,6 @@ Knowledge base loaded by the command (and usable standalone when auditing depend
 
 ---
 
-**Related:** [senior-review](senior-review.md) (`cleanup-auditor` finds unused and phantom dependencies; `/code-review --fix` removes them), [typescript-development](typescript-development.md) (`knip` for TS/JS dead deps), [python-development](python-development.md) (`/python-audit` for Python lint/type/coverage).
+**Related:** [senior-review](senior-review.md) (`cleanup-auditor` finds unused and phantom dependencies; `/code-review --commit` removes them at Step 7c), [typescript-development](typescript-development.md) (`knip` for TS/JS dead deps), [python-development](python-development.md) (`/python-audit` for Python lint/type/coverage).
 
 **History:** replaces `/codebase-cleanup:deps-audit`, retired in marketplace 19.0.0. This plugin is local, hand-authored content with no upstream; it is maintained under the `custom-plugin-refresh` protocol.
