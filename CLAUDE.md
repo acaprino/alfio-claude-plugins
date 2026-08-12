@@ -26,8 +26,8 @@ When changes modify plugins (agents, skills, commands), update the marketplace *
 
 1. **Bump plugin version** - increment `version` for the changed plugin in `.claude-plugin/marketplace.json`
 2. **Bump marketplace version** - increment `metadata.version` in the same file
-3. **Mirror into the downstream export** - since the 2026-07-30 catalog build, `exports/vscode/` carries a bundle for every plugin, so any plugin change needs mirroring. Load the `downstream-exports` skill and mirror into `exports/` in the same commit, then run its checker (`python .claude/skills/downstream-exports/scripts/check_export.py`). If an agent or prompt was added, renamed or removed, also regenerate the extension manifest (`python .claude/skills/downstream-exports/scripts/gen_extension_manifest.py`) and bump `version` in `exports/vscode/package.json`. Skipping this is how the ports silently rot.
-4. **Commit together** - stage the plugin files, `marketplace.json`, and any `exports/` changes in one commit
+3. **Port the adapted half of the export** - since the 2026-07-30 catalog build, `exports/vscode/` carries a bundle for every plugin, so any plugin change is a candidate mirror. Since 2026-08-12 the mechanical half runs in CI (`.github/workflows/mirror-export.yml`, see Build / CI below): byte-copies, the extension manifest and `exports/vscode/package.json` `version` are derivations, and hand-mirroring them now only conflicts with the bot commit. What stays yours is what a script cannot guess: **agents, prompts, every `SKILL.md`, and the six adapted reference files**, which need frontmatter rewritten, tools renamed, namespaces stripped and dispatch rerouted. Load the `downstream-exports` skill, port those in the same commit, and check the range before pushing (`python scripts/mirror_export.py --check --since origin/master`). A source that moves without its adapted twin turns the mirror job red and names both paths.
+4. **Commit together** - stage the plugin files, `marketplace.json`, the adapted `exports/` files, and (when the version moved) the `exports/vscode/CHANGELOG.md` section, in one commit
 5. **Push to remote** - `git push` to `master`
 
 ## Adding a new plugin
@@ -58,15 +58,25 @@ No build step, no runtime tests: all content is static markdown. There IS a cons
 
 When a change legitimately trips the linter, fix the declaration (or the reference), not the linter; heuristic misreads go in its `ALLOWLIST` with a reason.
 
+### The mirror workflow, which writes rather than checks
+
+`.github/workflows/mirror-export.yml` is the only workflow here that pushes. On every push to `master` it runs `python scripts/mirror_export.py`, regenerates the extension manifest, runs the export structural check, and commits the result to `master` as "Mirror plugins into the VS Code export [mirror]". It skips any push whose message carries `[mirror]`, which is what stops it answering its own commit, and it runs under a `concurrency` group so two pushes cannot each mirror against a different base and revert one another. Like the release workflow, it needs repository-level `default_workflow_permissions: write`.
+
+It exists because step 3 of the marketplace update workflow fires on nearly every commit, and an obligation that fires that often is one that gets skipped. It was: `marketplace-ops/skills-creator/references/conventions.md` sat at a superseded version of its source in a bundle nothing adapts, and `exports/vscode/package.json` drifted two majors behind the marketplace while it was maintained by hand. The version is now computed from `metadata.version`, so do not bump it in a commit.
+
+`scripts/mirror_export.py` owns the byte-copy/adapted split and is the file to read before changing anything about it. Two properties are load-bearing: **fix mode always exits 0**, so a missing changelog section never blocks a mirror that is already computed and correct, and `--check` is the gate that runs afterwards. `--check --since <rev>` reports the failure a green structural check has always been compatible with, an adapted file whose source moved while it did not, and it runs last in the job so the byte-copies and manifest still land before the run goes red.
+
 ## Releasing the VS Code extension
 
-The consistency CI proves the export is correct and then stops. `.github/workflows/release-vscode.yml` is what turns it into something installable: it fires on a tag named `vscode-v<version>`, re-runs the export checks (a tag can point at any commit, including one that never passed consistency), packages the `.vsix` and creates a GitHub Release with it attached. Releasing is therefore two commands once the bump is on `master`:
+The consistency CI proves the export is correct and then stops. `.github/workflows/release-vscode.yml` is what turns it into something installable: it fires on a tag named `vscode-v<version>`, re-runs the export checks (a tag can point at any commit, including one that never passed consistency), packages the `.vsix` and creates a GitHub Release with it attached. The version is whatever the mirror workflow computed, which is `metadata.version` from `marketplace.json`, so releasing is two commands once the mirror commit is on `master`:
 
 ```bash
-git tag vscode-v20.1.0 && git push origin vscode-v20.1.0
+git tag vscode-v22.1.0 && git push origin vscode-v22.1.0
 ```
 
-`python scripts/extension_release_notes.py <tag-or-version>` is the guard the workflow runs first, and it is worth running locally before tagging. It fails unless the tag's version equals `version` in `exports/vscode/package.json`, and unless `exports/vscode/CHANGELOG.md` carries a `## <version>` section with content, which it prints for use as the release body. **Write the CHANGELOG entry in the same commit as the version bump.** The file had drifted seven versions behind `package.json` before this check existed, which is exactly the state that makes a release impossible to describe after the fact.
+Tag the mirror commit, not the commit that preceded it: tagging before CI has recomputed the version points the release at a `package.json` still carrying the old number, and the guard below fails on exactly that.
+
+`python scripts/extension_release_notes.py <tag-or-version>` is the guard the workflow runs first, and it is worth running locally before tagging. It fails unless the tag's version equals `version` in `exports/vscode/package.json`, and unless `exports/vscode/CHANGELOG.md` carries a `## <version>` section with content, which it prints for use as the release body. **Write the CHANGELOG entry in the same commit as the plugin change that moves the marketplace version.** The version is computed; the prose describing what changed is not. The file had drifted seven versions behind `package.json` before this check existed, which is exactly the state that makes a release impossible to describe after the fact.
 
 One prerequisite lives outside the repository and is invisible in every file here: the Actions token needs `default_workflow_permissions: write` at repository level (**Settings**, **Actions**, **General**, **Workflow permissions**). It was `read` until the first release, and a workflow's own `permissions:` block cannot grant more than that ceiling, so `gh release create` answers 403 with no other symptom. If releases start failing on permissions, check that setting before the workflow.
 

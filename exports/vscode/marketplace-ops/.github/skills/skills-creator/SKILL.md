@@ -54,8 +54,10 @@ The `description` field is the single most important line in any skill or agent.
 <Domain> expert. ALWAYS invoke this skill when the user <trigger actions>.
 Do not <alternative action> directly.
 TRIGGER WHEN: <specific triggers, comma-separated>
-DO NOT TRIGGER WHEN: <exclusions>
+DO NOT TRIGGER WHEN: <confusable case> (use <sibling-component> instead)
 ```
+
+The last line is conditional: write it only when a confusable sibling exists to name. See "The DO NOT TRIGGER WHEN rule" below.
 
 ### Examples
 
@@ -69,7 +71,7 @@ description: >
   asks about Docker, containers, Dockerfiles, or docker-compose.
   Do not run Docker commands or write Dockerfiles directly.
   TRIGGER WHEN: building containers, writing Dockerfiles, debugging Docker issues
-  DO NOT TRIGGER WHEN: the task is not about containerization.
+  DO NOT TRIGGER WHEN: the task is Kubernetes orchestration (use k8s-operator instead)
 ```
 
 ### Description Rules
@@ -79,15 +81,33 @@ description: >
 3. **Specific trigger phrases** -- list the exact words/phrases that should activate it
 4. **Third person** -- "Processes X when Y" not "I process X" or "You should use this"
 5. **Max 1024 characters** -- hard limit per description
-6. **Include TRIGGER WHEN / DO NOT TRIGGER WHEN** -- explicit activation boundaries
+6. **Always include TRIGGER WHEN** -- it carries the vocabulary that routes to this component
+7. **Include DO NOT TRIGGER WHEN only when it names a sibling** -- see the rule below
+8. **Never repeat a term** in both the opening sentence and TRIGGER WHEN: the trigger line keeps it
+
+### The DO NOT TRIGGER WHEN rule
+
+A `DO NOT TRIGGER WHEN` clause earns its context cost only by naming the component that should handle the case instead. It is a routing instruction, not a disclaimer.
+
+```yaml
+# Useless: the logical inverse of TRIGGER WHEN, discriminates nothing, costs every session
+DO NOT TRIGGER WHEN: the task is outside the specific scope of this component.
+
+# Useful: routes the confusable case to a named sibling
+DO NOT TRIGGER WHEN: the target is a Python codebase (use python-dead-code instead)
+```
+
+When no confusable sibling exists, omit the clause entirely.
 
 ### Token Budget Awareness
 
-Each skill/agent costs ~100 tokens at idle (just name + description in system prompt). All descriptions combined share a **15,000 character budget** by default. When total description text exceeds this limit, skills may be silently dropped from the system prompt.
+A description is the only part of a component that sits in context in **every** session; the body loads only after invocation. Anything a description restates from its own body is pure cost, paid on every request that never invokes the component.
+
+Each skill/agent costs ~100 tokens at idle (just name + description in system prompt). All descriptions combined share a **15,000 character budget** by default. When total description text exceeds this limit, components may be silently dropped from the system prompt, which degrades routing for everything.
 
 - Keep individual descriptions **under 300 characters** when possible
-- For the current marketplace (~39 plugins, ~80+ components), monitor total description size
-- Prefer concise trigger lists over verbose explanations
+- List the trigger vocabulary, never the feature set: if the body covers it, the description must not enumerate it
+- Strip marketing adjectives (Expert, Comprehensive, Adversarial, Master), mechanics sentences ("Report-only", "Spawned in parallel"), and toolchain version numbers that are not themselves triggers
 
 ## Phase 1: Requirements Gathering
 
@@ -139,7 +159,7 @@ Generate production-ready files with real content -- not [FILL] placeholders.
    - **Description format** -- MUST follow the high-activation template:
      - Directive voice: "ALWAYS invoke this skill when..."
      - Negative constraint: "Do not X directly"
-     - Include `TRIGGER WHEN:` and `DO NOT TRIGGER WHEN:` lines
+     - Always include a `TRIGGER WHEN:` line; add `DO NOT TRIGGER WHEN:` only when it names a sibling
      - Third person, specific trigger phrases
      - See "Description Engineering" section above
    - Optional frontmatter: `context: fork` (isolates in subagent), `allowed-tools` (restricts tool access), `disable-model-invocation: true` (prevents auto-triggering)
@@ -156,9 +176,9 @@ Generate production-ready files with real content -- not [FILL] placeholders.
 2. Write with frontmatter and body following these rules:
    - Frontmatter fields: `name`, `description` (use YAML `>` for multiline), `model: inherit`, `color`, optionally `tools`
    - **Description format** -- same directive template as skills:
-     - Include `TRIGGER WHEN:` and `DO NOT TRIGGER WHEN:` lines
+     - Always include a `TRIGGER WHEN:` line; add `DO NOT TRIGGER WHEN:` only when it names a sibling
      - Third person, specific triggers
-     - Example: `"Expert X. TRIGGER WHEN: user needs Y. DO NOT TRIGGER WHEN: task is Z."`
+     - Example: `"Does X. TRIGGER WHEN: user needs Y. DO NOT TRIGGER WHEN: the work is Z (use sibling-agent instead)."`
    - Body: terse keyword-list style, imperative tone, structured with markdown headers
    - Sections: `# ROLE`, `# CAPABILITIES` or `# CORE CAPABILITIES`, `# CONVENTIONS`, `# OUTPUT FORMAT`
    - Simple agents: 60-200 lines; complex agents: up to 800 lines
@@ -199,7 +219,8 @@ After registration:
 |----------|-------|-------|
 | Writing descriptions | Passive: "Helps with Docker" (50% activation) | Directive: "ALWAYS invoke when user asks about Docker. Do not run Docker commands directly." (97%+ activation) |
 | Description tone | "Can be used for...", "Use when..." | "ALWAYS invoke this skill when...", "Do not X directly" |
-| Missing exclusions | No DO NOT TRIGGER WHEN clause | Always specify what should NOT trigger the component |
+| Missing exclusions | Confusable sibling exists but no DO NOT TRIGGER WHEN clause names it | Name the component that should handle the case instead |
+| Empty exclusions | "DO NOT TRIGGER WHEN: the task is outside the specific scope of this component" | Omit the clause when there is no sibling to name |
 | Writing agent prompts | Verbose prose paragraphs | Terse keyword-list style |
 | Skill body length | 800+ lines in SKILL.md | Split into references/ at ~300 lines |
 | Skill body content | Repeating what Claude already knows | Only add context Claude lacks; trust built-in knowledge |
@@ -207,6 +228,7 @@ After registration:
 | Choosing a plugin | Always create a new one | Prefer adding to existing plugin if domain fits |
 | Agent description | First/second person | Third person: "Processes X when Y" |
 | Token budget | Long verbose descriptions on all components | Keep descriptions under 300 chars when possible; total budget is 15k chars |
+| Description content | Enumerating features the body already documents | List trigger vocabulary only; the body loads at invocation, the description is paid every session |
 
 ## Critical Rules
 

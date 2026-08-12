@@ -27,6 +27,28 @@ The mirror image of the `external-repo-intake` skill. That skill covers content 
 
 **The obligation is now global, not scoped.** Until the 2026-07-30 catalog build only five plugins fed the export. Now every plugin has a bundle, so any plugin change is a candidate mirror. Do not go looking for the old five-row source map: it is gone.
 
+## What CI mirrors and what you still owe
+
+Since 2026-08-12 the mechanical half of the mirror runs in `.github/workflows/mirror-export.yml` on every push to `master`. It runs `python scripts/mirror_export.py`, regenerates the extension manifest, runs the structural checker, and commits the result to `master` as "Mirror plugins into the VS Code export [mirror]". A push whose message carries `[mirror]` is skipped, which is what stops the workflow answering its own push.
+
+The split it enforces is the same one the rest of this skill describes, made mechanical:
+
+| Half | Who owns it |
+|---|---|
+| Byte-copies (references, scripts, assets under a skill directory), the `chatAgents` / `chatPromptFiles` manifest, and `package.json` `version` | CI. Drift there is a derivation error, so a machine fixes it. Do not hand-mirror these; a local copy is at best redundant and at worst a merge conflict against the bot commit. |
+| Agents, prompts, every `SKILL.md`, and the six adapted reference files listed in `ADAPTED_REFERENCES` | You, in the same commit as the plugin change. Porting one means rewriting frontmatter, renaming tools, stripping namespaces and rerouting dispatch, and no script guesses at an adaptation. |
+
+The workflow's last step is `python scripts/mirror_export.py --check --since <base>`, which compares the pushed range against the export: a source file that moved while its adapted twin did not turns the run red and names both paths. It runs **after** the commit deliberately, so a forgotten adaptation still gets the byte-copies and the manifest mirrored before the run fails.
+
+Run the same two commands locally before pushing anything with an adapted twin:
+
+```bash
+python scripts/mirror_export.py --check
+python scripts/mirror_export.py --check --since origin/master
+```
+
+Fix mode (`python scripts/mirror_export.py`, no flags) always exits 0 and reports what it cannot fix. That is why CI can commit a correct mirror and still fail afterwards on a missing changelog section.
+
 ## Source map
 
 One bundle per plugin, at `exports/vscode/<plugin>/.github/`, with `skills/<name>/` mirroring `skills/`, `agents/<name>.agent.md` mirroring `agents/<name>.md`, and `prompts/<name>.prompt.md` mirroring `commands/<name>.md`. Two exceptions:
@@ -53,13 +75,13 @@ Deliberately not exported, for reasons recorded in the catalog README: `/codebas
 
 **Watch both issues.** If #304721 ships, `extension.js`, `uninstall.js` and the two settings all get deleted and skills move to a `chatSkills` list. If #307610 ships first, the copy is replaced by a path registration.
 
-Adding, renaming or removing an agent or prompt invalidates the manifest. Regenerate it, never hand-edit the two arrays:
+Adding, renaming or removing an agent or prompt invalidates the manifest. CI regenerates it on every push, so hand-running it is only for checking your own work before the push. Either way, never hand-edit the two arrays:
 
 ```bash
 python .claude/skills/downstream-exports/scripts/gen_extension_manifest.py
 ```
 
-It rewrites only `contributes.chatAgents` and `contributes.chatPromptFiles`, preserving every hand-authored field, and prints the counts to compare against the catalog README table. Bump `version` in `package.json` on any content change: it is what drives the update check, and what `extension.js` compares against to decide whether to re-copy the skills.
+It rewrites only `contributes.chatAgents` and `contributes.chatPromptFiles`, preserving every hand-authored field, and prints the counts to compare against the catalog README table. `version` is computed rather than bumped: see Versioning below.
 
 Verify a change packages before claiming it works:
 
@@ -147,6 +169,14 @@ python .claude/skills/downstream-exports/scripts/check_export.py
 
 Nine passes: frontmatter schema, tool ids, name uniqueness across bundles, prompt `agent:` bindings, `agents:` allowlists, residual Claude Code coupling, malformed markdown code spans, byte-copy drift against `plugins/`, and `$SKILLS` defined wherever it is used. It exits non-zero on any failure and needs no dependencies.
 
+Mirror check, over the range you are about to push:
+
+```bash
+python scripts/mirror_export.py --check --since origin/master
+```
+
+The two are complementary and neither subsumes the other. `check_export.py` pass 8 sees byte-copy drift, which CI now fixes rather than reports. `mirror_export.py --since` sees the failure a green structural check has always been compatible with: an adapted file whose source moved while it did not. Nothing sees the third case, an adaptation that was made but made wrong.
+
 The `$SKILLS` pass recognizes a definition by the candidate roots it enumerates (`~/.copilot/skills/` is the tell), not by a fixed sentence, because the wording legitimately varies. The canonical form, and the one to use for anything new, is a standalone paragraph placed at the start of the block that first uses the variable:
 
 > `` `$SKILLS` is the installed skills directory: the first of `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/` that exists. ``
@@ -206,6 +236,7 @@ When the ask is to regenerate rather than mirror one change, **diff every file a
 
 Three versions live here and they are not the same number.
 
-- `exports/vscode/package.json` `version` is the extension's. Bump it on any content change: it drives the Marketplace update check, and `extension.js` compares it against the recorded manifest to decide whether to re-copy the skills. It currently tracks the marketplace version for legibility, which is a convenience, not a constraint.
+- `exports/vscode/package.json` `version` is the extension's. **It is computed, not bumped**: `scripts/mirror_export.py` sets it to `metadata.version` from `marketplace.json` on every CI mirror, so editing it by hand only produces a diff the bot reverts. Tracking the marketplace version was a legibility convenience until 2026-08-12; making it a derivation is what closed the two-major drift that had opened while it was maintained by hand. The number still drives the Marketplace update check, and `extension.js` still compares it against the recorded manifest to decide whether to re-copy the skills.
+- `exports/vscode/CHANGELOG.md` is the half of a release that stays manual, and it is the reason `mirror_export.py --check` fails on a missing `## <version>` section. The version is computed; the prose describing what changed is not. Write the section in the same commit as the plugin change that triggers the bump.
 - `_pipelines` carries its own `metadata.version` inside `skills/codebase-xray/SKILL.md`. Bump it when its content changes, independently of the other two.
 - `exports/` is not registered in `marketplace.json` and is not a plugin, so it has no entry there.
