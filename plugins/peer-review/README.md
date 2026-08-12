@@ -151,7 +151,8 @@ never change one.
 
 | File | What it holds |
 |---|---|
-| `00-packet.md` | Everything that left your machine, exactly as the challenger saw it |
+| `00-packet.md` | Round 1's payload: everything that left your machine, exactly as the challenger saw it |
+| `sent/` | Every later round's payload, one file per outgoing call, written before it is sent because it is what gets sent |
 | `01-challenge-r1.md` | The challenger's frame challenge, findings with falsifiers, and what it could not assess |
 | `01b-amendment.md` | Repository material it asked for: what was granted, and every refusal with its reason |
 | `02-response.md` | Your side's verdict per finding, with a locator for every non-ACCEPT |
@@ -233,15 +234,28 @@ alternative providers mirror, so any endpoint that accepts that shape works: Ope
 directly, an OpenRouter key pointed at a different frontier model, or a locally hosted
 OpenAI-compatible server. Requests are capped at 400,000 bytes and refused outright
 above that, rather than silently truncated. A request is retried once, after a 5
-second backoff, on HTTP 429/500/502/503/504; any other failure, and a request timeout
-after 180 seconds, is returned as `{"error": "..."}` for the command to handle rather
-than raised as an exception.
+second backoff, on HTTP 429/500/502/503/504; any other failure is returned as
+`{"error": "..."}` for the command to handle rather than raised as an exception.
+Responses are streamed, which makes the 600 second timeout an idle allowance between
+chunks rather than a cap on the whole generation: a challenger that thinks for eight
+minutes before emitting anything is a normal round, not a failure.
+
+**The payload is a path, never a string.** `peer_ask` takes `content_path` and reads
+the outgoing message off disk itself, and it reads nothing outside a `.peer-review/`
+run directory below the working directory. This is R15 made mechanical. Asking the
+model that built the packet to reproduce it inside a tool call is asking it to retype
+tens of kilobytes, and under that load it summarizes instead, which no later check can
+detect because every later check reads the file rather than the request. The reply
+carries `sent_bytes` and `sent_sha256`, computed over exactly the bytes that went on
+the wire, and the run's verdict records them.
 
 ## What never leaves the machine
 
 Explicit consent is given exactly once, at the single consent gate before round 1,
-never per round. The prompt shows the destination, the packet's byte size, and its
-section list, and only a literal `yes` proceeds. That one `yes` covers the whole run:
+never per round. The prompt shows the destination, the packet's byte size, its sha256,
+and its section list, and only a literal `yes` proceeds. The digest is there so the
+approval attaches to one specific file: the transport reports back the digest of what
+it actually sent, and the run stops if the two ever differ. That one `yes` covers the whole run:
 the user approves the packet, and afterward the run may send round 2 and round 3
 challenge payloads, the certification pass, and the corrective round if one runs, with
 no further prompt. It also covers Phase 2b context amendments: repository material
@@ -254,3 +268,8 @@ ledger, the verdict, and the packet-building and response-answering work that ha
 inside Claude Code subagents with full repository access. The API key travels only in
 the outgoing request's `Authorization` header; the server never logs or returns it,
 and redacts it from any error text it does return.
+
+That boundary holds in the transport and not only in the command. Because the payload
+is named by path, `peer_ask` refuses any path resolving outside a `.peer-review/` run
+directory, symlinks and `..` included. A file the protocol did not write cannot be
+sent, whatever a prompt in your artifact asks the model to attach.

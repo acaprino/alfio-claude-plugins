@@ -47,13 +47,23 @@ All paths are relative to the run directory `.peer-review/YYYY-MM-DD-HHMM-<slug>
 | `09-certification.md` | command, from the challenger's transport reply | 5 |
 | `10-corrective.md` | command (challenger section) plus `peer-review:respondent` (respondent section), only if a MISREPRESENTED flag is substantiated | 5 |
 | `04-verdict.md` | command, computed from the ledger | 6 |
+| `sent/r2.md`, `sent/r3.md`, `sent/certification.md`, `sent/corrective.md` | command, one file per outgoing payload after round 1 | 4, 5 |
+
+**Every outgoing payload is a file before it is a request.** The transport reads the
+payload off disk and takes no inline text (`content_path`, see `mcp/server.py`), so
+each `peer_ask` call is preceded by the write that creates its payload file. Round 1's
+payload is `00-packet.md` itself and needs no copy; every later round writes its
+payload under `sent/` first. This is R15 made mechanical rather than requested: a
+payload that must be retyped into a tool argument gets summarized instead, which is
+exactly the run-invalidating defect R15 exists to prevent, and it is undetectable
+downstream because every later check reads the file rather than the request.
 
 ## Transport error handling
 
 Applies to every `peer_ask` call in Phases 2, 4, 5, and the corrective round of Phase 5.
 
-If the tool returns `{"error": "<message>"}` instead of `{text, usage, model,
-latency_ms}`:
+If the tool returns `{"error": "<message>"}` instead of a reply (`text`, `usage`,
+`model`, `latency_ms`, `sent_path`, `sent_bytes`, `sent_sha256`):
 
 1. Do not write a challenge or response file from it, and do not touch the ledger for
    this call.
@@ -236,6 +246,14 @@ unavailable profile stops the run before an agent is spent building a brief.
 
 No transport call of any kind precedes this phase.
 
+0. **Digest the packet file.** Phase 1 hashed the *artifact* and its embedding. What
+   travels is the whole packet, so hash the packet file itself and carry the value as
+   `<PACKET_SHA>` for the rest of the run:
+
+   ```bash
+   python -c "import hashlib,sys;print(hashlib.sha256(open(sys.argv[1],'rb').read()).hexdigest())" <run directory>/00-packet.md
+   ```
+
 1. **Byte cap pre-flight.** Compare `00-packet.md`'s byte size (`<N>` below) against
    the transport's payload cap, 400000 bytes (the `peer_ask` tool refuses anything
    larger outright, per `mcp/server.py`). If `<N>` exceeds the cap, do not present the
@@ -248,13 +266,17 @@ No transport call of any kind precedes this phase.
 About to send this packet to an external service:
   destination: <base_url>  model: <model>
   size: <N> bytes (transport cap: 400000 bytes)
+  sha256: <PACKET_SHA>
   sections: Mandate, Artifact, Ground truth, Constraints, Considered and rejected,
             Known weaknesses, Open questions, Out of scope, Response contract
 Nothing else leaves this machine. Send it? (yes / no)
 ```
 
-Where `<base_url>` and `<model>` come from the profile resolved in Phase 0, and `<N>`
-is the byte size of `00-packet.md`.
+Where `<base_url>` and `<model>` come from the profile resolved in Phase 0, `<N>` is
+the byte size of `00-packet.md`, and `<PACKET_SHA>` is step 0's digest. The digest is
+shown because consent is given to one specific file, and the transport reports back
+the digest of what it actually sent: the two are compared in Phase 2, which is what
+makes this gate a decision about a document rather than about an intention.
 
 - **`--dry-run`**: stop here. Report the packet path (`<run directory>/00-packet.md`)
   and that nothing was sent. End the command.
@@ -267,12 +289,19 @@ is the byte size of `00-packet.md`.
 1. Load the Round 1 prompt: read `${CLAUDE_PLUGIN_ROOT}/protocol/round-prompts.md` and
    extract the fenced block under `## Round 1 (critique)`.
 2. Call the `mcp__peer-review__peer_ask` tool: `profile` is the resolved profile name,
-   `system` is the Round 1 prompt text, `messages` is
-   `[{"role": "user", "content": "<the full text of 00-packet.md>"}]`.
+   `system` is the Round 1 prompt text, `content_path` is `<run directory>/00-packet.md`.
+   Pass the path. The packet is never pasted into the call: the transport reads it, and
+   that is the only reason R15's third link holds.
 3. Handle the error shape per "Transport error handling" above.
-4. On success, write the `text` field verbatim to `01-challenge-r1.md`. Note the
+4. **Verify what was sent (R15).** Compare the reply's `sent_sha256` against
+   `<PACKET_SHA>` from Phase 1b. They agree unless the packet changed on disk between
+   the consent gate and the call, which is a violation of the packet's immutability: on
+   a mismatch, write no challenge file, touch no ledger, report both digests, and stop
+   the run. Record `sent_bytes` and `sent_sha256` for the verdict's transmission
+   section.
+5. On success, write the `text` field verbatim to `01-challenge-r1.md`. Note the
    `usage`, `model`, and `latency_ms` fields in the token-accounting list under round 1.
-5. **Initialize `03-ledger.md`.** Parse the `## Findings` section of
+6. **Initialize `03-ledger.md`.** Parse the `## Findings` section of
    `01-challenge-r1.md`. For each finding `F<NN>`, create one entry using the template
    from `${CLAUDE_PLUGIN_ROOT}/protocol/finding-lifecycle.md`:
 
@@ -290,15 +319,18 @@ is the byte size of `00-packet.md`.
        - R1: raised (severity <severity>)
    ```
 
-6. **Transmission-artifact check (R15), applied before any finding is left OPEN.** Key
+7. **Transmission-artifact check (R15), applied before any finding is left OPEN.** Key
    this on substance, not on the free-text `section attacked` label the challenger
    wrote in its own words. For each finding, locate the specific material its claim
    and failure scenario actually reference (a quoted phrase, a named decision, a
    specific fact) inside `00-packet.md`: the embedded Artifact text, Ground truth,
    Constraints, Considered and rejected, Known weaknesses, Open questions, or Out of
-   scope. Phase 1's digest check already proved the packet is byte-identical to the
-   source, so material that genuinely cannot be located anywhere in the packet cannot
-   be a live claim about the artifact; it is noise the challenger introduced.
+   scope. Phase 1's digest check proved the packet byte-identical to the source, and
+   step 4 proved the request byte-identical to the packet, so material that genuinely
+   cannot be located anywhere in the packet cannot be a live claim about the artifact;
+   it is noise the challenger introduced. Both halves are load-bearing: without step 4
+   this check would archive as challenger noise whatever the sending side had dropped,
+   and its errors would all fall on the side of absolving the artifact.
    - **Substance absent everywhere in the packet**: set that entry's `state` directly
      to `TRANSMISSION_ARTIFACT`, skipping `OPEN`, and record what was actually
      searched for and not found in place of `respondent evidence`. Do not send these
@@ -412,10 +444,14 @@ For round `r` (2 or 3), files `05-challenge-r2.md`/`07-challenge-r3.md` and
    plainly as the respondent's proposed restatement awaiting the challenger's
    confirmation, so there is something for the challenger's `CONFIRM-RESTATEMENT` or
    `REJECT-RESTATEMENT` reply to answer.
-3. Call `mcp__peer-review__peer_ask` with this prompt as `system` and the payload as the
-   user message. Handle the error shape per "Transport error handling" above.
+3. **Write the payload, then send it.** Write step 2's payload to `sent/r<r>.md` in the
+   run directory, then call `mcp__peer-review__peer_ask` with this prompt as `system`
+   and `content_path` pointing at that file. The file is not a copy of what is sent, it
+   is what is sent: the transport accepts no inline text. Handle the error shape per
+   "Transport error handling" above.
 4. On success, write the reply to the round's challenge file. Note `usage`, `model`,
-   `latency_ms` under this round in the token-accounting list.
+   `latency_ms` under this round in the token-accounting list, and the reply's
+   `sent_bytes` and `sent_sha256` for the verdict's transmission section.
 5. **Per finding, apply the reply** (`WITHDRAW`, `MAINTAIN`, `REFINE`,
    `CONFIRM-RESTATEMENT`, or `REJECT-RESTATEMENT`):
    - `WITHDRAW` naming specific falsifying evidence: `state = RESOLVED_WITHDRAWN`.
@@ -518,9 +554,10 @@ For round `r` (2 or 3), files `05-challenge-r2.md`/`07-challenge-r3.md` and
    ever answered them, so there is no respondent rendering to certify against, and no
    claim of the challenger's own words to defend.
 2. Load the Certification prompt: read `${CLAUDE_PLUGIN_ROOT}/protocol/round-prompts.md`
-   under `## Certification`. Call `mcp__peer-review__peer_ask` with this as `system` and
-   the collected findings plus renderings as the user message. Handle the error shape
-   per "Transport error handling" above.
+   under `## Certification`. Write the collected findings plus renderings to
+   `sent/certification.md`, then call `mcp__peer-review__peer_ask` with the prompt as
+   `system` and `content_path` pointing at that file. Handle the error shape per
+   "Transport error handling" above.
 3. On success, write the reply to `09-certification.md`. For each finding:
    - `CERTIFIED`: finalize its state. If the finding entered this phase `CHALLENGED`
      with a `REFUTE` respondent position, set `state = RESOLVED_REFUTE` now. Anything
@@ -543,10 +580,11 @@ For round `r` (2 or 3), files `05-challenge-r2.md`/`07-challenge-r3.md` and
      Phase 6, distinct from a certified refutation's substantiated misrepresentation.
 4. **Corrective round, at most once for the whole run**, only for findings reverted in
    step 3. If a corrective round has not already run in this invocation:
-   - Call `mcp__peer-review__peer_ask` once more, `system` built from the same Challenge
+   - Write only the reverted findings' original verbatim claims and falsifiers to
+     `sent/corrective.md`, then call `mcp__peer-review__peer_ask` once more with
+     `content_path` pointing at that file and `system` built from the same Challenge
      round prompt semantics but scoped to "answer against your original claim, this is
-     a corrective round, not a debate" framing, `messages` carrying only the reverted
-     findings' original verbatim claims and falsifiers. Handle the error shape: on
+     a corrective round, not a debate" framing. Handle the error shape: on
      failure here, treat every reverted finding as `CERTIFICATION_FAILED` (no budget
      left to retry) and record the transport error as the reason instead of budget
      exhaustion.
@@ -595,10 +633,11 @@ not already a ledger field. Sections, in order:
    corrective round resolved it (budget already spent, or the corrective round itself
    failed to transmit).
 6. **Transmission artifacts**, with the digest check that caught them. One entry per
-   `TRANSMISSION_ARTIFACT` finding: what material it claimed to attack, and a reminder
-   that Phase 1 already verified the packet byte-identical to the source (R15), so the
-   absence is in the challenger's reply, not in what was sent. Recommend the run be
-   repeated rather than the finding trusted, per R15.
+   `TRANSMISSION_ARTIFACT` finding: what material it claimed to attack, and the two
+   verified links behind the judgment (R15), Phase 1's source-to-packet digest and
+   Phase 2's packet-to-request digest, so the absence is in the challenger's reply and
+   not in what was sent. Cite the digest from item 11 rather than restating it here.
+   Recommend the run be repeated rather than the finding trusted, per R15.
 7. **Unexplained withdrawals**, reported as a weakness of the run per R13. One entry
    per finding ever flagged `unexplained withdrawal` in Phase 4, regardless of its
    final state.
@@ -625,8 +664,11 @@ not already a ledger field. Sections, in order:
      than leaving it to be inferred from the run directory's contents.
 10. **Promotions.** Every `GIVEN -> DERIVED` line recorded in the ledger's respondent
     evidence fields, with the deriving role and locator (R14).
-11. **Token accounting**, from every `peer_ask` call's `usage`, `model`, and
-    `latency_ms` fields, tabulated by round (1, 2, 3, certification, corrective).
+11. **Transmission and token accounting**, from every `peer_ask` call's `usage`,
+    `model`, `latency_ms`, `sent_path`, `sent_bytes` and `sent_sha256` fields,
+    tabulated by round (1, 2, 3, certification, corrective). The digest column is the
+    run's evidence for R15's third link, reported per call because it is measured per
+    call: what the transport says it sent, not what the command intended to send.
 12. Close with: finding count is never the quality measure. A run whose findings all
     end in refutation, withdrawal, standoff, or untestable, with none surviving as an
     accepted change, is still a success if every one of those deaths is evidenced: the

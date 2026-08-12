@@ -151,11 +151,23 @@ it counts. Agreement produced by reading the packet back never counts.
 ### R15. Source-to-request transmission fidelity
 The challenger judges the packet, never the artifact. The packet records the
 artifact's byte length and content digest, and the verdict verifies that the source
-document, the packet embedding, and the outgoing request are byte-identical. What the
-remote participant internally perceived is unverifiable by construction; the guarantee
-deliberately stops at the request boundary. A finding attacking material absent from
-the source terminates as TRANSMISSION_ARTIFACT, neither accepted nor refuted, reported
-separately so the run is repeated rather than trusted.
+document, the packet embedding, and the outgoing request are byte-identical.
+
+The third link is removed rather than checked. A participant asked to reproduce the
+packet into the request will summarize it under length, silently and without
+intending to, and every downstream check then describes a document the challenger
+never received. So the request is sent from the packet as stored, never from a copy
+composed by the participant that built it, and the transport reports the digest of
+what it actually sent for the verdict to record. A transport that requires the payload
+to be reproduced cannot satisfy this rule, whatever it reports afterwards.
+
+What the remote participant internally perceived is unverifiable by construction; the
+guarantee deliberately stops at the request boundary. A finding attacking material
+absent from the source terminates as TRANSMISSION_ARTIFACT, neither accepted nor
+refuted, reported separately so the run is repeated rather than trusted. That
+termination depends on the third link: with an unverified sending side, a finding
+attacking material the sender dropped is indistinguishable from noise, and every
+misjudgment falls on the side of absolving the artifact.
 
 ## Doctrine
 

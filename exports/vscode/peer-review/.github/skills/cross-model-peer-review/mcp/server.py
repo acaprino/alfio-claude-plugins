@@ -4,10 +4,15 @@
 # ///
 """Transport-only MCP server for the peer-review plugin.
 
-Knows endpoint, auth, request, response, retry, limits. Nothing else: no project
-filesystem access, no knowledge of the deliberation protocol, no telemetry, no
-disk writes. The command owns the run directory.
+Knows endpoint, auth, request, response, retry, limits. Nothing else: no knowledge of
+the deliberation protocol, no telemetry, no disk writes. The command owns the run
+directory.
+
+It reads from disk in exactly one place, `_load_payload`, and only inside a
+`.peer-review/` run directory. That read is not a convenience: it is what makes R15
+enforceable rather than merely stated. See the comment there.
 """
+import hashlib
 import json
 import os
 import re
@@ -206,15 +211,70 @@ def peer_profiles() -> dict:
     return result
 
 
+def _load_payload(content_path: str) -> tuple[dict | None, str | None]:
+    """Read the outgoing user message from disk. Returns (payload, error).
+
+    The transport takes a path and never a string, which is the whole point. R15 asks
+    that the source document, the packet embedding and the outgoing request be
+    byte-identical, and the third link is the one no after-the-fact check can
+    reconstruct. A caller that has to reproduce a 48 KB packet inside a tool argument
+    summarizes it instead, silently and reliably, and every downstream guarantee then
+    describes a document the challenger never saw. Reading the file here removes the
+    step where that can happen, and the digest returned to the caller is computed over
+    exactly the bytes that go on the wire.
+
+    Reads are confined to a `.peer-review/` run directory below the working directory:
+    this is a tool that sends what it reads to a third party, so the set of files it
+    can be aimed at is the set the protocol writes.
+    """
+    try:
+        path = Path(content_path).expanduser().resolve()
+    except (OSError, RuntimeError) as error:
+        return None, f"cannot resolve content_path: {error}"
+    root = (Path.cwd() / ".peer-review").resolve()
+    if root not in path.parents:
+        return None, (
+            f"content_path must be inside {root}; got {path}. The transport sends what "
+            f"it reads, so it reads only run directories"
+        )
+    if not path.is_file():
+        return None, f"content_path is not a readable file: {path}"
+    try:
+        raw = path.read_bytes()
+    except OSError as error:
+        return None, f"cannot read content_path: {error}"
+    try:
+        # Bytes rather than read_text: text mode rewrites CRLF to LF on Windows, and a
+        # digest over rewritten bytes describes a document that exists nowhere.
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError as error:
+        return None, f"content_path is not valid UTF-8: {error}"
+    if not text.strip():
+        return None, f"content_path is empty: {path}"
+    return {
+        "text": text,
+        "sha256": hashlib.sha256(raw).hexdigest(),
+        "bytes": len(raw),
+        "path": str(path),
+    }, None
+
+
 @mcp.tool()
 def peer_ask(
     profile: str,
     system: str,
-    messages: list[dict],
+    content_path: str,
     max_output_tokens: int | None = None,
     temperature: float | None = None,
 ) -> dict:
-    """Send one request to the named profile's OpenAI-compatible endpoint."""
+    """Send one request to the named profile's OpenAI-compatible endpoint.
+
+    `content_path` is the file holding the outgoing user message, which must sit in a
+    `.peer-review/` run directory below the working directory. There is deliberately
+    no parameter that accepts that text inline; `_load_payload` says why. The reply
+    carries `sent_bytes` and `sent_sha256`, computed over what was actually sent, for
+    the caller to check against the file it named.
+    """
     config, _ = _load_profiles()
     entry = config.get("profiles", {}).get(profile)
     if entry is None:
@@ -245,11 +305,18 @@ def peer_ask(
         return {"error": f"profile '{profile}' has invalid token_param '{token_param}'"}
     timeout_s = entry.get("timeout_seconds") or REQUEST_TIMEOUT_SECONDS
 
+    sent, payload_error = _load_payload(content_path)
+    if payload_error:
+        return {"error": payload_error}
+
     def _build(legacy: bool) -> bytes:
         """The request body. `legacy` drops fields older endpoints may not know."""
         payload: dict = {
             "model": model,
-            "messages": [{"role": "system", "content": system}, *messages],
+            "messages": [
+                {"role": "system", "content": system},
+                {"role": "user", "content": sent["text"]},
+            ],
             # Streamed deliberately. A challenge round is a long generation, and a
             # non-streamed request must complete inside one response, which is what
             # turns a slow answer into a gateway 504. Streaming also converts
@@ -269,7 +336,10 @@ def peer_ask(
 
     body = _build(legacy=False)
     if len(body) > MAX_PAYLOAD_BYTES:
-        return {"error": f"payload is {len(body)} bytes, over the {MAX_PAYLOAD_BYTES} byte cap; not sent"}
+        return {
+            "error": f"payload is {len(body)} bytes, over the {MAX_PAYLOAD_BYTES} byte "
+            f"cap; not sent ({sent['bytes']} of it is {sent['path']})"
+        }
 
     url = entry["base_url"].rstrip("/") + "/chat/completions"
     retried = False
@@ -303,6 +373,12 @@ def peer_ask(
                 "model": resp_model or model,
                 "latency_ms": latency_ms,
                 "finish_reason": finish,
+                # What went out, not what was meant to go out. The caller compares
+                # these against the file it named; R15's third link is verified here
+                # or nowhere.
+                "sent_path": sent["path"],
+                "sent_bytes": sent["bytes"],
+                "sent_sha256": sent["sha256"],
             }
             # An endpoint that drops the cap does it silently, so the only evidence is
             # spending more than was allowed. Say so: an ignored cap is an unbounded
