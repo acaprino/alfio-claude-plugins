@@ -29,6 +29,12 @@ respondent, and computes a verdict from a ledger that is never hand-edited.
 7. **Every `peer_ask` call can return `{"error": "..."}` instead of a reply.** Follow
    "Transport error handling" below at every call site; never treat an error payload as
    a challenger reply.
+8. **Never end a turn waiting.** Wherever the run needs the operator, it asks with
+   `AskUserQuestion`; wherever it stops for good, it says the run is over and why. A
+   turn that ends on a printed question is indistinguishable from a finished run, and
+   an operator who reads it as finished waits for a run that is waiting for them.
+   This is a dialogue between two people, not a prompt on a terminal: consent and every
+   other answer are read for what they mean, never matched against a required word.
 
 ## Files this run writes
 
@@ -70,8 +76,16 @@ If the tool returns `{"error": "<message>"}` instead of a reply (`text`, `usage`
 2. Record the phase and the verbatim error message in a running "Transport failures"
    note kept in memory for Phase 6.
 3. Stop issuing further `peer_ask` calls for the rest of the run.
-4. If this happened on the very first call (Phase 2, round 1), there is no ledger yet:
-   report the failure to the operator and stop. Do not write `04-verdict.md`.
+4. If this happened on the very first call (Phase 2, round 1), there is no ledger yet
+   and nothing partial exists to protect. Report the verbatim error, then **ask with
+   `AskUserQuestion`** whether to send the same packet again or end the run. A timeout
+   is the common case here and it is transient: the challenger is thinking and the
+   socket cannot tell that apart from a dead connection. Retrying resends
+   `00-packet.md` unchanged, under the consent already given at Phase 1b, so it needs
+   no second gate; say so in the option text. Do not tell the operator to relaunch the
+   command by hand, and do not attribute the failure to the gateway without evidence:
+   the error message names what was hit and the profile field that changes it. On the
+   second failure, report both and end the run. Do not write `04-verdict.md`.
 5. Otherwise, skip straight to Phase 6. Every finding still `OPEN` or `CHALLENGED` at
    that point is reported in its own "Interrupted by transport failure" verdict
    subsection, not folded into `STANDOFF`: an unanswered call is not the same claim as
@@ -269,7 +283,8 @@ About to send this packet to an external service:
   sha256: <PACKET_SHA>
   sections: Mandate, Artifact, Ground truth, Constraints, Considered and rejected,
             Known weaknesses, Open questions, Out of scope, Response contract
-Nothing else leaves this machine. Send it? (yes / no)
+Nothing else leaves this machine. Later rounds, certification, a corrective round
+and any granted repository excerpt travel under this same consent.
 ```
 
 Where `<base_url>` and `<model>` come from the profile resolved in Phase 0, `<N>` is
@@ -278,11 +293,30 @@ shown because consent is given to one specific file, and the transport reports b
 the digest of what it actually sent: the two are compared in Phase 2, which is what
 makes this gate a decision about a document rather than about an intention.
 
-- **`--dry-run`**: stop here. Report the packet path (`<run directory>/00-packet.md`)
-  and that nothing was sent. End the command.
-- **Otherwise**: wait for the operator's explicit reply. Only a literal `yes` proceeds
-  to Phase 2. Any other reply (`no`, empty, anything ambiguous) aborts the run: report
+3. **Ask, using `AskUserQuestion`.** Do not end the turn on printed text: to the
+   operator, output that asks for nothing is output from a run that finished. Header
+   `Send packet`, question `Send this packet to <model> at <base_url>?`, two options:
+
+   - **Send it** - "Transmits the <N>-byte packet. Rounds, certification and granted excerpts follow under this consent."
+   - **Do not send** - "Nothing leaves the machine. The packet stays at <run directory>/00-packet.md."
+
+- **`--dry-run`**: stop here, before the question. Report the packet path
+  (`<run directory>/00-packet.md`) and that nothing was sent. End the command.
+- **Consent is read as intent, never as a token.** The operator answers a question;
+  they are not entering a password. `Send it`, `ok`, `yes`, `sì`, `vai`, `procedi`,
+  `dai`, `go ahead`, `send`, or any other plain affirmative in any language proceeds
+  to Phase 2. `no`, `stop`, `annulla`, `not now` or any plain refusal aborts: report
   that consent was withheld, leave the run directory in place, end the command.
+  **Never treat a clear yes as a refusal because of its wording.** An affirmative
+  carrying a condition or a question ("ok but what is in it?", "yes, without the
+  appendix") is not consent yet: answer what was asked and ask again.
+- **Ambiguity is asked about, not decided.** If a reply is genuinely unclear, ask once
+  more, naming both outcomes in one sentence. A second unclear reply ends the run with
+  consent withheld. Silence is never consent, and neither is an unrelated instruction.
+- **The gate can be paused and resumed.** An operator who answers something else
+  entirely has not refused: answer them, then re-ask. The packet on disk is frozen and
+  its digest is recorded, so the delay costs nothing and the gate is still about the
+  same bytes.
 
 ## Phase 2: Round 1
 

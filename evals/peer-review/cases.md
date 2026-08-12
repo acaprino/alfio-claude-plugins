@@ -341,6 +341,39 @@ repository root.
 
 ---
 
+### Case 12: The consent gate is a question, and consent is intent
+
+**Invariant.** The gate is a dialogue turn, not a form field. It asks visibly,
+so an operator can tell the run is waiting for them; and it reads the answer
+for what it means, so a plain yes in any wording or language proceeds and a
+plain no stops. Ambiguity is re-asked, never resolved by the implementation.
+
+This case exists because the opposite shipped. Through peer-review 2.0.0 the
+binding required a literal `yes`, and a run in another repository stalled for
+hours: the operator answered `ok`, the run declined to read it as consent, and
+because the gate had only printed text and ended its turn, the display was
+indistinguishable from a finished run. Neither half is a wording preference.
+A gate that ends the turn silently converts every slow answer into a hang, and
+a gate that matches tokens converts a granted consent into a withheld one,
+which is the failure mode that looks like caution and is not.
+
+**Probe.** `commands/review.md` Critical rule 8 and Phase 1b step 3 onward;
+`protocol/PROTOCOL.md` R5, third paragraph.
+
+**Pass.** All four hold. (a) Phase 1b asks through the harness's own question
+mechanism after presenting the disclosure block, rather than ending the turn on
+printed text. (b) The command states that consent is read as intent and lists
+affirmatives beyond `yes`, in more than one language. (c) An unclear reply is
+re-asked exactly once before the run ends with consent withheld, and silence is
+named as never consent. (d) R5 carries the rule in harness-independent terms,
+so a second binding inherits it. A version that reintroduces a required token,
+or that presents the gate as output without asking, fails. Note the two halves
+are separable: making consent lenient while still ending the turn silently
+still hangs, and asking visibly while still matching a token still refuses a
+granted consent.
+
+---
+
 ## Results
 
 Run: 2026-08-11, against the working tree at commit `d9f7fc0` (branch

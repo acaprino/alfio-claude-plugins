@@ -72,6 +72,15 @@ that cap and the possibility of these later payloads at the same gate, before as
 for consent, rather than gating each one separately. A dry-run mode MUST exist that
 builds the packet and stops without any transmission.
 
+Consent is an answer given by a person, and a binding MUST read it as one. It MUST NOT
+require a particular word: any plain affirmative consents, any plain refusal withholds,
+and a reply that is neither is asked about again rather than resolved by the
+implementation. Refusing a clear yes over its wording is a defect, not caution. The
+gate MUST also be unmistakable as a question at the moment it is asked: a run that
+displays the disclosure and then falls silent is indistinguishable from a run that
+finished, and an operator reading it that way waits on a run that is waiting on them.
+Neither silence nor an unrelated instruction is ever consent.
+
 ### R6. Challenge contract
 The first challenge round contains, in order: a frame challenge (is the mandate the
 right question, is the decomposition natural, which rejection rationale fails), before

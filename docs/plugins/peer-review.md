@@ -108,12 +108,16 @@ The command resolves the profile, checks the key is available, spawns the packet
 About to send this packet to an external service:
   destination: https://api.openai.com/v1  model: gpt-5.6
   size: 48213 bytes (transport cap: 400000 bytes)
+  sha256: 9f2c...e41a
   sections: Mandate, Artifact, Ground truth, Constraints, Considered and rejected,
             Known weaknesses, Open questions, Out of scope, Response contract
-Nothing else leaves this machine. Send it? (yes / no)
+Nothing else leaves this machine. Later rounds, certification, a corrective round
+and any granted repository excerpt travel under this same consent.
 ```
 
-Only a literal `yes` proceeds. Anything else aborts the run with the directory left on disk. That single approval covers the whole run: rounds 2 and 3, certification, a corrective round, and any repository material granted to a context request. You are not asked again.
+followed by the actual question, asked so that you can see it is waiting for you: **Send this packet to gpt-5.6 at https://api.openai.com/v1?**
+
+Answer it in your own words. `ok`, `sì`, `send it` and every other plain yes proceed; a plain no stops the run with the directory left on disk; anything unclear gets asked again rather than guessed at. Ask a question back and you get an answer and the question again, with the same frozen packet. That single approval covers the whole run: rounds 2 and 3, certification, a corrective round, and any repository material granted to a context request. You are not asked again.
 
 **4. Read `04-verdict.md`.** It is the only file written for a human, and it is computed from the ledger rather than composed, so its prose can explain an outcome but never change one.
 
@@ -182,7 +186,7 @@ The plugin is one conforming binding of a protocol it does not own, and the laye
 
 **Provenance is recorded on four axes**, model, runtime, context, human, per role, never collapsed into one label and deliberately never scored.
 
-**Consent is given once.** A single gate before round 1 shows the destination, the packet's byte size, and its section list; only a literal `yes` proceeds. That one approval covers everything the run may later send: rounds 2 and 3, certification, a corrective round if one runs, and up to 10 files or 200 KB of repository material granted to a Phase 2b context request, tagged GIVEN. `--dry-run` builds the packet and stops before that gate is even asked, so nothing reaches the network.
+**Consent is given once.** A single gate before round 1 shows the destination, the packet's byte size, its digest and its section list, then asks; the answer is read for what it means, not matched against a required word. That one approval covers everything the run may later send: rounds 2 and 3, certification, a corrective round if one runs, and up to 10 files or 200 KB of repository material granted to a Phase 2b context request, tagged GIVEN. `--dry-run` builds the packet and stops before that gate is even asked, so nothing reaches the network.
 
 **Termination is mechanical, not narrative.** Every finding ends in one of nine states:
 

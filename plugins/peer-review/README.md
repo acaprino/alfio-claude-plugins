@@ -102,9 +102,13 @@ run it for real:
 /peer-review:review docs/plans/my-plan.md --challenger=gpt
 ```
 
-At the consent gate you are shown the destination, the byte size, and the section
-list before anything is sent. Only a literal `yes` proceeds; anything else aborts the
-run with the packet left on disk for inspection.
+At the consent gate you are shown the destination, the byte size, the packet digest
+and the section list, and then asked, as a question you can see and answer. Answer it
+however you like: `ok`, `sì`, `send it` and any other plain yes proceed, a plain no
+stops the run with the packet left on disk for inspection, and anything unclear is
+asked about again rather than guessed at. Ask something back instead of answering and
+the run answers you and re-asks; the packet is frozen, so nothing is lost by taking
+your time.
 
 Useful flags: `--rounds=N` (`2` or `3`, default `3`; a value below `2` is rejected, a
 run with findings can never terminate after round one). `--apply` (after the verdict
@@ -252,10 +256,11 @@ the wire, and the run's verdict records them.
 ## What never leaves the machine
 
 Explicit consent is given exactly once, at the single consent gate before round 1,
-never per round. The prompt shows the destination, the packet's byte size, its sha256,
-and its section list, and only a literal `yes` proceeds. The digest is there so the
-approval attaches to one specific file: the transport reports back the digest of what
-it actually sent, and the run stops if the two ever differ. That one `yes` covers the whole run:
+never per round. The question shows the destination, the packet's byte size, its
+sha256, and its section list, and it is read for what it means rather than matched
+against a required word. The digest is there so the approval attaches to one specific
+file: the transport reports back the digest of what it actually sent, and the run
+stops if the two ever differ. That one yes covers the whole run:
 the user approves the packet, and afterward the run may send round 2 and round 3
 challenge payloads, the certification pass, and the corrective round if one runs, with
 no further prompt. It also covers Phase 2b context amendments: repository material
