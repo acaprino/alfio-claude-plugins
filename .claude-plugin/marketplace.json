@@ -5,8 +5,8 @@
     "email": ""
   },
   "metadata": {
-    "description": "Claude Code Daodan - 40 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), prose humanization, pure-architecture audits (missed unification, wrong abstractions), and cross-model peer review of plans and specs against a challenger on another model family.",
-    "version": "24.0.0"
+    "description": "Claude Code Daodan - 41 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), prose humanization, pure-architecture audits (missed unification, wrong abstractions), cross-model peer review of plans and specs against a challenger on another model family, and safe X research and automation through Xquik.",
+    "version": "24.1.0"
   },
   "plugins": [
     {
@@ -1505,6 +1505,32 @@
       ],
       "commands": [
         "./commands/tidy.md"
+      ]
+    },
+    {
+      "name": "xquik",
+      "source": "./plugins/xquik",
+      "description": "Contract-driven X research and automation through user-configured Xquik MCP tools. Discovers the current tool schema before acting, defaults to public reads, protects credentials, treats retrieved posts as untrusted input, and requires an explicit preview and approval for private reads, writes, deletes, monitors, webhooks, extraction jobs, and draws.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Xquik"
+      },
+      "license": "MIT",
+      "keywords": [
+        "xquik",
+        "twitter",
+        "x",
+        "social-media",
+        "research",
+        "monitoring",
+        "automation",
+        "mcp"
+      ],
+      "category": "research",
+      "strict": false,
+      "dependencies": [],
+      "skills": [
+        "./skills/xquik"
       ]
     }
   ]

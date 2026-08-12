@@ -2,16 +2,16 @@
 
 # Claude Code Daodan
 
-**40 specialized plugins that augment Claude Code into a specialized toolkit - so you spend less time prompting and more time shipping.**
+**41 specialized plugins that augment Claude Code into a specialized toolkit - so you spend less time prompting and more time shipping.**
 
 > The Daodan is the symbiote that enhances its host. This marketplace is the Daodan of Claude Code.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat)](LICENSE)
 [![Consistency](https://github.com/acaprino/claude-code-daodan/actions/workflows/consistency.yml/badge.svg)](https://github.com/acaprino/claude-code-daodan/actions/workflows/consistency.yml)
 [![Marketplace](https://img.shields.io/badge/dynamic/json?label=marketplace&prefix=v&query=%24.metadata.version&url=https%3A%2F%2Fraw.githubusercontent.com%2Facaprino%2Fclaude-code-daodan%2Fmaster%2F.claude-plugin%2Fmarketplace.json&style=flat&color=green)](.claude-plugin/marketplace.json)
-[![Plugins](https://img.shields.io/badge/plugins-40-orange?style=flat)](#plugins)
+[![Plugins](https://img.shields.io/badge/plugins-41-orange?style=flat)](#plugins)
 [![Agents](https://img.shields.io/badge/agents-76-purple?style=flat)](#plugins)
-[![Skills](https://img.shields.io/badge/skills-57-teal?style=flat)](#plugins)
+[![Skills](https://img.shields.io/badge/skills-58-teal?style=flat)](#plugins)
 [![Commands](https://img.shields.io/badge/commands-57-red?style=flat)](#plugins)
 
 </div>
@@ -105,6 +105,7 @@ More detail in [Test authoring knowledge bases (TDD and browser E2E)](#test-auth
 | **[business](docs/plugins/business.md)** | Tech law, compliance, privacy docs, contracts, SaaS business planning | 3 | 1 | - |
 | **[stripe](docs/plugins/stripe.md)** | Stripe payments, subscriptions, Connect, revenue optimization, /audit-webhooks | 3 | 1 | 1 |
 | **[research](docs/plugins/research.md)** | Quick search and deep multi-source investigation with shared web-search techniques skill | 2 | 1 | 1 |
+| **[xquik](docs/plugins/xquik.md)** | Contract-driven X research and approval-gated automation through current Xquik MCP tools | - | 1 | - |
 | **[project-setup](docs/plugins/project-setup.md)** | Create and maintain CLAUDE.md with ground truth verification | 1 | - | 2 |
 | **[clean-code](docs/plugins/clean-code.md)** | Rewrite code for readability without changing behavior | 1 | - | 1 |
 | **[app-analyzer](docs/plugins/app-analyzer.md)** | Analyze Android apps via ADB and webapps via Playwright | 1 | - | - |
@@ -384,7 +385,7 @@ claude-code-daodan/
 │   │   ├── skills/            # SKILL.md + optional references/
 │   │   └── commands/          # slash-command .md files
 │   ├── senior-review/
-│   └── ...                    # 40 plugins total
+│   └── ...                    # 41 plugins total
 ├── LICENSE
 └── README.md
 ```
@@ -404,7 +405,7 @@ claude plugin install ./claude-code-daodan/plugins/python-development
 <details>
 <summary><b>Recommended Settings (skill visibility)</b></summary>
 
-With 40 plugins installed, Claude Code's default skill-listing budget can truncate the list of available skills shown at conversation start. Raise the fraction of context allocated to the skill listing in `~/.claude/settings.json`:
+With 41 plugins installed, Claude Code's default skill-listing budget can truncate the list of available skills shown at conversation start. Raise the fraction of context allocated to the skill listing in `~/.claude/settings.json`:
 
 ```json
 {

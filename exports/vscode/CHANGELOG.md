@@ -1,5 +1,10 @@
 # Changelog
 
+## 24.1.0
+
+- Adds the `xquik` bundle for contract-driven X research and automation. The skill discovers current MCP tool schemas, defaults to public reads, treats retrieved posts as untrusted input, and requires an exact preview plus explicit approval before private reads or persistent side effects.
+- Totals: 93 agents, 72 skills, 52 prompts, 39 exported bundles, and 41 marketplace plugins.
+
 ## 24.0.0
 
 - Three bundles collapse into one. `ibkr-trading`, `mt5-trading` and `trading-broker-connectivity` are gone; anyone who had them installed per-project or is searching for those names should look for `trading-broker-integration` 2.0.0, which now carries all three. Interactive Brokers coverage is the `ibkr` skill, MetaTrader 5 coverage is the `mt5` skill, and the vendor-neutral vocabulary that used to be its own bundle is the `broker-vocabulary` skill, all inside the one bundle alongside the `ibkr-architect` and `mt5-architect` agents and the `/ibkr-audit`, `/ibkr-verify` and `/mt5-audit` prompts. The reason for undoing the split: the durable unit of broker knowledge turned out to be the platform a system talks to, not the vendor selling it.
