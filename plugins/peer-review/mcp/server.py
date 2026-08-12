@@ -225,9 +225,20 @@ def peer_ask(
         return {"error": f"profile '{profile}' is missing required field 'model'"}
 
     tokens = max_output_tokens or entry.get("max_output_tokens")
+    # Which field carries the output cap. `max_tokens` is the default because it is
+    # the one every OpenAI-compatible endpoint understands, including gateways that
+    # normalize it to `max_completion_tokens` on the caller's behalf. Sending the
+    # modern field directly is more correct on paper and strictly worse in practice:
+    # an endpoint that does not know it drops it SILENTLY, with no error to trigger a
+    # fallback, and an ignored cap means an unbounded generation that runs until some
+    # proxy times out. Override per profile only for an endpoint that rejects
+    # `max_tokens` outright, which reasoning-model APIs do.
+    token_param = entry.get("token_param", "max_tokens")
+    if token_param not in ("max_tokens", "max_completion_tokens"):
+        return {"error": f"profile '{profile}' has invalid token_param '{token_param}'"}
 
     def _build(legacy: bool) -> bytes:
-        """The request body. `legacy` is the pre-reasoning-model parameter shape."""
+        """The request body. `legacy` drops fields older endpoints may not know."""
         payload: dict = {
             "model": model,
             "messages": [{"role": "system", "content": system}, *messages],
@@ -239,10 +250,7 @@ def peer_ask(
             "stream": True,
         }
         if tokens:
-            # max_tokens is deprecated for chat completions and reasoning models
-            # reject it. Send the modern field, and fall back only if the endpoint
-            # says it does not know it.
-            payload["max_tokens" if legacy else "max_completion_tokens"] = tokens
+            payload["max_tokens" if legacy else token_param] = tokens
         if not legacy:
             # Without this, a streamed response carries no usage block at all, and
             # the verdict's token accounting would silently report nothing.
@@ -281,13 +289,24 @@ def peer_ask(
                 }
             if not text:
                 return {"error": f"empty completion after {latency_ms} ms (finish_reason={finish})"}
-            return {
+            result = {
                 "text": text,
                 "usage": usage,
                 "model": resp_model or model,
                 "latency_ms": latency_ms,
                 "finish_reason": finish,
             }
+            # An endpoint that drops the cap does it silently, so the only evidence is
+            # spending more than was allowed. Say so: an ignored cap is an unbounded
+            # generation, and unbounded generations are what proxies time out on.
+            spent = usage.get("completion_tokens")
+            if tokens and isinstance(spent, int) and spent > tokens:
+                result["warning"] = (
+                    f"output cap ignored: asked {tokens} via '{token_param}', spent "
+                    f"{spent}. Set token_param on profile '{profile}' to the field this "
+                    f"endpoint honors, or the generation runs unbounded"
+                )
+            return result
         except urllib.error.HTTPError as error:
             error_body = error.read().decode("utf-8", "replace")
             detail = _redact(error_body, api_key)[:500]
