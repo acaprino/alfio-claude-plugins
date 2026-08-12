@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Claude Code Daodan - 41 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), prose humanization, pure-architecture audits (missed unification, wrong abstractions), and cross-model peer review of plans and specs against a challenger on another model family.",
-    "version": "22.2.0"
+    "version": "22.3.0"
   },
   "plugins": [
     {
@@ -1001,8 +1001,8 @@
     {
       "name": "ibkr-trading",
       "source": "./plugins/ibkr-trading",
-      "description": "Interactive Brokers algotrading - TWS API architecture, ib_async event-driven programming, market data subscriptions, order execution with bracket orders, order lifecycle verdict contracts (placement verdicts, warning-vs-rejection grades, terminal presets, netted close paths), venue-boundary failure modes (async rejection ingress, tick conformance, FX-as-CFD routing, NaN-safe sizing), reconnection resilience, Gateway automation with IBC, and Windows production deployment",
-      "version": "1.4.2",
+      "description": "Interactive Brokers reference for the TWS API and ib_async, across equities, options, futures, FX, CFDs and crypto - per-class contracts and market rules, order types and TIF/fill-mode capability resolution, brackets in depth, a classified catalog of all 458 published message codes with the grade ib_async assigns each, venue-behaviour verification tooling (paper Gateway provisioning, whatIf shape probes, bracket lifecycle transcripts), reconnection resilience, and deployment on Windows, Linux, macOS and Docker",
+      "version": "2.0.0",
       "author": {
         "name": "Alfio"
       },
@@ -1029,7 +1029,8 @@
         "./skills/ibkr-trading"
       ],
       "commands": [
-        "./commands/ibkr-audit.md"
+        "./commands/ibkr-audit.md",
+        "./commands/ibkr-verify.md"
       ]
     },
     {

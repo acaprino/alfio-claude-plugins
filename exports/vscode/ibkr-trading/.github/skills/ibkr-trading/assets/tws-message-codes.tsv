@@ -1,0 +1,467 @@
+# IBKR TWS API message codes, with the grade ib_async assigns each one.
+# Source: https://ibkrcampus.com/docs/tws-api/doc/error-handling/error-codes.md (retrieved 2026-08-12)
+# ib_async_grade: computed from ib_async.wrapper.warningCodes = {105,110,165,321,329,399,404,434,492,10167}
+#   plus the blanket range 2100 <= code < 2200. Everything else is fatal: for a trade that is not
+#   isDone(), ib_async sets orderStatus.status = Cancelled locally and emits cancelledEvent,
+#   without sending anything to the venue.
+# Codes absent from this file are absent from the IBKR published table (e.g. 10257, 10349). See
+#   error-codes-and-verdicts.md. Absence is not evidence that a code does not exist.
+code	ib_async_grade	message
+100	fatal	Max rate of messages per second has been exceeded.
+101	fatal	Max number of tickers has been reached.
+102	fatal	Duplicate ticker ID.
+103	fatal	Duplicate order ID.
+104	fatal	Can't modify a filled order.
+105	warning	Order being modified does not match original order.
+106	fatal	Can't transmit order ID:
+107	fatal	Cannot transmit incomplete order.
+109	fatal	Price is out of the range defined by the Percentage setting at order defaults frame. The order will not be transmitted.
+110	warning	The price does not conform to the minimum price variation for this contract.
+111	fatal	The TIF (Tif type) and the order type are incompatible.
+113	fatal	The Tif option should be set to DAY for MOC and LOC orders.
+114	fatal	Relative orders are valid for stocks only.
+115	fatal	Relative orders for US stocks can only be submitted to SMART, SMART\_ECN, INSTINET, or PRIMEX.
+116	fatal	The order cannot be transmitted to a dead exchange.
+117	fatal	The block order size must be at least 50.
+118	fatal	VWAP orders must be routed through the VWAP exchange.
+119	fatal	Only VWAP orders may be placed on the VWAP exchange.
+120	fatal	It is too late to place a VWAP order for today.
+121	fatal	Invalid BD flag for the order. Check "Destination" and "BD" flag.
+122	fatal	No request tag has been found for order:
+123	fatal	No record is available for conid:
+124	fatal	No market rule is available for conid:
+125	fatal	Buy price must be the same as the best asking price.
+126	fatal	Sell price must be the same as the best bidding price.
+129	fatal	VWAP orders must be submitted at least three minutes before the start time.
+131	fatal	The sweep-to-fill flag and display size are only valid for US stocks routed through SMART, and will be ignored.
+132	fatal	This order cannot be transmitted without a clearing account.
+133	fatal	Submit new order failed.
+134	fatal	Modify order failed.
+135	fatal	Can't find order with ID =
+136	fatal	This order cannot be cancelled.
+137	fatal	VWAP orders can only be cancelled up to three minutes before the start time.
+138	fatal	Could not parse ticker request:
+139	fatal	Parsing error:
+140	fatal	The size value should be an integer:
+141	fatal	The price value should be a double:
+142	fatal	Institutional customer account does not have account info
+143	fatal	Requested ID is not an integer number.
+144	fatal	Order size does not match total share allocation. To adjust the share allocation, right-click on the order and select Modify > Share Allocation 
+145	fatal	Error in validating entry fields –
+146	fatal	Invalid trigger method.
+147	fatal	The conditional contract info is incomplete.
+148	fatal	Conditional submission of orders is supported for Limit, Market, MidPrice, Relative and Snap order types only. Conditional cancelation of orders is supported for Limit and MidPrice order types only.
+151	fatal	This order cannot be transmitted without a user name.
+152	fatal	The "hidden" order attribute may not be specified for this order.
+153	fatal	EFPs can only be limit orders.
+154	fatal	Orders cannot be transmitted for a halted security.
+155	fatal	A sizeOp order must have a user name and account.
+156	fatal	A SizeOp order must go to IBSX
+157	fatal	An order can be EITHER Iceberg or Discretionary. Please remove either the Discretionary amount or the Display size.
+158	fatal	You must specify an offset amount or a percent offset value.
+159	fatal	The percent offset value must be between 0% and 100%.
+160	fatal	The size value cannot be zero.
+161	fatal	Cancel attempted when order is not in a cancellable state. Order permId =
+162	fatal	Historical market data Service error message.
+163	fatal	The price specified would violate the percentage constraint specified in the default order settings.
+164	fatal	There is no market data to check price percent violations.
+165	warning	Historical market Data Service query message.
+166	fatal	HMDS Expired Contract Violation.
+167	fatal	VWAP order time must be in the future.
+168	fatal	Discretionary amount does not conform to the minimum price variation for this contract.
+200	fatal	
+201	fatal	Order rejected – Reason:
+202	fatal	Order cancelled – Reason:
+203	fatal	The contract description specified for %S is ambiguous; you must specify the currency.
+300	fatal	Can't find EId with ticker Id:
+301	fatal	Invalid ticker action:
+302	fatal	Error parsing stop ticker string:
+303	fatal	Invalid action:
+304	fatal	Invalid account value action:
+305	fatal	Request parsing error, the request has been ignored.
+306	fatal	Error processing DDE request:
+307	fatal	Invalid request topic:
+308	fatal	Unable to create the 'API' page in TWS as the maximum number of pages already exists.
+309	fatal	Max number (3) of market depth requests has been reached. Note: TWS currently limits users to a maximum of 3 distinct market depth requests. This same restriction applies to API clients, however API clients may make multiple market depth requests for the same security.
+310	fatal	Can't find the subscribed market depth with tickerId:
+311	fatal	The origin is invalid.
+312	fatal	The combo details are invalid.
+313	fatal	The combo details for leg " are invalid.
+314	fatal	Security type 'BAG' requires combo leg details.
+315	fatal	Stock combo legs are restricted to SMART order routing.
+316	fatal	Market depth data has been HALTED. Please re-subscribe.
+317	fatal	Market depth data has been RESET. Please empty deep book contents before applying any new entries.
+319	fatal	Invalid log level
+320	fatal	Server error when reading an API client request.
+321	warning	Server error when validating an API client request.
+322	fatal	Server error when processing an API client request.
+323	fatal	Server error: cause – s
+324	fatal	Server error when reading a DDE client request (missing information).
+325	fatal	Discretionary orders are not supported for this combination of exchange and order type.
+326	fatal	Unable to connect as the client id is already in use. Retry with a unique client id.
+327	fatal	Only API connections with clientId set to 0 can set the auto bind TWS orders property.
+328	fatal	Trailing stop orders can be attached to limit or stop-limit orders only.
+329	warning	Order modify failed. Cannot change to the new order type.
+330	fatal	Only FA or STL customers can request managed accounts list.
+331	fatal	Internal error. FA or STL does not have any managed accounts.
+332	fatal	The account codes for the order profile are invalid.
+333	fatal	Invalid share allocation syntax.
+334	fatal	Invalid Good Till Date order
+335	fatal	Invalid delta: The delta must be between 0 and 100.
+336	fatal	The time or time zone is invalid. The correct format is hh:mm:ss xxx where xxx is an optionally specified time-zone. E.g.: 15:59:00 EST Note that there is a space between the time and the time zone. If no time zone is specified, local time is assumed.
+337	fatal	The date, time, or time-zone entered is invalid. The correct format is yyyymmdd hh:mm:ss xxx where yyyymmdd and xxx are optional. E.g.: 20031126 15:59:00 ESTNote that there is a space between the date and time, and between the time and time-zone.
+338	fatal	Good After Time orders are currently disabled on this exchange.
+339	fatal	Futures spread are no longer supported. Please use combos instead.
+340	fatal	Invalid improvement amount for box auction strategy.
+341	fatal	Invalid delta. Valid values are from 1 to 100. You can set the delta from the "Pegged to Stock" section of the Order Ticket Panel, or by selecting Page/Layout from the main menu and adding the Delta column.
+342	fatal	Pegged order is not supported on this exchange.
+343	fatal	The date, time, or time-zone entered is invalid. The correct format is yyyymmdd hh:mm:ss xxx
+344	fatal	The account logged into is not a financial advisor account.
+345	fatal	Generic combo is not supported for FA advisor account.
+346	fatal	Not an institutional account or an away clearing account.
+347	fatal	Short sale slot value must be 1 (broker holds shares) or 2 (delivered from elsewhere).
+348	fatal	Order not a short sale – type must be SSHORT to specify short sale slot.
+349	fatal	Generic combo does not support "Good After" attribute.
+350	fatal	Minimum quantity is not supported for best combo order.
+351	fatal	The "Regular Trading Hours only" flag is not valid for this order.
+352	fatal	Short sale slot value of 2 (delivered from elsewhere) requires location.
+353	fatal	Short sale slot value of 1 requires no location be specified.
+354	fatal	Requested market data is not subscribed. Check API status by selecting the Account menu then under Management choose Market Data Subscription Manager and/or availability of delayed data.
+355	fatal	Order size does not conform to market rule.
+356	fatal	Smart-combo order does not support OCA group.
+357	fatal	Your client version is out of date.
+358	fatal	Smart combo child order not supported.
+359	fatal	Combo order only supports reduce on fill without block(OCA).
+360	fatal	No whatif check support for smart combo order.
+361	fatal	Invalid trigger price.
+362	fatal	Invalid adjusted stop price.
+363	fatal	Invalid adjusted stop limit price.
+364	fatal	Invalid adjusted trailing amount.
+365	fatal	No scanner subscription found for ticker id:
+366	fatal	No historical data query found for ticker id:
+367	fatal	Volatility type if set must be 1 or 2 for VOL orders. Do not set it for other order types.
+368	fatal	Reference Price Type must be 1 or 2 for dynamic volatility management. Do not set it for non-VOL orders.
+369	fatal	Volatility orders are only valid for US options.
+370	fatal	Dynamic Volatility orders must be SMART routed, or trade on a Price Improvement Exchange.
+371	fatal	VOL order requires positive floating point value for volatility. Do not set it for other order types.
+372	fatal	Cannot set dynamic VOL attribute on non-VOL order.
+373	fatal	Can only set stock range attribute on VOL or RELATIVE TO STOCK order.
+374	fatal	If both are set, the lower stock range attribute must be less than the upper stock range attribute.
+375	fatal	Stock range attributes cannot be negative.
+376	fatal	The order is not eligible for continuous update. The option must trade on a cheap-to-reroute exchange.
+377	fatal	Must specify valid delta hedge order aux. price.
+378	fatal	Delta hedge order type requires delta hedge aux. price to be specified.
+379	fatal	Delta hedge order type requires that no delta hedge aux. price be specified.
+380	fatal	This order type is not allowed for delta hedge orders.
+381	fatal	Your DDE.dll needs to be upgraded.
+382	fatal	The price specified violates the number of ticks constraint specified in the default order settings.
+383	fatal	The size specified violates the size constraint specified in the default order settings.
+384	fatal	Invalid DDE array request.
+385	fatal	Duplicate ticker ID for API scanner subscription.
+386	fatal	Duplicate ticker ID for API historical data query.
+387	fatal	Unsupported order type for this exchange and security type.
+388	fatal	Order size is smaller than the minimum requirement.
+389	fatal	Supplied routed order ID is not unique.
+390	fatal	Supplied routed order ID is invalid.
+391	fatal	The time or time-zone entered is invalid. The correct format is hh:mm:ss xxx
+392	fatal	Invalid order: contract expired.
+393	fatal	Short sale slot may be specified for delta hedge orders only.
+394	fatal	Invalid Process Time: must be integer number of milliseconds between 100 and 2000. Found:
+395	fatal	Due to system problems, orders with OCA groups are currently not being accepted.
+396	fatal	Due to system problems, application is currently accepting only Market and Limit orders for this contract.
+397	fatal	Due to system problems, application is currently accepting only Market and Limit orders for this contract.
+398	fatal	cannot be used as a condition trigger.
+399	warning	Order message error
+400	fatal	Algo order error.
+401	fatal	Length restriction.
+402	fatal	Conditions are not allowed for this contract.
+403	fatal	Invalid stop price.
+404	warning	Shares for this order are not immediately available for short sale. The order will be held while we attempt to locate the shares.
+405	fatal	The child order quantity should be equivalent to the parent order size.
+406	fatal	The currency is not allowed.
+407	fatal	The symbol should contain valid non-unicode characters only.
+408	fatal	Invalid scale order increment.
+409	fatal	Invalid scale order. You must specify order component size.
+410	fatal	Invalid subsequent component size for scale order.
+411	fatal	The "Outside Regular Trading Hours" flag is not valid for this order.
+412	fatal	The contract is not available for trading.
+413	fatal	What-if order should have the transmit flag set to true.
+414	fatal	Snapshot market data subscription is not applicable to generic ticks.
+415	fatal	Wait until previous RFQ finishes and try again.
+416	fatal	RFQ is not applicable for the contract. Order ID:
+417	fatal	Invalid initial component size for scale order.
+418	fatal	Invalid scale order profit offset.
+419	fatal	Missing initial component size for scale order.
+420	fatal	Invalid real-time query.
+421	fatal	Invalid route.
+422	fatal	The account and clearing attributes on this order may not be changed.
+423	fatal	Cross order RFQ has been expired. THI committed size is no longer available. Please open order dialog and verify liquidity allocation.
+424	fatal	FA Order requires allocation to be specified.
+425	fatal	FA Order requires per-account manual allocations because there is no common clearing instruction. Please use order dialog Adviser tab to enter the allocation.
+426	fatal	None of the accounts have enough shares.
+427	fatal	Mutual Fund order requires monetary value to be specified.
+428	fatal	Mutual Fund Sell order requires shares to be specified.
+429	fatal	Delta neutral orders are only supported for combos (BAG security type).
+430	fatal	We are sorry, but fundamentals data for the security specified is not available.
+431	fatal	What to show field is missing or incorrect.
+432	fatal	Commission must not be negative.
+433	fatal	Invalid "Restore size after taking profit" for multiple account allocation scale order.
+434	warning	The order size cannot be zero.
+435	fatal	You must specify an account.
+436	fatal	You must specify an allocation (either a single account, group, or profile).
+437	fatal	Order can have only one flag Outside RTH or Allow PreOpen.
+438	fatal	The application is now locked.
+439	fatal	Order processing failed. Algorithm definition not found.
+440	fatal	Order modify failed. Algorithm cannot be modified.
+441	fatal	Algo attributes validation failed:
+442	fatal	Specified algorithm is not allowed for this order.
+443	fatal	Order processing failed. Unknown algo attribute.
+444	fatal	Volatility Combo order is not yet acknowledged. Cannot submit changes at this time.
+445	fatal	The RFQ for this order is no longer valid.
+446	fatal	Missing scale order profit offset.
+447	fatal	Missing scale price adjustment amount or interval.
+448	fatal	Invalid scale price adjustment interval.
+449	fatal	Unexpected scale price adjustment amount or interval.
+481	fatal	Order size reduced.
+501	fatal	Already Connected.
+502	fatal	Couldn't connect to TWS. Confirm that "Enable ActiveX and Socket Clients" is enabled and connection port is the same as "Socket Port" on the TWS "Edit->Global Configuration…->API->Settings" menu.
+503	fatal	The TWS is out of date and must be upgraded.
+504	fatal	Not connected.
+505	fatal	Fatal Error: Unknown message id.
+506	fatal	Unsupported Version (not used in Python client)
+507	fatal	Bad Message Length (Java-only)
+508	fatal	Bad Message
+509	fatal	Exception caught while reading socket
+510	fatal	Request Market Data Sending Error –
+511	fatal	Cancel Market Data Sending Error –
+512	fatal	Order Sending Error –
+513	fatal	Account Update Request Sending Error –
+514	fatal	Request For Executions Sending Error –
+515	fatal	Cancel Order Sending Error –
+516	fatal	Request Open Order Sending Error –
+517	fatal	Unknown contract. Verify the contract details supplied. (not used in Python C# client)
+518	fatal	Request Contract Data Sending Error –
+519	fatal	Request Market Depth Sending Error –
+520	fatal	Failed to create socket (not used in C# client)
+521	fatal	Set Server Log Level Sending Error –
+522	fatal	FA Information Request Sending Error –
+523	fatal	FA Information Replace Sending Error –
+524	fatal	Request Scanner Subscription Sending Error –
+525	fatal	Cancel Scanner Subscription Sending Error –
+526	fatal	Request Scanner Parameter Sending Error –
+527	fatal	Request Historical Data Sending Error –
+528	fatal	Request Historical Data Sending Error –
+529	fatal	Request Real-time Bar Data Sending Error –
+530	fatal	Cancel Real-time Bar Data Sending Error –
+531	fatal	Request Current Time Sending Error –
+532	fatal	Request Fundamental Data Sending Error –
+533	fatal	Cancel Fundamental Data Sending Error –
+534	fatal	Request Calculate Implied Volatility Sending Error –
+535	fatal	Request Calculate Option Price Sending Error –
+536	fatal	Cancel Calculate Implied Volatility Sending Error –
+537	fatal	Cancel Calculate Option Price Sending Error –
+538	fatal	Request Global Cancel Sending Error –
+539	fatal	Request Market Data Type Sending Error –
+540	fatal	Request Positions Sending Error –
+541	fatal	Cancel Positions Sending Error –
+542	fatal	Request Account Data Sending Error –
+543	fatal	Cancel Account Data Sending Error –
+544	fatal	Verify Request Sending Error –
+545	fatal	Verify Message Sending Error –
+546	fatal	Query Display Groups Sending Error –
+547	fatal	Subscribe To Group Events Sending Error –
+548	fatal	Update Display Group Sending Error –
+549	fatal	Unsubscribe From Group Events Sending Error –
+550	fatal	Start API Sending Error –
+551	fatal	Verify And Auth Request Sending Error –
+552	fatal	Verify And Auth Message Sending Error –
+553	fatal	Request Positions Multi Sending Error –
+554	fatal	Cancel Positions Multi Sending Error –
+555	fatal	Request Account Updates Multi Sending Error –
+556	fatal	Cancel Account Updates Multi Sending Error –
+557	fatal	Request Security Definition Option Params Sending Error –
+558	fatal	Request Soft Dollar Tiers Sending Error –
+559	fatal	Request Family Codes Sending Error –
+560	fatal	Request Matching Symbols Sending Error –
+561	fatal	Request Market Depth Exchanges Sending Error –
+562	fatal	Request Smart Components Sending Error –
+563	fatal	Request News Providers Sending Error –
+564	fatal	Request News Article Sending Error –
+565	fatal	Request Historical News Sending Error –
+566	fatal	Request Head Time Stamp Sending Error –
+567	fatal	Request Histogram Data Sending Error –
+568	fatal	Cancel Request Histogram Data Sending Error –
+569	fatal	Cancel Head Time Stamp Sending Error –
+570	fatal	Request Market Rule Sending Error –
+571	fatal	Request PnL Sending Error –
+572	fatal	Cancel PnL Sending Error –
+573	fatal	Request PnL Single Error –
+574	fatal	Cancel PnL Single Sending Error –
+575	fatal	Request Historical Ticks Error –
+576	fatal	Request Tick-By-Tick Data Sending Error –
+577	fatal	Cancel Tick-By-Tick Data Sending Error –
+578	fatal	Request Completed Orders Sending Error –
+579	fatal	Invalid symbol in string –
+580	fatal	Request WSH Meta Data Sending Error –
+581	fatal	Cancel WSH Meta Data Sending Error –
+582	fatal	Request WSH Event Data Sending Error –
+583	fatal	Cancel WSH Event Data Sending Error –
+584	fatal	Request User Info Sending Error –
+585	fatal	FA Profile is not supported anymore, use FA Group instead
+586	fatal	Failed to read message because not connected (Used only in Java client)
+587	fatal	Request Current Time In Millis Sending Error –
+588	fatal	Error encoding protobuf
+589	fatal	Cancel Market Depth Sending Error –
+2100	warning	New account data requested from TWS. API client has been unsubscribed from account data.
+2101	warning	Unable to subscribe to account as the following clients are subscribed to a different account.
+2102	warning	Unable to modify this order as it is still being processed.
+2103	warning	A market data farm is disconnected.
+2104	warning	Market data farm connection is OK
+2105	warning	A historical data farm is disconnected.
+2106	warning	A historical data farm is connected.
+2107	warning	A historical data farm connection has become inactive but should be available upon demand.
+2108	warning	A market data farm connection has become inactive but should be available upon demand.
+2109	warning	Order Event Warning: Attribute "Outside Regular Trading Hours" is ignored based on the order type and destination. PlaceOrder is now processed.
+2110	warning	Connectivity between TWS and server is broken. It will be restored automatically.
+2111	warning	The Start and/or End Time for algo order BUY/SELL a contract was adjusted to use the next trading date. To modify this setting, use the Auto-adjust algo order date item on the Orders configuration page
+2119	warning	Market data farm is connecting.
+2130	warning	Warning: products are trading on the basis of currency price with factor.
+2137	warning	Cross Side Warning
+2152	warning	Market depth smart depth exchanges.
+2158	warning	Sec-def data farm connection is OK
+2168	warning	Etrade Only Not Supported Warning
+2169	warning	Firm Quote Only Not Supported Warning
+2188	warning	Up-to-the-second historical data requires additional subscription for the API.
+10000	fatal	Cross currency combo error.
+10001	fatal	Cross currency vol error.
+10002	fatal	Invalid non-guaranteed legs.
+10003	fatal	IBSX not allowed.
+10005	fatal	Read-only models.
+10006	fatal	Missing parent order.
+10007	fatal	Invalid hedge type.
+10008	fatal	Invalid beta value.
+10009	fatal	Invalid hedge ratio.
+10010	fatal	Invalid delta hedge order.
+10011	fatal	Currency is not supported for Smart combo.
+10012	fatal	Invalid allocation percentage
+10013	fatal	Smart routing API error (Smart routing opt-out required).
+10014	fatal	PctChange limits.
+10015	fatal	Trading is not allowed in the API.
+10016	fatal	Contract is not visible.
+10017	fatal	Contracts are not visible.
+10018	fatal	Orders use EV warning.
+10019	fatal	Trades use EV warning.
+10020	fatal	Display size should be smaller than order size./td>
+10021	fatal	Invalid leg2 to Mkt Offset API.
+10022	fatal	Invalid Leg Prio API.
+10023	fatal	Invalid combo display size API.
+10024	fatal	Invalid don't start next legin API.
+10025	fatal	Invalid leg2 to Mkt time1 API.
+10026	fatal	Invalid leg2 to Mkt time2 API.
+10027	fatal	Invalid combo routing tag API.
+10089	fatal	API data requires subscription
+10090	fatal	Part of requested market data is not subscribed.
+10091	fatal	Part of requested market data requires additional subscription for API
+10147	fatal	Order to be canceled was not found.
+10148	fatal	OrderId that needs to be cancelled can not be cancelled, state:
+10186	fatal	Requested market data is not subscribed. Delayed market data is not enabled
+10187	fatal	Failed to request historical ticks:No market data permissions
+10189	fatal	Failed to request tick-by-tick data. Invalid Real-time Query
+10197	fatal	No market data during competing session
+10225	fatal	Bust event occurred, current subscription is deactivated. Please resubscribe real-time bars immediately
+10230	fatal	You have unsaved FA changes. Please retry 'request FA' operation later, when 'replace FA' operation is complete
+10231	fatal	The following Groups and/or Profiles contain invalid accounts:
+10233	fatal	Defaults were inherited from CASH preset during the creation of this order.
+10234	fatal	The Decision Maker field is required and not set for this order (non-desktop).
+10235	fatal	The Decision Maker field is required and not set for this order (ibbot).
+10236	fatal	Child has to be AON if parent order is AON
+10237	fatal	All or None ticket can route entire unfilled size only
+10238	fatal	Some error occured during communication with Advisor Setup web-app
+10239	fatal	This order will affect one or more accounts that are flagged because they do not fit the required risk score criteria prescribed by the group/profile/model allocation.
+10240	fatal	You must enter a valid Price Cap.
+10241	fatal	Order Quantity is expressed in monetary terms. Modification is not supported via API. Please use desktop version to revise this order.
+10242	fatal	Fractional-sized order cannot be modified via API. Please use desktop version to revise this order.
+10243	fatal	Fractional-sized order cannot be placed via API. Please use desktop version to place this order.
+10244	fatal	Cash Quantity cannot be used for this order
+10245	fatal	This financial instrument does not support fractional shares trading
+10246	fatal	This order doesn't support fractional shares trading
+10247	fatal	Only IB SmartRouting supports fractional shares
+10248	fatal	doesn't have permission to trade fractional shares
+10249	fatal	=""> order doesn't support fractional shares
+10250	fatal	The size does not conform to the minimum variation of for this contract
+10251	fatal	Fractional shares are not supported for allocation orders
+10252	fatal	This non-close-position order doesn't support fractional shares trading
+10253	fatal	Clear Away orders are not supported for multi-leg combo with attached hedge.
+10254	fatal	Invalid Order: bond expired
+10268	fatal	The 'EtradeOnly' order attribute is not supported
+10269	fatal	The 'firmQuoteOnly' order attribute is not supported
+10270	fatal	The 'nbboPriceCap' order attribute is not supported
+10276	fatal	News feed is not allowed
+10277	fatal	News feed permissions required
+10278	fatal	Duplicate WSH metadata request
+10279	fatal	Failed request WSH metadata
+10280	fatal	Failed cancel WSH metadata
+10281	fatal	Duplicate WSH event data request
+10282	fatal	WSH metadata not requested
+10283	fatal	Fail request WSH event data
+10284	fatal	Fail cancel WSH event data
+10285	fatal	Your API version does not support fractional sizing rules. Please upgrade to at least version 163
+10286	fatal	%s field cannot contain more than %s decimals.
+10287	fatal	Cryptocurrency order is not confirmed
+10288	fatal	Market order confirmation dialog title for cryptocurrencies
+10289	fatal	You must set Cash Quantity for this order
+10290	fatal	This order only supports CashQty trading.
+10291	fatal	Orders to harvest Capital Loss must use the DAY time-in-force.
+10292	fatal	Order type/action restriction
+10293	fatal	Cryptocurrency Cash Quantity order cannot specify size
+10294	fatal	Cash quantity set on the order does not match total monetary amount of the Group.
+10295	fatal	Only daily resolution supported for Schedule requests
+10296	fatal	The Smart Routing features "Seek Price Improvement" (aka "Route to Dark Pools") and "Do not route to Dark Pools" are mutually exclusive. Enabling both will result in the order being rejected. Please choose only one of these commands.%s
+10297	fatal	Not Held attribute is invalid for this order.
+10298	fatal	Cannot trade an instrument with currency different from model currency
+10299	fatal	Expected what to show is %s
+10300	fatal	%s: The date
+10301	fatal	%s: The date
+10302	fatal	Min trade trade quantity is not allowed for this order
+10303	fatal	Invalid min trade quantity value (%s). It must be a positive integer
+10304	fatal	Minimum Competing Size value must be non-negative.
+10305	fatal	Compete against best bid or offer Offset dollar value must be positive
+10306	fatal	Mid offsets are not allowed
+10307	fatal	Invalid MidOffsetAtWhole and/or MidOffsetAtHalf attribute values
+10308	fatal	Revision to Post to ATS value presence is not allowed.
+10309	fatal	Invalid WSH event data request.
+10310	fatal	The Solicited field should be used for orders initiated or recommended by the broker or advisor that were approved by the client by phone or email.
+10311	fatal	This order will be directly routed to %s. Direct routed orders may result in higher trade fees.
+10312	fatal	The order type Volatility is currently not supported for this combination of financial instrument and account type
+10314	fatal	%s: The date
+10315	fatal	%s: The time entered is invalid. The correct format is hh:mm:ss. E.g.: 15:00:00 in UTC. No date should be specified
+10316	fatal	Trigger Outside RTH was deprecated. Please upgrade your API Client software to submit order with Outside RTH attribute instead.
+10317	fatal	The Cash Quantity size for the below contracts does not conform to minimum variation of %s
+10318	fatal	This order doesn't support fractional quantity trading
+10319	fatal	Placing orders for Municipal Bonds via API is currently disabled
+10321	fatal	Placing orders for Municipal Bonds is currently disabled for attached and OCA orders.
+10322	fatal	This API request for All is not supported for Dynamic Account Addition
+10324	fatal	Invalid parameters for OCA group for exchange %s. Overfill Protection is implied.
+10325	fatal	OCA group is not supported
+10326	fatal	OCA group revision is not allowed
+10327	fatal	OCA group type revision is not allowed
+10328	fatal	Connection lost
+10329	fatal	This order will be directly routed to %s.
+10330	fatal	The expiry date/time format is invalid.\nThe correct format is yyyyMMdd HH:mm:ss (operator or instrument time zone) or yyyyMMdd-HH:mm:ss (UTC time zone).
+10331	fatal	Any stop warning
+10332	fatal	Cryptocurrency volatility warning
+10333	fatal	Option Exercise at-the-money warning
+10334	fatal	Confirm Omnibus Order Account
+10335	fatal	Order presets cannot be applied as configured. Please review %s Settings and Rapid Order Entry Configuration for consistency.
+10336	fatal	Per-leg executing broker configuration is not supported
+10337	fatal	Misc options key=%s is invalid in %s request. Valid keys are: %s
+10338	fatal	Misc options value=%s is invalid for key=%s in %s request. Valid values are: %s
+10339	fatal	Setting end date/time for continuous future security type is not allowed
+10340	fatal	The following order attribute is not supported: %s
+10341	fatal	Parent order id cannot be modified
+10342	fatal	The 'ImbalanceOnly' order attribute may not be specified for this order.
+10343	fatal	Selling Event Contracts is neither allowed directly nor as an attached profit taker.
+10344	fatal	Price value must be between 0.02 and 0.99 with a maximum of two decimal places.
+10345	fatal	You cannot trade a %s
+10346	fatal	Market data for %s cannot be delivered because ticker for the same financial instrument is displayed on %s
+10347	fatal	This security has limited liquidity. If you choose to trade this security

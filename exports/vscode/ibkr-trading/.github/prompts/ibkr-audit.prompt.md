@@ -1,11 +1,32 @@
 ---
-description: Report reliability and production-readiness defects. Use when the user asks to review, audit, or validate an IB or TWS trading bot: reconnection, bracket orders, pacing, error codes, IBC automation. Not for building a system from scratch, which the ibkr-architect agent covers, nor for MetaTrader 5, which /mt5-audit in the `mt5-trading` bundle covers.
+description: Report reliability and production-readiness defects, plus the venue assumptions nobody checked. Use when the user asks to review, audit, or validate an IB or TWS trading system: contracts, orders, brackets, pacing, error handling, reconnection, deployment. Not for building from scratch, which the ibkr-architect agent covers, a single behaviour question, which /ibkr-verify covers, or MetaTrader 5, which /mt5-audit in the `mt5-trading` bundle covers.
 argument-hint: [path-or-description]
 ---
 
+<!-- Vendored from plugins/ibkr-trading/commands/ibkr-audit.md in acaprino/claude-code-daodan, MIT. -->
+
 # IB Trading System Audit
 
-Analyze an existing IB trading system and produce an actionable audit report.
+Analyse an existing IB trading system and produce an actionable audit report.
+
+Load the `ibkr-trading` skill first ($SKILLS/ibkr-trading; `$SKILLS` is the installed skills directory: the first of `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/` that exists).
+
+## Scoping
+
+**Establish the asset classes and account entity before auditing anything.** Most checks below are
+conditional: size semantics, contract routing, trigger-method compatibility and data availability all
+differ between equities, options, futures, FX and CFDs. Applying an FX rule to an equities system
+produces false findings, and skipping an FX rule on an FX system produces silence where it matters.
+
+Determine, and state in the report:
+
+- which `secType`s the system actually trades
+- the account entity, where it changes contract routing
+- whether positions are netted, and whether the instruments are reduce-only
+- whether the system holds positions across sessions
+
+`contracts-and-instruments.md` carries a matrix of which failure modes bite which class. Use it to
+select the sections that apply, and say which you skipped and why.
 
 ## Instructions
 
@@ -18,7 +39,7 @@ Analyze an existing IB trading system and produce an actionable audit report.
    - Close-path / netting logic (how the system exits positions)
    - Position sizing / volume calculation and conversion-rate lookup
    - Reconnection handling
-   - Gateway launcher / auto-start scripts (IBC, PM2, Task Scheduler)
+   - Gateway launcher / auto-start scripts (IBC, process managers, Task Scheduler, systemd, Docker)
    - Terminal-side configuration the code depends on (order presets, API settings)
    - Error handling (especially async rejection routing)
    - Logging
@@ -53,7 +74,17 @@ Analyze an existing IB trading system and produce an actionable audit report.
 - [ ] Order ID management is collision-free (nextValidId or getReqId)
 - [ ] Cancel-fill race condition handled (never assume cancel succeeded)
 - [ ] Order efficiency ratio monitored (<=20:1)
+- [ ] `tif` valued explicitly on **every** leg of every order; no leg relies on the empty-string default
+      (which is `DAY`). IBKR's own published bracket sample sets no TIF at all, so code copied from it
+      ships DAY children
 - [ ] Bracket children (SL/TP) are `tif='GTC'` (parent DAY) -- DAY children leave positions naked overnight
+- [ ] `triggerMethod` on stop legs is compatible with the instrument's `secType`; an incompatible pair
+      is documented to mean the order **may never trigger**, with no error. Last-driven methods (2, 3)
+      are not available for `CASH`, `CMDTY` or index CFDs
+- [ ] `ocaType` chosen deliberately, with block (1 or 2) unless there is a reason not to, since block
+      is what provides overfill protection; no single OCA group mixes types
+- [ ] Bracket construction does not use preset-driven attachment (`ptOrderType`/`slOrderType='PRESET'`),
+      which sources protection levels from terminal GUI configuration
 - [ ] Residual bracket children reaped when the position closes (no live SL/TP resting on a flat contract)
 - [ ] Transient `Cancelled` during staged bracket transmit not treated as a real cancellation (confirm via reqOpenOrders)
 - [ ] Compliance 201s treated as non-retryable (no bypass-precautions / advancedErrorOverride attempts -- those only cover 10xxx precautions)
@@ -62,7 +93,7 @@ Analyze an existing IB trading system and produce an actionable audit report.
 - [ ] Order attribution map written BEFORE `placeOrder` (with rollback), and an order snapshot cached so synthetic events carry real fields
 
 ### Close Path & Netting
-- [ ] Close side derived from the authoritative direction field (`position_type` / signed venue position), never from the sign of an abs-stored volume -- a wrong-side close on a netted account doubles the position
+- [ ] Close side derived from the authoritative direction field (an explicit direction field, or the signed venue position), never from the sign of an abs-stored volume -- a wrong-side close on a netted account doubles the position
 - [ ] Close refused (not guessed) when direction is unresolved; event-driven closes scoped to owned symbols so account-level events don't fan out
 - [ ] Close verdicts verified against the venue (no self-reported success); any consciously deferred hole is recorded with its reason
 - [ ] Broker events without a venue timestamp stamped at detection time; no `None` timestamps reaching staleness comparisons (present-but-null keys defeat `.get(key, default)`)
@@ -71,7 +102,28 @@ Analyze an existing IB trading system and produce an actionable audit report.
 - [ ] Order presets of every terminal the bots talk to audited (a GUI preset can cancel or mutate API orders with error 10349, even when contract details permit the attribute); re-audited after terminal upgrades
 - [ ] Bracket TIF recipe validated against presets, including the orphaned-GTC-children-on-never-opened-position case (which a position-closed reaper cannot collect)
 
+### Capability Assumptions and Their Provenance
+Audits whether the system's beliefs about the venue were ever checked. See `venue-questions-and-probes.md`.
+- [ ] Capability decisions ("IBKR does not support X", "this attribute is refused") trace to
+      `ContractDetails.orderTypes` or to a probe transcript, not to a forum post or a search summary
+- [ ] Order-type, TIF and attribute support resolved per contract rather than assumed globally
+- [ ] Venue-behaviour claims in comments, docs and ADRs carry a provenance tag (measured, documented,
+      assumed), and the assumed ones are tracked rather than silently load-bearing
+- [ ] Behaviour on partial parent fills (child activation and sizing) is either measured for this
+      account or explicitly recorded as unmeasured, with the decisions that depend on it named
+- [ ] No design depends on a terminal GUI setting (order presets, precaution bypasses, the FX pip
+      granularity toggle); any that does is flagged as unversioned and unshippable
+
 ### Error Handling
+- [ ] The client library's own grading is understood and defended against: `ib_async` treats every code
+      outside `warningCodes` and `[2100, 2200)` as fatal (430 of 458 published codes) and sets a
+      non-done trade to `Cancelled` **locally**, emitting `cancelledEvent`, without telling the venue.
+      Order state is therefore reconciled against `reqOpenOrders()`/`reqExecutions()`, not trusted from
+      a synthesised cancellation
+- [ ] `openOrder` subscribed as a distinct channel: price-capping warnings arrive there as free text
+      with no code, and `mktCapPrice` arrives on `orderStatus`
+- [ ] Undocumented codes handled by policy rather than by enumeration (10257 and 10349 are real and
+      absent from IBKR's published table, which also omits all of 10255-10267)
 - [ ] errorEvent handler registered
 - [ ] Async rejection codes routed into the order lifecycle (a successful `placeOrder` is "submitted", not "accepted")
 - [ ] Rejection codes GRADED before routing: rejection-grade ({103, 135, 161, 201, 202, 10148, 10318}) mapped to a cancelled/failed event; state-dependent codes (105, 110, 10349) excluded; 388 treated as a size notice; 503/504 routed to reconnection, not the order lifecycle
@@ -89,8 +141,10 @@ Analyze an existing IB trading system and produce an actionable audit report.
 
 ### Venue Boundary: Contracts, Ticks, Sizing
 Audits the silent-failure layer where canonical intent becomes IBKR contracts/orders. See `venue-boundary-failure-modes.md`.
-- [ ] Order prices snapped to the contract `minTick` before `placeOrder` (entry, SL, TP)
+- [ ] Order prices snapped to the increment in force before `placeOrder` (entry, SL, TP)
+- [ ] The increment comes from the **market rule band** containing the price (`ContractDetails.marketRuleIds` -> `reqMarketRule` -> the `PriceIncrement` whose `lowEdge` band applies), NOT from `minTick` alone. IBKR defines `minTick` as the smallest increment on *any* exchange or price, so snapping to it can produce a price finer than the band allows and earn a 110 on a price that looks correct
 - [ ] `minTick` read from `ContractDetails` (`reqContractDetailsAsync`), NOT off the `Contract` object -- and from the ORDER contract's details under the data/order split (the two differ)
+- [ ] For FX and FX CFDs, the 1/2-versus-1/10 pip terminal setting (Global Configuration, Display, Ticker Row) is known and accounted for, or the market rule is read at runtime instead of tabulated
 - [ ] Bracket SL/TP rounded *away* from entry and forced at least one tick clear (no `sl == entry` collapse)
 - [ ] Tick rounding ordered validate-raw -> round -> re-validate (incoherent input rejected, not nudged)
 - [ ] Contract type matches the account entity: retail EU (IBIE) routes leveraged FX through CFDs, not spot (else 201 currency leverage)
@@ -98,14 +152,14 @@ Audits the silent-failure layer where canonical intent becomes IBKR contracts/or
 - [ ] FX-pair split is gated on a real FX check (non-FX 6-letter ticker not blindly split)
 - [ ] Data requests use a data-capable contract: underlying spot Forex for FX CFDs (FX-pair CFDs serve no data; the tell is 2127 immediately preceding 366 -- a lone 366 has other causes and gets proven, not assumed)
 - [ ] Qualification lifecycle handled: conId<=0 placeholders rejected and retried (never cached); qualified-contract cache cleared on every reconnect under the same lock as the fast-path read
-- [ ] `symbol_types` / canonical-size maps validated at construction with ALL gaps aggregated into one error; partially-populated maps warn loudly (a missing symbol is a 201-shaped hole); unknown symbols fail closed
+- [ ] the symbol-routing map / canonical-size maps validated at construction with ALL gaps aggregated into one error; partially-populated maps warn loudly (a missing symbol is a 201-shaped hole); unknown symbols fail closed
 - [ ] Contract creation on read-only paths (conversion-rate lookups) guarded like order paths
 - [ ] Price readiness check treats `NaN` as invalid (ib_async inits bid/ask to `NaN`, not `None`)
-- [ ] `get_symbol_price` returns strictly positive or raises (no 0.0/NaN placeholder)
+- [ ] The price-reading function at the broker boundary returns strictly positive or raises (no 0.0/NaN placeholder)
 - [ ] Sizing guards use `not (x > 0)`, never `x <= 0` (NaN comparisons are False)
-- [ ] Non-finite computed volume collapses to 0.0 and aborts at the `volume < volume_min` gate
-- [ ] `volume_min` is an abort threshold, NOT a floor that rounds sub-minimum input up into a live order; legitimate sizes floor DOWN at the wire edge (never-over-trade; banker's rounding is non-deterministic on half-cases)
-- [ ] All `volume_*` fields in one canonical unit (lots); venue units only on the wire, converted back on trade events
+- [ ] Non-finite computed volume collapses to 0.0 and aborts at the minimum-size gate
+- [ ] the minimum-size threshold is an abort threshold, NOT a floor that rounds sub-minimum input up into a live order; legitimate sizes floor DOWN at the wire edge (never-over-trade; banker's rounding is non-deterministic on half-cases)
+- [ ] All all size fields in one canonical unit (lots); venue units only on the wire, converted back on trade events
 - [ ] `minSize` interpreted per instrument class (metal CFD = real venue minimum; FX CFD on SMART = precision, not a floor; spot CASH = precision with IDEALPRO per-currency floors); no `Contract.multiplier` fallback for contract size
 - [ ] Conversion rate tries direct `{base}{counter}` then inverse `{counter}{base}` (1/rate); rejects `USDUSD`
 - [ ] Market-open re-checked under the execution lock (check-then-act is a race)
@@ -151,8 +205,16 @@ Audits the silent-failure layer where canonical intent becomes IBKR contracts/or
 - [ ] Paper trading validated before live deployment
 
 3. **Generate report** with:
+   - Scope: asset classes, account entity, and which check sections were skipped as inapplicable
    - Current state assessment (what is implemented correctly)
    - Risk areas (missing or misconfigured components)
    - Priority improvements ordered by production impact
    - Code examples for each recommendation
    - For silent-failure findings, an incident-spec-shaped writeup (proven facts, labelled inferences, open questions with closure criteria -- "assumed benign" is not a verdict)
+   - **An unverified-assumptions register**: every belief about venue behaviour the code depends on
+     that has no measurement and no quoted documentation behind it. For each, name the decision that
+     rests on it and the cheapest experiment that settles it. Offer to run the applicable probes with
+     `/ibkr-verify`.
+
+A finding that the code is correct but rests on an unchecked premise is a real finding. Report it as
+such rather than passing the check.

@@ -36,7 +36,7 @@ The split it enforces is the same one the rest of this skill describes, made mec
 | Half | Who owns it |
 |---|---|
 | Byte-copies (references, scripts, assets under a skill directory), the `chatAgents` / `chatPromptFiles` manifest, and `package.json` `version` | CI. Drift there is a derivation error, so a machine fixes it. Do not hand-mirror these; a local copy is at best redundant and at worst a merge conflict against the bot commit. |
-| Agents, prompts, every `SKILL.md`, and the six adapted reference files listed in `ADAPTED_REFERENCES` | You, in the same commit as the plugin change. Porting one means rewriting frontmatter, renaming tools, stripping namespaces and rerouting dispatch, and no script guesses at an adaptation. |
+| Agents, prompts, every `SKILL.md`, and the seven adapted reference files listed in `ADAPTED_REFERENCES` | You, in the same commit as the plugin change. Porting one means rewriting frontmatter, renaming tools, stripping namespaces and rerouting dispatch, and no script guesses at an adaptation. |
 
 The workflow's last step is `python scripts/mirror_export.py --check --since <base>`, which compares the pushed range against the export: a source file that moved while its adapted twin did not turns the run red and names both paths. It runs **after** the commit deliberately, so a forgotten adaptation still gets the byte-copies and the manifest mirrored before the run fails.
 

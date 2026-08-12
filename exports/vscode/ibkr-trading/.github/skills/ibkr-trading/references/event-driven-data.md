@@ -52,8 +52,8 @@ Streaming Level 1 quotes, bar updates, individual ticks, or pulling historical O
 
 An empty bar response is **not** an error at the API surface, and at least three unrelated causes are indistinguishable there:
 
-1. **Duration over the per-barSize cap.** Each bar size has a maximum `durationStr` (e.g. 4-hour bars cap around 1 year). Exceeding it does not error; it returns an empty set. Symptom: "Retrieved 0 candles (requested N)".
-2. **Pacing on the identical-request tuple.** The same `(contract, barSize, whatToShow, useRTH)` is limited to one request per 15 s -- **across processes on the same login**, not just within one client. A violation is a silent empty response, not error 162. In production this was three sibling agents issuing the same request within 4 seconds.
+1. **Duration over the per-barSize cap.** Each bar size has a maximum `durationStr` (e.g. 4-hour bars cap around 1 year). Exceeding it does not error; it returns an empty set. Symptom: a request for N bars returns 0, with no error on any channel.
+2. **Pacing on the identical-request tuple.** The same `(contract, barSize, whatToShow, useRTH)` is limited to one request per 15 s -- **across processes on the same login**, not just within one client. A violation is a silent empty response, not error 162. The shape that triggers it is several sibling processes issuing the same request within a few seconds of each other.
 3. **Past-retention windows.** Requests reaching beyond IBKR's retained history also come back empty.
 
 **Retry shape that distinguishes them:** retry the **same** `(endDateTime, durationStr)` after 15/30/45 s, but only for continuation batches (`batch_idx >= 1`); an empty **first** batch means "no data here", not pacing, and retrying it just burns pacing budget. Wrap bootstrap in an outer ladder (30/60/120/300/600 s). On exhaustion return short with an explicit error log rather than raising: past-retention is indistinguishable from pacing, and a hard raise turns a data boundary into an outage.
@@ -76,7 +76,7 @@ An empty bar response is **not** an error at the API surface, and at least three
 
 ### Stub attrition starves the replay window
 
-The stub-drop mitigation has a second-order failure of its own: on larger intraday sizes the reopen stub is roughly 1 bar in 6 per trading day, so a fixed-count fetch **under-delivers** after filtering. In production the delivered pool fell hundreds of bars short of the bootstrap replay window, which would have falsely expired live FORMING signals as regressions on every restart. Ship the producer and consumer fixes together: the fetch inflates its pagination plan (about 7/6) and tops up in bounded rounds, and the bootstrap independently guards against a replay window that comes back empty or thin instead of trusting "I asked for N".
+The stub-drop mitigation has a second-order failure of its own: on larger intraday sizes the reopen stub is roughly 1 bar in 6 per trading day, so a fixed-count fetch **under-delivers** after filtering. The delivered pool can fall hundreds of bars short of a bootstrap replay window, which falsely expires live forming signals as regressions on every restart. Ship the producer and consumer fixes together: the fetch inflates its pagination plan (about 7/6) and tops up in bounded rounds, and the bootstrap independently guards against a replay window that comes back empty or thin instead of trusting "I asked for N".
 
 ### The forming bar (the last row is not closed)
 
@@ -87,12 +87,12 @@ The stub-drop mitigation has a second-order failure of its own: on larger intrad
 ib_async dispatches events through **eventkit** (installed as the `aeventkit` fork; import and logger names unchanged), which catches every exception raised inside a listener and logs it via `logging.getLogger("eventkit.event")` -- the emission then dies, silently from your application's point of view. Two consequences bite production:
 
 - **A handler with the wrong signature fails on every single emission.** Example: `positionEvent` emits one `Position` namedtuple, but a handler declared with the raw-wrapper 4-argument signature raises `TypeError` inside eventkit on every position update -- position deltas simply "never fire", forever, with zero trace in your logs.
-- **If your logging pipeline only ships your own loggers** (a dedicated app logger to CloudWatch or similar), the `eventkit.event` and `ib_async` std-logger records land in stdout/stderr at best -- invisible to all remote debugging.
+- **If your logging pipeline only ships your own loggers** (a dedicated application logger shipped to a remote aggregator), the `eventkit.event` and `ib_async` std-logger records land in stdout/stderr at best -- invisible to all remote debugging.
 
 **Rules:**
 
 - **Pin every handler signature with a contract test** that emits the real event object through the real event (`ib.positionEvent.emit(Position(...))`) and asserts the handler body executed. Arity bugs are permanent until tested.
-- **Route the third-party std loggers at broker construction**: attach `ib_async`, `ib_insync`, and `eventkit` to the same sink as your application logs (one helper call, e.g. `route_external_loggers(logger, ["ib_async", "ib_insync", "eventkit"])`). In production this routing is what finally exposed a position-delta `TypeError` that had been invisible for weeks. Pair it with process-wide hooks: an asyncio loop exception handler and `threading.excepthook` that escalate to your critical logger, because unhandled task/loop/thread exceptions otherwise die on local stderr.
+- **Route the third-party std loggers at broker construction**: attach `ib_async`, `ib_insync`, and `eventkit` to the same sink as your application logs (one helper that attaches your handlers to those named loggers). This routing is routinely what exposes a handler `TypeError` that has been silently killing an event stream. Pair it with process-wide hooks: an asyncio loop exception handler and `threading.excepthook` that escalate to your critical logger, because unhandled task/loop/thread exceptions otherwise die on local stderr.
 - **The decoder is a third failure channel.** ib_async message-decode failures ("Error handling fields:" records) never reach `errorEvent`; they surface only on the ib_async stdlib logger, with no reqId and no contract attached. A reconnect burst can drop contract-data messages for every operating contract this way. An error that reaches your log aggregator only by accident is not an error you observe -- which is exactly why the logger routing above is mandatory, and why decode errors during a reconnect window deserve an explicit triage (was the qualified-contract cache refreshed after them?).
 - **Diagnostic heuristic:** if an event handler "never fires" but the Gateway log proves the server delivered the message, suspect a swallowed listener exception before suspecting the subscription.
 

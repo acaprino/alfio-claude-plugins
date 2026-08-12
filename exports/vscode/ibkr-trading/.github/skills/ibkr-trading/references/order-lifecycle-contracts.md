@@ -2,7 +2,7 @@
 
 `placeOrder` returning is the *beginning* of an order's story, not its outcome. The venue's verdict arrives asynchronously; the same error code means different things depending on order state; the terminal's own configuration can veto orders the venue would accept; and on a netted account a "close" is just an order like any other -- including a wrong one. This file is the contract layer for all of that.
 
-Distilled from production incidents on a live multi-strategy FX/metals CFD deployment (retail EU entity), including a wrong-side close that doubled a short position several times before detection.
+The contracts below bite hardest on netted accounts, on instruments that are not reduce-only (CFDs in particular), and on any system that derives a closing side from stored state rather than from the venue's own position.
 
 ## When to use
 
@@ -10,12 +10,12 @@ Writing or reviewing the code that decides "did this order succeed?", routes err
 
 ## placeOrder is a positive contract: await the verdict
 
-`placeOrder` returns as soon as the local reqId is allocated. The venue's verdict typically lands a few hundred milliseconds later (observed ~600 ms) via `orderStatusEvent`. Callers that report success immediately convert every later rejection into a silent divergence: the system believes an order is working that the venue killed.
+`placeOrder` returns as soon as the local reqId is allocated. The venue's verdict typically lands within a second (sub-second in observed deployments) via `orderStatusEvent`; measure your own distribution before choosing a bound. Callers that report success immediately convert every later rejection into a silent divergence: the system believes an order is working that the venue killed.
 
 Await the verdict with a bounded window and asymmetric semantics:
 
 ```python
-_ORDER_ACK_TIMEOUT_S = 2.0     # verdicts observed ~600 ms; 2 s bounds the wait
+_ORDER_ACK_TIMEOUT_S = 2.0     # verdicts are typically sub-second; 2 s bounds the wait
 _ORDER_REFUSED  = {"Cancelled", "ApiCancelled"}
 _ORDER_UNDECIDED = {"PendingSubmit", ""}
 # "Inactive" is deliberately in NEITHER set: an Inactive order can still be
@@ -44,7 +44,7 @@ ib_async cancels an order in response to an error **only `if not trade.isDone()`
 - On an order still in `PendingSubmit`: codes like **110** (tick conformance) kill it; ib_async itself emits `orderStatusEvent(Cancelled)`. This is the state in which the 110 -> 135 bracket cascade happens.
 - On a **working** order (`PreSubmitted`/`Submitted`): the same **110**, a **105** (modify mismatch), or a **10349** are *warning-grade*: ib_async sets the pseudo-status `ValidationError` and the order **stays live at the venue**.
 
-Consequence: **adding a code to your rejection-routing set is not free.** Routing a warning-grade code as a rejection emits a synthetic cancellation for an order the venue still considers working: your system believes it dead, the venue believes it live, and the order is orphaned. In production, 105 and 110 had to be *removed* from the rejection set for exactly this reason, and the rule is pinned by a test (`test_warning_grade_codes_do_not_cancel_live_orders`). The pending-state kills you would catch via the error set already arrive via `orderStatusEvent`, so you lose nothing by keeping the set narrow.
+Consequence: **adding a code to your rejection-routing set is not free.** Routing a warning-grade code as a rejection emits a synthetic cancellation for an order the venue still considers working: your system believes it dead, the venue believes it live, and the order is orphaned. 105 and 110 are the codes most often wrongly added to a rejection set for exactly this reason, and the rule is worth pinning with a test named after it. The pending-state kills you would catch via the error set already arrive via `orderStatusEvent`, so you lose nothing by keeping the set narrow.
 
 ## Canonical order-state set
 
@@ -54,7 +54,7 @@ Handle all of these; several are commonly forgotten:
 
 ## Terminal order presets are invisible input (error 10349)
 
-TWS/Gateway **order presets** configured in the GUI apply to API orders. They live in the terminal, not in your code, your config, or your repo: an unversioned input that can veto or mutate orders. Observed in production: every bracket entry cancelled ~620 ms after `PendingSubmit` with `10349 "Order TIF was set to DAY based on order preset"`, wholesale, despite the code being correct.
+TWS/Gateway **order presets** configured in the GUI apply to API orders. They live in the terminal, not in your code, your config, or your repo: an unversioned input that can veto or mutate orders. The observable form: every bracket entry cancelled a few hundred milliseconds after `PendingSubmit` with `10349 "Order TIF was set to DAY based on order preset"`, wholesale, while the code is correct.
 
 IBKR's published error table stops at 10347, so **10349 is undocumented**: treat it as a real but unlisted code rather than something you can look up. Two documented neighbours confirm the mechanism exists: **10335** "Order presets cannot be applied as configured. Please review Settings and Rapid Order Entry Configuration for consistency" and **10233** "Defaults were inherited from CASH preset during the creation of this order". Any code in that band arriving on a correct order should send you to the terminal's preset configuration.
 
@@ -66,12 +66,12 @@ IBKR's published error table stops at 10347, so **10349 is undocumented**: treat
 
 IBKR CFD/FX accounts are **netted**: one position per contract, and a "close" is an ordinary opposite-side order. Two properties make the close path the most dangerous code in the adapter:
 
-- **A wrong-side close is not a no-op and not an error.** IBKR CFD orders are not reduce-only. Closing a short with a SELL does not fail: it **doubles the short**. Production incident: the close side was derived from `sign(position.volume)` while the position store kept volumes as absolute values with direction in a separate `position_type` field, so every "close" went out as SELL; a USD.JPY short walked from -113,998 to -683,988, one doubling per economic event, and no error was ever raised.
+- **A wrong-side close is not a no-op and not an error.** IBKR CFD orders are not reduce-only. Closing a short with a SELL does not fail: it **doubles the short**. The failure shape: the close side is derived from `sign(position.volume)` while the position store keeps volumes as absolute values with direction in a separate field. Every "close" then goes out on the same side, and a short doubles on each attempt, silently, with no error raised at any point.
 - **Fan-out multiplies it.** Sibling executors sharing one account and one netted conId can each react to the same event with a close for the same position.
 
 **Rules:**
 
-- Derive the close side from the **authoritative direction field** (`position_type` or the signed venue position), never from the sign of a volume you may have stored as an absolute value.
+- Derive the close side from the **authoritative direction field** (an explicit direction field, or the signed venue position), never from the sign of a volume you may have stored as an absolute value.
 - **Refuse the close when the direction is unresolved.** The wrong side doubles the position; no order leaves it untouched. Guessing is the only losing move.
 - Scope event-driven closes to the symbols the executor owns, so one account-level event does not fan out into N closes.
 - **Verify the close verdict like any order** (see the verdict contract above). A close path that builds its own success result without querying the venue leaves a position open that the system believes closed. If you consciously defer fixing such a hole, record the deferral and its reason where the next auditor will find it -- an applied instance of "audit the whole family" from `venue-boundary-failure-modes.md`.

@@ -1,5 +1,13 @@
 # Changelog
 
+## 22.3.0
+
+- `ibkr-trading` 2.0.0: rebuilt as a generic Interactive Brokers reference rather than a knowledge base grown around one FX/CFD deployment. Coverage is now per asset class (equities, options, futures, FX, CFDs, crypto), and the organising rule is that IBKR behaviour is a property of the contract, the account entity and the terminal, so the plugin teaches how to resolve a question (capability list, quoted documentation, probe) instead of asserting one deployment's answers.
+- New references: a three-layer model of order refusals with the full 458-code published table shipped as a data asset, each code tagged with the grade `ib_async` assigns it (430 are fatal, and a fatal grade cancels a working order locally without telling the venue); order types, TIF and fill modes resolved per contract from `ContractDetails.orderTypes`; brackets in depth, including OCA semantics, trigger-method compatibility (an incompatible pair means a stop that may never fire), the preset-attachment variant to avoid, and the two questions IBKR's documentation does not answer; per-class contract construction with market rules as the authoritative tick source (`minTick` is a floor, not the increment in force); and an evidence ladder for venue questions that rejects search-engine summaries as evidence.
+- New verification tooling under the skill's `scripts/`: `ibkr_gateway.py` downloads, installs, configures and starts a disposable IB Gateway pinned to paper trading, and `ibkr_probe.py` measures venue behaviour against it (capability dumps, what-if shape verdicts within IBKR's published budget, compatibility matrices, bracket lifecycle transcripts with TIF read-back, message-code lookup). Live ports are refused and the account prefix is re-checked after connecting.
+- New `/ibkr-verify` prompt: answers a single behaviour question with provenance (measured, documented, or unresolved with the experiment that would settle it). `/ibkr-audit` gains scoping by asset class, a capability-provenance section, and an unverified-assumptions register in its report.
+- Deployment coverage extended from Windows-only to Windows, Linux (xvfb, systemd), macOS and Docker, with verified installer channels and filenames.
+
 ## 22.2.0
 
 - The `peer-review` consent gate asks a question instead of printing one. It presented the disclosure block and ended its turn, which to the operator is exactly what a finished run looks like, so a run in another repository sat waiting for hours on someone who believed it had already stopped. The gate now uses the host's question mechanism, so the pause is visible as a pause.

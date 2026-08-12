@@ -1,8 +1,8 @@
 # Venue Boundary Failure Modes (Contracts, Ticks, Sizing, Async Rejections)
 
-The hardest IBKR production bugs do not live in your strategy. They live at the adapter boundary where canonical intent (symbol, lots, prices) is translated into IBKR `Contract` and `Order` objects, and where IBKR answers asynchronously. `placeOrder` and `reqMktData` return without raising; IBKR accepts or rejects *later*, through `errorEvent`, with a numeric code. An entire family of silent failures lives in that gap: orders that reach FIRED with no live order, orders sized from a degenerate price, orders mis-routed by contract type, rejections that no channel is ever told about.
+The hardest IBKR production bugs do not live in your strategy. They live at the adapter boundary where canonical intent (symbol, lots, prices) is translated into IBKR `Contract` and `Order` objects, and where IBKR answers asynchronously. `placeOrder` and `reqMktData` return without raising; IBKR accepts or rejects *later*, through `errorEvent`, with a numeric code. An entire family of silent failures lives in that gap: orders your system records as sent that never became live, orders sized from a degenerate price, orders mis-routed by contract type, rejections that no channel is ever told about.
 
-This file is the checklist for that boundary. It is distilled from a real multi-cluster remediation campaign on a retail EU (IBIE) account trading FX and metals.
+This file is the checklist for that boundary. The failure modes are grouped by the condition that produces them, so you can skip the sections whose condition your account and instruments do not meet.
 
 ## When to use
 
@@ -10,7 +10,7 @@ Writing or reviewing the layer that converts your internal order/price/volume mo
 
 ## The single shared failure mode
 
-> `placeOrder` / `reqMktData` return "success", IBKR rejects asynchronously via `errorEvent`, the rejection is swallowed, and the signal reaches FIRED (or the order is sized from a degenerate price) with no visible error.
+> `placeOrder` / `reqMktData` return "success", IBKR rejects asynchronously via `errorEvent`, the rejection is swallowed, and the system records a sent order (or sizes one from a degenerate price) with no visible error.
 
 Everything below is a specific instance of that pattern, plus the units/contract mistakes that make a "successful" call meaningless.
 
@@ -20,10 +20,10 @@ A broker call returning without an exception says nothing about acceptance. IBKR
 
 - Subscribe the handler: `ib.errorEvent += self._on_error`.
 - Map rejection codes to a cancelled/failed lifecycle event -- but **grade the codes first**. Not every order-related error is a rejection, and routing a warning as a rejection orphans a live order (see the grade table below and `order-lifecycle-contracts.md`).
-- Both `errorEvent` and `orderStatusEvent` can fire for the same TWS rejection. De-duplicate by `orderId` so one rejection raises one cancellation, not two. Size this dedup's TTL to the errorEvent/orderStatusEvent race (seconds; production uses 60 s with a bounded LRU) -- it is a *different layer* from the session-event dedup in `event-driven-data.md`, whose TTL is bounded by the daily cycle. Never share one TTL between them.
-- Keep the dispatch log at DEBUG, not INFO. A per-dispatch INFO line scales your CloudWatch (or equivalent) ingest cost with event volume.
+- Both `errorEvent` and `orderStatusEvent` can fire for the same TWS rejection. De-duplicate by `orderId` so one rejection raises one cancellation, not two. Size this dedup's TTL to the errorEvent/orderStatusEvent race (seconds; 60 s with a bounded LRU is a sound choice) -- it is a *different layer* from the session-event dedup in `event-driven-data.md`, whose TTL is bounded by the daily cycle. Never share one TTL between them.
+- Keep the dispatch log at DEBUG, not INFO. A per-dispatch INFO line scales your log-aggregator ingest cost with event volume.
 
-Codes seen in production at this boundary, graded:
+Codes commonly seen at this boundary, graded:
 
 | Grade | Codes | Routing |
 |-------|-------|---------|
@@ -36,7 +36,7 @@ Codes seen in production at this boundary, graded:
 REJECTION_CODES = {103, 135, 161, 201, 202, 10148, 10318}
 # 105/110/10349 are deliberately absent: on a working order they are
 # warning-grade (ib_async marks ValidationError and the order stays live);
-# routing them here would cancel our record of a live venue order.
+# routing them here would cancel the local record of a live venue order.
 
 def _on_error(self, reqId, errorCode, errorString, contract):
     if errorCode in REJECTION_CODES and reqId in self._live_order_ids:
@@ -49,13 +49,15 @@ ib.errorEvent += self._on_error
 
 ## 2. Price/tick conformance (errors 110 -> 135)
 
-IBKR rejects any price that is not an exact integer multiple of the contract `minTick` with **error 110** ("price does not conform to the minimum price variation"). On a bracket still in `PendingSubmit`, the parent's 110 cascades: the children die with **error 135** ("Can't find order with ID" -- their parent no longer exists) and the whole order dies. `place_order` still returned success, so the signal reaches FIRED with no live order. (On an already-working order, 110 is warning-grade instead: see `order-lifecycle-contracts.md`.)
+IBKR rejects any price that is not an exact integer multiple of the contract `minTick` with **error 110** ("price does not conform to the minimum price variation"). On a bracket still in `PendingSubmit`, the parent's 110 cascades: the children die with **error 135** ("Can't find order with ID" -- their parent no longer exists) and the whole order dies. `placeOrder` still returned success, so the strategy records a sent order while no live order exists. (On an already-working order, 110 is warning-grade instead: see `order-lifecycle-contracts.md`.)
 
 - **`minTick` lives on `ContractDetails`, not on the `Contract`.** Reading `contract.minTick` off a qualified `Contract` does not give you the venue tick in ib_async; the value falls back to a tiny default and your rounding becomes a silent no-op. Call `reqContractDetailsAsync` and read `details.minTick`.
+- **`minTick` is a floor, not the increment in force.** IBKR defines it as "the smallest possible minimum increment encountered on **any exchange or price**". Where a contract has different increments in different price bands, snapping to `minTick` produces a price finer than the band allows, and the venue answers 110 on a price that looks correct. The authoritative per-band table comes from **market rules**: read `ContractDetails.marketRuleIds` (a list parallel to `validExchanges`), call `reqMarketRule` for the id matching your exchange, and use the `PriceIncrement` whose `lowEdge` band contains your price. `contracts-and-instruments.md` has the full procedure; `scripts/ibkr_probe.py capabilities` dumps the resolved bands for a contract.
+- **For FX and FX CFDs the increment depends on a terminal setting.** The market rule reflects the default 1/2 pip configuration, and TWS/Gateway can be switched to 1/10 pips (Global Configuration, Display, Ticker Row). That makes the increment your orders must satisfy an unversioned local input, in the same category as order presets. Read the rule at runtime rather than maintaining a table.
 - **Under the data/order contract split you hold TWO `ContractDetails` with different `minTick`** (EUR.USD CFD 1e-05 vs spot 5e-05; USD.JPY CFD 0.001 vs spot 0.005). Tick conformance must come from the **order** contract's details; a rule that just says "read ContractDetails" is satisfiable by reading the wrong one.
 - Snap every price (entry, SL, TP) to `minTick` *before* `placeOrder`. Flooring only the quantity while passing full-precision float prices is the original sin here.
 - Round bracket SL and TP **away from entry** (stop further from entry, target further from entry) and force each at least **one tick clear** of the rounded entry. Independent nearest-tick rounding can collapse a tight bracket to `sl == entry` or `tp == entry`: a naked or instantly-triggering stop.
-- **Validate raw, then round, then re-validate.** If you round before `validate_bracket()`, you nudge an incoherent input into a "valid" one instead of rejecting it. Validate the raw prices first (so bad input is rejected), then round, then re-validate the rounded bracket.
+- **Validate raw, then round, then re-validate.** If you round before validating the bracket, you nudge an incoherent input into a "valid" one instead of rejecting it. Validate the raw prices first (so bad input is rejected), then round, then re-validate the rounded bracket.
 - Do the tick arithmetic in integer tick-steps via `Decimal` so IEEE-754 residue does not re-trip 110.
 
 ```python
@@ -91,7 +93,7 @@ Do NOT chase override paths for this 201: it is an account/compliance rejection,
 - **Gate the split on a real FX-pair check.** A non-FX 6-letter ticker must not be blindly split; fall back to the full ticker with a warning.
 - Metals (for example XAUUSD) route as a **full-ticker CFD** and serve their own market data. Forex CFDs do **not** (see section 4).
 - **The CFD's venue parameters differ from the spot pair's -- never share tables across secTypes.** CFD `minTick` can be finer than the underlying spot's (e.g. EUR.USD CFD 1e-05 vs spot 5e-05): always read `minTick` from the *traded* contract's `ContractDetails` at runtime.
-- **The `symbol_types` config map's *shape* encodes intent -- detect the gap.** An empty map means "this account trades spot FX" and the default is intent; a **non-empty map missing one symbol is a configuration hole** that routes that symbol to spot IDEALPRO, where the leverage-capped account rejects it with 201. Keep the default but warn loudly on the gap, validate values against a known set (`{FOREX, CFD}`), and **validate the whole map at construction, aggregating every missing/invalid symbol into one error** so operators see the full delta at once instead of whack-a-mole.
+- **The the symbol-routing map config map's *shape* encodes intent -- detect the gap.** An empty map means "this account trades spot FX" and the default is intent; a **non-empty map missing one symbol is a configuration hole** that routes that symbol to spot IDEALPRO, where the leverage-capped account rejects it with 201. Keep the default but warn loudly on the gap, validate values against a known set (`{FOREX, CFD}`), and **validate the whole map at construction, aggregating every missing/invalid symbol into one error** so operators see the full delta at once instead of whack-a-mole.
 - **Watch read-only paths too.** A balance/currency-conversion path on a non-USD-base account can qualify CASH/IDEALPRO contracts nobody configured (e.g. EUR.JPY appearing on an account whose configs never name EURJPY) -- on exactly the contract class the account is refused on. Contract creation is a boundary wherever it happens, not just under `place_order`.
 
 ### Qualification lifecycle
@@ -135,11 +137,11 @@ def get_data_contract(symbol, order_contract):
 
 ## 5. Sizing and units (the NaN family, errors 201 / 399)
 
-A silently failed snapshot that returns `ask=0.0`/`NaN` for the conversion pair zeroes the order notional. A `volume_min` floor then turns that zero into a real **venue-minimum** order (EURUSD 0.01 lot rejected 399/201), or a single NaN sizes the order at the symbol **maximum** (an un-sized 100 oz XAUUSD order placed past the risk model).
+A silently failed snapshot that returns `ask=0.0`/`NaN` for the conversion pair zeroes the order notional. A the minimum-size threshold floor then turns that zero into a real **venue-minimum** order (EURUSD 0.01 lot rejected 399/201), or a single NaN sizes the order at the symbol **maximum** (an un-sized 100 oz XAUUSD order placed past the risk model).
 
 **The price contract.**
 - **ib_async initializes `Ticker.bid` / `Ticker.ask` to `NaN`, not `None`,** before the first tick. A readiness check of `if price is None` passes immediately and hands a `NaN`/`0.0` placeholder to sizing.
-- Pin the broker boundary with an invariant: `get_symbol_price` returns a **strictly positive** bid/ask **or raises**. Never a `0.0`/`NaN` placeholder.
+- Pin the broker boundary with an invariant: the price-reading function at the broker boundary returns a **strictly positive** bid/ask **or raises**. Never a `0.0`/`NaN` placeholder.
 
 ```python
 import math
@@ -149,11 +151,11 @@ def _valid(value):
 
 **NaN-safe guards.**
 - All `NaN` comparisons are `False`, so `x <= 0` lets `NaN` through. Use `not (x > 0)`.
-- `min(volume_max, NaN)` returns `volume_max`, so one `NaN` tick sizes the order at the symbol maximum. Collapse any non-finite computed volume to `0.0` as a final chokepoint, so the `volume_min` gate aborts it.
+- `min(maximum, NaN)` returns the maximum, so a single `NaN` tick sizes the order at the symbol maximum. Collapse any non-finite computed volume to `0.0` as a final chokepoint, so the minimum-size gate aborts it.
 
 **A floor is not a safety net; the floor is the rounding mode.**
-- Do **not** floor a sub-minimum volume up to `volume_min`. A degenerate (zero/NaN-derived) sizing input must **abort** at the `volume < volume_min` gate, never be rounded into a live venue-minimum order.
-- For legitimate volumes, **round down (`math.floor`) at the wire edge under an explicit never-over-trade policy.** Banker's rounding (`round()`) is non-deterministic on lot half-cases; flooring under-fills at worst, and an under-fill surfaces as a visible `volume_min` rejection -- the safe direction. The two rules are complementary: floor real sizes, abort degenerate ones.
+- Do **not** floor a sub-minimum volume up to the minimum-size threshold. A degenerate (zero/NaN-derived) sizing input must **abort** at the minimum-size gate, never be rounded into a live venue-minimum order.
+- For legitimate volumes, **round down (`math.floor`) at the wire edge under an explicit never-over-trade policy.** Banker's rounding (`round()`) is non-deterministic on lot half-cases; flooring under-fills at worst, and an under-fill surfaces as a visible the minimum-size threshold rejection -- the safe direction. The two rules are complementary: floor real sizes, abort degenerate ones.
 
 **`minSize` means three different things by instrument class.**
 - **Metal CFDs**: `ContractDetails.minSize`/`sizeIncrement` are **real venue minimums in venue units (ounces)** -- convert to lots and fail closed if absent.
@@ -162,7 +164,7 @@ def _valid(value):
 - **`Contract.multiplier` is `None`/1 for FX and metals**, so contract size cannot be derived from IBKR at all: a canonical contract-size table is mandatory, and a silent `multiplier` fallback (yielding `contract_size=1.0`) recreates the fractional-quantity rejection class (10318).
 
 **Canonical units to the very edge.**
-- Keep **all** `volume_*` fields in one unit (lots). Mixed units (`volume_min`/`step` in lots, `volume_max` in venue units) make the venue-minimum check dead for FX and a regression for metals. Convert lots to venue units only on the wire, and convert wire quantity back to lots on trade events. Never let oz or base units leak into sizing comparisons or reported trade volume.
+- Keep **all** all size fields in one unit (lots). Mixed units (the minimum-size threshold/`step` in lots, the maximum-size threshold in venue units) make the venue-minimum check dead for FX and a regression for metals. Convert lots to venue units only on the wire, and convert wire quantity back to lots on trade events. Never let oz or base units leak into sizing comparisons or reported trade volume.
 - **Unknown symbol = fail closed.** A symbol missing from the canonical table must raise, not fall back to a guessed size -- and the whole symbol set gets validated once at construction (see section 3).
 
 **Conversion rate.**
@@ -176,10 +178,10 @@ def _valid(value):
 
 ## 6. The validation boundary is a silent-drop surface
 
-The venue->domain translation layer (ib_async objects into your typed events/models) drops whatever fails validation -- and framework validation failures are as silent as swallowed listener exceptions. Two independent production instances of the same pattern:
+The venue->domain translation layer (ib_async objects into your typed events/models) drops whatever fails validation -- and framework validation failures are as silent as swallowed listener exceptions. Two recurring instances of the same pattern:
 
 - The `positionEvent` handler arity bug (`event-driven-data.md`): every position delta raised `TypeError` inside eventkit, forever, unlogged.
-- **`ib_async.Forex.pair` is a method, not a property.** Reading it as an attribute yields a bound-method object, which flowed into Pydantic event models as the `symbol` field and was rejected -- so **every order and position event for Forex contracts was dropped at the validation boundary**: empty trade monitor, empty orders registry, empty UI, no errors.
+- **`ib_async.Forex.pair` is a method, not a property.** Reading it as an attribute yields a bound-method object, which flows into a validating event model as the `symbol` field and is rejected -- so **every order and position event for Forex contracts is dropped at the validation boundary**: empty registries, empty UI, no errors anywhere.
 
 Pin the whole boundary, not just the listener signatures: contract tests that push real ib_async objects end-to-end into your domain events and assert the event *arrives* with the expected field values. Attribute-vs-method mistakes, renamed fields, and type mismatches all fail the same silent way.
 
@@ -191,7 +193,7 @@ Pin the whole boundary, not just the listener signatures: contract tests that pu
 | 2 | Swallowed async rejections (`placeOrder` returns success; IBKR rejects via `errorEvent`) | Sections 1, 2, 5 |
 | 3 | Non-canonical units at the venue boundary (lots vs oz / base units) | Section 5, trade events |
 | 4 | Field read from the wrong object (`minTick` off `Contract` instead of `ContractDetails`; `Forex.pair` as attribute) | Sections 2, 6 |
-| 5 | A "rescuing" floor that masks a degenerate input (`volume_min` turning a 0 into a real order) | Section 5 |
+| 5 | A "rescuing" floor that masks a degenerate input (the minimum-size threshold turning a 0 into a real order) | Section 5 |
 | 6 | Producer-side fix shipped without its consumer-side twin | Snapshot hygiene (`reconnection-resilience.md`), stub attrition (`event-driven-data.md`) |
 
 Two meta-lessons:
@@ -203,16 +205,16 @@ Two meta-lessons:
 
 Assert the failure contracts in tests, because they are exactly what production violated:
 
-- `get_symbol_price` raises (does not return) on a `NaN`/`0.0`/`None` quote.
-- Sizing aborts (does not floor) when computed volume is below `volume_min`.
-- A single `NaN` tick does not size at `volume_max`.
+- The price-reading function at the broker boundary raises (does not return) on a `NaN`/`0.0`/`None` quote.
+- Sizing aborts (does not floor) when computed volume is below the minimum-size threshold.
+- A single `NaN` tick does not size at the maximum-size threshold.
 - A sub-tick or short bracket is rejected or rounded coherently, never collapsed to `sl == entry`.
 - The inverse conversion pair resolves when the direct pair is unquotable; `USDUSD` does not.
 - An FX-CFD symbol pulls data from the spot Forex contract, not the CFD.
 - A rejection `errorEvent` produces exactly one `order_cancelled`, de-duplicated against `orderStatusEvent`.
 - Warning-grade codes (105, 110, 10349) do **not** cancel a working order's record (the isDone rule, `order-lifecycle-contracts.md`).
 - Tick conformance reads `minTick` from the **order** contract's details, not the data contract's.
-- Construction fails with the **complete** list of missing/invalid symbols when the canonical table or `symbol_types` map has gaps.
+- Construction fails with the **complete** list of missing/invalid symbols when the canonical table or the symbol-routing map map has gaps.
 - A real ib_async `Forex`/CFD event object survives the venue->domain validation boundary with correct field values.
 
 ## Related
