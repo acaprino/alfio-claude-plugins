@@ -23,7 +23,7 @@ The mirror image of the `external-repo-intake` skill. That skill covers content 
 
 | Export | Host | Shape |
 |---|---|---|
-| `exports/vscode/` | VS Code Copilot (`.github/skills/`, `.github/prompts/`, `.github/agents/`) | A catalog of 37 bundles, published as one VS Code extension |
+| `exports/vscode/` | VS Code Copilot (`.github/skills/`, `.github/prompts/`, `.github/agents/`) | A catalog of 39 bundles, published as one VS Code extension |
 
 **The obligation is now global, not scoped.** Until the 2026-07-30 catalog build only five plugins fed the export. Now every plugin has a bundle, so any plugin change is a candidate mirror. Do not go looking for the old five-row source map: it is gone.
 
@@ -76,7 +76,7 @@ A copied file is never correct as-is.
 1. **Frontmatter conversion.** Claude Code `name` / `description` / `model: inherit` / `color` / `tools: Read, Write, ...` becomes VS Code `name` / `description` / `user-invocable` / `tools:` (YAML list of namespaced ids) / `agents:` / `hooks:`. Drop `model` and `color`. Skills add `license: MIT` and a `metadata` block (author, `source: acaprino/claude-code-daodan`, `upstream-plugin`). Prompts keep only `description`, optional `agent`, optional unquoted `argument-hint`.
 2. **Routing labels become prose.** `TRIGGER WHEN: x` becomes `Use when x`; `DO NOT TRIGGER WHEN: y` becomes `Not for y`. The boilerplate "the task is outside the specific scope of this component" carries no information and is deleted outright. Watch the grammar: a naive rewrite produces `Not for the task is x`, which is wrong and appeared in nine files during the catalog build.
 3. **Tool names.** `Read` -> `read/readFile`, `Grep` -> `search/textSearch`, `Glob` -> `search/fileSearch`, `Write` -> `edit/createFile`, `Edit` -> `edit/editFiles`, `Bash` -> `execute/runInTerminal`, `WebFetch` -> `web/fetch`, `WebSearch` -> `websearch`, `AskUserQuestion` -> `vscode/askQuestions`, Task-tool spawning -> `agent/runSubagent`. Applies to prose, not only frontmatter.
-4. **Agent names.** Inside `_pipelines`: `senior-review:<x>` -> `review-<x>`, X-ray workers -> `xray-<x>`, `semantic-interconnect-mapper` -> `xray-interconnect-mapper`. In the catalog, agent names are kept as-is; they are already unique across all 36 bundles, and the checker enforces that.
+4. **Agent names.** Inside `_pipelines`: `senior-review:<x>` -> `review-<x>`, X-ray workers -> `xray-<x>`, `semantic-interconnect-mapper` -> `xray-interconnect-mapper`. In the catalog, agent names are kept as-is; they are already unique across all 39 bundles, and the checker enforces that.
 5. **Plugin namespaces.** `plugin:thing` becomes a bare name inside its own bundle, and `` `thing` in the `plugin` bundle `` across bundles. `/plugin:command` becomes `/command`.
 6. **`${CLAUDE_PLUGIN_ROOT}`** -> `$SKILLS`, defined once per file as the first of `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/` that exists. Any file that uses `$SKILLS` must define it.
 7. **Task-status polling** (`TaskCreate` / `TaskList` / `TaskUpdate`) -> file-existence barriers verified with `#search/fileSearch`.

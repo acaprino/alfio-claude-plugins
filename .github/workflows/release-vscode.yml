@@ -1,0 +1,75 @@
+# Publishes the VS Code extension as a GitHub Release asset.
+#
+# The consistency workflow proves the export is structurally correct on every
+# push, and then nothing turned it into something installable: there were no
+# tags, no releases and no .vsix anywhere, so the only way to get the extension
+# at a given version was to clone the repository and run vsce by hand. This is
+# the missing half. Push a tag named vscode-v<version> matching the version in
+# exports/vscode/package.json and the release appears with the .vsix attached.
+#
+#   git tag vscode-v20.0.0 && git push origin vscode-v20.0.0
+#
+# The checks run again here rather than trusting the branch build, because a
+# tag can point at any commit, including one that never passed consistency.
+name: release-vscode
+
+on:
+  push:
+    tags: ["vscode-v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.x"
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - name: VS Code export structural check
+        run: python .claude/skills/downstream-exports/scripts/check_export.py
+
+      - name: VS Code extension manifest freshness
+        run: python .claude/skills/downstream-exports/scripts/gen_extension_manifest.py --check
+
+      - name: Version guard and release notes
+        run: |
+          VERSION="${GITHUB_REF_NAME#vscode-v}"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          {
+            echo "Install: download \`claude-code-daodan-$VERSION.vsix\` below, then"
+            echo
+            echo '```'
+            echo "code --install-extension claude-code-daodan-$VERSION.vsix"
+            echo '```'
+            echo
+            echo "Or in VS Code: **Extensions** view, **...** menu, **Install from VSIX**."
+            echo "Reload the window afterwards so the skills are copied into \`~/.copilot/skills/\`."
+            echo
+            echo "---"
+            echo
+          } > release-notes.md
+          python scripts/extension_release_notes.py "$GITHUB_REF_NAME" >> release-notes.md
+
+      - name: Package
+        run: |
+          cd exports/vscode
+          npx --yes @vscode/vsce package --no-dependencies \
+            --out "$GITHUB_WORKSPACE/claude-code-daodan-$VERSION.vsix"
+
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "Claude Code Daodan $VERSION" \
+            --notes-file release-notes.md \
+            "claude-code-daodan-$VERSION.vsix"

@@ -24,6 +24,7 @@ agents:
   - review-code-auditor
   - review-logic-integrity-auditor
   - review-cleanup-auditor
+  - workspace-auditor
   - review-ui-race-auditor
   - review-distributed-flow-auditor
   - review-chicken-egg-detector

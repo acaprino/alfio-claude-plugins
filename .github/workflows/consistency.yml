@@ -39,6 +39,25 @@ jobs:
       - name: VS Code extension manifest freshness
         run: python .claude/skills/downstream-exports/scripts/gen_extension_manifest.py --check
 
+  # Proves the extension still packages. The structural checks above read the
+  # manifest, they never run vsce over it, so a contribution path that points
+  # at a file no longer on disk passes them and fails at release time instead.
+  # Catching it here keeps a tag from being the first thing that discovers it.
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - name: Package the VS Code extension
+        run: |
+          cd exports/vscode
+          npx --yes @vscode/vsce package --no-dependencies \
+            --out "$RUNNER_TEMP/daodan.vsix"
+
   # Enforces steps 1 and 2 of the marketplace update workflow: a change under
   # plugins/<name>/ must bump that plugin's version and metadata.version in
   # marketplace.json within the same push or PR.

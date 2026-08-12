@@ -1,5 +1,43 @@
 # Changelog
 
+## 20.1.0
+
+- `workspace-auditor` joins `review-orchestrator`'s `agents:` allowlist. The 20.0.0 mirror added Workspace hygiene to the `/team-review` dimension table as an always-on row pointing at the `repo-hygiene` bundle, but VS Code gates subagent dispatch behind that allowlist, so the dimension could never run. The structural checker does not see this class of defect: its allowlist pass verifies that every allowlisted agent exists somewhere, never that every dispatched agent is allowlisted.
+- The catalog README gains the `repo-hygiene` row it was missing, and every count in the listing is recomputed from the tree. The extension carries 93 agents, 70 skills and 51 prompts across 39 bundles, against the 91 / 69 / 50 that `package.json` and the README header claimed and the 88 / 68 further down the same file.
+- Carries the `abstraction-architect` scope-boundaries routing edit in `_pipelines`, which landed after the 20.0.0 bump and so never had a version of its own.
+- First release that exists as a file. A tag named `vscode-v<version>` now packages the `.vsix` and attaches it to a GitHub Release. Until now there were no tags, no releases and no packaged extension anywhere, so bumping the version updated the source and produced nothing installable.
+
+## 20.0.0
+
+- New `repo-hygiene` bundle, the 39th: the `/tidy` prompt, the `workspace-auditor` agent, and the `repo-hygiene` skill carrying the check catalog in explicit full and lite profiles over shared definitions. Workspace tidying splits out of code review along one line, which is what kind of evidence decides a check: `git ls-files`, `git check-ignore` and a directory listing on one side, understanding what a symbol is for on the other. Four phase names move across (`garbage`, `gitignore`, `scratch`, `git-state`) and five stay behind (`brand`, `assets`, `deps`, `exports`, `docs`), so a bare phase value no longer identifies anything and every finding names its owning command.
+- `review-cleanup-auditor` drops from six dimensions to five, all of which need source comprehension by definition, and `/team-review` gains Workspace hygiene as a second always-on dimension backed by the new bundle. The two are disjoint by construction: a finding both could raise means one of them widened.
+- `git-state` is detection only, permanently. Per-phase commits are the revert mechanism everywhere else and they do not reach here, because a dropped stash leaves no diff for a commit to hold, a removed worktree takes its uncommitted files with it, and a deleted branch survives only in an expiring reflog. Untracked removals are quarantined rather than deleted, since git holds no copy of an untracked file.
+
+## 19.6.5
+
+- The `peer-review` MCP server raises its socket idle allowance from 180 to 600 seconds, overridable per profile with `timeout_seconds`. Once every request is streamed, the timeout stops being a cap on the exchange and becomes a cap on the gap between reads, and the gap that matters is the one before the first content chunk: reasoning tokens are not emitted as content deltas, so a model thinking hard sends nothing at all and the socket cannot tell that apart from a dead connection. The timeout now has its own error branch, naming the number that was hit and the field that changes it.
+
+## 19.6.4
+
+- The `peer-review` MCP server sends the output cap as `max_tokens` again. The configured gateway normalizes `max_tokens` to `max_completion_tokens` on the caller's behalf but ignores the modern field when it arrives already named that way, and it does not error, so the 400-triggered legacy downgrade never fired and the cap went silently missing.
+
+## 19.6.3
+
+- The `_pipelines` review-pipeline reference counts `review-cleanup-auditor` as six dimensions, matching what the agent's own header has said since lifecycle archaeology arrived as D6. A reader of this file had no way to learn that residue detection exists, and the always-on row told them the lite subset leaves three dimensions uncovered when it leaves four.
+
+## 19.6.2
+
+- The `peer-review` MCP server sends a coherent chat-completions request. The output cap moves to `max_completion_tokens`, which reasoning models require, falling back to the legacy field only when an endpoint answers 400 saying it does not know it. `stream` was never sent at all, so the whole generation had to complete inside a single response, which is what turns a slow high-effort answer into a gateway 504, and `stream_options.include_usage` follows from streaming.
+
+## 19.6.1
+
+- `packet-builder` splices the artifact into the packet instead of retyping it. Byte count and sha256 were computed from the file in binary while the text was embedded through a read-then-write path that normalizes CRLF to LF, so on a CRLF checkout the recorded digest could not describe what was embedded and every run aborted at the Phase 1 three-value recheck. The agent reported green because its checklist compared the recorded digest against the source file, which agrees by construction; the comparison that can fail, recorded digest against embedded text, was never made. A script now writes the exact bytes and extracts the slice back out of the packet to verify it, which also removes the risk of a transcription error in a document the model retypes.
+
+## 19.6.0
+
+- Mirrors `peer-review` 1.2.0. `/review` with no resolvable path enters brief mode: the new `brief-builder` agent materializes the session's own context and decisions into `00-brief.md` and freezes it before Phase 1, and every later phase reads it as the artifact unchanged. A token that looks like a path but does not exist stops the run instead of quietly becoming a topic. `brief-builder` carries a decidability self-check in place of a confirmation gate, so an open decision needs two concrete options and a settling criterion, and whatever cannot be sharpened travels visibly into the packet's Known weaknesses.
+- A profile can hold a literal `api_key` instead of only an `api_key_env` variable name. `api_key_env` now rejects a value that is itself a key rather than a variable name, and a profiles file carrying a literal key warns when git is not ignoring it.
+
 ## 19.5.0
 
 - Mirrors the description trim that cut the plugin corpus by about 35%. 169 agent, skill and prompt descriptions across 35 bundles now carry the shortened text, adapted as usual: routing labels become `Use when` / `Not for` prose, namespaces are de-prefixed, and the `_pipelines` renames (`review-*`, `xray-*`) are applied. Only descriptions changed; no body, no `tools:` list, no contribution path, so `package.json`'s agent and prompt arrays are untouched.
