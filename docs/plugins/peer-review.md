@@ -2,6 +2,8 @@
 
 > Cross-model peer review of a plan or a spec, never a diff: a challenger model on a different model family attacks your artifact, the local session refutes with repository evidence, and the exchange terminates in a verdict computed from a verbatim ledger. The deliverable is not a review score; it is a reduction in decisional uncertainty.
 
+This page is the reference. [**One run end to end**](peer-review-walkthrough.md) is the narrative companion: a single worked invocation from the command line to the verdict, with the packet, the consent gate, every challenge round, certification and the corrective round shown as they are actually written, and one finding taken to each of the seven terminal states.
+
 ## Prerequisites
 
 `superpowers@claude-plugins-official` is a hard, qualified dependency (the `respondent` agent loads `superpowers:receiving-code-review` and stops if it is unavailable):
@@ -120,6 +122,8 @@ followed by the actual question, asked so that you can see it is waiting for you
 Answer it in your own words. `ok`, `sì`, `send it` and every other plain yes proceed; a plain no stops the run with the directory left on disk; anything unclear gets asked again rather than guessed at. Ask a question back and you get an answer and the question again, with the same frozen packet. That single approval covers the whole run: rounds 2 and 3, certification, a corrective round, and any repository material granted to a context request. You are not asked again.
 
 **4. Read `04-verdict.md`.** It is the only file written for a human, and it is computed from the ledger rather than composed, so its prose can explain an outcome but never change one.
+
+For what happens between steps 3 and 4, phase by phase and file by file, read [One run end to end](peer-review-walkthrough.md).
 
 ### Flags
 
