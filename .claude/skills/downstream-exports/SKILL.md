@@ -29,7 +29,7 @@ The mirror image of the `external-repo-intake` skill. That skill covers content 
 
 ## What CI mirrors and what you still owe
 
-Since 2026-08-12 the mechanical half of the mirror runs in `.github/workflows/mirror-export.yml` on every push to `master`. It runs `python scripts/mirror_export.py`, regenerates the extension manifest, runs the structural checker, and commits the result to `master` as "Mirror plugins into the VS Code export [mirror]". A push whose message carries `[mirror]` is skipped, which is what stops the workflow answering its own push.
+Since 2026-08-12 the mechanical half of the mirror runs in `.github/workflows/mirror-export.yml` on every push to `master`. It runs `python scripts/mirror_export.py`, regenerates the extension manifest, runs the structural checker, and commits the result to `master` as "Mirror plugins into the VS Code export". A push whose head commit was authored by `github-actions[bot]` is skipped, which is what stops the workflow answering its own push.
 
 The split it enforces is the same one the rest of this skill describes, made mechanical:
 
