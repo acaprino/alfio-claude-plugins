@@ -144,6 +144,28 @@ class ContractLinter(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("ghost.md", result.stdout + result.stderr)
 
+    def test_empty_references_directory_fails(self):
+        """references/ exists (build() always creates it) but holds no .md
+        file: base level requires at least one, not just the directory."""
+        with tempfile.TemporaryDirectory() as tmp:
+            build(Path(tmp), refs=(), listed=())
+            result = run(Path(tmp))
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("references/ directory", result.stdout + result.stderr)
+
+    def test_missing_references_directory_fails(self):
+        """references/ does not exist at all, the harder case: on_disk must
+        come back empty rather than error, and still fail the same way as
+        the empty-directory case above."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = build(Path(tmp), refs=(), listed=())
+            ref_dir = (root / "plugins" / "acme-trading" / "skills" / "acme-trading"
+                       / "references")
+            ref_dir.rmdir()
+            result = run(root)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("references/ directory", result.stdout + result.stderr)
+
     def test_verified_without_verify_command_fails(self):
         with tempfile.TemporaryDirectory() as tmp:
             build(Path(tmp), level="verified")

@@ -45,9 +45,10 @@ than by assertion.
 
 All five, as a checklist:
 
-1. A `<broker>-architect` agent, a `<broker>-audit` command, and one skill with a
-   `references/` directory, all three registered in `.claude-plugin/marketplace.json`, not
-   merely present on disk. A file the marketplace does not list does not load.
+1. A `<broker>-architect` agent, a `<broker>-audit` command, and one skill with a non-empty
+   `references/` directory (at least one `.md` file), all three registered in
+   `.claude-plugin/marketplace.json`, not merely present on disk. A file the marketplace does
+   not list does not load.
 2. The skill's `description` frontmatter carries both `TRIGGER WHEN` and `DO NOT TRIGGER
    WHEN`, the routing pair every skill in this marketplace uses.
 3. The `SKILL.md` carries four sections: Quick start, Key decision points, Symptoms to entry
@@ -132,16 +133,21 @@ decide the parts that are questions about meaning:
 - Whether the probe tooling refuses production structurally rather than by a flag that
   defaults to safe (Level verified item 4): the linter confirms a script matching
   `*probe*.py` exists under the skill's `scripts/` directory. It does not read the script.
+- Where exactly the two declaration lines sit in the file: "How a plugin declares its level"
+  states a placement convention (immediately after the `# Title` heading, before the first
+  `##` section) for readers, not a rule the linter enforces. The regexes that find
+  `**Contract level:**` and `**Archetype:**` match anywhere in the file, on purpose, so a
+  plugin that is otherwise conformant never fails on where the two lines happen to sit.
 
-Two more limits are honest gaps rather than deliberate scope, named here rather than left to
-surprise a future maintainer. The linter confirms the `<broker>-architect` agent and
-`<broker>-audit` command are registered in `.claude-plugin/marketplace.json`, but it does not
-cross-check that the skill directory itself appears in that plugin's `skills` array: it finds
-`SKILL.md` files by walking the plugin's directory on disk, not by reading the manifest. It
-also does not require a `references/` directory to exist at all; it only checks that whatever
-a skill's `references/` holds matches whatever its `SKILL.md` lists, so a skill with neither
-has nothing to disagree about. Closing either gap is future work, not a claim this version
-makes.
+One more limit is worth naming precisely rather than leaving it to read as a gap: whether the
+skill directory itself appears in that plugin's `skills` array in
+`.claude-plugin/marketplace.json` is not something `lint_broker_plugins.py` cross-checks; it
+finds `SKILL.md` files by walking the plugin's directory on disk, not by reading the manifest.
+That declaration is still checked, just not here. `scripts/lint_plugin_registration.py`
+already validates every plugin's `agents`, `skills` and `commands` arrays against what is
+actually on disk, in both directions, for every plugin in the marketplace, broker plugins
+included. Duplicating that check inside this linter would give the same fact two places to
+drift apart from each other; it stays a single check owned by a single script.
 
 A failure from the linter is fixed by changing the plugin, never by adding an entry to the
 linter's `ALLOWLIST`. That constant exists for heuristic misreads, and a broker plugin

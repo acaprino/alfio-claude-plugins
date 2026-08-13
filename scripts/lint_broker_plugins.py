@@ -6,18 +6,41 @@ Stdlib only, no dependencies, runs from the repository root:
 
 `.claude/skills/broker-plugin-contract/` states what a broker-integration
 plugin (category `algotrading`) must contain to reach contract level `base`
-or `verified`. Most of that contract is a question about meaning: whether an
-order-state name is really the reference model's own, whether a `MEASURED`
-fact is honestly dated, whether an open question is genuinely paired with the
-experiment that would settle it. None of that is checked here. This linter
-covers the half of the contract that is a question about a directory
-listing, a marketplace entry, or a regular-expression match: the two
-declaration lines exist and name a real level and archetype, the required
-agent and command exist and are registered rather than merely present on
-disk, the four required sections exist under case-insensitive headings, the
-listed references and the references on disk agree, and (at `verified`) a
-registered verify command, a probe script, and an open-questions register
-all exist.
+or `verified`. This linter covers the half of that contract that is a
+question about a directory listing, a marketplace entry, or a
+regular-expression match: the two declaration lines exist and name a real
+level and archetype, the required agent and command exist and are
+registered rather than merely present on disk, the skill's `references/`
+directory exists and holds at least one file, the four required sections
+exist under case-insensitive headings, the listed references and the
+references on disk agree, and (at `verified`) a registered verify command,
+a probe script, and an open-questions register all exist.
+
+The rest of the contract is a question about meaning, and is not checked
+here:
+
+  - whether an order-state name is really the reference model's own, or a
+    vendor mapping is both present and correct (Level base item 5)
+  - whether a `MEASURED` fact is honestly dated and attributed to the
+    instrument that produced it (Level verified item 3)
+  - whether an open question is genuinely paired with the experiment that
+    would settle it, rather than a heading with an empty list under it
+    (Level verified item 2)
+  - whether probe tooling refuses production structurally rather than by a
+    flag that defaults to safe (Level verified item 4)
+  - where exactly the two declaration lines sit in the file: the contract
+    states a placement convention for readers, but LEVEL_RE and ARCHETYPE_RE
+    match anywhere, on purpose, so position is never a failure
+
+One more limit reads like a gap and is not: whether the skill directory
+itself is registered in the plugin's `skills` array in
+`.claude-plugin/marketplace.json` is not cross-checked here, because this
+script finds `SKILL.md` files by walking the plugin's directory on disk, not
+by reading the manifest. That declaration is still checked, by
+`scripts/lint_plugin_registration.py`, which validates every plugin's
+`agents`, `skills` and `commands` arrays against what is actually on disk,
+in both directions, for every plugin in the marketplace. Repeating it here
+would give one fact two places to drift apart.
 
 The roster this linter checks is not a fixed list. It is every plugin
 registered under category `algotrading` in `.claude-plugin/marketplace.json`,
@@ -135,6 +158,9 @@ def check_references(name, skill_path, text):
     out = []
     ref_dir = skill_path.parent / "references"
     on_disk = {p.name for p in ref_dir.glob("*.md")} if ref_dir.is_dir() else set()
+    if not on_disk:
+        out.append(f"{name}: level base requires a references/ directory with at least "
+                   f"one .md file")
     listed = {Path(r).name for r in LISTED_REF_RE.findall(text) if r.endswith(".md")}
     for missing in sorted(on_disk - listed):
         out.append(f"{name}: references/{missing} exists but is not listed in SKILL.md")
