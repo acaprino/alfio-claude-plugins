@@ -126,6 +126,18 @@ ANCHORS = {
         r"USD\s+([\d,]+)\*{0,2}\s+of\s+(?:paper trading\s+)?Equity with Loan",
         "Paper account starting equity",
     ),
+    "broker-archetype-count": (
+        "plugins/trading-broker-connectivity/skills/trading-broker-connectivity/"
+        "references/access-archetypes.md",
+        r"\bthe (\w+) archetypes\b",
+        "how many access archetypes the vocabulary defines, echoed in the contract skill and CLAUDE.md",
+    ),
+    "evidence-ladder-ranks": (
+        "plugins/trading-broker-connectivity/skills/trading-broker-connectivity/"
+        "references/evidence-and-probes.md",
+        r"ladder has \*\*(\w+) ranks\*\*",
+        "the evidence ladder's rank count, stated in the generic plugin and in ibkr-trading",
+    ),
 }
 
 # Directories that are not shipped content and may legitimately restate a fact in
@@ -136,6 +148,7 @@ EXCLUDED = (
     "evals",
     "node_modules",
     "__pycache__",
+    ".superpowers",
 )
 EXCLUDED_FILES = {
     Path("exports/vscode/CHANGELOG.md"),
