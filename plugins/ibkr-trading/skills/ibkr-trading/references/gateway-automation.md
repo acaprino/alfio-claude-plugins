@@ -7,7 +7,8 @@ Running TWS/IB Gateway unattended on Windows, Linux, macOS or Docker: the outage
 - **Daily reset, ~23:45-00:45 ET.** The socket connection ceases to exist (immediate error 502). Restart typically takes 1-5 minutes, but intermittent interruptions can occur throughout the window. Native exchange orders continue to operate; execution reports and simulated orders are delayed.
 - **A second connectivity reset around 04:27-04:33 UTC**, reported by operators of multi-client deployments as a daily error-1100 storm hitting every connected client simultaneously. It is not in IBKR's published schedule, so verify it in your own Gateway logs; if you see it, it is scheduled weather rather than your bug.
 - **Auto Restart** (Configure -> Lock and Exit -> Auto Restart) restarts TWS/Gateway daily without re-authentication; a manual login is still required weekly, with security tokens invalidating **Sunday at 1:00 AM ET**.
-- **Auto-logoff** (the alternative to Auto Restart) defaults to 23:45 local time, configurable via Global Configuration -> Lock and Exit.
+- **Auto-logoff** (the alternative to Auto Restart) defaults to 23:45 local time, configurable via Global Configuration -> Lock and Exit. IBHK-domiciled users are documented as lacking both "Never Lock" and "Auto Restart", so that geography cannot run a week unattended.
+- **A username that also logs into Client Portal loses auto-reconnect**: documented, and it looks exactly like a reconnection bug. Keep the bot's username out of the web portal (session-exclusivity rules in `tws-api-architecture.md`).
 
 Design consequence: reconnection logic (see `reconnection-resilience.md`) is not for rare failures; it runs at least daily, at predictable times. Schedule maintenance, backfills, and health-check expectations around both windows.
 
@@ -63,8 +64,11 @@ These apply everywhere and are the ones that actually decide whether unattended 
 
 - **Bind the API to localhost only.** The API has no authentication worth the name; anything that can
   reach the port can trade.
-- **Raise the Java heap.** Configure, Settings, Memory Allocation. 4096 MB is a sound floor for heavy
-  data volumes. Also trim Python-side state: `ib_async` bar and ticker objects accumulate.
+- **Raise the Java heap, inside IBKR's own conflicting band.** Configure, Settings, Memory Allocation.
+  IBKR's Knowledge Base recommends 4000 MB for API users while its Users' Guide warns that going above
+  about 2000 MB "will likely degrade your machine's overall performance": treat 2-4 GB as the
+  documented advisory band and measure on your host rather than trusting either number. Also trim
+  Python-side state: `ib_async` bar and ticker objects accumulate.
 - **Use the offline/standalone build.** The auto-updater silently changes the terminal under a running
   bot, including its presets.
 - **Verify startup by port probe, never by launcher exit code**, and allow 600 s or more for a cold

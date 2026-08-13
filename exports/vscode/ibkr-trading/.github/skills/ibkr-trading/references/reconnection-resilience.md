@@ -54,6 +54,29 @@ After every reconnection:
 5. **Clear the qualified-contract cache** -- `conId`s can change across a reconnect (contract roll, paper/live swap, different Gateway); see `venue-boundary-failure-modes.md`
 6. Resume strategy logic only after state is verified
 
+These steps are mandatory because the library remembers nothing: ib_async's `Wrapper.reset()` clears
+trades, fills, positions, tickers and account state on every disconnect (verified on 2.1.0), so all
+post-reconnect knowledge comes from the requests above. Two holes in that recovery are known:
+`reqOpenOrders`/`reqAllOpenOrders` do **not** return orders staged with `transmit=False` (observed,
+maintainer-confirmed), so staged bracket legs must be reconciled from your own records; and an order
+transmitted mid-session after being staged is picked up only after an explicit `reqOpenTrades()`
+resync.
+
+## What the terminal itself preserves
+
+Two different outages, two different guarantees:
+
+- **The terminal stays up while IBKR connectivity drops**: with "Maintain and resubmit orders when
+  connection is restored" (Global Configuration, API, Settings; enabled by default since TWS/Gateway
+  10.28, extended in 10.40 to cover auto-restart), orders received while connectivity is lost are
+  saved and resubmitted on restore. Documented caveat: "if the Trader Workstation is closed during
+  this time, the orders are deleted regardless of the setting".
+- **The terminal itself dies**: orders resting natively at the venue live on server-side; order types
+  the terminal simulates locally (stops on venues without native stops, conditionals) have no
+  documented survival story across a process crash. Treat a dead Gateway holding simulated stops as
+  an unprotected position until measured otherwise; the register in `venue-questions-and-probes.md`
+  carries the experiment.
+
 ## The `isConnected()` Zombie Blind Spot
 
 **`isConnected()` can lie.** After a *failed* `connectAsync` (typical during a Gateway restart window), the ib_async client can be left in a zombie state where `isConnected()` returns `True` while no socket exists. Every recovery layer that trusts that flag then fails silently and simultaneously:
@@ -121,11 +144,12 @@ Fixing any single trait breaks the chain; fix the flag first (active probes), th
 
 | Code | Meaning | Action |
 |------|---------|--------|
-| 1100 | Connectivity lost | Enter reconnect mode, halt trading |
+| 1100 | Connectivity lost | Enter reconnect mode, halt trading. IBKR's note for this code lists "a competing session" among the causes: if another login took the session, backoff will not fix it |
 | 1101 | Connectivity restored, **data lost** | Re-subscribe all market data |
 | 1102 | Connectivity restored, data maintained | Resume normal operations |
 | 2104/2106/2158 | Data farms connected (informational) | Log and ignore |
-| 2103/2105 | Data farms disconnected | Wait for restoration, log |
+| 2103/2105 | Data farms disconnected | Wait, log, and **alert if it persists**: dated operator reports show farm connections that never recover while the socket stays healthy, restored only by a terminal restart. Farm health is a separate signal from socket health |
+| 2107/2108 | Data farm **inactive** (dormant) | Documented as "available upon demand": the farm reconnects when the next request arrives. Not an outage; do not alert on it |
 
 Error **502** (couldn't connect) is the immediate symptom of the daily reset window; error **326** (clientId in use) after your own restart usually means a half-open session was left behind. Both scheduled outage windows are listed in `gateway-automation.md`.
 

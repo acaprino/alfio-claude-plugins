@@ -178,6 +178,10 @@ configuration, and three of the four places that decide its behaviour are invisi
 - Refusal reason is a `TradeLogEntry.errorCode` on `trade.log`, not in `orderStatus`.
 - `Inactive` is not terminal; the order can still be live.
 - `execDetails` is authoritative for fills, not `orderStatus`.
+- `nextValidId` gates the session start (documented: earlier calls can be dropped) and persists across
+  sessions; in multi-client setups the next order id must exceed every id seen in callbacks. `permId`
+  is the venue's stable id; ib_async keys manual TWS orders by it. Staged `transmit=False` legs are
+  invisible to `reqOpenOrders` after a reconnect (observed): keep your own record.
 - Write the orderId-to-strategy attribution map **before** `placeOrder`, with rollback, because
   `errorEvent` can beat a post-placement write.
 - `cancelOrder` is a socket write with no acknowledgement (the raw EClient API takes an `OrderCancel`
@@ -195,9 +199,15 @@ configuration, and three of the four places that decide its behaviour are invisi
 - Market data types 1 live, 2 frozen, 3 delayed, 4 delayed-frozen. The actual type arrives on the
   `marketDataType` callback; **no error code means "you are on delayed data"**.
 - `whatToShow`: TRADES for equities and futures, MIDPOINT for FX, ADJUSTED_LAST for backtests, BID_ASK
-  counts as two requests.
+  counts as two requests. TRADES history is split-adjusted only; ADJUSTED_LAST adds dividends.
+- Poll-harvesting ticks via `waitOnUpdate` drops ticks (library-documented); consume the events, which
+  fire once per processed packet with wire-level changes coalesced.
 - Pacing: identical `(contract, barSize, whatToShow, useRTH)` limited to one per 15 s **across
   processes**; 60 requests per 10 minutes; 50 simultaneous historical requests. Error 162 is generic.
+  Opening `reqRealTimeBars` subscriptions draws on the same 60-per-600 s bucket.
+- Zero price plus zero size with `pastLimit` is the documented Halted tick (Unhalted follows the same
+  shape); never drop these as bad data. The three volume ticks differ by construction (8 vs 233 vs
+  375): pick one deliberately.
 - An over-cap duration returns an **empty set silently**, not an error. Triage empty responses by batch
   index: an empty first batch means no data, later batches suggest pacing.
 - The last historical row is the **currently forming bar**. Drop it.
@@ -219,6 +229,13 @@ configuration, and three of the four places that decide its behaviour are invisi
 - After reconnect: positions, open orders, executions, resubscriptions, and clear the qualified
   contract cache.
 - The Gateway log is ground truth for which clientIds actually attempted reconnection.
+- One brokerage session per username, product-wide: a competing login takes it (IBKR's 1100 note names
+  "a competing session"), and a username reused in Client Portal loses auto-reconnect and can cost a
+  paper session its shared market data, both documented. Give automation its own username.
+- The terminal preserves in-flight orders across a connectivity drop ("Maintain and resubmit orders",
+  default on since 10.28) but deletes them if it is closed meanwhile; farm connections can stay down
+  after the socket recovers (observed), so alert on prolonged farm-down instead of trusting
+  auto-recovery.
 
 ### Event delivery
 
@@ -243,7 +260,8 @@ configuration, and three of the four places that decide its behaviour are invisi
 
 ## Behavioural rules
 
-- Resolve capability questions from `ContractDetails.orderTypes` before answering, and say so.
+- Resolve capability questions from `ContractDetails.orderTypes` before answering, and say so; for
+  TIFs the list under-reports, so absence goes to a what-if.
 - Quote documentation as a sentence with its URL, or mark the claim unresolved.
 - Offer the probe when a question is unresolved, rather than asserting a plausible answer.
 - Value `tif` explicitly on every order leg.

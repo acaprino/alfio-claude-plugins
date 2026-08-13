@@ -119,17 +119,18 @@ Two rules keep the register honest:
 
 ## Questions the documentation does not answer
 
-These recur in every non-trivial IBKR integration. None is settled by IBKR's public documentation as of
-2026-08-12. Each is listed with the measurement that settles it, so you can answer it for your account
-and instruments rather than inheriting someone's guess.
+These recur in every non-trivial IBKR integration. As of 2026-08-13 the reference documentation
+settles none of them; the first now has a support-stated answer, recorded below. Each is listed with
+the measurement that settles it, so you can answer it for your account and instruments rather than
+inheriting someone's guess.
 
 **Do bracket children activate on a partial parent fill?**
-The bracket documentation covers `parentId`, `transmit` and the staging chain, and says nothing about
-partial fills. Checked directly; the silence is real. If children activate at nominal size while the
-parent is partly filled, protective legs can exceed the position. Settle it by driving a paper parent to
-a partial fill and reading the children's status. Partial fills are hard to provoke on paper, so the
-practical route is logging `filled`/`remaining` on every fill event and reading the children's state
-against the next real partial.
+The bracket and API reference pages say nothing; checked directly, and that silence is real. The
+answer now has documentation-grade support from outside the reference: an IBKR staff reply on the
+Campus "Placing Complex Orders" lesson (2023-10-11) states children are held "until its parent fills"
+and activate "once the parent order is completely filled". Grade it DOCUMENTED (support-stated) rather
+than settled: verify for your account by logging `filled`/`remaining` on every fill event and reading
+the children's state against the next real partial.
 
 **Does TWS resize bracket children to the parent's cumulative fill?**
 Same silence, same measurement. Note that `ocaType` values 2 and 3 ("proportionately reduced in size")
@@ -146,6 +147,14 @@ state on reconnect. Note two documented constraints: the EClient API's `cancelOr
 `OrderCancel` object (ib_async wraps it: `cancelOrder(order)`), and **an API client cannot cancel an
 order placed by a different client ID**; only `reqGlobalCancel` reaches those, and it cancels
 everything.
+
+**Does a terminal-simulated stop survive its terminal?**
+Simulated order types are held by TWS/Gateway or IBKR rather than resting at the venue. Undocumented:
+whether a simulated stop re-arms after a hard terminal crash, or simply does not exist until the
+process returns. Settle it on paper: place a simulated stop and, where the venue offers one, a native
+stop, kill the terminal, drive the price through the trigger, restart, and read both orders' states.
+While unmeasured, treat a dead Gateway holding simulated stops as an unprotected position
+(`reconnection-resilience.md`).
 
 **What does GTC do at a session boundary?**
 On venues where GTC is simulated, IB deactivates the order at session close and re-arms it at the next

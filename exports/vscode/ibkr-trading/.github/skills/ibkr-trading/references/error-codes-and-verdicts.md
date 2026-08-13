@@ -66,7 +66,8 @@ Read what that does:
 
 Two of the ten codes in `warningCodes` (**492** and **10167**) do not appear in IBKR's published table
 at all. The frozenset is not a transcription of IBKR's classification; it is a hand-maintained list, and
-it is demonstrably incomplete in both directions.
+it is demonstrably incomplete in both directions. Re-verified verbatim against installed ib_async 2.1.0
+(2026-08-13): unchanged, and the community discussion about adding `10349` to it has not landed.
 
 **Consequence for every integration**: an undocumented code you have never seen arrives, `ib_async`
 grades it fatal, and a live order silently leaves your books. You cannot enumerate the codes in advance.

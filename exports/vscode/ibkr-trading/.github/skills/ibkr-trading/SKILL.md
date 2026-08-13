@@ -60,8 +60,9 @@ So the order of resort, for any question, is:
 ## Reference materials
 
 **Foundations**
-- `tws-api-architecture.md` - protocol, Gateway versus TWS, ports, clientId strategy, `ib_async` setup
-  and pinning, official docs and community resources
+- `tws-api-architecture.md` - protocol, Gateway versus TWS, ports, clientId strategy, session
+  exclusivity, `ib_async` setup, pinning and measured divergences, official docs and community
+  resources
 - `contracts-and-instruments.md` - per-asset-class contract construction, qualification, **market rules
   and the increment actually in force**, size semantics per class, option chains, combos, `whatToShow`,
   and a matrix of which failure modes bite which class
@@ -92,7 +93,7 @@ So the order of resort, for any question, is:
 
 **Operations**
 - `reconnection-resilience.md` - reconnect patterns, the `isConnected()` zombie, half-open connects,
-  supervisor self-death, Gateway-log forensics
+  supervisor self-death, what the terminal preserves, Gateway-log forensics
 - `gateway-automation.md` - scheduled outage windows, IBC, multi-process launcher locks, deployment on
   Windows, Linux, macOS and Docker
 - `gateway-verification.md` - provisioning a disposable paper Gateway and using it to answer questions

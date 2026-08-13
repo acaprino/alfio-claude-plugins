@@ -38,6 +38,14 @@ Two cautions:
   2026-08-13, at the same validation stage that refuses `FOK` with `201`). An absent order type is
   a no; an absent TIF goes to a what-if.
 
+**Where simulated-versus-native is documented**: per exchange, not per order type. Each exchange's
+listing page on the IBKR site carries an expandable "Order Types" section naming which types the venue
+takes natively and which IBKR simulates; the trigger-method machinery applies **only to IB-simulated
+stops** (a natively-held stop ignores `triggerMethod`), and Snap-to-Midpoint is documented as simulated
+on every exchange. The simulation locus matters operationally: a simulated type is held by IBKR or by
+your terminal rather than resting at the venue, so its behaviour depends on that process being alive
+(see `reconnection-resilience.md`).
+
 This is the first step of every capability question. The probe is the second, and
 `venue-questions-and-probes.md` covers when it is warranted.
 

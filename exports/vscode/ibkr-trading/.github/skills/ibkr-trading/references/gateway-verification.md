@@ -105,6 +105,19 @@ from the shipped table, including the grade `ib_async` gives it.
 A `REFUSED` verdict is trustworthy for that shape. An `ACCEPTED` verdict is a credit check passing, not
 a promise: terminal presets and book state can still refuse the real order.
 
+**What paper can and cannot prove is itself documented.** IBKR's paper-account guide states the
+simulator's limits: fills "are simulated from the top of the book" with no deep book; "stops and other
+complex order types are always simulated in paper trading", which "may result in slightly different
+behavior from a production account"; some order types are unsupported outright (VWAP, Auction, RFQ,
+Pegged to Market); combo and EFP trading is limited; US options never receive penny fills; and an
+exchange-directed market order that partially executes has its remainder rejected by the simulator.
+Validation verdicts transfer to live; fill behaviour, partials and timing do not.
+
+Data on paper follows the live account: subscriptions are shared by opt-in (Account Settings, Paper
+Trading Account), the two logins cannot consume the shared data simultaneously, and an unshared paper
+account gets documented delayed defaults (US stocks and options 15 minutes, US futures 10; metals,
+Forex and US bonds undelayed).
+
 ### Which combinations work?
 
 ```bash

@@ -26,6 +26,19 @@ venues, and the ambiguity resolves differently over time. Pin `primaryExchange` 
 weekly versus monthly options. Omitting it where it is needed returns several contracts, and
 qualification will not choose for you.
 
+Resolution mechanics worth knowing before blaming the venue:
+
+- `reqContractDetails` accepts an under-specified contract and fans out one callback per match; every
+  other call (orders, data) needs the contract already unique. Error **200** covers both "does not
+  exist" and "not specified enough", and chain sweeps also produce **322** for combinations with no
+  contract: expected noise there, not failures.
+- A `currency` filter is geographic in practice: `reqContractDetails` with `currency='USD'` is
+  documented to return **only US contracts**, even though non-US instruments trade in USD.
+- `primaryExchange` takes only the part before a period for dotted venues: `ENEXT`, not `ENEXT.BE`.
+- Corporate actions: a symbol can change while the `conId` persists (observed on split-plus-rename
+  cases; key long-lived state on `conId`, never on symbol), and the TWS API exposes no structured
+  corporate-action feed to say what happened.
+
 ## Per-class construction
 
 `ib_async` ships convenience classes; the underlying object is always `Contract`.
@@ -34,14 +47,15 @@ qualification will not choose for you.
 |---|---|---|---|
 | Equity | `Stock(symbol, exchange, currency)` | `primaryExchange` when SMART-routed | Fractional shares are a separate permission with their own refusal codes (most of 10243-10252) |
 | Option | `Option(symbol, lastTradeDateOrContractMonth, strike, right, exchange)` | expiry, strike, right, often `tradingClass` and `multiplier` | Strike must exist. Discover, never construct, strikes |
-| Future | `Future(symbol, lastTradeDateOrContractMonth, exchange)` | expiry or `localSymbol` | Expiry format is contract-month or a full date depending on the contract |
-| Continuous future | `ContFuture(symbol, exchange)` | | Data only. **Not tradable.** Resolve to the front `Future` to place orders |
+| Future | `Future(symbol, lastTradeDateOrContractMonth, exchange)` | expiry or `localSymbol` | Expiry format is contract-month or a full date depending on the contract. `includeExpired=True` reaches expired futures (futures only) for details and history, documented to about two years back |
+| Continuous future | `ContFuture(symbol, exchange)` | | **Historical data only**: documented as unusable for orders and for live market data, and `endDateTime` must be an empty string. Resolve to the front `Future` for everything else |
 | Future option | `FuturesOption(...)` | as Option plus the future's parameters | |
-| Spot FX | `Forex('EURUSD')` | | The API `symbol` is the base currency alone (`EUR`), with `currency` the quote |
+| Spot FX | `Forex('EURUSD')` | | The API `symbol` is the base currency alone (`EUR`), with `currency` the quote. `FXCONV` is an order routing destination for balance conversion (no virtual position), not a contract field |
 | CFD | `CFD(symbol, currency=...)` | | For FX-pair CFDs the split form is required: `CFD('EUR', currency='USD')` |
-| Crypto | `Crypto(symbol, exchange, currency)` | exchange (e.g. `PAXOS`), currency | Permissions and venue vary by region |
+| Crypto | `Crypto(symbol, exchange, currency)` | exchange (`PAXOS` or `ZEROHASH`), currency (`USD`) | The same coin has a different `conId` per venue (BTC: 479624278 at PAXOS, 541686651 at ZEROHASH, documented), and accounts are not necessarily permissioned for both |
 | Index | `Index(symbol, exchange, currency)` | | Data only, not tradable |
-| Bond | `Bond(secIdType='ISIN', secId=..., exchange=...)` | an identifier | Its own details callback |
+| Bond | `Bond(secIdType='ISIN', secId=..., exchange=...)` | an identifier | Its own details callback (`bondContractDetails`), and license restrictions leave few fields populated (documented: minTick, exchange, short name) |
+| Warrant | `Contract(secType='WAR', ...)` | often `localSymbol` or `conId` | Documented for Dutch warrants and IOPTs: symbol plus expiry plus strike is insufficient; identify by `localSymbol` or `conId` |
 | Combo | `Contract(secType='BAG', ...)` with `comboLegs` | legs with `conId`, `ratio`, `action`, `exchange` | See below |
 
 **Qualification is not uniform.** `qualifyContractsAsync` is a no-op for a fully specified spot FX
@@ -88,6 +102,16 @@ Three further traps:
   the same class of unversioned local input as order presets: audit it, and prefer reading the market
   rule at runtime over any table you maintain.
 
+Two more increments hide near this one:
+
+- **`tickReqParams.minTick` is a third number again**: the minimum increment of *market data* values,
+  documented as legitimately different from the order-placement increment (combos: 0.01 for data
+  versus 0.05 for orders). Never feed a data-side increment into order rounding.
+- **`priceMagnifier` participates in the band lookup.** For pence-quoted and magnified contracts,
+  divide the price by `priceMagnifier`, resolve the band, then multiply back (maintainer-grade
+  procedure, not IBKR prose). For futures options, strike semantics changed at TWS 972: the magnifier
+  no longer applies to FOP strikes.
+
 Round with integer tick-steps via `Decimal`, validate the raw price, round, then re-validate. Round
 bracket protective legs *away* from the entry and force at least one increment of clearance, so a
 stop and an entry can never collapse onto the same price.
@@ -122,8 +146,18 @@ params = await ib.reqSecDefOptParamsAsync(
 ```
 
 `futFopExchange` empty means all exchanges. The response carries expirations, strikes, `multiplier` and
-`tradingClass` per exchange. Take the intersection with what you can trade, then qualify the specific
-contract.
+`tradingClass` per exchange, as **two flat sets**: IBKR documents that "it is possible there are
+combinations of strike and expiry that would not give a valid option contract". Cross the sets, then
+confirm each candidate by qualification, treating 200/322 refusals as expected noise. Sweeping chains
+via `reqContractDetails` instead is documented as throttled and not recommended; where a large sweep is
+unavoidable, unchecking "Expose entire trading schedule to the API" (Global Configuration, API,
+Settings) is IBKR's documented way to shrink the per-option payload.
+
+Two discovery utilities sit nearby, each with a documented limit: `reqMatchingSymbols` (fuzzy symbol
+search, at most 16 results, minimum one second between calls; it names which derivative types exist,
+not their terms) and `reqSmartComponents` (decodes the single-letter exchange codes of tick types
+32/33/84 via the mapping id from `tickReqParams`, usable **only while the exchange is open**, so an
+off-hours sweep fails for that reason alone).
 
 Chains are large. Subscribing market data for a whole chain will exhaust market data lines immediately;
 budget the subscription, or use snapshots and accept their billing.
@@ -145,7 +179,7 @@ the leg at fault.
 
 | Class | Default | Notes |
 |---|---|---|
-| Equities, futures | `TRADES` | `ADJUSTED_LAST` for backtests needing split/dividend adjustment |
+| Equities, futures | `TRADES` | Historical `TRADES` bars are split-adjusted but **not** dividend-adjusted (documented); `ADJUSTED_LAST` adjusts for both |
 | Spot FX, FX CFDs | `MIDPOINT` | `TRADES` returns nothing; there are no prints |
 | Options | `TRADES`, often thin | Illiquid strikes return sparse or empty series legitimately |
 | Indices | `TRADES` | |
