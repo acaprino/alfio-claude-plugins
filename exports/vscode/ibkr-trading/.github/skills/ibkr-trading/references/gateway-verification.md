@@ -130,6 +130,13 @@ it refuses to place rather than guessing a reference; pass `--price` with a leve
 `10349` mechanism), which is otherwise invisible. This probe is the cheapest way to detect that a
 terminal is editing your orders.
 
+Two shapes in the cleanup transcript are expected, not errors: each leg answers `202` (cancelled),
+and a child the OCA relationship already cancelled in cascade answers `10148` ("cannot be cancelled,
+state: Cancelled") to its own explicit cancel -- a live demonstration that 10148 judges the *cancel
+request*, which is exactly why it never belongs in a rejection set. Outside regular trading hours the
+parent also logs a warning-grade `399` ("will not be placed until <open>") and stays alive,
+`ValidationError` pseudo-status notwithstanding.
+
 ### What is this code I have never seen?
 
 ```bash

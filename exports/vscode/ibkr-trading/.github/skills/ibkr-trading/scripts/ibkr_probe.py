@@ -64,7 +64,8 @@ def die(msg: str, code: int = 1):
 
 
 def info(msg: str) -> None:
-    print(f"[ibkr-probe] {msg}", flush=True)
+    # stderr on purpose: subcommands emit JSON on stdout for piping.
+    print(f"[ibkr-probe] {msg}", file=sys.stderr, flush=True)
 
 
 def state_dir() -> Path:
@@ -528,7 +529,10 @@ async def cmd_bracket(args) -> None:
                 break
         else:
             ref = None
-        ib.cancelMktData(qualified)
+        try:
+            ib.cancelMktData(qualified)  # echoes error 300 if the subscription never opened
+        except Exception:  # noqa: BLE001, S110
+            pass
 
         if ref is None:
             # Never place blind: with no quote, "50% of the reference" is 50% of a guess,

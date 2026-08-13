@@ -47,7 +47,9 @@ in a `stable-standalone/` and a `latest-standalone/` channel. Filenames, verifie
 | Linux | `ibgateway-{channel}-standalone-linux-x64.sh` |
 | macOS | `ibgateway-{channel}-standalone-macosx-x64.dmg` |
 
-The macOS name is `macosx-x64`, not `macos-x64`; the latter 404s. Prefer `stable` for production. The
+The macOS name is `macosx-x64`, not `macos-x64`; the latter 404s. Prefer `stable` for production, and
+know the channels genuinely differ: a 2026-08-13 install measured `stable` shipping build 10.45 while
+`latest` was 10.49. The
 Linux and Windows installers are install4j-based and take `-q -dir <path>` for unattended installs on
 both platforms (InstallBuilder-style `--mode` flags fall back to an interactive GUI); the macOS `.dmg`
 must be mounted. Verify an install by the presence of its `jars/` directory, not by the installer's

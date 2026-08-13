@@ -127,7 +127,7 @@ def guard_port(port: int) -> int:
 def download(url: str, dest: Path, label: str) -> Path:
     dest.parent.mkdir(parents=True, exist_ok=True)
     if dest.exists() and dest.stat().st_size > 0:
-        info(f"{label} already present ({dest.stat().st_size / 1e6:.0f} MB): {dest}")
+        info(f"{label} already present ({dest.stat().st_size / 1e6:.1f} MB): {dest}")
         return dest
     info(f"downloading {label} from {url}")
     req = urllib.request.Request(url, headers=UA)
@@ -146,7 +146,7 @@ def download(url: str, dest: Path, label: str) -> Path:
                 done += len(chunk)
                 now = time.time()
                 if total and now - last > 2:
-                    print(f"    {done / 1e6:7.0f} / {total / 1e6:.0f} MB", flush=True)
+                    print(f"    {done / 1e6:7.1f} / {total / 1e6:.1f} MB", flush=True)
                     last = now
     except urllib.error.HTTPError as exc:
         die(f"download failed for {url}: HTTP {exc.code}")
@@ -159,7 +159,7 @@ def download(url: str, dest: Path, label: str) -> Path:
         tmp.unlink(missing_ok=True)
         die(f"download truncated: got {done} of {total} bytes for {url}; re-run")
     tmp.replace(dest)
-    info(f"{label} downloaded: {dest} ({dest.stat().st_size / 1e6:.0f} MB)")
+    info(f"{label} downloaded: {dest} ({dest.stat().st_size / 1e6:.1f} MB)")
     return dest
 
 
@@ -234,6 +234,8 @@ def cmd_install(args: argparse.Namespace) -> None:
         [str(installer), "-q", "-dir", str(gw_dir)],
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",  # installer output is OEM-codepage on Windows
     )
     if run.returncode != 0:
         die(f"installer exited {run.returncode}: {run.stderr.strip()[:400]}")
@@ -404,7 +406,8 @@ def cmd_stop(_: argparse.Namespace) -> None:
         if pid > 0:
             if system == "Windows":
                 run = subprocess.run(["taskkill", "/PID", str(pid), "/T", "/F"],
-                                     capture_output=True, text=True)
+                                     capture_output=True, text=True,
+                                     encoding="utf-8", errors="replace")
                 stopped = run.returncode == 0
             else:
                 try:
@@ -425,7 +428,7 @@ def cmd_stop(_: argparse.Namespace) -> None:
                      f"name='{image}' and commandline like '%ibcalpha.ibc.IbcGateway%' "
                      f"and commandline like '%{marker}%'",
                      "call", "terminate"],
-                    capture_output=True, text=True)
+                    capture_output=True, text=True, encoding="utf-8", errors="replace")
         else:
             subprocess.run(["pkill", "-f", f"ibcalpha\\.ibc\\.IbcGateway.*{marker}"],
                            capture_output=True, text=True)

@@ -111,6 +111,8 @@ The escalation path, in order:
 
 This is how the five "unverifiable" IBKR facts in the 2026-08-09 `ibkr-trading` refresh were actually resolved, one of which (a plugin claim that error code 10167 exists) turned out to be false rather than merely unconfirmed.
 
+On this machine there is also a standing local install: IB Gateway/TWS under `D:\Software\Jts` (ibgateway build directory `1045`) and IBC 3.23.0 under `D:\Software\IBC`. That is the production deployment's install: its `config.ini` and settings are live configuration, so `ibkr-trading` verification work may reuse those *binaries* but must never launch or edit that configuration. The plugin's `ibkr_gateway.py` provisions its own disposable paper install under `%LOCALAPPDATA%\ibkr-verify` instead, which is the preferred route for probes.
+
 ## Repo workflows
 
 Four maintenance workflows live in `.claude/skills/` so they load only when the task calls for them. Load the matching skill before starting; do not improvise these from memory.
