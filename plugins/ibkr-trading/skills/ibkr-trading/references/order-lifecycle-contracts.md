@@ -66,6 +66,34 @@ IBKR's own definitions are worth reading as a ladder of *who has acknowledged wh
 
 `ApiPending` is an IBKR-documented status, not a client invention. Two of the definitions carry their own warning: `Cancelled` is documented to "occur unexpectedly when IB or the destination has rejected your order", so it is not proof that *you* cancelled anything; and `Filled` is not guaranteed to arrive, because "market orders executions will not always trigger a Filled status". `Inactive` deserves special care: it means "not currently working" (rejected, a share-location delay, a TWS-side block), not "dead"; never treat it as a terminal refusal without corroboration.
 
+## Mapping onto the reference order-lifecycle model
+
+The states above are IBKR's own. `trading-broker-connectivity`'s order-lifecycle reference model states
+the same acknowledgement levels in vendor-neutral terms, so a reader who knows one system can cross into
+the other. The table below maps every status this file uses onto it, one row per status, plus the
+reverse direction: where the model has a state IBKR never surfaces as a status of its own.
+
+| This model | IBKR status | Provenance | Note |
+|---|---|---|---|
+| `CREATED` | none | DOCUMENTED | No Trade object exists yet to carry a status. An order not yet handed to `placeOrder` has produced nothing for IBKR to report, the same reasoning the reference model gives for its own FIX bridge |
+| `SENT` | `PendingSubmit` | DOCUMENTED | "the order was sent from TWS, but confirmation has not been received", nobody has acknowledged |
+| `SENT` | `ApiPending` | ASSUMED | IBKR's own wording, "has not yet been sent to IB server", could be read as pre-transmission, but the status is only ever seen on a Trade object already returned by `placeOrder`, so it is placed at `SENT` rather than `CREATED`. Flagged rather than asserted as settled |
+| `VALIDATED` | `PreSubmitted` | DOCUMENTED | "accepted by the IB system... yet to be elected": IBKR has acknowledged, the venue has not |
+| `WORKING` | `Submitted` | DOCUMENTED | "accepted at the order destination and is working": the venue has acknowledged |
+| `PARTIALLY_FILLED` | none, still reports `Submitted` | DOCUMENTED | The status field does not distinguish a partial fill from a fully open order anywhere in this plugin's canonical order-state set or its other text. Detect it from `filled`/`remaining` on the order state, never from `orderStatus.status` alone |
+| `FILLED` | `Filled` | DOCUMENTED | Not guaranteed to arrive even on a full fill, "market orders executions will not always trigger a Filled status": treat `execDetails` as ground truth and the status as a courtesy |
+| `CANCEL_REQUESTED` | `PendingCancel` | DOCUMENTED | "a request has been sent to cancel... confirmation has not been received of its cancellation", nobody has acknowledged |
+| `CANCELLED` | `Cancelled` | DOCUMENTED | IBKR documents this same status as also covering rejections ("occur unexpectedly when IB or the destination has rejected your order"). The status alone never says which; read the accompanying `TradeLogEntry`/`errorCode` (see "placeOrder is a positive contract" above) before deciding `CANCELLED` versus `REJECTED` |
+| `CANCELLED` | `ApiCancelled` | ASSUMED | IBKR's own definition places this "before [the order] has been acknowledged", i.e. nobody, which does not cleanly satisfy the model's broker-or-venue requirement for `CANCELLED`. Placed here rather than at `CANCEL_REQUESTED` because this file's own code above (`_ORDER_REFUSED`) already treats it as terminal: no further status change follows it and no quantity trades against it |
+| `REJECTED` | none, arrives as `Cancelled` | DOCUMENTED | Same overload as above. IBKR reports a rejection through the `Cancelled` status plus an error code, never through a distinct status value; the refusing layer is read from the code, not the status name |
+| `UNKNOWN` | none | DOCUMENTED | Not a status IBKR reports. It is this plugin's name for the gap after a disconnect, covered in "Reconciling after a gap" below: an order in flight when the socket drops stays unknown until `reqOpenOrders`/`reqAllOpenOrders` or your own persisted evidence resolves it |
+| (no counterpart) | `Inactive` | ASSUMED | "not currently working" (rejected, a share-location delay, a TWS-side block), without saying which. The model has no state for "not working, not confirmed dead", and this file already warns never to treat it as a terminal refusal without corroboration |
+
+`ib_async`'s `ValidationError` pseudo-status (see "Warning-grade vs rejection-grade codes" above) gets no
+row: it is not a status the TWS API itself reports, it is a client-library flag layered onto an order
+that stays `Submitted`, i.e. `WORKING`, at the venue throughout. Treat it as a warning attached to
+`WORKING`, never as a state of its own.
+
 ## Terminal order presets are invisible input (error 10349)
 
 TWS/Gateway **order presets** configured in the GUI apply to API orders. They live in the terminal, not in your code, your config, or your repo: an unversioned input that can veto or mutate orders. The observable form: every bracket entry cancelled a few hundred milliseconds after `PendingSubmit` with `10349 "Order TIF was set to DAY based on order preset"`, wholesale, while the code is correct.
