@@ -685,6 +685,16 @@ Insert between `## Reference Materials` and `## Key Decision Points`:
 
 Every entry must point at a file that exists, or the linter's bidirectional reference check will not catch it but a reader will.
 
+- [ ] **Step 2b: Map MT5's order vocabulary onto the reference model**
+
+Base item 5 of the contract requires that a plugin using vendor-specific order-state names maps them explicitly onto the reference model rather than silently substituting them. `mt5-trading` uses MetaTrader's own vocabulary throughout, so the mapping is missing.
+
+Add a mapping table to `references/order-execution.md`, the file that already owns order lifecycle for this plugin. One row per MetaTrader order and deal state that the plugin's own text uses, giving the reference state it corresponds to among `CREATED`, `SENT`, `VALIDATED`, `WORKING`, `PARTIALLY_FILLED`, `FILLED`, `CANCEL_REQUESTED`, `CANCELLED`, `REJECTED`, `UNKNOWN`. Where a MetaTrader state has no counterpart in the model, say so explicitly with the reason rather than forcing a match, and where the model has a state MetaTrader never reaches, say that too.
+
+Two rules for the table. Do not invent a MetaTrader state: every row must be a value the plugin's existing text or the MetaTrader API actually uses, and if you are unsure of one, leave it out and say so. Do not instruct the reader to load `trading-broker-connectivity`: name it as the origin of the model and nothing more.
+
+This step exists because a shared vocabulary that no plugin maps onto is a vocabulary nobody speaks. It was added after Task 3 found the same gap in `ibkr-trading`.
+
 - [ ] **Step 3: The separator pass**
 
 Run:
