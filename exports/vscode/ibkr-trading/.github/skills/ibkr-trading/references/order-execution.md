@@ -34,6 +34,10 @@ IB algos available too: Adaptive (Urgent/Normal/Patient), TWAP, VWAP, ArrivalPx,
   ```python
   ib.client.setConnectOptions('+PACEAPI')
   ```
+  The documented formula behind the number is max market data lines divided by 2 per second (50/s at
+  the default 100 lines). `+PACEAPI` addresses this message-rate limit only: no IBKR source says it
+  paces the historical-data regime, and community reports agree it does not. Keep the historical
+  throttle in your own code (`event-driven-data.md`).
 - **`placeOrder()` with the same orderId = modify** -- not a new order. Cannot modify already-filled portions; cancellation may fail mid-fill.
 - **Error 201 ("Order rejected") -- never auto-retry.** Always investigate. Common causes: price check failure, margin, exchange-specific rules, and (on retail EU entities) FX currency-leverage on a leveraged spot cross. Blind retry generates more 201s and burns through OER budget. The FX currency-leverage case is fixable by routing through CFDs: see `venue-boundary-failure-modes.md`.
 - **Compliance 201s are NOT order precautions -- no override exists.** Precautions are a terminal GUI feature with their own codes (109, 163, 164, 382, 383), not the `10xxx` range (see `error-codes-and-verdicts.md`); account/compliance rejections like FX currency-leverage are hard rejections. Neither "Bypass Order Precautions for API Orders" in the Gateway config nor `Order.advancedErrorOverride` will let them through. Do not burn time on override paths: fix the contract type (spot -> CFD) or the account, treat the code as permanently non-retryable.

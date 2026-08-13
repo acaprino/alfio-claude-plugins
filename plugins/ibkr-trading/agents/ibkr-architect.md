@@ -205,6 +205,10 @@ configuration, and three of the four places that decide its behaviour are invisi
 - Pacing: identical `(contract, barSize, whatToShow, useRTH)` limited to one per 15 s **across
   processes**; 60 requests per 10 minutes; 50 simultaneous historical requests. Error 162 is generic.
   Opening `reqRealTimeBars` subscriptions draws on the same 60-per-600 s bucket.
+- `reqHeadTimeStamp` is paced in the small-bar class regardless of the bar size asked about, and
+  counts as an open request until cancelled. API history needs the live L1 entitlement even where the
+  TWS chart falls back to delayed; US-stock volume scale (lots versus shares) follows a terminal
+  checkbox, not the request.
 - Zero price plus zero size with `pastLimit` is the documented Halted tick (Unhalted follows the same
   shape); never drop these as bad data. The three volume ticks differ by construction (8 vs 233 vs
   375): pick one deliberately.

@@ -179,7 +179,7 @@ the leg at fault.
 
 | Class | Default | Notes |
 |---|---|---|
-| Equities, futures | `TRADES` | Historical `TRADES` bars are split-adjusted but **not** dividend-adjusted (documented); `ADJUSTED_LAST` adjusts for both |
+| Equities, futures | `TRADES` | Historical `TRADES` bars are split-adjusted but **not** dividend-adjusted (documented); `ADJUSTED_LAST` adjusts for both, is documented for stocks, ETFs and options only, and requires an empty `endDateTime` like CONTFUT |
 | Spot FX, FX CFDs | `MIDPOINT` | `TRADES` returns nothing; there are no prints |
 | Options | `TRADES`, often thin | Illiquid strikes return sparse or empty series legitimately |
 | Indices | `TRADES` | |
