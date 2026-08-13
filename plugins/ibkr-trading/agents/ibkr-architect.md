@@ -167,6 +167,12 @@ configuration, and three of the four places that decide its behaviour are invisi
   while deactivated is not documented; measure it before reconciling across a boundary.
 - Retired attributes still refuse orders: `EtradeOnly` (10268), `firmQuoteOnly` (10269),
   `nbboPriceCap` (10270). Check what your library sends, not what your code sets.
+- **GTC is documented as unsupported with IBKR algos**: never pair `algoStrategy` with `tif="GTC"`.
+- A conditional GTC must have its condition **retriggered on each later day**: unless it executes the
+  same day the condition fired, it is not a standing instruction.
+- `blockOrder` is ISE options of at least 50 contracts, not "large orders" generally. An accepted AON
+  is a resting condition, not a fill promise (US stock simulation needs NBBO size at least order size
+  plus 1000 shares).
 - `whatIf=True` gives the venue's verdict with no market risk. IBKR's published budget: at most one per
   minute, roughly one per ten real submissions, cancel it afterwards.
 

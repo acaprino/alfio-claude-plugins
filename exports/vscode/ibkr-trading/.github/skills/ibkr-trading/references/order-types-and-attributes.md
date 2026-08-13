@@ -54,7 +54,7 @@ This is the first step of every capability question. The probe is the second, an
 | TIF | Meaning | Notes that bite |
 |---|---|---|
 | `DAY` | Dies at the end of the regular session | The default when the field is left empty. Leaving `tif` unset is not "no opinion"; it is a choice of DAY |
-| `GTC` | Good til cancelled | Not universally native. See the simulation note below |
+| `GTC` | Good til cancelled | Not universally native. See the simulation note below. **Documented as unsupported with IBKR algos**: pairing `algoStrategy` with `tif="GTC"` is a contradiction the catalogue rules out |
 | `GTD` | Good til a date | Requires `goodTillDate`, and its time zone handling is a common source of surprise |
 | `GAT` | Good after time | Requires `goodAfterTime`. The order is inert until then |
 | `GTT` | Good til time | |
@@ -74,14 +74,21 @@ See `venue-questions-and-probes.md`.
 **Leaving `tif` empty is a decision.** Value it explicitly on every leg of every order. A default that
 differs from your intent is indistinguishable in the code from an intent you never had.
 
+**A GTC condition does not survive the day it fired on.** IBKR documents that for a conditional order,
+"unless the order is executed on the same day as the condition trigger, the condition has to be
+retriggered again on the following day(s) for the order to become active". A conditional GTC is
+therefore not a standing instruction that waits indefinitely for its condition to be met once: the
+condition must re-fire on the day the order is meant to work. A strategy that arms a condition on
+Monday and expects Tuesday's touch to execute it is relying on behaviour IBKR documents as absent.
+
 ## Fill modes and execution attributes
 
 | Attribute | Type | Effect | Where it bites |
 |---|---|---|---|
-| `allOrNone` | bool | Do not fill unless the whole quantity can fill | Support is per contract and per order type; the availability box is Stocks, ETFs, Options, Bonds, EFPs, US products only. Refused with the undocumented `10257` on an FX CFD while accepted on a US stock, same session. `10236`: a child must be AON if the parent is AON. `10237`: an AON ticket can route entire unfilled size only |
+| `allOrNone` | bool | Do not fill unless the whole quantity can fill | Support is per contract and per order type; the availability box is Stocks, ETFs, Options, Bonds, EFPs, US products only. Refused with the undocumented `10257` on an FX CFD while accepted on a US stock, same session. Where it is supported, IBKR documents that it "will typically route to the native exchange, or hold the order if the AON order type is not supported by the primary exchange", simulating it under a stated condition for US stocks: the NBBO must qualify the limit price **and** its size must be at least the order size plus 1000 shares. An accepted AON is therefore a resting condition, not an execution promise. `10236`: a child must be AON if the parent is AON. `10237`: an AON ticket can route entire unfilled size only |
 | `minQty` | int | Minimum acceptable fill size | Unset by default (`UNSET_INTEGER`), not zero. Narrow support: refused with the undocumented `10256` on a US stock and an FX CFD alike (measured 2026-08-13); the documented associations are Smart-routed options and bonds, and `350` refuses it for combos. `minQty=totalQuantity` would be AON in effect; neither probed class accepts it |
 | `sweepToFill` | bool | Prioritise speed over price across venues | Equities-oriented |
-| `blockOrder` | bool | Large-size block handling | Instrument-restricted |
+| `blockOrder` | bool | Large-size block handling | Narrower than "large size" suggests: documented for **ISE option orders of at least 50 contracts**, US only, directed |
 | `hidden` | bool | Not displayed in the book | Venue-restricted; some venues reject outright |
 | `notHeld` | bool | Releases the venue from price/time obligation | Meaningful for `REL` and discretionary routing |
 | `outsideRth` | bool | Eligible outside regular trading hours | If the order type or destination cannot honour it, TWS **ignores it and warns with 2109** rather than rejecting |
