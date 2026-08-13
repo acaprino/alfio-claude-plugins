@@ -1,5 +1,11 @@
 # Changelog
 
+## 22.5.1
+
+- `ibkr-trading` 2.7.1: the API-boundary report (R16) folded in, and it earned its place by finding an error in this plugin rather than by adding material. The architecture file claimed the IBKR Web API has "a 10 req/sec global limit". It does not: the documented global limit is **50 requests per second per authenticated username**, and 10 req/s is the specific cap on `/iserver/marketdata/snapshot`. A per-endpoint number had been promoted to a global one.
+- The corrected entry is also a better argument than the one it replaces, because the disqualifying limits are the per-endpoint ones rather than the global figure: `/iserver/orders`, `/iserver/trades` and several portfolio routes are documented at **1 request per 5 seconds**, scanners at 1/sec, and the `/pa/*` performance routes at **1 request per 15 minutes**, with `429` on breach, a 10-minute IP penalty box, and repeat violators "permanently blocked until the issue is resolved". The vague "useless for active trading" verdict is replaced by the specific reason an order-state loop cannot live there, and by the scope IBKR does market it for: account lifecycle, funding and reporting.
+- Nothing else from R16 entered the plugin, deliberately. Its charter is the TWS API, and the report's own sourcing did not meet the bar for import: two of its load-bearing footnotes pointed at Reddit threads rather than IBKR pages, and it recorded a genuine contradiction it could not resolve, between legacy documentation stating FIX "is only for order placement and can not be used to receive market data" and current marketing language about "broad market depth". That contradiction is left where it belongs, outside a TWS-API reference.
+
 ## 22.5.0
 
 - `ibkr-trading` 2.7.0: the account-state research report (R9) folded in as a **new reference**, `account-state-and-pnl.md`, covering the one area the plugin had no file for: what you hold, what it is worth, and why the surfaces disagree. Five surfaces are tabulated with their documented cadences, under one organising rule: only executions are a ledger, everything else is a current-state view that overwrites itself.

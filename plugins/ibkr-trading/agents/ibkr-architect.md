@@ -295,6 +295,10 @@ configuration, and three of the four places that decide its behaviour are invisi
 ### Deployment
 
 - IB Gateway over TWS in production; offline standalone build, never the auto-updater.
+- **The Web API is not an execution plane, and the reason is the per-endpoint limits**: the global cap
+  is 50 req/s per username, but `/iserver/orders`, `/iserver/trades` and portfolio routes are
+  documented at 1 request per 5 seconds, with `429` and a 10-minute IP penalty box on breach. Keep it
+  for account lifecycle, funding and reporting; keep execution and state on the TWS socket.
 - Ports: Gateway 4001 live / 4002 paper, TWS 7496 live / 7497 paper. Max 32 connections.
 - `clientId=0` merges with manual TWS trading. Use dedicated non-zero ids, separated by role.
 - IBC for login automation. Verify startup by **port probe, never launcher exit code**: the start
