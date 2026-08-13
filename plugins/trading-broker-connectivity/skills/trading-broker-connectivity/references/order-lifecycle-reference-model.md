@@ -12,6 +12,15 @@ The model is not a claim that every broker works this way. It is a fixed set of 
 Every state is defined by **who has acknowledged what**, because that is what decides whether acting
 again is safe. Names are secondary; the acknowledgement column is the model.
 
+The states are derived from the FIX protocol's `OrdStatus` (tag 39) and `ExecType` (tag 150), which is
+the one order vocabulary that already exists across the industry: most broker APIs are FIX, or a
+translation of it, and a broker's own documentation will often quote it. This model renames rather than
+copies, because FIX's labels describe the message and not the state of the world. `New` is the worst of
+them. It means the receiving counterparty has **accepted** the order and it is working, not that you
+have just created one, and implementers have read it the other way for decades. `WORKING` cannot be
+misread that way. Every rename is recorded in the bridge below, so that a reader holding a FIX log, or
+a broker whose documentation speaks FIX, crosses into this vocabulary in one step.
+
 | State | Meaning | Who has acknowledged |
 |---|---|---|
 | `CREATED` | The order exists in your process and nowhere else | nobody |
@@ -43,6 +52,35 @@ Six rules govern the transitions, and each one is a bug class when violated:
 - **A fill can arrive after a cancel request.** `CANCEL_REQUESTED` is not a pause, and the race between
   a cancel in flight and a fill in flight is won by the venue. Treat the cancel as decided only when
   the broker confirms the remaining quantity.
+
+**The FIX bridge.** Stated against FIX 4.4, with `OrdStatus` values given as their tag-39 codes. Rows
+with no equivalent are the interesting ones, and they are stated as gaps rather than forced onto the
+nearest value.
+
+| This model | FIX `OrdStatus` | Note |
+|---|---|---|
+| `CREATED` | none | FIX describes messages between two parties, and an order that was never sent has produced none |
+| `SENT` | none | The nearest value, `Pending New` (A), already acknowledges that the counterparty received the order, so it sits after `SENT` rather than on it. The gap is the point: the window in which you have sent and heard nothing is exactly where systems assume an answer they never got |
+| `VALIDATED` | `Pending New` (A), or `New` (0) when your counterparty is the broker | FIX has no value separating the broker's acceptance from the venue's. You receive the `New` of whichever party you are connected to, and a broker that reports both distinctly does it outside `OrdStatus` |
+| `WORKING` | `New` (0) | The rename described above. `New` means accepted and working |
+| `PARTIALLY_FILLED` | `Partially filled` (1) | Delivered by an execution report with `ExecType=Trade` (F) since FIX 4.3, and `ExecType=Partial fill` (1) before that |
+| `FILLED` | `Filled` (2) | Same report, same version split |
+| `CANCEL_REQUESTED` | `Pending Cancel` (6) | `Pending Replace` (E) is the same shape for a modify in flight |
+| `CANCELLED` | `Canceled` (4) | FIX separates terminations this model folds together: `Expired` (C) and `Done for day` (3) are their own values. Keep the vendor's own term alongside where that difference matters to you |
+| `REJECTED` | `Rejected` (8) | The layer that refused is not in `OrdStatus`, which is why the next section exists |
+| `UNKNOWN` | none | FIX has no status for "I do not know". It has a mechanism instead: an Order Status Request, answered by an execution report carrying `ExecType=Order Status` (I). That request is the reconciliation step this model calls for after a gap |
+
+Read the bridge in the other direction too, which is the discipline this file asks of every vendor map
+further down. Several FIX values have no state here: `Suspended` (9), `Stopped` (7), `Calculated` (B)
+and `Accepted for bidding` (D). None of them is `CANCELLED` and none is `WORKING`, so a system that
+meets one keeps FIX's own term rather than forcing it into this set. `Replaced` (5) is the trap among
+them, deprecated from FIX 4.3 onward in favour of reporting a replace through `ExecType` while
+`OrdStatus` continues to carry the working state, so a mapping written from an older specification
+loses modifications silently.
+
+`ExecType` also carries the thing the ledger rule under Identifiers is built on: a correction to a fill
+arrives as `Trade Correct` (G) and a bust as `Trade Cancel` (H), both as new execution reports rather
+than as edits to an old one.
 
 ## The three layers that can refuse
 
@@ -122,7 +160,9 @@ This is the point of the file. The failure it prevents is silent substitution: a
 vendor status, decides it is close enough to a model state, and encodes that decision nowhere. The
 next person cannot tell an established fact from a guess, and the guess is defended as if it were one.
 
-Write the map before writing the adapter, as a table in the repository, one row per vendor term:
+Write the map before writing the adapter, as a table in the repository, one row per vendor term. The
+rows below are one `local-terminal` vendor's real vocabulary rather than a second standard, and the
+third is the case that matters most: a state with no counterpart in this model and none in FIX either.
 
 | This model | Vendor term | Who has acknowledged | Provenance |
 |---|---|---|---|
