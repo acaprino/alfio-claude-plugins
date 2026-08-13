@@ -70,7 +70,7 @@ python $S/ibkr_probe.py capabilities --stock AAPL   # orderTypes, market rule ba
 python $S/ibkr_probe.py shape --stock AAPL --type STP --tif GTC --attr allOrNone
 python $S/ibkr_probe.py matrix --stock AAPL --types LMT,STP --tifs DAY,GTC,IOC
 python $S/ibkr_probe.py bracket --stock AAPL        # lifecycle + TIF read-back
-python $S/ibkr_probe.py codes 10257 10349           # no gateway needed
+python $S/ibkr_probe.py codes 10256 10257 10349     # no gateway needed
 ```
 
 `$SKILLS/ibkr-trading/assets/tws-message-codes.tsv` holds all 458 published codes with the grade `ib_async` gives each.
@@ -100,8 +100,8 @@ Venue, terminal, and client library, multiplexed onto one callback.
   Precautions (nine checkboxes including "Bypass Order Precautions for API orders"), and Messages.
 - **`Order.advancedErrorOverride` is typed `str`, not bool**, documented to accept parameters from
   `advancedOrderRejectJson` (the reject payload; `trade.advancedError` in ib_async). Not a bypass flag.
-- **The published table has holes**, including all of 10255-10267. `10257` and `10349` are real,
-  observed, and absent from it. Absence is not evidence a code does not exist.
+- **The published table has holes**, including all of 10255-10267. `10256`, `10257` and `10349` are
+  real, observed, and absent from it. Absence is not evidence a code does not exist.
 - **Discriminator**: if contract details permit the attribute the order was refused for, the rejector
   is the terminal. Test with a reversible config change, and never ship a dependency on it.
 
@@ -163,17 +163,23 @@ configuration, and three of the four places that decide its behaviour are invisi
   token in `orderTypes` before probing.
 - Preset-driven attachment (`ptOrderType`/`slOrderType = "PRESET"`) exists and must not be used in
   automation: it moves your protection levels into unversioned terminal configuration.
-- **Undocumented**: whether children activate on a partial parent fill, and whether TWS resizes them.
-  Checked directly against the bracket page; the silence is real. Measure it or record it as open.
+- **Children activate only on the complete parent fill**: stated by IBKR support on the Campus API
+  lesson (2023), absent from the API reference pages. Whether TWS ever resizes children to a partial
+  stays undocumented. Measure both for your account or record them as open.
 - Reap residual children on position-closed, and separately reconcile working orders against positions
   to catch children whose position never opened.
 
 ### Order types, TIF, fill modes
 
-- `orderTypes` mixes order types, TIFs and attribute tokens. Read it first for any capability question.
+- `orderTypes` mixes order types, TIFs and attribute tokens. Read it first, but it is decisive only
+  for order types: it under-reports TIFs (EUR.USD CFD declares no `IOC` yet accepts it at what-if,
+  measured 2026-08-13). An absent TIF goes to a what-if, not to a "no".
 - Leaving `tif` empty selects `DAY`. That is a choice, so make it deliberately.
-- `FOK` is a documented `Order.tif` value in its own right; it rarely appears as a capability token,
-  so verify it by probe. `IOC` + `allOrNone` only approximates it where AON is itself supported.
+- `FOK` is documented **Options Only, US Products Only**, and measured refused with `201` ("The
+  time-in-force FOK is invalid for this combination of exchange and security type") on an FX CFD
+  and a US stock alike. It never appears as a capability token. `IOC` + `allOrNone` only
+  approximates it where AON is itself supported; `minQty` is refused (undocumented `10256`) on both
+  probed classes.
 - Where GTC is simulated, IB deactivates at session close and re-arms at the open. What it reports as
   while deactivated is not documented; measure it before reconciling across a boundary.
 - Retired attributes still refuse orders: `EtradeOnly` (10268), `firmQuoteOnly` (10269),

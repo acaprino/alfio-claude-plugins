@@ -125,8 +125,8 @@ Audits whether the system's beliefs about the venue were ever checked. See `venu
       a synthesised cancellation
 - [ ] `openOrder` subscribed as a distinct channel: price-capping warnings arrive there as free text
       with no code, and `mktCapPrice` arrives on `orderStatus`
-- [ ] Undocumented codes handled by policy rather than by enumeration (10257 and 10349 are real and
-      absent from IBKR's published table, which also omits all of 10255-10267)
+- [ ] Undocumented codes handled by policy rather than by enumeration (10256, 10257 and 10349 are real
+      and absent from IBKR's published table, which also omits all of 10255-10267)
 - [ ] errorEvent handler registered
 - [ ] Async rejection codes routed into the order lifecycle (a successful `placeOrder` is "submitted", not "accepted")
 - [ ] Rejection codes GRADED before routing: rejection-grade ({103, 135, 201, 202, 10318}) mapped to a cancelled/failed event; cancel-verdict codes (161, 10148) NEVER routed as rejections (IBKR's documented cause for 10148 is an already-FILLED order; reconcile via reqExecutions instead); state-dependent codes (105, 110, 10349) excluded; 388 treated as a refusal of that order (ib_async grades it fatal, despite its polite wording); 503/504 routed to reconnection, not the order lifecycle

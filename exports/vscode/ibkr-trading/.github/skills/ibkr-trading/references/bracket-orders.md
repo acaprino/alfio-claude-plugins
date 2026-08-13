@@ -187,9 +187,9 @@ per contract: check the `AON` token in `ContractDetails.orderTypes` before probi
 
 ## What the documentation does not say
 
-Two questions, both load-bearing for correctness, neither answered by IBKR's published documentation.
-This was checked directly against the bracket page rather than inferred from a search result: the
-silence is real.
+Two questions, both load-bearing for correctness. The API reference answers neither; the bracket
+page was checked directly rather than inferred from a search result, and its silence is real. An
+IBKR staff answer settles the first at documentation grade (below); the second stays open.
 
 **Do children activate on a partial parent fill?** If children become live at nominal size while the
 parent is only partly filled, the protective legs can be larger than the position they protect, and an
@@ -209,10 +209,26 @@ and at least one widely repeated claim cannot be located on the page it is attri
 
 ## Protecting a position when partial fills are possible and AON is not
 
-Some contract classes declare no all-or-none vocabulary at all: no `AON` token, and no `IOC`/`FOK`
-among the declared TIFs (measured on FX CFDs: the attribute is refused with the undocumented `10257`
-on every order type, because the contract simply does not declare it). On those classes there is **no
-order attribute that forbids partial fills**, so the protection has to live in your code.
+Some contract classes refuse every native all-or-none mechanism. FX CFDs are the measured example
+(EUR.USD CFD, paper, what-if per shape, each with a same-session US-stock contrast, 2026-08-13;
+availability boxes retrieved the same day from the interactivebrokers.co.uk order-type pages):
+
+- `allOrNone` is refused with the undocumented `10257` ("The 'All or None' order attribute may not
+  be specified for this order") on every order type, while the same shapes are accepted on AAPL.
+  IBKR's availability box agrees: AON is Stocks, ETFs, Options, Bonds, EFPs, US products only.
+- `tif=FOK` is refused with `201` ("The time-in-force FOK is invalid for this combination of
+  exchange and security type"), and AAPL receives the identical refusal. IBKR documents FOK as
+  **Options Only, US Products Only**: the restriction is the product matrix, not the CFD class.
+- `minQty=totalQuantity`, the one other attribute whose semantics forbid a partial, is refused with
+  the undocumented `10256` ("The 'Minimum Quantity' order attribute may not be specified for this
+  order") on the FX CFD and on AAPL alike.
+- `tif=IOC` is **accepted**, despite being absent from the declared `orderTypes` (the declaration
+  under-reports TIFs; see `order-types-and-attributes.md`). IOC is not protection: IBKR's own
+  worked example fills 400 of 1,000 and cancels the rest. It bounds the remainder's lifetime, not
+  the fill's divisibility.
+
+On those classes there is **no order attribute that forbids partial fills**, so the protection has
+to live in your code.
 
 The two possible venue behaviours on a partially filled parent are both hazardous, which is the
 useful realisation: whichever turns out true for your account, the same component is required.
@@ -222,21 +238,26 @@ useful realisation: whichever turns out true for your account, the same componen
 | activate immediately at nominal size | protective legs larger than the position | a triggered leg over-closes and, on a non-reduce-only class, opens the difference in the opposite direction |
 | are held until the parent fills completely | a real position with no resting protection | partially naked exposure until the parent completes or dies |
 
-What the documentation actually supports, assembled from the IBKR Mobile users' guide (the most
-explicit page IBKR publishes on attached orders; the TWS API pages say nothing):
+What the documentation actually supports, assembled from the IBKR Mobile users' guide and from an
+IBKR staff answer on the Campus "Placing Complex Orders" API lesson (the API reference pages
+themselves say nothing):
 
 - *"The order will be created, but will not be submitted until the parent order fills."* (both the
   profit taker and the stop loss)
 - *"Once the parent order fills, the opposite side profit taker and stop loss orders are triggered."*
+- Stated outright by IBKR support on the Campus API lesson (comment reply, 2023-10-11, on
+  `campus/trading-lessons/python-complex-orders/`): *"the system will keep the child order 'on hold'
+  until its parent fills. Once the parent order is completely filled, its children will
+  automatically become active."*
 - The children use *"the same order quantity as the parent"*.
 - And a linguistic tell worth its own bullet: in the very same documents, wherever IBKR means to
   include partial fills it says so explicitly ("if the first leg fills **or partially fills**" for
   LMT+MKT; "if an order is **partially filled**" for OCA). The bracket sections say only "fills".
 
-The reading this best supports, stated as an **inference rather than a quote**: children stay
-unsubmitted until the parent fills **completely**, at nominal size, which is then exactly the
-position's size. Under that reading the mis-sized-children hazard largely dissolves, and the real
-hazards move elsewhere:
+The reading, no longer an inference: children stay unsubmitted until the parent fills
+**completely**, at nominal size, which is then exactly the position's size. The support answer
+states it; the guide's wording and the linguistic tell corroborate it. Under that reading the
+mis-sized-children hazard largely dissolves, and the real hazards move elsewhere:
 
 - **the unprotected window**: a partially filled parent is a real position with no resting
   protection until the remainder fills;
@@ -244,10 +265,11 @@ hazards move elsewhere:
   close), its attached children are cancelled with it, leaving the partial position permanently
   naked with no order resting anywhere.
 
-No sentence in IBKR's documentation states the partial-fill behaviour outright, so treat the reading
-above as `ASSUMED (documented-adjacent)` until measured for your account: log `filled`/`remaining` on
-every fill event and read the children's live quantity against the next real partial. The measurement
-decides what the handler below does; the handler itself is required under every reading.
+The statement lives in a dated support answer rather than in the API reference, and nothing anywhere
+states whether children are ever resized, so grade the reading `DOCUMENTED (support-stated)` and
+still measure it for your account: log `filled`/`remaining` on every fill event and read the
+children's live quantity against the next real partial. The measurement decides what the handler
+below does; the handler itself is required under every reading.
 
 The design:
 

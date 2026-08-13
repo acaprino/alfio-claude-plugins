@@ -85,8 +85,10 @@ Emits JSON: `orderTypes` (the venue's own capability token list), `validExchange
 price bands and increments rather than the `minTick` floor. It then calls out on stderr whether tokens
 like `AON`, `GTC`, `IOC` and `POSTONLY` are present for that contract.
 
-**This is the first thing to run for any "does IBKR support X" question.** If the token is absent, the
-answer is no for that contract and no probe is needed. Reading beats probing whenever reading suffices.
+**This is the first thing to run for any "does IBKR support X" question.** If an order-type token is
+absent, the answer is no for that contract and no probe is needed. TIF tokens under-report (EUR.USD
+CFD declares no `IOC` yet accepts it at what-if), so an absent TIF still goes to `shape`. Reading
+beats probing whenever reading suffices.
 
 ### Will this exact order shape be accepted?
 
@@ -109,10 +111,11 @@ a promise: terminal presets and book state can still refuse the real order.
 python $S/ibkr_probe.py matrix --stock AAPL --types LMT,STP,STPLMT --tifs DAY,GTC,IOC
 ```
 
-Prints a compatibility table. Shapes whose token is absent from `ContractDetails.orderTypes` are marked
-`NOT-DECLARED` and skipped rather than probed, which keeps the run inside the what-if budget. Everything
-else is measured. At one probe per minute, a 3×3 grid takes about nine minutes; that is the cost of an
-answer that is true for your account.
+Prints a compatibility table. Shapes whose **order type** is absent from `ContractDetails.orderTypes`
+are marked `NOT-DECLARED` and skipped rather than probed; every TIF is measured by what-if, because
+the declaration under-reports TIFs (EUR.USD CFD declares no `IOC` and accepts it). At one probe per
+minute, a full 3×3 grid takes about eight minutes; that is the cost of an answer that is true for
+your account.
 
 ### What does a bracket actually do here?
 
@@ -140,7 +143,7 @@ parent also logs a warning-grade `399` ("will not be placed until <open>") and s
 ### What is this code I have never seen?
 
 ```bash
-python $S/ibkr_probe.py codes 10257 10349 110 201
+python $S/ibkr_probe.py codes 10256 10257 10349 110 201
 ```
 
 No gateway needed. Looks the code up in `assets/tws-message-codes.tsv` (all 458 published codes) and

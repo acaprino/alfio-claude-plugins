@@ -31,9 +31,12 @@ Two cautions:
 
 - The list is **per contract and per exchange**. The same symbol routed `SMART` versus routed to a
   specific venue can differ. The `orderTypes` you get back corresponds to the contract you asked about.
-- **Presence in the list is not a guarantee of acceptance.** It is the venue's declaration of the
-  vocabulary it understands. Combinations remain constrained, and the terminal layer can still veto.
-  Presence rules things *out* reliably; it rules things *in* provisionally.
+- **Presence in the list is not a guarantee of acceptance, and absence is only decisive for order
+  types.** It is the venue's declaration of the vocabulary it understands. Combinations remain
+  constrained, and the terminal layer can still veto. For TIF tokens the list **under-reports**:
+  EUR.USD CFD declares no `IOC`, yet `tif=IOC` passes what-if validation on it (measured
+  2026-08-13, at the same validation stage that refuses `FOK` with `201`). An absent order type is
+  a no; an absent TIF goes to a what-if.
 
 This is the first step of every capability question. The probe is the second, and
 `venue-questions-and-probes.md` covers when it is warranted.
@@ -47,8 +50,8 @@ This is the first step of every capability question. The probe is the second, an
 | `GTD` | Good til a date | Requires `goodTillDate`, and its time zone handling is a common source of surprise |
 | `GAT` | Good after time | Requires `goodAfterTime`. The order is inert until then |
 | `GTT` | Good til time | |
-| `IOC` | Immediate or cancel | Fills what it can now, cancels the rest. Partial fills are expected, not exceptional |
-| `FOK` | Fill or kill | A documented `Order.tif` value in its own right ("if the entire order does not execute as soon as it becomes available, the entire order is canceled"). It rarely appears as a capability token in `orderTypes`, so verify it by probe rather than by token; `IOC` + `allOrNone` approximates it only where AON is itself supported (10236/10237 constraints apply) |
+| `IOC` | Immediate or cancel | Fills what it can now, cancels the rest. Partial fills are expected, not exceptional: IBKR's worked example fills 400 of 1,000 and cancels 600. Documented for CFDs, and measured accepted on an FX CFD whose `orderTypes` does not declare it |
+| `FOK` | Fill or kill | A documented `Order.tif` value in its own right ("if the entire order does not execute as soon as it becomes available, the entire order is canceled"), but its availability box reads **Options Only, US Products Only**. Measured 2026-08-13: refused with `201` ("The time-in-force FOK is invalid for this combination of exchange and security type") on an FX CFD and on a US stock alike. It never appears as a capability token in `orderTypes`, so the probe, not the token, is the test; `IOC` + `allOrNone` approximates it only where AON is itself supported (10236/10237 constraints apply) |
 | `OPG` | At the open | Routed for the opening auction only |
 | `AUC` | Auction | Venue-specific |
 | `DTC` | Day til cancelled | Deactivated at session end rather than cancelled, and re-armed |
@@ -67,8 +70,8 @@ differs from your intent is indistinguishable in the code from an intent you nev
 
 | Attribute | Type | Effect | Where it bites |
 |---|---|---|---|
-| `allOrNone` | bool | Do not fill unless the whole quantity can fill | Support is per contract and per order type. `10236`: a child must be AON if the parent is AON. `10237`: an AON ticket can route entire unfilled size only |
-| `minQty` | int | Minimum acceptable fill size | Unset by default (`UNSET_INTEGER`), not zero |
+| `allOrNone` | bool | Do not fill unless the whole quantity can fill | Support is per contract and per order type; the availability box is Stocks, ETFs, Options, Bonds, EFPs, US products only. Refused with the undocumented `10257` on an FX CFD while accepted on a US stock, same session. `10236`: a child must be AON if the parent is AON. `10237`: an AON ticket can route entire unfilled size only |
+| `minQty` | int | Minimum acceptable fill size | Unset by default (`UNSET_INTEGER`), not zero. Narrow support: refused with the undocumented `10256` on a US stock and an FX CFD alike (measured 2026-08-13); the documented associations are Smart-routed options and bonds, and `350` refuses it for combos. `minQty=totalQuantity` would be AON in effect; neither probed class accepts it |
 | `sweepToFill` | bool | Prioritise speed over price across venues | Equities-oriented |
 | `blockOrder` | bool | Large-size block handling | Instrument-restricted |
 | `hidden` | bool | Not displayed in the book | Venue-restricted; some venues reject outright |
@@ -118,13 +121,17 @@ type, venue and instrument, and IBKR does not publish it as a matrix. What exist
 
 1. **`ContractDetails.orderTypes`** for the vocabulary that contract accepts.
 2. **Refusal codes** that name the incompatibility when a combination is rejected, e.g. 2109 for an
-   ignored `outsideRth`, 10236/10237 for AON constraints, 10268-10270 for retired attributes.
+   ignored `outsideRth`, 10236/10237 for AON constraints, 10268-10270 for retired attributes, `201`
+   whose reason string names an invalid TIF for the exchange and security type, and the undocumented
+   `10256`/`10257` pair for attributes the class refuses outright.
 3. **`whatIf=True`** to test a specific combination without market risk.
 
 The practical procedure, in order, for any "can I do X on Y" question:
 
 1. Qualify the contract and read `orderTypes` and `validExchanges`.
-2. If the token is absent, stop. The answer is no, for that contract on that exchange.
+2. If an order-type token is absent, stop: the answer is no for that contract on that exchange. An
+   absent TIF token proves nothing (the list under-reports TIFs, and `FOK` never appears in it at
+   all); TIF questions continue to step 3.
 3. If present, build the exact order and submit it with `whatIf=True`. Respect the documented budget:
    at most one what-if per minute, roughly one per ten real submissions, and cancel it afterwards.
 4. If the what-if passes but the real order is refused, suspect the terminal layer: presets,

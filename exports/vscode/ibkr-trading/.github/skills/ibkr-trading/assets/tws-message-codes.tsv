@@ -4,7 +4,7 @@
 #   plus the blanket range 2100 <= code < 2200. Everything else is fatal: for a trade that is not
 #   isDone(), ib_async sets orderStatus.status = Cancelled locally and emits cancelledEvent,
 #   without sending anything to the venue.
-# Codes absent from this file are absent from the IBKR published table (e.g. 10257, 10349, 2127, and
+# Codes absent from this file are absent from the IBKR published table (e.g. 10256, 10257, 10349, 2127, and
 #   warningCodes members 492/10167). Absence is not evidence a code does not exist, and codes in
 #   [2100,2200) are warning-grade by the blanket rule even when unlisted. See error-codes-and-verdicts.md.
 code	ib_async_grade	message

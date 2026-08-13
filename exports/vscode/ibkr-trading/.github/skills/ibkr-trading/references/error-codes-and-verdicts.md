@@ -82,9 +82,12 @@ naive fetchers. The full index is `https://ibkrcampus.com/docs/llms.txt`.)
 - **458 codes**, ranging 100 to 10347.
 - **It has holes.** Within 10000-10347 alone, dozens of numbers are unlisted, including the entire
   block **10255-10267**. The table jumps 10254 to 10268.
-- **Codes that exist in the wild are absent from it.** `10257` ("The 'All or None' order attribute may
-  not be specified for this order") and `10349` ("Order TIF was set to DAY based on order preset") are
-  both real, both observed, and neither is in the table.
+- **Codes that exist in the wild are absent from it.** `10256` ("The 'Minimum Quantity' order
+  attribute may not be specified for this order"), `10257` ("The 'All or None' order attribute may
+  not be specified for this order") and `10349` ("Order TIF was set to DAY based on order preset")
+  are all real, all observed, and none is in the table. The first two differ only in the attribute
+  named: the 10255-10267 hole looks like a per-attribute rejection family, with two members
+  observed so far.
 
 **Absence from the published table is not evidence that a code does not exist**, and it is not evidence
 about the code's grade. It means you must classify it by observation. See

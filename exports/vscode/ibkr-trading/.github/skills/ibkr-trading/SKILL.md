@@ -117,7 +117,7 @@ python $S/ibkr_probe.py capabilities --stock AAPL       # what this contract rea
 python $S/ibkr_probe.py shape --stock AAPL --type STP --tif GTC --attr allOrNone
 python $S/ibkr_probe.py matrix --stock AAPL --types LMT,STP --tifs DAY,GTC,IOC
 python $S/ibkr_probe.py bracket --stock AAPL --qty 1    # lifecycle, TIF read-back, preset detection
-python $S/ibkr_probe.py codes 10257 10349               # no gateway needed
+python $S/ibkr_probe.py codes 10256 10257 10349         # no gateway needed
 ```
 
 Paper only, enforced twice: live ports are refused, and every managed account must look like a paper

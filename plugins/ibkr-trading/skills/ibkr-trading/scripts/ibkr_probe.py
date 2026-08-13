@@ -28,7 +28,7 @@ Examples:
     python ibkr_probe.py shape --stock AAPL --type STP --tif GTC --attr allOrNone
     python ibkr_probe.py matrix --stock AAPL --types LMT,STP --tifs DAY,GTC,IOC
     python ibkr_probe.py bracket --stock AAPL --qty 1
-    python ibkr_probe.py codes 10257 10349 110
+    python ibkr_probe.py codes 10256 10257 10349 110
 """
 
 from __future__ import annotations
@@ -264,6 +264,11 @@ async def cmd_capabilities(args) -> None:
         for token in ("AON", "GTC", "GTD", "IOC", "OPG", "HID", "POSTONLY", "SWEEP"):
             state = "present" if token in report["orderTypes"] else "ABSENT"
             print(f"  capability {token:9}: {state}", file=sys.stderr)
+        print(
+            "  (TIF tokens under-report: EUR.USD CFD declares no IOC yet accepts it at what-if,\n"
+            "   measured 2026-08-13. An ABSENT order type is a no; an ABSENT TIF goes to shape/matrix.)",
+            file=sys.stderr,
+        )
     finally:
         ib.disconnect()
 
@@ -444,10 +449,10 @@ async def cmd_matrix(args) -> None:
         if not types or not tifs:
             die("--types and --tifs must each name at least one entry")
         # Count the cells that will actually be probed before estimating the runtime:
-        # NOT-DECLARED cells are skipped without a what-if, and the first probe never waits.
-        # FOK never appears as a capability token (it is a TIF only), so skip its token check.
-        probed = sum(1 for ot in types for tif in tifs
-                     if ot in declared and (tif == "FOK" or tif in declared))
+        # NOT-DECLARED order types are skipped without a what-if, and the first probe never waits.
+        # TIFs are always probed: the declaration under-reports them (EUR.USD CFD declares no IOC
+        # yet accepts it at what-if, measured 2026-08-13), and FOK never appears as a token at all.
+        probed = sum(1 for ot in types for tif in tifs if ot in declared)
         info(f"{len(types) * len(tifs)} cells, {probed} probed; at 1 per minute this takes "
              f"about {max(0, probed - 1)} minutes")
         rows = []
@@ -456,10 +461,6 @@ async def cmd_matrix(args) -> None:
                 if ot not in declared:
                     rows.append({"orderType": ot, "tif": tif, "verdict": "NOT-DECLARED",
                                  "codes": [], "messages": ["absent from ContractDetails.orderTypes"]})
-                    continue
-                if tif != "FOK" and tif not in declared:
-                    rows.append({"orderType": ot, "tif": tif, "verdict": "NOT-DECLARED",
-                                 "codes": [], "messages": ["TIF absent from ContractDetails.orderTypes"]})
                     continue
                 rows.append(await whatif_shape(
                     ib, qualified, ot, tif, args.attr, args.qty, args.price,

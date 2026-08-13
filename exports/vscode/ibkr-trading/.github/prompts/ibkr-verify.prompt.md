@@ -47,8 +47,11 @@ Requires a running paper Gateway (see Rung 3 setup). Report:
 - the market rule bands, if the question touches prices
 - the size semantics, if the question touches quantities
 
-**If the token is absent, stop.** The answer is no for that contract on that exchange, and no probe
-will change it. A refusal is the venue declining an unsupported attribute, not a precaution to bypass.
+**If an order-type token is absent, stop.** The answer is no for that contract on that exchange, and
+no probe will change it. An absent TIF token proves nothing: the list under-reports TIFs (EUR.USD CFD
+declares no `IOC` yet accepts it at what-if, measured 2026-08-13) and `FOK` never appears in it at
+all, so a TIF question continues down the ladder. A refusal is the venue declining an unsupported
+attribute, not a precaution to bypass.
 
 ## Rung 2: read the documentation, and quote it
 
