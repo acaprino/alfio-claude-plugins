@@ -843,12 +843,22 @@ python -c "import json;d=json.load(open('.claude-plugin/marketplace.json',encodi
 ```
 Set each of the four badges to the printed number. Update the `# 41 plugins total` comment in the directory tree and the `With 41 plugins installed` sentence to the new count.
 
+- [ ] **Step 2b: Record the deferred coverage decision where it will be found**
+
+Add a short comment beside the `EXCLUDED` tuple in `scripts/lint_fact_anchors.py`, under the existing rationale comment. It records a decision taken during this phase and deliberately not acted on:
+
+Design documents under `docs/superpowers/` are currently scanned, and two of them state anchored facts. The question of whether they belong in the scan was analysed and deferred rather than settled, because widening an exclusion list on a hypothesis is how coverage dies quietly. The case for excluding them is the one already stated above for the changelog: they are dated records of what was decided at a point in time, and forcing an edit to an executed plan so a build stays green rewrites history. The case against is that a dated plan file, unlike a changelog, does not announce itself as historical to a reader who does not know the convention. The trigger to revisit is a real conflict where a `docs/superpowers/` file is one of the two named.
+
+Write it in two or three sentences, in the file's own voice. The point is that whoever meets this failure finds the reasoning already done instead of deciding under pressure, since the cheapest move in that moment is to falsify the dated document.
+
 - [ ] **Step 3: Update `CLAUDE.md`**
 
 Three edits:
 1. In the Build / CI section, change "Seven checks" to "Eight checks" and add a numbered entry for `lint_broker_plugins.py` describing what it checks and what it deliberately does not, in the voice of entries 1 to 4.
 2. In the Repo workflows table, add a fifth row: `broker-plugin-contract` | Authoring or reviewing a plugin for a specific broker. Holds the two conformance levels, the declaration lines, and the describe-but-never-dispatch rule.
 3. Add a short standing-policy paragraph recording the contract, the two levels with the reason they exist (a plugin that has not earned verification is visibly at base rather than silently non-compliant), and the constraint that the generic plugin never dispatches into a broker plugin.
+
+That paragraph **must contain the phrase `the five archetypes`**, in lower case and with exactly one word between `the` and `archetypes`. The `broker-archetype-count` anchor's description already claims the count is echoed in `CLAUDE.md`, and today that file contains no occurrence of the word at all, so the description asserts a coverage that does not exist. Either make it true here, or correct the description in `scripts/lint_fact_anchors.py` to name only the files that really state it. Making it true is preferable: a standing policy about broker plugins should say how many archetypes there are.
 
 - [ ] **Step 4: Verify**
 
