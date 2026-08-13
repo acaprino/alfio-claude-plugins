@@ -175,6 +175,15 @@ A spread is a `Contract` with `secType='BAG'` and a list of `comboLegs`, each ca
 Leg `conId`s must be qualified first. A combo built from unqualified legs fails in ways that do not name
 the leg at fault.
 
+**Guaranteed is the default; non-guaranteed is opt-in and explicit.** Native exchange spreads are
+guaranteed combos and that is the API default. A SMART-routed futures spread is the non-guaranteed
+form, and IBKR states that "when placing an order for a non-guaranteed combo from the API, the
+non-guaranteed flag must be set to 1", carried as a `TagValue("NonGuaranteed", "1")` in the order's
+smart-combo routing parameters. The flag is what buys legging risk in exchange for routing: forgetting
+it does not make a spread safer, it makes the order a different order than you designed. Attribute
+refusals in this family are their own codes, e.g. `350` "Minimum quantity is not supported for best
+combo order".
+
 ## `whatToShow` per class
 
 | Class | Default | Notes |

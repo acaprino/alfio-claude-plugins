@@ -2,7 +2,7 @@
   "name": "claude-code-daodan",
   "displayName": "Claude Code Daodan",
   "description": "93 agents, 70 skills and 52 prompts for GitHub Copilot: code review, documentation, testing, research, frontend, trading, observability and more.",
-  "version": "22.4.7",
+  "version": "22.4.8",
   "publisher": "acaprino",
   "license": "MIT",
   "engines": {

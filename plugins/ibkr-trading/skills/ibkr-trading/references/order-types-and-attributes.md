@@ -123,7 +123,13 @@ nonsense string and proves nothing about whether an override was applied.
 - **`MIDPRICE`**: attempts to fill between bid and ask. US and SMART only.
 - **`MOC` / `LOC`**: auction-only, with venue cutoff times that are not the session close.
 - **Algos** (`Adaptive`, `TWAP`, `VWAP`, `ArrivalPx`, `DarkIce`, `Accumulate/Distribute`): delivered
-  through `algoStrategy` and `algoParams`, gated by the `ALGO` token in `orderTypes`.
+  through `algoStrategy` and `algoParams`, gated by the `ALGO` token in `orderTypes`. GTC is documented
+  as unsupported with them.
+- **Scale orders**: one limit order that "automatically creates a series of buy (sell) limit orders
+  with incrementally lower (higher) prices". Documented as "only available via TWS and the TWSAPI",
+  so a scale strategy cannot be ported to the Web API. Its parameters have a dense refusal family of
+  their own (`408`-`410`, `417`-`419`, `433`, `446`-`449`), which is the practical way to learn the
+  constraints: the limits themselves are not published.
 
 **Trigger methods matter for stops.** The price event that fires a stop (last, bid/ask, double bid/ask,
 midpoint) is configurable per order and defaults differently per instrument class. Two systems with the

@@ -176,6 +176,23 @@ the reduction and block behaviour, rather than accepting whatever the implicit g
 any parent, including hedging legs and additional scaling exits. The bracket is one shape of a general
 mechanism.
 
+**4b. Hedging orders are the same mechanism under another name.** IBKR describes them as "similar to
+Bracket Orders", with the same activation rule: "a child order is submitted only on execution of the
+parent". Three shapes are documented, "an attached forex trade, Beta hedge, or Pair Trade", and the FX
+case is the one an automated system meets first: buying a contract denominated outside your base
+currency, with an attached FX order to convert enough base currency to cover it. The refusal codes are
+their own family (`10007` invalid hedge type, `10009` invalid hedge ratio, `10010` invalid delta hedge
+order, plus `377`-`380` and `393` for delta hedges), so a malformed hedge fails distinctly rather than
+silently.
+
+**4c. Adjustable stops modify the parent instead of transmitting a child.** Documented for "stop, stop
+limit, trailing stop and trailing stop limit orders": "you set a trigger price that triggers a
+modification of the original (or parent) order, instead of triggering order transmission". The fields
+are `triggerPrice`, `adjustedOrderType`, and then whichever of `adjustedStopPrice`,
+`adjustedStopLimitPrice`, `adjustedTrailingAmount` / `adjustableTrailingUnit` the target type needs.
+This is a stop that upgrades itself, not a second order, so nothing new appears in your open-order
+list when it fires: reconcile on the parent's changed fields.
+
 **5. Trailing protective leg.** A `TRAIL` or `TRAILLMT` child instead of `STP`. The trail is maintained
 server-side, so it survives your process dying, which is an argument for it and a reason to reconcile
 its state rather than model it locally.
@@ -184,6 +201,23 @@ its state rather than model it locally.
 and `10237` "All or None ticket can route entire unfilled size only". Whether AON is accepted at all is
 per contract: check the `AON` token in `ContractDetails.orderTypes` before probing. See
 `order-types-and-attributes.md`.
+
+## The parent must exist before the child names it
+
+IBKR documents a timing race in attached-order submission that has nothing to do with the transmit
+flag: "in some cases it will be necessary to include a small delay of 50 ms or less after placing the
+parent order for processing, before placing the child order. Otherwise the error '10006: Missing
+parent order' will be triggered."
+
+Two consequences for a staging sequence that fires all three legs in a tight loop:
+
+- **`10006` is a staging-race symptom, not a configuration error.** Read it as "the child arrived
+  before its parent was known", and retry that leg rather than rebuilding the bracket from scratch.
+- **A partially staged bracket is the dangerous outcome.** The parent may be held while a child has
+  been refused, so the recovery path is the same as for any mid-sequence failure: reconcile against
+  `reqOpenOrders()` and cancel what you did not intend to leave behind. What IBKR does *not* document
+  is the atomicity of the final transmitting leg being rejected, so do not assume the venue rolls the
+  batch back for you.
 
 ## What the documentation does not say
 
@@ -328,7 +362,8 @@ The design:
 - [ ] `AON` presence confirmed in `ContractDetails.orderTypes` before it is set
 - [ ] `ocaType` chosen deliberately, with block unless there is a reason not to
 - [ ] Transient `Cancelled` during staging not treated as a real cancellation
-- [ ] The staging sequence reconciled against `reqOpenOrders()` after any mid-sequence failure
+- [ ] The staging sequence reconciled against `reqOpenOrders()` after any mid-sequence failure, and
+      `10006` on a child treated as a retryable staging race rather than a broken bracket
 - [ ] Residual-child reaper on position-closed, plus a working-orders-versus-positions reconciliation
       for children whose position never opened
 - [ ] Terminal presets audited for every terminal the system connects to, and after upgrades

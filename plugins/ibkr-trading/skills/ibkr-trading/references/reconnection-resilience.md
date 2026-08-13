@@ -65,10 +65,13 @@ rebuild:
   is picked up only after an explicit `reqOpenTrades()` resync.
 - **`reqExecutions` reaches the current day only.** A reconnect across the day boundary cannot rebuild
   fills from the API; that is what your durable ledger and Flex are for.
-- **Visibility is not control.** `reqAllOpenOrders` shows other clients' orders without binding them,
-  and an unbound manual order carries API order id 0, documented as unmodifiable and uncancellable.
-  Reconcile identity on `permId`, which is documented to identify an order uniquely within an account
-  and is the only id that survives across clients and bindings.
+- **Visibility is not control, and control has a price.** `reqAllOpenOrders` shows other clients'
+  orders without binding them, and an unbound manual order carries API order id 0, documented as
+  unmodifiable and uncancellable. Binding is what makes it actionable, but IBKR documents that "the
+  process of order binding from the API cancels/resubmits an order working on an exchange", which "may
+  affect the order's place in the exchange queue": a reconnect routine that binds everything by reflex
+  reprices its own queue position. Reconcile identity on `permId`, which is documented to identify an
+  order uniquely within an account and is the only id that survives across clients and bindings.
 
 ## What the terminal itself preserves
 

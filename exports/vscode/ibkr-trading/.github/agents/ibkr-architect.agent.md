@@ -163,6 +163,11 @@ configuration, and three of the four places that decide its behaviour are invisi
   token in `orderTypes` before probing.
 - Preset-driven attachment (`ptOrderType`/`slOrderType = "PRESET"`) exists and must not be used in
   automation: it moves your protection levels into unversioned terminal configuration.
+- **`10006` "Missing parent order" is a staging race**: IBKR documents needing a delay of 50 ms or less
+  after the parent before placing a child. Retry the leg, do not rebuild the bracket.
+- Hedging orders are the same attached mechanism (child submitted only on execution of the parent),
+  in three documented shapes: attached FX, beta hedge, pair trade. Adjustable stops instead **modify
+  the parent** when their trigger price is penetrated, so nothing new appears in the open-order list.
 - **Children activate only on the complete parent fill**: stated by IBKR support on the Campus API
   lesson (2023), absent from the API reference pages. Whether TWS ever resizes children to a partial
   stays undocumented. Measure both for your account or record them as open.
@@ -214,7 +219,9 @@ configuration, and three of the four places that decide its behaviour are invisi
 - Modify price, size and TIF only (IBKR's own guidance); anything else is a cancel-and-replace
   candidate. Whether a modify amends in place or costs queue priority is undocumented per field.
 - `reqExecutions` reaches the **current day only**; `reqAllOpenOrders` shows without binding, and an
-  unbound manual order carries API order id 0, which cannot be modified or cancelled.
+  unbound manual order carries API order id 0, which cannot be modified or cancelled. Binding is not
+  free: IBKR documents that it cancels and resubmits a working order and may cost its queue place, so
+  bind to act, not to look.
 - Write the orderId-to-strategy attribution map **before** `placeOrder`, with rollback, because
   `errorEvent` can beat a post-placement write.
 - `cancelOrder` is a socket write with no acknowledgement (the raw EClient API takes an `OrderCancel`
