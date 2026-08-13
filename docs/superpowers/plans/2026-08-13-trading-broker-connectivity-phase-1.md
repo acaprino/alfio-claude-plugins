@@ -693,6 +693,15 @@ Add a mapping table to `references/order-execution.md`, the file that already ow
 
 Two rules for the table. Do not invent a MetaTrader state: every row must be a value the plugin's existing text or the MetaTrader API actually uses, and if you are unsure of one, leave it out and say so. Do not instruct the reader to load `trading-broker-connectivity`: name it as the origin of the model and nothing more.
 
+**Copy the shape Task 3 settled on for `ibkr-trading`**, which went through two review rounds to get there. Read `plugins/ibkr-trading/skills/ibkr-trading/references/order-lifecycle-contracts.md`, section "Mapping onto the reference order-lifecycle model", before writing this one. Its four properties:
+
+1. A three-column table: vendor status, reference state, note.
+2. **One disclosure above the table, not a per-row provenance tag.** It says where the vendor status meanings and their quotes live, and it says plainly that the correspondence is this plugin's own conclusion and never a fact the vendor states. This is the load-bearing part: a provenance tag can describe what a vendor status means, but it can never describe the correspondence, because MetaQuotes has never heard of this model. Tagging a correspondence `DOCUMENTED` is a category error even with a source beside it, which is the defect that cost Task 3 its second round.
+3. A single per-row marker, the note prefix `**Assumed mapping.**`, used only where reaching the mapping took an argument rather than a direct read of an existing quote.
+4. Applied by one stated test, with its categories named in the intro: an argument means analogy, cross-reference, inference from absence, or **lexical self-evidence** (the vendor's token is an ordinary word whose meaning is not in dispute). That fourth category is the one `ibkr-trading` leans on silently for its `Filled` row, which the review flagged. Name it in your intro rather than repeating the omission.
+
+The acceptance test is that a reader can tell, for any row, whether they are looking at something MetaQuotes says or something this plugin concluded.
+
 This step exists because a shared vocabulary that no plugin maps onto is a vocabulary nobody speaks. It was added after Task 3 found the same gap in `ibkr-trading`.
 
 - [ ] **Step 3: The separator pass**
