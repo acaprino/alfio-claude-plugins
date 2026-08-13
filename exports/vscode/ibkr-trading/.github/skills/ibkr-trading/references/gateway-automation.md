@@ -23,6 +23,21 @@ Design consequence: reconnection logic (see `reconnection-resilience.md`) is not
 - Requires the offline/standalone version of TWS
 - **Windows note**: use "Run only when user is logged on" in Task Scheduler for interactive access
 
+**IBC is not an IBKR product.** Nothing about it is IBKR-supported, and its own release history is the
+reason that matters operationally: version 3.21.0 shipped with a defect its release notes describe as
+"a significant problem ... regarding IBC's handling of autorestart. This prevents autorestart from
+working with Gateway", telling Gateway users to revert to 3.20.0. The lesson generalises past that one
+version: **exercise a full restart cycle on the exact IBC and Gateway pairing you intend to deploy**,
+because the component that automates your restarts is the one whose regressions you discover at 23:45.
+
+Config keys worth knowing by name, all in `config.ini`: `AutoRestartTime` (the restart schedule, as an
+alternative to setting it in the GUI), `SecondFactorDevice` (which 2FA device to select when several
+are enrolled), and the retry triad `ReloginAfterSecondFactorAuthenticationTimeout`,
+`SecondFactorAuthenticationExitInterval` and `TWOFA_TIMEOUT_ACTION=restart`, which decide what happens
+when a push notification is never acknowledged. IBC documents the retry loop as able to "repeat any
+number of times", so a login that is merely slow and one that will never complete look identical to it:
+bound the attempts yourself and escalate rather than looping into the session's weekly reauthentication.
+
 ## Auto-starting the Gateway under N processes
 
 When several bot processes can each decide "the Gateway is down, start it", the launcher becomes concurrent code with host-wide state. Every rule below encodes a production failure:
@@ -62,8 +77,15 @@ exit code.
 
 These apply everywhere and are the ones that actually decide whether unattended operation works.
 
+- **Uncheck Read-Only API before wondering why nothing trades.** IBKR's own configuration lesson states
+  that "Read-Only" is **enabled by default** and "will block all API orders. It must be unchecked to
+  allow any orders from the API." A fresh Gateway therefore refuses every order until someone changes a
+  checkbox, which is the correct default and a guaranteed first-deployment surprise.
 - **Bind the API to localhost only.** The API has no authentication worth the name; anything that can
   reach the port can trade.
+- **Schedule the restart in the terminal's own time zone.** IBKR states the restart time "is in the time
+  zone you have set for TWS", not the host's, so a machine in UTC running a terminal set to US/Eastern
+  restarts five hours away from where an operator reading the crontab would expect.
 - **Raise the Java heap, inside IBKR's own conflicting band.** Configure, Settings, Memory Allocation.
   IBKR's Knowledge Base recommends 4000 MB for API users while its Users' Guide warns that going above
   about 2000 MB "will likely degrade your machine's overall performance": treat 2-4 GB as the
@@ -99,8 +121,12 @@ These apply everywhere and are the ones that actually decide whether unattended 
 
 ## Linux
 
-- **Headless needs a virtual display.** The Gateway is a Java GUI application even in "headless"
-  operation. Run it under `xvfb` (`xvfb-run -a ...`), which is what the Docker images do.
+- **Headless needs a virtual display, and IBKR does not support headless at all.** Its own wording is
+  that both applications "were designed to require the use of a graphical user interface for secure
+  user authentication. For that reason 'headless' operation of either application without a GUI is not
+  supported." Running under `xvfb` (`xvfb-run -a ...`), as the Docker images do, satisfies the GUI
+  requirement rather than removing it: you are giving the JVM a display it cannot show anyone, not
+  running a supported headless mode.
 - **systemd** is the natural supervisor. Use `Restart=on-failure`, a `RestartSec` long enough to avoid
   a login storm, and `TimeoutStartSec` at or above the cold-login budget. Run as a dedicated
   unprivileged user with its own home, because the Gateway writes settings under it.

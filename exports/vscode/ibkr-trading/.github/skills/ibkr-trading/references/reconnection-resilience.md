@@ -193,7 +193,10 @@ ib.errorEvent += on_error
 
 ## Heartbeat and Health Check
 
-Use `reqCurrentTime()` as heartbeat, calling every 30-60 seconds. In ib_async, `ib.setTimeout()` sets a timeout for incoming messages and emits `timeoutEvent` if no data arrives for too long. Monitor last tick timestamps per instrument -- during market hours, if no update for >60 seconds on a liquid instrument, data may be stale.
+Use `reqCurrentTime()` as heartbeat, calling every 30-60 seconds. What it returns is documented as the
+terminal's own time, and the terminal "is synchronized with the server (not local computer) using NTP":
+a round trip therefore proves the terminal is answering, and a drift between that value and the host
+clock is a signal about your machine rather than about IBKR. In ib_async, `ib.setTimeout()` sets a timeout for incoming messages and emits `timeoutEvent` if no data arrives for too long. Monitor last tick timestamps per instrument -- during market hours, if no update for >60 seconds on a liquid instrument, data may be stale.
 
 The heartbeat's active round-trip is the **authoritative** liveness signal -- `isConnected()` is only a hint and can report `True` on a dead client (see the zombie blind spot above). Never gate the heartbeat's loop or its escalation on the flag: a `while ib.isConnected():` heartbeat exits silently on a false negative, which is trait #5 of the silent-failure signature.
 

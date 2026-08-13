@@ -250,6 +250,15 @@ configuration, and three of the four places that decide its behaviour are invisi
   quantity, flat is zero. `reqPositions` is unavailable above 50 subaccounts (use `reqPositionsMulti`).
 - `reqExecutions` is current-day; the 7-day extension needs a TWS Trade Log setting **Gateway cannot
   change**. Persist your own ledger and use Flex for older reconciliation.
+- **There is no margin call.** IBKR monitors in real time and liquidates below maintenance margin
+  without prior notice and without letting you pick the positions or the order. Gate risk well above
+  zero excess liquidity, and watch `LookAheadExcessLiquidity` for the next margin change, since an
+  intraday-comfortable position can breach when the overnight requirement applies. `Full*` tags show
+  the same portfolio with no discounts or intraday credits. `whatIf` margin is an estimate, never a
+  reservation.
+- Shortability comes from two ticks (a categorical `Shortable` score, thresholds 2.5 and 1.5, plus
+  `Shortable Shares` 236 for quantity) and neither is a promise: a short without a locate is **held
+  until it expires and never executes**, with no rejection.
 
 ### Market data and history
 

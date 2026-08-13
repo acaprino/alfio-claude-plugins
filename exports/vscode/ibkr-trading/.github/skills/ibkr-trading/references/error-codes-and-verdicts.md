@@ -186,6 +186,13 @@ A code arrives that is not in your rejection set. The procedure, in order:
 Codes that reliably mean "this order is dead at the venue", suitable for routing into an order
 lifecycle: `{103, 135, 201, 202, 10318}`.
 
+**`201` is a rejection, but it is not a category.** IBKR uses it for causes with nothing in common
+beyond the outcome: margin and compliance refusals, and also size refusals, where the documented text
+reads "in accordance with our regulatory obligations as a broker, we cannot accept Large Limit
+Orders ... Please submit a smaller order". Route it as dead, then read the reason string to decide what
+to do about it, and never parse the code alone as "insufficient margin". The text is diagnostic and its
+stability is undocumented, so log it verbatim rather than matching on it.
+
 **Cancel-verdict codes are their own family and never belong in a rejection set: `161` and `10148`.**
 Both report on a *cancel request*, not on the order. IBKR's own note for 10148 ("OrderId that needs to
 be cancelled can not be cancelled, state:") names the documented cause: **the order had already

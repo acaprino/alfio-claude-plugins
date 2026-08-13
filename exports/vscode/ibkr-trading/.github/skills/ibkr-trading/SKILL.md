@@ -90,7 +90,8 @@ So the order of resort, for any question, is:
 **Account and data**
 - `account-state-and-pnl.md` - the five account surfaces and their cadences, why the two PnL feeds are
   allowed to disagree, `(account, conId)` keying and the absent close event, the current-day execution
-  limit under Gateway, account summary tags, and Flex as the reconciliation source
+  limit under Gateway, **margin and the liquidation that arrives without a margin call**, look-ahead
+  risk tags, short-sale availability and the silent locate hold, and Flex as the reconciliation source
 - `event-driven-data.md` - subscriptions, bar construction, pacing, historical silence triage,
   session-reopen stub bars, eventkit listener contracts
 
@@ -139,6 +140,8 @@ account after connecting.
 | "Does IBKR support attribute X" | `order-types-and-attributes.md` |
 | A position doubled after a close | `order-lifecycle-contracts.md` |
 | Orders cancelled moments after submission, code correct | `order-lifecycle-contracts.md`, terminal presets |
+| Positions closed by someone other than your strategy | `account-state-and-pnl.md`, liquidation |
+| A short order that neither fills nor rejects | `account-state-and-pnl.md`, the locate hold |
 | Two PnL numbers that will not reconcile | `account-state-and-pnl.md` |
 | Margin or account values that lag reality | `account-state-and-pnl.md`, the three-minute cadence |
 | Fills missing after a restart, or older than today | `account-state-and-pnl.md`, executions |

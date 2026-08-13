@@ -120,6 +120,13 @@ select the sections that apply, and say which you skipped and why.
 - [ ] The durable fill ledger is local: `reqExecutions` is current-day only, and the documented 7-day
       extension needs a TWS Trade Log setting that IB Gateway cannot change. Flex reconciles anything
       older, with its trade-to-`execId` mapping measured rather than assumed
+- [ ] The risk gate triggers with real headroom above zero excess liquidity, and reads
+      `LookAheadExcessLiquidity` as well as the current value: IBKR issues **no margin call**, monitors
+      in real time, and liquidates without notice or position choice below maintenance margin
+- [ ] Positions and fills arriving that the strategy never ordered are handled (liquidation is market
+      activity you did not initiate), rather than treated as a reconciliation bug
+- [ ] Short entries check the shortability ticks first and treat an order that neither fills nor rejects
+      as a **locate hold**, which is documented to expire unexecuted rather than error
 
 ### Close Path & Netting *(netted accounts and non-reduce-only instruments: CFDs, FX, futures)*
 - [ ] Close side derived from the authoritative direction field (an explicit direction field, or the signed venue position), never from the sign of an abs-stored volume -- a wrong-side close on a netted account doubles the position

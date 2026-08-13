@@ -121,6 +121,69 @@ Two practical notes: pass `"All"` as the group in non-advisor structures, and ex
 rather than a number where a value has no price. A parser that assumes float breaks on the first such
 row.
 
+## Margin and liquidation: there is no margin call
+
+The single most important account fact for an automated system is what IBKR does *not* do. It does not
+issue margin calls and does not grant a grace period: monitoring is real time, and when an account falls
+below its maintenance requirement IBKR liquidates positions to restore compliance **without prior
+notice and without letting you choose which positions, in what order, or when**. A deficiency notice may
+be sent on a best-efforts basis; nothing obliges IBKR to reach you first, and in the fast markets where
+this happens it often will not. Entity disclosures state it even more bluntly for retail CFD and FX
+business, where IBKR says it will not issue margin calls, will not allow a grace period for intraday or
+other deficiencies, and is authorised to liquidate immediately. House requirements can also be raised at
+any time without notice, which is exactly what happens in turbulent markets.
+
+Two consequences that belong in the design rather than in a runbook:
+
+- **Your risk gate must trigger well above zero.** By the time excess liquidity reaches zero the
+  decision is no longer yours. Hold an internal threshold with real headroom, stop opening exposure,
+  and send your own risk-reducing orders while you still own the choice of which ones.
+- **Liquidation arrives as market activity you did not initiate.** Positions and fills will change under
+  a strategy that never sent those orders, which is another reason the position feed, not your intent,
+  is the authority on what you hold.
+
+The account values that describe this state, with IBKR's own definitions:
+
+| Tag | Definition | Use |
+|---|---|---|
+| `ExcessLiquidity` | "your margin cushion, before liquidation" | The headroom your gate watches |
+| `Cushion` | "Excess liquidity as a percentage of net liquidation value" | The normalised form, comparable across account sizes |
+| `LookAheadNextChange` | "Time when look-ahead values take effect" | When the regime below arrives |
+| `LookAheadInitMarginReq` / `LookAheadMaintMarginReq` | Requirements "of whole portfolio as of next period's margin change" | Tomorrow's requirement, today |
+| `LookAheadExcessLiquidity` | "your excess liquidity at the next margin change" | The one that catches an overnight requirement increase |
+| `Full*` variants | Whole-portfolio values "with no discounts or intraday credits" | The undiscounted truth beneath an intraday cushion |
+| `DayTradesRemaining` (plus `T+1`..`T+4`) | "Number of Open/Close trades one could do before Pattern Day Trading is detected"; `-1` means unlimited | The PDT counter, readable before it bites |
+
+**The look-ahead pair is the one most systems ignore.** A position that is comfortable on intraday
+margin can breach the moment the overnight requirement applies, and `LookAheadExcessLiquidity` is where
+that is visible in advance. The `Full*` family makes the same point from the other side: it strips the
+discounts and intraday credits out, so a cushion that exists only because of them is identifiable rather
+than merely surprising later.
+
+**`whatIf` is a pre-trade estimate, not a reservation.** IBKR's own wording for the margin fields is
+"expected" and "estimated", the `before`/`change`/`after` triple describes that projection, and nothing
+in the documentation says a passing what-if binds a later order. Market movement, another fill, or a
+requirement change between the two invalidates it.
+
+## Short selling: availability is indicative, and a missing locate fails quietly
+
+Two tick types carry shortability and they answer different questions: the **`Shortable` generic tick**
+returns a categorical difficulty score, while **tick 236, `Shortable Shares`,** returns an indicative
+quantity. The documented thresholds for the categorical value are "higher than 2.5" for at least 1000
+shares available, "higher than 1.5" for available if shares can be located, and "1.5 or less" for not
+available at all.
+
+Neither is a promise. IBKR states that its shortable list is "indicative only and is subject to change"
+and that short sale orders are "subject to approval by IBKR". The failure mode that matters is silent:
+a short sale submitted without sufficient locate is **held while a locate is sought**, and if none is
+found "the order will be held until it expires and will not execute". No rejection, no fill, just an
+order that quietly runs out its life. And a borrow that exists at entry can disappear later: if shares
+are not available at settlement, regulations require the broker to close out the short position.
+
+Design accordingly: read the shortability ticks before submitting, treat an order that neither fills nor
+rejects as a locate hold rather than a lost message, and never model a short as being as reversible as
+a long.
+
 ## Flex Web Service: the reconciliation source, not a feed
 
 Flex is a standalone HTTP API that generates instances of query templates built by hand in Client
