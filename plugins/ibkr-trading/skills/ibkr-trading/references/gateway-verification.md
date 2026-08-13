@@ -103,18 +103,40 @@ from the shipped table, including the grade `ib_async` gives it.
 A `REFUSED` verdict is trustworthy for that shape. An `ACCEPTED` verdict is a credit check passing, not
 a promise: terminal presets and book state can still refuse the real order.
 
-**What paper can and cannot prove is itself documented.** IBKR's paper-account guide states the
-simulator's limits: fills "are simulated from the top of the book" with no deep book; "stops and other
-complex order types are always simulated in paper trading", which "may result in slightly different
-behavior from a production account"; some order types are unsupported outright (VWAP, Auction, RFQ,
-Pegged to Market); combo and EFP trading is limited; US options never receive penny fills; and an
-exchange-directed market order that partially executes has its remainder rejected by the simulator.
-Validation verdicts transfer to live; fill behaviour, partials and timing do not.
+**What paper can and cannot prove is itself documented.** The one sentence that frames everything else,
+from IBKR's paper-account guide: "Trades entered into a paper trading account will not actually execute
+on any exchange or settle at a clearing house. However, the simulated price of the executions will be
+determined by real market prices and sizes." Real prices, no venue. The TWS API documentation says the
+same thing from the API side: "the Paper Trading Environment relies on more simulated technologies than
+the Live trading environment. As a result, certain behavior such as order execution may vary."
 
-Data on paper follows the live account: subscriptions are shared by opt-in (Account Settings, Paper
-Trading Account), the two logins cannot consume the shared data simultaneously, and an unshared paper
-account gets documented delayed defaults (US stocks and options 15 minutes, US futures 10; metals,
-Forex and US bonds undelayed).
+The documented limits follow from that: fills "are simulated from the top of the book" with no deep
+book; "stops and other complex order types are always simulated in paper trading", which "may result in
+slightly different behavior from a production account"; some order types are unsupported outright
+(VWAP, Auction, RFQ, Pegged to Market); combo and EFP trading is limited; US options never receive
+penny fills; mutual funds are not supported; an exchange-directed market order that partially executes
+has its remainder rejected by the simulator; and a market order with no quote on the opposite side is
+held until market data arrives. Validation verdicts transfer to live; fill behaviour, partials and
+timing do not.
+
+**Two gaps that quietly invalidate long-running acceptance tests**, both documented: paper accounts have
+no IPO access, and **corporate actions such as dividends and splits are not processed**. A test that
+holds a position across an ex-dividend date or a split is therefore measuring a fiction, and any
+position-and-PnL reconciliation that spans one will diverge for a reason that has nothing to do with
+your code. Keep acceptance runs inside a corporate-action-free window, or assert only on the paths that
+do not depend on the adjustment.
+
+Account state is documented too: every paper account starts with **USD 1,000,000 of Equity with Loan
+Value**, the cash can be reset from Client Portal to at most five times the production account's value
+with requests before 4pm ET taking effect the next business day, and paper statements are available
+under Client Portal's Reports menu, which makes statement-versus-API reconciliation a paper-testable
+path even though its economics are simulated. A paper account cannot be converted into a live one.
+
+Data on paper follows the live account: "trading permissions, market data subscriptions, base currency,
+and other account configurations are the same as specified for your regular account", subscriptions are
+shared by opt-in (Account Settings, Paper Trading Account), the two logins cannot consume the shared
+data simultaneously, and an unshared paper account gets documented delayed defaults (US stocks and
+options 15 minutes, US futures 10; metals, Forex and US bonds undelayed).
 
 ### Which combinations work?
 

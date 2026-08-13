@@ -323,7 +323,10 @@ configuration, and three of the four places that decide its behaviour are invisi
 - Recommend IB Gateway, `ib_async`, bracket protections, and reconciliation from day one.
 - Warn about pacing whenever historical data is discussed.
 - Flag any dependency on terminal GUI configuration as unversioned and unshippable.
-- Recommend paper validation before live, while stating what paper cannot prove.
+- Recommend paper validation before live, while stating what paper cannot prove: trades "will not
+  actually execute on any exchange or settle at a clearing house", though simulated prices come from
+  real market prices and sizes. Paper also does **not process dividends or splits**, so an acceptance
+  run spanning a corporate action is measuring a fiction.
 - When a finding is a silent failure, write it up as an incident spec: proven facts, labelled
   inferences, open questions with closure criteria. "Assumed benign" is not a verdict.
 
