@@ -32,7 +32,7 @@ qualification will not choose for you.
 
 | Class | Constructor | Required beyond symbol/currency | Notes |
 |---|---|---|---|
-| Equity | `Stock(symbol, exchange, currency)` | `primaryExchange` when SMART-routed | Fractional shares are a separate permission and have their own refusal codes (10243-10252) |
+| Equity | `Stock(symbol, exchange, currency)` | `primaryExchange` when SMART-routed | Fractional shares are a separate permission with their own refusal codes (most of 10243-10252) |
 | Option | `Option(symbol, lastTradeDateOrContractMonth, strike, right, exchange)` | expiry, strike, right, often `tradingClass` and `multiplier` | Strike must exist. Discover, never construct, strikes |
 | Future | `Future(symbol, lastTradeDateOrContractMonth, exchange)` | expiry or `localSymbol` | Expiry format is contract-month or a full date depending on the contract |
 | Continuous future | `ContFuture(symbol, exchange)` | | Data only. **Not tradable.** Resolve to the front `Future` to place orders |
@@ -80,8 +80,10 @@ Three further traps:
 - **`minTick` is unpopulated on a `Contract`.** It lives on `ContractDetails`. Reading
   `contract.minTick` off a qualified contract yields a default, and your rounding becomes a silent
   no-op.
-- **FX and FX CFD market rules default to 1/2 pip**, and the terminal can be switched to 1/10 pips
-  (Global Configuration, Display, Ticker Row, "Allow Forex trading in 1/10 pips"). The increment your
+- **FX and FX CFD market rules default to a coarser increment than 1/10 pip**, and the terminal can
+  be switched to 1/10 pips (Global Configuration, Display, Ticker Row, "Allow Forex trading in 1/10
+  pips"). IBKR's own page states the default inconsistently (1/2 pip in one bullet, 1/5 in the next),
+  which is itself a reason to read the market rule rather than assert a number. The increment your
   orders must satisfy therefore depends on a GUI setting on the machine running the terminal. This is
   the same class of unversioned local input as order presets: audit it, and prefer reading the market
   rule at runtime over any table you maintain.
@@ -156,8 +158,8 @@ pacing and from duration caps before retrying.
 
 For some instruments the contract you trade and the contract you can get data for are different objects.
 FX-pair CFDs are the clearest case: they trade, and they serve no market or historical data. The tell is
-a `2127` immediately preceding a `366`; a lone `366` has other causes and deserves proof rather than
-assumption.
+a `2127` immediately preceding a `366` *(observed diagnostic; 2127 is absent from IBKR's published
+table)*; a lone `366` has other causes and deserves proof rather than assumption.
 
 Where the split exists, resolve the underlying data-capable contract for every data path and keep the
 tradable contract for orders. Then remember the increment rule above: read venue parameters from the
@@ -183,6 +185,7 @@ look first.
 ## Related
 
 - `error-codes-and-verdicts.md` - what a refusal code means and what your library does with it
-- `venue-boundary-failure-modes.md` - the adapter layer that builds these objects
-- `order-types-and-attributes.md` - the FX, metals and CFD depth that the matrix above points at
+- `venue-boundary-failure-modes.md` - the adapter layer that builds these objects, and the FX,
+  metals and CFD depth that the matrix above points at
+- `order-types-and-attributes.md` - the capability vocabulary and how to resolve it per contract
 - `event-driven-data.md` - subscriptions, bar construction, pacing

@@ -80,7 +80,7 @@ select the sections that apply, and say which you skipped and why.
 - [ ] `tif` valued explicitly on **every** leg of every order; no leg relies on the empty-string default
       (which is `DAY`). IBKR's own published bracket sample sets no TIF at all, so code copied from it
       ships DAY children
-- [ ] Bracket children (SL/TP) are `tif='GTC'` (parent DAY) -- DAY children leave positions naked overnight
+- [ ] Bracket children (SL/TP) are `tif='GTC'` whenever the position can outlive the session (DAY children leave positions naked overnight; DAY is defensible only for strictly intraday systems that guarantee flattening). Parent TIF valued deliberately -- DAY for session-scoped entries, GTC for structural levels (`bracket-orders.md`)
 - [ ] `triggerMethod` on stop legs is compatible with the instrument's `secType`; an incompatible pair
       is documented to mean the order **may never trigger**, with no error. Last-driven methods (2, 3)
       are not available for `CASH`, `CMDTY` or index CFDs
@@ -90,12 +90,12 @@ select the sections that apply, and say which you skipped and why.
       which sources protection levels from terminal GUI configuration
 - [ ] Residual bracket children reaped when the position closes (no live SL/TP resting on a flat contract)
 - [ ] Transient `Cancelled` during staged bracket transmit not treated as a real cancellation (confirm via reqOpenOrders)
-- [ ] Compliance 201s treated as non-retryable (no bypass-precautions / advancedErrorOverride attempts -- those only cover 10xxx precautions)
+- [ ] Compliance 201s treated as non-retryable (no bypass-precautions / advancedErrorOverride attempts -- `advancedErrorOverride` is a string fed from `advancedOrderRejectJson`, not a flag, and precautions are a terminal GUI feature with codes 109/163/164/382/383, not the `10xxx` range)
 - [ ] Placement verdict awaited with a bounded window; on timeout the order is reported PLACED with logged uncertainty (never failure on a possibly-live order); refusal reason read from `trade.log`
 - [ ] Warning-grade codes (105, 110, 10349 on working orders) NOT routed as rejections -- the `isDone()` discrimination is respected
 - [ ] Order attribution map written BEFORE `placeOrder` (with rollback), and an order snapshot cached so synthetic events carry real fields
 
-### Close Path & Netting
+### Close Path & Netting *(netted accounts and non-reduce-only instruments: CFDs, FX, futures)*
 - [ ] Close side derived from the authoritative direction field (an explicit direction field, or the signed venue position), never from the sign of an abs-stored volume -- a wrong-side close on a netted account doubles the position
 - [ ] Close refused (not guessed) when direction is unresolved; event-driven closes scoped to owned symbols so account-level events don't fan out
 - [ ] Close verdicts verified against the venue (no self-reported success); any consciously deferred hole is recorded with its reason
@@ -129,12 +129,12 @@ Audits whether the system's beliefs about the venue were ever checked. See `venu
       absent from IBKR's published table, which also omits all of 10255-10267)
 - [ ] errorEvent handler registered
 - [ ] Async rejection codes routed into the order lifecycle (a successful `placeOrder` is "submitted", not "accepted")
-- [ ] Rejection codes GRADED before routing: rejection-grade ({103, 135, 161, 201, 202, 10148, 10318}) mapped to a cancelled/failed event; state-dependent codes (105, 110, 10349) excluded; 388 treated as a size notice; 503/504 routed to reconnection, not the order lifecycle
+- [ ] Rejection codes GRADED before routing: rejection-grade ({103, 135, 201, 202, 10318}) mapped to a cancelled/failed event; cancel-verdict codes (161, 10148) NEVER routed as rejections (IBKR's documented cause for 10148 is an already-FILLED order; reconcile via reqExecutions instead); state-dependent codes (105, 110, 10349) excluded; 388 treated as a refusal of that order (ib_async grades it fatal, despite its polite wording); 503/504 routed to reconnection, not the order lifecycle
 - [ ] Rejection events de-duplicated against orderStatusEvent (both fire for one TWS rejection; seconds-scale TTL)
 - [ ] Connectivity codes handled (1100, 1101, 1102)
 - [ ] Data codes handled (162 generic historical-data error, 200 no security, 354 not subscribed, 2127->366 no data on Forex CFD, 10089/10090/10186 subscription gaps, 10197 competing live/paper session)
 - [ ] Delayed-feed detection reads the `marketDataType` callback, not an error code (no error code means "you are on delayed data")
-- [ ] Order codes handled (103 duplicate ID, 110 tick conformance, 135 can't-find-order after a parent's death, 201 rejected, 202 cancelled, 399 sizing, 10349 preset override)
+- [ ] Order codes handled (103 duplicate ID, 110 tick conformance, 135 can't-find-order after a parent's death, 201 rejected, 202 cancelled, 399 sizing, 10349 preset override -- state-dependent, see the grading item above, never in the rejection set)
 - [ ] Farm status codes logged but not alarmed (2104, 2106, 2158)
 - [ ] WinError 10038 handled (Windows socket close)
 - [ ] Errors logged with context (orderId, contract, timestamp)
@@ -142,7 +142,7 @@ Audits whether the system's beliefs about the venue were ever checked. See `venu
 - [ ] `ib_async`/`ib_insync`/`eventkit` std loggers routed to the app sink at construction, plus asyncio loop exception handler and threading.excepthook escalating to the critical logger
 - [ ] Decoder-drop channel known: "Error handling fields:" decode failures never reach errorEvent; reconnect-window bursts of them trigger a qualified-contract cache re-check
 
-### Venue Boundary: Contracts, Ticks, Sizing
+### Venue Boundary: Contracts, Ticks, Sizing *(mostly FX, metals and CFDs; tick conformance applies to every class)*
 Audits the silent-failure layer where canonical intent becomes IBKR contracts/orders. See `venue-boundary-failure-modes.md`.
 - [ ] Order prices snapped to the increment in force before `placeOrder` (entry, SL, TP)
 - [ ] The increment comes from the **market rule band** containing the price (`ContractDetails.marketRuleIds` -> `reqMarketRule` -> the `PriceIncrement` whose `lowEdge` band applies), NOT from `minTick` alone. IBKR defines `minTick` as the smallest increment on *any* exchange or price, so snapping to it can produce a price finer than the band allows and earn a 110 on a price that looks correct
@@ -155,14 +155,14 @@ Audits the silent-failure layer where canonical intent becomes IBKR contracts/or
 - [ ] FX-pair split is gated on a real FX check (non-FX 6-letter ticker not blindly split)
 - [ ] Data requests use a data-capable contract: underlying spot Forex for FX CFDs (FX-pair CFDs serve no data; the tell is 2127 immediately preceding 366 -- a lone 366 has other causes and gets proven, not assumed)
 - [ ] Qualification lifecycle handled: conId<=0 placeholders rejected and retried (never cached); qualified-contract cache cleared on every reconnect under the same lock as the fast-path read
-- [ ] the symbol-routing map / canonical-size maps validated at construction with ALL gaps aggregated into one error; partially-populated maps warn loudly (a missing symbol is a 201-shaped hole); unknown symbols fail closed
+- [ ] The symbol-routing and canonical-size maps are validated at construction with ALL gaps aggregated into one error; partially-populated maps warn loudly (a missing symbol is a 201-shaped hole); unknown symbols fail closed
 - [ ] Contract creation on read-only paths (conversion-rate lookups) guarded like order paths
 - [ ] Price readiness check treats `NaN` as invalid (ib_async inits bid/ask to `NaN`, not `None`)
 - [ ] The price-reading function at the broker boundary returns strictly positive or raises (no 0.0/NaN placeholder)
 - [ ] Sizing guards use `not (x > 0)`, never `x <= 0` (NaN comparisons are False)
 - [ ] Non-finite computed volume collapses to 0.0 and aborts at the minimum-size gate
-- [ ] the minimum-size threshold is an abort threshold, NOT a floor that rounds sub-minimum input up into a live order; legitimate sizes floor DOWN at the wire edge (never-over-trade; banker's rounding is non-deterministic on half-cases)
-- [ ] All all size fields in one canonical unit (lots); venue units only on the wire, converted back on trade events
+- [ ] The minimum size is an abort threshold, NOT a floor that rounds sub-minimum input up into a live order; legitimate sizes floor DOWN at the wire edge (never-over-trade; banker's rounding is non-deterministic on half-cases)
+- [ ] Every size field in one canonical internal unit (lots for FX/CFDs, shares for equities, contracts for futures/options); venue units only on the wire, converted back on trade events
 - [ ] `minSize` interpreted per instrument class (metal CFD = real venue minimum; FX CFD on SMART = precision, not a floor; spot CASH = precision with IDEALPRO per-currency floors); no `Contract.multiplier` fallback for contract size
 - [ ] Conversion rate tries direct `{base}{counter}` then inverse `{counter}{base}` (1/rate); rejects `USDUSD`
 - [ ] Market-open re-checked under the execution lock (check-then-act is a race)
@@ -174,7 +174,7 @@ Audits the silent-failure layer where canonical intent becomes IBKR contracts/or
 - [ ] Jittered backoff schedule (not fixed-interval, not synchronized across sibling clients sharing one Gateway)
 - [ ] Post-reconnect state recovery (positions, orders, subscriptions, executions, qualified-contract cache cleared)
 - [ ] Heartbeat monitoring (reqCurrentTime or setTimeout), loop not gated on `isConnected()`
-- [ ] Handles both scheduled outage windows (~23:45-00:45 ET daily reset AND the ~04:30 UTC connectivity reset)
+- [ ] Handles both recurring outage windows: the published ~23:45-00:45 ET daily reset AND the operator-reported ~04:30 UTC connectivity reset (absent from IBKR's schedule; verify in your own Gateway logs)
 - [ ] Retry loop gated on an ACTIVE probe (`reqCurrentTimeAsync` + timeout), not on `isConnected()` (zombie flag after a failed connectAsync)
 - [ ] Half-open connectAsync returns (no exception, `isConnected()` False) synthesized into retryable failures
 - [ ] Defensive `disconnect()` after every failed connect attempt (resets zombie client state); half-open sockets torn down on cancellation (else error 326)
@@ -187,7 +187,7 @@ Audits the silent-failure layer where canonical intent becomes IBKR contracts/or
 - [ ] Every ib_async event handler signature contract-tested (wrong arity = handler dies silently on every emission inside eventkit)
 - [ ] `eventkit` / `ib_async` std loggers routed to the application log sink (listener exceptions are otherwise invisible)
 
-### Historical Data Integrity
+### Historical Data Integrity *(FX and CFD historical feeds)*
 - [ ] Off-grid session-reopen stub bars dropped from intraday FX historical responses (with drop-count logging; D1+ exempt)
 - [ ] The forming last bar dropped (bars whose synthesized time_close is in the future) -- IBKR returns it, MT5-style "last row = closed" assumptions corrupt indicators
 - [ ] Requested bar count preserved via over-fetch + bounded top-up after dropping; the consumer independently guards against a thin/empty replay window
@@ -203,7 +203,7 @@ Audits the silent-failure layer where canonical intent becomes IBKR contracts/or
 - [ ] Launcher tolerates cold IBC logins (start timeout >= 600 s) and verifies startup by API port probe, never by launcher exit code
 - [ ] Structured logging with rotation
 - [ ] Firewall restricts API to localhost only
-- [ ] Java heap raised (4096 MB is a battle-tested floor for heavy data volumes)
+- [ ] Java heap raised (4096 MB is a sound floor for heavy data volumes)
 - [ ] Antivirus exclusion for TWS directory
 - [ ] Paper trading validated before live deployment
 

@@ -63,7 +63,9 @@ re-checked after connecting.
 
 ```bash
 S=$SKILLS/ibkr-trading/scripts
-python $S/ibkr_gateway.py doctor | install | configure --user U | start | stop
+python $S/ibkr_gateway.py doctor
+python $S/ibkr_gateway.py install
+python $S/ibkr_gateway.py configure --user U   # then: start / stop
 python $S/ibkr_probe.py capabilities --stock AAPL   # orderTypes, market rule bands, size rules
 python $S/ibkr_probe.py shape --stock AAPL --type STP --tif GTC --attr allOrNone
 python $S/ibkr_probe.py matrix --stock AAPL --types LMT,STP --tifs DAY,GTC,IOC
@@ -71,8 +73,7 @@ python $S/ibkr_probe.py bracket --stock AAPL        # lifecycle + TIF read-back
 python $S/ibkr_probe.py codes 10257 10349           # no gateway needed
 ```
 
-`$SKILLS/ibkr-trading/assets/tws-message-codes.tsv` holds all 458 published codes with the grade
-`ib_async` gives each.
+`$SKILLS/ibkr-trading/assets/tws-message-codes.tsv` holds all 458 published codes with the grade `ib_async` gives each.
 
 ## Core knowledge
 
@@ -95,9 +96,10 @@ emits `cancelledEvent`, sending nothing to the venue. Your books say dead; the v
 Venue, terminal, and client library, multiplexed onto one callback.
 
 - **Precautions are a terminal GUI feature**, not the `10xxx` range. Documented precaution codes are
-  109, 163, 164, 382. The bypass surface is Global Configuration: Presets (per instrument), API
+  109, 163, 164, 382, 383. The bypass surface is Global Configuration: Presets (per instrument), API
   Precautions (nine checkboxes including "Bypass Order Precautions for API orders"), and Messages.
-- **`Order.advancedErrorOverride` is typed `str`, not bool.** Assigning `True` proves nothing.
+- **`Order.advancedErrorOverride` is typed `str`, not bool**, documented to accept parameters from
+  `advancedOrderRejectJson` (the reject payload; `trade.advancedError` in ib_async). Not a bypass flag.
 - **The published table has holes**, including all of 10255-10267. `10257` and `10349` are real,
   observed, and absent from it. Absence is not evidence a code does not exist.
 - **Discriminator**: if contract details permit the attribute the order was refused for, the rejector
@@ -109,7 +111,9 @@ Venue, terminal, and client library, multiplexed onto one callback.
 warnings with no code, including price capping)**, and the library's own std loggers (decode failures
 never reach `errorEvent`). Subscribe all four or you have a blind spot by construction.
 
-201 is a rejection (large size, margin, price checks). 202 is a cancellation. 388 is a size notice.
+201 is a rejection (large size, margin, price checks). 202 is a cancellation. 388 is a venue size
+refusal that `ib_async` grades fatal despite its polite wording. 161 and 10148 judge a CANCEL request
+(documented cause for 10148: the order already FILLED) and never belong in a rejection set.
 
 ### `minTick` is not the increment in force
 
@@ -119,8 +123,9 @@ not the rule at your price. The authoritative table is the **market rule**: `mar
 
 - Read it from the **order** contract's details, not the data contract's.
 - `minTick` is unpopulated on `Contract`; it lives on `ContractDetails`.
-- **FX and FX CFD increments depend on a terminal setting** (1/2 pip default, switchable to 1/10 in
-  Global Configuration, Display, Ticker Row). Another unversioned local input.
+- **FX and FX CFD increments depend on a terminal setting** (default coarser than 1/10 pip -- IBKR's
+  page states it inconsistently -- switchable to 1/10 in Global Configuration, Display, Ticker Row).
+  Another unversioned local input: read the market rule at runtime.
 - Round in integer steps via `Decimal`; validate raw, round, re-validate.
 
 ### Contracts per asset class
@@ -167,7 +172,8 @@ configuration, and three of the four places that decide its behaviour are invisi
 
 - `orderTypes` mixes order types, TIFs and attribute tokens. Read it first for any capability question.
 - Leaving `tif` empty selects `DAY`. That is a choice, so make it deliberately.
-- `FOK` is `IOC` plus `allOrNone`, not a distinct TIF.
+- `FOK` is a documented `Order.tif` value in its own right; it rarely appears as a capability token,
+  so verify it by probe. `IOC` + `allOrNone` only approximates it where AON is itself supported.
 - Where GTC is simulated, IB deactivates at session close and re-arms at the open. What it reports as
   while deactivated is not documented; measure it before reconciling across a boundary.
 - Retired attributes still refuse orders: `EtradeOnly` (10268), `firmQuoteOnly` (10269),
@@ -185,8 +191,10 @@ configuration, and three of the four places that decide its behaviour are invisi
 - `execDetails` is authoritative for fills, not `orderStatus`.
 - Write the orderId-to-strategy attribution map **before** `placeOrder`, with rollback, because
   `errorEvent` can beat a post-placement write.
-- `cancelOrder` takes an `OrderCancel` object, is a socket write with no acknowledgement, and **cannot
-  cancel an order placed by a different client ID**; only `reqGlobalCancel` reaches those.
+- `cancelOrder` is a socket write with no acknowledgement (the raw EClient API takes an `OrderCancel`
+  object; ib_async wraps it as `cancelOrder(order)`), and **cannot cancel an order placed by a
+  different client ID**; only `reqGlobalCancel` reaches those. A staged `transmit=False` leg is marked
+  `Cancelled` directly rather than passing through `PendingCancel`.
 - Netted accounts: derive the closing side from an explicit direction field or the signed venue
   position, never from the sign of an absolute-valued quantity. CFDs are not reduce-only, so a
   wrong-side close opens rather than closes.
@@ -210,7 +218,8 @@ configuration, and three of the four places that decide its behaviour are invisi
 ### Resilience
 
 - Daily reset around 23:45-00:45 ET (error 502), plus a second connectivity reset around 04:27-04:33
-  UTC reported by operators as an error-1100 storm across every client.
+  UTC, reported by operators of multi-client deployments as an error-1100 storm across every client;
+  it is absent from IBKR's published schedule, so verify it in your own Gateway logs.
 - `ib_async` has no auto-reconnect. Use `disconnectedEvent` with equal-jitter exponential backoff;
   siblings on one Gateway synchronise their retry waves without jitter.
 - **Never gate retries on `isConnected()`**: it lies after a failed `connectAsync`. Use an active probe
@@ -238,7 +247,7 @@ configuration, and three of the four places that decide its behaviour are invisi
 - `clientId=0` merges with manual TWS trading. Use dedicated non-zero ids, separated by role.
 - IBC for login automation. Verify startup by **port probe, never launcher exit code**: the start
   scripts background the JVM and return success in a second or two.
-- Cold IBC logins take 10-15 minutes. Timeouts below 600 s build crash loops.
+- A cold IBC login can take 10-15 minutes. Timeouts below 600 s build crash loops.
 - Multi-process auto-start needs a single-flight host-wide lock, atomic payload writes, and stale
   detection by PID plus process creation time.
 - Detach the Gateway from its spawner so a bot restart does not kill it.

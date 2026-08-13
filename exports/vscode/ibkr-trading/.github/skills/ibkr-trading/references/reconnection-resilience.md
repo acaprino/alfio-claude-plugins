@@ -18,7 +18,7 @@ def on_disconnect():
 async def reconnect_with_backoff(base=2.0, cap=60.0, max_attempts=10):
     for attempt in range(max_attempts):
         try:
-            await ib.connectAsync("127.0.0.1", 4001, clientId=1, timeout=10)
+            await ib.connectAsync("127.0.0.1", 4002, clientId=1, timeout=10)  # 4002 paper; 4001 is LIVE
             if not ib.isConnected():
                 # connectAsync can return without raising while the API
                 # channel is half-open (mid-warmup Gateway). Without this,

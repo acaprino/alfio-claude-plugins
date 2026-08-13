@@ -37,6 +37,7 @@ import argparse
 import asyncio
 import csv
 import json
+import os
 import sys
 import time
 from datetime import datetime, timezone
@@ -46,7 +47,15 @@ LIVE_PORTS = {4001, 7496}
 CODES_TSV = Path(__file__).resolve().parent.parent / "assets" / "tws-message-codes.tsv"
 WHATIF_MIN_INTERVAL = 60.0  # IBKR: do not exceed 1 what-if per minute.
 
+# ib_async's own grading rule (wrapper.py). The TSV mirrors IBKR's published table, so a code
+# can be absent from the file and still be warning-grade by this rule; grade by rule, not table.
+IB_ASYNC_WARNING_CODES = frozenset({105, 110, 165, 321, 329, 399, 404, 434, 492, 10167})
+
+# ContractDetails.orderTypes capability tokens are unspaced; Order.orderType strings are not.
+TOKEN_TO_ORDERTYPE = {"STPLMT": "STP LMT", "TRAILLMT": "TRAIL LIMIT"}
+
 _last_whatif = 0.0
+_codes_cache: "dict[int, tuple[str, str]] | None" = None
 
 
 def die(msg: str, code: int = 1):
@@ -58,15 +67,37 @@ def info(msg: str) -> None:
     print(f"[ibkr-probe] {msg}", flush=True)
 
 
+def state_dir() -> Path:
+    """Same per-user state directory as ibkr_gateway.py, for cross-process state."""
+    env = os.environ.get("IBKR_VERIFY_HOME")
+    if env:
+        return Path(env).expanduser()
+    if sys.platform == "win32":
+        base = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local"))
+    elif sys.platform == "darwin":
+        base = Path.home() / "Library" / "Application Support"
+    else:
+        base = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local" / "share"))
+    return base / "ibkr-verify"
+
+
 def load_codes() -> dict[int, tuple[str, str]]:
-    if not CODES_TSV.exists():
-        return {}
+    global _codes_cache
+    if _codes_cache is not None:
+        return _codes_cache
     out: dict[int, tuple[str, str]] = {}
-    with open(CODES_TSV, encoding="utf-8") as fh:
-        for row in csv.reader((l for l in fh if not l.startswith("#")), delimiter="\t"):
-            if len(row) >= 3 and row[0].isdigit():
-                out[int(row[0])] = (row[1], row[2])
+    if CODES_TSV.exists():
+        with open(CODES_TSV, encoding="utf-8") as fh:
+            for row in csv.reader((l for l in fh if not l.startswith("#")), delimiter="\t"):
+                if len(row) >= 3 and row[0].isdigit():
+                    out[int(row[0])] = (row[1], row[2])
+    _codes_cache = out
     return out
+
+
+def ib_async_grade(code: int) -> str:
+    """The grade ib_async applies, by its rule rather than by table membership."""
+    return "warning" if (code in IB_ASYNC_WARNING_CODES or 2100 <= code < 2200) else "fatal"
 
 
 def describe_code(code: int) -> str:
@@ -74,9 +105,17 @@ def describe_code(code: int) -> str:
     if code in table:
         grade, msg = table[code]
         return f"{code} [{grade}] {msg}"
+    grade = ib_async_grade(code)
+    if grade == "warning":
+        where = ("ib_async's warningCodes set" if code in IB_ASYNC_WARNING_CODES
+                 else "ib_async's blanket warning range [2100, 2200)")
+        return (
+            f"{code} [warning] not in IBKR's published table, but inside {where}: "
+            f"ib_async records the message and leaves the order live."
+        )
     return (
-        f"{code} [UNDOCUMENTED] not in IBKR's published table. ib_async grades it FATAL "
-        f"and will set a working order to Cancelled locally without telling the venue."
+        f"{code} [UNDOCUMENTED, fatal to ib_async] not in IBKR's published table. ib_async grades "
+        f"it fatal and will set a working order to Cancelled locally without telling the venue."
     )
 
 
@@ -134,8 +173,12 @@ def build_contract(args):
     if args.future:
         return Future(args.future, args.expiry or "", args.exchange or "")
     if args.option:
-        sym, expiry, strike, right = args.option.split(",")
-        return Option(sym, expiry, float(strike), right, args.exchange or "SMART")
+        try:
+            sym, expiry, strike, right = args.option.split(",")
+            strike_f = float(strike)
+        except ValueError:
+            die(f"--option must be SYMBOL,YYYYMMDD,STRIKE,C|P (got {args.option!r})")
+        return Option(sym, expiry, strike_f, right, args.exchange or "SMART")
     if args.crypto:
         return Crypto(args.crypto, args.exchange or "PAXOS", args.currency or "USD")
     if args.index:
@@ -187,16 +230,22 @@ async def cmd_capabilities(args) -> None:
         rule_ids = [r for r in d.marketRuleIds.split(",") if r]
         for exch, rule_id in zip(exchanges, rule_ids):
             try:
+                # ib_async returns None on its internal 1 s timeout instead of raising.
                 increments = await ib.reqMarketRuleAsync(int(rule_id))
+                if increments is None:
+                    report["marketRules"][exch] = {
+                        "ruleId": rule_id, "error": "timeout (ib_async 1 s budget); retry"
+                    }
+                    continue
+                report["marketRules"][exch] = {
+                    "ruleId": rule_id,
+                    "bands": [
+                        {"lowEdge": pi.lowEdge, "increment": pi.increment} for pi in increments
+                    ],
+                }
             except Exception as exc:  # noqa: BLE001
                 report["marketRules"][exch] = {"ruleId": rule_id, "error": str(exc)}
                 continue
-            report["marketRules"][exch] = {
-                "ruleId": rule_id,
-                "bands": [
-                    {"lowEdge": pi.lowEdge, "increment": pi.increment} for pi in increments
-                ],
-            }
 
         report["tradingHours"] = d.tradingHours
         report["liquidHours"] = d.liquidHours
@@ -222,25 +271,67 @@ async def cmd_capabilities(args) -> None:
 
 
 def apply_attrs(order, attrs: list[str]) -> None:
+    """Set Order attributes, refusing names that are not real Order fields.
+
+    ib_async's Order is a plain dataclass without __slots__: a mistyped attribute would be
+    set successfully, never serialized, and the shape would read as tested when the
+    attribute was never sent. For an evidence-producing tool that is worse than a crash.
+    """
+    import dataclasses
+
+    from ib_async import Order
+
+    valid = {f.name for f in dataclasses.fields(Order)}
     for a in attrs:
-        if "=" in a:
-            k, v = a.split("=", 1)
+        k, v = a.split("=", 1) if "=" in a else (a, None)
+        if k not in valid:
+            die(f"unknown Order attribute {k!r}: not a field of ib_async.Order, "
+                f"so it would be silently ignored. Check the spelling (e.g. allOrNone).")
+        if v is None:
+            setattr(order, k, True)
+        else:
             try:
                 val: object = json.loads(v)
             except json.JSONDecodeError:
                 val = v
             setattr(order, k, val)
-        else:
-            setattr(order, a, True)
+
+
+def _whatif_stamp_path() -> Path:
+    return state_dir() / "whatif.stamp"
+
+
+def _load_whatif_stamp() -> float:
+    try:
+        return float(_whatif_stamp_path().read_text().strip())
+    except (OSError, ValueError):
+        return 0.0
+
+
+def _store_whatif_stamp(ts: float) -> None:
+    try:
+        p = _whatif_stamp_path()
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(str(ts))
+    except OSError:
+        pass  # budget spacing degrades to per-process; not worth failing a probe over
 
 
 async def whatif_shape(ib, contract, order_type: str, tif: str, attrs: list[str],
                        qty: float, price: float, respect_budget: bool) -> dict:
-    """Submit one shape with whatIf=True and return the venue's verdict."""
+    """Submit one shape via whatIfOrderAsync and return the venue's verdict.
+
+    Uses ib.whatIfOrderAsync, the API built for this: it registers the response future so
+    the returned OrderState actually arrives. (On the plain placeOrder path ib_async
+    discards the whatIf OrderState, so a verdict read off the Trade can never see it, and
+    a hand-set whatIf flag with transmit=True is one honored-flag away from a live order.)
+    """
     global _last_whatif
     from ib_async import Order
 
     if respect_budget:
+        if not _last_whatif:
+            _last_whatif = _load_whatif_stamp()  # budget survives across invocations
         wait = WHATIF_MIN_INTERVAL - (time.time() - _last_whatif)
         if wait > 0 and _last_whatif:
             info(f"what-if budget: waiting {wait:.0f}s (IBKR asks for max 1 per minute)")
@@ -248,11 +339,10 @@ async def whatif_shape(ib, contract, order_type: str, tif: str, attrs: list[str]
 
     order = Order()
     order.action = "BUY"
-    order.orderType = order_type
+    # Capability tokens are unspaced (STPLMT); Order.orderType strings are not (STP LMT).
+    order.orderType = TOKEN_TO_ORDERTYPE.get(order_type, order_type)
     order.totalQuantity = qty
     order.tif = tif
-    order.whatIf = True
-    order.transmit = True
     if order_type in ("LMT", "STPLMT"):
         order.lmtPrice = price
     if order_type in ("STP", "STPLMT", "TRAIL"):
@@ -263,30 +353,59 @@ async def whatif_shape(ib, contract, order_type: str, tif: str, attrs: list[str]
     messages: list[str] = []
 
     def on_error(reqId, errorCode, errorString, contract_):  # noqa: ANN001
+        # Farm-status and connectivity notices ([2100,2200)) arrive on this channel at
+        # connect time and on every farm blip; they are not a verdict on this shape.
+        if 2100 <= errorCode < 2200:
+            return
         codes.append(errorCode)
         messages.append(f"{errorCode}: {errorString}")
 
     ib.errorEvent += on_error
+    state = None
+    timed_out = False
     try:
-        trade = ib.placeOrder(contract, order)
+        try:
+            state = await asyncio.wait_for(ib.whatIfOrderAsync(contract, order), timeout=20)
+        except asyncio.TimeoutError:
+            timed_out = True
         _last_whatif = time.time()
-        await asyncio.sleep(4)
-        state = trade.orderStatus
-        os_ = getattr(trade, "orderState", None)
-        accepted = bool(getattr(os_, "initMarginChange", "") or getattr(os_, "commission", None)) \
-            and not codes
+        _store_whatif_stamp(_last_whatif)
+        await asyncio.sleep(1)  # let a trailing rejection code land before judging
     finally:
         ib.errorEvent -= on_error
 
+    def _field(name):
+        val = getattr(state, name, None)
+        if val in (None, ""):
+            return None
+        try:  # OrderState money fields are strings; UNSET_DOUBLE means "not provided"
+            if float(val) >= 1.7e308:
+                return None
+        except (TypeError, ValueError):
+            pass
+        return val
+
+    margin = _field("initMarginChange")
+    accepted = state is not None and margin is not None and not codes
+    if codes:
+        verdict = "REFUSED"
+    elif accepted:
+        verdict = "ACCEPTED"
+    else:
+        verdict = "UNDECIDED"
+
     return {
         "orderType": order_type,
+        "orderType_wire": order.orderType,
         "tif": tif,
         "attrs": attrs,
-        "verdict": "ACCEPTED" if accepted else ("REFUSED" if codes else "UNDECIDED"),
-        "status": state.status,
+        "verdict": verdict,
+        "timed_out": timed_out,
         "codes": codes,
         "messages": messages,
-        "initMarginChange": getattr(os_, "initMarginChange", None),
+        "initMarginChange": margin,
+        "maintMarginChange": _field("maintMarginChange"),
+        "commission": _field("commission"),
     }
 
 
@@ -321,16 +440,23 @@ async def cmd_matrix(args) -> None:
 
         types = [t.strip() for t in args.types.split(",") if t.strip()]
         tifs = [t.strip() for t in args.tifs.split(",") if t.strip()]
+        if not types or not tifs:
+            die("--types and --tifs must each name at least one entry")
+        # Count the cells that will actually be probed before estimating the runtime:
+        # NOT-DECLARED cells are skipped without a what-if, and the first probe never waits.
+        # FOK never appears as a capability token (it is a TIF only), so skip its token check.
+        probed = sum(1 for ot in types for tif in tifs
+                     if ot in declared and (tif == "FOK" or tif in declared))
+        info(f"{len(types) * len(tifs)} cells, {probed} probed; at 1 per minute this takes "
+             f"about {max(0, probed - 1)} minutes")
         rows = []
-        total = len(types) * len(tifs)
-        info(f"probing {total} shapes; at 1 per minute this takes about {total} minutes")
         for ot in types:
             for tif in tifs:
                 if ot not in declared:
                     rows.append({"orderType": ot, "tif": tif, "verdict": "NOT-DECLARED",
                                  "codes": [], "messages": ["absent from ContractDetails.orderTypes"]})
                     continue
-                if tif not in declared:
+                if tif != "FOK" and tif not in declared:
                     rows.append({"orderType": ot, "tif": tif, "verdict": "NOT-DECLARED",
                                  "codes": [], "messages": ["TIF absent from ContractDetails.orderTypes"]})
                     continue
@@ -356,15 +482,43 @@ async def cmd_matrix(args) -> None:
 # --------------------------------------------------------------------- bracket probe
 
 
+def _snap(price: float, increment: float) -> float:
+    """Snap a price to an increment via integer steps, avoiding IEEE-754 residue."""
+    from decimal import ROUND_HALF_UP, Decimal
+
+    p, t = Decimal(str(price)), Decimal(str(increment))
+    return float((p / t).quantize(Decimal(1), rounding=ROUND_HALF_UP) * t)
+
+
+async def _band_increment(ib, details, exchange: str, price: float) -> float:
+    """The increment in force at this price on this exchange; falls back to minTick."""
+    try:
+        exchanges = [e for e in details.validExchanges.split(",") if e]
+        rules = [r for r in details.marketRuleIds.split(",") if r]
+        rule_id = int(dict(zip(exchanges, rules)).get(exchange, rules[0]))
+        bands = await ib.reqMarketRuleAsync(rule_id)
+        if bands:
+            applicable = [b for b in bands if b.lowEdge <= price]
+            if applicable:
+                return max(applicable, key=lambda b: b.lowEdge).increment
+    except Exception:  # noqa: BLE001
+        pass
+    return details.minTick or 0.01
+
+
 async def cmd_bracket(args) -> None:
     from ib_async import LimitOrder, StopOrder
 
     ib = await connect(args)
+    trades = []  # bound before any placement so the finally block can never over-reach
     try:
         contract = build_contract(args)
         (qualified,) = await ib.qualifyContractsAsync(contract) or (None,)
         if qualified is None or qualified.conId <= 0:
             die("contract did not qualify to a real conId")
+
+        details_list = await ib.reqContractDetailsAsync(qualified)
+        details = details_list[0] if details_list else None
 
         ticker = ib.reqMktData(qualified, "", False, False)
         for _ in range(20):
@@ -373,15 +527,26 @@ async def cmd_bracket(args) -> None:
             if ref == ref and ref > 0:  # not NaN, positive
                 break
         else:
-            ref = args.price
-            info(f"no live quote; falling back to --price {ref}")
+            ref = None
         ib.cancelMktData(qualified)
 
-        # Deliberately far from the market so nothing can fill during the probe.
-        entry = round(ref * 0.5, 2)
-        tp = round(ref * 0.6, 2)
-        sl = round(ref * 0.4, 2)
-        info(f"reference {ref}, entry {entry}, tp {tp}, sl {sl} (far from market by construction)")
+        if ref is None:
+            # Never place blind: with no quote, "50% of the reference" is 50% of a guess,
+            # and on any instrument trading below that guess the entry is marketable.
+            if args.price is None:
+                die("no live quote for this contract (a fresh paper account often has no "
+                    "market-data subscription). Re-run with an explicit --price <current "
+                    "reference> once you have confirmed the level yourself.")
+            ref = args.price
+            info(f"no live quote; using operator-supplied reference {ref}")
+
+        # Far from the market by construction, snapped to the increment actually in force
+        # so the probe does not die on error 110 before measuring anything.
+        inc = await _band_increment(ib, details, qualified.exchange, ref * 0.5) if details else 0.01
+        entry = _snap(ref * 0.5, inc)
+        tp = _snap(ref * 0.6, inc)
+        sl = _snap(ref * 0.4, inc)
+        info(f"reference {ref}, entry {entry}, tp {tp}, sl {sl}, increment {inc}")
 
         parent = LimitOrder("BUY", args.qty, entry)
         parent.orderId = ib.client.getReqId()
@@ -415,30 +580,43 @@ async def cmd_bracket(args) -> None:
                     "role": role,
                     "orderId": t.order.orderId,
                     "parentId": t.order.parentId,
-                    "tif_sent": t.order.tif,
-                    "tif_readback": getattr(t.orderStatus, "tif", None),
+                    "tif_sent": tif_sent,
+                    # openOrder refreshes Order.tif from the venue; a read-back differing
+                    # from what was sent is a terminal preset rewriting the order (10349).
+                    "tif_readback": t.order.tif,
                     "status": t.orderStatus.status,
                     "filled": t.orderStatus.filled,
                     "remaining": t.orderStatus.remaining,
                     "log": [f"{e.status}:{e.errorCode}:{e.message}" for e in t.log],
                 }
-                for role, t in zip(("parent", "takeProfit", "stopLoss"), trades)
+                for (role, tif_sent), t in zip(
+                    (("parent", args.parent_tif), ("takeProfit", args.child_tif),
+                     ("stopLoss", args.child_tif)), trades)
             ],
             "events": seen,
         }, indent=2, default=str))
 
         open_orders = await ib.reqOpenOrdersAsync()
         print(f"\nopen orders after placement: {len(open_orders)}", file=sys.stderr)
-        print("A TIF read back differently from the one sent means a terminal preset "
-              "rewrote it (see error 10349).", file=sys.stderr)
+        print("A tif_readback differing from tif_sent means a terminal preset rewrote the "
+              "order (see error 10349).", file=sys.stderr)
     finally:
-        info("cancelling every order placed by this probe")
-        for t in list(getattr(ib, "openTrades", lambda: [])()):
-            try:
-                ib.cancelOrder(t.order)
-            except Exception:  # noqa: BLE001, S110
-                pass
-        await asyncio.sleep(3)
+        # Cancel ONLY the legs this probe placed. openTrades() would also return orders
+        # resting under this client id from earlier sessions, which are not ours to kill.
+        live = [t for t in trades if not t.isDone()]
+        if live:
+            info(f"cancelling the {len(live)} order(s) placed by this probe")
+            for t in live:
+                try:
+                    ib.cancelOrder(t.order)
+                except Exception as exc:  # noqa: BLE001
+                    print(f"WARNING: cancel of order {t.order.orderId} raised: {exc}",
+                          file=sys.stderr)
+            await asyncio.sleep(3)
+            stragglers = [t.order.orderId for t in trades if not t.isDone()]
+            if stragglers:
+                print(f"WARNING: order(s) {stragglers} still not done after cancel; "
+                      f"verify on the gateway before walking away.", file=sys.stderr)
         ib.disconnect()
 
 
@@ -449,7 +627,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--port", type=int, default=4002, help="paper only; 4001/7496 are refused")
-    ap.add_argument("--client-id", type=int, default=99, help="keep clear of your running fleet")
+    ap.add_argument("--client-id", type=int, default=99, help="keep clear of your running clients")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     def add_contract_args(p):
@@ -491,7 +669,8 @@ def main() -> None:
     p = sub.add_parser("bracket")
     add_contract_args(p)
     p.add_argument("--qty", type=float, default=1)
-    p.add_argument("--price", type=float, default=100.0, help="fallback reference if no quote")
+    p.add_argument("--price", type=float, default=None,
+                   help="operator-confirmed reference, used ONLY when no live quote arrives")
     p.add_argument("--parent-tif", default="DAY")
     p.add_argument("--child-tif", default="GTC")
     p.set_defaults(coro=cmd_bracket)

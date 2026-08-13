@@ -48,8 +48,10 @@ in a `stable-standalone/` and a `latest-standalone/` channel. Filenames, verifie
 | macOS | `ibgateway-{channel}-standalone-macosx-x64.dmg` |
 
 The macOS name is `macosx-x64`, not `macos-x64`; the latter 404s. Prefer `stable` for production. The
-Linux and Windows installers are InstallBuilder packages and accept unattended flags (`-q -dir <path>`
-on Linux, `--mode unattended --prefix <path>` on Windows); the macOS `.dmg` must be mounted.
+Linux and Windows installers are install4j-based and take `-q -dir <path>` for unattended installs on
+both platforms (InstallBuilder-style `--mode` flags fall back to an interactive GUI); the macOS `.dmg`
+must be mounted. Verify an install by the presence of its `jars/` directory, not by the installer's
+exit code.
 
 `scripts/ibkr_gateway.py` automates all of this for paper gateways. See `gateway-verification.md`.
 
@@ -113,7 +115,7 @@ These apply everywhere and are the ones that actually decide whether unattended 
 
 **gnzsnz/ib-gateway-docker** (https://github.com/gnzsnz/ib-gateway-docker) packages IB Gateway plus
 IBC, supports live and paper simultaneously, and is actively maintained; its image tags track the
-Gateway build (for example `ibgateway-latest@10.49.1e`).
+Gateway build.
 
 It is the least surprising deployment for anything not already committed to Windows, because it makes
 the terminal version and its configuration explicit and reproducible, which is the single biggest

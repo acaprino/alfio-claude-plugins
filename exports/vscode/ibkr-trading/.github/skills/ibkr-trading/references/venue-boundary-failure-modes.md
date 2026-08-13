@@ -27,16 +27,20 @@ Codes commonly seen at this boundary, graded:
 
 | Grade | Codes | Routing |
 |-------|-------|---------|
-| Rejection on an undecided order | 103, 135, 161, 201, 202, 10148, 10318 | Synthetic `order_cancelled` (de-duped) |
+| Rejection on an undecided order | 103, 135, 201, 202, 10318 | Synthetic `order_cancelled` (de-duped) |
+| Cancel-verdict: the CANCEL failed, the order may have FILLED | 161, 10148 | Never into the rejection set. Reconcile via `reqExecutions()` + `reqOpenOrders()`: IBKR's documented cause for 10148 is an already-filled order |
 | State-dependent (kills only a `PendingSubmit` order; warning-grade on a working one) | 105, 110, 10349 | Do NOT route via the error set: the pending-state kill already arrives via `orderStatusEvent`; on a working order the order is still live |
-| Size-reduction notice, order continues | 388 | Log, reconcile quantity |
+| Venue size refusal; `ib_async` grades it fatal (local `Cancelled` on a pending order) | 388 | Treat as a refusal of that order; fix the size, never assume it continues |
 | Connection-layer, not an order verdict | 503, 504 | Route to reconnection handling, never to the order lifecycle |
 
 ```python
-REJECTION_CODES = {103, 135, 161, 201, 202, 10148, 10318}
+REJECTION_CODES = {103, 135, 201, 202, 10318}
 # 105/110/10349 are deliberately absent: on a working order they are
 # warning-grade (ib_async marks ValidationError and the order stays live);
 # routing them here would cancel the local record of a live venue order.
+# 161/10148 are absent for the opposite reason: they judge a CANCEL request,
+# and the documented cause for 10148 is a FILL -- routing them here records
+# a dead order for one that executed. Reconcile via reqExecutions() instead.
 
 def _on_error(self, reqId, errorCode, errorString, contract):
     if errorCode in REJECTION_CODES and reqId in self._live_order_ids:
@@ -53,9 +57,9 @@ IBKR rejects any price that is not an exact integer multiple of the contract `mi
 
 - **`minTick` lives on `ContractDetails`, not on the `Contract`.** Reading `contract.minTick` off a qualified `Contract` does not give you the venue tick in ib_async; the value falls back to a tiny default and your rounding becomes a silent no-op. Call `reqContractDetailsAsync` and read `details.minTick`.
 - **`minTick` is a floor, not the increment in force.** IBKR defines it as "the smallest possible minimum increment encountered on **any exchange or price**". Where a contract has different increments in different price bands, snapping to `minTick` produces a price finer than the band allows, and the venue answers 110 on a price that looks correct. The authoritative per-band table comes from **market rules**: read `ContractDetails.marketRuleIds` (a list parallel to `validExchanges`), call `reqMarketRule` for the id matching your exchange, and use the `PriceIncrement` whose `lowEdge` band contains your price. `contracts-and-instruments.md` has the full procedure; `scripts/ibkr_probe.py capabilities` dumps the resolved bands for a contract.
-- **For FX and FX CFDs the increment depends on a terminal setting.** The market rule reflects the default 1/2 pip configuration, and TWS/Gateway can be switched to 1/10 pips (Global Configuration, Display, Ticker Row). That makes the increment your orders must satisfy an unversioned local input, in the same category as order presets. Read the rule at runtime rather than maintaining a table.
+- **For FX and FX CFDs the increment depends on a terminal setting.** The default is coarser than 1/10 pip (IBKR's own page states it inconsistently as 1/2 and 1/5), and TWS/Gateway can be switched to 1/10 pips (Global Configuration, Display, Ticker Row). That makes the increment your orders must satisfy an unversioned local input, in the same category as order presets. Read the rule at runtime rather than maintaining a table.
 - **Under the data/order contract split you hold TWO `ContractDetails` with different `minTick`** (EUR.USD CFD 1e-05 vs spot 5e-05; USD.JPY CFD 0.001 vs spot 0.005). Tick conformance must come from the **order** contract's details; a rule that just says "read ContractDetails" is satisfiable by reading the wrong one.
-- Snap every price (entry, SL, TP) to `minTick` *before* `placeOrder`. Flooring only the quantity while passing full-precision float prices is the original sin here.
+- Snap every price (entry, SL, TP) to the band increment resolved above *before* `placeOrder`. Flooring only the quantity while passing full-precision float prices is the original sin here.
 - Round bracket SL and TP **away from entry** (stop further from entry, target further from entry) and force each at least **one tick clear** of the rounded entry. Independent nearest-tick rounding can collapse a tight bracket to `sl == entry` or `tp == entry`: a naked or instantly-triggering stop.
 - **Validate raw, then round, then re-validate.** If you round before validating the bracket, you nudge an incoherent input into a "valid" one instead of rejecting it. Validate the raw prices first (so bad input is rejected), then round, then re-validate the rounded bracket.
 - Do the tick arithmetic in integer tick-steps via `Decimal` so IEEE-754 residue does not re-trip 110.
@@ -87,13 +91,13 @@ A retail account under an EU entity (for example IBIE, IB Ireland) **cannot hold
 
 This is **bypassable in code**, not an account-side-only limit: route FX through **CFD contracts**. The same order placed as a CFD is accepted with normal retail margin (for example ESMA 30:1), no 201. Prove it cheaply before migrating: place the exact contested order against the paper gateway, or use a `whatIf=True` order on the CFD form (margin figures, no 201, no market risk).
 
-Do NOT chase override paths for this 201: it is an account/compliance rejection, not an order precaution (precautions are the 10xxx series). "Bypass Order Precautions for API Orders" and `Order.advancedErrorOverride` have no effect on it.
+Do NOT chase override paths for this 201: it is an account/compliance rejection, not an order precaution. Precautions are a terminal GUI feature with their own codes (109, 163, 164, 382, 383), not the `10xxx` range -- see `error-codes-and-verdicts.md`. "Bypass Order Precautions for API Orders" and `Order.advancedErrorOverride` have no effect on it.
 
 - Forex CFDs require the **split base/quote form**: `CFD(symbol="EUR", currency="USD")`. The 6-letter form `CFD(symbol="EURUSD")` is rejected with **error 200** "no security definition found".
 - **Gate the split on a real FX-pair check.** A non-FX 6-letter ticker must not be blindly split; fall back to the full ticker with a warning.
 - Metals (for example XAUUSD) route as a **full-ticker CFD** and serve their own market data. Forex CFDs do **not** (see section 4).
 - **The CFD's venue parameters differ from the spot pair's -- never share tables across secTypes.** CFD `minTick` can be finer than the underlying spot's (e.g. EUR.USD CFD 1e-05 vs spot 5e-05): always read `minTick` from the *traded* contract's `ContractDetails` at runtime.
-- **The the symbol-routing map config map's *shape* encodes intent -- detect the gap.** An empty map means "this account trades spot FX" and the default is intent; a **non-empty map missing one symbol is a configuration hole** that routes that symbol to spot IDEALPRO, where the leverage-capped account rejects it with 201. Keep the default but warn loudly on the gap, validate values against a known set (`{FOREX, CFD}`), and **validate the whole map at construction, aggregating every missing/invalid symbol into one error** so operators see the full delta at once instead of whack-a-mole.
+- **The shape of the symbol-routing map encodes intent -- detect the gap.** An empty map means "this account trades spot FX" and the default is intent; a **non-empty map missing one symbol is a configuration hole** that routes that symbol to spot IDEALPRO, where the leverage-capped account rejects it with 201. Keep the default but warn loudly on the gap, validate values against a known set (`{FOREX, CFD}`), and **validate the whole map at construction, aggregating every missing/invalid symbol into one error** so operators see the full delta at once instead of whack-a-mole.
 - **Watch read-only paths too.** A balance/currency-conversion path on a non-USD-base account can qualify CASH/IDEALPRO contracts nobody configured (e.g. EUR.JPY appearing on an account whose configs never name EURJPY) -- on exactly the contract class the account is refused on. Contract creation is a boundary wherever it happens, not just under `place_order`.
 
 ### Qualification lifecycle
@@ -137,7 +141,7 @@ def get_data_contract(symbol, order_contract):
 
 ## 5. Sizing and units (the NaN family, errors 201 / 399)
 
-A silently failed snapshot that returns `ask=0.0`/`NaN` for the conversion pair zeroes the order notional. A the minimum-size threshold floor then turns that zero into a real **venue-minimum** order (EURUSD 0.01 lot rejected 399/201), or a single NaN sizes the order at the symbol **maximum** (an un-sized 100 oz XAUUSD order placed past the risk model).
+A silently failed snapshot that returns `ask=0.0`/`NaN` for the conversion pair zeroes the order notional. A minimum-size floor then turns that zero into a real **venue-minimum** order (EURUSD 0.01 lot rejected 399/201), or a single NaN sizes the order at the symbol **maximum**, past every downstream size check.
 
 **The price contract.**
 - **ib_async initializes `Ticker.bid` / `Ticker.ask` to `NaN`, not `None`,** before the first tick. A readiness check of `if price is None` passes immediately and hands a `NaN`/`0.0` placeholder to sizing.
@@ -154,8 +158,8 @@ def _valid(value):
 - `min(maximum, NaN)` returns the maximum, so a single `NaN` tick sizes the order at the symbol maximum. Collapse any non-finite computed volume to `0.0` as a final chokepoint, so the minimum-size gate aborts it.
 
 **A floor is not a safety net; the floor is the rounding mode.**
-- Do **not** floor a sub-minimum volume up to the minimum-size threshold. A degenerate (zero/NaN-derived) sizing input must **abort** at the minimum-size gate, never be rounded into a live venue-minimum order.
-- For legitimate volumes, **round down (`math.floor`) at the wire edge under an explicit never-over-trade policy.** Banker's rounding (`round()`) is non-deterministic on lot half-cases; flooring under-fills at worst, and an under-fill surfaces as a visible the minimum-size threshold rejection -- the safe direction. The two rules are complementary: floor real sizes, abort degenerate ones.
+- Do **not** floor a sub-minimum volume up to the minimum. A degenerate (zero/NaN-derived) sizing input must **abort** at the minimum-size gate, never be rounded into a live venue-minimum order.
+- For legitimate volumes, **round down (`math.floor`) at the wire edge under an explicit never-over-trade policy.** Banker's rounding (`round()`) is non-deterministic on lot half-cases; flooring under-fills at worst, and an under-fill surfaces as a visible minimum-size rejection -- the safe direction. The two rules are complementary: floor real sizes, abort degenerate ones.
 
 **`minSize` means three different things by instrument class.**
 - **Metal CFDs**: `ContractDetails.minSize`/`sizeIncrement` are **real venue minimums in venue units (ounces)** -- convert to lots and fail closed if absent.
@@ -164,7 +168,7 @@ def _valid(value):
 - **`Contract.multiplier` is `None`/1 for FX and metals**, so contract size cannot be derived from IBKR at all: a canonical contract-size table is mandatory, and a silent `multiplier` fallback (yielding `contract_size=1.0`) recreates the fractional-quantity rejection class (10318).
 
 **Canonical units to the very edge.**
-- Keep **all** all size fields in one unit (lots). Mixed units (the minimum-size threshold/`step` in lots, the maximum-size threshold in venue units) make the venue-minimum check dead for FX and a regression for metals. Convert lots to venue units only on the wire, and convert wire quantity back to lots on trade events. Never let oz or base units leak into sizing comparisons or reported trade volume.
+- Keep **every** size field in one canonical internal unit (for FX/CFDs: lots). Mixed units (minimum and step in lots, maximum in venue units) make the venue-minimum check dead for FX and a regression for metals. Convert lots to venue units only on the wire, and convert wire quantity back to lots on trade events. Never let oz or base units leak into sizing comparisons or reported trade volume.
 - **Unknown symbol = fail closed.** A symbol missing from the canonical table must raise, not fall back to a guessed size -- and the whole symbol set gets validated once at construction (see section 3).
 
 **Conversion rate.**
@@ -193,7 +197,7 @@ Pin the whole boundary, not just the listener signatures: contract tests that pu
 | 2 | Swallowed async rejections (`placeOrder` returns success; IBKR rejects via `errorEvent`) | Sections 1, 2, 5 |
 | 3 | Non-canonical units at the venue boundary (lots vs oz / base units) | Section 5, trade events |
 | 4 | Field read from the wrong object (`minTick` off `Contract` instead of `ContractDetails`; `Forex.pair` as attribute) | Sections 2, 6 |
-| 5 | A "rescuing" floor that masks a degenerate input (the minimum-size threshold turning a 0 into a real order) | Section 5 |
+| 5 | A "rescuing" floor that masks a degenerate input (a minimum-size floor turning a 0 into a real order) | Section 5 |
 | 6 | Producer-side fix shipped without its consumer-side twin | Snapshot hygiene (`reconnection-resilience.md`), stub attrition (`event-driven-data.md`) |
 
 Two meta-lessons:
@@ -206,15 +210,15 @@ Two meta-lessons:
 Assert the failure contracts in tests, because they are exactly what production violated:
 
 - The price-reading function at the broker boundary raises (does not return) on a `NaN`/`0.0`/`None` quote.
-- Sizing aborts (does not floor) when computed volume is below the minimum-size threshold.
-- A single `NaN` tick does not size at the maximum-size threshold.
+- Sizing aborts (does not floor) when computed volume is below the minimum size.
+- A single `NaN` tick does not size at the symbol maximum.
 - A sub-tick or short bracket is rejected or rounded coherently, never collapsed to `sl == entry`.
 - The inverse conversion pair resolves when the direct pair is unquotable; `USDUSD` does not.
 - An FX-CFD symbol pulls data from the spot Forex contract, not the CFD.
 - A rejection `errorEvent` produces exactly one `order_cancelled`, de-duplicated against `orderStatusEvent`.
 - Warning-grade codes (105, 110, 10349) do **not** cancel a working order's record (the isDone rule, `order-lifecycle-contracts.md`).
 - Tick conformance reads `minTick` from the **order** contract's details, not the data contract's.
-- Construction fails with the **complete** list of missing/invalid symbols when the canonical table or the symbol-routing map map has gaps.
+- Construction fails with the **complete** list of missing/invalid symbols when the canonical table or the symbol-routing map has gaps.
 - A real ib_async `Forex`/CFD event object survives the venue->domain validation boundary with correct field values.
 
 ## Related

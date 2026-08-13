@@ -44,8 +44,8 @@ So the order of resort, for any question, is:
 
 1. **Connection**: IB Gateway (headless, lighter) over TWS. Ports 4002 paper, 4001 live. Offline
    standalone build in production, never the auto-updater.
-2. **Library**: `pip install "ib_async<3.0.0"` (current 2.1.0, Python >= 3.10). The upper bound forces
-   an explicit upgrade decision.
+2. **Library**: `pip install "ib_async<3.0.0"` (Python >= 3.10). The upper bound forces an explicit
+   upgrade decision.
 3. **Contracts**: qualify, reject `conId <= 0` placeholders, clear the cache on every reconnect.
 4. **Prices**: snap to the increment from the **market rule band**, not to `minTick`.
 5. **Orders**: value `tif` explicitly on every leg. Treat a returned `placeOrder` as submitted, never

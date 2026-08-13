@@ -48,7 +48,7 @@ This is the first step of every capability question. The probe is the second, an
 | `GAT` | Good after time | Requires `goodAfterTime`. The order is inert until then |
 | `GTT` | Good til time | |
 | `IOC` | Immediate or cancel | Fills what it can now, cancels the rest. Partial fills are expected, not exceptional |
-| `FOK` | Fill or kill | Expressed as `IOC` combined with `allOrNone`, not as a distinct TIF token |
+| `FOK` | Fill or kill | A documented `Order.tif` value in its own right ("if the entire order does not execute as soon as it becomes available, the entire order is canceled"). It rarely appears as a capability token in `orderTypes`, so verify it by probe rather than by token; `IOC` + `allOrNone` approximates it only where AON is itself supported (10236/10237 constraints apply) |
 | `OPG` | At the open | Routed for the opening auction only |
 | `AUC` | Auction | Venue-specific |
 | `DTC` | Day til cancelled | Deactivated at session end rather than cancelled, and re-armed |
@@ -83,9 +83,10 @@ fills.** They act between members of the same OCA group. They are not a parent-t
 the OCA documentation never mentions `parentId`. Do not reach for `ocaType` to solve a bracket sizing
 problem; it does not address it.
 
-**`advancedErrorOverride` is a string, not a flag.** Its declared type is `str = ""`. Assigning a
-boolean sends a string where a specific token is expected and proves nothing about whether an override
-was applied. Establish the accepted values before designing around it.
+**`advancedErrorOverride` is a string, not a flag.** Its declared type is `str = ""`, and IBKR
+documents the accepted value: parameters obtained from `advancedOrderRejectJson`, the payload that
+arrives with an advanced rejection (`trade.advancedError` in `ib_async`). Assigning a boolean sends a
+nonsense string and proves nothing about whether an override was applied.
 
 ## Order types worth knowing precisely
 

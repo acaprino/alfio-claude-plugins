@@ -8,7 +8,7 @@ client-side grading step that can kill an order your venue still considers worki
 them.
 
 Ships with `assets/tws-message-codes.tsv`: all 458 codes from IBKR's published table, each tagged with
-the grade `ib_async` assigns it. Grep it before inventing a classification.
+the grade `ib_async` assigns it. Search it before inventing a classification.
 
 ## The three layers that can refuse an order
 
@@ -61,7 +61,8 @@ Read what that does:
 - **110 has two carve-outs that make it fatal again**: when the error is request-scoped, and when the
   trade is still `PendingSubmit`. So 110 is warning-grade only on an already-working order. This is why
   a `110` on a staged bracket kills the parent and produces `135 "Can't find order with ID"` on the
-  children a moment later.
+  children a moment later *(the cascade is observed behaviour; IBKR's published note for 135 documents
+  failed cancels)*.
 
 Two of the ten codes in `warningCodes` (**492** and **10167**) do not appear in IBKR's published table
 at all. The frozenset is not a transcription of IBKR's classification; it is a hand-maintained list, and
@@ -105,8 +106,8 @@ Precautions are a **terminal GUI feature** with its own documented surface:
   redirect orders for stock, and no-overfill protection.
 - **Global Configuration, Messages.** Per-message disable checkboxes, e.g. the 2137 Cross Side Warning.
 
-The codes IBKR's own documentation ties to precautionary settings are **109, 163, 164 and 382**, all in
-the low ranges, none in `10xxx`:
+The codes IBKR's own documentation ties to precautionary settings are **109, 163, 164, 382 and 383**,
+all in the low ranges, none in `10xxx`:
 
 | Code | Meaning |
 |---|---|
@@ -114,11 +115,14 @@ the low ranges, none in `10xxx`:
 | 163 | The price specified would violate the percentage constraint specified in the default order settings |
 | 164 | No market data to check price percent violations |
 | 382 | The price specified violates the number of ticks constraint specified in the default order settings |
+| 383 | The size specified violates the size constraint specified in the default order settings |
 
 **There is no documented per-order API field that bypasses precautions.** `Order.advancedErrorOverride`
-exists in the API and in `ib_async`, but it is typed `advancedErrorOverride: str = ""`, not a boolean.
-Assigning `True` to it sends a string where a specific override token is expected, which tests nothing.
-Before designing around that field, establish what string values it accepts; do not assume it is a flag.
+exists in the API and in `ib_async`, but it is typed `advancedErrorOverride: str = ""`, not a boolean,
+and IBKR documents its value: it "accepts a string with parameters obtained from
+`advancedOrderRejectJson`", the payload delivered alongside an advanced rejection (`ib_async` exposes
+it as `trade.advancedError`). It is a targeted acknowledge-and-resubmit token for specific advanced
+rejections, not a general bypass, and assigning `True` to it sends a nonsense string.
 
 The reliable bypass surface is therefore terminal-side, which is precisely the unversioned local
 configuration a serious deployment should refuse to depend on. If a refusal only goes away when a
@@ -176,14 +180,27 @@ A code arrives that is not in your rejection set. The procedure, in order:
 ## The rejection set, and why it stays small
 
 Codes that reliably mean "this order is dead at the venue", suitable for routing into an order
-lifecycle: `{103, 135, 161, 201, 202, 10148, 10318}`.
+lifecycle: `{103, 135, 201, 202, 10318}`.
+
+**Cancel-verdict codes are their own family and never belong in a rejection set: `161` and `10148`.**
+Both report on a *cancel request*, not on the order. IBKR's own note for 10148 ("OrderId that needs to
+be cancelled can not be cancelled, state:") names the documented cause: **the order had already
+filled**. 161 ("not in a cancellable state") spans filled, already-cancelled and not-yet-active.
+Routing either as a rejection records a dead order for one that may have **executed**: your books say
+flat while the account holds a position, which is the divergence above with the sign flipped. On
+receiving them, reconcile against `reqExecutions()` and `reqOpenOrders()` instead.
 
 Codes that are **state-dependent** and must not be routed via the error set: `105`, `110`, `10349`.
 Their meaning depends on whether the order was already working. `orderStatusEvent` already delivers the
 pending-state kills, so a narrow rejection set loses you nothing.
 
-Notice-grade: `388`. Connection-layer, route to reconnection rather than the order lifecycle: `503`,
-`504`, `1100`, `1101`, `1102`, `2110`.
+**`388` needs both halves stated.** At the venue it is a size verdict ("Order size is smaller than the
+minimum requirement"), but `ib_async` grades it **fatal** (it is not in `warningCodes`), so on a
+not-yet-working order the library synthesises a local `Cancelled`. Treat it as a refusal of that order
+and fix the size; never assume "the order continues" on the strength of its polite wording.
+
+Connection-layer, route to reconnection rather than the order lifecycle: `503`, `504`, `1100`, `1101`,
+`1102`, `2110`.
 
 Everything else is unclassified until observed. That is the honest state, and it is safer than a
 confident guess.

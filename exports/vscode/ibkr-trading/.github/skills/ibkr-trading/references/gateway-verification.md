@@ -2,6 +2,8 @@
 
 Provisioning a disposable paper Gateway and using it to answer questions instead of guessing.
 
+`$SKILLS` is the installed skills directory: the first of `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/` that exists.
+
 Two scripts ship with this skill:
 
 - **`$SKILLS/ibkr-trading/scripts/ibkr_gateway.py`** downloads, installs,
@@ -31,8 +33,6 @@ deployment tooling, where it can be reviewed.
 
 ## Provisioning
 
-`$SKILLS` is the installed skills directory: the first of `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/` that exists.
-
 ```bash
 S=$SKILLS/ibkr-trading/scripts
 
@@ -44,15 +44,23 @@ python $S/ibkr_gateway.py start --timeout 900          # launches headless, then
 python $S/ibkr_gateway.py stop
 ```
 
+On PowerShell, set the password with `$env:IB_PASSWORD = '...'`; the script invocations are identical.
+
 Notes that come from how these installers actually behave:
 
 - **Everything lands outside the repository**, in a per-user state directory (`IBKR_VERIFY_HOME`
   overrides it). Credentials never enter the working tree.
 - **Windows and Linux install unattended.** macOS ships a `.dmg` that needs mounting, so the script
   stops and tells you the two commands rather than pretending.
-- **`start` verifies by probing the API port, never by the launcher's exit code.** `StartGateway.bat`
-  and `gatewaystart.sh` background the JVM and return success within a second or two; treating that
-  return as "it started" produces restart loops.
+- **`start` goes through IBC's service entry points** (`scripts/ibcstart.sh` / `scripts\StartIBC.bat`)
+  with everything passed as explicit arguments. The top-level `gatewaystart.sh` / `StartGateway.bat`
+  are user-editable config files that hard-assign their own paths, config file and trading mode, so
+  environment variables never survive them.
+- **`start` verifies by probing the API port, never by the launcher's exit code.** Launchers background
+  the JVM and return success within a second or two; treating that return as "it started" produces
+  restart loops.
+- **On Linux a display is required** (the Gateway is a Java GUI app): run under `xvfb-run -a`, which
+  `doctor` checks for.
 - **A cold first login can take 10 to 15 minutes** (updates, 2FA on IBKR Mobile, warm-up). The default
   timeout is 900 s for that reason. A 90-second timeout guarantees a crash loop.
 - **The Gateway is detached from its spawner**, so stopping the script does not kill the Gateway.
@@ -87,9 +95,10 @@ python $S/ibkr_probe.py shape --stock AAPL --type STP --tif GTC --attr allOrNone
 python $S/ibkr_probe.py shape --forex EURUSD --type LMT --tif IOC --attr minQty=1000
 ```
 
-One `whatIf=True` submission. Returns `ACCEPTED`, `REFUSED` or `UNDECIDED`, the resulting status, every
-error code, and the margin impact. Each code is then explained from the shipped table, including
-whether `ib_async` will grade it fatal.
+One what-if submission via `ib.whatIfOrderAsync` (the API that actually returns the venue's
+`OrderState`; on the plain `placeOrder` path ib_async discards it). Returns `ACCEPTED`, `REFUSED` or
+`UNDECIDED`, every non-informational error code, and the margin impact. Each code is then explained
+from the shipped table, including the grade `ib_async` gives it.
 
 A `REFUSED` verdict is trustworthy for that shape. An `ACCEPTED` verdict is a credit check passing, not
 a promise: terminal presets and book state can still refuse the real order.
@@ -111,9 +120,11 @@ answer that is true for your account.
 python $S/ibkr_probe.py bracket --stock AAPL --qty 1 --parent-tif DAY --child-tif GTC
 ```
 
-Places a genuinely staged three-leg bracket with prices far from the market, waits, and prints per leg:
-the TIF sent versus the TIF read back, status, `filled`, `remaining`, and the full trade log. Then
-cancels everything.
+Places a genuinely staged three-leg bracket with prices far from the market (snapped to the market
+rule band so the probe itself cannot die on error 110), waits, and prints per leg: the TIF sent versus
+the TIF read back, status, `filled`, `remaining`, and the full trade log. Then cancels exactly the
+orders it placed. If no live quote arrives (fresh paper accounts often lack market-data subscriptions),
+it refuses to place rather than guessing a reference; pass `--price` with a level you have confirmed.
 
 **A TIF read back different from the one sent is a terminal preset rewriting your order** (the error
 `10349` mechanism), which is otherwise invisible. This probe is the cheapest way to detect that a
@@ -126,8 +137,10 @@ python $S/ibkr_probe.py codes 10257 10349 110 201
 ```
 
 No gateway needed. Looks the code up in `assets/tws-message-codes.tsv` (all 458 published codes) and
-reports the grade `ib_async` applies. An undocumented code is reported as such, with the warning that
-`ib_async` will treat it as fatal and cancel your record of a live order.
+reports the grade `ib_async` applies -- by ib_async's rule, not by table membership, so an unlisted
+code in `[2100, 2200)` or in `warningCodes` is correctly reported as a warning. A genuinely
+undocumented fatal code is reported with the warning that `ib_async` will cancel your local record of
+a live order.
 
 ## The workflow this supports
 

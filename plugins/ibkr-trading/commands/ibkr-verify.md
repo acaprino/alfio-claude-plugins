@@ -24,9 +24,11 @@ If the question is about a message code, answer immediately, with no gateway:
 python ${CLAUDE_PLUGIN_ROOT}/skills/ibkr-trading/scripts/ibkr_probe.py codes <code> [<code> ...]
 ```
 
-Report the grade `ib_async` assigns it, and the consequence. For an undocumented code, say so
-explicitly: `ib_async` treats it as fatal and will mark a working order `Cancelled` locally without
-telling the venue, so the order may still be live.
+Report the grade `ib_async` assigns it, and the consequence. The tool grades by ib_async's rule, not
+by table membership: a code absent from the published table is still warning-grade if it sits in the
+blanket range `[2100, 2200)` (2127 is the canonical example) or in `warningCodes` (492, 10167). For a
+genuinely undocumented fatal code, say so explicitly: `ib_async` will mark a working order `Cancelled`
+locally without telling the venue, so the order may still be live.
 
 Then read `error-codes-and-verdicts.md` for which of the three layers refused: venue, terminal, or
 client library.
@@ -84,10 +86,13 @@ Then pick the probe that matches the question:
 
 | Question is about | Probe |
 |---|---|
-| Whether a shape is accepted | `ibkr_probe.py shape --type STP --tif GTC --attr allOrNone` |
-| Which combinations work | `ibkr_probe.py matrix --types LMT,STP --tifs DAY,GTC,IOC` |
-| Lifecycle, states, attachment, TIF rewriting | `ibkr_probe.py bracket --parent-tif DAY --child-tif GTC` |
-| Prices, increments, size rules | `ibkr_probe.py capabilities` |
+| Whether a shape is accepted | `ibkr_probe.py shape --stock AAPL --type STP --tif GTC --attr allOrNone` |
+| Which combinations work | `ibkr_probe.py matrix --stock AAPL --types LMT,STP --tifs DAY,GTC,IOC` |
+| Lifecycle, states, attachment, TIF rewriting | `ibkr_probe.py bracket --stock AAPL --parent-tif DAY --child-tif GTC` |
+| Prices, increments, size rules | `ibkr_probe.py capabilities --stock AAPL` |
+
+(Substitute the contract selector for the instrument in question: `--stock`, `--forex`, `--cfd`,
+`--future`, `--option`, `--crypto`, `--index`.)
 
 Constraints to respect and to state in the report:
 

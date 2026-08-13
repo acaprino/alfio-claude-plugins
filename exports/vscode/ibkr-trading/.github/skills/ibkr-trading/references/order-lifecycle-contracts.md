@@ -80,11 +80,11 @@ IBKR CFD/FX accounts are **netted**: one position per contract, and a "close" is
 
 - **Pre-placement rejections have no order snapshot to look up.** The symbol must be recovered from the raw contract, and `contract.symbol` on a Forex contract is the **base currency alone** (`"EUR"`, not `"EURUSD"`). An event keyed on that fails every downstream subscription filter and the rejection silently vanishes. Reconstruct pair symbols from `symbol + currency`.
 - **reqId and orderId share one counter.** An `Error 300, reqId 111` arriving 25 ms before `orderId=113` looks order-correlated; it is a market-data subscription error. Triage by id *type*, not proximity.
-- **IBKR exposes no per-order broker timestamp** via `openTrades()`. Stamp detection time yourself, on the same clock convention as your snapshot path. And beware present-but-null keys: `payload.get("broker_timestamp", 0.0)` returns `None` when the key exists with a null value, and one `None` reaching a staleness comparison inside a catch-all handler froze a position registry at its opening state.
+- **IBKR exposes no per-order broker timestamp** via `openTrades()`. Stamp detection time yourself, on the same clock convention as your snapshot path. And beware present-but-null keys: `payload.get("broker_timestamp", 0.0)` returns `None` when the key exists with a null value, and one `None` reaching a staleness comparison inside a catch-all handler will freeze your position state at its last good value, silently.
 
 ## Write the attribution map before placeOrder
 
-A synthetic rejection event is only as good as its enrichment. An `order_cancelled` carrying `strategy_id=0` routes to the orphan bucket, misses every subscriber, and dies **while looking wired**. Two ordering rules:
+A synthetic rejection event is only as good as its enrichment. A cancellation event carrying an unset correlation id routes to no subscriber and dies **while looking wired**. Two ordering rules:
 
 - **Write the correlation map (`orderId`/`conId` -> strategy, symbol) *before* calling `placeOrder`**, in both single-leg and bracket paths, with rollback on placement exception. `errorEvent` can fire before a post-placement map write completes.
 - **Cache an order snapshot at placement** (kind, action, quantity, price) so a synthetic lifecycle event carries real fields instead of zeros. Consumers silently drop empty events.

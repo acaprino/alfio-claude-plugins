@@ -52,7 +52,9 @@ the moment anyone measures.
 
 Setting `Order.whatIf = True` sends the order for a credit check instead of to a destination. The
 estimated post-trade margin comes back on the `OrderState` in the `openOrder` callback. Equivalent to
-TWS's "Preview" and its Margin Impact panel.
+TWS's "Preview" and its Margin Impact panel. In `ib_async`, use `whatIfOrderAsync(contract, order)`:
+it registers the response future and returns the `OrderState`, whereas on the plain `placeOrder` path
+the library discards the what-if response entirely and the `Trade` never sees a verdict.
 
 It is also the fastest way to learn whether the venue will accept an order *shape*: attributes, contract
 type, TIF combinations, price conformance. A refusal comes back as an error code without anything ever
@@ -60,9 +62,9 @@ resting on the book.
 
 **IBKR publishes a courtesy budget for it, and it is tight.** Verbatim from the documentation:
 
-- keep the ratio 10 order submissions to 1 what-if request
-- do not exceed 1 what-if request per minute
-- cancel the what-if order after the margin review
+- "keep the ratio: 10 order submissions: 1 what-if request"
+- "do not overuse the what-if request (> 1 what-if request per minute)"
+- "cancel the what-if order after margin review"
 
 A probe harness that fires dozens of shapes in a loop violates all three. Space them, cache the results,
 and treat the transcript as an artifact worth keeping so nobody re-probes what is already known.
@@ -136,12 +138,14 @@ never mentions `parentId`. If TWS does not resize, the client must, on the fill 
 between the fill and the correction.
 
 **What does `cancelOrder` guarantee?**
-It is a socket write with no acknowledgement; the order goes `PendingCancel` client-side. Unknown: what
-TWS does with a cancel received while disconnected or mid-fill, and whether `PendingCancel` can persist
-without reaching a terminal state. Settle it by killing the gateway mid-cancel on paper and reading the
-order's state on reconnect. Note two documented constraints: `cancelOrder` now takes an `OrderCancel`
-object, and **an API client cannot cancel an order placed by a different client ID**; only
-`reqGlobalCancel` reaches those, and it cancels everything.
+It is a socket write with no acknowledgement; the usual client-side transition is `PendingCancel`
+(ib_async marks a staged `transmit=False` leg `Cancelled` directly instead). Unknown: what TWS does
+with a cancel received while disconnected or mid-fill, and whether `PendingCancel` can persist without
+reaching a terminal state. Settle it by killing the gateway mid-cancel on paper and reading the order's
+state on reconnect. Note two documented constraints: the EClient API's `cancelOrder` takes an
+`OrderCancel` object (ib_async wraps it: `cancelOrder(order)`), and **an API client cannot cancel an
+order placed by a different client ID**; only `reqGlobalCancel` reaches those, and it cancels
+everything.
 
 **What does GTC do at a session boundary?**
 On venues where GTC is simulated, IB deactivates the order at session close and re-arms it at the next

@@ -42,7 +42,8 @@ Consequences that are not obvious:
   Confirm against `reqOpenOrders()` before believing it.
 - **A validation failure on the parent kills the whole stage.** The classic sequence is `110` on the
   parent (price not conforming to the minimum increment), followed by a `135` ("Can't find order
-  with ID") for each child, because their parent no longer exists. Read the first error, not the
+  with ID") for each child, because their parent no longer exists *(observed behaviour: IBKR's
+  published note for 135 documents failed cancels, not this cascade)*. Read the first error, not the
   loudest.
 
 ## IBKR's published sample is not a production recipe
@@ -134,9 +135,11 @@ rejection, a protective leg that silently does not exist.
 | COMBO | yes | yes | Last |
 | CASH (spot FX) | yes | **n/a** | Bid/ask |
 | CMDTY | yes | **n/a** | Last |
+| WAR | yes | yes | Last |
+| IOPT | yes | yes | Last |
 | IND | **n/a** | yes | Conditions only |
 
-Read the `n/a` cells as landmines. A last-driven trigger method on a spot FX or commodity stop is an
+(Method 7 is used only in iBot alerts.) Read the `n/a` cells as landmines. A last-driven trigger method on a spot FX or commodity stop is an
 incompatible combination, and the documented outcome is an order that may never trigger.
 
 **These methods apply only to stops IB simulates.** Where a stop variant is handled natively by the
@@ -153,11 +156,15 @@ profit taker and a stop loss by setting `ptOrderId`/`ptOrderType` and `slOrderId
 `"PRESET"` on a single order object, with the child parameters taken from the terminal's Presets.
 
 ```python
+# ibapi (raw TWS API) Order fields. NOT serialized by ib_async: there the
+# assignment succeeds silently, nothing is transmitted, and the order goes
+# out with no protective legs and no error.
 order.ptOrderType = "PRESET"; order.ptOrderId = 10001
 order.slOrderType = "PRESET"; order.slOrderId = 10002
 ```
 
-**Do not use this in an automated system.** It moves the definition of your protective legs into
+**Do not use this in an automated system.** (And note it is an `ibapi` mechanism: `ib_async` does not
+carry these fields, so under `ib_async` the assignments above are silently ignored, which is worse.) It moves the definition of your protective legs into
 unversioned terminal configuration. The protection levels of a live strategy would then depend on a GUI
 setting on one machine, changeable without a commit, invisible in review, and silently different across
 environments.

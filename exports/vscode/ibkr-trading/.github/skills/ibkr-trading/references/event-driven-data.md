@@ -76,7 +76,7 @@ An empty bar response is **not** an error at the API surface, and at least three
 
 ### Stub attrition starves the replay window
 
-The stub-drop mitigation has a second-order failure of its own: on larger intraday sizes the reopen stub is roughly 1 bar in 6 per trading day, so a fixed-count fetch **under-delivers** after filtering. The delivered pool can fall hundreds of bars short of a bootstrap replay window, which falsely expires live forming signals as regressions on every restart. Ship the producer and consumer fixes together: the fetch inflates its pagination plan (about 7/6) and tops up in bounded rounds, and the bootstrap independently guards against a replay window that comes back empty or thin instead of trusting "I asked for N".
+The stub-drop mitigation has a second-order failure of its own: there is one reopen stub per trading day regardless of bar size, so the attrition fraction is `bar_size / session_length` -- roughly 1 in 6 on 4-hour bars, 1 in 24 on hourly -- and a fixed-count fetch **under-delivers** after filtering. The delivered pool can fall hundreds of bars short of a bootstrap replay window, which falsely expires live forming signals as regressions on every restart. Ship the producer and consumer fixes together: the fetch inflates its pagination plan by the matching factor (7/6 for 4-hour bars; compute it for your size) and tops up in bounded rounds, and the bootstrap independently guards against a replay window that comes back empty or thin instead of trusting "I asked for N".
 
 ### The forming bar (the last row is not closed)
 
