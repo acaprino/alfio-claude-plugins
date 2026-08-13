@@ -751,6 +751,12 @@ A note on why the first anchor counts rather than names. An anchor whose regex c
 
 Task 1 fixes both captured phrasings verbatim, so no reconciliation between regex and prose is needed here. If an anchor reports an orphan, Task 1's prose diverged from what it was told to write; fix the prose, not the regex.
 
+- [ ] **Step 1b: Exclude the SDD scratch workspace from the anchor scan**
+
+In the same file, add `".superpowers"` to the `EXCLUDED` tuple, beside `evals` and `node_modules`.
+
+`scan_files()` walks the filesystem with `Path(".").rglob("*")` rather than asking git, so it scans git-ignored directories. `.superpowers/sdd/` holds implementation briefs and ledgers that quote plan text verbatim, including anchored phrasings. A brief that quotes a fact which is later corrected would fail this linter from a file git does not track, and CI would still pass, because CI checks out a clean tree where that directory does not exist. A check that fails locally and passes in CI for reasons invisible in git is worse than no check. The existing comment above `EXCLUDED` already states the rationale this falls under: directories that are not shipped content.
+
 - [ ] **Step 2: Verify the anchors resolve**
 
 Run: `python scripts/lint_fact_anchors.py --report`
