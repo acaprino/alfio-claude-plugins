@@ -22,6 +22,7 @@ tools:
   - execute/runInTerminal
   - execute/getTerminalOutput
   - web/fetch
+  - websearch
 agents: []
 ---
 
