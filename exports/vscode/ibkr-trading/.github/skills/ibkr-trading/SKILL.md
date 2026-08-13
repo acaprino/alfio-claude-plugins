@@ -87,7 +87,10 @@ So the order of resort, for any question, is:
   entity-dependent contract routing, qualification lifecycle, `NaN`-safe sizing, the venue-to-domain
   validation boundary
 
-**Data**
+**Account and data**
+- `account-state-and-pnl.md` - the five account surfaces and their cadences, why the two PnL feeds are
+  allowed to disagree, `(account, conId)` keying and the absent close event, the current-day execution
+  limit under Gateway, account summary tags, and Flex as the reconciliation source
 - `event-driven-data.md` - subscriptions, bar construction, pacing, historical silence triage,
   session-reopen stub bars, eventkit listener contracts
 
@@ -136,6 +139,9 @@ account after connecting.
 | "Does IBKR support attribute X" | `order-types-and-attributes.md` |
 | A position doubled after a close | `order-lifecycle-contracts.md` |
 | Orders cancelled moments after submission, code correct | `order-lifecycle-contracts.md`, terminal presets |
+| Two PnL numbers that will not reconcile | `account-state-and-pnl.md` |
+| Margin or account values that lag reality | `account-state-and-pnl.md`, the three-minute cadence |
+| Fills missing after a restart, or older than today | `account-state-and-pnl.md`, executions |
 | Handlers that never fire, events that vanish | `event-driven-data.md` |
 | Historical bars empty, or corrupting a replay | `event-driven-data.md` |
 | Connected-looking but dead for hours | `reconnection-resilience.md` |

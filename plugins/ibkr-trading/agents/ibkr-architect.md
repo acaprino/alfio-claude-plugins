@@ -215,6 +215,25 @@ configuration, and three of the four places that decide its behaviour are invisi
   position, never from the sign of an absolute-valued quantity. CFDs are not reduce-only, so a
   wrong-side close opens rather than closes.
 
+### Account state, positions and PnL
+
+- Five surfaces, different cadences: `reqPositions` (snapshot then change-only), `reqAccountUpdates`
+  (one account at a time, 3-minute pushes), `reqAccountSummary` (3 minutes, **cannot be changed**),
+  `reqPnL`/`reqPnLSingle` (single documented at ~1/second), executions. **Only executions are a ledger.**
+- **Never gate an order on a three-minute margin figure**; use `whatIf` for a pre-trade check.
+  `accountReady=false` on `updateAccountValue` means the IB server is resetting and the values may be
+  wrong: hold, do not read.
+- A second `reqAccountUpdates` **silently overrides** the first with no error. Use
+  `reqAccountUpdatesMulti` for more than one account or model.
+- The two PnL feeds are documented as allowed to disagree (different source, different reset schedule):
+  Account Window realized PnL resets to zero daily; Portfolio Window follows a TWS-configured schedule.
+  Name the surface in your field names. Account PnL needs the TWS "Prepare portfolio PnL data when
+  downloading positions" setting.
+- Positions key on `(account, conId)`. There is **no close event**: a partial close is a smaller
+  quantity, flat is zero. `reqPositions` is unavailable above 50 subaccounts (use `reqPositionsMulti`).
+- `reqExecutions` is current-day; the 7-day extension needs a TWS Trade Log setting **Gateway cannot
+  change**. Persist your own ledger and use Flex for older reconciliation.
+
 ### Market data and history
 
 - `reqMktData` time-sampled, `reqRealTimeBars` 5-second and reconnect-resilient, `reqTickByTickData`

@@ -63,8 +63,11 @@ rebuild:
   TWS session, invisible to the API while untransmitted, and "cleared on restart". Staged bracket legs
   reconcile from your own records or not at all; an order transmitted mid-session after being staged
   is picked up only after an explicit `reqOpenTrades()` resync.
-- **`reqExecutions` reaches the current day only.** A reconnect across the day boundary cannot rebuild
-  fills from the API; that is what your durable ledger and Flex are for.
+- **`reqExecutions` reaches the current day only**, and the documented seven-day extension needs a TWS
+  Trade Log setting that **IB Gateway cannot change**. A reconnect across the day boundary cannot
+  rebuild fills from the API; that is what your durable ledger and Flex are for. Wait for the snapshot
+  markers (`positionEnd`, `accountDownloadEnd`) before trusting re-requested state, and re-issue every
+  account subscription: none of them is documented to survive a reconnect (`account-state-and-pnl.md`).
 - **Visibility is not control, and control has a price.** `reqAllOpenOrders` shows other clients'
   orders without binding them, and an unbound manual order carries API order id 0, documented as
   unmodifiable and uncancellable. Binding is what makes it actionable, but IBKR documents that "the

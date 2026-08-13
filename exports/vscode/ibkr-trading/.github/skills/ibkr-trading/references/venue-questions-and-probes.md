@@ -148,6 +148,16 @@ state on reconnect. Note two documented constraints: the EClient API's `cancelOr
 order placed by a different client ID**; only `reqGlobalCancel` reaches those, and it cancels
 everything.
 
+**What does `avgCost` actually contain, per asset class?**
+IBKR returns `avgCost` on `position` and `averageCost` on `updatePortfolio` without defining their
+units anywhere: whether a future's is per underlying unit or contract notional, whether an option's
+incorporates the multiplier, and whether either includes commissions. Every position-sizing and PnL
+calculation downstream depends on the answer. Settle it by buying two lots at different prices with
+non-zero commissions on a stock, an option with a known multiplier and a future, then comparing the
+reported value against both the price-weighted and multiplier-adjusted computations, with the Flex
+cost-basis field as the tiebreak. The same experiment answers the currency question: which currency the
+PnL fields report in, and how a non-base-currency instrument is translated.
+
 **Which order modifications amend in place, and which cost queue priority?**
 IBKR documents *what* to modify (price, size, TIF) but never says, field by field, whether the venue
 sees an amend or a cancel-and-replace. For a strategy that reprices while queued, that difference is

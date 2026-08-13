@@ -106,6 +106,24 @@ select the sections that apply, and say which you skipped and why.
 - [ ] Warning-grade codes (105, 110, 10349 on working orders) NOT routed as rejections -- the `isDone()` discrimination is respected
 - [ ] Order attribution map written BEFORE `placeOrder` (with rollback), and an order snapshot cached so synthetic events carry real fields
 
+### Account State, Positions & PnL
+- [ ] No trading decision gated on `reqAccountSummary` / `reqAccountUpdates` values as if they were
+      live: both push changed values on a **3-minute** cadence that IBKR documents as unchangeable.
+      Pre-trade margin checks use `whatIf`
+- [ ] `accountReady == false` on `updateAccountValue` treated as a hold signal (the IB server is
+      resetting and the values may be out of date), not as data
+- [ ] At most one `reqAccountUpdates` subscription per client, or `reqAccountUpdatesMulti` used: a
+      second request **silently overrides** the first with no error message
+- [ ] PnL field names state their source (Account Window versus Portfolio Window). The two are
+      documented as computed from different sources on different reset schedules, so reconciling them
+      to each other is a category error; the TWS reset schedule is audited per deployment
+- [ ] Positions keyed on `(account, conId)`, with partial closes read as smaller quantities and flat as
+      zero -- there is no close event -- and `reqPositionsMulti` available if the structure can exceed
+      50 subaccounts
+- [ ] The durable fill ledger is local: `reqExecutions` is current-day only, and the documented 7-day
+      extension needs a TWS Trade Log setting that IB Gateway cannot change. Flex reconciles anything
+      older, with its trade-to-`execId` mapping measured rather than assumed
+
 ### Close Path & Netting *(netted accounts and non-reduce-only instruments: CFDs, FX, futures)*
 - [ ] Close side derived from the authoritative direction field (an explicit direction field, or the signed venue position), never from the sign of an abs-stored volume -- a wrong-side close on a netted account doubles the position
 - [ ] Close refused (not guessed) when direction is unresolved; event-driven closes scoped to owned symbols so account-level events don't fan out
