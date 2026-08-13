@@ -766,6 +766,8 @@ In the `ANCHORS` dict of `scripts/lint_fact_anchors.py`, add two entries owned b
     ),
 ```
 
+**Do not add the leading `The` to the rank-count pattern.** It reads as an improvement and it would break the anchor silently. In `plugins/ibkr-trading/skills/ibkr-trading/references/venue-questions-and-probes.md` the word `The` sits at the end of one line while the rest of the phrase begins the next, so a pattern including it, matched with literal spaces as this repository's existing anchors are, would cross the line wrap and never match. The anchor would then report an orphan or, worse, silently guard only one of the two files that state the fact.
+
 A note on why the first anchor counts rather than names. An anchor whose regex captures a literal archetype name can never report a conflict, because every file that matches captures the same string. An anchor on the `**Archetype:**` declaration line would be worse: it would fail the first time a broker of a genuinely different archetype is added, which is a correct state rather than drift. The count is the thing that must agree across copies.
 
 Task 1 fixes both captured phrasings verbatim, so no reconciliation between regex and prose is needed here. If an anchor reports an orphan, Task 1's prose diverged from what it was told to write; fix the prose, not the regex.
