@@ -71,7 +71,18 @@ select the sections that apply, and say which you skipped and why.
 - [ ] All order states handled (including Inactive, PendingCancel, ApiCancelled, and ib_async's ValidationError pseudo-status)
 - [ ] execDetails monitored as authoritative fill source (not just orderStatus)
 - [ ] Partial fill logic implemented
-- [ ] Order ID management is collision-free (nextValidId or getReqId)
+- [ ] Fills stored append-only keyed by the FULL `execId`, with correction families grouped by the
+      portion before the final period (a correction re-delivers the execution changing only the digits
+      after it, so summing every callback double-counts)
+- [ ] Long-lived order state keyed on `permId`, not `orderId`: only `permId` is documented to identify
+      an order uniquely in an account and to survive across clients and bindings
+- [ ] Recovery distinguishes visibility from control: `reqAllOpenOrders` does not bind, and an unbound
+      manual order arrives with API order id 0, which cannot be modified or cancelled
+- [ ] Fill history across a day boundary comes from a durable local ledger or Flex, never from
+      `reqExecutions` alone (documented: current day only)
+- [ ] Modifications restricted to price, size and TIF; other changes go through cancel-and-replace
+- [ ] Order ID management is collision-free (nextValidId or getReqId), and a persisted high-water mark
+      is never lowered because a `nextValidId` callback returned something smaller
 - [ ] Cancel-fill race condition handled (never assume cancel succeeded)
 - [ ] Order efficiency ratio monitored (<=20:1)
 - [ ] `tif` valued explicitly on **every** leg of every order; no leg relies on the empty-string default

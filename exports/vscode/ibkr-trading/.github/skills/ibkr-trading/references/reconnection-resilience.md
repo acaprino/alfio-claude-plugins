@@ -56,11 +56,19 @@ After every reconnection:
 
 These steps are mandatory because the library remembers nothing: ib_async's `Wrapper.reset()` clears
 trades, fills, positions, tickers and account state on every disconnect (verified on 2.1.0), so all
-post-reconnect knowledge comes from the requests above. Two holes in that recovery are known:
-`reqOpenOrders`/`reqAllOpenOrders` do **not** return orders staged with `transmit=False` (observed,
-maintainer-confirmed), so staged bracket legs must be reconciled from your own records; and an order
-transmitted mid-session after being staged is picked up only after an explicit `reqOpenTrades()`
-resync.
+post-reconnect knowledge comes from the requests above. Three documented holes bound what they can
+rebuild:
+
+- **Staged orders are not there to find.** IBKR documents untransmitted orders as living only in that
+  TWS session, invisible to the API while untransmitted, and "cleared on restart". Staged bracket legs
+  reconcile from your own records or not at all; an order transmitted mid-session after being staged
+  is picked up only after an explicit `reqOpenTrades()` resync.
+- **`reqExecutions` reaches the current day only.** A reconnect across the day boundary cannot rebuild
+  fills from the API; that is what your durable ledger and Flex are for.
+- **Visibility is not control.** `reqAllOpenOrders` shows other clients' orders without binding them,
+  and an unbound manual order carries API order id 0, documented as unmodifiable and uncancellable.
+  Reconcile identity on `permId`, which is documented to identify an order uniquely within an account
+  and is the only id that survives across clients and bindings.
 
 ## What the terminal itself preserves
 

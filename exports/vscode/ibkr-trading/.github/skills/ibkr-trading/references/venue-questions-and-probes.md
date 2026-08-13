@@ -148,6 +148,29 @@ state on reconnect. Note two documented constraints: the EClient API's `cancelOr
 order placed by a different client ID**; only `reqGlobalCancel` reaches those, and it cancels
 everything.
 
+**Which order modifications amend in place, and which cost queue priority?**
+IBKR documents *what* to modify (price, size, TIF) but never says, field by field, whether the venue
+sees an amend or a cancel-and-replace. For a strategy that reprices while queued, that difference is
+the strategy. Settle it by placing a displayed limit order in the book, modifying one field at a time
+against an untouched control order, and comparing status sequences, exchange-side identity where it is
+exposed, and fill priority. Modifying a **partially filled** order is a separate entry: IBKR's
+modification page carries no warning about it, which is not the same as it being safe.
+
+**Is callback ordering guaranteed across `openOrder`, `orderStatus`, `execDetails` and
+`commissionReport`?**
+IBKR documents that duplicate `orderStatus` messages are common and that a market order's execution may
+not produce a `Filled` status at all, but publishes no ordering or completeness guarantee across the
+four channels. Anything that reduces them into state must therefore be idempotent and key-based rather
+than order-dependent. Settle the actual behaviour for your account by stamping arrival sequence and
+time on all four during partial-fill bursts, cancel-versus-fill races and reconnects.
+
+**Is there an order-rate limit distinct from the 50-requests-per-second message rate?**
+The documented pacing page counts *requests for data*; no retrieved IBKR source states an
+orders-per-second cap, a duplicate-order guard, or the semantics of a "potential duplicate order"
+warning. Settle it by isolating order placement, modification and cancellation bursts from data
+requests and recording where acknowledgement latency, warnings or a session termination appear. Note
+the documented cost of getting it wrong in reject mode: three pacing breaches end the API session.
+
 **Does a terminal-simulated stop survive its terminal?**
 Simulated order types are held by TWS/Gateway or IBKR rather than resting at the venue. Undocumented:
 whether a simulated stop re-arms after a hard terminal crash, or simply does not exist until the

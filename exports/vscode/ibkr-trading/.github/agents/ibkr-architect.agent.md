@@ -196,9 +196,19 @@ configuration, and three of the four places that decide its behaviour are invisi
 - `Inactive` is not terminal; the order can still be live.
 - `execDetails` is authoritative for fills, not `orderStatus`.
 - `nextValidId` gates the session start (documented: earlier calls can be dropped) and persists across
-  sessions; in multi-client setups the next order id must exceed every id seen in callbacks. `permId`
-  is the venue's stable id; ib_async keys manual TWS orders by it. Staged `transmit=False` legs are
-  invisible to `reqOpenOrders` after a reconnect (observed): keep your own record.
+  sessions; in multi-client setups the next order id must exceed every id seen in callbacks. Never
+  lower a persisted high-water mark because a callback came back lower.
+- **Three id families with different scopes**: `orderId` is client-scoped and is what you act with;
+  `permId` is documented to identify an order uniquely in an account and is the only id that survives
+  across clients and bindings (the same order can carry different `orderId`s for different TWS users);
+  `execId` is per partial fill, and a **correction re-delivers the execution with only the digits after
+  the final period changed**, so the fill ledger is append-only keyed by full execId, never a sum.
+- Staged `transmit=False` legs live only in that TWS session, are invisible to the API while
+  untransmitted, and are documented as cleared on restart: keep your own record.
+- Modify price, size and TIF only (IBKR's own guidance); anything else is a cancel-and-replace
+  candidate. Whether a modify amends in place or costs queue priority is undocumented per field.
+- `reqExecutions` reaches the **current day only**; `reqAllOpenOrders` shows without binding, and an
+  unbound manual order carries API order id 0, which cannot be modified or cancelled.
 - Write the orderId-to-strategy attribution map **before** `placeOrder`, with rollback, because
   `errorEvent` can beat a post-placement write.
 - `cancelOrder` is a socket write with no acknowledgement (the raw EClient API takes an `OrderCancel`
