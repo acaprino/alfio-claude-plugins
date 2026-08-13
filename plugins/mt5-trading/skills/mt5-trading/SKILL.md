@@ -3,11 +3,16 @@ name: mt5-trading
 description: >
   Knowledge base for the official API, its polling model, and Windows-side production concerns.
   TRIGGER WHEN: building, implementing, writing, coding, creating, optimizing, or debugging MT5 or MetaTrader 5 trading systems with Python, including the aiomql and ZeroMQ bridge alternatives.
+  DO NOT TRIGGER WHEN: the broker is Interactive Brokers (use ibkr-trading), or the question is about
+  strategy design rather than the terminal and its API.
 ---
 
 # MetaTrader 5 Python Algotrading
 
 Knowledge base for building production-grade algorithmic trading systems with MetaTrader 5 Python API.
+
+**Contract level:** base
+**Archetype:** local-terminal
 
 ## When to Use
 
@@ -30,18 +35,30 @@ For 80% of use cases, start with:
 6. **Resilience**: health check every 30-60s, psutil process monitoring, exponential backoff
 
 Then harden incrementally:
-- Silent errors -- wrap every API call with None check + last_error()
-- Fill mode rejections (10030) -- dynamic filling_mode detection per symbol
-- Terminal crashes -- psutil watchdog + subprocess restart
-- Weekend handling -- datetime.weekday() sleep mode
+- Silent errors - wrap every API call with None check + last_error()
+- Fill mode rejections (10030) - dynamic filling_mode detection per symbol
+- Terminal crashes - psutil watchdog + subprocess restart
+- Weekend handling - datetime.weekday() sleep mode
 
 ## Reference Materials
 
-- `api-architecture.md` -- MT5 Python API architecture, 32 functions, named pipes IPC, MQL5 EA vs Python, library comparison
-- `event-system-polling.md` -- polling patterns, new candle detection, tick monitoring, position tracking, concurrency rules
-- `order-execution.md` -- order_send, fill modes (FOK/IOC/Return), hedging vs netting, retcodes, risk checks, magic numbers
-- `data-feed-historical.md` -- copy_rates, copy_ticks, depth, timezone caveats, caching, data quality, broker differences
-- `production-resilience.md` -- disconnection handling, reconnection, weekend management, Windows deployment, community resources
+- `api-architecture.md` - MT5 Python API architecture, 32 functions, named pipes IPC, MQL5 EA vs Python, library comparison
+- `event-system-polling.md` - polling patterns, new candle detection, tick monitoring, position tracking, concurrency rules
+- `order-execution.md` - order_send, fill modes (FOK/IOC/Return), hedging vs netting, retcodes, risk checks, magic numbers
+- `data-feed-historical.md` - copy_rates, copy_ticks, depth, timezone caveats, caching, data quality, broker differences
+- `production-resilience.md` - disconnection handling, reconnection, weekend management, Windows deployment, community resources
+
+## Symptoms to entry points
+
+| Symptom | Read |
+|---|---|
+| An API call returned `None` and nothing was logged | `api-architecture.md` |
+| Order rejected with retcode 10030 | `order-execution.md` |
+| Positions netted when hedging was expected | `order-execution.md` |
+| A tick or candle handler never fires | `event-system-polling.md` |
+| Bars disagree with the chart, or timestamps look shifted | `data-feed-historical.md` |
+| The terminal is running but the API answers nothing | `production-resilience.md` |
+| Everything stops on Saturday and resumes wrong on Monday | `production-resilience.md` |
 
 ## Key Decision Points
 
@@ -49,9 +66,9 @@ Then harden incrementally:
 |----------|---------|-------------|
 | Library | Official MetaTrader5 | Need async: aiomql. Need true streaming: ZeroMQ bridge |
 | Event model | Polling (1-5s interval) | Tick-sensitive: poll 100-250ms. True events: ZeroMQ EA bridge |
-| Fill mode | Detect dynamically per symbol | Never hardcode -- changes between brokers/symbols |
+| Fill mode | Detect dynamically per symbol | Never hardcode - changes between brokers/symbols |
 | Account mode | Hedging (most forex brokers) | Check account_info().margin_mode at startup |
-| Data caching | Parquet + Zstandard | Tick data -- partition by day/month |
-| Concurrency | asyncio (single thread) | Multi-account -- separate processes per terminal |
-| Backtesting | Python framework (Backtrader, Backtesting.py) | Need MT5 tester -- MQL5 EA wrapper |
+| Data caching | Parquet + Zstandard | Tick data - partition by day/month |
+| Concurrency | asyncio (single thread) | Multi-account - separate processes per terminal |
+| Backtesting | Python framework (Backtrader, Backtesting.py) | Need MT5 tester - MQL5 EA wrapper |
 | SL/TP | Server-side always | Python trailing only as supplement, never as sole protection |

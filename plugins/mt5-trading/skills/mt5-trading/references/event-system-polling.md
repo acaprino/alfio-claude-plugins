@@ -30,7 +30,7 @@ def check_new_candle(symbol, timeframe):
     return False
 ```
 
-**Poll intervals by timeframe**: M1 -- poll every 1s; M5 -- every 3-5s; H1 -- every 10-30s.
+**Poll intervals by timeframe**: M1 - poll every 1s; M5 - every 3-5s; H1 - every 10-30s.
 
 **Optimization**: calculate seconds remaining until next candle close and sleep until that moment + buffer, instead of constant polling.
 
@@ -142,7 +142,7 @@ class MT5EventLoop:
 
 ## Latency and Rate Limits
 
-A single IPC call costs **~15-60 microseconds**. No documented rate limits on the local API -- communication is via shared memory, not network. However, excessive polling wastes CPU and can degrade terminal performance.
+A single IPC call costs **~15-60 microseconds**. No documented rate limits on the local API - communication is via shared memory, not network. However, excessive polling wastes CPU and can degrade terminal performance.
 
 **Practical recommendations**:
 - Strategies on M1+ bars: poll every 1-5s
@@ -152,12 +152,12 @@ A single IPC call costs **~15-60 microseconds**. No documented rate limits on th
 
 ## Concurrency Rules
 
-**The MT5 API is NOT thread-safe.** The IPC pipe is single -- concurrent access causes race conditions, crashes, or corrupted data.
+**The MT5 API is NOT thread-safe.** The IPC pipe is single - concurrent access causes race conditions, crashes, or corrupted data.
 
 **Golden rule: one process -> one terminal, one thread for all MT5 calls.**
 
 If concurrency is needed:
-- Use `asyncio` (not threading) -- `asyncio.to_thread()` serialized by the GIL
+- Use `asyncio` (not threading) - `asyncio.to_thread()` serialized by the GIL
 - Protect every call with `threading.Lock()` if threading is unavoidable
 - For multi-account/multi-broker: separate processes (`multiprocessing`), each with its own terminal instance
 - `aiomql` handles this internally with serialized `asyncio.to_thread()`

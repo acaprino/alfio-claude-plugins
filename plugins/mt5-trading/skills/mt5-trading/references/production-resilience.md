@@ -4,7 +4,7 @@
 
 No automatic reconnection mechanism exists. If the IPC pipe breaks, API calls return `None`. The developer must implement all recovery logic.
 
-**Positions persist server-side** even when the terminal disconnects -- server-side SL/TP continue to function. But any Python logic (trailing stops, dynamic risk management) **ceases to function** until reconnection.
+**Positions persist server-side** even when the terminal disconnects - server-side SL/TP continue to function. But any Python logic (trailing stops, dynamic risk management) **ceases to function** until reconnection.
 
 ## Disconnection Detection
 
@@ -80,7 +80,7 @@ def kill_mt5_process():
             log.info("MT5 process killed")
 ```
 
-The `/portable` flag avoids permission issues with `C:\Program Files`. **Disable MT5 auto-updates** during trading hours -- an update can restart the terminal without warning.
+The `/portable` flag avoids permission issues with `C:\Program Files`. **Disable MT5 auto-updates** during trading hours - an update can restart the terminal without warning.
 
 ## Health Check Loop
 
@@ -104,7 +104,7 @@ def health_check(interval=30):
 
 ## Weekend Handling
 
-Friday after ~22:00 UTC the forex market closes. The terminal stays connected but no quotes arrive -- `symbol_info_tick()` returns stale data. The `connected` field in `terminal_info()` may remain `True`.
+Friday after ~22:00 UTC the forex market closes. The terminal stays connected but no quotes arrive - `symbol_info_tick()` returns stale data. The `connected` field in `terminal_info()` may remain `True`.
 
 ```python
 from datetime import datetime, timezone
@@ -127,7 +127,7 @@ Implement datetime-based sleep mode during weekends and validate connection stat
 
 `initialize()` accepts: `path` (exe path), `login`, `password`, `server`, `timeout` (default 60000ms), `portable` (boolean). If the terminal is not running, it attempts to start it. Returns `True`/`False`.
 
-**Do not call `initialize()` multiple times without `shutdown()`** -- causes known issues. One Python process can connect to **one terminal only**. For multi-terminal: separate processes, each with an MT5 installation in a different directory in `/portable` mode.
+**Do not call `initialize()` multiple times without `shutdown()`** - causes known issues. One Python process can connect to **one terminal only**. For multi-terminal: separate processes, each with an MT5 installation in a different directory in `/portable` mode.
 
 ## The 10 Critical Production Caveats
 
@@ -176,11 +176,11 @@ Implement datetime-based sleep mode during weekends and validate connection stat
 
 ### GitHub Repositories
 
-- **aiomql** (https://github.com/Ichinga-Samuel/aiomql, ~109 stars) -- best architectural reference for async MT5 bots
-- **gym-mtsim** (https://github.com/AminHP/gym-mtsim, ~422 stars) -- OpenAI Gym environment for MT5 trading, reinforcement learning
-- **MQL5-JSON-API** (https://github.com/khramkov/MQL5-JSON-API) -- ZeroMQ bridge with real-time streaming
-- **jimtin/algorithmic_trading_bot** (https://github.com/jimtin/algorithmic_trading_bot, ~137 stars) -- MT5 + Binance bot with video series
-- **mt5linux** (https://github.com/lucas-campagna/mt5linux, ~116 stars) -- Linux bridge via Wine/RPyC
+- **aiomql** (https://github.com/Ichinga-Samuel/aiomql, ~109 stars) - best architectural reference for async MT5 bots
+- **gym-mtsim** (https://github.com/AminHP/gym-mtsim, ~422 stars) - OpenAI Gym environment for MT5 trading, reinforcement learning
+- **MQL5-JSON-API** (https://github.com/khramkov/MQL5-JSON-API) - ZeroMQ bridge with real-time streaming
+- **jimtin/algorithmic_trading_bot** (https://github.com/jimtin/algorithmic_trading_bot, ~137 stars) - MT5 + Binance bot with video series
+- **mt5linux** (https://github.com/lucas-campagna/mt5linux, ~116 stars) - Linux bridge via Wine/RPyC
 
 ### Communities
 
