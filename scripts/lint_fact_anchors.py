@@ -143,6 +143,16 @@ ANCHORS = {
 # Directories that are not shipped content and may legitimately restate a fact in
 # a historical context (a changelog entry describes what a release said at the
 # time, and must not be rewritten when the fact is later corrected).
+#
+# `docs/superpowers/` is deliberately absent from this tuple: two design documents
+# under it currently state anchored facts, and whether they belong in the scan was
+# analysed and left open rather than decided, because widening this list on a
+# hypothesis is how coverage dies quietly. The changelog argument above cuts both
+# ways here: a dated plan is a historical record the same way a changelog entry
+# is, so rewriting it to keep a build green falsifies history, but unlike a
+# changelog it does not announce itself as historical to a reader who does not
+# already know the convention. Revisit only when a real conflict names a
+# `docs/superpowers/` file as one of the two disagreeing copies, not on a hunch.
 EXCLUDED = (
     ".git",
     "evals",
