@@ -207,6 +207,72 @@ decisions depend on the answer.
 **Do not resolve this from a forum post.** Community answers on this question contradict each other,
 and at least one widely repeated claim cannot be located on the page it is attributed to.
 
+## Protecting a position when partial fills are possible and AON is not
+
+Some contract classes declare no all-or-none vocabulary at all: no `AON` token, and no `IOC`/`FOK`
+among the declared TIFs (measured on FX CFDs: the attribute is refused with the undocumented `10257`
+on every order type, because the contract simply does not declare it). On those classes there is **no
+order attribute that forbids partial fills**, so the protection has to live in your code.
+
+The two possible venue behaviours on a partially filled parent are both hazardous, which is the
+useful realisation: whichever turns out true for your account, the same component is required.
+
+| If children... | A 40%-filled parent means... | Failure mode |
+|---|---|---|
+| activate immediately at nominal size | protective legs larger than the position | a triggered leg over-closes and, on a non-reduce-only class, opens the difference in the opposite direction |
+| are held until the parent fills completely | a real position with no resting protection | partially naked exposure until the parent completes or dies |
+
+What the documentation actually supports, assembled from the IBKR Mobile users' guide (the most
+explicit page IBKR publishes on attached orders; the TWS API pages say nothing):
+
+- *"The order will be created, but will not be submitted until the parent order fills."* (both the
+  profit taker and the stop loss)
+- *"Once the parent order fills, the opposite side profit taker and stop loss orders are triggered."*
+- The children use *"the same order quantity as the parent"*.
+- And a linguistic tell worth its own bullet: in the very same documents, wherever IBKR means to
+  include partial fills it says so explicitly ("if the first leg fills **or partially fills**" for
+  LMT+MKT; "if an order is **partially filled**" for OCA). The bracket sections say only "fills".
+
+The reading this best supports, stated as an **inference rather than a quote**: children stay
+unsubmitted until the parent fills **completely**, at nominal size, which is then exactly the
+position's size. Under that reading the mis-sized-children hazard largely dissolves, and the real
+hazards move elsewhere:
+
+- **the unprotected window**: a partially filled parent is a real position with no resting
+  protection until the remainder fills;
+- **the dying parent**: if a partially filled parent is cancelled or expires (a `DAY` parent at the
+  close), its attached children are cancelled with it, leaving the partial position permanently
+  naked with no order resting anywhere.
+
+No sentence in IBKR's documentation states the partial-fill behaviour outright, so treat the reading
+above as `ASSUMED (documented-adjacent)` until measured for your account: log `filled`/`remaining` on
+every fill event and read the children's live quantity against the next real partial. The measurement
+decides what the handler below does; the handler itself is required under every reading.
+
+The design:
+
+1. **A handler on the parent's fill events** (`execDetails` is authoritative): on every increase of
+   the filled quantity, ensure protection matches the real position size: resize resting children
+   (a `placeOrder` with the **same `orderId`** and the new `totalQuantity`, the documented modify
+   semantics; already-filled portions cannot be modified), or, if children turn out to be held until
+   the complete fill, place protection for the filled portion. On a parent that dies with
+   `filled > 0` (cancel, expiry), place protection immediately: its children die with it.
+2. **Idempotence from the venue position, never from accumulated events**: recompute the children's
+   target size from the signed venue position each time, so a lost or duplicated event cannot corrupt
+   the correction.
+3. **The race window is declared, not denied**: between the partial fill and the modify, the children
+   are mis-sized for a sub-second window. Damage requires price to touch a protective leg inside that
+   window, i.e. a violent gap. Without an AON-class attribute this window is irreducible; document it
+   as an accepted risk rather than pretending it away.
+4. **Periodic reconciliation as the net**: compare resting children against the position on a timer;
+   divergence triggers correction. This covers a dead handler, a lost race, and restarts.
+5. **The sibling direction is IBKR's job**: between SL and TP, re-balancing on a partial fill of one
+   child is documented OCA behaviour ("partial completion causes the group to re-balance"). Your
+   handler only owns the parent-to-children direction.
+6. **Probability is a mitigation, not a substitute**: against deep underlying liquidity, retail-size
+   orders rarely fill partially; large sizes and thin sessions change that. Sizing policy reduces the
+   frequency; only the handler bounds the damage.
+
 ## Failure modes to design against
 
 - **Naked overnight positions**: `DAY` children expiring at the session close while the position lives
