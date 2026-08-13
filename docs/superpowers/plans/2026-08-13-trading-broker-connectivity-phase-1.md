@@ -104,6 +104,11 @@ Required headings: `## The evidence ladder`, `## Provenance tags`, `## Designing
 
 The ladder is adopted from `plugins/ibkr-trading/skills/ibkr-trading/references/venue-questions-and-probes.md` lines 13 to 47. Read that file first and generalize the wording only, replacing IBKR-specific nouns with vendor-neutral ones. Preserve: six ranks; rank 1 is your own probe transcript; rank 6 is a search-engine or AI summary and is explicitly not evidence at any strength; rank 4 states that a client library's source code is proof about the library and never about the broker.
 
+Two phrasings are fixed verbatim, because Task 5 anchors them and a mechanical check must not depend on a wording choice made here:
+
+- The section contains the sentence `The ladder has **six ranks**.`
+- The archetype file's opening sentence contains the phrase `the five archetypes`, and so does its heading `## The five archetypes`.
+
 The provenance tags section carries exactly three tags, `MEASURED`, `DOCUMENTED` and `ASSUMED`, with the rule that unmeasured assumptions are unavoidable and hiding them is the defect.
 
 The last section states which classes of question a demo environment can settle (protocol behaviour, validation, capability, error codes) and which it cannot (fills, latency, liquidity, queue position).
@@ -613,6 +618,8 @@ In `plugins/ibkr-trading/skills/ibkr-trading/SKILL.md`, immediately after the `#
 
 `references/venue-questions-and-probes.md` keeps its six ranks and three tags unchanged. Add one sentence under `## The evidence ladder` stating that this ladder is the vendor-neutral one from the `trading-broker-connectivity` skill, applied to IBKR. Do not instruct the reader to load that skill: name it as the origin, nothing more.
 
+That sentence must contain the phrase `The ladder has **six ranks**`, verbatim. Task 5 anchors the rank count and needs a second file stating it, or the anchor has nothing to compare against.
+
 - [ ] **Step 3: Bump the version**
 
 In `.claude-plugin/marketplace.json`, set `ibkr-trading` `version` to `2.9.0`. `metadata.version` is already `23.0.0` from Task 1.
@@ -726,11 +733,11 @@ git commit -m "Bring mt5-trading to base level of the broker plugin contract"
 In the `ANCHORS` dict of `scripts/lint_fact_anchors.py`, add two entries owned by the generic plugin:
 
 ```python
-    "broker-archetype-local-terminal": (
+    "broker-archetype-count": (
         "plugins/trading-broker-connectivity/skills/trading-broker-connectivity/"
         "references/access-archetypes.md",
-        r"`(local-terminal)`",
-        "canonical archetype name echoed by every local-terminal broker plugin",
+        r"\bthe (\w+) archetypes\b",
+        "how many access archetypes the vocabulary defines, echoed in the contract skill and CLAUDE.md",
     ),
     "evidence-ladder-ranks": (
         "plugins/trading-broker-connectivity/skills/trading-broker-connectivity/"
@@ -740,7 +747,9 @@ In the `ANCHORS` dict of `scripts/lint_fact_anchors.py`, add two entries owned b
     ),
 ```
 
-The owning file must state each fact in the captured form, or the linter reports an orphan. Check the wording of the reference files written in Task 1 and adjust either the regex or the prose so they agree.
+A note on why the first anchor counts rather than names. An anchor whose regex captures a literal archetype name can never report a conflict, because every file that matches captures the same string. An anchor on the `**Archetype:**` declaration line would be worse: it would fail the first time a broker of a genuinely different archetype is added, which is a correct state rather than drift. The count is the thing that must agree across copies.
+
+Task 1 fixes both captured phrasings verbatim, so no reconciliation between regex and prose is needed here. If an anchor reports an orphan, Task 1's prose diverged from what it was told to write; fix the prose, not the regex.
 
 - [ ] **Step 2: Verify the anchors resolve**
 
