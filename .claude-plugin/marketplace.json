@@ -5,8 +5,8 @@
     "email": ""
   },
   "metadata": {
-    "description": "Claude Code Daodan - 41 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), prose humanization, pure-architecture audits (missed unification, wrong abstractions), and cross-model peer review of plans and specs against a challenger on another model family.",
-    "version": "22.6.0"
+    "description": "Claude Code Daodan - 42 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), prose humanization, pure-architecture audits (missed unification, wrong abstractions), and cross-model peer review of plans and specs against a challenger on another model family.",
+    "version": "23.0.0"
   },
   "plugins": [
     {
@@ -1519,6 +1519,32 @@
       ],
       "commands": [
         "./commands/tidy.md"
+      ]
+    },
+    {
+      "name": "trading-broker-connectivity",
+      "source": "./plugins/trading-broker-connectivity",
+      "description": "Vendor-neutral vocabulary for programmatic broker integration: five access archetypes, a reference order state machine with the three layers that can refuse an order, session and recovery patterns, and the six-rank evidence ladder with provenance tags that decides what a claim about a venue is worth",
+      "version": "1.0.0",
+      "author": {
+        "name": "Alfio"
+      },
+      "license": "MIT",
+      "keywords": [
+        "broker",
+        "connectivity",
+        "algotrading",
+        "fix-protocol",
+        "order-lifecycle",
+        "gateway",
+        "archetypes",
+        "evidence-ladder",
+        "integration"
+      ],
+      "category": "algotrading",
+      "strict": false,
+      "skills": [
+        "./skills/trading-broker-connectivity"
       ]
     }
   ]
