@@ -932,6 +932,110 @@ Expected: all pass. Only then push.
 
 ---
 
+---
+
+### Task 8: The second axis, one broker or many
+
+**Runs before Task 7**, despite its number. Task 7 mirrors everything into the VS Code export and must be last, or it mirrors twice.
+
+**Files:**
+- Modify: `plugins/trading-broker-connectivity/skills/trading-broker-connectivity/references/access-archetypes.md`
+- Modify: `.claude/skills/broker-plugin-contract/SKILL.md`
+- Modify: `scripts/lint_broker_plugins.py`
+- Modify: `tests/test_broker_plugins_lint.py`
+- Modify: `plugins/ibkr-trading/skills/ibkr-trading/SKILL.md`
+- Modify: `plugins/mt5-trading/skills/mt5-trading/SKILL.md`
+- Modify: `CLAUDE.md`
+
+**Why this task exists.** The archetype axis answers **how** you connect and says nothing about **who** you are connected to. `ibkr-trading` covers a broker and that broker's own connection tooling, which are one commercial entity. `mt5-trading` covers software with hundreds of independent brokers behind it, each with its own symbol names, filling modes, margin mode, spreads and trading hours. The contract currently calls both "broker plugins" and gives them one axis, which makes `verified` promise something a platform plugin cannot deliver: a fact measured on a platform is measured against one broker and does not transfer to the next.
+
+- [ ] **Step 1: Add the second axis to the shared vocabulary**
+
+In `access-archetypes.md`, add a section `## The second axis: one broker or many`, after the archetype material and before the section placing IBKR and MT5.
+
+It states that the archetype answers how software reaches a counterparty and not how many counterparties sit behind it, and defines the two values, which are a closed set:
+
+```markdown
+| Scope | Meaning |
+|---|---|
+| `single-broker` | The subject is one broker, together with any connection tooling that broker publishes itself. Facts established about it hold for every user of that broker, subject to entity and entitlement |
+| `multi-broker-platform` | The subject is software or a back end that many independent brokers sit behind. Facts established against one of them may be false for the next, because each configures its own instruments, execution rules and trading hours |
+```
+
+Then the consequence, which is the point of the section: on a `multi-broker-platform`, a measurement carries the broker it was taken against, and a fact that varies per broker is a **runtime detection problem** rather than a documentation problem. Name the real cases so a reader can recognise the pattern: MetaTrader 4 and 5, cTrader, DXtrade, Match-Trader, TradeLocker.
+
+Finally, revise the existing section that places IBKR and MT5 so it states both axes for each, and says plainly that sharing an archetype does not make a fact about one true of the other.
+
+- [ ] **Step 2: Add the requirement to the contract**
+
+In `.claude/skills/broker-plugin-contract/SKILL.md`:
+
+1. The declaration section gains a third line, `**Scope:** <single-broker|multi-broker-platform>`, described the same way the other two are.
+2. Level `base` gains one item: the plugin declares its scope, and a `multi-broker-platform` plugin carries a section naming what varies per broker behind it.
+3. A new subsection states what scope changes about level `verified`: on a `single-broker` plugin, a `MEASURED` fact is a fact about the broker. On a `multi-broker-platform` plugin it is a fact about **one broker on that platform**, and must name which, along with the date and instrument the existing rule already requires. Without the broker, the tag claims more than the measurement supports.
+
+- [ ] **Step 3: Extend the linter, tests first**
+
+In `tests/test_broker_plugins_lint.py`, add tests before touching the linter, following the existing fixtures' shape:
+
+- a plugin declaring no `**Scope:**` line fails
+- a plugin declaring a scope outside the closed set fails, and the message names the bad value
+- a `multi-broker-platform` plugin with no per-broker-variation section fails
+- a `multi-broker-platform` plugin that has one passes
+- a `single-broker` plugin needs no such section and passes without one
+
+Run them, watch them fail for those reasons, then extend `scripts/lint_broker_plugins.py`:
+
+```python
+SCOPES = {"single-broker", "multi-broker-platform"}
+
+SCOPE_RE = re.compile(r"^\*\*Scope:\*\*\s*(\S+)\s*$", re.MULTILINE)
+
+PER_BROKER_HEADINGS = ("what varies per broker", "per-broker variation",
+                       "what changes between brokers")
+```
+
+The per-broker section is detected the same way the open-questions register already is: a heading match over the plugin's `references/*.md` and its `SKILL.md`. Update the module docstring so it states the new check and keeps its list of what it does not check accurate.
+
+- [ ] **Step 4: Declare both plugins**
+
+`ibkr-trading`'s `SKILL.md` gains `**Scope:** single-broker` beside its two existing lines. Nothing else changes there.
+
+`mt5-trading`'s `SKILL.md` gains `**Scope:** multi-broker-platform` and a `## What varies per broker` section. The raw material already exists and is scattered: `references/order-execution.md:29` (`trade_exemode`, `trade_stops_level`, `trade_freeze_level`, `filling_mode`, `volume_min/max/step`, all to be queried at runtime), `references/data-feed-historical.md:30` (`tick_volume` differing between ECN brokers and market makers, so cross-broker comparison is invalid), and the `SKILL.md` decision table's fill-mode and account-mode rows. Collect them into one section that names the classes rather than restating every value, and point at the files that hold the detail. Do not move content out of those files: the section is an index, not a relocation, and the detail must stay where a reader following a symptom will find it.
+
+Leave both versions where they are. `ibkr-trading` is at `2.9.0` and `mt5-trading` at `1.2.0`, each already one bump ahead of `origin/master`, and `check_version_bumps.py` scores the whole pushed range rather than individual commits.
+
+- [ ] **Step 5: Update `CLAUDE.md`**
+
+The standing-policy paragraph currently describes the contract in terms of one axis. Revise it to state both, and to record the consequence for `verified` on a platform plugin. Keep the phrase `the five archetypes` intact: it is anchored, and removing it would orphan the anchor.
+
+The CI entry for check 8 gains the scope check in its coverage list. While there, add the one item the Task 6 review found missing from its not-checked list: that the declaration lines' placement is a stated convention the regexes do not enforce.
+
+- [ ] **Step 6: Verify**
+
+```bash
+python -m unittest tests.test_broker_plugins_lint -v
+python scripts/lint_broker_plugins.py
+python scripts/lint_fact_anchors.py
+python scripts/lint_bundled_paths.py
+python scripts/lint_plugin_registration.py
+python scripts/lint_dependency_graph.py
+python scripts/check_version_bumps.py origin/master HEAD
+```
+
+Expected: the tests pass, the contract linter passes with both plugins conforming under the new check, and the version-bump check still reports all three plugins bumped with metadata at `23.0.0`.
+
+**No fact anchor for the scope values.** An anchor whose regex captures a fixed name can never report a conflict, which is the reasoning already recorded for the archetype anchor, and a count anchor over two values guards almost nothing. The archetype-count anchor already covers this vocabulary's neighbourhood.
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add plugins/trading-broker-connectivity .claude/skills/broker-plugin-contract scripts/lint_broker_plugins.py tests/test_broker_plugins_lint.py plugins/ibkr-trading plugins/mt5-trading CLAUDE.md
+git commit -m "Separate the broker axis from the platform axis in the contract"
+```
+
+---
+
 ## Self-Review
 
 **Spec coverage.** Section 1 of the spec maps to Task 1; Section 2 to Task 2 Step 1; Section 3 to Task 2 Steps 2 to 6; Section 4 to Tasks 3 and 4; Section 5 to Tasks 1, 5, 6 and 7. Section 6 is phase 2 and deliberately has no task. The describe-but-never-dispatch constraint appears in the Global Constraints, in the contract text (Task 2 Step 1), and as a verification in Task 5 Step 4.
