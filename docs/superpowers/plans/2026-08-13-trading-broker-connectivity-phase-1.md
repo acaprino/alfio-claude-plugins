@@ -898,7 +898,13 @@ Fix mode always exits 0, so a clean exit is not evidence of correctness. Inspect
 
 - [ ] **Step 3: Hand-port the adapted half**
 
-Every `SKILL.md` is adapted, not byte-copied: frontmatter rewritten, tool names renamed, namespaces stripped, dispatch rerouted. That covers the new plugin's `SKILL.md` and the two broker `SKILL.md` files changed in Tasks 3 and 4.
+Every `SKILL.md` is adapted, not byte-copied: frontmatter rewritten, tool names renamed, namespaces stripped, dispatch rerouted. Three files need it, all changed after the export was last mirrored:
+
+- `plugins/trading-broker-connectivity/skills/trading-broker-connectivity/SKILL.md`, new in Task 1 and revised in Task 8, whose frontmatter description and digest both changed.
+- `plugins/ibkr-trading/skills/ibkr-trading/SKILL.md`, which gained declaration lines in Task 3 and a scope line in Task 8.
+- `plugins/mt5-trading/skills/mt5-trading/SKILL.md`, which gained declaration lines, a symptoms table and a mapping table in Task 4, and a scope line plus a `## What varies per broker` section in Task 8.
+
+Their `references/` files are byte-copied and are the mirror script's job, not yours. `.claude/skills/broker-plugin-contract/` is a repository maintenance skill and is not exported at all, the same as the other four in that directory.
 
 - [ ] **Step 4: Write the changelog section**
 
