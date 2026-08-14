@@ -8,13 +8,15 @@ Stdlib only, no dependencies, runs from the repository root:
 plugin (category `algotrading`) must contain to reach contract level `base`
 or `verified`. This linter covers the half of that contract that is a
 question about a directory listing, a marketplace entry, or a
-regular-expression match: the two declaration lines exist and name a real
-level and archetype, the required agent and command exist and are
-registered rather than merely present on disk, the skill's `references/`
-directory exists and holds at least one file, the four required sections
-exist under case-insensitive headings, the listed references and the
-references on disk agree, and (at `verified`) a registered verify command,
-a probe script, and an open-questions register all exist.
+regular-expression match: the three declaration lines exist and name a real
+level, archetype and scope, a `multi-broker-platform` plugin carries a
+section naming what varies per broker, the required agent and command exist
+and are registered rather than merely present on disk, the skill's
+`references/` directory exists and holds at least one file, the four
+required sections exist under case-insensitive headings, the listed
+references and the references on disk agree, and (at `verified`) a
+registered verify command, a probe script, and an open-questions register
+all exist.
 
 The rest of the contract is a question about meaning, and is not checked
 here:
@@ -22,15 +24,20 @@ here:
   - whether an order-state name is really the reference model's own, or a
     vendor mapping is both present and correct (Level base item 5)
   - whether a `MEASURED` fact is honestly dated and attributed to the
-    instrument that produced it (Level verified item 3)
+    instrument that produced it (Level verified item 3), and on a
+    `multi-broker-platform` plugin, whether it also names the one broker
+    the measurement was taken against
   - whether an open question is genuinely paired with the experiment that
     would settle it, rather than a heading with an empty list under it
     (Level verified item 2)
+  - whether a `multi-broker-platform` plugin's per-broker-variation section
+    genuinely names what varies, rather than a heading with nothing under
+    it (Level base item 6)
   - whether probe tooling refuses production structurally rather than by a
     flag that defaults to safe (Level verified item 4)
-  - where exactly the two declaration lines sit in the file: the contract
-    states a placement convention for readers, but LEVEL_RE and ARCHETYPE_RE
-    match anywhere, on purpose, so position is never a failure
+  - where exactly the three declaration lines sit in the file: the contract
+    states a placement convention for readers, but LEVEL_RE, ARCHETYPE_RE
+    and SCOPE_RE match anywhere, on purpose, so position is never a failure
 
 One more limit reads like a gap and is not: whether the skill directory
 itself is registered in the plugin's `skills` array in
@@ -65,14 +72,19 @@ BROKER_CATEGORY = "algotrading"
 
 ARCHETYPES = {"direct-api", "local-terminal", "vendor-gateway", "bridge", "in-platform"}
 LEVELS = {"base", "verified"}
+SCOPES = {"single-broker", "multi-broker-platform"}
 
 REQUIRED_SECTIONS = ("quick start", "key decision points",
                      "symptoms to entry points", "reference materials")
 
 OPEN_QUESTION_HEADINGS = ("open questions", "questions the documentation does not answer")
 
+PER_BROKER_HEADINGS = ("what varies per broker", "per-broker variation",
+                       "what changes between brokers")
+
 LEVEL_RE = re.compile(r"^\*\*Contract level:\*\*\s*(\S+)\s*$", re.MULTILINE)
 ARCHETYPE_RE = re.compile(r"^\*\*Archetype:\*\*\s*(\S+)\s*$", re.MULTILINE)
+SCOPE_RE = re.compile(r"^\*\*Scope:\*\*\s*(\S+)\s*$", re.MULTILINE)
 HEADING_RE = re.compile(r"^#{2,3}\s+(.+?)\s*$", re.MULTILINE)
 LISTED_REF_RE = re.compile(r"^[-*]\s+`([^`]+\.md)`", re.MULTILINE)
 
@@ -137,6 +149,8 @@ def check_plugin(root, name, entry, skill_path):
         out.append(f"{name}: archetype {archetype_match.group(1)!r} is not one of "
                    f"{sorted(ARCHETYPES)}")
 
+    out.extend(check_scope(name, text, skill_path))
+
     description = text.split("---")[1] if text.startswith("---") else ""
     for clause in ("TRIGGER WHEN:", "DO NOT TRIGGER WHEN:"):
         if clause not in description:
@@ -166,6 +180,37 @@ def check_references(name, skill_path, text):
         out.append(f"{name}: references/{missing} exists but is not listed in SKILL.md")
     for ghost in sorted(listed - on_disk):
         out.append(f"{name}: SKILL.md lists {ghost} but references/ has no such file")
+    return out
+
+
+def check_scope(name, text, skill_path):
+    out = []
+    scope_match = SCOPE_RE.search(text)
+    if not scope_match:
+        out.append(f"{name}: no **Scope:** line")
+        return out
+
+    scope = scope_match.group(1)
+    if scope not in SCOPES:
+        out.append(f"{name}: scope {scope!r} is not one of {sorted(SCOPES)}")
+        return out
+
+    if scope != "multi-broker-platform":
+        return out
+
+    headings = {h.strip().lower() for h in HEADING_RE.findall(text)}
+    found = bool(headings & set(PER_BROKER_HEADINGS))
+    if not found:
+        ref_dir = skill_path.parent / "references"
+        for ref in sorted(ref_dir.glob("*.md")) if ref_dir.is_dir() else []:
+            ref_headings = {h.strip().lower()
+                            for h in HEADING_RE.findall(ref.read_text(encoding="utf-8"))}
+            if ref_headings & set(PER_BROKER_HEADINGS):
+                found = True
+                break
+    if not found:
+        out.append(f"{name}: scope multi-broker-platform requires a section naming what "
+                   f"varies per broker (SKILL.md or references/)")
     return out
 
 

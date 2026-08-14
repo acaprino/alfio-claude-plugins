@@ -26,7 +26,7 @@ description: >
 
 **Contract level:** {level}
 **Archetype:** {archetype}
-
+{scope_line}
 ## Quick start
 Connect, then place an order.
 
@@ -46,20 +46,29 @@ Connect, then place an order.
 
 
 def build(root, name="acme-trading", level="base", archetype="local-terminal",
+          scope="single-broker", per_broker_section=False,
           refs=("orders.md",), listed=("orders.md",), agent=True, command=True,
           register=True, verify=False, probe=False, register_verify=False,
           category="algotrading", sections=None):
-    """Write one plugin plus a marketplace.json describing it."""
+    """Write one plugin plus a marketplace.json describing it.
+
+    scope=None omits the **Scope:** line entirely (for the missing-declaration
+    test). per_broker_section=True appends a '## What varies per broker'
+    heading, which a multi-broker-platform plugin needs to pass.
+    """
     broker = name[:-len("-trading")] if name.endswith("-trading") else name
     plugin = root / "plugins" / name
     skill = plugin / "skills" / name
     (skill / "references").mkdir(parents=True)
+    scope_line = f"**Scope:** {scope}\n" if scope is not None else ""
     body = SKILL_TEMPLATE.format(skill=name, broker=broker, level=level,
-                                 archetype=archetype)
+                                 archetype=archetype, scope_line=scope_line)
     if sections is not None:
         body = sections
     listing = "\n".join(f"- `{r}` - description" for r in listed)
     body = body.replace("- `orders.md` - how orders behave", listing)
+    if per_broker_section:
+        body += "\n## What varies per broker\n\nFill mode and account mode vary by broker.\n"
     (skill / "SKILL.md").write_text(body, encoding="utf-8")
     for ref in refs:
         (skill / "references" / ref).write_text("# ref\n", encoding="utf-8")
@@ -188,6 +197,39 @@ class ContractLinter(unittest.TestCase):
             # reference, so it must be added to `listed` here too.
             build(Path(tmp), level="verified", verify=True, probe=True,
                   register_verify=True, listed=("orders.md", "open-questions.md"))
+            result = run(Path(tmp))
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_missing_scope_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            build(Path(tmp), scope=None)
+            result = run(Path(tmp))
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("Scope", result.stdout + result.stderr)
+
+    def test_unknown_scope_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            build(Path(tmp), scope="some-other-thing")
+            result = run(Path(tmp))
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("some-other-thing", result.stdout + result.stderr)
+
+    def test_multi_broker_platform_without_variation_section_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            build(Path(tmp), scope="multi-broker-platform", per_broker_section=False)
+            result = run(Path(tmp))
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("varies per broker", result.stdout + result.stderr)
+
+    def test_multi_broker_platform_with_variation_section_passes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            build(Path(tmp), scope="multi-broker-platform", per_broker_section=True)
+            result = run(Path(tmp))
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_single_broker_needs_no_variation_section(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            build(Path(tmp), scope="single-broker", per_broker_section=False)
             result = run(Path(tmp))
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 

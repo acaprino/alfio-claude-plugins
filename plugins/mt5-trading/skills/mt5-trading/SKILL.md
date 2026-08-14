@@ -13,6 +13,30 @@ Knowledge base for building production-grade algorithmic trading systems with Me
 
 **Contract level:** base
 **Archetype:** local-terminal
+**Scope:** multi-broker-platform
+
+## What varies per broker
+
+MetaTrader 5 is one piece of software; the broker behind a given login decides most of what an
+integration actually has to handle. Nothing below is restated in full here, each item is
+detailed in the file already named for it, because a reader chasing the symptom will already be
+looking there:
+
+- **Order execution parameters.** Fill mode, stops level, freeze level, execution mode and
+  volume limits are broker- and symbol-specific and must be queried at runtime rather than
+  assumed. See `order-execution.md`, and the Fill mode and Account mode rows of Key Decision
+  Points below.
+- **Data quality and coverage.** Tick volume, tick history depth and tick fidelity differ
+  between ECN brokers and market makers for the same instrument, which makes cross-broker
+  comparison invalid. See `data-feed-historical.md`.
+- **Account and margin mode.** Netting, hedging and exchange margin modes are a broker setting,
+  not a code choice, read at startup from `account_info().margin_mode`. See the Account mode
+  row of Key Decision Points below.
+
+None of this is optional hardening. A value correct for one broker is routinely wrong for the
+next, which is the reason this plugin's scope is `multi-broker-platform` rather than
+`single-broker`: nothing in this skill is measured against one broker's behaviour and then
+offered as true of MetaTrader 5 in general.
 
 ## When to Use
 

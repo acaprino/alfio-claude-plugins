@@ -16,6 +16,7 @@ API with `ib_async` in Python. Covers equities, options, futures, FX, CFDs and c
 
 **Contract level:** verified
 **Archetype:** local-terminal
+**Scope:** single-broker
 
 ## The one rule this skill is organised around
 

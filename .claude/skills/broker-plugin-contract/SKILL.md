@@ -2,8 +2,9 @@
 name: broker-plugin-contract
 description: >
   What a broker-integration plugin in this marketplace must contain to reach contract level
-  base or verified: the checklist for each level, the two declaration lines and how <broker>
-  is derived from the plugin name, the describe-but-never-dispatch dependency rule, and what
+  base or verified: the checklist for each level, the three declaration lines and how <broker>
+  is derived from the plugin name, the single-broker/multi-broker-platform scope axis, the
+  describe-but-never-dispatch dependency rule, and what
   `scripts/lint_broker_plugins.py` enforces mechanically versus what stays prose-reviewed.
   TRIGGER WHEN: creating a new broker-integration plugin, bringing an existing one onto the
   contract, reviewing whether a broker plugin qualifies for base or verified, or interpreting
@@ -19,9 +20,10 @@ Every broker-integration plugin in this marketplace (category `algotrading`, one
 vendor: `ibkr-trading`, `mt5-trading`, and any that follow) states its conformance to one of
 two levels, in its own words, at the top of its main skill. This file is the checklist behind
 that statement. `plugins/trading-broker-connectivity/` is the vocabulary a broker plugin draws
-on to satisfy it: the five archetypes, the reference order-lifecycle model, and the evidence
-ladder with its three provenance tags. Read that skill first if the vocabulary itself, rather
-than a specific plugin's conformance, is the open question.
+on to satisfy it: the five archetypes, the second axis separating a single broker from a
+multi-broker platform, the reference order-lifecycle model, and the evidence ladder with its
+three provenance tags. Read that skill first if the vocabulary itself, rather than a specific
+plugin's conformance, is the open question.
 
 ## The two levels
 
@@ -43,7 +45,7 @@ than by assertion.
 
 ## Level base
 
-All five, as a checklist:
+All six, as a checklist:
 
 1. A `<broker>-architect` agent, a `<broker>-audit` command, and one skill with a non-empty
    `references/` directory (at least one `.md` file), all three registered in
@@ -61,6 +63,9 @@ All five, as a checklist:
    different ones it maps them explicitly, rather than silently substituting one vocabulary
    for the other. `order-lifecycle-reference-model.md` in `trading-broker-connectivity` names
    the target vocabulary and states the procedure for writing the mapping.
+6. The plugin declares its scope (`**Scope:**` line, one of the two values
+   `trading-broker-connectivity`'s second axis defines), and a plugin whose scope is
+   `multi-broker-platform` carries a section naming what varies per broker behind it.
 
 ## Level verified
 
@@ -77,19 +82,34 @@ Everything in Level base, plus four more:
    defaults to safe and can be flipped is not the same guarantee as code with no path to a
    production endpoint at all; the second is what this level requires.
 
+### What scope changes about a `MEASURED` fact
+
+On a `single-broker` plugin, a `MEASURED` fact is a fact about the broker: it holds, subject to
+entity and entitlement, for every account on it. On a `multi-broker-platform` plugin, the same
+tag is a fact about **one broker on that platform**, and the fact must name which broker,
+alongside the date and instrument item 3 above already requires. Without the broker, the tag
+claims more than the measurement supports: the next broker on that platform may configure the
+same instrument, the same fill mode, or the same margin rule differently, and nothing in an
+unattributed `MEASURED` warns a reader of that.
+
 ## How a plugin declares its level
 
-Two lines, placed immediately after the skill's `# Title` heading and before its first `##`
+Three lines, placed immediately after the skill's `# Title` heading and before its first `##`
 section:
 
 ```
 **Contract level:** <base|verified>
 **Archetype:** <name>
+**Scope:** <single-broker|multi-broker-platform>
 ```
 
 `<broker>` in the checklists above is the plugin directory name with a trailing `-trading`
 removed: `ibkr-trading` becomes `ibkr`, `mt5-trading` becomes `mt5`. A plugin whose directory
 name does not end in `-trading` keeps its name unchanged.
+
+`**Scope:**` names one of the two values `trading-broker-connectivity`'s second axis defines,
+described in `access-archetypes.md`'s "The second axis: one broker or many" section: whether the
+plugin's subject is one broker, or a platform with many independent brokers behind it.
 
 ## The describe-but-never-dispatch rule
 
@@ -121,23 +141,28 @@ about a directory listing, a marketplace entry, or a regular-expression match. I
 decide the parts that are questions about meaning:
 
 - Whether a fact tagged `MEASURED` genuinely has the provenance it claims (Level verified
-  item 3): the linter reads no probe transcript and forms no opinion on whether a date and an
-  instrument are honest. It does not even search for the tag.
+  item 3), and on a `multi-broker-platform` plugin, whether it genuinely names the one broker
+  it was measured against: the linter reads no probe transcript and forms no opinion on
+  whether a date, an instrument or a broker are honest. It does not even search for the tag.
 - Whether the shared vocabulary is used correctly inside prose (Level base item 5): the linter
-  confirms the two declaration lines exist and name a real level and a real archetype; it does
-  not read the rest of the file to confirm the order-state names are the reference model's own
-  or that a vendor mapping is both present and correct.
+  confirms the three declaration lines exist and name a real level, a real archetype and a
+  real scope; it does not read the rest of the file to confirm the order-state names are the
+  reference model's own or that a vendor mapping is both present and correct.
 - Whether an open-questions register (Level verified item 2) genuinely pairs each question
   with a settling experiment, or is a heading with an empty list under it: the linter looks
   for the heading, not the pairing.
+- Whether a `multi-broker-platform` plugin's per-broker-variation section (Level base item 6)
+  genuinely names what varies, or is a heading with nothing under it: the linter looks for the
+  heading, the same limit as the open-questions register above.
 - Whether the probe tooling refuses production structurally rather than by a flag that
   defaults to safe (Level verified item 4): the linter confirms a script matching
   `*probe*.py` exists under the skill's `scripts/` directory. It does not read the script.
-- Where exactly the two declaration lines sit in the file: "How a plugin declares its level"
+- Where exactly the three declaration lines sit in the file: "How a plugin declares its level"
   states a placement convention (immediately after the `# Title` heading, before the first
   `##` section) for readers, not a rule the linter enforces. The regexes that find
-  `**Contract level:**` and `**Archetype:**` match anywhere in the file, on purpose, so a
-  plugin that is otherwise conformant never fails on where the two lines happen to sit.
+  `**Contract level:**`, `**Archetype:**` and `**Scope:**` match anywhere in the file, on
+  purpose, so a plugin that is otherwise conformant never fails on where the three lines
+  happen to sit.
 
 One more limit is worth naming precisely rather than leaving it to read as a gap: whether the
 skill directory itself appears in that plugin's `skills` array in

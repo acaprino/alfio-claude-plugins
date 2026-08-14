@@ -66,13 +66,37 @@ Three consequences follow, and they are the reason this file is first:
   `direct-api` it is a setting. Under the other four it is a question, and the honest answer comes from
   a measurement on your platform and version rather than from a vendor page.
 
+## The second axis: one broker or many
+
+The archetype answers how software reaches a counterparty. It says nothing about how many
+counterparties sit behind that software, and the two questions are independent.
+
+| Scope | Meaning |
+|---|---|
+| `single-broker` | The subject is one broker, together with any connection tooling that broker publishes itself. Facts established about it hold for every user of that broker, subject to entity and entitlement |
+| `multi-broker-platform` | The subject is software or a back end that many independent brokers sit behind. Facts established against one of them may be false for the next, because each configures its own instruments, execution rules and trading hours |
+
+On a `multi-broker-platform`, a measurement carries the broker it was taken against, and a fact
+that varies per broker is a **runtime detection problem** rather than a documentation problem: no
+amount of writing down the right answer for one broker makes it the right answer for the next
+one, so the code has to ask. MetaTrader 4 and 5, cTrader, DXtrade, Match-Trader and TradeLocker
+are all this shape, one piece of platform software with hundreds of independently configured
+brokers behind it, which is the pattern to recognise wherever it recurs.
+
 ## Where the two integrated brokers sit
 
-Interactive Brokers (through the TWS API and IB Gateway) and MetaTrader 5 are both `local-terminal`.
-Nothing else about them is alike: different asset coverage, different order vocabulary, different
-client libraries, different platform support. The archetype is what makes their operational problems
-the same problems, and it is why an operational lesson learned on one usually transfers while a
-trading-vocabulary lesson usually does not.
+Interactive Brokers (through the TWS API and IB Gateway) is `local-terminal` and `single-broker`:
+the terminal is IBKR's own, and a fact established about it holds for every IBKR account, subject
+to entity and entitlement. MetaTrader 5 is `local-terminal` and `multi-broker-platform`: the
+terminal is the same software regardless of which broker issued the login, but the broker behind
+that login decides the instruments, fill modes, margin mode and trading hours a given account
+actually sees.
+
+Sharing the archetype is what makes their operational problems the same problems: connection
+lifecycle, terminal restarts and session exclusivity all transfer, which is why an operational
+lesson learned on one usually transfers while a trading-vocabulary lesson usually does not.
+Sharing the archetype does not make a fact about one true of the other. For MetaTrader 5 it does
+not even make a fact about one broker's instance true of the next broker on the same platform.
 
 | Shared consequence | What it means in practice |
 |---|---|
