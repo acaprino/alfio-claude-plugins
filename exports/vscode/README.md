@@ -1,8 +1,8 @@
 # Claude Code Daodan for GitHub Copilot
 
-A VS Code Copilot port of [acaprino/claude-code-daodan](https://github.com/acaprino/claude-code-daodan): **93 agents, 70 skills and 51 prompts**, shipped as one extension. Install it once and every project you open has them. You never copy a `.github/` directory into a repository.
+A VS Code Copilot port of [acaprino/claude-code-daodan](https://github.com/acaprino/claude-code-daodan): **93 agents, 71 skills and 51 prompts**, shipped as one extension. Install it once and every project you open has them. You never copy a `.github/` directory into a repository.
 
-This directory is both the extension source and the catalog documentation. The 39 bundles below are how the content is organized on disk, not 39 separate installs.
+This directory is both the extension source and the catalog documentation. The 40 bundles below are how the content is organized on disk, not 40 separate installs.
 
 ## Install
 
@@ -30,7 +30,7 @@ Uninstalling the extension removes the skills it installed.
 
 ### The cost of having everything everywhere
 
-VS Code loads the `description` of every agent and skill available in order to route a request. With all 93 agents and 70 skills installed at user level, a Rust project carries the Stripe, MT5 and SEO descriptions too, on every turn. That is a real cost, accepted deliberately in exchange for one install that follows you into every project. Turn off what you do not want in the Agent Customizations editor (**Chat: Open Customizations**), or set `daodan.autoSync` to `false` and manage the skills folder yourself.
+VS Code loads the `description` of every agent and skill available in order to route a request. With all 93 agents and 71 skills installed at user level, a Rust project carries the Stripe, MT5 and SEO descriptions too, on every turn. That is a real cost, accepted deliberately in exchange for one install that follows you into every project. Turn off what you do not want in the Agent Customizations editor (**Chat: Open Customizations**), or set `daodan.autoSync` to `false` and manage the skills folder yourself.
 
 ### Per-project install, without the extension
 
@@ -95,6 +95,7 @@ For a monorepo where the bundle lives at the repository root but you open a subf
 | `tauri-development` | `tauri-desktop`, `tauri-mobile`, `rust-engineer` | 1 / 3 / 0 | |
 | `testing` | `/test-audit`, `/test-consolidate`, `test-writer`, `test-suite-auditor` | 1 / 2 / 2 | |
 | `text-humanizer` | `/humanize-text` | 1 / 1 / 1 | |
+| `trading-broker-connectivity` | `trading-broker-connectivity` | 1 / 0 / 0 | |
 | `typescript-development` | `/review-typescript`, `typescript-engineer` | 4 / 2 / 1 | |
 | `xterm` | `/xterm-debug`, `/xterm-implement` | 1 / 0 / 2 | |
 

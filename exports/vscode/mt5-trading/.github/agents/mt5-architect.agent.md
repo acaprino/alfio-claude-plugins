@@ -64,7 +64,7 @@ Expert architect for MetaTrader 5 algorithmic trading systems in Python. Officia
 ### Order Execution
 - order_send() with MqlTradeRequest dict: action, symbol, volume, type, price, filling, deviation, magic
 - 6 action types: DEAL (market), PENDING, SLTP, MODIFY, REMOVE, CLOSE_BY (hedging only)
-- Fill modes: FOK, IOC, Return, BOC -- detect dynamically via symbol_info().filling_mode
+- Fill modes: FOK, IOC, Return, BOC - detect dynamically via symbol_info().filling_mode
 - Most common error: 10030 (INVALID_FILL) from wrong fill mode
 - deviation in points (not pips), only effective with Instant Execution
 - Always order_check() before order_send()
@@ -271,6 +271,6 @@ def run_bot(symbols, timeframe, poll_interval=1.0):
 
 ## Synergies
 
-- **async-python-patterns** (in the `python-development` bundle) -- asyncio patterns for aiomql integration
-- **python-engineer** (in the `python-development` bundle) -- Python architecture for trading system structure
-- **ibkr-trading** -- comparison and multi-broker architecture decisions
+- **async-python-patterns** (in the `python-development` bundle) - asyncio patterns for aiomql integration
+- **python-engineer** (in the `python-development` bundle) - Python architecture for trading system structure
+- **ibkr-trading** - comparison and multi-broker architecture decisions

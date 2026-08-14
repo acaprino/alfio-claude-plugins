@@ -1,6 +1,6 @@
 # Data Feed: Functions, Depth, and Data Quality
 
-The `copy_rates_*` and `copy_ticks_*` family pulls bars and ticks from the MT5 terminal's local cache (downloaded from the broker on demand). All return numpy structured arrays. No rate limits in the local IPC -- the bottleneck is the broker download for data not yet cached.
+The `copy_rates_*` and `copy_ticks_*` family pulls bars and ticks from the MT5 terminal's local cache (downloaded from the broker on demand). All return numpy structured arrays. No rate limits in the local IPC - the bottleneck is the broker download for data not yet cached.
 
 ## When to use
 
@@ -29,15 +29,15 @@ Returned numpy fields: bars = `time, open, high, low, close, tick_volume, spread
 - **`real_volume` is always 0 for OTC forex.** Only exchange-traded instruments populate it. Use `tick_volume` for forex (counts ticks, not contracts) and never benchmark forex liquidity by `real_volume`.
 - **`tick_volume` varies between brokers** for the same instrument. ECN brokers report more ticks; market makers may filter/aggregate. Don't assume cross-broker comparability.
 - **`spread` field = spread at bar close**, not the average. Useful as a sanity gauge, useless as a trading signal on its own.
-- **Tick depth is broker-dependent**: from a few days to 1-2 years. EURUSD generates ~200k+ ticks/day -- requesting months produces tens of millions of rows. Cache aggressively.
+- **Tick depth is broker-dependent**: from a few days to 1-2 years. EURUSD generates ~200k+ ticks/day - requesting months produces tens of millions of rows. Cache aggressively.
 - **"Max bars in chart" defaults to 100,000.** Set to **Unlimited** in MT5 → Tools → Options → Charts, otherwise large historical pulls return truncated arrays with no error.
 - **MT5 builds intraday timeframes from M1.** No M1 cache = no derived intraday data. Weekends/holidays have no bars (no placeholder rows inserted).
 - **Tick data quality matters more than bar data.** ECN brokers ≫ market makers for tick fidelity. If you're tick-driven, broker selection is part of your strategy.
-- **`market_book_*` (Level 2) is also polling** -- there are no push notifications for depth updates either.
+- **`market_book_*` (Level 2) is also polling** - there are no push notifications for depth updates either.
 
 ## Bootstrap + incremental cache (the production pattern)
 
-Parquet with Zstandard compression is the community choice -- ~5-10x compression, type preservation, fast reads via pandas/pyarrow. Tick data: partition by day or month.
+Parquet with Zstandard compression is the community choice - ~5-10x compression, type preservation, fast reads via pandas/pyarrow. Tick data: partition by day or month.
 
 ```python
 import pandas as pd
@@ -98,6 +98,6 @@ MT5 has no rate limits and includes data with the account, but quality is broker
 
 ## Related
 
-- `api-architecture.md` -- the constraints behind "no rate limits" / "no callbacks"
-- `event-system-polling.md` -- polling loops that consume this data live
-- `order-execution.md` -- using `symbol_info_tick()` before placing orders
+- `api-architecture.md` - the constraints behind "no rate limits" / "no callbacks"
+- `event-system-polling.md` - polling loops that consume this data live
+- `order-execution.md` - using `symbol_info_tick()` before placing orders

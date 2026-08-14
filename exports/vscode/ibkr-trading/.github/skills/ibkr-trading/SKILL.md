@@ -22,6 +22,10 @@ metadata:
 Reference for building, operating and debugging systems that trade through the Interactive Brokers TWS
 API with `ib_async` in Python. Covers equities, options, futures, FX, CFDs and crypto.
 
+**Contract level:** verified
+**Archetype:** local-terminal
+**Scope:** single-broker
+
 ## The one rule this skill is organised around
 
 **IBKR's behaviour is a property of your contract, your account entity and your terminal, not a global

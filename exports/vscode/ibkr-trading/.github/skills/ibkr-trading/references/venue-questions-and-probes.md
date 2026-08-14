@@ -12,7 +12,9 @@ The remedy is not more reading. It is a discipline about what counts as an answe
 
 ## The evidence ladder
 
-Rank every claim about venue behaviour by how it was obtained. Record the rank next to the claim.
+Rank every claim about venue behaviour by how it was obtained. Record the rank next to the claim. The
+ladder has **six ranks**, unchanged from the vendor-neutral `trading-broker-connectivity` skill applied
+here to IBKR.
 
 | Rank | Source | Admissible as? |
 |---|---|---|
