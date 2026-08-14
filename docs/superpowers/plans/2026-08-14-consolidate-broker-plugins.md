@@ -83,7 +83,7 @@ Prose only, no levels, no declarations, no linter. Roughly fifteen lines. Read t
 
 - [ ] **Step 5: Rewrite the marketplace entry**
 
-Replace the three entries with one, keeping category `algotrading`, merging the keyword sets, and listing four skills, two agents, three commands. Version `2.0.0`, since this is a breaking restructure of an existing entry. `metadata.version` to `24.0.0`.
+Replace the three entries with one, keeping category `algotrading`, merging the keyword sets, and listing three skills (`broker-vocabulary`, `ibkr`, `mt5`), two agents, three commands. Version `2.0.0`, since this is a breaking restructure of an existing entry. `metadata.version` to `24.0.0`.
 
 - [ ] **Step 6: Verify and commit**
 
