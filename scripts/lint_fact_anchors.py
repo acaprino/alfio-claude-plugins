@@ -130,7 +130,7 @@ ANCHORS = {
         "plugins/trading-broker-integration/skills/broker-vocabulary/"
         "references/access-archetypes.md",
         r"\bthe (\w+) archetypes\b",
-        "how many access archetypes the vocabulary defines, echoed in the contract skill and CLAUDE.md",
+        "how many access archetypes the vocabulary defines, echoed in the skill's own SKILL.md and in CLAUDE.md",
     ),
     "evidence-ladder-ranks": (
         "plugins/trading-broker-integration/skills/broker-vocabulary/"

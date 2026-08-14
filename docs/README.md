@@ -22,13 +22,11 @@ The augmentation symbiote for Claude Code. Agents, skills, and commands for deve
 | [docker](plugins/docker.md) | development | Optimized multi-stage Dockerfiles for any language or framework | 1 skill |
 | [docs](plugins/docs.md) | documentation | Craft top-tier README.md files with progressive disclosure, badges, quick start | 1 skill, 1 command |
 | [grabber-development](plugins/grabber-development.md) | development | Expert Python web scraping: stealth browsers, TLS impersonation, anti-bot bypass, proxy architecture, AI extraction | 4 agents, 1 skill |
-| [ibkr-trading](plugins/ibkr-trading.md) | algotrading | Interactive Brokers algotrading - TWS API, ib_async, order execution | 1 agent, 1 skill, 1 command |
 | [kotlin-development](plugins/kotlin-development.md) | development | Idiomatic Kotlin - coroutines, Flow/StateFlow, Kotlin Multiplatform (KMP), Jetpack Compose, Ktor server, type-safe DSLs | 1 skill |
 | [libgdx-development](plugins/libgdx-development.md) | development | libGDX cross-platform game dev - rendering pipeline, Scene2D + Ashley ECS, Box2D, AssetManager, Desktop/Android/iOS/HTML5 deploy, /libgdx-audit | 1 agent, 1 skill, 1 command |
 | [learning](plugins/learning.md) | productivity | Mind maps, Obsidian MarkMind export, interactive force-graph visualization | 3 skills, 1 command |
 | [marketplace-ops](plugins/marketplace-ops.md) | utilities | Plugin management - auditing, validation, upstream sync, scaffolding | 1 agent, 2 skills, 4 commands |
 | [messaging](plugins/messaging.md) | infrastructure | RabbitMQ and AMQP - queue design, clustering, high availability | 1 agent |
-| [mt5-trading](plugins/mt5-trading.md) | algotrading | MetaTrader 5 Python algotrading - API, polling events, order execution | 1 agent, 1 skill, 1 command |
 | [obsidian-development](plugins/obsidian-development.md) | development | Obsidian community plugin development with ReviewBot compliance | 3 skills |
 | [opentelemetry](plugins/opentelemetry.md) | development | OpenTelemetry Python: distributed tracing, context propagation, exporters, /otel-audit | 1 agent, 1 skill, 1 command |
 | [platform-engineering](plugins/platform-engineering.md) | development | Cross-platform security, architecture, and performance rulebook with /platform-review | 1 agent, 1 skill, 1 command |
@@ -44,6 +42,7 @@ The augmentation symbiote for Claude Code. Agents, skills, and commands for deve
 | [tauri-development](plugins/tauri-development.md) | development | Tauri 2 desktop/mobile - IPC optimization, Rust backend, cross-platform | 3 agents, 1 skill |
 | [testing](plugins/testing.md) | testing | TDD methodology, E2E testing patterns, behavior-driven test generation | 1 agent, 2 skills |
 | [text-humanizer](plugins/text-humanizer.md) | writing | Removes AI writing traces from prose in any language via 24 documented patterns. Zero-dependency leaf, consumed by digital-marketing, codebase-mapper, business, and clean-code | 1 agent, 1 skill, 1 command |
+| [trading-broker-integration](plugins/trading-broker-integration.md) | algotrading | Interactive Brokers (TWS API, ib_async) and MetaTrader 5 algotrading, plus the vendor-neutral archetype/order-lifecycle/evidence-ladder vocabulary shared between every broker | 2 agents, 3 skills, 3 commands |
 | [typescript-development](plugins/typescript-development.md) | development | Hands-on TypeScript engineer agent, best practices, Knip dead code detection, and enterprise TypeScript mastery | 1 agent, 3 skills |
 | [xterm](plugins/xterm.md) | frontend | xterm.js terminal emulator - addons, PTY wiring, debugging, features | 1 skill, 2 commands |
 

@@ -2,14 +2,14 @@
 
 # Claude Code Daodan
 
-**42 specialized plugins that augment Claude Code into a specialized toolkit - so you spend less time prompting and more time shipping.**
+**40 specialized plugins that augment Claude Code into a specialized toolkit - so you spend less time prompting and more time shipping.**
 
 > The Daodan is the symbiote that enhances its host. This marketplace is the Daodan of Claude Code.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat)](LICENSE)
 [![Consistency](https://github.com/acaprino/claude-code-daodan/actions/workflows/consistency.yml/badge.svg)](https://github.com/acaprino/claude-code-daodan/actions/workflows/consistency.yml)
 [![Marketplace](https://img.shields.io/badge/dynamic/json?label=marketplace&prefix=v&query=%24.metadata.version&url=https%3A%2F%2Fraw.githubusercontent.com%2Facaprino%2Fclaude-code-daodan%2Fmaster%2F.claude-plugin%2Fmarketplace.json&style=flat&color=green)](.claude-plugin/marketplace.json)
-[![Plugins](https://img.shields.io/badge/plugins-42-orange?style=flat)](#plugins)
+[![Plugins](https://img.shields.io/badge/plugins-40-orange?style=flat)](#plugins)
 [![Agents](https://img.shields.io/badge/agents-76-purple?style=flat)](#plugins)
 [![Skills](https://img.shields.io/badge/skills-57-teal?style=flat)](#plugins)
 [![Commands](https://img.shields.io/badge/commands-57-red?style=flat)](#plugins)
@@ -118,9 +118,7 @@ More detail in [Test authoring knowledge bases (TDD and browser E2E)](#test-auth
 | **[docs](docs/plugins/docs.md)** | Craft top-tier README.md files | - | 1 | 1 |
 | **[testing](docs/plugins/testing.md)** | Test-suite hygiene: search-before-write rules, whole-suite audit with quarantine, per-module consolidation, behavior-driven test generation | 2 | 1 | 2 |
 | **[platform-engineering](docs/plugins/platform-engineering.md)** | Cross-platform security (passkeys/WebAuthn, Electron Fuses), architecture, and performance rulebook + /platform-review | 1 | 1 | 1 |
-| **[ibkr-trading](docs/plugins/ibkr-trading.md)** | Interactive Brokers algotrading - TWS API, ib_async, order execution | 1 | 1 | 1 |
-| **[mt5-trading](docs/plugins/mt5-trading.md)** | MetaTrader 5 Python algotrading - API, polling events, order execution | 1 | 1 | 1 |
-| **[trading-broker-connectivity](docs/plugins/trading-broker-connectivity.md)** | Vendor-neutral broker integration vocabulary - access archetypes, order lifecycle, evidence ladder | 0 | 1 | 0 |
+| **[trading-broker-integration](docs/plugins/trading-broker-integration.md)** | Interactive Brokers (TWS API, ib_async) and MetaTrader 5 algotrading, plus the vendor-neutral archetype/order-lifecycle/evidence-ladder vocabulary shared between every broker | 2 | 3 | 3 |
 | **[opentelemetry](docs/plugins/opentelemetry.md)** | OpenTelemetry Python - distributed tracing, context propagation, exporters, /otel-audit | 1 | 1 | 1 |
 | **[docker](docs/plugins/docker.md)** | Optimized multi-stage Dockerfiles for any language or framework | - | 1 | - |
 | **[grabber-development](docs/plugins/grabber-development.md)** | Python web scraping - coordinator + 3 specialists (stealth browser, HTTP fingerprint, AI scraping), anti-bot bypass | 4 | 1 | - |
@@ -386,7 +384,7 @@ claude-code-daodan/
 │   │   ├── skills/            # SKILL.md + optional references/
 │   │   └── commands/          # slash-command .md files
 │   ├── senior-review/
-│   └── ...                    # 42 plugins total
+│   └── ...                    # 40 plugins total
 ├── LICENSE
 └── README.md
 ```
@@ -406,7 +404,7 @@ claude plugin install ./claude-code-daodan/plugins/python-development
 <details>
 <summary><b>Recommended Settings (skill visibility)</b></summary>
 
-With 42 plugins installed, Claude Code's default skill-listing budget can truncate the list of available skills shown at conversation start. Raise the fraction of context allocated to the skill listing in `~/.claude/settings.json`:
+With 40 plugins installed, Claude Code's default skill-listing budget can truncate the list of available skills shown at conversation start. Raise the fraction of context allocated to the skill listing in `~/.claude/settings.json`:
 
 ```json
 {
