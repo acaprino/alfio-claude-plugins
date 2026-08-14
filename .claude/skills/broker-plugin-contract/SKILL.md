@@ -135,9 +135,13 @@ qualifier unfalsifiable.
 A `MEASURED` fact about a property that varies per broker is more useful with the runtime query
 that reproduces it than with the broker name alone: a reader on a different broker cannot act on
 someone else's measurement, but they can run the same query against their own login.
-`mt5-trading`'s `## What varies per broker` section already does this (`account_info().margin_mode`
-for margin mode, `symbol_info().filling_mode` for fill mode), which is the pattern to follow
-rather than a value table that goes stale the moment one broker changes a setting.
+`mt5-trading` names both: its `## What varies per broker` section gives `account_info().margin_mode`
+for margin mode, and its `order-execution.md` reference gives `symbol_info().filling_mode` for fill
+mode. Prefer that pattern, the runtime query a reader can run against their own login, over a value
+table that goes stale the moment one broker changes a setting. The plugin's own `order-execution.md`
+carries such a table too ("Broker mode differences," `stops_level` given as "Often 0" for ECN
+brokers and "Usually > 0" for market makers): read it as a starting expectation to verify at
+runtime, not as the exemplar of the pattern this section recommends.
 
 Probe budget is not spent evenly across a `multi-broker-platform` plugin's surface. What is
 worth measuring and tagging `MEASURED` is the platform's own invariants: the API's semantics,

@@ -41,7 +41,7 @@ Tag every venue-behaviour claim in your own repository. Three tags are enough:
 
 - **`MEASURED`**: a probe transcript exists. Note which shapes were probed; a result measured on a STP
   order says nothing about a LMT order.
-- **`DOCUMENTED`**: a verbatim quote and URL exist.
+- **`DOCUMENTED`**: a verbatim quote and URL exist, with the date they were checked.
 - **`ASSUMED`**: neither. This is not a defect; unmeasured assumptions are unavoidable. Hiding them is
   the defect. Every `ASSUMED` tag on a path that can move money is a queue item.
 

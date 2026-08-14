@@ -57,9 +57,9 @@ The roster this linter checks is not a fixed list. It is every plugin
 registered under category `algotrading` in `.claude-plugin/marketplace.json`,
 except `trading-broker-connectivity` itself, which is the shared vocabulary
 rather than an integration and carries no declaration. That is the category
-cross-check: a plugin cannot leave the category and keep silent about the
-contract, and a plugin cannot declare a level without having opted into the
-category that means "this is a broker integration."
+cross-check a self-declaring roster needs: a plugin cannot sit in the
+category and stay silent about its contract level, because the category is
+how this linter finds it in the first place.
 
 A failure is fixed by changing the plugin it names, never by adding an entry
 to ALLOWLIST. That constant exists for heuristic misreads in this script's

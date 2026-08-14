@@ -38,17 +38,24 @@ access path, and they recur across brokers that share nothing else.
 | `in-platform` | Code running inside the vendor's own application |
 
 Name the archetype before designing anything. It decides what must run, what dies with what, and which
-recovery story is available to you. Interactive Brokers and MetaTrader 5 are both `local-terminal`,
-which is why their operational problems are the same problems. Sharing an archetype transfers
-operational lessons; it does not transfer facts. IBKR is `single-broker` and MetaTrader 5 is
-`multi-broker-platform`, and a fact measured on one broker is not even guaranteed to hold for the next
-broker on the same platform.
+recovery story is available to you. A vendor is not an archetype: the same broker can be `direct-api`
+for one product and `local-terminal` for another (`access-archetypes.md` has IBKR as its own
+counterexample), so state the archetype of the path you are on, not the vendor's name. With that
+caveat, Interactive Brokers and MetaTrader 5 are both `local-terminal` on the paths this marketplace
+documents, which is why their operational problems are the same problems. Sharing an archetype
+transfers operational lessons; it does not transfer facts.
+
+A second axis, independent of the archetype, separates a `single-broker` subject from a
+`multi-broker-platform` one sitting many independent brokers behind the same software. IBKR is
+`single-broker` and MetaTrader 5 is `multi-broker-platform`, and a fact measured on one broker is not
+even guaranteed to hold for the next broker on the same platform.
 
 ## Evidence
 
-Claims about venue behaviour are ranked on a six-rank ladder, from your own probe transcript down to a
-search-engine or AI summary that is not evidence at any strength, and every claim in a repository
-carries one of three provenance tags: `MEASURED`, `DOCUMENTED` or `ASSUMED`.
+Claims about venue behaviour are ranked on an evidence ladder, from your own probe transcript down to
+a search-engine or AI summary that is not evidence at any strength. The ladder has **six ranks**, and
+every claim about broker behaviour in a repository carries one of three provenance tags: `MEASURED`,
+`DOCUMENTED` or `ASSUMED`.
 
 ## Reference materials
 

@@ -77,6 +77,15 @@ PLUGINS = Path("plugins")
 FORBIDDEN_EDGES = [
     ("codebase-xray", "senior-review",
      "reintroduces the dependency cycle removed in marketplace 16.0.0"),
+    # trading-broker-connectivity is read by broker plugins that do not know
+    # about each other; an edge back into one vendor would put every broker
+    # plugin's install at risk of pulling in every other one through the
+    # single thing they all share. A future broker plugin needs its own
+    # entry here too.
+    ("trading-broker-connectivity", "ibkr-trading",
+     "the generic plugin must never dispatch into a broker plugin"),
+    ("trading-broker-connectivity", "mt5-trading",
+     "the generic plugin must never dispatch into a broker plugin"),
 ]
 
 # Suppressions for pass 2, keyed (relative posix path, namespace). Add an
