@@ -2,8 +2,9 @@
 name: trading-broker-connectivity
 description: >
   Vendor-neutral vocabulary for programmatic broker integration: the five access archetypes, the
-  reference order state machine, session and recovery, and the evidence ladder that decides what a
-  claim about a venue is worth.
+  second axis separating a single broker from a multi-broker platform, the reference order state
+  machine, session and recovery, and the evidence ladder that decides what a claim about a venue is
+  worth.
   TRIGGER WHEN: comparing brokers or integration paths, starting an integration against a broker with
   no dedicated plugin, or naming what kind of access path a system uses.
   DO NOT TRIGGER WHEN: the question is about one specific broker that has its own plugin, or about
@@ -33,7 +34,10 @@ access path, and they recur across brokers that share nothing else.
 
 Name the archetype before designing anything. It decides what must run, what dies with what, and which
 recovery story is available to you. Interactive Brokers and MetaTrader 5 are both `local-terminal`,
-which is why their operational problems are the same problems.
+which is why their operational problems are the same problems. Sharing an archetype transfers
+operational lessons; it does not transfer facts. IBKR is `single-broker` and MetaTrader 5 is
+`multi-broker-platform`, and a fact measured on one broker is not even guaranteed to hold for the next
+broker on the same platform.
 
 ## Evidence
 
@@ -44,7 +48,8 @@ carries one of three provenance tags: `MEASURED`, `DOCUMENTED` or `ASSUMED`.
 ## Reference materials
 
 - `access-archetypes.md`: the five archetypes, what changes between them (session state, blast radius,
-  what you must keep alive, the failure surface each adds), and where the two integrated brokers sit
+  what you must keep alive, the failure surface each adds), the second axis separating a single
+  broker from a multi-broker platform, and where the two integrated brokers sit on both
 - `order-lifecycle-reference-model.md`: the reference state machine keyed on who has acknowledged what,
   the three layers that can refuse an order, the three identifiers and what survives a cancel or a
   replace, what a successful place call proves, and how to map a vendor's vocabulary onto this one

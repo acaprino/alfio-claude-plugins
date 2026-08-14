@@ -9,24 +9,28 @@ plugin (category `algotrading`) must contain to reach contract level `base`
 or `verified`. This linter covers the half of that contract that is a
 question about a directory listing, a marketplace entry, or a
 regular-expression match: the three declaration lines exist and name a real
-level, archetype and scope, a `multi-broker-platform` plugin carries a
-section naming what varies per broker, the required agent and command exist
-and are registered rather than merely present on disk, the skill's
-`references/` directory exists and holds at least one file, the four
-required sections exist under case-insensitive headings, the listed
-references and the references on disk agree, and (at `verified`) a
-registered verify command, a probe script, and an open-questions register
-all exist.
+level, one or more real archetypes (comma-separated), and a real scope, a
+`multi-broker-platform` plugin carries a section naming what varies per
+broker, the required agent and command exist and are registered rather than
+merely present on disk, the skill's `references/` directory exists and
+holds at least one file, the four required sections exist under
+case-insensitive headings, the listed references and the references on
+disk agree, and (at `verified`) a registered verify command, a probe
+script, and an open-questions register all exist.
 
 The rest of the contract is a question about meaning, and is not checked
 here:
 
+  - whether the declared scope or archetype is the true one: a plugin can
+    declare either token correctly formed and still be describing the
+    wrong subject, and nothing mechanical can tell
   - whether an order-state name is really the reference model's own, or a
     vendor mapping is both present and correct (Level base item 5)
-  - whether a `MEASURED` fact is honestly dated and attributed to the
-    instrument that produced it (Level verified item 3), and on a
-    `multi-broker-platform` plugin, whether it also names the one broker
-    the measurement was taken against
+  - whether a `MEASURED` fact is honestly dated and attributed to the full
+    shape `evidence-and-probes.md` names (Level verified item 3), and on a
+    `multi-broker-platform` plugin whether it also names the broker it was
+    measured against, or on a `single-broker` plugin the account entity
+    when that matters
   - whether an open question is genuinely paired with the experiment that
     would settle it, rather than a heading with an empty list under it
     (Level verified item 2)
@@ -83,7 +87,7 @@ PER_BROKER_HEADINGS = ("what varies per broker", "per-broker variation",
                        "what changes between brokers")
 
 LEVEL_RE = re.compile(r"^\*\*Contract level:\*\*\s*(\S+)\s*$", re.MULTILINE)
-ARCHETYPE_RE = re.compile(r"^\*\*Archetype:\*\*\s*(\S+)\s*$", re.MULTILINE)
+ARCHETYPE_RE = re.compile(r"^\*\*Archetype:\*\*\s*(.+?)\s*$", re.MULTILINE)
 SCOPE_RE = re.compile(r"^\*\*Scope:\*\*\s*(\S+)\s*$", re.MULTILINE)
 HEADING_RE = re.compile(r"^#{2,3}\s+(.+?)\s*$", re.MULTILINE)
 LISTED_REF_RE = re.compile(r"^[-*]\s+`([^`]+\.md)`", re.MULTILINE)
@@ -145,9 +149,12 @@ def check_plugin(root, name, entry, skill_path):
     archetype_match = ARCHETYPE_RE.search(text)
     if not archetype_match:
         out.append(f"{name}: no **Archetype:** line")
-    elif archetype_match.group(1) not in ARCHETYPES:
-        out.append(f"{name}: archetype {archetype_match.group(1)!r} is not one of "
-                   f"{sorted(ARCHETYPES)}")
+    else:
+        tokens = [t.strip() for t in archetype_match.group(1).split(",")]
+        bad = [t for t in tokens if t not in ARCHETYPES]
+        if bad:
+            out.append(f"{name}: archetype {', '.join(bad)!r} is not one of "
+                       f"{sorted(ARCHETYPES)}")
 
     out.extend(check_scope(name, text, skill_path))
 

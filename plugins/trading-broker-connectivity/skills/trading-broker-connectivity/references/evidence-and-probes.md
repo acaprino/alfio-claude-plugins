@@ -72,8 +72,14 @@ A probe is an experiment, and the discipline is the same as any other experiment
    the size of the verdict window and the interference of local configuration. Place it so it cannot
    trade, read every channel, cancel, and confirm the cancel landed.
 4. **Change one variable at a time, and record the shape.** Instrument class, order type, time in
-   force, attributes, account type, archetype, component version, client library version. A transcript
-   that does not name its shape cannot be reused and cannot be reproduced.
+   force, attributes, account type, archetype, component version, client library version, broker, and
+   account entity. A transcript that does not name its shape cannot be reused and cannot be reproduced.
+   Broker and entity are the two that are easiest to leave out because they are easiest to take for
+   granted. Broker is load-bearing whenever more than one broker can produce the transcript, which for
+   an access path whose scope is `multi-broker-platform` is every time: a shape measured against one
+   broker on that platform is not evidence about the next. Entity is load-bearing whenever the broker's
+   own rules can differ by account entity or entitlement, which happens even on a `single-broker` path
+   and is why naming the broker alone does not always finish the job.
 5. **Identify the rejector when a local component is in the path.** Under `local-terminal` and
    `bridge`, re-run the probe with the component's configuration changed reversibly, then change it
    back. If the answer moves, the rejector is local rather than the broker. Never ship a dependency on

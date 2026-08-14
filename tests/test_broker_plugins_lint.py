@@ -233,6 +233,19 @@ class ContractLinter(unittest.TestCase):
             result = run(Path(tmp))
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    def test_two_archetypes_pass(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            build(Path(tmp), archetype="local-terminal, direct-api")
+            result = run(Path(tmp))
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_archetype_list_with_bad_token_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            build(Path(tmp), archetype="local-terminal, socket-thing")
+            result = run(Path(tmp))
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("socket-thing", result.stdout + result.stderr)
+
     def test_section_heading_case_is_ignored(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = build(Path(tmp))
