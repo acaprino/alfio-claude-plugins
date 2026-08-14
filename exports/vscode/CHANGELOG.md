@@ -1,5 +1,12 @@
 # Changelog
 
+## 24.0.0
+
+- Three bundles collapse into one. `ibkr-trading`, `mt5-trading` and `trading-broker-connectivity` are gone; anyone who had them installed per-project or is searching for those names should look for `trading-broker-integration` 2.0.0, which now carries all three. Interactive Brokers coverage is the `ibkr` skill, MetaTrader 5 coverage is the `mt5` skill, and the vendor-neutral vocabulary that used to be its own bundle is the `broker-vocabulary` skill, all inside the one bundle alongside the `ibkr-architect` and `mt5-architect` agents and the `/ibkr-audit`, `/ibkr-verify` and `/mt5-audit` prompts. The reason for undoing the split: the durable unit of broker knowledge turned out to be the platform a system talks to, not the vendor selling it.
+- The two-level conformance contract that sat behind the three separate bundles (`base` versus `verified`, declared as `Contract level` / `Archetype` / `Scope` lines under each skill's title since 23.0.0) is retired along with the split. `broker-vocabulary/SKILL.md` gains an "Adding a vendor skill" section carrying forward the one piece of it a human author still needs when porting a new broker in: the four-section shape the two existing vendor skills already use, and the rule to state provenance on any claim that matters.
+- Content is otherwise a pure move. Nothing in `ibkr`, `mt5` or `broker-vocabulary` changed beyond what the move itself required: `/trading-broker-integration:ibkr-audit`-style qualified command references collapse to `/ibkr-audit` now that the three skills share a bundle, and `$SKILLS/ibkr-trading/...` paths become `$SKILLS/ibkr/...`.
+- Totals: 93 agents, 71 skills, 52 prompts, 38 bundles.
+
 ## 23.0.1
 
 - `mt5-trading` 1.2.1: the REJECTED retcode table stops conflating three refusal layers under one "broker validation" label. Retcode 10027 (autotrading disabled, a terminal-side refusal) and 10024 (too many requests, a transport-layer rate limit) now each get their own row naming the layer they actually belong to, instead of both reading as validation from the broker.

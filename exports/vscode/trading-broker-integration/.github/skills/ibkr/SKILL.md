@@ -1,30 +1,26 @@
 ---
-name: ibkr-trading
+name: ibkr
 description: >
   Authoritative reference for Interactive Brokers integration in Python, across every asset class,
   with tooling to verify venue behaviour against a paper Gateway instead of guessing.
   Use when building, auditing or debugging anything that talks to TWS or IB Gateway via the
   TWS API and ib_async: contracts, market data, orders, brackets, error codes, reconnection,
-  deployment, or a question about how IBKR actually behaves. Not for MetaTrader 5 work, which the
-  `mt5-trading` bundle covers, or the IBKR Web API with no TWS connection.
+  deployment, or a question about how IBKR actually behaves. Not for MetaTrader 5, which mt5 covers,
+  or the IBKR Web API with no TWS connection.
 user-invocable: true
 license: MIT
 metadata:
   author: Alfio Caprino
   source: acaprino/claude-code-daodan
-  upstream-plugin: ibkr-trading
+  upstream-plugin: trading-broker-integration
 ---
 
-<!-- Vendored from plugins/ibkr-trading/skills/ibkr-trading/SKILL.md in acaprino/claude-code-daodan, MIT. -->
+<!-- Vendored from plugins/trading-broker-integration/skills/ibkr/SKILL.md in acaprino/claude-code-daodan, MIT. -->
 
 # Interactive Brokers Integration
 
 Reference for building, operating and debugging systems that trade through the Interactive Brokers TWS
 API with `ib_async` in Python. Covers equities, options, futures, FX, CFDs and crypto.
-
-**Contract level:** verified
-**Archetype:** local-terminal
-**Scope:** single-broker
 
 ## The one rule this skill is organised around
 
@@ -59,7 +55,7 @@ So the order of resort, for any question, is:
 7. **Resilience**: `disconnectedEvent` plus jittered backoff, gated on an active probe rather than on
    `isConnected()`.
 8. **Verify**: `scripts/ibkr_gateway.py` provisions a paper Gateway; `scripts/ibkr_probe.py` measures
-   what it does (both under this skill's `scripts/` directory).
+   what it does.
 
 ## Reference materials
 
@@ -115,7 +111,7 @@ So the order of resort, for any question, is:
 `$SKILLS` is the installed skills directory: the first of `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/` that exists.
 
 ```bash
-S=$SKILLS/ibkr-trading/scripts
+S=$SKILLS/ibkr/scripts
 
 python $S/ibkr_gateway.py doctor              # what is installed, which ports are open
 python $S/ibkr_gateway.py install             # download and install Gateway + IBC, unattended

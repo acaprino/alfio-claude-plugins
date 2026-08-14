@@ -245,9 +245,6 @@
         "path": "./grabber-development/.github/agents/stealth-browser-expert.agent.md"
       },
       {
-        "path": "./ibkr-trading/.github/agents/ibkr-architect.agent.md"
-      },
-      {
         "path": "./libgdx-development/.github/agents/libgdx-architect.agent.md"
       },
       {
@@ -255,9 +252,6 @@
       },
       {
         "path": "./messaging/.github/agents/rabbitmq-expert.agent.md"
-      },
-      {
-        "path": "./mt5-trading/.github/agents/mt5-architect.agent.md"
       },
       {
         "path": "./opentelemetry/.github/agents/otel-architect.agent.md"
@@ -341,6 +335,12 @@
         "path": "./text-humanizer/.github/agents/text-humanizer.agent.md"
       },
       {
+        "path": "./trading-broker-integration/.github/agents/ibkr-architect.agent.md"
+      },
+      {
+        "path": "./trading-broker-integration/.github/agents/mt5-architect.agent.md"
+      },
+      {
         "path": "./typescript-development/.github/agents/type-safety-auditor.agent.md"
       },
       {
@@ -409,12 +409,6 @@
         "path": "./frontend-review/.github/prompts/review-frontend.prompt.md"
       },
       {
-        "path": "./ibkr-trading/.github/prompts/ibkr-audit.prompt.md"
-      },
-      {
-        "path": "./ibkr-trading/.github/prompts/ibkr-verify.prompt.md"
-      },
-      {
         "path": "./learning/.github/prompts/export-to-markmind.prompt.md"
       },
       {
@@ -431,9 +425,6 @@
       },
       {
         "path": "./marketplace-ops/.github/prompts/skills-validate.prompt.md"
-      },
-      {
-        "path": "./mt5-trading/.github/prompts/mt5-audit.prompt.md"
       },
       {
         "path": "./opentelemetry/.github/prompts/otel-audit.prompt.md"
@@ -494,6 +485,15 @@
       },
       {
         "path": "./text-humanizer/.github/prompts/humanize-text.prompt.md"
+      },
+      {
+        "path": "./trading-broker-integration/.github/prompts/ibkr-audit.prompt.md"
+      },
+      {
+        "path": "./trading-broker-integration/.github/prompts/ibkr-verify.prompt.md"
+      },
+      {
+        "path": "./trading-broker-integration/.github/prompts/mt5-audit.prompt.md"
       },
       {
         "path": "./typescript-development/.github/prompts/review-typescript.prompt.md"

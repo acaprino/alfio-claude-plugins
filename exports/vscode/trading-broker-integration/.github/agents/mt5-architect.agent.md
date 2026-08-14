@@ -25,7 +25,7 @@ tools:
 agents: []
 ---
 
-<!-- Vendored from plugins/mt5-trading/agents/mt5-architect.md in acaprino/claude-code-daodan, MIT. -->
+<!-- Vendored from plugins/trading-broker-integration/agents/mt5-architect.md in acaprino/claude-code-daodan, MIT. -->
 
 # Expert MT5 Python Algotrading Architect
 
@@ -273,4 +273,4 @@ def run_bot(symbols, timeframe, poll_interval=1.0):
 
 - **async-python-patterns** (in the `python-development` bundle) - asyncio patterns for aiomql integration
 - **python-engineer** (in the `python-development` bundle) - Python architecture for trading system structure
-- **ibkr-trading** - comparison and multi-broker architecture decisions
+- **ibkr** - comparison and multi-broker architecture decisions

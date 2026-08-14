@@ -1,5 +1,5 @@
 ---
-name: trading-broker-connectivity
+name: broker-vocabulary
 description: >
   Vendor-neutral vocabulary for programmatic broker integration: the five access archetypes, the
   second axis separating a single broker from a multi-broker platform, the reference order state
@@ -13,7 +13,7 @@ license: MIT
 metadata:
   author: Alfio Caprino
   source: acaprino/claude-code-daodan
-  upstream-plugin: trading-broker-connectivity
+  upstream-plugin: trading-broker-integration
 ---
 
 # Broker Connectivity
@@ -69,3 +69,21 @@ every claim about broker behaviour in a repository carries one of three provenan
   loop, the connection flag that lies, reconciling ground truth after a gap, and what must be persisted
 - `evidence-and-probes.md`: the evidence ladder, the provenance tags, how to design a probe that
   answers something, and the question classes a demo environment cannot settle
+
+## Adding a vendor skill
+
+A new vendor skill in this bundle (alongside `ibkr` and `mt5`) earns its place by using this
+vocabulary rather than reinventing one. It should carry four sections, in the shape the two
+existing vendor skills already use: **Quick start** (the handful of decisions that get someone
+running today), **Key decision points** (default versus when to deviate, as a table), **Symptoms
+to entry points** (a table from what a user is seeing to the reference file that explains it),
+and **Reference materials** (what each reference file covers, so a reader can pick the right one
+without opening several).
+
+Two things carry across every vendor skill regardless of section structure. First, state
+provenance on any fact that matters: whether it was measured against a real account, read and
+quoted from documentation, or assumed. An unmarked claim reads as more certain than it is, and
+the reader has no way to tell a fact worth trusting from one worth re-checking. Second, map the
+vendor's own order-state and order-type vocabulary onto `order-lifecycle-reference-model.md`'s
+names, explicitly, rather than silently writing in the vendor's words and leaving the reader to
+translate. `ibkr` and `mt5` both carry a table doing exactly this; follow their shape.

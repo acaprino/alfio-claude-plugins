@@ -55,7 +55,7 @@ SKIP_BUNDLES = {"_pipelines"}
 # vendoring header the port adds. Copying over one would silently un-port it.
 ADAPTED_REFERENCES = {
     "browser-extensions/firefox-extension-dev/references/mdn-api-urls.md",
-    "ibkr-trading/ibkr-trading/references/gateway-verification.md",
+    "trading-broker-integration/ibkr/references/gateway-verification.md",
     "digital-marketing/ga4-implementation/references/diagnostics-troubleshooting.md",
     "pwa-expert/pwa-development/references/production-checklist.md",
     "testing/test-hygiene/references/prevention-rules.md",

@@ -1,15 +1,15 @@
 # Gateway Verification
 
-Provisioning a disposable paper Gateway and using it to answer questions instead of guessing.
-
 `$SKILLS` is the installed skills directory: the first of `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/` that exists.
+
+Provisioning a disposable paper Gateway and using it to answer questions instead of guessing.
 
 Two scripts ship with this skill:
 
-- **`$SKILLS/ibkr-trading/scripts/ibkr_gateway.py`** downloads, installs,
+- **`$SKILLS/ibkr/scripts/ibkr_gateway.py`** downloads, installs,
   configures, starts and stops an IB Gateway pinned to paper trading. Standard library only, so it runs
   before anything else is installed.
-- **`$SKILLS/ibkr-trading/scripts/ibkr_probe.py`** connects to it and measures
+- **`$SKILLS/ibkr/scripts/ibkr_probe.py`** connects to it and measures
   venue behaviour: capability dumps, order-shape verdicts, compatibility matrices, bracket lifecycle
   transcripts, and message-code lookups. Requires `ib_async`.
 
@@ -34,7 +34,7 @@ deployment tooling, where it can be reviewed.
 ## Provisioning
 
 ```bash
-S=$SKILLS/ibkr-trading/scripts
+S=$SKILLS/ibkr/scripts
 
 python $S/ibkr_gateway.py doctor                       # what is present, which ports are open
 python $S/ibkr_gateway.py install --channel stable     # download + unattended install of Gateway and IBC

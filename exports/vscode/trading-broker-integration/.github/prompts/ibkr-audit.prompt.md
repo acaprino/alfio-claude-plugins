@@ -1,15 +1,15 @@
 ---
-description: Report reliability and production-readiness defects, plus the venue assumptions nobody checked. Use when the user asks to review, audit, or validate an IB or TWS trading system: contracts, orders, brackets, pacing, error handling, reconnection, deployment. Not for building from scratch, which the ibkr-architect agent covers, a single behaviour question, which /ibkr-verify covers, or MetaTrader 5, which /mt5-audit in the `mt5-trading` bundle covers.
+description: Report reliability and production-readiness defects, plus the venue assumptions nobody checked. Use when the user asks to review, audit, or validate an IB or TWS trading system: contracts, orders, brackets, pacing, error handling, reconnection, deployment. Not for building from scratch, which the ibkr-architect agent covers, a single behaviour question, which /ibkr-verify covers, or MetaTrader 5, which /mt5-audit covers.
 argument-hint: [path-or-description]
 ---
 
-<!-- Vendored from plugins/ibkr-trading/commands/ibkr-audit.md in acaprino/claude-code-daodan, MIT. -->
+<!-- Vendored from plugins/trading-broker-integration/commands/ibkr-audit.md in acaprino/claude-code-daodan, MIT. -->
 
 # IB Trading System Audit
 
 Analyse an existing IB trading system and produce an actionable audit report.
 
-Load the `ibkr-trading` skill first ($SKILLS/ibkr-trading; `$SKILLS` is the installed skills directory: the first of `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/` that exists).
+Load the `ibkr` skill first ($SKILLS/ibkr; `$SKILLS` is the installed skills directory: the first of `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/` that exists).
 
 ## Scoping
 

@@ -1,26 +1,22 @@
 ---
-name: mt5-trading
+name: mt5
 description: >
   Knowledge base for the official API, its polling model, and Windows-side production concerns.
   Use when building, implementing, writing, coding, creating, optimizing, or debugging MT5 or
   MetaTrader 5 trading systems with Python, including the aiomql and ZeroMQ bridge alternatives.
-  Not for Interactive Brokers work, which the `ibkr-trading` bundle covers, or for strategy design
-  rather than the terminal and its API.
+  Not for Interactive Brokers work, which ibkr covers, or for strategy design rather than the
+  terminal and its API.
 user-invocable: true
 license: MIT
 metadata:
   author: Alfio Caprino
   source: acaprino/claude-code-daodan
-  upstream-plugin: mt5-trading
+  upstream-plugin: trading-broker-integration
 ---
 
 # MetaTrader 5 Python Algotrading
 
 Knowledge base for building production-grade algorithmic trading systems with MetaTrader 5 Python API.
-
-**Contract level:** base
-**Archetype:** local-terminal
-**Scope:** multi-broker-platform
 
 ## What varies per broker
 

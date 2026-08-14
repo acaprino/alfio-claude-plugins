@@ -5,7 +5,7 @@ description: >
   resilience and deployment, across equities, options, futures, FX, CFDs and crypto.
   Use when building or debugging anything on the TWS API with ib_async, or answering a question
   about how IBKR behaves. Not for auditing an existing system end to end, which /ibkr-audit covers,
-  MetaTrader 5 work, which the `mt5-trading` bundle covers, or broker-agnostic strategy logic.
+  MetaTrader 5 work, which mt5 covers, or broker-agnostic strategy logic.
 user-invocable: true
 tools:
   - read/readFile
@@ -25,12 +25,12 @@ tools:
 agents: []
 ---
 
-<!-- Vendored from plugins/ibkr-trading/agents/ibkr-architect.md in acaprino/claude-code-daodan, MIT. -->
+<!-- Vendored from plugins/trading-broker-integration/agents/ibkr-architect.md in acaprino/claude-code-daodan, MIT. -->
 
 # IBKR Integration Architect
 
-Expert on Interactive Brokers systems built with the TWS API and `ib_async`. The `ibkr-trading`
-skill holds the full references; this agent holds the operating discipline and the facts that
+Expert on Interactive Brokers systems built with the TWS API and `ib_async`. The skill
+`ibkr` holds the full references; this agent holds the operating discipline and the facts that
 change how a design is made.
 
 ## The discipline: never assert what you can resolve
@@ -62,7 +62,7 @@ re-checked after connecting.
 `$SKILLS` is the installed skills directory: the first of `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/` that exists.
 
 ```bash
-S=$SKILLS/ibkr-trading/scripts
+S=$SKILLS/ibkr/scripts
 python $S/ibkr_gateway.py doctor
 python $S/ibkr_gateway.py install
 python $S/ibkr_gateway.py configure --user U   # then: start / stop
@@ -73,7 +73,7 @@ python $S/ibkr_probe.py bracket --stock AAPL        # lifecycle + TIF read-back
 python $S/ibkr_probe.py codes 10256 10257 10349     # no gateway needed
 ```
 
-`$SKILLS/ibkr-trading/assets/tws-message-codes.tsv` holds all 458 published codes with the grade `ib_async` gives each.
+`$SKILLS/ibkr/assets/tws-message-codes.tsv` holds all 458 published codes with the grade `ib_async` gives each.
 
 ## Core knowledge
 

@@ -3,7 +3,7 @@ description: Answer a question about IBKR behaviour with evidence instead of a g
 argument-hint: [question, code, or contract]
 ---
 
-<!-- Vendored from plugins/ibkr-trading/commands/ibkr-verify.md in acaprino/claude-code-daodan, MIT. -->
+<!-- Vendored from plugins/trading-broker-integration/commands/ibkr-verify.md in acaprino/claude-code-daodan, MIT. -->
 
 # IBKR Behaviour Verification
 
@@ -11,7 +11,7 @@ Resolve a question about how Interactive Brokers behaves, and report the answer 
 
 `$SKILLS` is the installed skills directory: the first of `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/` that exists.
 
-Load the `ibkr-trading` skill from `$SKILLS/ibkr-trading`, then follow the ladder below **in order**, stopping at the first rung
+Load the `ibkr` skill from `$SKILLS/ibkr`, then follow the ladder below **in order**, stopping at the first rung
 that produces a real answer. Say which rung you stopped at. Never skip a cheaper rung to reach for a
 more impressive one.
 
@@ -20,7 +20,7 @@ more impressive one.
 If the question is about a message code, answer immediately, with no gateway:
 
 ```bash
-python $SKILLS/ibkr-trading/scripts/ibkr_probe.py codes <code> [<code> ...]
+python $SKILLS/ibkr/scripts/ibkr_probe.py codes <code> [<code> ...]
 ```
 
 Report the grade `ib_async` assigns it, and the consequence. The tool grades by ib_async's rule, not
@@ -38,7 +38,7 @@ Most "does IBKR support X" questions are answered by `ContractDetails.orderTypes
 question. This is free and definitive in the negative direction.
 
 ```bash
-python $SKILLS/ibkr-trading/scripts/ibkr_probe.py capabilities --stock AAPL
+python $SKILLS/ibkr/scripts/ibkr_probe.py capabilities --stock AAPL
 ```
 
 Requires a running paper Gateway (see Rung 3 setup). Report:
@@ -77,7 +77,7 @@ When the documentation is silent or the token is present but the order is still 
 Set up a disposable paper Gateway if one is not running:
 
 ```bash
-S=$SKILLS/ibkr-trading/scripts
+S=$SKILLS/ibkr/scripts
 python $S/ibkr_gateway.py doctor
 python $S/ibkr_gateway.py install
 python $S/ibkr_gateway.py configure --user <paper-username>   # export IB_PASSWORD first

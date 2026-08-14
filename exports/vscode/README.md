@@ -1,8 +1,8 @@
 # Claude Code Daodan for GitHub Copilot
 
-A VS Code Copilot port of [acaprino/claude-code-daodan](https://github.com/acaprino/claude-code-daodan): **93 agents, 71 skills and 51 prompts**, shipped as one extension. Install it once and every project you open has them. You never copy a `.github/` directory into a repository.
+A VS Code Copilot port of [acaprino/claude-code-daodan](https://github.com/acaprino/claude-code-daodan): **93 agents, 71 skills and 52 prompts**, shipped as one extension. Install it once and every project you open has them. You never copy a `.github/` directory into a repository.
 
-This directory is both the extension source and the catalog documentation. The 40 bundles below are how the content is organized on disk, not 40 separate installs.
+This directory is both the extension source and the catalog documentation. The 38 bundles below are how the content is organized on disk, not 38 separate installs.
 
 ## Install
 
@@ -72,13 +72,11 @@ For a monorepo where the bundle lives at the repository root but you open a subf
 | `docs` | `readme-craft`, `/maintain-readme` | 1 / 0 / 1 | |
 | `frontend-review` | `/review-frontend` | 0 / 1 / 1 | `react-development`, `typescript-development`, `pwa-expert` and `platform-engineering` bundles (optional), design skills copied by hand (optional) |
 | `grabber-development` | `grabber-architect` + 3 specialists | 1 / 4 / 0 | **playwright-mcp** |
-| `ibkr-trading` | `/ibkr-audit` | 1 / 1 / 1 | |
 | `kotlin-development` | `kotlin-specialist` | 1 / 0 / 0 | |
 | `learning` | `/export-to-markmind` | 3 / 0 / 1 | python |
 | `libgdx-development` | `/libgdx-audit` | 1 / 1 / 1 | |
 | `marketplace-ops` | `/marketplace-health`, `/marketplace-review`, `/marketplace-scaffold-plugin`, `/skills-validate` | 2 / 1 / 4 | python |
 | `messaging` | `rabbitmq-expert` | 0 / 1 / 0 | |
-| `mt5-trading` | `/mt5-audit` | 1 / 1 / 1 | |
 | `obsidian-development` | `obsidian-scaffold`, `obsidian-check` | 3 / 0 / 0 | |
 | `opentelemetry` | `/otel-audit` | 1 / 1 / 1 | |
 | `peer-review` | `/review` | 1 / 3 / 1 | **MCP** (bundled `peer-review` server, see [bundle README](peer-review/README.md)), uv, python 3.11+, an OpenAI-compatible API key |
@@ -95,7 +93,7 @@ For a monorepo where the bundle lives at the repository root but you open a subf
 | `tauri-development` | `tauri-desktop`, `tauri-mobile`, `rust-engineer` | 1 / 3 / 0 | |
 | `testing` | `/test-audit`, `/test-consolidate`, `test-writer`, `test-suite-auditor` | 1 / 2 / 2 | |
 | `text-humanizer` | `/humanize-text` | 1 / 1 / 1 | |
-| `trading-broker-connectivity` | `trading-broker-connectivity` | 1 / 0 / 0 | |
+| `trading-broker-integration` | `/ibkr-audit`, `/ibkr-verify`, `/mt5-audit` | 3 / 2 / 3 | |
 | `typescript-development` | `/review-typescript`, `typescript-engineer` | 4 / 2 / 1 | |
 | `xterm` | `/xterm-debug`, `/xterm-implement` | 1 / 0 / 2 | |
 
