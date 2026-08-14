@@ -282,3 +282,62 @@ a silent divergence, which is the outcome the anchor exists to produce.
    `lint_fact_anchors.py`?** Both could hold it. Current answer: the linter validates that a
    declaration is one of the five names, the anchors validate that the five names say the same thing
    everywhere. They check different failures and both stay.
+
+## Raised after the phase shipped, and open
+
+The phase was reviewed eight times, then twice more against the finished artifacts with a mandate to
+attack the design rather than verify conformance. The second pass found five things that are not
+defects in the implementation but limits in what was designed. They are recorded here because they
+must be decided before a third broker plugin is written against this contract, and because the
+workspace that held the review is gone.
+
+**A. Three provenance tags cannot express six ladder ranks, and the corpus has already improvised
+around it twice.** Ranks 3, 4 and 5 (a written vendor-support answer the ladder calls Strong, a read
+of a client library's source, a forum post the ladder says is never a basis for a design decision)
+all collapse onto `ASSUMED`, alongside an unexamined guess. "Silence is a finding" has no tag at all.
+Both improvisations are in the plugin the vocabulary was extracted from:
+`ibkr-trading`'s `venue-questions-and-probes.md` writes `DOCUMENTED (support-stated)`, inventing a
+qualifier for a rank-3 fact filed under the rank-2 tag, and `commands/ibkr-verify.md` declares
+`MEASURED`, `DOCUMENTED` or `UNRESOLVED`, inventing a fourth value and dropping `ASSUMED`. One plugin,
+two different four-value sets, against a vocabulary that states three. The options are a fourth tag,
+an explicit rank-to-tag mapping, or accepting the collapse and saying so.
+
+**B. Level `verified` is structurally unreachable for two of the five archetypes.** The linter
+requires a probe script matching `*probe*.py`. An `in-platform` plugin probes in the platform's own
+language (MQL5, NinjaScript, Pine), and a `direct-api` plugin for a TypeScript-first broker SDK
+probes in TypeScript. Either can keep transcripts, refuse production structurally and do the work in
+full, and neither can be graded above `base`. The contract's own item text says "probe scripts" with
+no language; the `.py` restriction appears only in the disclosure list, where it reads as a note
+about rigor rather than a gate on eligibility.
+
+**C. A FIX-engine plugin fits neither scope value, and it is the most likely third subject.** Its
+brokers do not run instances of the subject, so it is not `multi-broker-platform`, and it is not one
+broker, so it is not `single-broker`. The aggregator carve-out does not catch it either, since that
+is written for libraries wrapping independent APIs into a vocabulary of their own invention, and
+FIX's vocabulary is nobody's invention. The reference order-lifecycle model is itself derived from
+FIX, so the vocabulary's own foundation names an access path its scope axis cannot classify.
+
+**D. The contract states three times, in two files, who is bound by it, and CI settles it a fourth
+way.** The contract says a plugin registered under category `algotrading` must declare a level, and
+fourteen lines later says category membership alone does not commit a plugin to this shape and that
+a future non-broker-integration plugin in that category is not decided here. The linter decides it:
+any `algotrading` plugin carrying no declaration fails. A future backtesting or market-data plugin in
+that category must either fail CI or accept a `<broker>-architect`, a `<broker>-audit`, four required
+sections and an archetype token. Separately, the enforcement runs one way only: a plugin that
+declares a level while sitting in another category passes untouched, so a broker plugin leaves the
+contract by recategorising and deleting three lines.
+
+**E. `verified` item 3 currently governs no facts.** `ibkr-trading` carries `**Contract level:**
+verified` and contains no fact tagged `MEASURED`; its real convention is prose, "Measured 2026-08-13:
+...". The linter does not search for the tag, so the rule binds nothing. Sharper than vacuous: both
+dated measurements were taken on an FX CFD and a US stock, CFD availability is entity-determined and
+the plugin states that itself elsewhere, and neither measurement names the entity, the component
+version or the client-library version. The subsection this phase added to require exactly that is not
+met by the only `single-broker` plugin at `verified`.
+
+Two further observations from the same pass, smaller but of the same kind. The ten reference order
+states have no acknowledger for the local terminal, so an order staged in TWS with `transmit=False`
+maps to `VALIDATED`, which asserts the broker checked it and implies a durability the parked order
+does not have. And there is no route from a plugin's discovered gap back into the shared vocabulary:
+`mt5-trading` documented that a requote is neither a rejection nor a cancellation, the model is
+unchanged, and the next plugin will re-derive it.
