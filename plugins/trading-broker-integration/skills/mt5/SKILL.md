@@ -1,19 +1,15 @@
 ---
-name: mt5-trading
+name: mt5
 description: >
   Knowledge base for the official API, its polling model, and Windows-side production concerns.
   TRIGGER WHEN: building, implementing, writing, coding, creating, optimizing, or debugging MT5 or MetaTrader 5 trading systems with Python, including the aiomql and ZeroMQ bridge alternatives.
-  DO NOT TRIGGER WHEN: the broker is Interactive Brokers (use ibkr-trading), or the question is about
+  DO NOT TRIGGER WHEN: the broker is Interactive Brokers (use ibkr), or the question is about
   strategy design rather than the terminal and its API.
 ---
 
 # MetaTrader 5 Python Algotrading
 
 Knowledge base for building production-grade algorithmic trading systems with MetaTrader 5 Python API.
-
-**Contract level:** base
-**Archetype:** local-terminal
-**Scope:** multi-broker-platform
 
 ## What varies per broker
 

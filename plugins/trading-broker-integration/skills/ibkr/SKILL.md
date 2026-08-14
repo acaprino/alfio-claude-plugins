@@ -1,22 +1,18 @@
 ---
-name: ibkr-trading
+name: ibkr
 description: >
   Authoritative reference for Interactive Brokers integration in Python, across every asset class,
   with tooling to verify venue behaviour against a paper Gateway instead of guessing.
   TRIGGER WHEN: building, auditing or debugging anything that talks to TWS or IB Gateway via the
   TWS API and ib_async: contracts, market data, orders, brackets, error codes, reconnection,
   deployment, or a question about how IBKR actually behaves.
-  DO NOT TRIGGER WHEN: MetaTrader 5 (use mt5-trading), or the IBKR Web API with no TWS connection.
+  DO NOT TRIGGER WHEN: MetaTrader 5 (use mt5), or the IBKR Web API with no TWS connection.
 ---
 
 # Interactive Brokers Integration
 
 Reference for building, operating and debugging systems that trade through the Interactive Brokers TWS
 API with `ib_async` in Python. Covers equities, options, futures, FX, CFDs and crypto.
-
-**Contract level:** verified
-**Archetype:** local-terminal
-**Scope:** single-broker
 
 ## The one rule this skill is organised around
 
@@ -105,7 +101,7 @@ So the order of resort, for any question, is:
 ## Tooling
 
 ```bash
-S=${CLAUDE_PLUGIN_ROOT}/skills/ibkr-trading/scripts
+S=${CLAUDE_PLUGIN_ROOT}/skills/ibkr/scripts
 
 python $S/ibkr_gateway.py doctor              # what is installed, which ports are open
 python $S/ibkr_gateway.py install             # download and install Gateway + IBC, unattended

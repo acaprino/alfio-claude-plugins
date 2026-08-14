@@ -3,7 +3,7 @@ description: >
   Answer a question about IBKR behaviour with evidence instead of a guess.
   TRIGGER WHEN: the user asks whether IBKR supports something, why an order was refused, what a code
   means, or wants a claim about venue behaviour verified against a real gateway.
-  DO NOT TRIGGER WHEN: auditing a whole codebase (use /ibkr-trading:ibkr-audit), or designing a system
+  DO NOT TRIGGER WHEN: auditing a whole codebase (use /trading-broker-integration:ibkr-audit), or designing a system
   from scratch (use the ibkr-architect agent).
 argument-hint: "[question, code, or contract]"
 ---
@@ -12,7 +12,7 @@ argument-hint: "[question, code, or contract]"
 
 Resolve a question about how Interactive Brokers behaves, and report the answer with its provenance.
 
-Load the `ibkr-trading` skill, then follow the ladder below **in order**, stopping at the first rung
+Load the `ibkr` skill, then follow the ladder below **in order**, stopping at the first rung
 that produces a real answer. Say which rung you stopped at. Never skip a cheaper rung to reach for a
 more impressive one.
 
@@ -21,7 +21,7 @@ more impressive one.
 If the question is about a message code, answer immediately, with no gateway:
 
 ```bash
-python ${CLAUDE_PLUGIN_ROOT}/skills/ibkr-trading/scripts/ibkr_probe.py codes <code> [<code> ...]
+python ${CLAUDE_PLUGIN_ROOT}/skills/ibkr/scripts/ibkr_probe.py codes <code> [<code> ...]
 ```
 
 Report the grade `ib_async` assigns it, and the consequence. The tool grades by ib_async's rule, not
@@ -39,7 +39,7 @@ Most "does IBKR support X" questions are answered by `ContractDetails.orderTypes
 question. This is free and definitive in the negative direction.
 
 ```bash
-python ${CLAUDE_PLUGIN_ROOT}/skills/ibkr-trading/scripts/ibkr_probe.py capabilities --stock AAPL
+python ${CLAUDE_PLUGIN_ROOT}/skills/ibkr/scripts/ibkr_probe.py capabilities --stock AAPL
 ```
 
 Requires a running paper Gateway (see Rung 3 setup). Report:
@@ -78,7 +78,7 @@ When the documentation is silent or the token is present but the order is still 
 Set up a disposable paper Gateway if one is not running:
 
 ```bash
-S=${CLAUDE_PLUGIN_ROOT}/skills/ibkr-trading/scripts
+S=${CLAUDE_PLUGIN_ROOT}/skills/ibkr/scripts
 python $S/ibkr_gateway.py doctor
 python $S/ibkr_gateway.py install
 python $S/ibkr_gateway.py configure --user <paper-username>   # export IB_PASSWORD first

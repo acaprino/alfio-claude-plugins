@@ -70,7 +70,7 @@ IBKR's own definitions are worth reading as a ladder of *who has acknowledged wh
 
 IBKR's status meanings, and the quotes behind them, are the canonical order-state set in the section
 above this one; this table adds no new evidence about IBKR, only a correspondence.
-`trading-broker-connectivity`'s order-lifecycle reference model gives the same acknowledgement levels in
+`broker-vocabulary`'s order-lifecycle reference model gives the same acknowledgement levels in
 vendor-neutral terms, so a reader who knows one system can cross into the other. That correspondence
 between an IBKR status and a model state is this plugin's own reading, not something IBKR documents:
 IBKR has never heard of that vocabulary, so every row below is a conclusion this plugin draws, never a

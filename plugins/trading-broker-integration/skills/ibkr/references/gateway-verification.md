@@ -4,10 +4,10 @@ Provisioning a disposable paper Gateway and using it to answer questions instead
 
 Two scripts ship with this skill:
 
-- **`${CLAUDE_PLUGIN_ROOT}/skills/ibkr-trading/scripts/ibkr_gateway.py`** downloads, installs,
+- **`${CLAUDE_PLUGIN_ROOT}/skills/ibkr/scripts/ibkr_gateway.py`** downloads, installs,
   configures, starts and stops an IB Gateway pinned to paper trading. Standard library only, so it runs
   before anything else is installed.
-- **`${CLAUDE_PLUGIN_ROOT}/skills/ibkr-trading/scripts/ibkr_probe.py`** connects to it and measures
+- **`${CLAUDE_PLUGIN_ROOT}/skills/ibkr/scripts/ibkr_probe.py`** connects to it and measures
   venue behaviour: capability dumps, order-shape verdicts, compatibility matrices, bracket lifecycle
   transcripts, and message-code lookups. Requires `ib_async`.
 
@@ -32,7 +32,7 @@ deployment tooling, where it can be reviewed.
 ## Provisioning
 
 ```bash
-S=${CLAUDE_PLUGIN_ROOT}/skills/ibkr-trading/scripts
+S=${CLAUDE_PLUGIN_ROOT}/skills/ibkr/scripts
 
 python $S/ibkr_gateway.py doctor                       # what is present, which ports are open
 python $S/ibkr_gateway.py install --channel stable     # download + unattended install of Gateway and IBC

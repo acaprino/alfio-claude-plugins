@@ -4,7 +4,7 @@ description: >
   TRIGGER WHEN: the user asks to review, audit, or validate an IB or TWS trading system: contracts,
   orders, brackets, pacing, error handling, reconnection, deployment.
   DO NOT TRIGGER WHEN: building from scratch (use ibkr-architect), answering a single behaviour
-  question (use /ibkr-trading:ibkr-verify), or MetaTrader 5 (use /mt5-trading:mt5-audit).
+  question (use /trading-broker-integration:ibkr-verify), or MetaTrader 5 (use /trading-broker-integration:mt5-audit).
 argument-hint: "[path-or-description]"
 ---
 
@@ -12,7 +12,7 @@ argument-hint: "[path-or-description]"
 
 Analyse an existing IB trading system and produce an actionable audit report.
 
-Load the `ibkr-trading` skill first.
+Load the `ibkr` skill first.
 
 ## Scoping
 
@@ -253,7 +253,7 @@ Audits the silent-failure layer where canonical intent becomes IBKR contracts/or
    - **An unverified-assumptions register**: every belief about venue behaviour the code depends on
      that has no measurement and no quoted documentation behind it. For each, name the decision that
      rests on it and the cheapest experiment that settles it. Offer to run the applicable probes with
-     `/ibkr-trading:ibkr-verify`.
+     `/trading-broker-integration:ibkr-verify`.
 
 A finding that the code is correct but rests on an unchecked premise is a real finding. Report it as
 such rather than passing the check.
