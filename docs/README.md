@@ -36,6 +36,7 @@ The augmentation symbiote for Claude Code. Agents, skills, and commands for deve
 | [rag-development](plugins/rag-development.md) | ai-ml | RAG system design and audit - chunking, embeddings, Qdrant, advanced patterns | 2 agents, 1 skill, 1 command |
 | [react-development](plugins/react-development.md) | frontend | React 19 performance, state management, bundle optimization, Vercel best practices | 1 agent, 1 skill, 1 command |
 | [research](plugins/research.md) | research | Quick search (Sonnet) and deep multi-source research with shared web-search-techniques skill | 2 agents, 1 skill, 1 command |
+| [xquik](plugins/xquik.md) | research | Read-first X research and approval-gated automation through current Xquik MCP tools | 1 skill |
 | [senior-review](plugins/senior-review.md) | review | Multi-agent code review: architecture, security, patterns, distributed flows, logic integrity, API contracts, startup cycles, UI races, temporal resilience, data integrity, resource lifecycle, codebase hygiene | 11 agents, 2 skills, 3 commands |
 | [stripe](plugins/stripe.md) | payments | Stripe payments, subscriptions, Connect, revenue optimization, webhook auditing | 3 agents, 1 skill, 1 command |
 | [system-utils](plugins/system-utils.md) | utilities | File organization, duplicate detection, directory cleanup | 1 skill, 1 command |
