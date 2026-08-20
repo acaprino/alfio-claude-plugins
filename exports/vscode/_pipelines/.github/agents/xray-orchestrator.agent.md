@@ -1,7 +1,16 @@
 ---
 name: xray-orchestrator
-description: Runs the codebase X-ray pipeline. Auto-detects partitions (workspaces, dirs, language clusters), dispatches five worker subagents across two waves, consolidates into a 01..07.md report set, then maps contracts, invariants, and integration hot-spots into 08-interconnect-map.md. Concurrent-safe runs under .deep-dive/.
+description: Runs the codebase X-ray pipeline to produce ground-truth documentation of how the code actually works. Auto-detects partitions (workspaces, dirs, language clusters), dispatches five worker subagents across two waves, consolidates into a 01..07.md report set, then maps contracts, invariants, and integration hot-spots into 08-interconnect-map.md. Use when encountering unfamiliar code, before a major refactor, when documentation is stale, or before running a team review. Concurrent-safe runs under .deep-dive/.
 argument-hint: <target> [--critical] [--comments] [--depth=lite|full] [--docs-only] [--partition <path>] [--skip-interconnect] [--skip-synthesis] [--run-name <name>] [--yes]
+handoffs:
+  - label: Run a team review on this
+    agent: review-orchestrator
+    prompt: Run the multi-dimensional review pipeline on the target just X-rayed, reusing the context just built.
+    send: false
+  - label: Write the human-readable docs
+    agent: map-codebase-orchestrator
+    prompt: Generate the human-readable project documentation set for the target just analyzed.
+    send: false
 tools:
   - agent/runSubagent
   - read/readFile

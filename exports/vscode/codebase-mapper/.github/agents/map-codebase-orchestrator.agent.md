@@ -3,9 +3,19 @@ name: map-codebase-orchestrator
 description: >
   Drives the /map-codebase pipeline: explore the project, confirm its profile, optionally build an
   interconnect map, run six writers in parallel, then review and index the result. Owns the phase
-  order, the barriers between phases, and the degraded paths.
+  order, the barriers between phases, and the degraded paths. Use when the user wants human-readable
+  project documentation, an onboarding guide, or a written tour of an unfamiliar codebase.
 user-invocable: true
 argument-hint: [target-path]
+handoffs:
+  - label: Run a team review on this
+    agent: review-orchestrator
+    prompt: Run the multi-dimensional review pipeline on the codebase just documented.
+    send: false
+  - label: Run an X-ray analysis
+    agent: xray-orchestrator
+    prompt: Run a codebase X-ray analysis on the target just documented to capture contracts and integration hot-spots.
+    send: false
 tools:
   - read/readFile
   - search/codebase

@@ -1,7 +1,16 @@
 ---
 name: review-orchestrator
-description: Runs the multi-dimensional code review pipeline. Builds context with an X-ray pass plus an interconnect map, auto-detects which review dimensions the target warrants, dispatches specialized reviewers in parallel, consolidates and deduplicates findings, then runs an adversarial verification panel and a completeness critic before reporting.
+description: Runs the multi-dimensional code review pipeline on a whole codebase, large change, git diff range, or PR. Builds context with an X-ray pass plus an interconnect map, auto-detects which review dimensions the target warrants (security, architecture, logic integrity, UI races, distributed flows, and more), dispatches specialized reviewers in parallel, consolidates and deduplicates findings, then runs an adversarial verification panel and a completeness critic before reporting. Use when the user wants a deep multi-reviewer review or team review of code, a diff, or a pull request.
 argument-hint: <target> [--reviewers auto|security,performance,...] [--base-branch main] [--all] [--deep] [--no-context] [--fast] [--rigorous]
+handoffs:
+  - label: Document this codebase
+    agent: map-codebase-orchestrator
+    prompt: Generate the human-readable project documentation set for the target just reviewed.
+    send: false
+  - label: Re-run X-ray at full depth
+    agent: xray-orchestrator
+    prompt: Run a full-depth X-ray analysis on the same target to deepen the context this review used.
+    send: false
 tools:
   - agent/runSubagent
   - read/readFile

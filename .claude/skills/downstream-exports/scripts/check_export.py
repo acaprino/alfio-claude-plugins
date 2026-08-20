@@ -31,7 +31,8 @@ SCHEMA = {
     "skill": ({"name", "description"},
               {"user-invocable", "license", "metadata", "compatibility"}),
     "agent": ({"name", "description"},
-              {"user-invocable", "tools", "agents", "hooks", "model", "argument-hint"}),
+              {"user-invocable", "tools", "agents", "hooks", "model", "argument-hint",
+               "handoffs"}),
     "prompt": ({"description"},
                {"agent", "argument-hint", "tools", "model", "name"}),
 }

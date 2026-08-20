@@ -3,9 +3,20 @@ name: research-orchestrator
 description: >
   Drives the /team-research pipeline: classify the question, dispatch parallel researchers across
   distinct angles, then cross-check and synthesize their findings into one report with sources.
-  Owns role selection, the barrier before synthesis, and the degraded paths.
+  Owns role selection, the barrier before synthesis, and the degraded paths. Use when the user asks
+  an open-ended research question that needs synthesis across multiple sources or a comparison of
+  options.
 user-invocable: true
 argument-hint: <question or topic> [--depth quick|standard|deep]
+handoffs:
+  - label: Document the findings
+    agent: map-codebase-orchestrator
+    prompt: Turn the research findings above into a human-readable documentation set for the project.
+    send: false
+  - label: Review the result
+    agent: review-orchestrator
+    prompt: Run the multi-dimensional review pipeline on the code or change this research informed.
+    send: false
 tools:
   - read/readFile
   - search/codebase
