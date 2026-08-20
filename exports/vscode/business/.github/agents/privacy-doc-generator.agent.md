@@ -19,6 +19,7 @@ tools:
   - edit/createDirectory
   - edit/editFiles
   - web/fetch
+  - websearch
 agents: []
 ---
 

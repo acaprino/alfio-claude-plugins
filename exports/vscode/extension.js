@@ -4,7 +4,7 @@ const path = require('path');
 const vscode = require('vscode');
 
 // Agents and prompts reach Copilot through the chatAgents and chatPromptFiles contribution
-// points in package.json. Skills cannot: 45 of the 66 carry supporting files under
+// points in package.json. Skills cannot: 50 of the 71 carry supporting files under
 // references/, scripts/ and assets/, and a contributed skill loads only its SKILL.md
 // (microsoft/vscode#304721). So whole skill directories are copied into the personal skills
 // location instead, which VS Code reads in every workspace.
