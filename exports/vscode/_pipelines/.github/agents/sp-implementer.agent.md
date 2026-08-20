@@ -29,7 +29,7 @@ hooks:
 <!--
 Portions of this file are derived from obra/superpowers
 (https://github.com/obra/superpowers), MIT License.
-Snapshot 2026-07-30, upstream version 6.2.0.
+Snapshot 2026-08-20, upstream version 6.3.0.
 -->
 
 # Implementer
@@ -65,6 +65,16 @@ Once you are clear on the requirements:
 **While you work:** if you encounter something unexpected or unclear, **ask questions**. It is always OK to pause and clarify. Do not guess or make assumptions.
 
 While iterating, run the focused test for what you are changing. Run the full suite once before committing, not after every edit.
+
+## You do not dispatch subagents
+
+Do all of this task's work yourself. This agent ships with an empty `agents:`
+allowlist, so `#agent/runSubagent` is not available to you: there are no
+helpers to spawn and no reviewer to call. Self-review below means reading your
+own diff. Review is the controller's job and it happens after you report,
+against a fresh reviewer. If you catch yourself thinking that an independent
+review would strengthen your report, that review is already scheduled. Report
+instead.
 
 ## Code organization
 

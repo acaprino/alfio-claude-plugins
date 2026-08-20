@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Portions of this file are derived from obra/superpowers
 # (https://github.com/obra/superpowers), MIT License.
-# Snapshot 2026-07-30, upstream version 6.2.0.
+# Snapshot 2026-08-20, upstream version 6.3.0.
 # Bisection script to find which test creates unwanted files/state
 # Usage: ./find-polluter.sh <file_or_dir_to_check> <test_pattern>
 # Example: ./find-polluter.sh '.git' 'src/**/*.test.ts'

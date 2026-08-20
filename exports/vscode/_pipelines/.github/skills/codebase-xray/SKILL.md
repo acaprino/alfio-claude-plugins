@@ -15,7 +15,7 @@ metadata:
   author: Alfio Caprino
   source: acaprino/claude-code-daodan
   upstream-plugin: codebase-xray
-  version: "3.6.1"
+  version: "3.7.0"
 ---
 
 # Codebase X-Ray Analysis Skill

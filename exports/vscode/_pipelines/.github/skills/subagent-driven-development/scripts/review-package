@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Portions of this file are derived from obra/superpowers
 # (https://github.com/obra/superpowers), MIT License.
-# Snapshot 2026-07-30, upstream version 6.2.0.
+# Snapshot 2026-08-20, upstream version 6.3.0.
 # Generate a review package: commit list, stat summary, and the net
 # diff with extended context, written to a file the reviewer reads in one
 # call. Using the recorded per-task BASE (not HEAD~1) keeps multi-commit

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Portions of this file are derived from obra/superpowers
 # (https://github.com/obra/superpowers), MIT License.
-# Snapshot 2026-07-30, upstream version 6.2.0.
+# Snapshot 2026-08-20, upstream version 6.3.0.
 # Resolve and ensure the working-tree directory SDD uses for one plan's
 # short-lived artifacts: task briefs, implementer reports, review packages,
 # and the progress ledger. Print the plan directory's absolute path.

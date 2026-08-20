@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Portions of this file are derived from obra/superpowers
 # (https://github.com/obra/superpowers), MIT License.
-# Snapshot 2026-07-30, upstream version 6.2.0.
+# Snapshot 2026-08-20, upstream version 6.3.0.
 # Extract one task's full text from an implementation plan into a file the
 # implementer reads in one call, so the task text never has to be pasted
 # through the controller's context.

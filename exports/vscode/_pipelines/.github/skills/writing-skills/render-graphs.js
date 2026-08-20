@@ -1,6 +1,6 @@
 // Portions of this file are derived from obra/superpowers
 // (https://github.com/obra/superpowers), MIT License.
-// Snapshot 2026-07-30, upstream version 6.2.0.
+// Snapshot 2026-08-20, upstream version 6.3.0.
 
 #!/usr/bin/env node
 
@@ -17,9 +17,13 @@
  * Requires: graphviz (dot) installed on system
  */
 
+// Kept as CommonJS deliberately. Upstream's repository is "type": "module",
+// so 6.3.0 converted this to ESM; this bundle ships no package.json, which
+// makes .js CommonJS by default, and import statements would not parse here.
+// The execFileSync and Windows-probe fixes from 6.3.0 are applied below.
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 
 function extractDotBlocks(markdown) {
   const blocks = [];
@@ -73,7 +77,7 @@ ${bodies.join('\n\n')}
 
 function renderToSvg(dotContent) {
   try {
-    return execSync('dot -Tsvg', {
+    return execFileSync('dot', ['-Tsvg'], {
       input: dotContent,
       encoding: 'utf-8',
       maxBuffer: 10 * 1024 * 1024
@@ -111,9 +115,10 @@ function main() {
     process.exit(1);
   }
 
-  // Check if dot is available
+  // Check if dot is available. Run the binary directly rather than probing
+  // with `which`, which is not a command on Windows.
   try {
-    execSync('which dot', { encoding: 'utf-8' });
+    execFileSync('dot', ['-V'], { stdio: 'ignore' });
   } catch {
     console.error('Error: graphviz (dot) not found. Install with:');
     console.error('  brew install graphviz    # macOS');

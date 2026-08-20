@@ -226,7 +226,7 @@ Three of the skills carry POSIX shell helpers (`subagent-driven-development/scri
 | `using-superpowers/references/{codex,gemini,pi,antigravity}-tools.md` | Platform adaptations for four harnesses that are not this one. Replaced by a VS Code section in the skill body. |
 | `systematic-debugging/{CREATION-LOG,test-academic,test-pressure-1,2,3}.md` | Skill-development artifacts: the pressure tests used to validate the skill, not runtime content. |
 | `writing-skills/anthropic-best-practices.md` | A copy of Anthropic's own documentation, not covered by the MIT license this bundle inherits. Linked from the skill instead. |
-| `brainstorming/spec-document-reviewer-prompt.md`, `writing-plans/plan-document-reviewer-prompt.md` | Vestigial in 6.2.0: both skills now run those reviews inline, and nothing dispatches the templates. |
+| `brainstorming/spec-document-reviewer-prompt.md`, `writing-plans/plan-document-reviewer-prompt.md` | Vestigial in 6.3.0: both skills now run those reviews inline, and nothing dispatches the templates. |
 
 ### Prior art
 
@@ -288,7 +288,7 @@ The `.deep-dive/` layout, run registry, phase numbering, output file names, and 
 
 ### The superpowers skills
 
-| Area | obra/superpowers 6.2.0 | This port |
+| Area | obra/superpowers 6.3.0 | This port |
 |---|---|---|
 | Entry point | A SessionStart hook injects `using-superpowers` into every conversation | The skill is loaded by description match, or forced with `/using-superpowers`. The `superpowers` agent carries the same discipline for delegating work. |
 | Cross-skill references | `superpowers:brainstorming` namespace | Bare skill names, since the export has no plugin namespaces |
@@ -314,4 +314,4 @@ MIT.
 
 The two pipelines derive from the `codebase-xray`, `senior-review`, `react-development`, `platform-engineering`, and `abstraction-architect` plugins in [acaprino/claude-code-daodan](https://github.com/acaprino/claude-code-daodan).
 
-The 14 methodology skills and the six agents that serve them derive from [obra/superpowers](https://github.com/obra/superpowers), MIT License, Copyright (c) 2025 Jesse Vincent. Snapshot 2026-07-30 of upstream 6.2.0. Every derived file carries the attribution header.
+The 14 methodology skills and the six agents that serve them derive from [obra/superpowers](https://github.com/obra/superpowers), MIT License, Copyright (c) 2025 Jesse Vincent. Snapshot 2026-08-20 of upstream 6.3.0. Every derived file carries the attribution header.

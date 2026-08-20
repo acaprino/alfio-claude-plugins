@@ -7,14 +7,14 @@ license: MIT
 metadata:
   author: Jesse Vincent
   source: obra/superpowers
-  upstream-version: "6.2.0"
-  snapshot: "2026-07-30"
+  upstream-version: "6.3.0"
+  snapshot: "2026-08-20"
 ---
 
 <!--
 Portions of this file are derived from obra/superpowers
 (https://github.com/obra/superpowers), MIT License.
-Snapshot 2026-07-30, upstream version 6.2.0.
+Snapshot 2026-08-20, upstream version 6.3.0.
 -->
 
 # Systematic Debugging
