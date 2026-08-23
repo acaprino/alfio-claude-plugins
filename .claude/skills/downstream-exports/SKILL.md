@@ -167,7 +167,7 @@ Content check, run from the repository root:
 python .claude/skills/downstream-exports/scripts/check_export.py
 ```
 
-Nine passes: frontmatter schema, tool ids, name uniqueness across bundles, prompt `agent:` bindings, `agents:` allowlists, residual Claude Code coupling, malformed markdown code spans, byte-copy drift against `plugins/`, and `$SKILLS` defined wherever it is used. It exits non-zero on any failure and needs no dependencies.
+Ten passes: frontmatter schema, tool ids, name uniqueness across bundles, prompt `agent:` bindings, `agents:` allowlists, residual Claude Code coupling, malformed markdown code spans, byte-copy drift against `plugins/`, `$SKILLS` defined wherever it is used, and top-level frontmatter scalars that YAML can actually read as strings. It exits non-zero on any failure and needs no dependencies.
 
 Mirror check, over the range you are about to push:
 
@@ -197,6 +197,7 @@ Known blind spots. Do not read a green run as "the export is correct".
 - **Nothing checks that an adaptation left the markdown coherent.** `team-research.prompt.md` shipped with an empty "Skills to Load" section and a numbered list starting at 2, both from deleted content.
 - **Nothing checks the manifest against the tree.** A renamed agent leaves a dangling `chatAgents` path until the generator is re-run.
 - Pass 8 skips `_pipelines`, and no pass validates that `hooks:` command paths resolve.
+- ~~Nothing parses the frontmatter it walks.~~ Pass 10 covers this as of marketplace 25.1.0, and it is the pass with the largest first catch: **34 files in 22 bundles** whose frontmatter no YAML parser accepts, shipped since the catalog build. Two shapes, both from the description-budget trim that flattened multiline blocks into one-liners: an `argument-hint` starting with `[` reads as a flow sequence and then fails on the trailing text, and a one-line `description` carrying a colon-space reads as a nested mapping. Either takes the whole block down, `tools:` and `agents:` included, so the agent or prompt cannot load at all. Pass 1 walks the block by hand and never parses it, which is why a green check meant nothing here. PyYAML is not stdlib and this checker takes no dependency, so pass 10 checks the three shapes that actually broke rather than implementing YAML; the fix is always to quote the value, and the string it carries never changes.
 
 Also run the guard hook suite when the guard, the forbidden-files list, or any `--confine` value changes:
 
