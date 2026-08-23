@@ -256,6 +256,7 @@ The agent verifies:
 - **Architecture**: Validates architectural claims against actual structure
 - **Uncertainty**: Flags claims that cannot be verified from codebase alone
 - **Gaps**: Identifies undocumented commands, dependencies, configs, and patterns
+- **Transient state**: Flags any passage recording runtime or temporary state (in-progress task lists, "currently"/"pending"/"for now"/"as of <date>" phrasing, open branches or PR numbers, scratch and temp paths, one-run benchmark numbers, backlog items). Critical when already stale, High when still accurate but time-bound. The proposed fix is deletion or relocation to an issue, a commit message, or `docs/` - never a refresh of the value, since it will go stale again
 - **Project structure shape (evergreen, not exhaustive)**: Verifies the top-level layout, repeating structural patterns, and role of each top-level category are documented. Does NOT require file-by-file annotation - that level of detail is justified only where names alone are ambiguous, where a file is itself a key entry point, or to disambiguate sibling names. Flags missing whole categories (an entire top-level dir undocumented) as a gap, and flags overly exhaustive file-by-file trees as a Medium consolidation candidate (high decay risk, tokens without evergreen value)
 - **Working Principles block**: Checks presence of the canonical `## Working Principles` section (5 principles: 4 inspired by upstream agentic-coding meta-rules plus Centralize Shared Logic for DRY / Single Source of Truth), AND the presence of 3 deeper-meta-rule sub-bullets under each of principles 1-4. Flags as High if the block is missing, gutted, or stripped of sub-bullets, and offers to insert what's missing via surgical Edit. Centralize Shared Logic (#5) and the sub-bullets are locally authored and easy to lose on paraphrase - audit each explicitly. Never substitute with an external link or `docs/` pointer
 - **Test-Suite Rules block (conditional)**: When the project has a test suite, checks presence and integrity of the canonical `## Test-Suite Rules` block (7 rules). Flags missing, gutted, or weakened rules as High and offers verbatim insertion or surgical repair. When the project has no tests, verifies nothing and raises nothing
@@ -271,11 +272,13 @@ The agent verifies:
 - Non-existent file paths
 - Broken commands
 - Obsolete dependencies
+- Transient or runtime state already gone stale (see the Transient state check above)
 
 ### High Priority (Usually Should Fix)
 - Excessive length without substance (padding, duplication, pasted code snippets)
 - Code duplication
 - Missing important context
+- Transient or runtime state that is still accurate but time-bound - relocate it out of CLAUDE.md before it decays
 - Missing structural categories (a top-level directory or repeating structural pattern is entirely undocumented in the structure section). File-by-file omissions are NOT flagged here - they belong in Medium as consolidation candidates only when the existing map is already exhaustive
 - Missing or gutted `## Working Principles` block (insert the canonical 5 meta-rules: 4 inspired by upstream agentic-coding meta-rules plus Centralize Shared Logic; preserve any coexisting project-specific principles)
 - Missing 3 deeper-meta-rule sub-bullets under any of Working Principles 1-4 (the case for any CLAUDE.md created before plugin v1.14.0) - insert the sub-bullets in place via surgical Edit; the block is always delivered inline, never as an external link

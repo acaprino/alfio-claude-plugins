@@ -1,5 +1,10 @@
 # Changelog
 
+## 25.2.0
+
+- `project-setup` 1.19.0 forbids transient state in a generated or audited instructions file. The auditor gains a core principle and GOLDEN RULE 8: an instructions file records durable facts (structure, conventions, policies, workflows, and the reasoning behind them), never runtime or temporary state such as in-progress task lists, "currently"/"pending"/"as of <date>" notes, open branches or PR numbers, scratch paths, one-run benchmark numbers, or backlog items.
+- Obsolescence detection and the anti-pattern list now flag every such passage: Critical when already stale, High when still accurate but time-bound. The proposed fix is deletion or relocation to an issue, a commit message, or `docs/`, never a refresh of the value. `/create-claude-md` states the same rule as a built-in best practice and `/maintain-claude-md` gains the matching audit check and improvement categories.
+
 ## 25.1.0
 
 - `research` 6.1.0 collects a serper.dev key **in chat** when one is wanted and none is set. Running `/team-research ... --backend serper` without a key now offers to take one in the question dialog, saves it to `~/.serper_key` through the script, and continues on serper; the other options are to stay on native search or to cancel. The key is asked for once, not once per run, and the environment variable still wins over the file. A run with `--backend auto` never asks: it uses native search and says so in the plan.

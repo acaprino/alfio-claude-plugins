@@ -113,6 +113,7 @@ Your new CLAUDE.md will:
 - Reference files instead of duplicating code
 - Delegate style enforcement to linters
 - Include only universally applicable guidance
+- Record only durable facts. No transient, runtime, or temporary state: no in-progress task lists, no "currently"/"pending"/"as of <date>" notes, no open branches or PR numbers, no scratch paths, no one-run benchmark numbers. Anything with an expiry goes in an issue, a commit message, or `docs/`, never in the instructions file
 - Be grounded in actual codebase reality
 - Be self-contained -- no satellite files needed
 - Mark unverifiable claims with `[UNVERIFIED]` and resolve before finalizing
