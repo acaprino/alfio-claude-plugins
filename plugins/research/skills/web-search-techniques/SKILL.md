@@ -1,14 +1,14 @@
 ---
 name: web-search-techniques
 description: >
-  Knowledge base for web search query techniques, source authority ranking, WebFetch/WebSearch best practices, and bot-block fallback via webfetch.py. Used by quick-searcher and deep-researcher in plugins/research/.
-  TRIGGER WHEN: performing web research with WebSearch or WebFetch.
-  DO NOT TRIGGER WHEN: searching local codebase (use Grep or Glob directly).
+  Knowledge base for web research: query formulation, source authority ranking, the two search backends (native WebSearch, optional serper.dev through websearch.py), reading pages with WebFetch and the webfetch.py bot-block fallback, and the anti-loop rules. Used by quick-searcher, deep-researcher and /research:team-research.
+  TRIGGER WHEN: performing web research with WebSearch, WebFetch, or the research plugin's scripts.
+  DO NOT TRIGGER WHEN: searching a local codebase (use Grep or Glob directly).
 ---
 
 # Web Search Techniques
 
-Shared knowledge base for `research:quick-searcher` and `research:deep-researcher`. Scope: web-only. Covers query formulation, source authority, tool usage, bot-block fallback, and anti-loop rules.
+Shared knowledge base for `research:quick-searcher`, `research:deep-researcher` and the `/research:team-research` lead. Scope: web-only. Covers query formulation, source authority, tool usage, bot-block fallback, and anti-loop rules.
 
 ## Query Formulation
 
@@ -26,32 +26,52 @@ Start broad, narrow progressively. Overly specific first queries miss adjacent i
 
 Rank every source before citing:
 
-1. **Official documentation sites and API references** -- highest authority
-2. **RFC and specification documents** -- canonical for standards
-3. **GitHub issues, discussions, and source code** -- authoritative for specific libraries
-4. **Peer-reviewed or community-validated content** -- Stack Overflow with high votes, maintainers' blogs
-5. **General blog posts and tutorials** -- use only when nothing better exists
-6. **Deprioritize** -- SEO content farms, AI-generated summaries, scraped aggregators
+1. **Official documentation sites and API references**: highest authority
+2. **RFC and specification documents**: canonical for standards
+3. **GitHub issues, discussions, and source code**: authoritative for specific libraries
+4. **Peer-reviewed or community-validated content**: Stack Overflow with high votes, maintainers' blogs
+5. **General blog posts and tutorials**: use only when nothing better exists
+6. **Deprioritize**: SEO content farms, AI-generated summaries, scraped aggregators
 
 Currency checks:
 - Last modified date on the page
 - Version numbers cited vs latest release
 - Deprecation warnings
 
-## WebSearch Techniques
+## Search Backends
 
-Query operators (standard search-engine conventions, usually respected by WebSearch):
-- `site:` -- restrict to a domain
-- `"exact phrase"` -- match the phrase verbatim
-- Year token -- add "2026" for recency
-- `"official"` or `"documentation"` -- bias toward authoritative
-- Version numbers when relevant (e.g. `react 19`)
+Two backends produce candidate pages. Neither produces claims: only a page that was read does.
+
+| Backend | When | How |
+|---|---|---|
+| Native `WebSearch` | Default. Always available when the tool is in the toolset | The tool call, with the operators below |
+| serper.dev (Google) | `SERPER_API_KEY` is set, or `--backend serper` | `python ${CLAUDE_PLUGIN_ROOT}/scripts/websearch.py "<query>" [--vertical search|news|scholar] [--num N] [--since h|d|w|m|y] [--gl CC] [--hl LANG] [--page P] [--json]` via Bash |
+
+Selection rule (the lead decides once per run and writes it into every spawn prompt): `auto` means serper when the key is set, else native. The chosen backend is stated in the plan, in each researcher report and in the final report header. A run never silently falls back: if serper was forced and the key is missing the script exits 2 with the setup line, and the run stops there.
+
+What serper earns its call for:
+- `--vertical scholar` for academic threads, `--vertical news --since w|m` for recency threads
+- `--num 30` to `50` on the orient round, to map a topic's vocabulary in one call (above 10 results costs 2 credits; the script says so on stderr)
+- `--since` for "what changed lately" questions; `before:YYYY-MM-DD` / `after:YYYY-MM-DD` inside the query for exact windows
+- Cross-index corroboration: a claim whose sources surface on both indexes ranks above one found on one index only
+
+Operators both backends honour: `site:` (restrict to a domain), `"exact phrase"`, `-term` (exclude), `filetype:pdf`, a year token (`2026`) for temporal queries, `official` or `documentation` to bias toward primary sources, version numbers when relevant (`react 19`).
+
+Cost note (checked 2026-08-23): serper.dev gives 2,500 free queries, then $1.00 per 1,000 on the entry plan, down to $0.30 per 1,000 at volume; credits are deducted only on successful responses. A `standard` run makes on the order of 50-80 calls, a `deep` run 150-300. Tavily and Exa are LLM-oriented alternatives (LLM-ready snippets, neural search) that would slot behind the same script interface; not built.
+
+## Reading, Not Skimming
+
+A search result is a candidate. A claim enters a researcher's ledger only from a page that was read:
+1. `WebFetch` the page (prefer docs and primary sources; target anchors on long pages)
+2. On a bot-block (403, 429, challenge page) or thin content (under ~200 useful characters), `python3 ${CLAUDE_PLUGIN_ROOT}/scripts/webfetch.py <url>`
+3. If the `playwright-skill` plugin is installed and the page is a primary source the answer depends on, drive a real browser with it as the last resort; if it is not installed, record the URL under limitations and move on. This is a pointer, not a dependency.
+4. Record: URL, title, the date the page carries, authority rank (below), and the claims taken from it
 
 ## WebFetch Guidance
 
 - Prefer documentation pages and API references over blog posts
-- Evaluate fetched content -- low-authority source means discard and re-search
-- Large pages may be truncated -- target specific sections (anchor URLs) when possible
+- Evaluate fetched content: low-authority source means discard and re-search
+- Large pages may be truncated: target specific sections (anchor URLs) when possible
 - Track the accessed URL with date for citation
 
 ## webfetch.py Fallback
