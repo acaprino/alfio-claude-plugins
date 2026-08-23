@@ -6,7 +6,7 @@ description: >
   order, the barriers between phases, and the degraded paths. Use when the user wants human-readable
   project documentation, an onboarding guide, or a written tour of an unfamiliar codebase.
 user-invocable: true
-argument-hint: [target-path]
+argument-hint: "[target-path]"
 handoffs:
   - label: Run a team review on this
     agent: review-orchestrator

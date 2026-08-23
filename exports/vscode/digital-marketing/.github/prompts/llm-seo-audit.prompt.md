@@ -1,6 +1,6 @@
 ---
 description: Checks whether a page is quotable by generative assistants, not merely rankable. Use when the user asks to audit for AI search or answer engines, check visibility in Google AI Overviews / SGE, Perplexity, ChatGPT Search, Claude Search, or Bing Copilot, verify the AI-bot crawler allowlist, or check E-E-A-T, llms.txt, JSON-LD citation readiness, passage extractability, and prompt-injection hardening. Not for traditional organic / SERP ranking SEO (use /seo-audit), or content tone and voice alone (use the content-marketer agent).
-argument-hint: <url or local path> [--focus <comma-separated: crawlers,eeat,schema,passages,injection | all>] [--strict-mode]
+argument-hint: "<url or local path> [--focus <comma-separated: crawlers,eeat,schema,passages,injection | all>] [--strict-mode]"
 agent: llm-seo-optimize
 ---
 

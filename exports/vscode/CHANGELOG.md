@@ -6,6 +6,8 @@
 - `deep-researcher` is now an iterative single-sub-question investigator (orient, read, ledger, narrow, stop at saturation) returning a compressed cited report; its old self-orchestrating angle mode is gone. `quick-searcher` keeps single-fact lookups and gains a verifier mode that settles one contested claim with a third independent source.
 - New optional search backend: `websearch.py` (stdlib only) queries serper.dev when `SERPER_API_KEY` is set, adding Google's index, the `news` and `scholar` verticals and date filters. Never required: without the key the native search tool is used, and the backend in use is stated in the plan and in the report header. `web-search-techniques` documents both backends and the read-not-skim rule.
 - The `research` bundle no longer references the experimental agent-teams flow at all; the Claude Code source dropped its `agent-teams` dependency and now depends on nothing.
+- Frontmatter that no YAML parser accepts is fixed across **34 files** in 22 bundles, found while verifying the research port. Two shapes had shipped since the catalog build: an `argument-hint` starting with `[` (read as a list, then a parse error on the trailing text) and a one-line `description` carrying a colon-space (read as a nested mapping). Both take the whole block down, including the `tools:` and `agents:` lists a host reads to dispatch, so the affected agents and prompts could not load. Only the quoting changed; every value carries the same string as before.
+- The export checker gains a tenth pass, `frontmatter scalars parse`, which is what would have caught the above. Pass 1 walks the block by hand and never parses it, which is how 34 broken files passed a green check for months.
 
 ## 24.1.0
 

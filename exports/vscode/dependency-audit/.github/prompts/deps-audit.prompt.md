@@ -1,6 +1,6 @@
 ---
 description: Run each ecosystem's own tooling; report only what tools, registries, and advisory databases say. Covers npm/pnpm/yarn/bun, pip/uv/poetry, cargo, go, gem, composer, maven/gradle, nuget. Use when the user asks to audit dependencies, scan for CVEs, check license obligations or compatibility, find outdated packages, assess supply-chain risk, or prepare a dependency-update PR. Not for dead-code or unused-dependency cleanup, which /team-review in the `_pipelines` bundle covers, a Python-only lint, type and coverage audit, which /python-audit in the `python-development` bundle covers, or a Stripe webhook event audit, which /audit-webhooks in the `stripe` bundle covers.
-argument-hint: [path] [--ecosystem=npm|python|rust|go|ruby|php|java|dotnet|all] [--security-only] [--license-check] [--update-pr]
+argument-hint: "[path] [--ecosystem=npm|python|rust|go|ruby|php|java|dotnet|all] [--security-only] [--license-check] [--update-pr]"
 ---
 
 # Dependency Audit

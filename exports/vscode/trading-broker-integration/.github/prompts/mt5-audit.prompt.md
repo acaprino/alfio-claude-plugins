@@ -1,6 +1,6 @@
 ---
 description: Report on the reliability, error handling, and production readiness of an existing system. Use when the user asks to review, audit, or validate an MT5 Python trading bot (polling loops, fill modes, reconnection, order retcodes, Windows deployment). Not for building a system from scratch, which the mt5-architect agent covers, nor for auditing an IB system, which /ibkr-audit covers.
-argument-hint: [path-or-description]
+argument-hint: "[path-or-description]"
 ---
 
 # MT5 Trading System Audit

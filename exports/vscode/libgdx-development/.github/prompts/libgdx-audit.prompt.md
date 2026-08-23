@@ -1,6 +1,6 @@
 ---
-description: Report correctness, performance, and lifecycle defects. Use when the user asks to review, audit, or validate a libGDX game: rendering pipeline, asset disposal, Screen lifecycle, GL thread blocking, multi-platform config, version migration. Not for building a new game from scratch, which the libgdx-architect agent covers.
-argument-hint: [path-or-description]
+description: "Report correctness, performance, and lifecycle defects. Use when the user asks to review, audit, or validate a libGDX game: rendering pipeline, asset disposal, Screen lifecycle, GL thread blocking, multi-platform config, version migration. Not for building a new game from scratch, which the libgdx-architect agent covers."
+argument-hint: "[path-or-description]"
 ---
 
 # libGDX Project Audit

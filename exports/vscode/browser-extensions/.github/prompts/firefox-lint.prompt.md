@@ -1,6 +1,6 @@
 ---
 description: Runs `web-ext lint` plus static checks for forbidden APIs, permission bloat, remote-hosted code and Manifest V3 migration issues. Use when linting, validating or checking a Firefox extension, before an AMO submission or a git push on an extension project.
-argument-hint: [path] [--strict] [--json]
+argument-hint: "[path] [--strict] [--json]"
 ---
 
 # Firefox Extension Lint

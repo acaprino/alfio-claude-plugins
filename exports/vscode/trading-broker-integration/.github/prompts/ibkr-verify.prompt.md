@@ -1,6 +1,6 @@
 ---
 description: Answer a question about IBKR behaviour with evidence instead of a guess. Use when the user asks whether IBKR supports something, why an order was refused, what a code means, or wants a claim about venue behaviour verified against a real gateway. Not for auditing a whole codebase, which /ibkr-audit covers, or designing a system from scratch, which the ibkr-architect agent covers.
-argument-hint: [question, code, or contract]
+argument-hint: "[question, code, or contract]"
 ---
 
 <!-- Vendored from plugins/trading-broker-integration/commands/ibkr-verify.md in acaprino/claude-code-daodan, MIT. -->

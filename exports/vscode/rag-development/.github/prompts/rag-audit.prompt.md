@@ -1,6 +1,6 @@
 ---
 description: Report quality and best-practice gaps in an existing implementation. Use when the user asks to review, audit, or validate a RAG pipeline (chunking, embeddings, retrieval, reranking, or production readiness). Not for building from scratch, which rag-architect covers, or auditing a pure vector database, which qdrant-expert covers.
-argument-hint: [path-or-description]
+argument-hint: "[path-or-description]"
 ---
 
 # RAG Audit

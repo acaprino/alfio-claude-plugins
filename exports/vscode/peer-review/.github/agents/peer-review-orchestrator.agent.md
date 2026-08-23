@@ -8,7 +8,7 @@ description: >
   hand-edits. Owns the phase order, the consent gate, the dispatch, and the transport
   error handling.
 user-invocable: true
-argument-hint: [<path-to-plan-or-spec> | <topic>] [--challenger=<profile>] [--rounds=N] [--dry-run] [--apply]
+argument-hint: "[<path-to-plan-or-spec> | <topic>] [--challenger=<profile>] [--rounds=N] [--dry-run] [--apply]"
 agents:
   - brief-builder
   - packet-builder

@@ -1,7 +1,7 @@
 ---
 description: Checks manifest, install criteria, offline behavior, security headers and performance, locally or against a live URL, citing file and line. Use when auditing a PWA, or verifying one is installable and production-ready.
 agent: pwa-architect
-argument-hint: [path | URL]
+argument-hint: "[path | URL]"
 ---
 
 # /pwa-audit

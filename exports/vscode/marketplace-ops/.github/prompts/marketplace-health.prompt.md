@@ -1,6 +1,6 @@
 ---
 description: Quick health check for any Claude Code plugin marketplace. Use when the user asks to validate marketplace.json, check plugin file references, report plugin counts and version status, or audit structural integrity. Not for reviewing plugin content quality (use /marketplace-review) or authoring new plugins.
-argument-hint: [--fix] [--verbose]
+argument-hint: "[--fix] [--verbose]"
 ---
 
 # Marketplace Health Check

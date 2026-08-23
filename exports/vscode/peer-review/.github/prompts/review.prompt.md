@@ -1,7 +1,7 @@
 ---
 description: Cross-model peer review of a plan, a spec, or the decisions this session has just made. Builds a challenge packet, sends it to a challenger model on an OpenAI-compatible endpoint after explicit consent, runs an evidence-backed multi-round dialectic with a verbatim ledger, and computes a verdict of accepted edits, refutations, and standoffs. With no path, materializes the session's context and decisions into a frozen brief and challenges that
 agent: peer-review-orchestrator
-argument-hint: [<path-to-plan-or-spec> | <topic>] [--challenger=<profile>] [--rounds=N] [--dry-run] [--apply]
+argument-hint: "[<path-to-plan-or-spec> | <topic>] [--challenger=<profile>] [--rounds=N] [--dry-run] [--apply]"
 ---
 
 <!-- Vendored from plugins/peer-review/commands/review.md in acaprino/claude-code-daodan,

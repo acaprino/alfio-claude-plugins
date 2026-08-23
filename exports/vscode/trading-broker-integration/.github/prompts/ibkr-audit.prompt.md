@@ -1,6 +1,6 @@
 ---
-description: Report reliability and production-readiness defects, plus the venue assumptions nobody checked. Use when the user asks to review, audit, or validate an IB or TWS trading system: contracts, orders, brackets, pacing, error handling, reconnection, deployment. Not for building from scratch, which the ibkr-architect agent covers, a single behaviour question, which /ibkr-verify covers, or MetaTrader 5, which /mt5-audit covers.
-argument-hint: [path-or-description]
+description: "Report reliability and production-readiness defects, plus the venue assumptions nobody checked. Use when the user asks to review, audit, or validate an IB or TWS trading system: contracts, orders, brackets, pacing, error handling, reconnection, deployment. Not for building from scratch, which the ibkr-architect agent covers, a single behaviour question, which /ibkr-verify covers, or MetaTrader 5, which /mt5-audit covers."
+argument-hint: "[path-or-description]"
 ---
 
 <!-- Vendored from plugins/trading-broker-integration/commands/ibkr-audit.md in acaprino/claude-code-daodan, MIT. -->

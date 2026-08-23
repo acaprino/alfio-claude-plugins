@@ -6,7 +6,7 @@ description: >
   then consolidate everything into one scored report. Owns the step order, the dispatch, and the
   degraded paths.
 user-invocable: true
-argument-hint: [path] [--full] [--strict-mode]
+argument-hint: "[path] [--full] [--strict-mode]"
 tools:
   - read/readFile
   - search/codebase

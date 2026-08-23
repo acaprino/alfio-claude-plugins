@@ -1,6 +1,6 @@
 ---
 description: Lints, signs and uploads a build on the listed or unlisted channel, then walks the user through the review workflow. Use when publishing, releasing, submitting, uploading or signing a Firefox extension, or preparing an addons.mozilla.org (AMO) submission.
-argument-hint: [path] [--channel listed|unlisted] [--version <semver>] [--dry-run]
+argument-hint: "[path] [--channel listed|unlisted] [--version <semver>] [--dry-run]"
 ---
 
 # Firefox Extension Publish

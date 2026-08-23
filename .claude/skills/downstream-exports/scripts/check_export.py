@@ -4,7 +4,7 @@ Stdlib only, no dependencies, runs from the repository root:
 
     python .claude/skills/downstream-exports/scripts/check_export.py
 
-Eight passes, each independently reported. Exits non-zero if any fails.
+Ten passes, each independently reported. Exits non-zero if any fails.
 
   1. frontmatter   delimiters parse, keys are in the schema for the file's kind
   2. tool ids      every id in a `tools:` list is a real VS Code tool
@@ -14,6 +14,8 @@ Eight passes, each independently reported. Exits non-zero if any fails.
   6. coupling      no residual Claude Code coupling outside the documented exclusions
   7. code spans    no malformed backticks, the signature of a botched bulk edit
   8. byte-copies   non-markdown assets are identical to their source in plugins/
+  9. $SKILLS       every file that uses the variable also defines it
+ 10. scalars       no top-level frontmatter value that YAML cannot read as a string
 
 Pass 6 has exclusions, and they are not laziness. `marketplace-ops` authors
 Claude Code plugin marketplaces and `ai-tooling/agent-sdk-builder` documents the
@@ -250,6 +252,41 @@ def main():
         if "$SKILLS" in text and ".copilot/skills/" not in text:
             undefined.append(f"{p.relative_to(ROOT)}: uses $SKILLS without defining it")
     report("$SKILLS defined where used", undefined)
+
+    # 10 ----------------------------------------------------------------
+    # A top-level frontmatter value that YAML cannot read as the string it
+    # looks like. Pass 1 walks the block by hand and never parses it, which is
+    # how 23 files shipped with frontmatter no YAML parser accepts: an
+    # `argument-hint` starting with `[` reads as a flow sequence and then
+    # chokes on the trailing content, and a one-line `description` containing
+    # a colon-space reads as a nested mapping. Both take the whole block down,
+    # including the `tools:` and `agents:` lists a host needs to dispatch.
+    # PyYAML is not stdlib, so this checks the three shapes that actually
+    # broke rather than implementing YAML. The fix is always to quote the
+    # value; the string it carries does not change.
+    unquoted = []
+    for p in sorted(docs):
+        block, err = frontmatter(p.read_text(encoding="utf-8"))
+        if err:
+            continue
+        for line in block:
+            if line[:1] in (" ", "\t", "-") or ":" not in line or not line.strip():
+                continue
+            key, _, value = line.partition(":")
+            value = value.strip()
+            if not value or value in (">", "|", ">-", "|-"):
+                continue
+            rel = p.relative_to(ROOT)
+            if value[0] in "\"'":
+                if not value.endswith(value[0]) or len(value) < 2:
+                    unquoted.append(f"{rel}: '{key}' opens a quote it never closes")
+                continue
+            if value[0] in "[{&*!%@`":
+                if not (value[0] == "[" and value == "[]"):
+                    unquoted.append(f"{rel}: '{key}' starts with '{value[0]}', quote the value")
+            elif ": " in value or value.endswith(":"):
+                unquoted.append(f"{rel}: '{key}' holds an unquoted colon, quote the value")
+    report("frontmatter scalars parse", unquoted)
 
     print()
     if failures:

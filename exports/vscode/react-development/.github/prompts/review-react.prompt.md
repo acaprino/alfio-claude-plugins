@@ -1,7 +1,7 @@
 ---
 description: Produce a scored markdown report with fix instructions. Use when the user asks to review React code for performance, re-renders, bundle size, state management, React 19 API adoption, or the Vercel best-practices checklist.
 agent: react-performance-optimizer
-argument-hint: [src-path] [--strict-mode]
+argument-hint: "[src-path] [--strict-mode]"
 ---
 
 # React Performance Review

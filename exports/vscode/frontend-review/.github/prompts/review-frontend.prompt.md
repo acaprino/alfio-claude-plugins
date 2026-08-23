@@ -1,7 +1,7 @@
 ---
-description: Full frontend review in one pass: a design and UX audit (typography, color and contrast, spacing and layout, motion, cognitive load, platform conventions, design-token architecture, component states, visual craft) alongside auto-detected code dimensions (React performance, TypeScript type safety, PWA architecture, platform compliance). Produces one scored report at `.frontend-review/report.md`. Use when the user asks for a complete frontend review, a design plus code review, a UI/UX audit paired with a code audit, or a full pass over a frontend surface before shipping. Not for a React-only review (use `/review-react`), a TypeScript-only review (use `/review-typescript`), a PWA-only review (use `/pwa-audit`), or a general code review with no design dimension (use `/team-review` in the `_pipelines` bundle).
+description: "Full frontend review in one pass: a design and UX audit (typography, color and contrast, spacing and layout, motion, cognitive load, platform conventions, design-token architecture, component states, visual craft) alongside auto-detected code dimensions (React performance, TypeScript type safety, PWA architecture, platform compliance). Produces one scored report at `.frontend-review/report.md`. Use when the user asks for a complete frontend review, a design plus code review, a UI/UX audit paired with a code audit, or a full pass over a frontend surface before shipping. Not for a React-only review (use `/review-react`), a TypeScript-only review (use `/review-typescript`), a PWA-only review (use `/pwa-audit`), or a general code review with no design dimension (use `/team-review` in the `_pipelines` bundle)."
 agent: frontend-review-orchestrator
-argument-hint: [path] [--full] [--strict-mode]
+argument-hint: "[path] [--full] [--strict-mode]"
 ---
 
 # Frontend Review

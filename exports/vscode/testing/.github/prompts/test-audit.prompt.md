@@ -1,6 +1,6 @@
 ---
 description: Writes a versioned TEST_AUDIT.md; with --fix, quarantines the rot in gated, revertible commits. Use when auditing a test suite, measuring test health, finding dead or flaky or redundant tests, or quarantining failing tests to get CI trustworthy again. Not for consolidating one module's tests, which `/test-consolidate` covers, or writing new tests, which the test-writer agent covers.
-argument-hint: [path] [--fix] [--yes] [--no-run] [--runner <cmd>] [--scope <subpath>]
+argument-hint: "[path] [--fix] [--yes] [--no-run] [--runner <cmd>] [--scope <subpath>]"
 ---
 
 <!-- Adapted from plugins/testing/commands/test-audit.md in acaprino/claude-code-daodan, MIT.

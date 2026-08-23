@@ -1,6 +1,6 @@
 ---
-description: Report on an existing Python deployment: what is broken, where, and the fix. Use when the user asks to review, audit, or validate OTel instrumentation: span hygiene, context propagation, exporter config, sampling, async handling, attribute budgets, or AWS X-Ray / ADOT setup. Not for building new instrumentation from scratch, which the otel-architect agent covers, nor for non-OTel observability such as Datadog APM or Sentry.
-argument-hint: [path-or-description]
+description: "Report on an existing Python deployment: what is broken, where, and the fix. Use when the user asks to review, audit, or validate OTel instrumentation: span hygiene, context propagation, exporter config, sampling, async handling, attribute budgets, or AWS X-Ray / ADOT setup. Not for building new instrumentation from scratch, which the otel-architect agent covers, nor for non-OTel observability such as Datadog APM or Sentry."
+argument-hint: "[path-or-description]"
 ---
 
 # OpenTelemetry Audit

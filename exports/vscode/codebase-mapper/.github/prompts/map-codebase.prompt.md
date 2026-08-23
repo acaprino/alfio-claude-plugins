@@ -1,7 +1,7 @@
 ---
 description: Writes 10 documents with Mermaid diagrams and an INDEX.md entry point into .codebase-map/. Use when the user asks to onboard to an unfamiliar project, generate a codebase tour, or produce a full narrative guide for new contributors. Not for structured AST or dependency analysis (use `/xray-team-analyze` in the `_pipelines` bundle) or just API docs (use /docs-create).
 agent: map-codebase-orchestrator
-argument-hint: [target-path]
+argument-hint: "[target-path]"
 ---
 
 # Map Codebase

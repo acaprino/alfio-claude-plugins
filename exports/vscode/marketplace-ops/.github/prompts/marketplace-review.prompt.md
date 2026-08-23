@@ -1,6 +1,6 @@
 ---
 description: Quality review of the content of any Claude Code plugin marketplace. Use when the user asks to review plugin, agent or skill quality, audit descriptions or trigger keywords, or evaluate activation accuracy and cross-plugin coherence. Not for validating marketplace.json structure alone (use /marketplace-health) or authoring new components (use /marketplace-scaffold-plugin).
-argument-hint: [plugin-name] [--all] [--fix]
+argument-hint: "[plugin-name] [--all] [--fix]"
 ---
 
 # Marketplace AI Review

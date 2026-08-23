@@ -1,7 +1,7 @@
 ---
-description: Walk the production deploy checklist interactively. Reports pass / fail / N/A per category against the codebase (and optional deployed URL). Distinct from /pwa-audit: this is a deterministic checklist walk, not an open-ended adversarial audit.
+description: "Walk the production deploy checklist interactively. Reports pass / fail / N/A per category against the codebase (and optional deployed URL). Distinct from /pwa-audit: this is a deterministic checklist walk, not an open-ended adversarial audit."
 agent: pwa-architect
-argument-hint: [path or URL]
+argument-hint: "[path or URL]"
 ---
 
 # /pwa-checklist

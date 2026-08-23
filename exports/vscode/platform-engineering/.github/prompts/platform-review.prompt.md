@@ -1,7 +1,7 @@
 ---
 description: Audit a codebase against the platform-engineering rulebook. Use when the user asks for a platform-level review, cross-platform security audit, Electron or Tauri hardening check, or an SPA, PWA, mobile, or desktop compliance review. Not for generic code quality with no platform dimension, which /team-review in the `_pipelines` bundle covers.
 agent: platform-reviewer
-argument-hint: [target-path] [--platform spa|pwa|mobile|electron|tauri|auto] [--focus security|arch|perf]
+argument-hint: "[target-path] [--platform spa|pwa|mobile|electron|tauri|auto] [--focus security|arch|perf]"
 ---
 
 # Platform Engineering Review

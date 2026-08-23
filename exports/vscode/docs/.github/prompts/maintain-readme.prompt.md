@@ -1,5 +1,5 @@
 ---
-description: Verify every claim, path, count, and badge against the codebase before changing anything. Use when the user asks to audit, update, or improve an existing README.md: fix stale stats and links, reorganize sections, or apply readme-craft best practices. Not for creating a new README, which the `readme-craft` skill covers, nor for documentation that is not a README, which /docs-maintain in the `codebase-mapper` bundle covers.
+description: "Verify every claim, path, count, and badge against the codebase before changing anything. Use when the user asks to audit, update, or improve an existing README.md: fix stale stats and links, reorganize sections, or apply readme-craft best practices. Not for creating a new README, which the `readme-craft` skill covers, nor for documentation that is not a README, which /docs-maintain in the `codebase-mapper` bundle covers."
 ---
 
 # Maintain README.md

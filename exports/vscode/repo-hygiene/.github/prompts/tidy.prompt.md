@@ -8,7 +8,7 @@ description: >
   targets needing source comprehension (dead code, unused exports, unused dependencies, orphan
   application assets), which /code-review in the `_pipelines` bundle covers, and not for test
   files, which /test-consolidate in the `testing` bundle covers.
-argument-hint: [path] [--fix] [--commit] [--phases=garbage,gitignore,scratch,git-state]
+argument-hint: "[path] [--fix] [--commit] [--phases=garbage,gitignore,scratch,git-state]"
 ---
 
 # Tidy
