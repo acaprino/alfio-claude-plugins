@@ -68,7 +68,7 @@ What serper earns its call for:
 
 Operators both backends honour: `site:` (restrict to a domain), `"exact phrase"`, `-term` (exclude), `filetype:pdf`, a year token (`2026`) for temporal queries, `official` or `documentation` to bias toward primary sources, version numbers when relevant (`react 19`).
 
-Cost note (checked 2026-08-23): serper.dev gives 2,500 free queries, then $1.00 per 1,000 on the entry plan, down to $0.30 per 1,000 at volume; credits are deducted only on successful responses. A `standard` run makes on the order of 50-80 calls, a `deep` run 150-300. Tavily and Exa are LLM-oriented alternatives (LLM-ready snippets, neural search) that would slot behind the same script interface; not built.
+Cost note (checked 2026-08-23): serper.dev gives 2,500 free queries, then $1.00 per 1,000 on the entry plan, down to $0.30 per 1,000 at volume; credits are deducted only on successful responses. A `standard` run makes on the order of 45-75 calls, a `deep` run 150-300. Tavily and Exa are LLM-oriented alternatives (LLM-ready snippets, neural search) that would slot behind the same script interface; not built.
 
 ## Reading, Not Skimming
 

@@ -61,14 +61,20 @@ The agent and SKILL.md are the highest-value targets per minute of refresh effor
 
 Steps to refresh a custom plugin. Same protocol regardless of risk class; only the cadence differs.
 
-1. **Re-research the domain** with `research:deep-researcher`. Use angles A (Authoritative) + D (Recency) at minimum. Prompt template:
+1. **Re-research the domain** with `research:deep-researcher`. Prioritize primary and recency sources in `Source families` at minimum. Prompt template (the spawn-block fields the agent's INPUT section expects, filled):
    ```
-   Angles: A + D
-   Query: <framework> current version, breaking changes since <version-in-plugin>,
-   recommended baseline versions of dependencies, deprecations, ecosystem changes.
-   Focus: facts that would change recommendations in an existing knowledge base.
+   Role: researcher
+   Objective: <framework> current version, breaking changes since <version-in-plugin>, recommended
+   baseline versions of dependencies, deprecations, ecosystem changes. Focus on facts that would
+   change recommendations in an existing knowledge base.
+   Boundaries: none
+   Source families: official/primary docs and changelogs, recency (release notes, migration guides)
+   Domain hint: <framework/domain>
+   Backend: auto
+   Budget: 15 searches / 12 pages / 4 rounds
+   Return format: the researcher report
    ```
-   Optional: add angle B (Community) if real-world usage patterns are part of what you cover.
+   Optional: add community sources to `Source families` if real-world usage patterns are part of what you cover.
 
 2. **Diff the findings against the plugin**. Spawn Explore agents to grep the plugin for the specific version strings and section titles that came up in research. For each, decide:
    - **Clear win**: outdated fact with a confirmed replacement, apply Edit

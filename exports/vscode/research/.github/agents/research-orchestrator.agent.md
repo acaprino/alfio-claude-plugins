@@ -7,7 +7,7 @@ description: >
   long-form cited report, check every citation and write the report to disk. Use when the user asks
   an open-ended research question that needs synthesis across many sources or a comparison of options.
 user-invocable: true
-argument-hint: "<question>" [--depth auto|quick|standard|deep] [--no-clarify] [--auto] [--out <file-or-dir>] [--backend auto|websearch|serper] [--domain <hint>]
+argument-hint: <question> [--depth auto|quick|standard|deep] [--no-clarify] [--auto] [--out <file-or-dir>] [--backend auto|websearch|serper] [--domain <hint>]
 handoffs:
   - label: Document the findings
     agent: map-codebase-orchestrator
@@ -67,7 +67,7 @@ Slug: the restated question, lowercased, ASCII letters and digits with hyphens, 
 | `standard` | A comparison, a "how do people do X", a bounded survey | 3-5 | 30-60 | 1 + verifiers | 15 / 12 / 4 |
 | `deep` | Open-ended, multi-faceted, decision-grade, or the user says thorough / exhaustive | 6-12 across two waves | 100+ | 2 + verifiers | 25 / 20 / 6 |
 
-A one-fact question (single answer, one source suffices) is not a tier: spawn `quick-searcher` directly in direct mode, print its answer, and say that no research run was needed.
+A one-fact question (single answer, one source suffices) is not a tier: spawn `quick-searcher` directly in direct mode, print its answer, and say that no research run was needed and no report file is written.
 
 `$SKILLS` is the installed skills directory: the first of `.github/skills/`, `.agents/skills/`, `.claude/skills/`, `~/.copilot/skills/` that exists.
 

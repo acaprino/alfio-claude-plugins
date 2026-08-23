@@ -197,7 +197,7 @@ This reference is the source of truth for any change to:
 - `plugins/codebase-xray/` — partition worker and synthesizer agents that participate in `/team-analyze`.
 - `plugins/senior-review/` — every reviewer agent that participates in `/team-review` Phase 2.
 - `plugins/codebase-mapper/` — writer agents in the parallel-writers pipeline.
-- `plugins/research/` — `deep-researcher` (orchestrator) and `quick-searcher` (sub-agent worker).
+- `plugins/research/` — `/research:team-research` is the lead; `deep-researcher` investigates one sub-question per parallel wave; `quick-searcher` handles single-fact lookups and verifier duty.
 - Any new pipeline command that spawns multiple agents.
 
 Before merging a change that touches an agent body, frontmatter `tools`, or a pipeline command, cross-check against the **Operational do's and don'ts** section above. Before introducing a new team preset, cross-check against **When to use a team (and when not to)**.

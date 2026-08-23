@@ -1,6 +1,6 @@
 ---
 description: Deep web research run with clarification, plan approval, parallel iterative researchers, a citation check and a report written to disk. Web only.
-argument-hint: "<question>" [--depth auto|quick|standard|deep] [--no-clarify] [--auto] [--out <file-or-dir>] [--backend auto|websearch|serper] [--domain <hint>]
+argument-hint: <question> [--depth auto|quick|standard|deep] [--no-clarify] [--auto] [--out <file-or-dir>] [--backend auto|websearch|serper] [--domain <hint>]
 agent: research-orchestrator
 ---
 

@@ -117,7 +117,7 @@ VS Code gates subagent dispatch behind an `agents:` allowlist, and a **prompt fi
 | Command dispatches **one** agent | Bind it: `agent: <name>` in the prompt frontmatter, and rewrite the `Task:` block into direct instructions. No orchestrator needed. |
 | Command dispatches **several** agents, or one agent several times with genuinely independent contexts | Write an export-only orchestrator agent holding the `agents:` allowlist, and bind the prompt to it. |
 | Command dispatches one agent several times as **lenses on a single target** | Collapse into sequential passes. Parallelism there is a speed optimization, not an independence guarantee, and an orchestrator would be maintenance for nothing. `/content-strategy` is the worked example. |
-| An **agent** dispatches another agent | Add the callee to that agent's `agents:` list. Agents can hold an allowlist; prompts cannot. `deep-researcher` -> `quick-searcher` is the case. |
+| An **agent** dispatches another agent | Add the callee to that agent's `agents:` list. Agents can hold an allowlist; prompts cannot. Currently unused: every catalog `agents:` allowlist belongs to an export-only orchestrator built for the row above, not to a genuine agent-to-agent dispatch. |
 
 Unwrapping a `Task:` block is not just deleting the wrapper. Its `prompt: |` body is indented four spaces as a YAML scalar; left alone it renders as one code block. De-indent it, and demote any `##` headers inside it so they nest under the surrounding section instead of colliding with it.
 

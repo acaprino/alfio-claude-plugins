@@ -32,7 +32,7 @@ Slug: the restated question, lowercased, ASCII letters and digits with hyphens, 
 | `standard` | A comparison, a "how do people do X", a bounded survey | 3-5 | 30-60 | 1 + verifiers | 15 / 12 / 4 |
 | `deep` | Open-ended, multi-faceted, decision-grade, or the user says thorough / exhaustive | 6-12 across two waves | 100+ | 2 + verifiers | 25 / 20 / 6 |
 
-A one-fact question (single answer, one source suffices) is not a tier: spawn `research:quick-searcher` directly in direct mode, print its answer, and say that no research run was needed.
+A one-fact question (single answer, one source suffices) is not a tier: spawn `research:quick-searcher` directly in direct mode, print its answer, and say that no research run was needed and no report file is written.
 
 ## Phase 0: Pre-flight
 
