@@ -1,5 +1,11 @@
 # Changelog
 
+## 25.1.0
+
+- `research` 6.1.0 collects a serper.dev key **in chat** when one is wanted and none is set. Running `/team-research ... --backend serper` without a key now offers to take one in the question dialog, saves it to `~/.serper_key` through the script, and continues on serper; the other options are to stay on native search or to cancel. The key is asked for once, not once per run, and the environment variable still wins over the file. A run with `--backend auto` never asks: it uses native search and says so in the plan.
+- The key never travels through an agent prompt. Researchers call the script and the script resolves the key itself, the lead is told never to echo it or write it anywhere, and the script prints only its last four characters back.
+- `websearch.py` gains `--check-key` (reports whether a key is available, makes no network call, costs no credit) and `--set-key` (reads a key from stdin and saves it). Pre-flight now uses `--check-key` instead of spending a credit on a throwaway live query.
+
 ## 25.0.0
 
 - `research` 6.0.0 brings `/team-research` to the shape of the commercial deep-research products. The prompt, driven by `research-orchestrator`, clarifies scope only when the question is ambiguous, shows a plan of sub-questions for approval (`--auto` skips both gates), dispatches one `deep-researcher` per sub-question in parallel, verifies contradictions with `quick-searcher`, runs a targeted second wave at `--depth deep`, synthesizes a long-form report with inline citations, checks that every claim resolves to a page a researcher actually read, and writes the report to `research/<date>-<slug>.md` (or `--out`) with a companion file of the raw researcher reports. Tiers `quick` / `standard` / `deep` scale researchers (1-2 / 3-5 / 6-12) and pages read (~10 / 30-60 / 100+).

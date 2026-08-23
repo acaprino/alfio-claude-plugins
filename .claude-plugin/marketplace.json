@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Claude Code Daodan - 40 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), prose humanization, pure-architecture audits (missed unification, wrong abstractions), and cross-model peer review of plans and specs against a challenger on another model family.",
-    "version": "25.0.0"
+    "version": "25.1.0"
   },
   "plugins": [
     {
@@ -336,7 +336,7 @@
       "name": "research",
       "source": "./plugins/research",
       "description": "Deep web research (any topic) modelled on the commercial deep-research products: /research:team-research clarifies scope only when needed, shows a plan of sub-questions for approval, spawns one iterative deep-researcher per sub-question in parallel, verifies contradictions with quick-searcher, synthesizes a long-form cited report and writes it to disk; tiers quick/standard/deep scale effort; optional serper.dev backend via websearch.py when SERPER_API_KEY is set, native WebSearch otherwise. quick-searcher (sonnet) also answers single-fact lookups directly",
-      "version": "6.0.0",
+      "version": "6.1.0",
       "author": {
         "name": "Alfio"
       },

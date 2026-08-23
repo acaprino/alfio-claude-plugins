@@ -153,3 +153,99 @@ class MainTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class KeyResolutionTests(unittest.TestCase):
+    """The key may come from the environment or from the file the research lead
+    writes when the user pastes one in chat. Every case uses a temp path: a test
+    that touched the real ~/.serper_key could overwrite a working key."""
+
+    def setUp(self):
+        self.tmp = Path(__file__).parent / "_tmp_serper_key"
+        self.addCleanup(lambda: self.tmp.exists() and self.tmp.unlink())
+
+    def test_env_wins_over_file(self):
+        self.tmp.write_text("from-file\n", encoding="utf-8")
+        key, source = ws.resolve_key(env={"SERPER_API_KEY": "from-env"}, key_file=self.tmp)
+        self.assertEqual((key, source), ("from-env", "env"))
+
+    def test_file_used_when_env_empty(self):
+        self.tmp.write_text("  from-file \n", encoding="utf-8")
+        key, source = ws.resolve_key(env={}, key_file=self.tmp)
+        self.assertEqual(key, "from-file")
+        self.assertEqual(source, str(self.tmp))
+
+    def test_no_key_anywhere(self):
+        self.assertEqual(ws.resolve_key(env={}, key_file=self.tmp / "missing"), (None, None))
+
+    def test_empty_file_is_no_key(self):
+        self.tmp.write_text("\n", encoding="utf-8")
+        self.assertEqual(ws.resolve_key(env={}, key_file=self.tmp), (None, None))
+
+    def test_blank_env_var_falls_through_to_file(self):
+        self.tmp.write_text("from-file", encoding="utf-8")
+        key, _ = ws.resolve_key(env={"SERPER_API_KEY": "   "}, key_file=self.tmp)
+        self.assertEqual(key, "from-file")
+
+    def test_save_key_writes_stripped_value(self):
+        ws.save_key("  abc123  ", key_file=self.tmp)
+        self.assertEqual(self.tmp.read_text(encoding="utf-8"), "abc123\n")
+        self.assertEqual(ws.resolve_key(env={}, key_file=self.tmp)[0], "abc123")
+
+    def test_mask_shows_only_the_last_four(self):
+        self.assertEqual(ws.mask("0123456789abcdef"), "************cdef")
+        self.assertNotIn("0123", ws.mask("0123456789abcdef"))
+        self.assertEqual(ws.mask("abc"), "****")
+
+
+class KeyCliTests(unittest.TestCase):
+    def test_check_key_reports_availability_without_fetching(self):
+        def never(*a):
+            raise AssertionError("--check-key must make no network call")
+        code, out, err = run_main(["--check-key"], env={"SERPER_API_KEY": "k"}, fetcher=never)
+        self.assertEqual(code, ws.EXIT_OK)
+        self.assertIn("key available", out)
+
+    def test_check_key_without_key_exits_2_with_setup_line(self):
+        with mock.patch.object(ws, "KEY_FILE", Path(__file__).parent / "_absent_key"):
+            code, out, err = run_main(["--check-key"], env={})
+        self.assertEqual(code, ws.EXIT_NO_KEY)
+        self.assertIn("serper.dev", err)
+
+    def test_set_key_saves_from_stdin_and_masks_the_echo(self):
+        tmp = Path(__file__).parent / "_tmp_cli_key"
+        self.addCleanup(lambda: tmp.exists() and tmp.unlink())
+        with mock.patch.object(ws, "KEY_FILE", tmp):
+            out = io.StringIO()
+            with mock.patch.dict(os.environ, {}, clear=True):
+                with redirect_stdout(out):
+                    code = ws.main(["--set-key"], stdin=io.StringIO(" secret-key-1234 \n"))
+        self.assertEqual(code, ws.EXIT_OK)
+        self.assertEqual(tmp.read_text(encoding="utf-8"), "secret-key-1234\n")
+        self.assertNotIn("secret-key", out.getvalue())
+        self.assertIn("1234", out.getvalue())
+
+    def test_set_key_with_empty_stdin_exits_2(self):
+        err = io.StringIO()
+        with redirect_stderr(err):
+            code = ws.main(["--set-key"], stdin=io.StringIO("   \n"))
+        self.assertEqual(code, ws.EXIT_NO_KEY)
+        self.assertIn("No key on stdin", err.getvalue())
+
+    def test_search_uses_the_key_file_when_env_is_empty(self):
+        tmp = Path(__file__).parent / "_tmp_search_key"
+        tmp.write_text("file-key\n", encoding="utf-8")
+        self.addCleanup(lambda: tmp.exists() and tmp.unlink())
+        seen = {}
+        def ok(url, payload, key, timeout):
+            seen["key"] = key
+            return SAMPLE_SEARCH
+        with mock.patch.object(ws, "KEY_FILE", tmp):
+            code, out, err = run_main(["apple"], env={}, fetcher=ok)
+        self.assertEqual(code, ws.EXIT_OK)
+        self.assertEqual(seen["key"], "file-key")
+
+    def test_missing_query_exits_1_not_2(self):
+        code, out, err = run_main([], env={"SERPER_API_KEY": "k"})
+        self.assertEqual(code, ws.EXIT_ERROR)
+        self.assertIn("No query", err)

@@ -10,6 +10,12 @@ Usage:
     python websearch.py "QUERY" [--vertical search|news|scholar] [--num N]
                         [--since h|d|w|m|y] [--gl CC] [--hl LANG] [--page P]
                         [--json] [--timeout SECONDS]
+    python websearch.py --check-key      # is a key available? no network call
+    printf '%s' KEY | python websearch.py --set-key   # save it for future runs
+
+The key is read from $SERPER_API_KEY, then from ~/.serper_key. The second is
+what --set-key writes, so a key pasted once in chat is available to every later
+run without travelling through any agent prompt.
 
 Prints a compact result list (rank, title, URL, snippet, date when present,
 then answer box, knowledge graph, related questions) or the raw JSON with
@@ -19,7 +25,7 @@ their own. Read pages with WebFetch or webfetch.py.
 Exit codes:
     0  success
     1  HTTP error, timeout, or malformed response (one line on stderr)
-    2  SERPER_API_KEY not set (setup line on stderr)
+    2  no key available, or --set-key got nothing on stdin (setup line on stderr)
 Agents pivot on non-zero; they do not retry in a loop.
 
 No dependencies beyond the standard library.
@@ -34,6 +40,7 @@ import os
 import sys
 import urllib.error
 import urllib.request
+from pathlib import Path
 
 # Force UTF-8 output on Windows
 if hasattr(sys.stdout, "buffer"):
@@ -52,10 +59,52 @@ MAX_NUM = 100
 DEFAULT_NUM = 10
 DEFAULT_TIMEOUT = 20
 
+KEY_FILE = Path.home() / ".serper_key"
+
 SETUP_LINE = (
-    "SERPER_API_KEY is not set. Get a key at https://serper.dev (2,500 free queries, "
-    "no card) and export SERPER_API_KEY=<key>; or run with the native WebSearch backend."
+    "No serper.dev key found. Looked at $SERPER_API_KEY and at "
+    f"{KEY_FILE}. Get a key at https://serper.dev (2,500 free queries, no card), "
+    "then either export SERPER_API_KEY=<key> or save it with "
+    "`python websearch.py --set-key` (reads the key from stdin). "
+    "Without a key the native WebSearch backend is used instead."
 )
+
+
+def resolve_key(env=None, key_file=None):
+    """(key, source). The environment wins; the key file is the fallback the
+    /research:team-research lead writes when the user pastes a key in chat, so
+    the key lives in one place instead of travelling through spawn prompts."""
+    env = os.environ if env is None else env
+    key = (env.get("SERPER_API_KEY") or "").strip()
+    if key:
+        return key, "env"
+    path = KEY_FILE if key_file is None else Path(key_file)
+    try:
+        key = path.read_text(encoding="utf-8").strip()
+    except OSError:
+        return None, None
+    return (key, str(path)) if key else (None, None)
+
+
+def save_key(key, key_file=None):
+    """Write the key readable only by this user. Returns the path.
+
+    chmod is a no-op on Windows, where the file inherits the profile's ACL;
+    that is why the caller is told the path rather than promised a mode."""
+    path = KEY_FILE if key_file is None else Path(key_file)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(key.strip() + "\n", encoding="utf-8")
+    try:
+        os.chmod(path, 0o600)
+    except OSError:
+        pass
+    return path
+
+
+def mask(key):
+    """Never print a key back in full: an echoed secret outlives the moment."""
+    key = key.strip()
+    return f"{'*' * max(0, len(key) - 4)}{key[-4:]}" if len(key) > 4 else "****"
 
 
 class FetchError(Exception):
@@ -155,7 +204,12 @@ def render(data: dict, vertical: str) -> str:
 
 def parse_args(argv):
     p = argparse.ArgumentParser(description="Search Google through serper.dev (optional backend).")
-    p.add_argument("query")
+    p.add_argument("query", nargs="?", default=None)
+    p.add_argument("--check-key", action="store_true",
+                   help="report whether a key is available and stop. Makes no network call, "
+                        "so it costs no credit")
+    p.add_argument("--set-key", action="store_true",
+                   help=f"read a key from stdin and save it to {KEY_FILE}")
     p.add_argument("--vertical", choices=VERTICALS, default="search")
     p.add_argument("--num", type=int, default=DEFAULT_NUM)
     p.add_argument("--since", choices=sorted(SINCE), default=None)
@@ -167,12 +221,35 @@ def parse_args(argv):
     return p.parse_args(argv)
 
 
-def main(argv=None, fetcher=fetch) -> int:
+def main(argv=None, fetcher=fetch, stdin=None) -> int:
     args = parse_args(argv)
-    key = os.environ.get("SERPER_API_KEY", "").strip()
+
+    if args.set_key:
+        raw = (stdin if stdin is not None else sys.stdin).read().strip()
+        if not raw:
+            print("No key on stdin. Pipe it in: printf '%s' <key> | "
+                  "python websearch.py --set-key", file=sys.stderr)
+            return EXIT_NO_KEY
+        path = save_key(raw)
+        print(f"saved {mask(raw)} to {path}")
+        return EXIT_OK
+
+    key, source = resolve_key()
+
+    if args.check_key:
+        if key:
+            print(f"key available ({'environment' if source == 'env' else source})")
+            return EXIT_OK
+        print(SETUP_LINE, file=sys.stderr)
+        return EXIT_NO_KEY
+
     if not key:
         print(SETUP_LINE, file=sys.stderr)
         return EXIT_NO_KEY
+    if args.query is None:
+        print("No query given. Usage: websearch.py \"<query>\" [--vertical ...]",
+              file=sys.stderr)
+        return EXIT_ERROR
     if args.num > 10:
         print("note: more than 10 results costs 2 credits per query on serper.dev",
               file=sys.stderr)

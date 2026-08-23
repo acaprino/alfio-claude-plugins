@@ -56,9 +56,13 @@ Two backends produce candidate pages. Neither produces claims: only a page that 
 | Backend | When | How |
 |---|---|---|
 | Native `#websearch` | Default. Always available when the tool is in the toolset | The tool call, with the operators below |
-| serper.dev (Google) | `SERPER_API_KEY` is set, or `--backend serper` | `python $SKILLS/web-search-techniques/scripts/websearch.py "<query>" [--vertical search|news|scholar] [--num N] [--since h|d|w|m|y] [--gl CC] [--hl LANG] [--page P] [--json]`, run in the terminal |
+| serper.dev (Google) | A key is available, or `--backend serper` | `python $SKILLS/web-search-techniques/scripts/websearch.py "<query>" [--vertical search|news|scholar] [--num N] [--since h|d|w|m|y] [--gl CC] [--hl LANG] [--page P] [--json]`, run in the terminal |
 
-Selection rule (the lead decides once per run and writes it into every spawn prompt): `auto` means serper when the key is set, else native. The chosen backend is stated in the plan, in each researcher report and in the final report header. A run never silently falls back: if serper was forced and the key is missing the script exits 2 with the setup line, and the run stops there.
+Selection rule (the lead decides once per run and writes it into every spawn prompt): `auto` means serper when a key is available, else native. The chosen backend is stated in the plan, in each researcher report and in the final report header.
+
+Where the key comes from, in order: `SERPER_API_KEY` in the environment, then `~/.serper_key`. Ask the script rather than looking yourself: run `python $SKILLS/web-search-techniques/scripts/websearch.py --check-key` in the terminal; it exits 0 when a key is available and 2 when none is, makes no network call, and costs no credit. A key the user pastes in chat is saved by piping it to `--set-key`, which is the lead's job at pre-flight and nobody else's: researchers never see a key, they call the script and the script reads it. Never echo a key, never write one into a prompt, a report or any other file, and never read the key file yourself.
+
+A run never silently upgrades or degrades: with `auto` and no key the backend is native search and the plan says so, and a forced `--backend serper` with no key either collects one in chat or stops with the setup line, never quietly searches elsewhere.
 
 What serper earns its call for:
 - `--vertical scholar` for academic threads, `--vertical news --since w|m` for recency threads

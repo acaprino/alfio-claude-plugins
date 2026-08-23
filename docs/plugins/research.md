@@ -64,11 +64,31 @@ What you will see, in order:
 
 ### Enabling the serper.dev backend (optional)
 
-By default the plugin searches with the session's native `WebSearch`. Setting a serper.dev key switches discovery to Google's index and adds the `news` and `scholar` verticals, date filters and up to 100 results per call; the report header then says `Backend: serper`.
+By default the plugin searches with the session's native `WebSearch`. Adding a serper.dev key switches discovery to Google's index and adds the `news` and `scholar` verticals, date filters and up to 100 results per call; the report header then says `Backend: serper`.
 
-1. Get a key at https://serper.dev (2,500 free queries, no card; then $1.00 per 1,000 on the entry plan, down to $0.30 per 1,000 at volume).
-2. Export it in the environment Claude Code runs in: `export SERPER_API_KEY=...` (bash, zsh) or `$env:SERPER_API_KEY = "..."` (PowerShell). Put it in your shell profile to make it permanent; restart the session after setting it.
-3. Run as usual. `--backend auto` (the default) picks serper whenever the key is present. `--backend websearch` forces the native tool even with the key set; `--backend serper` forces serper and stops with a setup line if the key is missing, so a run is never silently on the weaker index.
+The short way: get a key at https://serper.dev (2,500 free queries, no card), then run
+
+```
+/research:team-research "<your question>" --backend serper
+```
+
+With no key set, that asks for one in chat: paste it into the free-text field and the run continues on serper. The key is saved to `~/.serper_key`, so every later run finds it and the question is asked once, not every time. The other two options in that dialog are to continue on native search for this run, or to cancel.
+
+Two things worth knowing before you paste: a key typed in chat is in the session transcript, and the file is written readable only by your user (a real permission on POSIX; on Windows it inherits your profile's ACL). If you would rather the key never appear in a transcript, set it in the environment instead, which takes precedence over the file:
+
+```
+export SERPER_API_KEY=...          # bash, zsh; put it in your profile to persist
+$env:SERPER_API_KEY = "..."        # PowerShell
+```
+
+Either way `--backend auto` (the default) uses serper whenever a key is available, `--backend websearch` forces the native tool even when one is, and `--backend serper` forces serper. To check what the plugin can see, or to save a key by hand:
+
+```
+python plugins/research/scripts/websearch.py --check-key
+printf '%s' YOUR_KEY | python plugins/research/scripts/websearch.py --set-key
+```
+
+`--check-key` makes no network call and costs no credit. To revoke, delete `~/.serper_key` (and unset the environment variable). Unattended runs never ask: `--backend serper --auto` with no key stops with the setup line rather than waiting on a question nobody is there to answer.
 
 Cost per run, order of magnitude: `standard` makes 45-75 serper calls, `deep` 150-300; a call returning more than 10 results costs two credits. The plan states the approximate count before you approve it. Serper never replaces reading: snippets qualify a page for fetching, and only pages actually read are cited.
 
@@ -77,7 +97,7 @@ Cost per run, order of magnitude: `standard` makes 45-75 serper calls, `deep` 15
 | Message | Cause | What to do |
 |---|---|---|
 | "No search backend available" | `WebSearch` is not in the session's toolset and no serper key is set | Enable web search for the session, or set `SERPER_API_KEY` |
-| The `websearch.py` setup line | `--backend serper` was forced and the key is missing or the service failed | Set the key, or drop the flag to fall back to native search |
+| The `websearch.py` setup line | `--backend serper --auto` with no key, or the service failed | Paste a key when asked (an attended run offers this), set one as above, or drop the flag to use native search |
 | "This command has no local-codebase capability" | The question is about local code | Use Grep, Glob, or a codebase-oriented plugin |
 | "More than half the researchers failed" | The wave could not search or fetch (offline, blocked, quota) | Fix the connectivity and re-run; nothing is synthesized from a failed wave |
 
@@ -115,10 +135,10 @@ Query formulation, source authority ranking, the two search backends, reading ru
 
 | Script | Purpose |
 |---|---|
-| `scripts/websearch.py` | Optional serper.dev backend. Used when `SERPER_API_KEY` is set or `--backend serper`; `--vertical search\|news\|scholar`, `--num`, `--since h\|d\|w\|m\|y`, `--gl`, `--hl`, `--json`. Exit 2 with a setup line when the key is missing, 1 on HTTP errors. Stdlib only |
+| `scripts/websearch.py` | Optional serper.dev backend. Used when a key is available or `--backend serper`; `--vertical search\|news\|scholar`, `--num`, `--since h\|d\|w\|m\|y`, `--gl`, `--hl`, `--json`. `--check-key` reports availability without a network call; `--set-key` saves a key from stdin to `~/.serper_key`. Reads `SERPER_API_KEY` first, then that file. Exit 2 when no key is available, 1 on HTTP errors. Stdlib only |
 | `scripts/webfetch.py` | Bot-block fallback fetcher (Chrome TLS impersonation via curl_cffi, httpx fallback) |
 
-Backend rule: `auto` uses serper when the key is set, native `WebSearch` otherwise; the choice is stated in the plan, in each researcher report and in the report header. Serper never replaces reading: snippets qualify a page for fetching, only read pages are cited.
+Backend rule: `auto` uses serper when a key is available, native `WebSearch` otherwise; the choice is stated in the plan, in each researcher report and in the report header. Serper never replaces reading: snippets qualify a page for fetching, only read pages are cited.
 
 ---
 

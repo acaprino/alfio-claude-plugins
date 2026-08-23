@@ -19,7 +19,7 @@ Load `research:web-search-techniques` before planning: it names the two backends
 | `--no-clarify` | off | Skip Phase 1; the plan gate still runs |
 | `--auto` | off | Skip both gates: print the plan and run. For unattended use |
 | `--out` | `research/<YYYY-MM-DD>-<slug>.md` under the current working directory | A file path, or a directory (the default filename goes inside it) |
-| `--backend` | `auto` | `auto`: serper when `SERPER_API_KEY` is set, else native `WebSearch`; `serper` forces serper (stops with the setup line when the key is missing); `websearch` forces native search |
+| `--backend` | `auto` | `auto`: serper when a key is available (`SERPER_API_KEY`, or `~/.serper_key`), else native `WebSearch`; `serper` forces serper and offers to collect a key in chat when none is set; `websearch` forces native search |
 | `--domain` | detected | Free-form hint (security, law, finance, nutrition, anything) shaping vocabulary, source families and the synthesis persona |
 
 Slug: the restated question, lowercased, ASCII letters and digits with hyphens, at most 60 characters.
@@ -37,9 +37,26 @@ A one-fact question (single answer, one source suffices) is not a tier: spawn `r
 ## Phase 0: Pre-flight
 
 1. Parse `$ARGUMENTS` into the question and the flags above.
-2. Backend: if `--backend serper` or (`auto` and `SERPER_API_KEY` is set in the environment), the backend is `serper`; otherwise `websearch`. Check `serper` works before planning: `python ${CLAUDE_PLUGIN_ROOT}/scripts/websearch.py "test" --num 1`; exit 2 means no key (stop with its setup line if serper was forced; fall to `websearch` only when `auto`), exit 1 means the service failed (same rule).
-3. If the backend is `websearch` and `WebSearch` is not in your toolset, stop: "No search backend available: WebSearch is not in this session's toolset and SERPER_API_KEY is not set."
-4. If the question is about local code, stop and say so.
+2. Ask the script whether a serper key is available: `python ${CLAUDE_PLUGIN_ROOT}/scripts/websearch.py --check-key`. Exit 0 means yes (it names the source, the environment or the key file), exit 2 means no. The check makes no network call, so it costs no credit.
+3. Resolve the backend:
+   - Key available: `auto` and `serper` both mean `serper`; `--backend websearch` still means `websearch`.
+   - No key, `--backend serper`: the user asked for serper by name, so offer to set it up (step 4) instead of silently doing something else.
+   - No key, `auto`: the backend is `websearch`. Do not ask; a run nobody asked to route through serper should not stop to collect a key. Say so once in the plan: `Backend: websearch (no serper key; run with --backend serper to set one up)`.
+   - No key, `--backend serper`, and `--auto` is set: an unattended run cannot answer a question, so stop with the script's setup line.
+4. Collecting a key in chat (only in the case named above). Ask with `AskUserQuestion`, one question, these options:
+   - `Paste my serper.dev key` (recommended): the user supplies it through the free-text field. Say plainly in the question text that the key will be saved to `~/.serper_key` for this and future runs, and that a key typed in chat is in the transcript.
+   - `Use the native WebSearch instead`: continue with `websearch`, no key collected.
+   - `Cancel the run`: stop, no plan, no researchers.
+
+   With a key in hand, save it through the script rather than by writing the file yourself, so the permissions and the format are the script's business:
+
+   ```bash
+   printf '%s' '<the key the user pasted>' | python ${CLAUDE_PLUGIN_ROOT}/scripts/websearch.py --set-key
+   ```
+
+   Then re-run `--check-key` to confirm, and continue with the backend `serper`. Handling rules, all of them absolute: never echo the key back (the script prints only the last four characters), never write it into the plan, a spawn prompt, the report, the companion file, or any other file, and never read `~/.serper_key` yourself. Researchers never receive the key: they call the script, and the script reads it. If the user pastes something that is not a key, `--check-key` still passes (the file holds whatever was given) and the first real search fails with `HTTP 401` or `403`; treat that as a bad key, say so, and offer the same question again once.
+5. If the backend is `websearch` and `WebSearch` is not in your toolset, stop: "No search backend available: WebSearch is not in this session's toolset and no serper key is set."
+6. If the question is about local code, stop and say so.
 
 ## Phase 1: Clarify
 
@@ -170,7 +187,7 @@ Record "Citation check: done" in the header only after this pass.
 
 - Researcher `error` or empty: recorded in Methodology; one re-spawn with a reworded objective (standard and deep); then a gap in limitations.
 - More than half of a wave failed: stop and report, no synthesis.
-- `--backend serper` without a key, or serper failing at pre-flight: stop with the script's message.
+- `--backend serper` without a key: offer to collect one in chat (Phase 0 step 4), or stop with the script's setup line when `--auto` makes the question unanswerable. Serper failing at pre-flight for any other reason: stop with the script's message.
 - No search backend at all: stop at pre-flight.
 - Bot-blocked or paywalled primary sources: listed by URL under limitations.
 
