@@ -104,7 +104,7 @@ More detail in [Test authoring knowledge bases (TDD and browser E2E)](#test-auth
 | **[codebase-xray](docs/plugins/codebase-xray.md)** | 7-phase systematic codebase X-ray with pattern detection and concurrent runs, plus the interconnect mapper that review and documentation both build on (was deep-dive-analysis) | 5 | 1 | 2 |
 | **[business](docs/plugins/business.md)** | Tech law, compliance, privacy docs, contracts, SaaS business planning | 3 | 1 | - |
 | **[stripe](docs/plugins/stripe.md)** | Stripe payments, subscriptions, Connect, revenue optimization, /audit-webhooks | 3 | 1 | 1 |
-| **[research](docs/plugins/research.md)** | Quick search and deep multi-source investigation with shared web-search techniques skill | 2 | 1 | 1 |
+| **[research](docs/plugins/research.md)** | Deep web research with clarification, plan approval, parallel iterative researchers, citation check and a report file; quick single-fact lookups; optional serper.dev backend | 2 | 1 | 1 |
 | **[project-setup](docs/plugins/project-setup.md)** | Create and maintain CLAUDE.md with ground truth verification | 1 | - | 2 |
 | **[clean-code](docs/plugins/clean-code.md)** | Rewrite code for readability without changing behavior | 1 | - | 1 |
 | **[app-analyzer](docs/plugins/app-analyzer.md)** | Analyze Android apps via ADB and webapps via Playwright | 1 | - | - |
@@ -194,7 +194,6 @@ flowchart TD
     testing --> deveressentials
     abstraction --> deepdive
     deepdive --> agentteams
-    research --> agentteams
     frontendreview --> impeccable
     frontendreview --> uiuxpromax
     frontendreview --> frontenddesign
@@ -204,7 +203,7 @@ flowchart TD
     frontendreview --> platformeng
 ```
 
-Every arrow is a hard dependency. As of marketplace 21.3.0 there are no optional edges at all: a dependency on a plugin inside this marketplace is always mandatory, so installing one plugin installs everything it needs and no capability can silently go missing. The graph is rooted at `codebase-xray`, the plugin that works out how a codebase actually behaves: `senior-review` (review), `codebase-mapper` (documentation), and `abstraction-architect` all build on top of it, and it depends on nothing of ours. That shape is deliberate as of marketplace 16.0.0, when the shared interconnect mapper moved into `codebase-xray` and removed the last near-cycle. `senior-review`'s six edges back its review dimensions, each run or skipped on whether the change shows its signal, never on whether a plugin is present. `text-humanizer` is a pure leaf: zero dependencies, four dependents. `frontend-review` sits outside that tree: its three external arrows are hard dependencies on design plugins from other marketplaces, which the user installs by hand, so it does not join the `codebase-xray` root; its four local arrows back the auto-detected code dimensions. `research` depends on no local plugin at all, deliberately: it researches the web and nothing else. `peer-review` sits outside the tree the same way `ai-tooling` does: its one arrow is a hard dependency on external `superpowers`, and nothing of ours depends on it.
+Every arrow is a hard dependency. As of marketplace 21.3.0 there are no optional edges at all: a dependency on a plugin inside this marketplace is always mandatory, so installing one plugin installs everything it needs and no capability can silently go missing. The graph is rooted at `codebase-xray`, the plugin that works out how a codebase actually behaves: `senior-review` (review), `codebase-mapper` (documentation), and `abstraction-architect` all build on top of it, and it depends on nothing of ours. That shape is deliberate as of marketplace 16.0.0, when the shared interconnect mapper moved into `codebase-xray` and removed the last near-cycle. `senior-review`'s six edges back its review dimensions, each run or skipped on whether the change shows its signal, never on whether a plugin is present. `text-humanizer` is a pure leaf: zero dependencies, four dependents. `frontend-review` sits outside that tree: its three external arrows are hard dependencies on design plugins from other marketplaces, which the user installs by hand, so it does not join the `codebase-xray` root; its four local arrows back the auto-detected code dimensions. `research` depends on nothing at all, deliberately: it researches the web and nothing else. `peer-review` sits outside the tree the same way `ai-tooling` does: its one arrow is a hard dependency on external `superpowers`, and nothing of ours depends on it.
 
 ### Frontend and design
 
@@ -264,12 +263,12 @@ claude plugin marketplace add wshobson/agents
 claude plugin install agent-teams@claude-code-workflows
 ```
 
-The four pipelines this marketplace built on top of the old `agent-teams` plugin were relocated rather than removed. Their commands live locally, but each of the four plugins declares `agent-teams@claude-code-workflows` as a hard dependency in `marketplace.json` (the pipelines load its skills and spawn its `team-reviewer` fallback agent), so the upstream install above is required:
+The three pipelines this marketplace built on top of the old `agent-teams` plugin were relocated rather than removed (the fourth, `/research:team-research`, dropped the dependency in marketplace 25.0.0 and runs on plain subagents). Their commands live locally, but each of the three plugins declares `agent-teams@claude-code-workflows` as a hard dependency in `marketplace.json` (the pipelines load its skills and spawn its `team-reviewer` fallback agent), so the upstream install above is required:
 
 - `/agent-teams:team-review` -> [`/senior-review:team-review`](docs/plugins/senior-review.md)
 - `/agent-teams:team-deep-dive` -> [`/codebase-xray:team-analyze`](docs/plugins/codebase-xray.md)
 - `/agent-teams:team-codebase-map` -> [`/codebase-mapper:team-codebase-map`](docs/plugins/codebase-mapper.md)
-- `/agent-teams:team-research` -> [`/research:team-research`](docs/plugins/research.md)
+- `/agent-teams:team-research` -> [`/research:team-research`](docs/plugins/research.md) (no longer needs agent-teams)
 
 ### Browser automation (Playwright)
 

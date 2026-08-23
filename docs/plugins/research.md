@@ -1,93 +1,66 @@
 # Research Plugin
 
-> Search and research toolkit - fast lookups and deep multi-source investigation with query optimization across codebases and web sources.
+> Deep web research modelled on the commercial deep-research products (clarify, plan, parallel iterative researchers, citation check, report file), plus quick single-fact lookups. Web only: it reads no local codebase and depends on nothing.
 
-## Agents
+## Command
 
-### `quick-searcher`
-
-Fast search agent for simple fact-finding, single-concept lookups, and quick answers.
+### `/research:team-research`
 
 | | |
 |---|---|
-| **Model** | `sonnet` |
-| **Use for** | Quick fact-finding, single-concept lookups, simple queries |
+| **Invoke** | `/research:team-research "<question>" [--depth auto\|quick\|standard\|deep] [--no-clarify] [--auto] [--out <file-or-dir>] [--backend auto\|websearch\|serper] [--domain <hint>]` |
+| **Writes** | `research/<YYYY-MM-DD>-<slug>.md` (or `--out`) and `<stem>.researchers.md` beside it |
 
-**Invocation:**
+Phases: pre-flight (backend detection), clarify (2-4 questions in one call, only when the question is ambiguous; `--no-clarify` skips), plan (sub-questions with source families and boundaries, shown for approval; `--auto` skips both gates), wave 1 (one `deep-researcher` per sub-question, parallel), gap analysis (verifiers on contradictions; at `deep` a targeted wave 2), synthesis (long-form report in prose), citation check (every claim resolves to a source a researcher read), deliver (file + companion + chat summary).
+
+| Tier | Researchers | Pages read | Waves | Per-researcher budget |
+|---|---|---|---|---|
+| `quick` | 1-2 | ~10 | 1 | 8 searches / 6 pages / 2 rounds |
+| `standard` | 3-5 | 30-60 | 1 + verifiers | 15 / 12 / 4 |
+| `deep` | 6-12 | 100+ | 2 + verifiers | 25 / 20 / 6 |
+
+`auto` picks the tier from the question; a one-fact question is answered by `quick-searcher` directly with no run. Report sections: run header, executive summary, key findings, one section per sub-question, contradictions and resolutions, confidence and limitations, sources (only pages actually read), methodology (the approved plan verbatim, per-researcher budgets and exit reasons).
+
 ```
-Use the quick-searcher agent to find [specific fact/file/value]
+/research:team-research "Best practices for WebSocket reconnection in 2026"
+/research:team-research "GDPR retention rules for transaction logs" --domain law --depth deep
+/research:team-research "Should we migrate from REST to gRPC?" --auto --out docs/research/
 ```
+
+## Agents
 
 ### `deep-researcher`
 
-Expert deep research agent for complex multi-source investigation requiring systematic coverage and cross-referencing.
+Iterative investigator for one sub-question: orient with broad queries, read the pages that matter, keep a ledger (claims, sources with dates and authority rank, contradictions, open threads), narrow round by round, stop at saturation or budget, return a compressed cited report. Spawned by the command; directly invokable for one focused investigation.
 
 | | |
 |---|---|
 | **Model** | `inherit` |
-| **Use for** | Complex research, iterative refinement, multi-source cross-referencing, query optimization |
+| **Tools** | Read, WebSearch, WebFetch, Bash |
 
-**Invocation:**
-```
-Use the deep-researcher agent to research [complex topic/question]
-```
+### `quick-searcher`
 
----
+Single-fact lookups (1-3 searches, lead with the answer) and the verifier the command spawns to settle one contested claim with a third independent source.
 
-## Skills
+| | |
+|---|---|
+| **Model** | `sonnet` |
+| **Tools** | Read, WebFetch, WebSearch, Bash |
+
+## Skill
 
 ### `web-search-techniques`
 
-Shared knowledge base for web search: query techniques, source ranking, WebFetch guidance, and `webfetch.py` fallback for bot-blocked content. Loaded by both `quick-searcher` and `deep-researcher` agents so they don't duplicate content.
+Query formulation, source authority ranking, the two search backends, reading rules (WebFetch, then `webfetch.py` on a bot-block, browser only if `playwright-skill` happens to be installed), anti-loop rules. Loaded by both agents and the command.
 
-| | |
+## Scripts
+
+| Script | Purpose |
 |---|---|
-| **Invoke** | Skill reference (auto-loaded by research agents) |
-| **Trigger** | Any web search work (operator selection, domain filtering, source quality assessment, WebFetch extraction) |
+| `scripts/websearch.py` | Optional serper.dev backend. Used when `SERPER_API_KEY` is set or `--backend serper`; `--vertical search\|news\|scholar`, `--num`, `--since h\|d\|w\|m\|y`, `--gl`, `--hl`, `--json`. Exit 2 with a setup line when the key is missing, 1 on HTTP errors. Stdlib only |
+| `scripts/webfetch.py` | Bot-block fallback fetcher (Chrome TLS impersonation via curl_cffi, httpx fallback) |
 
-**Content:**
-- Query operators and syntax (`site:`, `intitle:`, `filetype:`, `-exclusion`)
-- Source ranking priorities (vendor docs > primary sources > community > aggregators)
-- WebFetch guidance: when to fetch, anti-bot fallback via `${CLAUDE_PLUGIN_ROOT}/scripts/webfetch.py` (curl_cffi Chrome TLS impersonation)
-- Anti-loop rules (never repeat a query verbatim; change terminology / broaden / switch domain)
-- Citation format
-
----
-
-## Commands
-
-### `/research:team-research`
-
-Deep web research with parallel investigators covering complementary source angles plus domain-specific expertise, synthesized into one report with confidence levels. It researches the web and nothing else: it reads no local codebase and depends on no local plugin.
-
-**Prerequisites:** requires the upstream `agent-teams` plugin (`wshobson/agents`, MIT) for the `agent-teams:team-composition-patterns` and `agent-teams:team-communication-protocols` skills:
-
-```
-/plugin marketplace add wshobson/agents
-/plugin install agent-teams@claude-code-workflows
-```
-
-| | |
-|---|---|
-| **Invoke** | `/research:team-research <question-or-topic> [--domain <topic-domain>] [--depth quick\|standard\|deep]` |
-
-**Depth levels:**
-
-| Depth | Researchers | Roles |
-|-------|-------------|-------|
-| `quick` | 2 | The 2 most relevant source angles |
-| `standard` | 3 | The 3 most relevant source angles |
-| `deep` | 4 | 3 source angles + Domain expert |
-
-Every researcher is a `research:deep-researcher` instance. The angle researchers each get one of the four angles the agent already classifies into (authoritative, community, comparison, recency), and no two get the same one: overlapping angles produce agreement that means nothing, since they read the same sources. The domain expert is a dedicated instance given a persona from `--domain` or the detected topic; any domain works (security, python, finance, nutrition, law), so the plugin stays usable on any subject. A question about local code belongs to Grep, Glob, or a codebase-oriented plugin: this command has no local-codebase capability and says so rather than improvising one.
-
-```
-/research:team-research "Best practices for WebSocket reconnection" --depth deep
-/research:team-research "GDPR retention rules for transaction logs" --domain law
-/research:team-research "Should we migrate from REST to gRPC?" --depth deep --domain architecture
-```
-
-Synthesis cross-references the angles against each other and against the domain expert's assessment, assigns an overall confidence level (High/Medium/Low), and lists open questions the researchers could not resolve. Agreement counts as evidence only across angles that read different source families; two researchers who read the same page agreeing counts once.
+Backend rule: `auto` uses serper when the key is set, native `WebSearch` otherwise; the choice is stated in the plan, in each researcher report and in the report header. Serper never replaces reading: snippets qualify a page for fetching, only read pages are cited.
 
 ---
 

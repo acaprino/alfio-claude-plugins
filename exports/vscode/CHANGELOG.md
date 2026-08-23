@@ -1,5 +1,12 @@
 # Changelog
 
+## 25.0.0
+
+- `research` 6.0.0 brings `/team-research` to the shape of the commercial deep-research products. The prompt, driven by `research-orchestrator`, clarifies scope only when the question is ambiguous, shows a plan of sub-questions for approval (`--auto` skips both gates), dispatches one `deep-researcher` per sub-question in parallel, verifies contradictions with `quick-searcher`, runs a targeted second wave at `--depth deep`, synthesizes a long-form report with inline citations, checks that every claim resolves to a page a researcher actually read, and writes the report to `research/<date>-<slug>.md` (or `--out`) with a companion file of the raw researcher reports. Tiers `quick` / `standard` / `deep` scale researchers (1-2 / 3-5 / 6-12) and pages read (~10 / 30-60 / 100+).
+- `deep-researcher` is now an iterative single-sub-question investigator (orient, read, ledger, narrow, stop at saturation) returning a compressed cited report; its old self-orchestrating angle mode is gone. `quick-searcher` keeps single-fact lookups and gains a verifier mode that settles one contested claim with a third independent source.
+- New optional search backend: `websearch.py` (stdlib only) queries serper.dev when `SERPER_API_KEY` is set, adding Google's index, the `news` and `scholar` verticals and date filters. Never required: without the key the native search tool is used, and the backend in use is stated in the plan and in the report header. `web-search-techniques` documents both backends and the read-not-skim rule.
+- The `research` bundle no longer references the experimental agent-teams flow at all; the Claude Code source dropped its `agent-teams` dependency and now depends on nothing.
+
 ## 24.1.0
 
 - The vendored superpowers methodology moves from upstream 6.2.0 to **6.3.0**. Eleven files carried real changes, applied on top of this port's adaptations rather than over them.
