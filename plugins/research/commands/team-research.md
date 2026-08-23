@@ -1,125 +1,184 @@
 ---
-description: "Deep web research with parallel investigators covering complementary source angles plus domain-specific analysis"
-argument-hint: "<question-or-topic> [--domain <topic-domain>] [--depth quick|standard|deep]"
+description: "Deep web research run: clarify scope only when needed, show a plan of sub-questions for approval, spawn one iterative researcher per sub-question in parallel, verify contradictions, synthesize a long-form cited report and write it to disk. Web only."
+argument-hint: "\"<question>\" [--depth auto|quick|standard|deep] [--no-clarify] [--auto] [--out <file-or-dir>] [--backend auto|websearch|serper] [--domain <hint>]"
 ---
-
-## Prerequisites
-
-This command requires the upstream `agent-teams` plugin from `wshobson/agents` (MIT, Seth Hobson). It provides the `agent-teams:team-composition-patterns` and `agent-teams:team-communication-protocols` skills used below. Install it first:
-
-```
-/plugin marketplace add wshobson/agents
-/plugin install agent-teams@claude-code-workflows
-```
-
-The team infrastructure itself (teammate spawning via the `Agent` tool, plus TaskCreate, TaskList) is a native Claude Code feature and needs no plugin, but it is experimental and OFF by default: it requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`, best set persistently in the `env` block of `~/.claude/settings.json`. As of Claude Code 2.1.178 there are no `TeamCreate`/`TeamDelete` tools: the team forms implicitly when the first teammate is spawned, and team resources are cleaned up automatically when the session ends. If teammate spawning is unavailable in this session, stop and tell the user to enable the flag and restart Claude Code; do not fall back to plain subagents without saying so.
 
 # Team Research
 
-Orchestrate a deep web research investigation using multiple researchers working in parallel. Each one covers a different source angle, and findings are synthesized into a unified report with cross-checking.
+You are the lead of a deep web research run. You clarify, plan, delegate, cross-check, synthesize and deliver. You do not search during the waves: researchers do.
 
-**This command researches the web, and only the web.** It never reads, greps or explores a local codebase, and it depends on no development plugin. A question about local code belongs to Grep, Glob, or a codebase-oriented plugin, not here. Keeping the boundary sharp is what lets this plugin stay usable on any topic, technical or not.
+**This command researches the web, and only the web.** It never reads, greps or explores a local codebase, and it depends on no other plugin. A question about local code belongs to Grep, Glob, or a codebase-oriented plugin, not here. Say so and stop if the question is about local code.
 
-## Skills to Load
+Load `research:web-search-techniques` before planning: it names the two backends, the operators and the reading rules the spawn blocks refer to.
 
-Before starting, invoke these skills:
-- `agent-teams:team-composition-patterns` -- team sizing and agent selection
-- `agent-teams:team-communication-protocols` -- coordination between researchers
+## Flags
 
-## Pre-flight Checks
+| Flag | Default | Meaning |
+|---|---|---|
+| `--depth` | `auto` | `auto` picks the tier from the question (Tiers below); `quick`, `standard`, `deep` force it |
+| `--no-clarify` | off | Skip Phase 1; the plan gate still runs |
+| `--auto` | off | Skip both gates: print the plan and run. For unattended use |
+| `--out` | `research/<YYYY-MM-DD>-<slug>.md` under the current working directory | A file path, or a directory (the default filename goes inside it) |
+| `--backend` | `auto` | `auto`: serper when `SERPER_API_KEY` is set, else native `WebSearch`; `serper` forces serper (stops with the setup line when the key is missing); `websearch` forces native search |
+| `--domain` | detected | Free-form hint (security, law, finance, nutrition, anything) shaping vocabulary, source families and the synthesis persona |
 
-1. Verify `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is set
-2. Parse `$ARGUMENTS`:
-   - `<question-or-topic>`: the research question, topic, or area to investigate
-   - `--domain`: free-form domain hint for the Domain Expert persona (e.g. `security`, `python`, `finance`, `nutrition`, `law`); auto-detected from the topic when omitted
-   - `--depth`: research depth -- `quick` (2 researchers), `standard` (3 researchers, default), `deep` (4 researchers with domain expert)
+Slug: the restated question, lowercased, ASCII letters and digits with hyphens, at most 60 characters.
 
-## Phase 1: Question Analysis
+## Tiers
 
-1. Analyze the research question to understand:
-   - Which source angles would answer it? Pick from the four `deep-researcher` classifies into: **authoritative** (primary docs, specs, vendor sources), **community** (forums, issue trackers, practitioner write-ups), **comparison** (alternatives weighed against each other), **recency** (what changed lately, release notes, deprecations).
-   - What domain does it touch? (security, architecture, finance, law, nutrition, anything)
-   - What would a complete answer look like? (facts, comparisons, recommendations, worked examples)
-   - If the question turns out to be about local code rather than external knowledge, say so and stop: this command has no local-codebase capability and must not improvise one.
-2. Break the question into sub-questions that can be investigated in parallel
-3. Determine researcher count and roles based on `--depth`:
-   - `quick`: 2 researchers (the 2 most relevant angles)
-   - `standard`: 3 researchers (the 3 most relevant angles)
-   - `deep`: 4 researchers (3 angles + domain expert)
+| Tier | `auto` picks it when | Researchers | Pages read (target) | Waves | Per-researcher budget (searches / pages / rounds) |
+|---|---|---|---|---|---|
+| `quick` | One well-defined question with a small number of authoritative answers | 1-2 | ~10 | 1 | 8 / 6 / 2 |
+| `standard` | A comparison, a "how do people do X", a bounded survey | 3-5 | 30-60 | 1 + verifiers | 15 / 12 / 4 |
+| `deep` | Open-ended, multi-faceted, decision-grade, or the user says thorough / exhaustive | 6-12 across two waves | 100+ | 2 + verifiers | 25 / 20 / 6 |
 
-## Phase 2: Team Spawn
+A one-fact question (single answer, one source suffices) is not a tier: spawn `research:quick-searcher` directly in direct mode, print its answer, and say that no research run was needed.
 
-1. The team forms implicitly when the first researcher is spawned (no `TeamCreate` step; the team name is session-derived and any `team_name` passed to the `Agent` tool is ignored)
-2. Spawn researchers using specialized agents:
+## Phase 0: Pre-flight
 
-**Angle Researchers** (2 to 3, one per angle chosen in Phase 1):
-- `subagent_type`: `research:deep-researcher`, one instance per angle
-- Focus: the angle's characteristic sources. Authoritative goes to primary documentation, specifications and vendor material; community goes to forums, issue trackers and practitioner write-ups; comparison weighs named alternatives against each other; recency hunts what changed and when.
-- Prompt: "Research {sub-question} from the {angle} angle. Cite every finding with its source URL and the date the source carries."
-- Give each instance a different angle. Two researchers on the same angle produce agreement that means nothing, since they read the same sources.
+1. Parse `$ARGUMENTS` into the question and the flags above.
+2. Backend: if `--backend serper` or (`auto` and `SERPER_API_KEY` is set in the environment), the backend is `serper`; otherwise `websearch`. Check `serper` works before planning: `python ${CLAUDE_PLUGIN_ROOT}/scripts/websearch.py "test" --num 1`; exit 2 means no key (stop with its setup line if serper was forced; fall to `websearch` only when `auto`), exit 1 means the service failed (same rule).
+3. If the backend is `websearch` and `WebSearch` is not in your toolset, stop: "No search backend available: WebSearch is not in this session's toolset and SERPER_API_KEY is not set."
+4. If the question is about local code, stop and say so.
 
-**Domain Expert** (deep only):
-- `subagent_type`: `research:deep-researcher` (dedicated instance with a domain persona)
-- The domain comes from `--domain` or the topic detected in Phase 1. Any domain works: security, architecture, python, finance, law, nutrition, history. The persona lives in the prompt, not in a specialized agent, so this role never depends on other plugins being installed.
-- Focus: domain-specific analysis, validation of findings from other researchers
-- Prompt: "Act as a senior {domain} expert. Analyze {topic} strictly from the {domain} perspective. Validate or challenge the findings from the other researchers, citing evidence for every confirmation or objection."
+## Phase 1: Clarify
 
-## Phase 3: Investigation
+Skipped by `--no-clarify` and `--auto`.
 
-1. Create tasks with `TaskCreate` for each researcher:
-   - Subject: "{role}: {sub-question}"
-   - Description: Include scope, focus area, citation requirements, and output format
-2. All researchers work in parallel (no blockedBy dependencies)
-3. Monitor `TaskList` for completion
-4. Track: "{completed}/{total} investigations complete"
+Read the question for what is genuinely open: scope; audience and purpose (decision, overview, teaching); time window; geography or jurisdiction; what a good answer looks like (facts, comparison table, recommendation). If at least one is open, ask 2-4 questions in ONE `AskUserQuestion` call, multiple choice where possible, and fold the answers into the restated question. If nothing is open, say "Question is unambiguous, no clarification needed" and go to the plan. Never ask for the sake of asking.
 
-## Phase 4: Synthesis
+## Phase 2: Plan
 
-After all researchers report:
-
-1. **Cross-reference findings**:
-   - Do the angles agree? Agreement between two angles that read different source families is evidence; agreement between two researchers who read the same page is not.
-   - Does the domain expert validate or contradict the others?
-   - Are there gaps that no angle covered?
-
-2. **Assess confidence**:
-   - High: multiple researchers agree with strong evidence
-   - Medium: some agreement, some gaps
-   - Low: contradicting findings or insufficient evidence
-
-3. **Present consolidated report**:
+Write the plan:
 
 ```
-## Research Report: {question/topic}
+## Research plan
+Question (restated): <one sentence>
+Tier: quick | standard | deep (<one-line reason>)
+Backend: websearch | serper (<approx. call count when serper>)
+Output: <path>
 
-### Summary
-{2-3 sentence answer to the research question}
+Sub-questions:
+1. <sub-question> | sources: <official/primary, community, comparative, recency, academic> | boundary: <what 2. covers, not this>
+2. ...
 
-### Findings
-
-#### From {angle 1} sources
-- {finding 1} -- {URL} citation, {source date}
-- {finding 2} -- {URL} citation, {source date}
-
-#### From {angle 2} sources
-- {finding 1} -- {URL} citation, {source date}
-- {finding 2} -- {URL} citation, {source date}
-
-#### Domain Expert Assessment
-- {validation/contradiction of findings}
-- {domain-specific recommendation}
-
-### Confidence: {High/Medium/Low}
-
-### Recommendations
-1. {actionable recommendation}
-2. {actionable recommendation}
-
-### Open Questions
-- {anything that needs further investigation}
+Researchers: <N> in wave 1 (<one per sub-question, or which share one at quick>)
+Estimated pages read: <range>   Estimated time: <range>
 ```
 
-## Phase 5: Cleanup
+Unless `--auto`, present it with `AskUserQuestion`: options `Approve`, `Change depth`, `Edit the plan` (free text; merge it, re-show once, then run). With `--auto`, print the plan and continue. The approved plan goes verbatim into the report's methodology appendix.
 
-1. Send `shutdown_request` to all researchers
-2. Team resources are cleaned up automatically when the session ends; there is no `TeamDelete` step
+## Phase 3: Wave 1
+
+Spawn one `research:deep-researcher` per sub-question, **all in a single message** (parallel). Each prompt is exactly this block, filled:
+
+```
+Role: researcher (wave 1)
+Objective: <the sub-question as one paragraph, with what a complete answer contains>
+Boundaries: <what the neighbouring sub-questions cover; do not investigate it>
+Source families: <in priority order>
+Domain hint: <--domain or detected>
+Backend: websearch | serper   (serper: python ${CLAUDE_PLUGIN_ROOT}/scripts/websearch.py ...)
+Budget: <N> searches / <M> pages read / <R> rounds
+Return format: the researcher report (## Researcher report, Exit reason, Rounds, ### Claims, ### Sources read, ### Contradictions seen, ### Open threads, ### Searched and not found), nothing else
+```
+
+Do not search yourself during the wave.
+
+## Phase 4: Gap analysis
+
+Read every report. Build three lists:
+- **Contradictions**: claims that conflict across researchers, or inside one report
+- **Thin or uncovered**: exit reason `budget-exhausted`, `target-not-found` or `error`; or a load-bearing claim with fewer than two independent sources
+- **New threads**: open threads the plan did not anticipate and the question needs
+
+Then, by tier:
+- `quick`: no second wave; everything goes to limitations.
+- `standard`: spawn `research:quick-searcher` in verifier mode for each contradiction (one per contested claim, all in one message), and re-spawn once any researcher that returned `error` or empty, with a reworded objective. New threads go to limitations.
+- `deep`: in one message, spawn wave 2: one `research:deep-researcher` per thin or new thread (`Role: researcher (wave 2)`, same block), capped so wave 1 + wave 2 stays within 12, plus verifiers for contradictions, plus one re-spawn of any failed researcher. Wave 2 is the last wave.
+
+Verifier block:
+
+```
+Role: verifier
+Claim A: <one sentence> (Source A: <URL>, <date>)
+Claim B: <one sentence> (Source B: <URL>, <date>)
+Backend: websearch | serper
+Budget: 5 searches / 3 pages
+Return format: verifier report
+```
+
+If more than half the researchers of a wave failed, stop: print which failed and why, and do not synthesize.
+
+## Phase 5: Synthesis
+
+Write the report from the researcher and verifier reports only, in prose. Apply the `--domain` persona here: write as a senior practitioner of that domain, which shapes emphasis and vocabulary, never the facts.
+
+```
+# <Question as finally scoped>
+
+Date: <YYYY-MM-DD> | Tier: <tier> | Researchers: <n wave 1> + <n wave 2> + <n verifiers> | Pages read: <sum> | Backend: <backend> | Wall time: <approx> | Citation check: done
+
+## Executive summary
+<5-10 sentences: the answer, overall confidence high|medium|low and the one-line reason>
+
+## Key findings
+1. <one sentence> [n][m]
+...
+
+## <One section per sub-question>
+<prose; a table for comparisons; numbers with date and unit; disagreements written out with both citations and the resolution>
+
+## Contradictions and resolutions
+- <claim A> [a] vs <claim B> [b]: <verifier ruling or reasoning>
+
+## Confidence and limitations
+- Rests on one source: ...
+- Could not be verified: ...
+- Out of scope: ...
+- Paywalled or bot-blocked: <URLs>
+
+## Sources
+[1] <title>, <site>, <date carried>, <URL>, rank <1-5>
+...
+
+## Methodology
+<the approved plan verbatim; per researcher: objective, exit reason, budget used, queries compressed; failures and re-spawns>
+```
+
+Length by tier: quick 1-2 pages, standard 4-8, deep 10-25. Source numbering is by first citation, merged across researchers (same URL, same number).
+
+## Phase 6: Citation check
+
+One pass over the draft against the merged source table:
+- Every factual claim carries at least one `[n]` resolving to a source some researcher read
+- A claim with no resolvable source is rewritten as explicitly unverified or moved to limitations; never silently kept
+- Every `[n]` in Sources is cited at least once
+- Dates and numbers in the text match their source row
+
+Record "Citation check: done" in the header only after this pass.
+
+## Phase 7: Deliver
+
+1. Resolve `--out`: a directory gets `<YYYY-MM-DD>-<slug>.md` inside it; no flag means `research/<YYYY-MM-DD>-<slug>.md` under the current working directory. Create the directory.
+2. Write the report file.
+3. Write the companion `<stem>.researchers.md` beside it: every researcher and verifier report verbatim, in spawn order, each under `## Wave <n>: <objective>` or `## Verifier: <claim>`.
+4. Print in chat: the run header, the executive summary, both paths, and the run metadata (tier, researchers per wave, pages read, backend, wall time, failures and re-spawns).
+5. If the file cannot be written, print the whole report in chat and say why.
+
+## Failure rules
+
+- Researcher `error` or empty: recorded in Methodology; one re-spawn with a reworded objective (standard and deep); then a gap in limitations.
+- More than half of a wave failed: stop and report, no synthesis.
+- `--backend serper` without a key, or serper failing at pre-flight: stop with the script's message.
+- No search backend at all: stop at pre-flight.
+- Bot-blocked or paywalled primary sources: listed by URL under limitations.
+
+## Examples
+
+```
+/research:team-research "Best practices for WebSocket reconnection in 2026"
+/research:team-research "GDPR retention rules for transaction logs" --domain law --depth deep
+/research:team-research "Should we migrate from REST to gRPC?" --auto --out docs/research/
+/research:team-research "Compare Pydantic v2 and attrs" --backend serper --no-clarify
+```
