@@ -2,11 +2,11 @@
 
 **Date**: 2026-08-24
 **Repository**: `acaprino/claude-code-daodan`, renamed to `acaprino/daodan` at cutover
-**Status**: design approved in session, spec pending user review
+**Status**: approved in session, including the content-kernel and host-harness refinement
 
 ## 1. Goal
 
-Turn this repository into one marketplace that Claude Code, GitHub Copilot and Codex each recognize natively from the repository root. The repository will hold one host-neutral definition of every plugin, three peer adapters, and three generated installable catalogs. No host is the source for another host.
+Turn this repository into one marketplace that Claude Code, GitHub Copilot and Codex each recognize natively from the repository root. The repository will hold one host-neutral content kernel for every plugin, three peer host harnesses, and three generated installable catalogs. No host is the source for another host.
 
 The target is not a lowest-common-denominator bundle. Every published plugin must preserve one observable behavioral contract on all three hosts. A host may use a different mechanism, but a missing required capability blocks the release.
 
@@ -46,17 +46,21 @@ The design is complete when all of the following hold:
 
 ## 4. Architectural principles
 
-### 4.1 Meaning, translation, product
+### 4.1 Content kernel, host harness, product
 
 The repository has three ownership layers:
 
 ```text
-plugins/   = host-neutral meaning and behavioral contracts
-adapters/  = host-specific translation and explicit semantic overrides
+plugins/   = content kernels: Markdown behavior, resources and neutral contracts
+adapters/  = host harnesses: packaging, dispatch, scheduling and explicit overrides
 exports/   = generated installable products
 ```
 
 Only `plugins/` and `adapters/` are edited by maintainers. `exports/` and the three root marketplace manifests are generated, committed artifacts.
+
+The content kernel is the plugin. Markdown files contain its skills, specialist roles, workflows and durable knowledge. TOML is a declarative sidecar that names those files, connects their contracts and describes constraints the compiler must preserve. TOML does not replace prompts or duplicate operational prose.
+
+The host harness surrounds the same kernel with the mechanism each runtime understands. It owns host manifests, frontmatter, tool names, role dispatch, parallel scheduling, retry behavior, result collection and lifecycle integration. A host harness may change the execution topology, but not the kernel's observable contract.
 
 ### 4.2 Peer hosts
 
@@ -64,7 +68,7 @@ Claude, Copilot and Codex are peers. The compiler does not convert Claude conten
 
 ### 4.3 Readable core
 
-Host-neutral prose uses natural instructions such as "search the repository". It does not contain template expressions such as `{{SEARCH_TOOL}}`. Abstract capabilities occur in TOML control-plane files, not throughout Markdown bodies.
+Host-neutral prose uses natural instructions such as "search the repository". It does not contain template expressions such as `{{SEARCH_TOOL}}`. Abstract capabilities and execution constraints occur in TOML sidecars, not throughout Markdown bodies.
 
 ### 4.4 Explicit divergence
 
@@ -93,6 +97,7 @@ daodan/
 │       ├── skills/
 │       ├── roles/
 │       ├── workflows/
+│       ├── contracts/
 │       ├── policies/
 │       ├── references/
 │       ├── scripts/
@@ -124,7 +129,7 @@ daodan/
 
 TOML is the machine-readable source format because Python 3.11 and later provide `tomllib` in the standard library. Templates use a repository-owned, deliberately small substitution layer built on the Python standard library. They do not require Jinja or another template package.
 
-## 6. Neutral plugin model
+## 6. Content-kernel model
 
 The core has four primitives.
 
@@ -132,7 +137,7 @@ The core has four primitives.
 |---|---|---|---|---|
 | `skill` | Method, knowledge and supporting resources | skill | skill | skill |
 | `role` | A specialized responsibility | agent | custom agent | subagent or specialized skill |
-| `workflow` | Ordered or concurrent coordination | command plus agents | prompt plus orchestrator | skill plus subagent workflow |
+| `workflow` | Roles, phase dependencies, isolation and completion contracts | command plus team or subagents | coordinator plus custom-agent subagents | skill plus runtime subagents |
 | `policy` | Deterministic rule or lifecycle gate | hook | hook | hook or runtime rule |
 
 ### 6.1 Plugin manifest
@@ -146,12 +151,19 @@ version = "12.0.0"
 description = "Multi-dimensional evidence-first code review"
 license = "MIT"
 
-capabilities = [
+[capabilities]
+required = [
   "repository.read",
   "repository.search",
   "repository.history",
   "shell.execute",
-  "agents.dispatch",
+  "contexts.isolate",
+  "roles.dispatch",
+]
+optional = [
+  "execution.parallel",
+  "coordination.shared-tasks",
+  "coordination.peer-messaging",
 ]
 
 [dependencies]
@@ -160,7 +172,7 @@ optional = []
 
 [components]
 skills = ["defect-taxonomy", "review-quality-gates"]
-roles = ["code-auditor", "security-auditor", "premise-auditor"]
+roles = ["code-auditor", "security-auditor", "premise-auditor", "review-consolidator"]
 workflows = ["code-review", "team-review"]
 policies = ["review-write-boundary"]
 ```
@@ -181,18 +193,37 @@ invoke = "workflow:codebase-xray"
 produces = ["artifact:interconnect-map"]
 
 [[phases]]
-id = "review"
+id = "dimension-detection"
 needs = ["context"]
-parallel = [
-  "role:code-auditor",
-  "role:security-auditor",
-  "role:premise-auditor",
-]
+produces = ["selection:reviewers"]
+
+[[phases]]
+id = "independent-review"
+needs = ["dimension-detection"]
+fanout_from = "selection:reviewers"
 consumes = ["artifact:interconnect-map"]
+isolation = "required"
+join = "all-delivered"
+concurrency = "preferred"
+produces = ["artifact:reviewer-results", "artifact:delivery-ledger"]
+
+[[phases]]
+id = "initial-consolidation"
+needs = ["independent-review"]
+role = "review-consolidator"
+consumes = ["artifact:reviewer-results", "artifact:delivery-ledger"]
+produces = ["artifact:consolidated-findings"]
+
+[[phases]]
+id = "cross-examination"
+needs = ["initial-consolidation"]
+role = "premise-auditor"
+consumes = ["artifact:consolidated-findings"]
+produces = ["artifact:challenged-findings"]
 
 [[phases]]
 id = "consolidation"
-needs = ["review"]
+needs = ["cross-examination"]
 role = "review-consolidator"
 produces = ["artifact:review-report"]
 ```
@@ -201,7 +232,8 @@ The control plane can express:
 
 - inputs and flags;
 - phase dependencies;
-- required and optional concurrency;
+- static or dynamically selected fan-out lanes, isolation requirements and join barriers;
+- concurrency preferences that an adapter may schedule in parallel or serially;
 - invoked roles and workflows;
 - artifacts produced and consumed;
 - gates and policies;
@@ -209,6 +241,8 @@ The control plane can express:
 - the completion contract.
 
 It does not contain arbitrary expressions, embedded programs or long prompts.
+
+The core never calls a host team or subagent API. `fanout`, `fanout_from`, `isolation`, `join` and `concurrency` describe logical relationships. The selected harness implements them. A dynamic fan-out consumes a validated role selection produced by an earlier phase; the harness cannot add, remove or silently replace selected dimensions. Parallelism and peer messaging are optimizations unless a workflow explicitly makes them part of its public contract. Required context isolation can never be weakened into role switching inside one conversation.
 
 ### 6.3 Capability registry
 
@@ -223,11 +257,15 @@ shell.execute
 web.fetch
 web.search
 user.ask
-agents.dispatch
+contexts.isolate
+roles.dispatch
+execution.parallel
+coordination.shared-tasks
+coordination.peer-messaging
 tasks.track
 ```
 
-Adding a capability changes the neutral schema and requires a mapping or an explicit unsupported result in every adapter. The compiler rejects unknown capabilities.
+Adding a capability changes the neutral schema and requires a mapping or an explicit unsupported result in every adapter. Required capabilities determine publishability. Optional capabilities select a stronger harness strategy but cannot hide a required failure. The compiler rejects unknown capabilities.
 
 ### 6.4 Behavioral contracts
 
@@ -238,45 +276,71 @@ Each workflow declares observable outcomes and artifacts. For example:
 inputs = ["repository", "review-target"]
 outcomes = [
   "findings-have-file-line-evidence",
+  "reviewers-use-isolated-contexts",
   "findings-are-deduplicated",
   "every-review-dimension-is-accounted-for",
+  "contradictory-findings-are-cross-examined",
   "final-report-is-written",
 ]
 artifacts = ["team-review-report"]
+schemas = [
+  "contracts/reviewer-binding.toml",
+  "contracts/reviewer-selection.toml",
+  "contracts/evidenced-finding.toml",
+  "contracts/reviewer-result.toml",
+  "contracts/delivery-ledger.toml",
+  "contracts/final-report.toml",
+]
 ```
 
 Adapters may change the mechanism only when these contracts remain true.
 
 ## 7. Host adapters
 
-Each adapter owns four concerns:
+Each adapter owns five concerns:
 
 1. capability mapping;
 2. filesystem layout;
 3. manifest and frontmatter rendering;
-4. semantic overrides.
+4. workflow execution topology;
+5. semantic overrides.
 
 Mechanical mappings cover tool identifiers, path variables, namespaces, manifest fields, component locations and host invocation syntax.
 
-### 7.1 Overrides
+### 7.1 Coordination topology
+
+The same workflow can use different native scheduling mechanisms:
+
+| Host | Preferred `team-review` strategy | Accepted fallback |
+|---|---|---|
+| Claude Code | native Agent Team with a lead, teammates, shared tasks and peer messaging | orchestrated isolated subagents |
+| GitHub Copilot | coordinator custom agent with an explicit worker allowlist and parallel custom-agent subagents | isolated subagents executed serially |
+| Codex | orchestrating skill with isolated runtime subagents and role instructions supplied at dispatch | isolated subagents executed serially |
+
+Claude's native team is a mesh topology. Copilot and Codex use a coordinator topology. When workers cannot communicate directly, the harness implements the core cross-examination phase by passing the initially consolidated findings to fresh premise and verification contexts before the final consolidation.
+
+The required invariant is epistemic independence, not simultaneous execution. A harness may serialize isolated workers when parallel dispatch is unavailable. A runtime with no genuine isolated worker context marks `team-review` unsupported; it must not simulate several reviewers by changing persona in one conversation.
+
+### 7.2 Overrides
 
 An override is a source artifact, not an edit to generated output:
 
 ```toml
 source = "workflows/team-review"
-reason = "Copilot prompts cannot declare a subagent allowlist"
-strategy = "export-specific-orchestrator"
+reason = "The host cannot represent the workflow's required artifact barrier mechanically"
+strategy = "host-specific-coordinator"
 reviewed_against = "sha256:<digest>"
 contracts_preserved = [
   "every-review-dimension-is-accounted-for",
   "final-report-is-written",
 ]
+capabilities_affected = ["contexts.isolate", "roles.dispatch"]
 replacement = "orchestrator.agent.md"
 ```
 
 If any neutral input covered by the fingerprint changes, `--check` reports the override as stale. Updating the digest without reviewing the replacement is a process violation. Contract evals provide the mechanical backstop.
 
-### 7.2 Portability states
+### 7.3 Portability states
 
 Every component receives one state per host:
 
@@ -286,7 +350,7 @@ Every component receives one state per host:
 | `adapted` | A different mechanism preserves the observable contract | yes |
 | `unsupported` | The required contract cannot be preserved | no |
 
-Sequential execution can replace parallel execution only when parallelism and context isolation are not contract requirements. A workflow that promises epistemically independent reviewers cannot collapse them into one context.
+Sequential execution can replace parallel execution when concurrency is preferred rather than required. A workflow that promises epistemically independent reviewers cannot collapse them into one context.
 
 ## 8. Compiler
 
@@ -326,7 +390,7 @@ Generated output has:
 - no environment-dependent content;
 - one provenance manifest per plugin and host.
 
-The provenance manifest records plugin, host, plugin version, core digest, adapter version and applied overrides. Equal inputs must produce byte-identical output.
+The provenance manifest records plugin, host, plugin version, core digest, adapter version, selected harness strategies and applied overrides. Equal inputs must produce byte-identical output.
 
 ### 8.3 Failure behavior
 
@@ -336,7 +400,7 @@ The provenance manifest records plugin, host, plugin version, core digest, adapt
 - Host validator failure: retain the prior committed exports unchanged.
 - More than one plugin with the same name: fail the catalog build.
 - Name or version mismatch between a package and its catalog entry: fail.
-- Partial filesystem replacement: use a staging directory and rename operation so it cannot expose a half-written host tree.
+- Partial filesystem replacement: use a validated staging tree, a sibling lock and a backup/swap/rollback transaction; never mutate the live host tree file-by-file.
 
 The compiler never repairs hand-authored core or adapter inputs silently.
 
@@ -428,12 +492,12 @@ Until every core plugin reaches parity, the Copilot and Codex catalogs are gener
 
 When all plugins pass all host gates:
 
-1. rename the GitHub repository to `acaprino/daodan`;
-2. change the marketplace identity to `daodan` in all three catalogs;
-3. publish the three root entry points together;
-4. publish migration instructions for existing `claude-code-daodan` users;
-5. remove all VSIX-specific files and workflows;
-6. mark historical VSIX releases unsupported without deleting them.
+1. prepare and locally validate one cutover commit that changes the marketplace identity to `daodan` in all three catalogs;
+2. add the three root entry points and remove all VSIX-specific files and workflows in that same commit;
+3. publish migration instructions for existing `claude-code-daodan` users and mark historical VSIX releases unsupported without deleting them;
+4. rename the GitHub repository to `acaprino/daodan` at the explicit manual gate;
+5. update the local remote and push the already validated cutover commit;
+6. verify all three repository registrations against `acaprino/daodan`.
 
 Changing the marketplace `name` means existing installations do not migrate merely because GitHub redirects the renamed repository. Users must remove the old marketplace, add `acaprino/daodan`, reinstall selected plugins and remove duplicates.
 
@@ -521,10 +585,10 @@ The repository rename does not serve as the rollback mechanism. Once the `daodan
 
 ## 16. Decisions fixed by this design
 
-1. One repository, one neutral core, three native peer ports.
-2. `plugins/` means behavior; `adapters/` means translation; `exports/` means installable output.
+1. One repository, one content kernel per plugin, three native peer harnesses.
+2. `plugins/` means Markdown behavior plus neutral contracts; `adapters/` means host packaging and execution; `exports/` means installable output.
 3. Neutral control-plane files use TOML.
-4. Markdown remains the source for rich instructions and knowledge.
+4. Markdown remains the primary source for behavior, rich instructions and knowledge; TOML remains a declarative sidecar.
 5. Four primitives: skill, role, workflow and policy.
 6. Workflow TOML is limited to orchestration and contracts.
 7. Generated exports are committed but never hand-edited.
@@ -536,6 +600,7 @@ The repository rename does not serve as the rollback mechanism. Once the `daodan
 13. Publication of all repository catalogs is atomic.
 14. Curated public directories remain separate reviewed channels.
 15. The VSIX is removed completely at cutover, with no compatibility release.
+16. The core owns reviewer independence, barriers and outcomes; harnesses own agent dispatch, parallel scheduling and coordination topology.
 
 ## 17. Implementation boundary
 
