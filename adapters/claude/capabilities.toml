@@ -1,0 +1,46 @@
+# Provisional until the evidence table in tests/host-probes/README.md is measured.
+# Every state and strategy row here must be re-derived from that table.
+
+[capabilities."repository.read"]
+state = "native"
+strategy = "tool"
+value = "Read"
+
+[capabilities."repository.write"]
+state = "native"
+strategy = "tool"
+value = "Write"
+
+[capabilities."shell.execute"]
+state = "native"
+strategy = "tool"
+value = "Bash"
+
+[capabilities."network.fetch"]
+state = "native"
+strategy = "tool"
+value = "WebFetch"
+
+[capabilities."contexts.isolate"]
+state = "native"
+strategy = "packaged-subagent"
+
+[capabilities."roles.dispatch"]
+state = "native"
+strategy = "named-agent"
+
+[capabilities."execution.parallel"]
+state = "native"
+strategy = "concurrent-dispatch"
+
+[capabilities."tasks.share"]
+state = "adapted"
+strategy = "runtime-team"
+
+[capabilities."peers.message"]
+state = "adapted"
+strategy = "runtime-team"
+
+[capabilities."hooks.lifecycle"]
+state = "native"
+strategy = "hooks-manifest"

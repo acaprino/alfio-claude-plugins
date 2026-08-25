@@ -1,0 +1,20 @@
+# Provisional until the evidence table in tests/host-probes/README.md is measured.
+# Every state and strategy row here must be re-derived from that table.
+
+[[strategies]]
+name = "parallel-subagents"
+availability = "baseline"
+isolated = true
+parallel = true
+shared_tasks = false
+peer_messaging = false
+role_delivery = "named-agent"
+
+[[strategies]]
+name = "serial-isolated"
+availability = "baseline"
+isolated = true
+parallel = false
+shared_tasks = false
+peer_messaging = false
+role_delivery = "named-agent"

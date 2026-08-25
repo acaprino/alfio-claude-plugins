@@ -1,0 +1,8 @@
+[layout]
+root = "exports/copilot"
+marketplace = ".github/plugin/marketplace.json"
+plugin_manifest = "plugins/${plugin}/plugin.json"
+plugin_root = "plugins/${plugin}"
+skills = "skills/${skill}/SKILL.md"
+roles = "agents/${role}.agent.md"
+workflows = "prompts/${workflow}.prompt.md"
