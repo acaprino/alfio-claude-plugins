@@ -692,9 +692,9 @@
       "category": "development",
       "strict": false,
       "skills": [
+        "./skills/obsidian-check",
         "./skills/obsidian-plugin-development",
-        "./skills/obsidian-scaffold",
-        "./skills/obsidian-check"
+        "./skills/obsidian-scaffold"
       ]
     },
     {

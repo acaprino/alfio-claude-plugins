@@ -1,0 +1,18 @@
+schema = "daodan/v1"
+name = "obsidian-development"
+version = "1.4.2"
+description = "Obsidian community plugin development with automated review compliance (community.obsidian.md), project scaffolding, and pre-submission checks"
+license = "MIT"
+
+[capabilities]
+required = ["repository.read", "repository.write"]
+optional = []
+
+[dependencies]
+required = []
+
+[components]
+skills = ["obsidian-check", "obsidian-plugin-development", "obsidian-scaffold"]
+roles = []
+workflows = []
+policies = []
