@@ -2,10 +2,18 @@
 
 import json
 import subprocess
+import sys
 import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from scripts.sync_codex_instructions import (  # noqa: E402
+    WORKFLOW_SKILLS,
+    adapt_claude_instructions_for_codex,
+)
 
 CATALOGS = {
     "claude": REPO_ROOT / ".claude-plugin/marketplace.json",
@@ -81,6 +89,35 @@ class CutoverIdentityTests(unittest.TestCase):
         ):
             with self.subTest(path=path):
                 self.assertFalse((REPO_ROOT / path).exists())
+
+    def test_codex_root_instructions_are_the_native_adaptation(self):
+        canonical = (REPO_ROOT / "CLAUDE.md").read_text(encoding="utf-8")
+        codex = (REPO_ROOT / "AGENTS.md").read_text(encoding="utf-8")
+        self.assertEqual(codex, adapt_claude_instructions_for_codex(canonical))
+
+    def test_codex_instructions_keep_all_three_distribution_commands(self):
+        codex = (REPO_ROOT / "AGENTS.md").read_text(encoding="utf-8")
+        for host in ("claude", "copilot", "codex"):
+            with self.subTest(host=host):
+                self.assertEqual(
+                    codex.count(f"{host} plugin marketplace add acaprino/daodan"),
+                    1,
+                )
+
+    def test_codex_workflow_skills_are_native_adaptations(self):
+        for name in WORKFLOW_SKILLS:
+            with self.subTest(skill=name):
+                canonical = (
+                    REPO_ROOT / ".claude" / "skills" / name / "SKILL.md"
+                ).read_text(encoding="utf-8")
+                codex = (
+                    REPO_ROOT / ".agents" / "skills" / name / "SKILL.md"
+                ).read_text(encoding="utf-8")
+                self.assertEqual(codex, adapt_claude_instructions_for_codex(canonical))
+
+    def test_removed_codex_workflow_helpers_stay_removed(self):
+        scripts = REPO_ROOT / ".agents/skills/downstream-exports/scripts"
+        self.assertFalse(scripts.exists())
 
     def test_the_migration_note_exists(self):
         note = REPO_ROOT / "docs/migration-from-claude-code-daodan.md"

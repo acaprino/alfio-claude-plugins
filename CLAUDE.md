@@ -10,6 +10,8 @@ The Daodan is the symbiote that augments its host. This repository is the Daodan
 
 **Everything under `exports/` and all three root marketplace manifests are generated.** `scripts/daodan_build.py` compiles kernels plus adapters into `exports/claude/`, `exports/copilot/` and `exports/codex/`, and into `.claude-plugin/marketplace.json`, `.github/plugin/marketplace.json` and `.agents/plugins/marketplace.json`. Never hand-edit them; edit the kernel and rebuild.
 
+`AGENTS.md` and the four repository workflow skills under `.agents/skills/` are native Codex adaptations of this file and `.claude/skills/`. Generate them with `python scripts/sync_codex_instructions.py`; `--check` is the parity gate. Edit the Claude-side canonical copies, then run the synchronizer. The transformation is deliberately limited to instruction paths, cache paths, install commands and the host-relative downstream description.
+
 The compiler is `scripts/daodan/`: `model.py` and `load.py` (strict TOML loading), `validate.py` and `trust.py` (semantic and secret validation), `adapter.py` (capability parity and strategy selection), `overrides.py` (the fingerprint gate), `render.py`, `templates.py`, `provenance.py`, `catalogs.py` and `report.py`. Standard library only, no third-party dependency anywhere in the toolchain.
 
 `codebase-xray` was named `deep-dive-analysis` until marketplace 14.0.0. Its analysis artifact directory is still `.deep-dive/`, which is the stable downstream contract, now declared as its `write-confinement` policy.

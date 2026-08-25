@@ -1,10 +1,13 @@
 """Reproducibility and rollback tests for the package renderer."""
 
 import json
+import os
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
+import uuid
 from dataclasses import replace
 from pathlib import Path
 
@@ -112,6 +115,34 @@ class RenderTests(unittest.TestCase):
         with self.assertRaises(RenderError):
             replace_tree(staging, live)
         self.assertEqual((live / "sentinel").read_text(encoding="utf-8"), "old")
+
+    @unittest.skipUnless(os.name == "nt", "Windows ACL regression")
+    def test_published_tree_inherits_the_store_acl(self):
+        store = Path(tempfile.gettempdir()) / f"daodan-render-{uuid.uuid4().hex}"
+        store.mkdir()
+        self.addCleanup(shutil.rmtree, store, True)
+        live = store / "example"
+
+        publish_plugin(load_plugin(VALID), load_adapter(ADAPTERS, "codex"), live)
+
+        completed = subprocess.run(
+            [
+                "powershell",
+                "-NoProfile",
+                "-NonInteractive",
+                "-Command",
+                "& { param($target) (Get-Item -LiteralPath $target).GetAccessControl().AreAccessRulesProtected }",
+                str(live),
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(
+            (completed.returncode, completed.stdout.strip()),
+            (0, "False"),
+            completed.stderr.strip(),
+        )
 
 
 if __name__ == "__main__":

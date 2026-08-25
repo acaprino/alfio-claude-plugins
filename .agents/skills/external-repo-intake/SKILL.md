@@ -73,7 +73,7 @@ Before saving any derived file, scan for and rewrite:
 - **Emoji**: remove if the destination plugin's existing files have none.
 - **Upstream-specific cross-references**: rewrite `[reference/foo.md](foo.md)` style links to point at the local destination path (or remove if the target was not imported). Rewrite `{{template_vars}}` and references to upstream-only commands.
 - **Namespace prefixes**: rewrite upstream `<their-plugin>:X` skill references to the local `<our-plugin>:X` equivalent, or drop them when we vendor no equivalent.
-- **Stale tool names** in team-related imports: `Teammate` / `Task tool to spawn` -> `Agent tool`; explicit `TeamCreate` / `TeamDelete` steps -> rewrite to implicit team formation (the team forms when the first teammate is spawned) and automatic cleanup at session end (both tools were removed in Codex 2.1.178).
+- **Stale tool names** in team-related imports: `Teammate` / `Task tool to spawn` -> `Agent tool`; explicit `TeamCreate` / `TeamDelete` steps -> rewrite to implicit team formation (the team forms when the first teammate is spawned) and automatic cleanup at session end (both tools were removed in Claude Code 2.1.178).
 
 ## 6. Wire the new content into existing agents and commands
 
@@ -85,7 +85,7 @@ Importing content that no agent reads is wasted work. After saving derived files
 
 ## 7. Decide on tracking and re-sync
 
-If the sub-mode is "ongoing sync" (or "snapshot but worth tracking for re-import"), append a row to the sync table in `.Codex/skills/upstream-sync/SKILL.md`, with:
+If the sub-mode is "ongoing sync" (or "snapshot but worth tracking for re-import"), append a row to the sync table in `.agents/skills/upstream-sync/SKILL.md`, with:
 - Plugin (and sub-skill, if applicable) plus license tag for non-MIT sources
 - Upstream repo plus the specific subpath
 - Full list of derived local files and any merged sections
@@ -100,7 +100,7 @@ Never add a sync-table row for anything listed under "Deliberately not vendored"
 
 - Bump every plugin whose `version` in `marketplace.json` had content added.
 - Bump `metadata.version` (minor bump for first-time intake of a new upstream; patch bump for follow-up reworks of an existing intake).
-- Single commit with the imported files, the local edits, the SKILL.md wiring, the sync-table update in `.Codex/skills/upstream-sync/SKILL.md`, and the version bumps together.
+- Single commit with the imported files, the local edits, the SKILL.md wiring, the sync-table update in `.agents/skills/upstream-sync/SKILL.md`, and the version bumps together.
 - Commit message: `Cherry-pick / Vendor / Import <subject> from <owner>/<repo> (v<new>)` with a short description block listing new files, merged sections, license, and attribution date.
 
 ## 9. Verification before push

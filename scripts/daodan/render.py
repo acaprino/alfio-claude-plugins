@@ -13,8 +13,8 @@ import hashlib
 import json
 import os
 import shutil
-import tempfile
 import tomllib
+import uuid
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Sequence
@@ -455,13 +455,13 @@ def publish_plugin(
     """Render into a temporary sibling of ``live`` and publish it atomically."""
     live = Path(live)
     live.parent.mkdir(parents=True, exist_ok=True)
-    holder = tempfile.mkdtemp(dir=live.parent)
-    staging = Path(holder) / live.name
+    staging = live.parent / f".{live.name}.{uuid.uuid4().hex}.staging"
+    staging.mkdir()
     try:
         result = render_plugin(plugin, adapter, staging, overrides, adapters_root)
         replace_tree(staging, live)
     finally:
-        shutil.rmtree(holder, ignore_errors=True)
+        shutil.rmtree(staging, ignore_errors=True)
     return RenderResult(
         plugin=result.plugin,
         host=result.host,
