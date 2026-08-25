@@ -1,0 +1,13 @@
+name = "test-consolidate"
+entrypoint = "test-consolidate.md"
+
+[[phases]]
+id = "run"
+isolation = "shared"
+produces = ["artifact:test-consolidate-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["test-consolidate-completed"]
+artifacts = ["test-consolidate-report"]
+schemas = []

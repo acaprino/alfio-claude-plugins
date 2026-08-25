@@ -1,0 +1,13 @@
+name = "test-audit"
+entrypoint = "test-audit.md"
+
+[[phases]]
+id = "run"
+isolation = "shared"
+produces = ["artifact:test-audit-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["test-audit-completed"]
+artifacts = ["test-audit-report"]
+schemas = []

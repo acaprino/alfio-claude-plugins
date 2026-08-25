@@ -1,0 +1,12 @@
+{
+  "adapterVersion": "1.0.0",
+  "coreDigest": "sha256:26751b51c1c29e0425c4f91ba010de8223ac38081a560f18e21169413393fce1",
+  "harnessStrategies": {
+    "test-audit": "parallel-subagents",
+    "test-consolidate": "parallel-subagents"
+  },
+  "host": "copilot",
+  "overrides": [],
+  "plugin": "testing",
+  "version": "2.2.1"
+}

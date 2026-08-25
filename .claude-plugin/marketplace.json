@@ -951,15 +951,15 @@
         "developer-essentials@claude-code-workflows"
       ],
       "agents": [
-        "./agents/test-writer.md",
-        "./agents/test-suite-auditor.md"
-      ],
-      "skills": [
-        "./skills/test-hygiene"
+        "./agents/test-suite-auditor.md",
+        "./agents/test-writer.md"
       ],
       "commands": [
         "./commands/test-audit.md",
         "./commands/test-consolidate.md"
+      ],
+      "skills": [
+        "./skills/test-hygiene"
       ]
     },
     {
