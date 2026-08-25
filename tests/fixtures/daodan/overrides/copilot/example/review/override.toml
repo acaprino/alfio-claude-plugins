@@ -1,0 +1,8 @@
+source = "workflow:review"
+source_paths = ["tests/fixtures/daodan/valid/plugins/example/workflows/review.md"]
+reason = "The host needs a named orchestrator agent to hold the all-delivered barrier."
+strategy = "parallel-subagents"
+reviewed_against = "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+contracts_preserved = ["reviewers-use-isolated-contexts"]
+capabilities_affected = ["repository.read"]
+replacement = "orchestrator.agent.md"
