@@ -1,0 +1,13 @@
+name = "python-refactor"
+entrypoint = "python-refactor.md"
+
+[[phases]]
+id = "run"
+isolation = "shared"
+produces = ["artifact:python-refactor-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["python-refactor-completed"]
+artifacts = ["python-refactor-report"]
+schemas = []

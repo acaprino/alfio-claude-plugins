@@ -228,21 +228,21 @@
         "./agents/python-refactor-agent.md",
         "./agents/python-test-engineer.md"
       ],
+      "commands": [
+        "./commands/python-audit.md",
+        "./commands/python-refactor.md",
+        "./commands/python-scaffold.md"
+      ],
       "skills": [
-        "./skills/python-refactor",
-        "./skills/python-tdd",
-        "./skills/python-performance-optimization",
         "./skills/async-python-patterns",
-        "./skills/python-packaging",
-        "./skills/uv-package-manager",
+        "./skills/pydantic-v2",
         "./skills/python-comments",
         "./skills/python-dead-code",
-        "./skills/pydantic-v2"
-      ],
-      "commands": [
-        "./commands/python-scaffold.md",
-        "./commands/python-refactor.md",
-        "./commands/python-audit.md"
+        "./skills/python-packaging",
+        "./skills/python-performance-optimization",
+        "./skills/python-refactor",
+        "./skills/python-tdd",
+        "./skills/uv-package-manager"
       ]
     },
     {

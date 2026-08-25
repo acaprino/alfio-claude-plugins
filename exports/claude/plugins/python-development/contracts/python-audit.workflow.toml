@@ -1,0 +1,13 @@
+name = "python-audit"
+entrypoint = "python-audit.md"
+
+[[phases]]
+id = "run"
+isolation = "shared"
+produces = ["artifact:python-audit-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["python-audit-completed"]
+artifacts = ["python-audit-report"]
+schemas = []

@@ -84,6 +84,14 @@
     },
     {
       "dependencies": [],
+      "description": "Python development toolkit - TDD with pytest, code refactoring with complexity metrics, performance profiling, async patterns, uv package management, dead code detection, comment auditing, project scaffolding, deep Pydantic v2.13 guide (validators/serializers/strict/performance/security/PydanticAI+Logfire) with v1 migration, and /python-audit consolidated quality report",
+      "license": "MIT",
+      "name": "python-development",
+      "source": "./exports/copilot/plugins/python-development",
+      "version": "1.21.8"
+    },
+    {
+      "dependencies": [],
       "description": "React performance optimization, React 19 API adoption, state management audit, bundle analysis, re-render detection, and Vercel best practices checklist",
       "license": "MIT",
       "name": "react-development",
