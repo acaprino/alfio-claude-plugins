@@ -498,17 +498,17 @@
       "category": "development",
       "strict": false,
       "agents": [
-        "./agents/typescript-engineer.md",
-        "./agents/type-safety-auditor.md"
-      ],
-      "skills": [
-        "./skills/typescript-write",
-        "./skills/knip",
-        "./skills/mastering-typescript",
-        "./skills/type-safety-rules"
+        "./agents/type-safety-auditor.md",
+        "./agents/typescript-engineer.md"
       ],
       "commands": [
         "./commands/review-typescript.md"
+      ],
+      "skills": [
+        "./skills/knip",
+        "./skills/mastering-typescript",
+        "./skills/type-safety-rules",
+        "./skills/typescript-write"
       ]
     },
     {

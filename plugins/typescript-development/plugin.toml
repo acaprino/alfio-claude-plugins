@@ -1,0 +1,18 @@
+schema = "daodan/v1"
+name = "typescript-development"
+version = "2.2.2"
+description = "TypeScript and JavaScript development toolkit - hands-on typescript-engineer agent (architecture + implementation), dead-code detection via Knip, coding standards enforcement, and enterprise-grade TypeScript mastery (type system, generics, React/NestJS integration, Zod validation, modern toolchain), and a type-safety review layer: adversarial type-safety-auditor agent, 20-rule type-safety-rules skill, and /review-typescript command with tsc/ESLint ground truth"
+license = "MIT"
+
+[capabilities]
+required = ["repository.read", "shell.execute", "repository.write", "contexts.isolate", "roles.dispatch"]
+optional = ["execution.parallel"]
+
+[dependencies]
+required = []
+
+[components]
+skills = ["knip", "mastering-typescript", "type-safety-rules", "typescript-write"]
+roles = ["type-safety-auditor", "typescript-engineer"]
+workflows = ["review-typescript"]
+policies = []

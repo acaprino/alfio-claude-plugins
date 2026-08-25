@@ -1,0 +1,13 @@
+name = "review-typescript"
+entrypoint = "review-typescript.md"
+
+[[phases]]
+id = "run"
+isolation = "shared"
+produces = ["artifact:review-typescript-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["review-typescript-completed"]
+artifacts = ["review-typescript-report"]
+schemas = []
