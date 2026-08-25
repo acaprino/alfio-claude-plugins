@@ -61,7 +61,7 @@
 - Consumes: native marketplace paths documented in the approved spec.
 - Produces: `validate_fixture(root: Path, host: str) -> list[str]` and a checked-in evidence table for isolated workers, parallel fan-out, shared tasks, peer messaging, worker allowlists and plugin-packaged role discovery.
 
-- [ ] **Step 1: Write structural tests for the three disposable marketplaces**
+- [x] **Step 1: Write structural tests for the three disposable marketplaces**
 
 ```python
 class HostProbeFixtureTests(unittest.TestCase):
@@ -77,19 +77,19 @@ class HostProbeFixtureTests(unittest.TestCase):
             self.assertTrue((root / "plugins/probe" / manifest).is_file())
 ```
 
-- [ ] **Step 2: Run the test and verify it fails because the fixtures do not exist**
+- [x] **Step 2: Run the test and verify it fails because the fixtures do not exist**
 
 Run: `python -m unittest discover -s tests -p "test_host_probe_fixtures.py" -v`
 
 Expected: FAIL on the first missing marketplace path.
 
-- [ ] **Step 3: Add minimal native manifests and one probe skill per host**
+- [x] **Step 3: Add minimal native manifests and one probe skill per host**
 
 Use plugin name `daodan-probe`, version `0.0.1`, and single-worker output contract `Return exactly DAODAN_PROBE_OK.` Every marketplace source must be a repository-relative path to `./plugins/probe`.
 
 Each fixture also defines coordinator instructions that dispatch two workers with different nonce values, require both deliveries before returning and ask for parallel execution when available. Claude additionally probes native Agent Teams and its isolated-subagent fallback. Copilot restricts the coordinator to `probe-worker` through its `agents` frontmatter and enables the `agent` tool. Codex includes both a normal skill and `.codex/agents/probe.toml` to determine whether plugin-installed project-scoped custom agents are discovered. If Codex does not discover that file, its accepted role-delivery strategy is an inline role body supplied to a runtime subagent.
 
-- [ ] **Step 4: Implement fixture validation**
+- [x] **Step 4: Implement fixture validation**
 
 ```python
 MARKETPLACE_PATH = {
@@ -106,7 +106,7 @@ def validate_fixture(root: Path, host: str) -> list[str]:
     return errors
 ```
 
-- [ ] **Step 5: Run structural and native smoke probes**
+- [ ] **Step 5: Run structural and native smoke probes** (structural probes pass; the native evidence table in `tests/host-probes/README.md` is unmeasured and must be filled in by hand)
 
 Run the structural test first. Then, in disposable host profiles, run:
 
@@ -124,7 +124,7 @@ host | isolated workers | parallel fan-out | shared tasks | peer messaging | wor
 
 The release baseline requires `isolated workers = yes` for every host. `parallel fan-out`, `shared tasks` and `peer messaging` may be `conditional` or `no`. Copilot must report `worker allowlist = yes`. Codex may report `packaged roles = no` only when inline role delivery succeeds. Remove each disposable marketplace after the probe. Expected single-worker result on every host: `DAODAN_PROBE_OK`. Expected coordinator result: both unique worker nonces plus `DELIVERED=2/2`.
 
-- [ ] **Step 6: Commit the protocol fixtures**
+- [x] **Step 6: Commit the protocol fixtures**
 
 ```bash
 git add tests/host-probes tests/test_host_probe_fixtures.py scripts/probe_host_marketplaces.py
@@ -148,7 +148,7 @@ git commit -m "Add native marketplace protocol probes"
 - Consumes: `plugin.toml` and workflow TOML defined by the spec.
 - Produces: `CapabilityRequirements`, `ComponentIndex`, `PluginSpec`, `WorkflowSpec`, `PhaseSpec`, `ContractSpec`, and `load_plugin(path: Path) -> PluginSpec`.
 
-- [ ] **Step 1: Write failing loader tests**
+- [x] **Step 1: Write failing loader tests**
 
 ```python
 class NeutralModelTests(unittest.TestCase):
@@ -163,13 +163,13 @@ class NeutralModelTests(unittest.TestCase):
         self.assertEqual(plugin.workflows[0].contract.schemas, (Path("contracts/reviewer-result.toml"),))
 ```
 
-- [ ] **Step 2: Run the test and verify the module is missing**
+- [x] **Step 2: Run the test and verify the module is missing**
 
 Run: `python -m unittest discover -s tests -p "test_daodan_model.py" -v`
 
 Expected: FAIL with `ModuleNotFoundError: No module named 'scripts.daodan'`.
 
-- [ ] **Step 3: Add immutable model types**
+- [x] **Step 3: Add immutable model types**
 
 ```python
 from dataclasses import dataclass
@@ -240,7 +240,7 @@ class ModelError(ValueError):
         super().__init__(f"{path}: {message}")
 ```
 
-- [ ] **Step 4: Implement strict TOML loading**
+- [x] **Step 4: Implement strict TOML loading**
 
 Create the valid fixture with this control plane:
 
@@ -305,13 +305,13 @@ Set `workflows/review.md` to `Run every selected inspector independently and ret
 
 Use `tomllib.load()`. Reject missing required tables and unknown top-level keys with `ModelError(path, message)`. Load `[capabilities].required` and `[capabilities].optional` separately. Resolve entrypoint and contract schema paths relative to the plugin root and keep all returned paths normalized but repository-relative. Markdown remains the behavioral source; the loader must not accept prompt bodies inside TOML.
 
-- [ ] **Step 5: Run the model tests**
+- [x] **Step 5: Run the model tests**
 
 Run: `python -m unittest discover -s tests -p "test_daodan_model.py" -v`
 
 Expected: PASS.
 
-- [ ] **Step 6: Commit the neutral loader**
+- [x] **Step 6: Commit the neutral loader**
 
 ```bash
 git add scripts/daodan tests/fixtures/daodan/valid tests/test_daodan_model.py
@@ -335,7 +335,7 @@ git commit -m "Add neutral Daodan plugin model"
 - Consumes: `PluginSpec` objects from Task 2.
 - Produces: `ValidationIssue(code: str, path: Path, message: str)`, `validate_plugins(plugins: Sequence[PluginSpec], capabilities: AbstractSet[str]) -> list[ValidationIssue]`, and `scan_trust(root: Path, allowlisted: AbstractSet[Path]) -> list[ValidationIssue]`.
 
-- [ ] **Step 1: Write failing validation tests**
+- [x] **Step 1: Write failing validation tests**
 
 ```python
 def test_rejects_cycle_and_path_escape(self):
@@ -353,13 +353,13 @@ def test_rejects_secret_paths_outside_explicit_test_allowlist(self):
     self.assertEqual([issue.code for issue in issues], ["forbidden-secret-path"])
 ```
 
-- [ ] **Step 2: Run the validation tests and verify failure**
+- [x] **Step 2: Run the validation tests and verify failure**
 
 Run: `python -m unittest discover -s tests -p "test_daodan_validate.py" -v`
 
 Expected: FAIL because `scripts.daodan.validate` does not exist.
 
-- [ ] **Step 3: Implement validation passes**
+- [x] **Step 3: Implement validation passes**
 
 Add `ValidationIssue` and the central graph checks:
 
@@ -416,7 +416,7 @@ Implement `validate_identity`, `validate_paths`, `validate_components`, `validat
 
 Implement `scan_trust` with a sorted repository walk. Report `forbidden-secret-path` for `.env`, `.env.*`, private-key extensions, credential dotfiles and `secrets` or `credentials` directories unless the exact repository-relative path is allowlisted as a synthetic test fixture. Report `embedded-private-key` for PEM private-key headers in text content. Never print matching file contents. Run this scan over `plugins/`, `adapters/` and staged exports.
 
-- [ ] **Step 4: Run validation tests and the existing dependency linter**
+- [x] **Step 4: Run validation tests and the existing dependency linter**
 
 ```bash
 python -m unittest discover -s tests -p "test_daodan_validate.py" -v
@@ -425,7 +425,7 @@ python scripts/lint_dependency_graph.py
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit the semantic validator**
+- [x] **Step 5: Commit the semantic validator**
 
 ```bash
 git add scripts/daodan/validate.py tests/test_daodan_validate.py tests/fixtures/daodan/invalid
@@ -451,7 +451,7 @@ git commit -m "Validate neutral plugin contracts"
 - Consumes: validated neutral capabilities.
 - Produces: `HostAdapter`, `CapabilityBinding`, `CoordinationStrategy`, `load_adapter(root: Path, host: str) -> HostAdapter`, `select_coordination(workflow: WorkflowSpec, adapter: HostAdapter) -> CoordinationStrategy | None`, and `resolve_support(plugin: PluginSpec, adapter: HostAdapter) -> SupportReport`.
 
-- [ ] **Step 1: Write failing parity tests**
+- [x] **Step 1: Write failing parity tests**
 
 ```python
 def test_required_capability_without_binding_is_unsupported(self):
@@ -472,13 +472,13 @@ def test_shared_context_cannot_satisfy_independent_review(self):
     self.assertIsNone(select_coordination(load_review_workflow(), adapter))
 ```
 
-- [ ] **Step 2: Run the adapter tests and verify failure**
+- [x] **Step 2: Run the adapter tests and verify failure**
 
 Run: `python -m unittest discover -s tests -p "test_daodan_adapters.py" -v`
 
 Expected: FAIL because the adapter module and TOML files are absent.
 
-- [ ] **Step 3: Add explicit capability and coordination bindings**
+- [x] **Step 3: Add explicit capability and coordination bindings**
 
 Capability bindings name host tool identifiers or runtime mechanisms. Coordination files order the strategies each harness can use. They must encode the Task 1 evidence rather than assumptions:
 
@@ -508,7 +508,7 @@ role_delivery = "inline-prompt"
 
 Claude orders `native-team`, `parallel-subagents`, `serial-isolated`; `native-team` has `availability = "runtime-optional"` because Agent Teams can be disabled. Copilot orders `parallel-subagents`, then `serial-isolated`, and uses named custom-agent delivery. Codex uses the role-delivery result proven in Task 1. Do not add a `single-context` fallback.
 
-- [ ] **Step 4: Implement adapter loading and reports**
+- [x] **Step 4: Implement adapter loading and reports**
 
 ```python
 @dataclass(frozen=True)
@@ -545,13 +545,13 @@ class HostAdapter:
 
 The worst required capability state determines the plugin state. Optional capabilities select stronger strategies but never hide required failures. `select_coordination` filters out any strategy that violates `isolation`, `join` or required concurrency, then selects the first remaining strategy in host order. A preferred concurrency request can select `serial-isolated`; required concurrency cannot.
 
-- [ ] **Step 5: Run adapter and model tests**
+- [x] **Step 5: Run adapter and model tests**
 
 Run: `python -m unittest discover -s tests -p "test_daodan_*.py" -v`
 
 Expected: PASS with all abstract capabilities bound by all three adapters.
 
-- [ ] **Step 6: Commit adapter contracts**
+- [x] **Step 6: Commit adapter contracts**
 
 ```bash
 git add scripts/daodan/adapter.py adapters tests/test_daodan_adapters.py
@@ -570,7 +570,7 @@ git commit -m "Define native host harness contracts"
 - Consumes: neutral source files and adapter override directories.
 - Produces: `OverrideSpec`, `load_overrides(path: Path) -> tuple[OverrideSpec, ...]`, `source_digest(paths: Iterable[Path]) -> str`, and `validate_override(spec: OverrideSpec, declared_capabilities: AbstractSet[str]) -> list[ValidationIssue]`.
 
-- [ ] **Step 1: Write a failing stale-fingerprint test**
+- [x] **Step 1: Write a failing stale-fingerprint test**
 
 ```python
 def test_changed_source_marks_override_stale(self):
@@ -584,13 +584,13 @@ def test_override_cannot_add_undeclared_capability(self):
     self.assertEqual([issue.code for issue in issues], ["override-capability-escalation"])
 ```
 
-- [ ] **Step 2: Run the test and verify failure**
+- [x] **Step 2: Run the test and verify failure**
 
 Run: `python -m unittest discover -s tests -p "test_daodan_overrides.py" -v`
 
 Expected: FAIL because override loading is missing.
 
-- [ ] **Step 3: Implement canonical source fingerprints**
+- [x] **Step 3: Implement canonical source fingerprints**
 
 ```python
 @dataclass(frozen=True)
@@ -617,13 +617,13 @@ def source_digest(paths: Iterable[Path]) -> str:
 
 Require `source`, `reason`, `strategy`, `reviewed_against`, `contracts_preserved`, `capabilities_affected` and `replacement`. Reject replacements outside the override directory, contract names absent from the neutral workflow and affected capabilities absent from the owning plugin's declarations. An override can select a different declared mechanism, but cannot add a tool, MCP server, LSP server, hook or capability that the kernel did not declare.
 
-- [ ] **Step 4: Run override tests**
+- [x] **Step 4: Run override tests**
 
 Run: `python -m unittest discover -s tests -p "test_daodan_overrides.py" -v`
 
 Expected: PASS; the stale and capability-escalation fixtures produce the exact validation issues asserted by their tests.
 
-- [ ] **Step 5: Commit the override gate**
+- [x] **Step 5: Commit the override gate**
 
 ```bash
 git add scripts/daodan/overrides.py tests/fixtures/daodan/overrides tests/test_daodan_overrides.py
@@ -642,7 +642,7 @@ git commit -m "Gate semantic adapter overrides"
 - Consumes: `PluginSpec`, `HostAdapter`, validated overrides and destination path.
 - Produces: `render_plugin(plugin, adapter, destination) -> RenderResult`, `write_provenance(result) -> Path`, and `replace_tree(staging: Path, live: Path) -> None`.
 
-- [ ] **Step 1: Write failing reproducibility and rollback tests**
+- [x] **Step 1: Write failing reproducibility and rollback tests**
 
 ```python
 def test_equal_inputs_produce_equal_bytes(self):
@@ -658,13 +658,13 @@ def test_failed_validation_keeps_live_tree(self):
     self.assertEqual((live / "sentinel").read_text(), "old")
 ```
 
-- [ ] **Step 2: Run render tests and verify failure**
+- [x] **Step 2: Run render tests and verify failure**
 
 Run: `python -m unittest discover -s tests -p "test_daodan_render.py" -v`
 
 Expected: FAIL because renderer modules are absent.
 
-- [ ] **Step 3: Implement focused render stages**
+- [x] **Step 3: Implement focused render stages**
 
 Add the renderer boundary types:
 
@@ -685,7 +685,7 @@ class RenderResult:
 
 Use `tempfile.TemporaryDirectory(dir=live.parent)`, copy binary resources byte-for-byte, normalize generated text to UTF-8 LF, render substitutions with an allowlisted `string.Template` context, and write JSON with `sort_keys=True, indent=2`. `replace_tree` acquires a sibling lock, recovers any prior `.previous` tree, renames `live` to `.previous`, renames the fully validated staging tree to `live`, restores `.previous` if the second rename fails, then removes the backup. It never modifies the live tree file-by-file.
 
-- [ ] **Step 4: Add provenance**
+- [x] **Step 4: Add provenance**
 
 Write `.daodan-provenance.json` inside every generated plugin with exactly:
 
@@ -701,13 +701,13 @@ Write `.daodan-provenance.json` inside every generated plugin with exactly:
 }
 ```
 
-- [ ] **Step 5: Run renderer tests twice**
+- [x] **Step 5: Run renderer tests twice**
 
 Run: `python -m unittest discover -s tests -p "test_daodan_render.py" -v` twice.
 
 Expected: PASS both times with identical tree digests.
 
-- [ ] **Step 6: Commit deterministic rendering**
+- [x] **Step 6: Commit deterministic rendering**
 
 ```bash
 git add scripts/daodan/render.py scripts/daodan/provenance.py scripts/daodan/templates.py tests/test_daodan_render.py
@@ -730,7 +730,7 @@ git commit -m "Render deterministic native plugin packages"
 - Consumes: all previous compiler interfaces.
 - Produces: `BuildReport`, `build_repository(root: Path, hosts: tuple[str, ...], check: bool) -> BuildReport`, `render_catalog(host: str, plugins: Sequence[PluginSpec], version: str) -> bytes`, and CLI exit codes 0 clean, 1 drift or validation failure, 2 invocation error.
 
-- [ ] **Step 1: Write failing catalog identity tests**
+- [x] **Step 1: Write failing catalog identity tests**
 
 ```python
 def test_catalogs_share_identity_names_and_versions(self):
@@ -741,17 +741,17 @@ def test_catalogs_share_identity_names_and_versions(self):
         self.assertEqual({entry["name"]: entry["version"] for entry in catalog["plugins"]}, versions)
 ```
 
-- [ ] **Step 2: Run tests and verify failure**
+- [x] **Step 2: Run tests and verify failure**
 
 Run: `python -m unittest discover -s tests -p "test_daodan_catalogs.py" -v`
 
 Expected: FAIL because catalog renderers are absent.
 
-- [ ] **Step 3: Implement three catalog renderers**
+- [x] **Step 3: Implement three catalog renderers**
 
 Generate Claude sources as `./exports/claude/plugins/<name>`, Copilot sources as `./exports/copilot/plugins/<name>`, and Codex source objects with `source = "local"` and `path = "./exports/codex/plugins/<name>"`. Sort entries by plugin name and reject version mismatch before serialization.
 
-- [ ] **Step 4: Implement the CLI**
+- [x] **Step 4: Implement the CLI**
 
 ```python
 @dataclass(frozen=True)
@@ -782,19 +782,19 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 Reject publication mode when fewer than all three hosts are selected. Host-specific rendering is development-only.
 
-- [ ] **Step 5: Run all compiler tests**
+- [x] **Step 5: Run all compiler tests**
 
 Run: `python -m unittest discover -s tests -p "test_daodan_*.py" -v`
 
 Expected: PASS.
 
-- [ ] **Step 6: Run the repository's existing unit suite**
+- [x] **Step 6: Run the repository's existing unit suite**
 
 Run: `python -m unittest discover -s tests -v`
 
 Expected: PASS.
 
-- [ ] **Step 7: Commit the compiler entry point**
+- [x] **Step 7: Commit the compiler entry point**
 
 ```bash
 git add scripts/daodan scripts/daodan_build.py adapters/*/templates tests/test_daodan_catalogs.py tests/test_daodan_cli.py
