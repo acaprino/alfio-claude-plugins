@@ -132,11 +132,11 @@
       "agents": [
         "./agents/react-performance-optimizer.md"
       ],
-      "skills": [
-        "./skills/react-best-practices"
-      ],
       "commands": [
         "./commands/review-react.md"
+      ],
+      "skills": [
+        "./skills/react-best-practices"
       ]
     },
     {

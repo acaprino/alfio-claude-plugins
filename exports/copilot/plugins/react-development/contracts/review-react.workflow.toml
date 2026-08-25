@@ -1,0 +1,21 @@
+name = "review-react"
+entrypoint = "review-react.md"
+
+[[phases]]
+id = "scope"
+isolation = "shared"
+produces = ["artifact:scope"]
+
+[[phases]]
+id = "review"
+needs = ["scope"]
+role = "react-performance-optimizer"
+isolation = "required"
+consumes = ["artifact:scope"]
+produces = ["artifact:review-react-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["review-react-completed"]
+artifacts = ["review-react-report"]
+schemas = []
