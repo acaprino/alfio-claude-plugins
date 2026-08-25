@@ -67,18 +67,18 @@
         "agent-teams@claude-code-workflows"
       ],
       "agents": [
-        "./agents/partition-structure-worker.md",
         "./agents/partition-behavior-worker.md",
         "./agents/partition-quality-worker.md",
+        "./agents/partition-structure-worker.md",
         "./agents/partition-synthesizer.md",
         "./agents/semantic-interconnect-mapper.md"
-      ],
-      "skills": [
-        "./skills/analyze"
       ],
       "commands": [
         "./commands/analyze.md",
         "./commands/team-analyze.md"
+      ],
+      "skills": [
+        "./skills/analyze"
       ]
     },
     {

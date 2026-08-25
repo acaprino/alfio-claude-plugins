@@ -45,6 +45,11 @@ class ClaudeBootstrapParityTests(unittest.TestCase):
     def test_bootstrap_export_matches_registered_components(self):
         for plugin in load_marketplace()["plugins"]:
             kernel = REPO_ROOT / "plugins" / plugin["name"]
+            if (kernel / "plugin.toml").is_file():
+                # A migrated plugin is compiled rather than copied: its package
+                # is covered by that plugin's own port test, and its generated
+                # text is LF-normalized rather than byte-identical.
+                continue
             for component in registered_files(plugin):
                 with self.subTest(plugin=plugin["name"], component=component):
                     source = kernel / component

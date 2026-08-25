@@ -1,0 +1,11 @@
+schema = "daodan/policy/v1"
+name = "write-confinement"
+description = "Every X-ray writer may only create files under its own run directory. The published root mirror is the stable downstream contract, so nothing outside it is a legitimate target for an analysis run."
+
+[roots]
+xray = ".deep-dive"
+
+[confinement]
+run_directory = ".deep-dive/runs/${run}"
+published_mirror = ".deep-dive"
+forbid_writes_outside_roots = true

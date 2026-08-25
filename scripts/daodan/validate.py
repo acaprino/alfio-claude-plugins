@@ -115,13 +115,17 @@ def validate_paths(plugin: PluginSpec) -> list[ValidationIssue]:
 def validate_components(plugin: PluginSpec) -> list[ValidationIssue]:
     issues: list[ValidationIssue] = []
     manifest = plugin.root / "plugin.toml"
-    seen: set[str] = set()
+    # Duplicates are checked per kind. Across kinds a repeated name is fine
+    # because no host layout puts two kinds in one namespace: Codex, the one
+    # host that renders both skills and workflows as skills, suffixes workflow
+    # directories precisely so `analyze` can be both.
     for names in (
         plugin.components.skills,
         plugin.components.roles,
         plugin.components.workflows,
         plugin.components.policies,
     ):
+        seen: set[str] = set()
         for name in names:
             if name in seen:
                 issues.append(ValidationIssue("duplicate-component", manifest, name))

@@ -1,0 +1,13 @@
+name = "analyze"
+entrypoint = "analyze.md"
+
+[[phases]]
+id = "run"
+isolation = "shared"
+produces = ["artifact:analyze-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["analyze-completed"]
+artifacts = ["analyze-report"]
+schemas = []

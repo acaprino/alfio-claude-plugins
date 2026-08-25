@@ -28,7 +28,7 @@ MANIFEST = {
 WORKFLOW_ENTRYPOINT = {
     "claude": "commands/deps-audit.md",
     "copilot": "prompts/deps-audit.prompt.md",
-    "codex": "skills/deps-audit/SKILL.md",
+    "codex": "skills/deps-audit-workflow/SKILL.md",
 }
 
 SKILL_RESOURCES = (
@@ -44,6 +44,11 @@ CONTRACT_OUTCOMES = (
     "licenses-analyzed",
     "supply-chain-findings-evidenced",
 )
+
+
+def normalized(path: Path) -> str:
+    """Compare content, not line endings: generated text is always LF."""
+    return path.read_text(encoding="utf-8").replace(chr(13) + chr(10), chr(10))
 
 
 def package(host: str) -> Path:
@@ -68,7 +73,7 @@ class DependencyAuditPortTests(unittest.TestCase):
                     exported = package(host) / resource
                     self.assertTrue(exported.is_file(), f"missing: {exported}")
                     self.assertEqual(
-                        exported.read_bytes(), (KERNEL / resource).read_bytes()
+                        normalized(exported), normalized(KERNEL / resource)
                     )
 
     def test_every_host_exposes_one_invocable_audit_workflow(self):
@@ -77,8 +82,7 @@ class DependencyAuditPortTests(unittest.TestCase):
                 target = package(host) / entrypoint
                 self.assertTrue(target.is_file(), f"missing: {target}")
                 self.assertEqual(
-                    target.read_bytes(),
-                    (KERNEL / "workflows/deps-audit.md").read_bytes(),
+                    normalized(target), normalized(KERNEL / "workflows/deps-audit.md")
                 )
 
     def test_the_kernel_declares_the_audit_contract(self):

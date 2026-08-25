@@ -1,0 +1,72 @@
+name = "team-analyze"
+entrypoint = "team-analyze.md"
+
+[[phases]]
+id = "partition-selection"
+isolation = "shared"
+produces = ["selection:partitions"]
+
+[[phases]]
+id = "structure"
+needs = ["partition-selection"]
+fanout_from = "selection:partitions"
+role = "partition-structure-worker"
+isolation = "required"
+join = "all-delivered"
+concurrency = "preferred"
+produces = ["artifact:partition-structure"]
+
+[[phases]]
+id = "behavior"
+needs = ["structure"]
+fanout_from = "selection:partitions"
+role = "partition-behavior-worker"
+isolation = "required"
+join = "all-delivered"
+concurrency = "preferred"
+consumes = ["artifact:partition-structure"]
+produces = ["artifact:partition-behavior"]
+
+[[phases]]
+id = "quality"
+needs = ["structure"]
+fanout_from = "selection:partitions"
+role = "partition-quality-worker"
+isolation = "required"
+join = "all-delivered"
+concurrency = "preferred"
+consumes = ["artifact:partition-structure"]
+produces = ["artifact:partition-quality"]
+
+[[phases]]
+id = "interconnect"
+needs = ["behavior"]
+role = "semantic-interconnect-mapper"
+isolation = "required"
+consumes = ["artifact:partition-behavior"]
+produces = ["artifact:interconnect-map"]
+
+[[phases]]
+id = "synthesis"
+needs = ["behavior", "quality", "interconnect"]
+role = "partition-synthesizer"
+isolation = "required"
+consumes = [
+  "artifact:partition-structure",
+  "artifact:partition-behavior",
+  "artifact:partition-quality",
+  "artifact:interconnect-map",
+]
+produces = ["artifact:xray-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = [
+  "reviewers-use-isolated-contexts",
+  "every-partition-is-owned-by-one-worker",
+  "no-worker-writes-outside-its-partition-directory",
+  "synthesis-runs-after-every-partition-delivered",
+  "artifacts-published-under-deep-dive",
+]
+artifacts = ["xray-report"]
+schemas = []
