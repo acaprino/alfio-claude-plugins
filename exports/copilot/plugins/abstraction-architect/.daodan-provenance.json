@@ -1,0 +1,11 @@
+{
+  "adapterVersion": "1.0.0",
+  "coreDigest": "sha256:0393ee18f07f01f0ae311614d54eef753754388aeda446c113e35b22286d049b",
+  "harnessStrategies": {
+    "audit": "parallel-subagents"
+  },
+  "host": "copilot",
+  "overrides": [],
+  "plugin": "abstraction-architect",
+  "version": "2.0.2"
+}
