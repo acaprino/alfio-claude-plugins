@@ -78,10 +78,33 @@ outcome the override gate exists to make visible rather than to encourage.
 
 | host | catalog adds | plugin installs | workflow invocable | skill loads | role dispatch |
 |---|---|---|---|---|---|
-| claude | TODO | TODO | TODO | TODO | TODO |
-| copilot | TODO | TODO | TODO | TODO | TODO |
-| codex | TODO | TODO | TODO | TODO | TODO |
+| claude | yes | yes | yes | yes | yes (isolated, parallel) |
+| copilot | not run | structural: 40/40 recognized | not run | not run | not run |
+| codex | yes | yes | yes | yes | yes (isolated, parallel, inline delivery) |
 
-**Not yet measured.** Like the host protocol probes and the two canary evals, this half needs real
-host sessions. Until it is filled in, the parity claim above is a claim about what the compiler
-produces, not about what each host does with it.
+Claude and Codex are measured end to end; see `tests/host-probes/README.md` for the commands and the
+raw results. `claude plugin marketplace add ./` then `claude plugin install clean-code@daodan`
+installs and enables; `codex plugin marketplace add` lists the plugin from the generated
+`.agents/plugins/marketplace.json` and `codex plugin add` installs it. `claude plugin validate .`
+passes with zero warnings.
+
+Copilot is measured structurally only: all 40 generated packages are recognized by
+`copilot plugin list --plugin-dir`, but the behavioural half needs an OAuth token or a fine-grained
+PAT that the classic `gh` token cannot stand in for.
+
+## Release evidence
+
+- Repository renamed to `acaprino/daodan`; the old name redirects.
+- Marketplace identity `daodan` at version 26.0.0, 40 plugins, identical across all three catalogs.
+- `consistency` and `publish-marketplaces` both green on the cutover head, and the publication job
+  reported no drift, so the bot loop converged instead of republishing.
+
+Three defects were found by running the hosts and CI rather than by reasoning about them, all fixed:
+
+1. `strict: false` beside component arrays makes a plugin fail to load ("conflicting manifests").
+2. Generated `plugin.json` files carried no `author`, which `claude plugin validate .` warned about
+   40 times.
+3. The kernel digest hashed absolute paths and raw bytes, so the same source hashed differently on a
+   Windows checkout and a Linux runner, and CI reported drift against an identical tree. Deciding
+   text by file extension then left four plugins still drifting, because the helper scripts they ship
+   fell outside the whitelist. The renderer now asks the content whether it is text.

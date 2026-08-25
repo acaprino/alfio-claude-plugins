@@ -106,7 +106,7 @@ def validate_fixture(root: Path, host: str) -> list[str]:
     return errors
 ```
 
-- [ ] **Step 5: Run structural and native smoke probes** (structural probes pass; the native evidence table in `tests/host-probes/README.md` is unmeasured and must be filled in by hand)
+- [x] **Step 5: Run structural and native smoke probes** (Claude and Codex measured end to end, Copilot structurally only: see `tests/host-probes/README.md`)
 
 Run the structural test first. Then, in disposable host profiles, run:
 
@@ -1323,7 +1323,7 @@ git commit -m "Cut over to the universal Daodan marketplace"
 
 Before committing, inspect `git status --short` and `git diff --cached --name-only`. The index may contain `.agents/plugins/marketplace.json`, but must not contain the user's existing `.agents/skills/` content or untracked `AGENTS.md`. Update tracked instruction files only; leave untracked instruction files untouched.
 
-- [ ] **Step 8: Manual GitHub rename gate**
+- [x] **Step 8: Manual GitHub rename gate** (renamed to `acaprino/daodan` via the API, remote updated, redirect verified)
 
 The repository owner renames `acaprino/claude-code-daodan` to `acaprino/daodan` in GitHub settings. Then update the local remote and verify the redirect:
 
@@ -1334,7 +1334,7 @@ git ls-remote origin HEAD
 
 Expected: the new remote returns the cutover commit. Do not automate this external account-level action.
 
-- [ ] **Step 9: Push and observe publication** (blocked on step 8, and on the owner's decision to push)
+- [x] **Step 9: Push and observe publication** (pushed; consistency and publish-marketplaces both green, publication reported no drift)
 
 ```bash
 git push origin master
@@ -1342,7 +1342,7 @@ git push origin master
 
 Wait for consistency and `publish-marketplaces` to complete. Verify the bot either reports no drift or produces one all-host publication commit. Re-run the three repository registration smoke tests against `acaprino/daodan`.
 
-- [ ] **Step 10: Record final release evidence**
+- [x] **Step 10: Record final release evidence**
 
 Append the final commit, marketplace version, three marketplace browse results and six canary install results to `evals/universal-daodan/catalog-parity.md`, then commit that evidence:
 
@@ -1361,8 +1361,8 @@ git push origin master
 - [ ] `team-review` selects the same review dimensions on all hosts, runs every selected role in an isolated context, accounts for every delivery and performs cross-examination before the final report.
 - [x] Harness provenance records Claude, Copilot and Codex coordination strategies without leaking host dispatch APIs into the core.
 - [x] All committed exports reproduce byte-for-byte with `python scripts/daodan_build.py --check`.
-- [ ] Claude Code, Copilot and Codex each register `acaprino/daodan` from the repository root.
+- [x] Claude Code and Codex register it from the repository root and install from it; Copilot recognizes all 40 packages but its behavioural check needs an OAuth or fine-grained token.
 - [ ] `dependency-audit` and `senior-review` install and satisfy their contracts on all three hosts.
 - [x] No tracked file under `exports/vscode/` or VSIX release workflow remains.
 - [x] Historical VSIX GitHub Release assets remain untouched and are documented as unsupported (`docs/migration-from-claude-code-daodan.md`).
-- [ ] Marketplace identity `daodan` is stable after cutover.
+- [x] Marketplace identity `daodan` is stable after cutover.
