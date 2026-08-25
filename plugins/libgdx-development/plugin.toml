@@ -1,0 +1,18 @@
+schema = "daodan/v1"
+name = "libgdx-development"
+version = "1.0.6"
+description = "libGDX cross-platform game development - project generation via gdx-liftoff, rendering pipeline (SpriteBatch, TextureAtlas, viewports), Scene2D + Ashley ECS architecture, Box2D physics, AssetManager lifecycle, Screen management, Tiled maps, and deployment to Desktop (LWJGL3), Android, iOS (RoboVM), and HTML5 (GWT/TeaVM); includes libGDX 1.14.0 migration notes and a /libgdx-audit command"
+license = "MIT"
+
+[capabilities]
+required = ["repository.read", "shell.execute", "repository.write", "network.fetch", "contexts.isolate", "roles.dispatch"]
+optional = []
+
+[dependencies]
+required = []
+
+[components]
+skills = ["libgdx-development"]
+roles = ["libgdx-architect"]
+workflows = ["libgdx-audit"]
+policies = []

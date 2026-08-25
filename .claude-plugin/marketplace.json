@@ -1082,11 +1082,11 @@
       "agents": [
         "./agents/libgdx-architect.md"
       ],
-      "skills": [
-        "./skills/libgdx-development"
-      ],
       "commands": [
         "./commands/libgdx-audit.md"
+      ],
+      "skills": [
+        "./skills/libgdx-development"
       ]
     },
     {
