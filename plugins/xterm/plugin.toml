@@ -1,0 +1,18 @@
+schema = "daodan/v1"
+name = "xterm"
+version = "1.1.2"
+description = "xterm.js terminal emulator development - building, configuring, and integrating xterm.js in web and Electron apps with addon support and PTY wiring"
+license = "MIT"
+
+[capabilities]
+required = ["repository.read", "repository.write"]
+optional = []
+
+[dependencies]
+required = []
+
+[components]
+skills = ["xtermjs-skill"]
+roles = []
+workflows = ["xterm-debug", "xterm-implement"]
+policies = []

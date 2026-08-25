@@ -1,0 +1,13 @@
+name = "xterm-implement"
+entrypoint = "xterm-implement.md"
+
+[[phases]]
+id = "run"
+isolation = "shared"
+produces = ["artifact:xterm-implement-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["xterm-implement-completed"]
+artifacts = ["xterm-implement-report"]
+schemas = []

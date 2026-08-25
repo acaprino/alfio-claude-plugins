@@ -158,12 +158,12 @@
       ],
       "category": "frontend",
       "strict": false,
-      "skills": [
-        "./skills/xtermjs-skill"
-      ],
       "commands": [
         "./commands/xterm-debug.md",
         "./commands/xterm-implement.md"
+      ],
+      "skills": [
+        "./skills/xtermjs-skill"
       ]
     },
     {

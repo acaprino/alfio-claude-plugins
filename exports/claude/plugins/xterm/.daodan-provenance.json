@@ -1,0 +1,12 @@
+{
+  "adapterVersion": "1.0.0",
+  "coreDigest": "sha256:5d3274f1b009b49bb152c3ae2ad8602ab67f0113b5a659263efb0cd4e130174f",
+  "harnessStrategies": {
+    "xterm-debug": "native-team",
+    "xterm-implement": "native-team"
+  },
+  "host": "claude",
+  "overrides": [],
+  "plugin": "xterm",
+  "version": "1.1.2"
+}

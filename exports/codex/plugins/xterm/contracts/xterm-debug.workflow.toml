@@ -1,0 +1,13 @@
+name = "xterm-debug"
+entrypoint = "xterm-debug.md"
+
+[[phases]]
+id = "run"
+isolation = "shared"
+produces = ["artifact:xterm-debug-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["xterm-debug-completed"]
+artifacts = ["xterm-debug-report"]
+schemas = []

@@ -156,6 +156,14 @@
       "name": "typescript-development",
       "source": "./exports/copilot/plugins/typescript-development",
       "version": "2.2.2"
+    },
+    {
+      "dependencies": [],
+      "description": "xterm.js terminal emulator development - building, configuring, and integrating xterm.js in web and Electron apps with addon support and PTY wiring",
+      "license": "MIT",
+      "name": "xterm",
+      "source": "./exports/copilot/plugins/xterm",
+      "version": "1.1.2"
     }
   ]
 }
