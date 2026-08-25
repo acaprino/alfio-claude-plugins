@@ -1,0 +1,18 @@
+schema = "daodan/v1"
+name = "docker"
+version = "1.3.2"
+description = "Docker best practices - optimized multi-stage Dockerfiles, layer caching, security hardening, and minimal base image selection for any language or framework (Node, Python, Go, Rust, Java, Bun, Deno)"
+license = "MIT"
+
+[capabilities]
+required = ["repository.read"]
+optional = []
+
+[dependencies]
+required = []
+
+[components]
+skills = ["multi-stage-dockerfile"]
+roles = []
+workflows = []
+policies = []

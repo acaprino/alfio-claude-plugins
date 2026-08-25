@@ -36,6 +36,14 @@
     },
     {
       "dependencies": [],
+      "description": "Docker best practices - optimized multi-stage Dockerfiles, layer caching, security hardening, and minimal base image selection for any language or framework (Node, Python, Go, Rust, Java, Bun, Deno)",
+      "license": "MIT",
+      "name": "docker",
+      "source": "./exports/copilot/plugins/docker",
+      "version": "1.3.2"
+    },
+    {
+      "dependencies": [],
       "description": "Cross-platform development rulebook - security (validation, auth tokens, passkeys/WebAuthn, API security, XSS/CSP, secrets), architecture (client-server, REST vs GraphQL, offline-first, monolith-first, CI/CD), and performance (bundles, images, Core Web Vitals, SSR/SSG, CDN caching) for SPA, PWA, mobile, Electron (with Fuses + asar integrity), and Tauri; includes /platform-review standalone command",
       "license": "MIT",
       "name": "platform-engineering",

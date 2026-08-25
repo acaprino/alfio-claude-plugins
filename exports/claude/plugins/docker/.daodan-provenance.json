@@ -1,0 +1,9 @@
+{
+  "adapterVersion": "1.0.0",
+  "coreDigest": "sha256:5e344cc8b2adeaaed47318e57593524b3b96604cd55284e721e238b7e2122164",
+  "harnessStrategies": {},
+  "host": "claude",
+  "overrides": [],
+  "plugin": "docker",
+  "version": "1.3.2"
+}
