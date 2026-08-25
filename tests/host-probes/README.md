@@ -52,7 +52,7 @@ host | isolated workers | parallel fan-out | shared tasks | peer messaging | wor
 | host | isolated workers | parallel fan-out | shared tasks | peer messaging | worker allowlist | packaged roles |
 |---|---|---|---|---|---|---|
 | claude | yes | yes | conditional | conditional | n/a | yes |
-| copilot | TODO | TODO | TODO | TODO | TODO | TODO |
+| copilot | partial | partial | partial | partial | partial | yes (structural) |
 | codex | yes | yes | no | no | n/a | no (inline succeeded) |
 
 **Claude and Codex are measured; Copilot is not.** The Claude row comes from two headless runs
@@ -95,12 +95,30 @@ release baseline allows. It confirms `adapters/codex/coordination.toml`, which a
 `.agents/plugins/marketplace.json` and lists the plugin from it, so the generated Codex catalog shape
 is confirmed too.
 
-Copilot is **not** measured, and the obstacle is this machine rather than the plan: the Copilot CLI
-extracts its platform package into `%LOCALAPPDATA%\copilot\pkg` on `C:`, which has 253 MB free of
-238 GB, and every launch fails with `ENOSPC` before it reaches argument parsing. Installing the npm
-package under a `D:` prefix does not help, because that extraction path is not configurable. Until
-that is resolved, `adapters/copilot/` carries the spec's documented assumptions and its strategy rows
-are provisional.
+Copilot is measured **structurally but not behaviourally**, and the reason is authentication rather
+than the plan. The CLI recognises every package the compiler produces:
+
+```bash
+for d in exports/copilot/plugins/*/; do
+  copilot plugin list --plugin-dir "$PWD/$d"
+done
+# -> recognized=40 rejected=0
+```
+
+That is real evidence about the generated package shape: all 40 load as external plugins, so the
+Copilot layout, manifest and component paths in `adapters/copilot/layout.toml` are confirmed.
+
+What could not be run is the behavioural probe, because Copilot accepts only an OAuth token or a
+fine-grained PAT, and the classic token `gh` holds is rejected. Obtaining one means an interactive
+`/login` in the CLI, which is the one thing here that genuinely needs the account owner. Until then
+the `partial` rows above stay partial and `adapters/copilot/coordination.toml` carries the spec's
+documented assumptions: the worker allowlist in particular (`agents:` frontmatter actually restricting
+dispatch) is asserted by no evidence yet.
+
+One machine-level obstacle was cleared along the way and is worth recording, because it will recur:
+the Copilot CLI extracts its platform package into `%LOCALAPPDATA%\copilot\pkg` on `C:`, that path is
+not configurable, and with 253 MB free every launch died with `ENOSPC` before argument parsing.
+`npm cache clean --force` freed 4.2 GB and the CLI started working.
 
 Release baseline, applied when the table is filled in:
 
