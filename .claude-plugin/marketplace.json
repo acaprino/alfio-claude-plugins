@@ -991,11 +991,11 @@
       "agents": [
         "./agents/platform-reviewer.md"
       ],
-      "skills": [
-        "./skills/platform-engineering"
-      ],
       "commands": [
         "./commands/platform-review.md"
+      ],
+      "skills": [
+        "./skills/platform-engineering"
       ]
     },
     {

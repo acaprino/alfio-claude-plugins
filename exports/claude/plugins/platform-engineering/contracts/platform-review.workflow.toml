@@ -1,0 +1,21 @@
+name = "platform-review"
+entrypoint = "platform-review.md"
+
+[[phases]]
+id = "scope"
+isolation = "shared"
+produces = ["artifact:scope"]
+
+[[phases]]
+id = "review"
+needs = ["scope"]
+role = "platform-reviewer"
+isolation = "required"
+consumes = ["artifact:scope"]
+produces = ["artifact:platform-review-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["platform-review-completed"]
+artifacts = ["platform-review-report"]
+schemas = []

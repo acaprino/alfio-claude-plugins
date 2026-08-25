@@ -1,0 +1,11 @@
+{
+  "adapterVersion": "1.0.0",
+  "coreDigest": "sha256:34c36c5d79cba5e60f6e0885965032a3f810eef7b6f142e317537e1a9d64bb28",
+  "harnessStrategies": {
+    "platform-review": "native-team"
+  },
+  "host": "claude",
+  "overrides": [],
+  "plugin": "platform-engineering",
+  "version": "1.2.9"
+}

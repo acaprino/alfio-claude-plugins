@@ -18,6 +18,14 @@
     },
     {
       "dependencies": [],
+      "description": "Cross-platform development rulebook - security (validation, auth tokens, passkeys/WebAuthn, API security, XSS/CSP, secrets), architecture (client-server, REST vs GraphQL, offline-first, monolith-first, CI/CD), and performance (bundles, images, Core Web Vitals, SSR/SSG, CDN caching) for SPA, PWA, mobile, Electron (with Fuses + asar integrity), and Tauri; includes /platform-review standalone command",
+      "license": "MIT",
+      "name": "platform-engineering",
+      "source": "./exports/copilot/plugins/platform-engineering",
+      "version": "1.2.9"
+    },
+    {
+      "dependencies": [],
       "description": "React performance optimization, React 19 API adoption, state management audit, bundle analysis, re-render detection, and Vercel best practices checklist",
       "license": "MIT",
       "name": "react-development",

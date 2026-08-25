@@ -1,0 +1,18 @@
+schema = "daodan/v1"
+name = "platform-engineering"
+version = "1.2.9"
+description = "Cross-platform development rulebook - security (validation, auth tokens, passkeys/WebAuthn, API security, XSS/CSP, secrets), architecture (client-server, REST vs GraphQL, offline-first, monolith-first, CI/CD), and performance (bundles, images, Core Web Vitals, SSR/SSG, CDN caching) for SPA, PWA, mobile, Electron (with Fuses + asar integrity), and Tauri; includes /platform-review standalone command"
+license = "MIT"
+
+[capabilities]
+required = ["repository.read", "shell.execute", "repository.write", "contexts.isolate", "roles.dispatch"]
+optional = []
+
+[dependencies]
+required = []
+
+[components]
+skills = ["platform-engineering"]
+roles = ["platform-reviewer"]
+workflows = ["platform-review"]
+policies = []
