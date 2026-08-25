@@ -1,0 +1,21 @@
+name = "humanize-text"
+entrypoint = "humanize-text.md"
+
+[[phases]]
+id = "scope"
+isolation = "shared"
+produces = ["artifact:scope"]
+
+[[phases]]
+id = "review"
+needs = ["scope"]
+role = "text-humanizer"
+isolation = "required"
+consumes = ["artifact:scope"]
+produces = ["artifact:humanize-text-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["humanize-text-completed"]
+artifacts = ["humanize-text-report"]
+schemas = []

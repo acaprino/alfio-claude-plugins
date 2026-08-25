@@ -1391,11 +1391,11 @@
       "agents": [
         "./agents/text-humanizer.md"
       ],
-      "skills": [
-        "./skills/anti-ai-writing-patterns"
-      ],
       "commands": [
         "./commands/humanize-text.md"
+      ],
+      "skills": [
+        "./skills/anti-ai-writing-patterns"
       ]
     },
     {

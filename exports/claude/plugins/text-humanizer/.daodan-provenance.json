@@ -1,0 +1,11 @@
+{
+  "adapterVersion": "1.0.0",
+  "coreDigest": "sha256:5d91f970ac12ad0a3f8f5b669ba8b32925f60a18d740177c040bc0ec41251264",
+  "harnessStrategies": {
+    "humanize-text": "native-team"
+  },
+  "host": "claude",
+  "overrides": [],
+  "plugin": "text-humanizer",
+  "version": "1.0.1"
+}
