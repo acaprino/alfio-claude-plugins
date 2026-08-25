@@ -1,0 +1,9 @@
+{
+  "adapterVersion": "1.0.0",
+  "coreDigest": "sha256:21cbbd7db2eb8f9443f68296bb2782ed147f79c224729fa2f81ab8f9c699c54d",
+  "harnessStrategies": {},
+  "host": "copilot",
+  "overrides": [],
+  "plugin": "stripe",
+  "version": "2.4.5"
+}

@@ -1,0 +1,9 @@
+{
+  "adapterVersion": "1.0.0",
+  "coreDigest": "sha256:6d910f46d46b090e445726a4fdfd54df90189fa39e15f1459112312c9f0f831f",
+  "harnessStrategies": {},
+  "host": "codex",
+  "overrides": [],
+  "plugin": "messaging",
+  "version": "2.0.1"
+}

@@ -268,16 +268,8 @@
       ],
       "category": "payments",
       "strict": false,
-      "agents": [
-        "./agents/stripe-integrator.md",
-        "./agents/revenue-optimizer.md",
-        "./agents/stripe-webhooks-auditor.md"
-      ],
       "skills": [
         "./skills/stripe"
-      ],
-      "commands": [
-        "./commands/audit-webhooks.md"
       ]
     },
     {

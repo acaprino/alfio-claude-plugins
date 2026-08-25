@@ -68,6 +68,14 @@
     },
     {
       "dependencies": [],
+      "description": "RabbitMQ and AMQP messaging - queue configuration, exchange routing, clustering, high availability, and event-driven architecture optimization (RabbitMQ 4.3 coverage: Khepri-only metadata store, quorum queue priorities and delayed retries, streams, MQTT 5, AMQP 1.0 SQL filters) plus a production knowledge base skill",
+      "license": "MIT",
+      "name": "messaging",
+      "source": "./exports/copilot/plugins/messaging",
+      "version": "2.0.1"
+    },
+    {
+      "dependencies": [],
       "description": "Obsidian community plugin development with automated review compliance (community.obsidian.md), project scaffolding, and pre-submission checks",
       "license": "MIT",
       "name": "obsidian-development",
@@ -121,6 +129,14 @@
       "name": "senior-review",
       "source": "./exports/copilot/plugins/senior-review",
       "version": "11.0.0"
+    },
+    {
+      "dependencies": [],
+      "description": "Stripe payments, subscriptions, Connect marketplaces, and revenue optimization for SaaS monetization; includes a dedicated skill (link-first references + scripts) for API patterns, Next.js/TypeScript integration, Embedded Checkout, Billing Meters, Entitlements, webhook reliability and auditing, Stripe Agent Toolkit for LLM tool-calling, test-clock simulation, PCI DSS 4.0 compliance, and pricing design",
+      "license": "MIT",
+      "name": "stripe",
+      "source": "./exports/copilot/plugins/stripe",
+      "version": "2.4.5"
     },
     {
       "dependencies": [],
