@@ -53,9 +53,9 @@ host | isolated workers | parallel fan-out | shared tasks | peer messaging | wor
 |---|---|---|---|---|---|---|
 | claude | yes | yes | conditional | conditional | n/a | yes |
 | copilot | TODO | TODO | TODO | TODO | TODO | TODO |
-| codex | TODO | TODO | TODO | TODO | n/a | TODO |
+| codex | yes | yes | no | no | n/a | no (inline succeeded) |
 
-**Claude is measured; Copilot and Codex are not yet.** The Claude row comes from two headless runs
+**Claude and Codex are measured; Copilot is not.** The Claude row comes from two headless runs
 against the fixture package, loaded with `--plugin-dir` so nothing was registered in a real profile:
 
 ```bash
@@ -79,8 +79,28 @@ Two defects came out of running this rather than assuming it, both now fixed:
 2. **Generated `plugin.json` files had no `author`.** `claude plugin validate .` warned on all 40.
    The manifest templates now emit the marketplace owner, and validation is clean.
 
-Until the other two rows are filled in, `adapters/copilot/` and `adapters/codex/` carry the spec's
-documented assumptions and their strategy rows are provisional.
+The Codex row comes from `codex plugin marketplace add ./tests/host-probes/codex`, `codex plugin add
+daodan-probe@daodan-probe-codex`, then two `codex exec` runs; the disposable marketplace and plugin
+were removed afterwards and `~/.codex/config.toml` was byte-identical to its pre-probe backup.
+
+```text
+# single worker -> DAODAN_PROBE_OK
+# coordinator   -> NONCE=alpha / NONCE=beta / DELIVERED=2/2
+#                  ROLE_DELIVERY=inline ISOLATED=yes PARALLEL=yes
+```
+
+`packaged roles = no` for Codex, and inline delivery succeeded, which is exactly the condition the
+release baseline allows. It confirms `adapters/codex/coordination.toml`, which already declared
+`role_delivery = "inline-prompt"`: the assumption was right, and is now evidence. Codex reads
+`.agents/plugins/marketplace.json` and lists the plugin from it, so the generated Codex catalog shape
+is confirmed too.
+
+Copilot is **not** measured, and the obstacle is this machine rather than the plan: the Copilot CLI
+extracts its platform package into `%LOCALAPPDATA%\copilot\pkg` on `C:`, which has 253 MB free of
+238 GB, and every launch fails with `ENOSPC` before it reaches argument parsing. Installing the npm
+package under a `D:` prefix does not help, because that extraction path is not configurable. Until
+that is resolved, `adapters/copilot/` carries the spec's documented assumptions and its strategy rows
+are provisional.
 
 Release baseline, applied when the table is filled in:
 
