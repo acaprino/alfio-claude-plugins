@@ -1,0 +1,14 @@
+{
+  "name": "daodan-dependency-fixture",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Fixture project for the dependency-audit canary eval. Pinned, deliberately old, and never installed.",
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "4.17.20",
+    "minimist": "1.2.5"
+  },
+  "devDependencies": {
+    "left-pad": "1.3.0"
+  }
+}

@@ -29,9 +29,14 @@ class CatalogError(ValueError):
 
 
 def _source(host: str, name: str) -> object:
-    """Return the host-native source reference for one plugin."""
-    if host == "codex":
-        return {"source": "local", "path": f"./exports/codex/plugins/{name}"}
+    """Return the host-native source reference for one plugin.
+
+    All three hosts take a repository-relative path string. Codex was specified
+    as `{"source": "local", "path": ...}`, and that shape is silently ignored:
+    the marketplace registers, and then every plugin in it is "not found".
+    Measured against codex-cli 0.149.1, which lists a plugin only when `source`
+    is the path itself.
+    """
     return f"./exports/{host}/plugins/{name}"
 
 

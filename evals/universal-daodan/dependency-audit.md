@@ -33,10 +33,27 @@ which is the same manual step the host protocol probes need.
 
 | host | package installs | workflow invocable | dependencies discovered | direct/transitive classified | licenses analyzed | supply-chain evidenced | report written | remediation non-destructive |
 |---|---|---|---|---|---|---|---|---|
-| claude | TODO | TODO | TODO | TODO | TODO | TODO | TODO | TODO |
-| copilot | TODO | TODO | TODO | TODO | TODO | TODO | TODO | TODO |
-| codex | TODO | TODO | TODO | TODO | TODO | TODO | TODO | TODO |
+| claude | yes | yes | 5 | yes | yes | yes | yes | yes |
+| copilot | recognized | not run | - | - | - | - | - | - |
+| codex | yes | yes | 5 | yes | yes | yes | yes | yes |
 
-**Not yet measured.** Fill this in alongside the evidence table in `tests/host-probes/README.md`. A
-row that fails any contract column blocks the complete release for that host, since the release
-baseline requires one identical semantic version everywhere.
+Both measured hosts ran against `tests/fixtures/daodan/dependency-project`, a two-ecosystem fixture
+(npm and pip) pinned to deliberately old versions and never installed, and both closed with
+
+```text
+CONTRACT: discovered=5 classified=yes licenses=yes supplychain=yes report=yes destructive=no
+```
+
+Claude ran the package with `--plugin-dir`; Codex installed it from the generated catalog
+(`codex plugin marketplace add ./`, `codex plugin add dependency-audit@daodan`) and the disposable
+registration was removed afterwards. Both honoured the plugin's own directives: evidence tiers on
+every claim, coverage gaps stated rather than papered over, and no manifest or lockfile touched.
+
+Copilot is recognized by `copilot plugin list --plugin-dir` but not run, for the token reason
+recorded in `tests/host-probes/README.md`.
+
+**Running this found a defect the design had specified wrongly.** The Codex catalog entry was
+specified as `{"source": "local", "path": "./exports/codex/plugins/<name>"}`. Codex registers such a
+marketplace and then reports every plugin in it as `not found`; it takes a repository-relative path
+string in `source`, exactly like the other two hosts. `catalogs.py` now emits that, and the catalog
+test pins it with the reason.

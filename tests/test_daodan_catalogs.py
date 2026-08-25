@@ -41,9 +41,13 @@ class CatalogTests(unittest.TestCase):
         self.assertEqual(
             catalogs["copilot"]["plugins"][0]["source"], "./exports/copilot/plugins/example"
         )
-        codex = catalogs["codex"]["plugins"][0]
-        self.assertEqual(codex["source"], "local")
-        self.assertEqual(codex["path"], "./exports/codex/plugins/example")
+        # Codex takes a path string like the others. The `{"source": "local",
+        # "path": ...}` shape the design specified registers the marketplace and
+        # then reports every plugin in it as not found.
+        self.assertEqual(
+            catalogs["codex"]["plugins"][0]["source"], "./exports/codex/plugins/example"
+        )
+        self.assertNotIn("path", catalogs["codex"]["plugins"][0])
 
     def test_rendering_is_byte_stable(self):
         plugins = [load_plugin(VALID)]

@@ -1,7 +1,7 @@
 {
   "metadata": {
     "description": "The Daodan: agents, skills and workflows that augment a coding agent into a specialized toolkit.",
-    "version": "26.0.0"
+    "version": "26.0.1"
   },
   "name": "daodan",
   "owner": {
@@ -18,12 +18,11 @@
       "description": "Structural entropy auditor: finds where the same concept is represented, owned, computed or implemented more than once, and what it costs when that concept changes. Seven dimensions over two evidence tracks. Knowledge track (duplicated domain knowledge, competing sources of truth, redundant representation, duplicated or derivable state) is judged by semantic identity and ownership, so two representations suffice behind a strict gate. Form track (missed unification, prior art available, abstraction fitness) is judged by recurrence, where the Rule of Three applies to missed unification only. Global mode censuses the codebase and persists a concept index; diff mode asks the same seven questions as 'introduced or aggravated by this change' and runs as the Abstraction dimension of /senior-review:team-review and /senior-review:code-review. Report-only, grounded in canonical theory (Metz, Beck, Fowler, Gross, North, DDD).",
       "license": "MIT",
       "name": "abstraction-architect",
-      "path": "./exports/codex/plugins/abstraction-architect",
       "skills": [
         "./skills/abstraction-architect",
         "./skills/audit-workflow"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/abstraction-architect",
       "version": "2.1.0"
     },
     {
@@ -36,12 +35,11 @@
       "description": "AI development workflow - prompt engineering and optimization, and Claude Agent SDK integration guide",
       "license": "MIT",
       "name": "ai-tooling",
-      "path": "./exports/codex/plugins/ai-tooling",
       "skills": [
         "./skills/agent-sdk-builder",
         "./skills/prompt-optimize-workflow"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/ai-tooling",
       "version": "5.1.0"
     },
     {
@@ -54,8 +52,7 @@
       "description": "Comprehensive app analysis for Android (ADB) and web (Playwright MCP) - navigation mapping, competitive analysis, design system extraction, UX flow analysis, and business model intelligence",
       "license": "MIT",
       "name": "app-analyzer",
-      "path": "./exports/codex/plugins/app-analyzer",
-      "source": "local",
+      "source": "./exports/codex/plugins/app-analyzer",
       "version": "1.2.0"
     },
     {
@@ -66,14 +63,13 @@
       "description": "Expert Firefox extension (WebExtension) developer covering Manifest V2/V3, all 51 browser.* APIs, content scripts, background scripts, native messaging, cross-browser compatibility, AMO publishing, web-ext CLI tooling, project scaffolding, and live MDN documentation lookup; includes /firefox-scaffold, /firefox-lint, /firefox-publish commands",
       "license": "MIT",
       "name": "browser-extensions",
-      "path": "./exports/codex/plugins/browser-extensions",
       "skills": [
         "./skills/firefox-extension-dev",
         "./skills/firefox-lint-workflow",
         "./skills/firefox-publish-workflow",
         "./skills/firefox-scaffold-workflow"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/browser-extensions",
       "version": "1.8.0"
     },
     {
@@ -86,11 +82,10 @@
       "description": "Legal advisory, compliance document generation, and SaaS business planning - Privacy Policies, Cookie Policies, DPAs, GDPR/ePrivacy/CCPA compliance, contract review, GTM strategy, market sizing, pricing, and positioning",
       "license": "MIT",
       "name": "business",
-      "path": "./exports/codex/plugins/business",
       "skills": [
         "./skills/saas-business-plan"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/business",
       "version": "1.11.0"
     },
     {
@@ -101,11 +96,10 @@
       "description": "Rewrites source code to be more readable and human-friendly without changing behavior - improves naming, removes AI boilerplate, simplifies structure, and adds clarity comments",
       "license": "MIT",
       "name": "clean-code",
-      "path": "./exports/codex/plugins/clean-code",
       "skills": [
         "./skills/clean-code-workflow"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/clean-code",
       "version": "1.3.0"
     },
     {
@@ -121,7 +115,6 @@
       "description": "Human-readable codebase guide generator: explores unfamiliar projects, builds a structured interconnect map (contracts, invariants, domain rules, integration hot-spots) via the codebase-xray semantic-interconnect-mapper, then autonomously profiles the project (type, audience, register) and produces audience-adaptive narrative documents with Mermaid diagrams that cite the map, including a plain-language executive summary and a domain glossary so the guide is comprehensible by everyone. Includes documentation-reality drift detection in the review phase, plus standalone documentation creation, maintenance, and humanization with bottom-up code analysis. Both docs-create and docs-maintain cover 20 documentation dimensions; docs-maintain runs a structured per-dimension drift audit (added/removed/renamed/retyped) instead of generic outdated-text matching.",
       "license": "MIT",
       "name": "codebase-mapper",
-      "path": "./exports/codex/plugins/codebase-mapper",
       "skills": [
         "./skills/codebase-mapper",
         "./skills/docs-create-workflow",
@@ -130,7 +123,7 @@
         "./skills/map-codebase-workflow",
         "./skills/team-codebase-map-workflow"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/codebase-mapper",
       "version": "3.1.0"
     },
     {
@@ -141,13 +134,12 @@
       "description": "Multi-language systematic codebase X-ray analysis (Python, Java, JavaScript, TypeScript, SQL, PL/SQL, Rust) - analyzes architecture, traces data flows, detects anti-patterns, and generates structured documentation for onboarding, architecture review, or code documentation. Root of the review and documentation dependency graph: it also owns the semantic interconnect mapper (contracts / invariants / domain rules / assumptions) that team-review and codebase-mapper both consume. Concurrent-safe: every analysis is an isolated run under .deep-dive/runs/ published to a stable root mirror. The Next Steps menu wires the output into downstream documentation generators (CLAUDE.md, codebase map, interface docs) as a technical-reference backbone. Renamed from deep-dive-analysis in 2.0.0.",
       "license": "MIT",
       "name": "codebase-xray",
-      "path": "./exports/codex/plugins/codebase-xray",
       "skills": [
         "./skills/analyze",
         "./skills/analyze-workflow",
         "./skills/team-analyze-workflow"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/codebase-xray",
       "version": "2.3.0"
     },
     {
@@ -158,8 +150,7 @@
       "description": "Constraint Satisfaction Problems and combinatorial optimization with Google OR-Tools CP-SAT solver",
       "license": "MIT",
       "name": "csp",
-      "path": "./exports/codex/plugins/csp",
-      "source": "local",
+      "source": "./exports/codex/plugins/csp",
       "version": "1.4.0"
     },
     {
@@ -170,12 +161,11 @@
       "description": "Evidence-first dependency auditing: runs each ecosystem's real audit tooling for CVEs, outdated packages, license obligations and supply-chain signals, and reports only tool-verified facts under TOOL-REPORTED, INFERRED and UNKNOWN evidence tiers. Obligations-based license analysis instead of a compatibility matrix, and strictly non-destructive remediation.",
       "license": "MIT",
       "name": "dependency-audit",
-      "path": "./exports/codex/plugins/dependency-audit",
       "skills": [
         "./skills/dependency-audit",
         "./skills/deps-audit-workflow"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/dependency-audit",
       "version": "1.1.0"
     },
     {
@@ -189,7 +179,6 @@
       "description": "SEO optimization, content marketing, brand naming, domain hunting, customer review response, GA4/GTM analytics implementation, and answer-engine optimization (Google AI Overviews / SGE, Perplexity, ChatGPT Search, Claude Search, Bing Copilot) - technical audits, keyword research, content strategy, brand naming, domain checks, trademark screening, professional review reply generation with sentiment analysis, Google Analytics 4 + Google Tag Manager deployment with EU/GDPR Consent Mode v2 compliance, /ga4-audit Playwright-powered verification, and /llm-seo-audit AEO command with crawler-access matrix, E-E-A-T, structured data, passage extractability. Prose humanization lives in the standalone text-humanizer plugin.",
       "license": "MIT",
       "name": "digital-marketing",
-      "path": "./exports/codex/plugins/digital-marketing",
       "skills": [
         "./skills/brand-naming",
         "./skills/brand-naming-workflow",
@@ -202,7 +191,7 @@
         "./skills/reply-to-customer-review-workflow",
         "./skills/seo-audit-workflow"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/digital-marketing",
       "version": "2.1.0"
     },
     {
@@ -213,11 +202,10 @@
       "description": "Docker best practices - optimized multi-stage Dockerfiles, layer caching, security hardening, and minimal base image selection for any language or framework (Node, Python, Go, Rust, Java, Bun, Deno)",
       "license": "MIT",
       "name": "docker",
-      "path": "./exports/codex/plugins/docker",
       "skills": [
         "./skills/multi-stage-dockerfile"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/docker",
       "version": "1.4.0"
     },
     {
@@ -228,12 +216,11 @@
       "description": "README and project documentation authoring - craft magnetic, top-tier README.md files with progressive disclosure, hero sections, badges, quick start, feature tables, Mermaid diagrams, and community sections",
       "license": "MIT",
       "name": "docs",
-      "path": "./exports/codex/plugins/docs",
       "skills": [
         "./skills/maintain-readme-workflow",
         "./skills/readme-craft"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/docs",
       "version": "1.2.0"
     },
     {
@@ -252,11 +239,10 @@
       "description": "Full frontend review in one pass, combining a design/UX dimension driven by the impeccable, ui-ux-pro-max, and frontend-design upstream skills as hard prerequisites with stop-and-install, with auto-detected code dimensions (React performance, TypeScript type safety, PWA architecture, platform compliance) spawned from local plugins declared as hard dependencies, so a dimension is skipped only when its signal does not match. Findings consolidate into a unified scored report at .frontend-review/report.md. Pure orchestration; vendors nothing.",
       "license": "MIT",
       "name": "frontend-review",
-      "path": "./exports/codex/plugins/frontend-review",
       "skills": [
         "./skills/review-frontend-workflow"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/frontend-review",
       "version": "2.1.0"
     },
     {
@@ -269,11 +255,10 @@
       "description": "Expert Python web scraping - coordinator (grabber-architect) plus three specialists: stealth-browser-expert (Patchright/Camoufox/Nodriver + CAPTCHA), http-fingerprint-expert (JA4+/curl_cffi/primp + proxies/Web Unlocker), ai-scraping-expert (Crawl4AI/Firecrawl/ScrapeGraphAI + Pydantic + GraphQL RE)",
       "license": "MIT",
       "name": "grabber-development",
-      "path": "./exports/codex/plugins/grabber-development",
       "skills": [
         "./skills/grabber-development"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/grabber-development",
       "version": "1.5.0"
     },
     {
@@ -284,11 +269,10 @@
       "description": "Idiomatic Kotlin development toolkit - kotlin-specialist skill covering coroutines and structured concurrency, Flow / StateFlow / SharedFlow, Kotlin Multiplatform (KMP) with expect/actual, Jetpack Compose on Android, Ktor server (routing, JWT auth, Exposed, WebSockets), and type-safe DSL idioms (lambdas with receivers, delegated properties, inline reified, value classes). Vendored from Jeffallan/claude-skills (MIT).",
       "license": "MIT",
       "name": "kotlin-development",
-      "path": "./exports/codex/plugins/kotlin-development",
       "skills": [
         "./skills/kotlin-specialist"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/kotlin-development",
       "version": "1.1.0"
     },
     {
@@ -299,14 +283,13 @@
       "description": "Learning and knowledge management - mind map generation from any content, Obsidian MarkMind export, and interactive force-graph HTML visualization",
       "license": "MIT",
       "name": "learning",
-      "path": "./exports/codex/plugins/learning",
       "skills": [
         "./skills/export-to-markmind-workflow",
         "./skills/forcegraph-exporter",
         "./skills/generate-mindmap",
         "./skills/markmind-exporter"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/learning",
       "version": "1.7.0"
     },
     {
@@ -317,12 +300,11 @@
       "description": "libGDX cross-platform game development - project generation via gdx-liftoff, rendering pipeline (SpriteBatch, TextureAtlas, viewports), Scene2D + Ashley ECS architecture, Box2D physics, AssetManager lifecycle, Screen management, Tiled maps, and deployment to Desktop (LWJGL3), Android, iOS (RoboVM), and HTML5 (GWT/TeaVM); includes libGDX 1.14.0 migration notes and a /libgdx-audit command",
       "license": "MIT",
       "name": "libgdx-development",
-      "path": "./exports/codex/plugins/libgdx-development",
       "skills": [
         "./skills/libgdx-audit-workflow",
         "./skills/libgdx-development"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/libgdx-development",
       "version": "1.1.0"
     },
     {
@@ -333,7 +315,6 @@
       "description": "Generic Claude Code plugin marketplace manager - auditing, validation, AI quality review, upstream sync, plugin scaffolding, and health monitoring. Works against any project with the standard .claude-plugin/marketplace.json + plugins/<name>/ layout; reads project-specific conventions (author, license, category taxonomy, upstream sources) from the target marketplace.json and CLAUDE.md",
       "license": "MIT",
       "name": "marketplace-ops",
-      "path": "./exports/codex/plugins/marketplace-ops",
       "skills": [
         "./skills/marketplace-audit",
         "./skills/marketplace-health-workflow",
@@ -342,7 +323,7 @@
         "./skills/skills-creator",
         "./skills/skills-validate-workflow"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/marketplace-ops",
       "version": "2.3.0"
     },
     {
@@ -353,11 +334,10 @@
       "description": "RabbitMQ and AMQP messaging - queue configuration, exchange routing, clustering, high availability, and event-driven architecture optimization (RabbitMQ 4.3 coverage: Khepri-only metadata store, quorum queue priorities and delayed retries, streams, MQTT 5, AMQP 1.0 SQL filters) plus a production knowledge base skill",
       "license": "MIT",
       "name": "messaging",
-      "path": "./exports/codex/plugins/messaging",
       "skills": [
         "./skills/rabbitmq-production"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/messaging",
       "version": "2.1.0"
     },
     {
@@ -368,13 +348,12 @@
       "description": "Obsidian community plugin development with automated review compliance (community.obsidian.md), project scaffolding, and pre-submission checks",
       "license": "MIT",
       "name": "obsidian-development",
-      "path": "./exports/codex/plugins/obsidian-development",
       "skills": [
         "./skills/obsidian-check",
         "./skills/obsidian-plugin-development",
         "./skills/obsidian-scaffold"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/obsidian-development",
       "version": "1.5.0"
     },
     {
@@ -385,12 +364,11 @@
       "description": "OpenTelemetry Python instrumentation - distributed tracing, async context propagation, custom transport propagators, OTLP exporters, AWS ADOT/X-Ray, and production observability; includes /otel-audit command",
       "license": "MIT",
       "name": "opentelemetry",
-      "path": "./exports/codex/plugins/opentelemetry",
       "skills": [
         "./skills/opentelemetry",
         "./skills/otel-audit-workflow"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/opentelemetry",
       "version": "1.4.0"
     },
     {
@@ -403,12 +381,11 @@
       "description": "Cross-model peer review of plans, specs, and the decisions a session has just made: a harness-agnostic deliberation protocol (challenge packet with GIVEN-tagged context, challenger findings that each carry their own falsifier, evidence-backed responses at a stable locator, a verbatim ledger, a certification pass the challenger owns, and a verdict computed from the ledger) plus a transport-only MCP server for any OpenAI-compatible endpoint. Point it at a document, or run it with no path to materialize the session's context, settled decisions and open questions into a frozen brief and put that on trial. The challenger attacks the artifact, the local session refutes with evidence, and unresolved disagreements terminate as precise standoffs for the user to settle",
       "license": "MIT",
       "name": "peer-review",
-      "path": "./exports/codex/plugins/peer-review",
       "skills": [
         "./skills/cross-model-peer-review",
         "./skills/review-workflow"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/peer-review",
       "version": "2.2.0"
     },
     {
@@ -419,12 +396,11 @@
       "description": "Cross-platform development rulebook - security (validation, auth tokens, passkeys/WebAuthn, API security, XSS/CSP, secrets), architecture (client-server, REST vs GraphQL, offline-first, monolith-first, CI/CD), and performance (bundles, images, Core Web Vitals, SSR/SSG, CDN caching) for SPA, PWA, mobile, Electron (with Fuses + asar integrity), and Tauri; includes /platform-review standalone command",
       "license": "MIT",
       "name": "platform-engineering",
-      "path": "./exports/codex/plugins/platform-engineering",
       "skills": [
         "./skills/platform-engineering",
         "./skills/platform-review-workflow"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/platform-engineering",
       "version": "1.3.0"
     },
     {
@@ -435,12 +411,11 @@
       "description": "Project configuration and setup tools including CLAUDE.md creation and maintenance with ground truth validation. The maintain flow preserves existing references and information by default - removal requires cross-verification proving the content false or obsolete (else: keep, extract to docs/, or ask the user) - and surfaces every single drift to the user via AskUserQuestion before applying any change (no batch-auto-fix, default on unanswered = leave unchanged). Includes a Phase 4b internal-duplication detection pass: file paths, pointers, and external resources are counted across the document; reference outliers (one path appearing N>1 times while peers appear once), conceptual restatements, and weak-justification duplicates (e.g., 'scannability' for jumping readers) are surfaced as per-drift questions with all N occurrences, peer-group comparison, and concrete merge/keep/cross-reference/extract options. Dedup merges are treated as deletions and require explicit per-item approval. Enforces a hard 40,000-character cap on CLAUDE.md (Claude Code performance warning threshold) by extracting bloated sections to docs/ via thin pointers. The project-structure section is required to document the EVERGREEN shape (top-level layout + repeating structural patterns + role per category), not an exhaustive file-by-file tree; file-by-file annotation is justified only where names alone are ambiguous, where the file is a key entry point, or to disambiguate siblings. Exhaustive file-by-file trees in existing CLAUDE.md files are flagged as Medium consolidation candidates (high decay risk, tokens without evergreen value) and surfaced as per-finding questions (consolidate / extract to docs/ / keep / skip), never collapsed autonomously. Generated CLAUDE.md files always include a canonical Working Principles section with 5 principles (4 inspired by upstream agentic-coding meta-rules: Think Before Coding, Simplicity First, Surgical Changes, Goal-Driven Execution; plus the locally authored Centralize Shared Logic for DRY / Single Source of Truth across external calls and cross-cutting concerns). Each of principles 1-4 ships with 3 inline sub-bullets covering the deeper meta-rules (root-cause analysis, evergreen tests, surgical diffs) so the block is self-contained and never linked out. The create/maintain flows auto-detect .deep-dive/ output and offer to ingest it as the technical-reference backbone. When the project has a test suite, generated CLAUDE.md files also carry a canonical Test-Suite Rules block (7 binding rules condensed from the testing plugin's hygiene knowledge base: search before writing, mirrored placement, explicit layers, behavior over implementation, no skip markers, assertion integrity, delete tests with the feature), offered on create and verified on audit; projects without tests do not get the block.",
       "license": "MIT",
       "name": "project-setup",
-      "path": "./exports/codex/plugins/project-setup",
       "skills": [
         "./skills/create-claude-md-workflow",
         "./skills/maintain-claude-md-workflow"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/project-setup",
       "version": "1.20.0"
     },
     {
@@ -453,14 +428,13 @@
       "description": "Progressive Web App expert for the 2025-2026 baseline. Covers Web App Manifest (id, display_override, scope_extensions, handle_links, file_handlers, share_target), Service Workers (Workbox 7 / Serwist), Web Push (VAPID, RFC 8030/8291/8292, Declarative Push for Safari 18.4+), install flows (beforeinstallprompt, Window Controls Overlay), OPFS storage, Project Fugu capabilities, Core Web Vitals 2025 (INP < 200ms), security (HTTPS, CSP, COOP/COEP), and distribution (Bubblewrap to Google Play, PWA Builder to Microsoft Store, Capacitor to App Store, PWA Builder to Meta Quest). Includes the pwa-architect agent and three commands: /pwa-audit (hybrid local-code + live-URL via Playwright), /pwa-scaffold (manifest + SW + iOS meta + framework wiring for Vite, Next.js, Angular, Nuxt, vanilla), /pwa-checklist (deterministic production-deploy checklist walk).",
       "license": "MIT",
       "name": "pwa-expert",
-      "path": "./exports/codex/plugins/pwa-expert",
       "skills": [
         "./skills/pwa-audit-workflow",
         "./skills/pwa-checklist-workflow",
         "./skills/pwa-development",
         "./skills/pwa-scaffold-workflow"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/pwa-expert",
       "version": "1.2.0"
     },
     {
@@ -471,7 +445,6 @@
       "description": "Python development toolkit - TDD with pytest, code refactoring with complexity metrics, performance profiling, async patterns, uv package management, dead code detection, comment auditing, project scaffolding, deep Pydantic v2.13 guide (validators/serializers/strict/performance/security/PydanticAI+Logfire) with v1 migration, and /python-audit consolidated quality report",
       "license": "MIT",
       "name": "python-development",
-      "path": "./exports/codex/plugins/python-development",
       "skills": [
         "./skills/async-python-patterns",
         "./skills/pydantic-v2",
@@ -486,7 +459,7 @@
         "./skills/python-tdd",
         "./skills/uv-package-manager"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/python-development",
       "version": "1.22.0"
     },
     {
@@ -497,12 +470,11 @@
       "description": "RAG system design, implementation, and optimization - chunking strategies, embedding models (Voyage 4 family, OpenAI v3, Cohere embed-v4, Gemini, BGE-M3, NV-Embed-v2, Nomic MoE, Jina v3), vector databases (Qdrant 1.13-1.16), hybrid search, modern rerankers (Voyage rerank-2.5, Cohere Rerank 3.5, Jina Reranker v3, mxbai-rerank-v2), advanced patterns (HippoRAG, LightRAG, LongRAG, Agentic RAG, CRAG, Self-RAG, GraphRAG), evaluation (RAGAS/DeepEval/TruLens), and production deployment",
       "license": "MIT",
       "name": "rag-development",
-      "path": "./exports/codex/plugins/rag-development",
       "skills": [
         "./skills/rag-audit-workflow",
         "./skills/rag-development"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/rag-development",
       "version": "1.6.0"
     },
     {
@@ -513,12 +485,11 @@
       "description": "React performance optimization, React 19 API adoption, state management audit, bundle analysis, re-render detection, and Vercel best practices checklist",
       "license": "MIT",
       "name": "react-development",
-      "path": "./exports/codex/plugins/react-development",
       "skills": [
         "./skills/react-best-practices",
         "./skills/review-react-workflow"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/react-development",
       "version": "1.11.0"
     },
     {
@@ -529,12 +500,11 @@
       "description": "Workspace tidying decided by the filesystem and git alone, with no source comprehension anywhere in it: filesystem garbage and shell-redirection artifacts, generated artifacts tracked in git (checked against publication conventions before anything is proposed for untracking), .gitignore completeness per ecosystem and archaeology over stale and overly-broad rules with git check-ignore provenance, scratch and pipeline-output directories, orphan doc-assets widened past literal Markdown links to configs, stylesheets and templates, and git auxiliary state. One check catalog with a full and a lite profile, so the diff-scoped pass inside a code review and the whole-tree pass share definitions and cannot drift. /repo-hygiene:tidy detects by default and applies under --fix or --commit; untracked removals are quarantined rather than deleted, git rm --cached is confirmed per item, and the git-state dimension is permanently detection-only because a dropped stash or a removed worktree leaves no diff for a per-phase commit to revert.",
       "license": "MIT",
       "name": "repo-hygiene",
-      "path": "./exports/codex/plugins/repo-hygiene",
       "skills": [
         "./skills/repo-hygiene",
         "./skills/tidy-workflow"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/repo-hygiene",
       "version": "1.1.0"
     },
     {
@@ -545,12 +515,11 @@
       "description": "Deep web research (any topic) modelled on the commercial deep-research products: /research:team-research clarifies scope only when needed, shows a plan of sub-questions for approval, spawns one iterative deep-researcher per sub-question in parallel, verifies contradictions with quick-searcher, synthesizes a long-form cited report and writes it to disk; tiers quick/standard/deep scale effort; optional serper.dev backend via websearch.py when SERPER_API_KEY is set, native WebSearch otherwise. quick-searcher (sonnet) also answers single-fact lookups directly",
       "license": "MIT",
       "name": "research",
-      "path": "./exports/codex/plugins/research",
       "skills": [
         "./skills/team-research-workflow",
         "./skills/web-search-techniques"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/research",
       "version": "6.2.0"
     },
     {
@@ -569,7 +538,6 @@
       "description": "Multi-agent code review orchestration with unified code auditing (architecture, failure flow, pattern analysis, scoring), security auditing, UI race condition detection, distributed flow analysis, platform engineering review, codebase-hygiene auditing (dead code + orphan assets + generated artifacts in VCS + phantom/unused deps + barrel-file and eager-bundle bloat + stale documentation and historical artifacts), a lite dead-code and VCS-hygiene pass in code-review and pr-review plus incremental-phase removal inside the code-review fix loop with commit-per-category and build+test gates, logic-integrity auditing for cross-component contract violations driven by the interconnect map that codebase-xray produces, git blame/history analysis, temporal-resilience auditing (failure-over-time: uncapped retries, silent subsystem death, user-invisible degradation, clock/suspend hazards), data-integrity auditing (persistence semantics: application-only invariants, lost updates, cache/DB divergence), resource-lifecycle auditing (ownership and release across success/error/cancellation), all signal-activated, evidence classes for quantitative claims (measured vs derived) and a user-visible-consequence gate on metric-based closures, a delivery gate (every reviewer delivers or is reported degraded; the work tree is left as found), epistemic independence between the context pipeline and the reviewers that consume it: every finding declares the load-bearing premise it stands on and whether that premise was derived independently or inherited from shared context, a premise auditor derives a second set of claims blind to the X-ray output, the interconnect map carries a per-row status including disputed, consolidation reports agreement inherited from a shared premise as an echo rather than as corroboration, finding validation with false-positive filtering (a 4-lens panel: premise veto gated on provenance and requiring a file:line counterexample, then reachability and refutation, with severity calibration gated on survival), committable PR suggestions, pre-review skip logic, intent-driven review, confidence gating, cross-agent deduplication, pre-existing issue separation, verdict system, interactive fix loop (--fix edits and verifies, --commit adds the commits and gates the bulk cleanup), and signal-activated reviewers for testing quality (test-suite-auditor), TypeScript type safety (type-safety-auditor), API contracts, and data migrations, all backed by hard dependencies so a dimension is skipped only when the change shows no signal for it. Backed by a comprehensive defect taxonomy knowledge base (140+ defect patterns, CWE/OWASP mappings, plus a dedicated logic-integrity reference).",
       "license": "MIT",
       "name": "senior-review",
-      "path": "./exports/codex/plugins/senior-review",
       "skills": [
         "./skills/code-review-workflow",
         "./skills/defect-taxonomy",
@@ -577,7 +545,7 @@
         "./skills/review-quality-gates",
         "./skills/team-review-workflow"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/senior-review",
       "version": "11.1.0"
     },
     {
@@ -588,11 +556,10 @@
       "description": "Stripe payments, subscriptions, Connect marketplaces, and revenue optimization for SaaS monetization; includes a dedicated skill (link-first references + scripts) for API patterns, Next.js/TypeScript integration, Embedded Checkout, Billing Meters, Entitlements, webhook reliability and auditing, Stripe Agent Toolkit for LLM tool-calling, test-clock simulation, PCI DSS 4.0 compliance, and pricing design",
       "license": "MIT",
       "name": "stripe",
-      "path": "./exports/codex/plugins/stripe",
       "skills": [
         "./skills/stripe"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/stripe",
       "version": "2.5.0"
     },
     {
@@ -603,12 +570,11 @@
       "description": "File organization and cleanup utilities - sort messy folders, find duplicates, and restructure directory hierarchies",
       "license": "MIT",
       "name": "system-utils",
-      "path": "./exports/codex/plugins/system-utils",
       "skills": [
         "./skills/file-organizer",
         "./skills/organize-files-workflow"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/system-utils",
       "version": "2.1.0"
     },
     {
@@ -619,11 +585,10 @@
       "description": "Tauri 2 desktop and mobile development - IPC optimization, Rust backend patterns, cross-platform builds, and React integration for high-performance apps",
       "license": "MIT",
       "name": "tauri-development",
-      "path": "./exports/codex/plugins/tauri-development",
       "skills": [
         "./skills/tauri"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/tauri-development",
       "version": "2.8.0"
     },
     {
@@ -637,13 +602,12 @@
       "description": "Test-suite hygiene and generation toolkit - binding test-hygiene rules (search-before-write protocol, mirror-the-source placement, deterministic ownership per layer, explicit layers with budgets, no skip markers, assertion integrity, delete tests with the feature), a report-only test-suite-auditor agent (orphan, skipped, failing, flaky, duplicate, contradictory, implementation-coupled and never-failing test detection plus layer and runtime/coverage distribution), /test-audit with a versioned TEST_AUDIT.md and gated quarantine to tests/_quarantine/, /test-consolidate with behavior-inventory approval, same-commit rewrite plus delete and a coverage gate, and a test-writer agent that generates behavior-driven test suites and extends existing test files instead of creating parallel ones. TDD methodology and browser E2E patterns are delegated to hard dependencies: mattpocock-skills (tdd) and developer-essentials (e2e-testing-patterns)",
       "license": "MIT",
       "name": "testing",
-      "path": "./exports/codex/plugins/testing",
       "skills": [
         "./skills/test-audit-workflow",
         "./skills/test-consolidate-workflow",
         "./skills/test-hygiene"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/testing",
       "version": "2.3.0"
     },
     {
@@ -654,12 +618,11 @@
       "description": "Prose humanization toolkit: the text-humanizer editor agent removes AI writing traces from any text in any language (24 documented patterns: inflated symbolism, promotional language, AI vocabulary, filler phrases, formulaic structures, dash-as-connector asides), backed by the anti-ai-writing-patterns knowledge base and the /humanize-text command with optional 5-dimension quality scoring. Self-contained leaf plugin with zero dependencies, consumed by digital-marketing (E-E-A-T copy), codebase-mapper (AI trace removal on generated docs), business (GTM deliverables), and clean-code (prose routing). Extracted from digital-marketing in marketplace 13.3.0.",
       "license": "MIT",
       "name": "text-humanizer",
-      "path": "./exports/codex/plugins/text-humanizer",
       "skills": [
         "./skills/anti-ai-writing-patterns",
         "./skills/humanize-text-workflow"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/text-humanizer",
       "version": "1.1.0"
     },
     {
@@ -670,7 +633,6 @@
       "description": "Broker integration for algorithmic trading in Python: Interactive Brokers via the TWS API and ib_async across equities, options, futures, FX, CFDs and crypto (per-class contracts and market rules, order types and TIF/fill-mode capability resolution, brackets in depth, a classified catalog of all 458 published TWS message codes, venue-behaviour verification tooling, reconnection resilience, deployment on Windows, Linux, macOS and Docker), MetaTrader 5 via the official synchronous API (polling-based event systems, order execution with fill modes, historical data, the aiomql async framework, a ZeroMQ bridge, Windows production deployment), and the vendor-neutral vocabulary shared between them: five access archetypes, the single-broker/multi-broker-platform axis, a reference order-lifecycle state machine, session and recovery patterns, and a six-rank evidence ladder with provenance tags for what a claim about a venue is worth",
       "license": "MIT",
       "name": "trading-broker-integration",
-      "path": "./exports/codex/plugins/trading-broker-integration",
       "skills": [
         "./skills/broker-vocabulary",
         "./skills/ibkr",
@@ -679,7 +641,7 @@
         "./skills/mt5",
         "./skills/mt5-audit-workflow"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/trading-broker-integration",
       "version": "2.1.0"
     },
     {
@@ -690,7 +652,6 @@
       "description": "TypeScript and JavaScript development toolkit - hands-on typescript-engineer agent (architecture + implementation), dead-code detection via Knip, coding standards enforcement, and enterprise-grade TypeScript mastery (type system, generics, React/NestJS integration, Zod validation, modern toolchain), and a type-safety review layer: adversarial type-safety-auditor agent, 20-rule type-safety-rules skill, and /review-typescript command with tsc/ESLint ground truth",
       "license": "MIT",
       "name": "typescript-development",
-      "path": "./exports/codex/plugins/typescript-development",
       "skills": [
         "./skills/knip",
         "./skills/mastering-typescript",
@@ -698,7 +659,7 @@
         "./skills/type-safety-rules",
         "./skills/typescript-write"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/typescript-development",
       "version": "2.3.0"
     },
     {
@@ -709,13 +670,12 @@
       "description": "xterm.js terminal emulator development - building, configuring, and integrating xterm.js in web and Electron apps with addon support and PTY wiring",
       "license": "MIT",
       "name": "xterm",
-      "path": "./exports/codex/plugins/xterm",
       "skills": [
         "./skills/xterm-debug-workflow",
         "./skills/xterm-implement-workflow",
         "./skills/xtermjs-skill"
       ],
-      "source": "local",
+      "source": "./exports/codex/plugins/xterm",
       "version": "1.2.0"
     }
   ]
