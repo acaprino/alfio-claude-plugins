@@ -1,0 +1,9 @@
+{
+  "adapterVersion": "1.0.0",
+  "coreDigest": "sha256:b293c04d305a7aa39872a5aae887ef30e7b42f085ca230cb8b2d81eec2c3f6ce",
+  "harnessStrategies": {},
+  "host": "codex",
+  "overrides": [],
+  "plugin": "business",
+  "version": "1.10.2"
+}

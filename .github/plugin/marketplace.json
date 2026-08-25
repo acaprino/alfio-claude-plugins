@@ -37,6 +37,16 @@
       "version": "1.7.5"
     },
     {
+      "dependencies": [
+        "text-humanizer"
+      ],
+      "description": "Legal advisory, compliance document generation, and SaaS business planning - Privacy Policies, Cookie Policies, DPAs, GDPR/ePrivacy/CCPA compliance, contract review, GTM strategy, market sizing, pricing, and positioning",
+      "license": "MIT",
+      "name": "business",
+      "source": "./exports/copilot/plugins/business",
+      "version": "1.10.2"
+    },
+    {
       "dependencies": [],
       "description": "Rewrites source code to be more readable and human-friendly without changing behavior - improves naming, removes AI boilerplate, simplifies structure, and adds clarity comments",
       "license": "MIT",

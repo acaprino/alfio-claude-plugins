@@ -1,0 +1,18 @@
+schema = "daodan/v1"
+name = "business"
+version = "1.10.2"
+description = "Legal advisory, compliance document generation, and SaaS business planning - Privacy Policies, Cookie Policies, DPAs, GDPR/ePrivacy/CCPA compliance, contract review, GTM strategy, market sizing, pricing, and positioning"
+license = "MIT"
+
+[capabilities]
+required = ["repository.read", "repository.write", "network.fetch", "contexts.isolate", "roles.dispatch"]
+optional = ["execution.parallel"]
+
+[dependencies]
+required = ["text-humanizer"]
+
+[components]
+skills = ["saas-business-plan"]
+roles = ["business-planner", "legal-advisor", "privacy-doc-generator"]
+workflows = []
+policies = []
