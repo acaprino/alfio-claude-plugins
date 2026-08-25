@@ -1,6 +1,6 @@
 {
   "adapterVersion": "1.0.0",
-  "coreDigest": "sha256:edc8b57be545b21284e55b24991f856bb7d5e644dbfaddc0c8ced0f143e6791e",
+  "coreDigest": "sha256:56502cb8a2127170dbee875dbcd5ffc41a791b5af54c132e22443bf429ce58ab",
   "harnessStrategies": {
     "export-to-markmind": "parallel-subagents"
   },
