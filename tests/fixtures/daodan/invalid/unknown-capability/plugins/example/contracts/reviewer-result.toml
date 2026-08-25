@@ -1,0 +1,11 @@
+schema = "daodan/record/v1"
+name = "reviewer-result"
+required = ["status", "findings"]
+
+[fields.status]
+type = "enum"
+values = ["delivered", "failed"]
+
+[fields.findings]
+type = "array"
+items = "string"

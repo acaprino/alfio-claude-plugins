@@ -1,0 +1,18 @@
+schema = "daodan/v1"
+name = "example"
+version = "1.2.3"
+description = "Fixture plugin"
+license = "MIT"
+
+[capabilities]
+required = ["repository.read", "contexts.isolate", "roles.dispatch"]
+optional = []
+
+[dependencies]
+required = []
+
+[components]
+skills = []
+roles = ["inspector"]
+workflows = ["review"]
+policies = []
