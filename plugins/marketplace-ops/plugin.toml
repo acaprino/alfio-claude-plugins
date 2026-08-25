@@ -1,0 +1,18 @@
+schema = "daodan/v1"
+name = "marketplace-ops"
+version = "2.2.0"
+description = "Generic Claude Code plugin marketplace manager - auditing, validation, AI quality review, upstream sync, plugin scaffolding, and health monitoring. Works against any project with the standard .claude-plugin/marketplace.json + plugins/<name>/ layout; reads project-specific conventions (author, license, category taxonomy, upstream sources) from the target marketplace.json and CLAUDE.md"
+license = "MIT"
+
+[capabilities]
+required = ["repository.read", "shell.execute", "repository.write", "network.fetch", "contexts.isolate", "roles.dispatch"]
+optional = []
+
+[dependencies]
+required = []
+
+[components]
+skills = ["marketplace-audit", "skills-creator"]
+roles = ["marketplace-manager"]
+workflows = ["marketplace-health", "marketplace-review", "marketplace-scaffold-plugin", "skills-validate"]
+policies = []

@@ -781,15 +781,15 @@
       "agents": [
         "./agents/marketplace-manager.md"
       ],
+      "commands": [
+        "./commands/marketplace-health.md",
+        "./commands/marketplace-review.md",
+        "./commands/marketplace-scaffold-plugin.md",
+        "./commands/skills-validate.md"
+      ],
       "skills": [
         "./skills/marketplace-audit",
         "./skills/skills-creator"
-      ],
-      "commands": [
-        "./commands/marketplace-health.md",
-        "./commands/marketplace-scaffold-plugin.md",
-        "./commands/marketplace-review.md",
-        "./commands/skills-validate.md"
       ]
     },
     {

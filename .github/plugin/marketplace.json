@@ -141,6 +141,14 @@
     },
     {
       "dependencies": [],
+      "description": "Generic Claude Code plugin marketplace manager - auditing, validation, AI quality review, upstream sync, plugin scaffolding, and health monitoring. Works against any project with the standard .claude-plugin/marketplace.json + plugins/<name>/ layout; reads project-specific conventions (author, license, category taxonomy, upstream sources) from the target marketplace.json and CLAUDE.md",
+      "license": "MIT",
+      "name": "marketplace-ops",
+      "source": "./exports/copilot/plugins/marketplace-ops",
+      "version": "2.2.0"
+    },
+    {
+      "dependencies": [],
       "description": "RabbitMQ and AMQP messaging - queue configuration, exchange routing, clustering, high availability, and event-driven architecture optimization (RabbitMQ 4.3 coverage: Khepri-only metadata store, quorum queue priorities and delayed retries, streams, MQTT 5, AMQP 1.0 SQL filters) plus a production knowledge base skill",
       "license": "MIT",
       "name": "messaging",

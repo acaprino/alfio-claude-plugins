@@ -1,0 +1,21 @@
+name = "marketplace-review"
+entrypoint = "marketplace-review.md"
+
+[[phases]]
+id = "scope"
+isolation = "shared"
+produces = ["artifact:scope"]
+
+[[phases]]
+id = "review"
+needs = ["scope"]
+role = "marketplace-manager"
+isolation = "required"
+consumes = ["artifact:scope"]
+produces = ["artifact:marketplace-review-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["marketplace-review-completed"]
+artifacts = ["marketplace-review-report"]
+schemas = []

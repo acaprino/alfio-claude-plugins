@@ -1,0 +1,21 @@
+name = "marketplace-health"
+entrypoint = "marketplace-health.md"
+
+[[phases]]
+id = "scope"
+isolation = "shared"
+produces = ["artifact:scope"]
+
+[[phases]]
+id = "review"
+needs = ["scope"]
+role = "marketplace-manager"
+isolation = "required"
+consumes = ["artifact:scope"]
+produces = ["artifact:marketplace-health-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["marketplace-health-completed"]
+artifacts = ["marketplace-health-report"]
+schemas = []

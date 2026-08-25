@@ -1,0 +1,21 @@
+name = "skills-validate"
+entrypoint = "skills-validate.md"
+
+[[phases]]
+id = "scope"
+isolation = "shared"
+produces = ["artifact:scope"]
+
+[[phases]]
+id = "review"
+needs = ["scope"]
+role = "marketplace-manager"
+isolation = "required"
+consumes = ["artifact:scope"]
+produces = ["artifact:skills-validate-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["skills-validate-completed"]
+artifacts = ["skills-validate-report"]
+schemas = []

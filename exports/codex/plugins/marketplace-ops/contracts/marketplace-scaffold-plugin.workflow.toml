@@ -1,0 +1,21 @@
+name = "marketplace-scaffold-plugin"
+entrypoint = "marketplace-scaffold-plugin.md"
+
+[[phases]]
+id = "scope"
+isolation = "shared"
+produces = ["artifact:scope"]
+
+[[phases]]
+id = "review"
+needs = ["scope"]
+role = "marketplace-manager"
+isolation = "required"
+consumes = ["artifact:scope"]
+produces = ["artifact:marketplace-scaffold-plugin-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["marketplace-scaffold-plugin-completed"]
+artifacts = ["marketplace-scaffold-plugin-report"]
+schemas = []
