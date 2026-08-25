@@ -130,6 +130,22 @@
     },
     {
       "dependencies": [
+        "impeccable@impeccable",
+        "ui-ux-pro-max@ui-ux-pro-max-skill",
+        "frontend-design@claude-plugins-official",
+        "react-development",
+        "typescript-development",
+        "pwa-expert",
+        "platform-engineering"
+      ],
+      "description": "Full frontend review in one pass, combining a design/UX dimension driven by the impeccable, ui-ux-pro-max, and frontend-design upstream skills as hard prerequisites with stop-and-install, with auto-detected code dimensions (React performance, TypeScript type safety, PWA architecture, platform compliance) spawned from local plugins declared as hard dependencies, so a dimension is skipped only when its signal does not match. Findings consolidate into a unified scored report at .frontend-review/report.md. Pure orchestration; vendors nothing.",
+      "license": "MIT",
+      "name": "frontend-review",
+      "source": "./exports/copilot/plugins/frontend-review",
+      "version": "2.0.0"
+    },
+    {
+      "dependencies": [
         "playwright-skill@playwright-skill"
       ],
       "description": "Expert Python web scraping - coordinator (grabber-architect) plus three specialists: stealth-browser-expert (Patchright/Camoufox/Nodriver + CAPTCHA), http-fingerprint-expert (JA4+/curl_cffi/primp + proxies/Web Unlocker), ai-scraping-expert (Crawl4AI/Firecrawl/ScrapeGraphAI + Pydantic + GraphQL RE)",

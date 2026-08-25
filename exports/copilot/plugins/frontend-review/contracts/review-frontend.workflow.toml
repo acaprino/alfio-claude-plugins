@@ -1,0 +1,13 @@
+name = "review-frontend"
+entrypoint = "review-frontend.md"
+
+[[phases]]
+id = "run"
+isolation = "shared"
+produces = ["artifact:review-frontend-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["review-frontend-completed"]
+artifacts = ["review-frontend-report"]
+schemas = []
