@@ -1,6 +1,6 @@
 {
   "adapterVersion": "1.0.0",
-  "coreDigest": "sha256:466e16842597f540d40fea8f1af16a9575baaa83a92f90beed387817aa3ebd18",
+  "coreDigest": "sha256:44b79f24481c4755107782c4f60d76618d8428f17abf09af4b12f5a554302a3d",
   "harnessStrategies": {
     "marketplace-health": "parallel-subagents",
     "marketplace-review": "parallel-subagents",
@@ -10,5 +10,5 @@
   "host": "copilot",
   "overrides": [],
   "plugin": "marketplace-ops",
-  "version": "2.2.0"
+  "version": "2.3.0"
 }

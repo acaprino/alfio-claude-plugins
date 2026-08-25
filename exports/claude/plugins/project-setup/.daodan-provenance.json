@@ -1,6 +1,6 @@
 {
   "adapterVersion": "1.0.0",
-  "coreDigest": "sha256:465d218e3b64204df9b146687986b2b024fae43384cec86feb88ed07bd11863c",
+  "coreDigest": "sha256:9e20ab635bc14f1ffe8fcf95ba2d7e5608ef164a29a8712cc520c4eb1a7ef876",
   "harnessStrategies": {
     "create-claude-md": "native-team",
     "maintain-claude-md": "native-team"
@@ -8,5 +8,5 @@
   "host": "claude",
   "overrides": [],
   "plugin": "project-setup",
-  "version": "1.19.0"
+  "version": "1.20.0"
 }

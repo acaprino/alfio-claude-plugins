@@ -2,5 +2,5 @@
   "description": "Expert Python web scraping - coordinator (grabber-architect) plus three specialists: stealth-browser-expert (Patchright/Camoufox/Nodriver + CAPTCHA), http-fingerprint-expert (JA4+/curl_cffi/primp + proxies/Web Unlocker), ai-scraping-expert (Crawl4AI/Firecrawl/ScrapeGraphAI + Pydantic + GraphQL RE)",
   "license": "MIT",
   "name": "grabber-development",
-  "version": "1.4.2"
+  "version": "1.5.0"
 }

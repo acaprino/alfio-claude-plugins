@@ -1,9 +1,9 @@
 {
   "adapterVersion": "1.0.0",
-  "coreDigest": "sha256:9d4e3e5b3e887cf39a6ea4bd68d2f28eadceef2626b2f18d2efc098b4ede4445",
+  "coreDigest": "sha256:5817c3be82d52e4adf7e2efe1f0ba19df18a32e61051826741f078c78ad69f0f",
   "harnessStrategies": {},
   "host": "copilot",
   "overrides": [],
   "plugin": "grabber-development",
-  "version": "1.4.2"
+  "version": "1.5.0"
 }

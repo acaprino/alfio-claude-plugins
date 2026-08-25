@@ -2,5 +2,5 @@
   "description": "Obsidian community plugin development with automated review compliance (community.obsidian.md), project scaffolding, and pre-submission checks",
   "license": "MIT",
   "name": "obsidian-development",
-  "version": "1.4.2"
+  "version": "1.5.0"
 }

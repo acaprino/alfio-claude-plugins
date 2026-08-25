@@ -2,5 +2,5 @@
   "description": "Deep web research (any topic) modelled on the commercial deep-research products: /research:team-research clarifies scope only when needed, shows a plan of sub-questions for approval, spawns one iterative deep-researcher per sub-question in parallel, verifies contradictions with quick-searcher, synthesizes a long-form cited report and writes it to disk; tiers quick/standard/deep scale effort; optional serper.dev backend via websearch.py when SERPER_API_KEY is set, native WebSearch otherwise. quick-searcher (sonnet) also answers single-fact lookups directly",
   "license": "MIT",
   "name": "research",
-  "version": "6.1.0"
+  "version": "6.2.0"
 }

@@ -1,0 +1,65 @@
+# The only workflow here that pushes. On every push to master it rebuilds all
+# three host marketplaces from the neutral kernels and commits the result.
+#
+# It publishes all three or none. A marketplace where one host is a commit ahead
+# of the others is exactly the drift the compiler exists to prevent, so the
+# staged set below is fixed and the final --check runs before the commit rather
+# than after it.
+#
+# The bot-identity guard is what stops the job answering its own commit. It is
+# identity-based on purpose: the predecessor matched a marker string in the head
+# commit message, which reads the body as well as the subject, so a commit that
+# merely mentioned the marker in its prose silenced the job. Never gate a
+# workflow on prose the author is free to write.
+name: publish-marketplaces
+
+on:
+  push:
+    branches: [master]
+
+concurrency:
+  group: publish-marketplaces
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    if: github.event.head_commit.author.email != '41898282+github-actions[bot]@users.noreply.github.com'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+
+      - name: Validate before building
+        run: python -m unittest discover -s tests
+
+      - name: Build all three native marketplaces
+        run: python scripts/daodan_build.py
+
+      - name: Verify the built tree reproduces
+        run: python scripts/daodan_build.py --check --support
+
+      - name: Commit the publication, or exit clean when nothing moved
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            exports/claude \
+            exports/copilot \
+            exports/codex \
+            .claude-plugin/marketplace.json \
+            .github/plugin/marketplace.json \
+            .agents/plugins/marketplace.json
+          if git diff --cached --quiet; then
+            echo "no drift: the committed marketplaces already match the kernels"
+            exit 0
+          fi
+          git commit -m "Publish native Daodan marketplaces"
+          git push

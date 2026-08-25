@@ -1,6 +1,6 @@
 schema = "daodan/v1"
 name = "browser-extensions"
-version = "1.7.5"
+version = "1.8.0"
 description = "Expert Firefox extension (WebExtension) developer covering Manifest V2/V3, all 51 browser.* APIs, content scripts, background scripts, native messaging, cross-browser compatibility, AMO publishing, web-ext CLI tooling, project scaffolding, and live MDN documentation lookup; includes /firefox-scaffold, /firefox-lint, /firefox-publish commands"
 license = "MIT"
 

@@ -1,6 +1,6 @@
 schema = "daodan/v1"
 name = "opentelemetry"
-version = "1.3.5"
+version = "1.4.0"
 description = "OpenTelemetry Python instrumentation - distributed tracing, async context propagation, custom transport propagators, OTLP exporters, AWS ADOT/X-Ray, and production observability; includes /otel-audit command"
 license = "MIT"
 

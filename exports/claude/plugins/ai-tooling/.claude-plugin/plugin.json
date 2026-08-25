@@ -2,5 +2,5 @@
   "description": "AI development workflow - prompt engineering and optimization, and Claude Agent SDK integration guide",
   "license": "MIT",
   "name": "ai-tooling",
-  "version": "5.0.2"
+  "version": "5.1.0"
 }

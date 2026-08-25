@@ -1,6 +1,6 @@
 {
   "adapterVersion": "1.0.0",
-  "coreDigest": "sha256:31f673576aaae502f96a92c4a761b1032995e766615e8ad457739260762a5da0",
+  "coreDigest": "sha256:0195428934befce90bb96b55fa3f52db4ec4b1f3c19289a46d62529526290ef7",
   "harnessStrategies": {
     "ibkr-audit": "native-team",
     "ibkr-verify": "native-team",
@@ -9,5 +9,5 @@
   "host": "claude",
   "overrides": [],
   "plugin": "trading-broker-integration",
-  "version": "2.0.0"
+  "version": "2.1.0"
 }

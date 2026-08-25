@@ -1,11 +1,11 @@
 {
   "adapterVersion": "1.0.0",
-  "coreDigest": "sha256:fd0e134925ea2fc3b12365164a33da70a3a73c5bd00b19250469977b3ea0fd5c",
+  "coreDigest": "sha256:9165373d4660540cada7ad038c254c41d1cf25377283f60f6bd6aa29d930a5b5",
   "harnessStrategies": {
     "prompt-optimize": "native-team"
   },
   "host": "claude",
   "overrides": [],
   "plugin": "ai-tooling",
-  "version": "5.0.2"
+  "version": "5.1.0"
 }

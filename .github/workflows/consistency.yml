@@ -1,7 +1,8 @@
-# Marketplace consistency checks. Content in this repo is static markdown with
-# a small number of stdlib-only helper scripts, so there is no build job: these
-# are the mechanical versions of the contracts documented in CLAUDE.md, plus
-# unit tests for the helper scripts that have branching logic. Every script is
+# Marketplace consistency checks. Content in this repo is the neutral plugin
+# kernels under plugins/ plus the three host adapters; everything under exports/
+# and all three root marketplace manifests are compiler output. These jobs are
+# the mechanical versions of the contracts documented in CLAUDE.md, plus unit
+# tests for the helper scripts that have branching logic. Every script is
 # stdlib-only Python and runs from the repository root, so failures reproduce
 # locally with the same commands.
 name: consistency
@@ -19,7 +20,7 @@ jobs:
 
       - uses: actions/setup-python@v7
         with:
-          python-version: "3.x"
+          python-version: "3.11"
 
       - name: Dependency graph lint
         run: python scripts/lint_dependency_graph.py
@@ -27,7 +28,7 @@ jobs:
       - name: Bundled path lint
         run: python scripts/lint_bundled_paths.py
 
-      - name: Concept index script tests
+      - name: Unit and contract tests
         run: python -m unittest discover -s tests -v
 
       - name: Plugin registration lint
@@ -36,30 +37,14 @@ jobs:
       - name: Fact anchor lint
         run: python scripts/lint_fact_anchors.py
 
-      - name: VS Code export structural check
-        run: python .claude/skills/downstream-exports/scripts/check_export.py
+      # The drift gate. Every committed package and catalog must reproduce
+      # byte-for-byte from the kernels and adapters in this commit, or the
+      # published marketplaces describe something that is no longer the source.
+      - name: Universal marketplace drift check
+        run: python scripts/daodan_build.py --check --support
 
-      - name: VS Code extension manifest freshness
-        run: python .claude/skills/downstream-exports/scripts/gen_extension_manifest.py --check
-
-  # Proves the extension still packages. The structural checks above read the
-  # manifest, they never run vsce over it, so a contribution path that points
-  # at a file no longer on disk passes them and fails at release time instead.
-  # Catching it here keeps a tag from being the first thing that discovers it.
-  package:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/setup-node@v6
-        with:
-          node-version: "22"
-
-      - name: Package the VS Code extension
-        run: |
-          cd exports/vscode
-          npx --yes @vscode/vsce package --no-dependencies \
-            --out "$RUNNER_TEMP/daodan.vsix"
+      - name: Copilot write-confinement policy tests
+        run: python adapters/copilot/policies/xray-guard/test_xray_guard.py
 
   # Enforces steps 1 and 2 of the marketplace update workflow: a change under
   # plugins/<name>/ must bump that plugin's version and metadata.version in
@@ -73,7 +58,7 @@ jobs:
 
       - uses: actions/setup-python@v7
         with:
-          python-version: "3.x"
+          python-version: "3.11"
 
       - name: Version bumps over the pushed or PR range
         run: |

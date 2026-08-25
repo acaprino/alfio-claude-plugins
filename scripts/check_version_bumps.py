@@ -6,9 +6,11 @@ Stdlib only, runs from the repository root:
 
 head-rev defaults to HEAD. Enforces steps 1 and 2 of the marketplace update
 workflow in CLAUDE.md: when a commit range touches files under
-plugins/<name>/, that plugin's version in .claude-plugin/marketplace.json must
-change across the range, and so must metadata.version. Generated packages under
-exports/<host>/plugins/<name>/ do not count: they are compiler output. Exits non-zero on
+plugins/<name>/, or to an adapter override that affects it under
+adapters/<host>/overrides/<name>/, that plugin's version in
+.claude-plugin/marketplace.json must change across the range, and so must
+metadata.version. Generated packages under exports/<host>/plugins/<name>/ do
+not count: they are compiler output. Exits non-zero on
 violations.
 
 Cases handled per changed plugin directory:
@@ -93,7 +95,9 @@ def plugin_name_of(path):
     parts = path.split("/")
     if len(parts) >= 2 and parts[0] == "plugins":
         return parts[1]
-    if len(parts) >= 4 and parts[0] == "exports" and parts[2] == "plugins":
+    if len(parts) >= 5 and parts[0] == "adapters" and parts[2] == "overrides":
+        # A semantic override changes what one host runs for one plugin, so it
+        # owes the same version bump a kernel edit does.
         return parts[3]
     return None
 
@@ -108,7 +112,9 @@ def main():
     # output: it moves whenever the compiler runs, including for a pure
     # distribution move that changes no plugin behaviour and therefore owes no
     # version bump.
-    changed = git("diff", "--name-only", base, head, "--", "plugins/").splitlines()
+    changed = git(
+        "diff", "--name-only", base, head, "--", "plugins/", "adapters/"
+    ).splitlines()
     plugins_touched = defaultdict(list)
     for path in changed:
         name = plugin_name_of(path)

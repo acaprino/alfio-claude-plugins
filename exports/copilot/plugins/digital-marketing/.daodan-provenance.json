@@ -1,6 +1,6 @@
 {
   "adapterVersion": "1.0.0",
-  "coreDigest": "sha256:a707203487f84d05da9617796e17486f8ca91a9bbcd76fe247954b64585dd9de",
+  "coreDigest": "sha256:c0fc8aa47f8b287399b979ed9f19375f7dfdec99715d63c6a3a0ad66f998707a",
   "harnessStrategies": {
     "brand-naming": "parallel-subagents",
     "content-strategy": "parallel-subagents",
@@ -12,5 +12,5 @@
   "host": "copilot",
   "overrides": [],
   "plugin": "digital-marketing",
-  "version": "2.0.2"
+  "version": "2.1.0"
 }

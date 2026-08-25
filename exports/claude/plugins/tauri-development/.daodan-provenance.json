@@ -1,9 +1,9 @@
 {
   "adapterVersion": "1.0.0",
-  "coreDigest": "sha256:c188ac7e0c7150a1001ad7a585ed264ca31a0b418eebc641aba7d890241685d2",
+  "coreDigest": "sha256:1ddf3567ec014e9a4c7830c737e816d0b39ea1e6e32ce68065ba1ea755bf29c1",
   "harnessStrategies": {},
   "host": "claude",
   "overrides": [],
   "plugin": "tauri-development",
-  "version": "2.7.5"
+  "version": "2.8.0"
 }

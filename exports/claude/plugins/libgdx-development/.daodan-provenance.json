@@ -1,11 +1,11 @@
 {
   "adapterVersion": "1.0.0",
-  "coreDigest": "sha256:3c0ca373c549494e60e140c2df64247d22e43d8fe508756dd366ca1bf93e08e0",
+  "coreDigest": "sha256:56458587252d748474d67268b985d8eee259f3b05688c55c5c99cdbc4028840e",
   "harnessStrategies": {
     "libgdx-audit": "native-team"
   },
   "host": "claude",
   "overrides": [],
   "plugin": "libgdx-development",
-  "version": "1.0.6"
+  "version": "1.1.0"
 }

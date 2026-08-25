@@ -2,5 +2,5 @@
   "description": "Tauri 2 desktop and mobile development - IPC optimization, Rust backend patterns, cross-platform builds, and React integration for high-performance apps",
   "license": "MIT",
   "name": "tauri-development",
-  "version": "2.7.5"
+  "version": "2.8.0"
 }

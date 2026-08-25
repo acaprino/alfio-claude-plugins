@@ -1,9 +1,9 @@
 {
   "adapterVersion": "1.0.0",
-  "coreDigest": "sha256:bae89733e99ea35c416ae23a461ddb4841d8938aa597c0e49439792e33644671",
+  "coreDigest": "sha256:258848003145fc71959961e7de0d5e743c0f7bd38b8af386746f193e0a1295f8",
   "harnessStrategies": {},
   "host": "claude",
   "overrides": [],
   "plugin": "kotlin-development",
-  "version": "1.0.3"
+  "version": "1.1.0"
 }

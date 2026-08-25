@@ -1,7 +1,7 @@
 {
   "metadata": {
     "description": "The Daodan: agents, skills and workflows that augment a coding agent into a specialized toolkit.",
-    "version": "25.2.0"
+    "version": "26.0.0"
   },
   "name": "daodan",
   "owner": {
@@ -28,7 +28,7 @@
         "./skills/abstraction-architect"
       ],
       "source": "./exports/claude/plugins/abstraction-architect",
-      "version": "2.0.2"
+      "version": "2.1.0"
     },
     {
       "agents": [
@@ -50,7 +50,7 @@
         "./skills/agent-sdk-builder"
       ],
       "source": "./exports/claude/plugins/ai-tooling",
-      "version": "5.0.2"
+      "version": "5.1.0"
     },
     {
       "agents": [
@@ -66,7 +66,7 @@
       "license": "MIT",
       "name": "app-analyzer",
       "source": "./exports/claude/plugins/app-analyzer",
-      "version": "1.1.2"
+      "version": "1.2.0"
     },
     {
       "agents": [
@@ -88,7 +88,7 @@
         "./skills/firefox-extension-dev"
       ],
       "source": "./exports/claude/plugins/browser-extensions",
-      "version": "1.7.5"
+      "version": "1.8.0"
     },
     {
       "agents": [
@@ -109,7 +109,7 @@
         "./skills/saas-business-plan"
       ],
       "source": "./exports/claude/plugins/business",
-      "version": "1.10.2"
+      "version": "1.11.0"
     },
     {
       "agents": [
@@ -126,7 +126,7 @@
       "license": "MIT",
       "name": "clean-code",
       "source": "./exports/claude/plugins/clean-code",
-      "version": "1.2.0"
+      "version": "1.3.0"
     },
     {
       "agents": [
@@ -164,7 +164,7 @@
         "./skills/codebase-mapper"
       ],
       "source": "./exports/claude/plugins/codebase-mapper",
-      "version": "3.0.0"
+      "version": "3.1.0"
     },
     {
       "agents": [
@@ -189,7 +189,7 @@
         "./skills/analyze"
       ],
       "source": "./exports/claude/plugins/codebase-xray",
-      "version": "2.2.1"
+      "version": "2.3.0"
     },
     {
       "agents": [
@@ -203,7 +203,7 @@
       "license": "MIT",
       "name": "csp",
       "source": "./exports/claude/plugins/csp",
-      "version": "1.3.4"
+      "version": "1.4.0"
     },
     {
       "author": {
@@ -220,7 +220,7 @@
         "./skills/dependency-audit"
       ],
       "source": "./exports/claude/plugins/dependency-audit",
-      "version": "1.0.2"
+      "version": "1.1.0"
     },
     {
       "agents": [
@@ -254,7 +254,7 @@
         "./skills/reply-to-customer-review"
       ],
       "source": "./exports/claude/plugins/digital-marketing",
-      "version": "2.0.2"
+      "version": "2.1.0"
     },
     {
       "author": {
@@ -268,7 +268,7 @@
         "./skills/multi-stage-dockerfile"
       ],
       "source": "./exports/claude/plugins/docker",
-      "version": "1.3.2"
+      "version": "1.4.0"
     },
     {
       "author": {
@@ -285,7 +285,7 @@
         "./skills/readme-craft"
       ],
       "source": "./exports/claude/plugins/docs",
-      "version": "1.1.4"
+      "version": "1.2.0"
     },
     {
       "author": {
@@ -307,7 +307,7 @@
       "license": "MIT",
       "name": "frontend-review",
       "source": "./exports/claude/plugins/frontend-review",
-      "version": "2.0.0"
+      "version": "2.1.0"
     },
     {
       "agents": [
@@ -329,7 +329,7 @@
         "./skills/grabber-development"
       ],
       "source": "./exports/claude/plugins/grabber-development",
-      "version": "1.4.2"
+      "version": "1.5.0"
     },
     {
       "author": {
@@ -343,7 +343,7 @@
         "./skills/kotlin-specialist"
       ],
       "source": "./exports/claude/plugins/kotlin-development",
-      "version": "1.0.3"
+      "version": "1.1.0"
     },
     {
       "author": {
@@ -362,7 +362,7 @@
         "./skills/markmind-exporter"
       ],
       "source": "./exports/claude/plugins/learning",
-      "version": "1.6.4"
+      "version": "1.7.0"
     },
     {
       "agents": [
@@ -382,7 +382,7 @@
         "./skills/libgdx-development"
       ],
       "source": "./exports/claude/plugins/libgdx-development",
-      "version": "1.0.6"
+      "version": "1.1.0"
     },
     {
       "agents": [
@@ -406,7 +406,7 @@
         "./skills/skills-creator"
       ],
       "source": "./exports/claude/plugins/marketplace-ops",
-      "version": "2.2.0"
+      "version": "2.3.0"
     },
     {
       "agents": [
@@ -423,7 +423,7 @@
         "./skills/rabbitmq-production"
       ],
       "source": "./exports/claude/plugins/messaging",
-      "version": "2.0.1"
+      "version": "2.1.0"
     },
     {
       "author": {
@@ -439,7 +439,7 @@
         "./skills/obsidian-scaffold"
       ],
       "source": "./exports/claude/plugins/obsidian-development",
-      "version": "1.4.2"
+      "version": "1.5.0"
     },
     {
       "agents": [
@@ -459,7 +459,7 @@
         "./skills/opentelemetry"
       ],
       "source": "./exports/claude/plugins/opentelemetry",
-      "version": "1.3.5"
+      "version": "1.4.0"
     },
     {
       "agents": [
@@ -483,7 +483,7 @@
         "./skills/cross-model-peer-review"
       ],
       "source": "./exports/claude/plugins/peer-review",
-      "version": "2.1.0"
+      "version": "2.2.0"
     },
     {
       "agents": [
@@ -503,7 +503,7 @@
         "./skills/platform-engineering"
       ],
       "source": "./exports/claude/plugins/platform-engineering",
-      "version": "1.2.9"
+      "version": "1.3.0"
     },
     {
       "agents": [
@@ -521,7 +521,7 @@
       "license": "MIT",
       "name": "project-setup",
       "source": "./exports/claude/plugins/project-setup",
-      "version": "1.19.0"
+      "version": "1.20.0"
     },
     {
       "agents": [
@@ -545,7 +545,7 @@
         "./skills/pwa-development"
       ],
       "source": "./exports/claude/plugins/pwa-expert",
-      "version": "1.1.2"
+      "version": "1.2.0"
     },
     {
       "agents": [
@@ -577,7 +577,7 @@
         "./skills/uv-package-manager"
       ],
       "source": "./exports/claude/plugins/python-development",
-      "version": "1.21.8"
+      "version": "1.22.0"
     },
     {
       "agents": [
@@ -598,7 +598,7 @@
         "./skills/rag-development"
       ],
       "source": "./exports/claude/plugins/rag-development",
-      "version": "1.5.5"
+      "version": "1.6.0"
     },
     {
       "agents": [
@@ -618,7 +618,7 @@
         "./skills/react-best-practices"
       ],
       "source": "./exports/claude/plugins/react-development",
-      "version": "1.10.1"
+      "version": "1.11.0"
     },
     {
       "agents": [
@@ -638,7 +638,7 @@
         "./skills/repo-hygiene"
       ],
       "source": "./exports/claude/plugins/repo-hygiene",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     {
       "agents": [
@@ -659,7 +659,7 @@
         "./skills/web-search-techniques"
       ],
       "source": "./exports/claude/plugins/research",
-      "version": "6.1.0"
+      "version": "6.2.0"
     },
     {
       "agents": [
@@ -701,7 +701,7 @@
         "./skills/review-quality-gates"
       ],
       "source": "./exports/claude/plugins/senior-review",
-      "version": "11.0.0"
+      "version": "11.1.0"
     },
     {
       "author": {
@@ -715,7 +715,7 @@
         "./skills/stripe"
       ],
       "source": "./exports/claude/plugins/stripe",
-      "version": "2.4.5"
+      "version": "2.5.0"
     },
     {
       "author": {
@@ -732,7 +732,7 @@
         "./skills/file-organizer"
       ],
       "source": "./exports/claude/plugins/system-utils",
-      "version": "2.0.2"
+      "version": "2.1.0"
     },
     {
       "agents": [
@@ -751,7 +751,7 @@
         "./skills/tauri"
       ],
       "source": "./exports/claude/plugins/tauri-development",
-      "version": "2.7.5"
+      "version": "2.8.0"
     },
     {
       "agents": [
@@ -776,7 +776,7 @@
         "./skills/test-hygiene"
       ],
       "source": "./exports/claude/plugins/testing",
-      "version": "2.2.1"
+      "version": "2.3.0"
     },
     {
       "agents": [
@@ -796,7 +796,7 @@
         "./skills/anti-ai-writing-patterns"
       ],
       "source": "./exports/claude/plugins/text-humanizer",
-      "version": "1.0.1"
+      "version": "1.1.0"
     },
     {
       "agents": [
@@ -821,7 +821,7 @@
         "./skills/mt5"
       ],
       "source": "./exports/claude/plugins/trading-broker-integration",
-      "version": "2.0.0"
+      "version": "2.1.0"
     },
     {
       "agents": [
@@ -845,7 +845,7 @@
         "./skills/typescript-write"
       ],
       "source": "./exports/claude/plugins/typescript-development",
-      "version": "2.2.2"
+      "version": "2.3.0"
     },
     {
       "author": {
@@ -863,7 +863,7 @@
         "./skills/xtermjs-skill"
       ],
       "source": "./exports/claude/plugins/xterm",
-      "version": "1.1.2"
+      "version": "1.2.0"
     }
   ]
 }

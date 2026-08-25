@@ -1,11 +1,11 @@
 {
   "adapterVersion": "1.0.0",
-  "coreDigest": "sha256:e5ebb394469d9df88861f6699e7825643e96b2ea9a149d418e1d9d960517e8f7",
+  "coreDigest": "sha256:be5066cbe7f35e40788037d3bb9f6fe43b3f6658a7bf714c16a1407474a78dd5",
   "harnessStrategies": {
     "rag-audit": "native-team"
   },
   "host": "claude",
   "overrides": [],
   "plugin": "rag-development",
-  "version": "1.5.5"
+  "version": "1.6.0"
 }

@@ -1,6 +1,6 @@
 schema = "daodan/v1"
 name = "business"
-version = "1.10.2"
+version = "1.11.0"
 description = "Legal advisory, compliance document generation, and SaaS business planning - Privacy Policies, Cookie Policies, DPAs, GDPR/ePrivacy/CCPA compliance, contract review, GTM strategy, market sizing, pricing, and positioning"
 license = "MIT"
 

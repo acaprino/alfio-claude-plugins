@@ -2,5 +2,5 @@
   "description": "React performance optimization, React 19 API adoption, state management audit, bundle analysis, re-render detection, and Vercel best practices checklist",
   "license": "MIT",
   "name": "react-development",
-  "version": "1.10.1"
+  "version": "1.11.0"
 }

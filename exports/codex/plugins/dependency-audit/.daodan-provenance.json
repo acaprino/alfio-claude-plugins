@@ -1,11 +1,11 @@
 {
   "adapterVersion": "1.0.0",
-  "coreDigest": "sha256:941b57863cc6ab666b7f3241df017f78fdb183c9646265ea34ecf79e3c966b8e",
+  "coreDigest": "sha256:d5600d5864af52ca93b0d181b8a58fe5b1c7e70cacebfe39661618ed64ad178b",
   "harnessStrategies": {
     "deps-audit": "parallel-subagents"
   },
   "host": "codex",
   "overrides": [],
   "plugin": "dependency-audit",
-  "version": "1.0.2"
+  "version": "1.1.0"
 }

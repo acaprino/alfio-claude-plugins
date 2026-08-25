@@ -1,11 +1,11 @@
 {
   "adapterVersion": "1.0.0",
-  "coreDigest": "sha256:3c7d6447b66e791d5259053d65fb93d4c9b8979b4801289fe8e4e0bc5e26e5c3",
+  "coreDigest": "sha256:d79884935e60eaa9e043aff65d7101305259410d8664723f44afff71b7501961",
   "harnessStrategies": {
     "audit": "native-team"
   },
   "host": "claude",
   "overrides": [],
   "plugin": "abstraction-architect",
-  "version": "2.0.2"
+  "version": "2.1.0"
 }

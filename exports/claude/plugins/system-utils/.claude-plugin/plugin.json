@@ -2,5 +2,5 @@
   "description": "File organization and cleanup utilities - sort messy folders, find duplicates, and restructure directory hierarchies",
   "license": "MIT",
   "name": "system-utils",
-  "version": "2.0.2"
+  "version": "2.1.0"
 }
