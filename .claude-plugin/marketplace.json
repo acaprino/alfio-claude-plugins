@@ -715,13 +715,13 @@
       "agents": [
         "./agents/firefox-extension-dev.md"
       ],
+      "commands": [
+        "./commands/firefox-lint.md",
+        "./commands/firefox-publish.md",
+        "./commands/firefox-scaffold.md"
+      ],
       "skills": [
         "./skills/firefox-extension-dev"
-      ],
-      "commands": [
-        "./commands/firefox-scaffold.md",
-        "./commands/firefox-lint.md",
-        "./commands/firefox-publish.md"
       ]
     },
     {

@@ -20,6 +20,14 @@
     },
     {
       "dependencies": [],
+      "description": "Expert Firefox extension (WebExtension) developer covering Manifest V2/V3, all 51 browser.* APIs, content scripts, background scripts, native messaging, cross-browser compatibility, AMO publishing, web-ext CLI tooling, project scaffolding, and live MDN documentation lookup; includes /firefox-scaffold, /firefox-lint, /firefox-publish commands",
+      "license": "MIT",
+      "name": "browser-extensions",
+      "source": "./exports/copilot/plugins/browser-extensions",
+      "version": "1.7.5"
+    },
+    {
+      "dependencies": [],
       "description": "Rewrites source code to be more readable and human-friendly without changing behavior - improves naming, removes AI boilerplate, simplifies structure, and adds clarity comments",
       "license": "MIT",
       "name": "clean-code",

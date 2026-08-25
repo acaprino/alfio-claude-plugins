@@ -1,0 +1,21 @@
+name = "firefox-lint"
+entrypoint = "firefox-lint.md"
+
+[[phases]]
+id = "scope"
+isolation = "shared"
+produces = ["artifact:scope"]
+
+[[phases]]
+id = "review"
+needs = ["scope"]
+role = "firefox-extension-dev"
+isolation = "required"
+consumes = ["artifact:scope"]
+produces = ["artifact:firefox-lint-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["firefox-lint-completed"]
+artifacts = ["firefox-lint-report"]
+schemas = []

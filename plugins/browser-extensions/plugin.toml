@@ -1,0 +1,18 @@
+schema = "daodan/v1"
+name = "browser-extensions"
+version = "1.7.5"
+description = "Expert Firefox extension (WebExtension) developer covering Manifest V2/V3, all 51 browser.* APIs, content scripts, background scripts, native messaging, cross-browser compatibility, AMO publishing, web-ext CLI tooling, project scaffolding, and live MDN documentation lookup; includes /firefox-scaffold, /firefox-lint, /firefox-publish commands"
+license = "MIT"
+
+[capabilities]
+required = ["repository.read", "shell.execute", "repository.write", "network.fetch", "contexts.isolate", "roles.dispatch"]
+optional = []
+
+[dependencies]
+required = []
+
+[components]
+skills = ["firefox-extension-dev"]
+roles = ["firefox-extension-dev"]
+workflows = ["firefox-lint", "firefox-publish", "firefox-scaffold"]
+policies = []
