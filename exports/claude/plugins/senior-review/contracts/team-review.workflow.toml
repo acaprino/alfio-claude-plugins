@@ -1,0 +1,97 @@
+name = "team-review"
+entrypoint = "team-review.md"
+
+# The review kernel. Every constraint that decides whether a review is honest
+# lives here: reviewers never share a context, nothing is consolidated before
+# every expected reviewer is accounted for, cross-examination reads the
+# consolidated set rather than the raw one, and exactly one phase writes the
+# report. How the workers are scheduled is the harness's business.
+
+[[phases]]
+id = "scope"
+isolation = "shared"
+produces = ["artifact:review-brief"]
+
+[[phases]]
+id = "context-building"
+needs = ["scope"]
+isolation = "shared"
+consumes = ["artifact:review-brief"]
+produces = ["artifact:context-map"]
+
+[[phases]]
+id = "dimension-detection"
+needs = ["context-building"]
+isolation = "shared"
+consumes = ["artifact:context-map"]
+produces = ["selection:reviewers"]
+
+[[phases]]
+id = "independent-review"
+needs = ["dimension-detection"]
+fanout_from = "selection:reviewers"
+isolation = "required"
+join = "all-delivered"
+concurrency = "preferred"
+consumes = ["artifact:review-brief", "artifact:context-map"]
+produces = ["artifact:reviewer-result"]
+
+[[phases]]
+id = "delivery-accounting"
+needs = ["independent-review"]
+isolation = "shared"
+consumes = ["artifact:reviewer-result"]
+produces = ["artifact:delivery-ledger"]
+
+[[phases]]
+id = "initial-consolidation"
+needs = ["delivery-accounting"]
+isolation = "shared"
+consumes = ["artifact:reviewer-result", "artifact:delivery-ledger"]
+produces = ["artifact:initial-findings"]
+
+[[phases]]
+id = "cross-examination"
+needs = ["initial-consolidation"]
+fanout = ["role:premise-auditor", "role:logic-integrity-auditor"]
+isolation = "required"
+join = "all-delivered"
+concurrency = "preferred"
+consumes = ["artifact:initial-findings"]
+produces = ["artifact:cross-examination"]
+
+[[phases]]
+id = "consolidation"
+needs = ["cross-examination"]
+role = "code-auditor"
+isolation = "required"
+consumes = ["artifact:initial-findings", "artifact:cross-examination", "artifact:delivery-ledger"]
+produces = ["artifact:final-report"]
+
+[[phases]]
+id = "report-delivery"
+needs = ["consolidation"]
+isolation = "shared"
+consumes = ["artifact:final-report"]
+
+[contract]
+inputs = ["repository", "review-brief"]
+outcomes = [
+  "reviewers-use-isolated-contexts",
+  "every-selected-dimension-is-dispatched-exactly-once",
+  "every-expected-reviewer-is-delivered-or-failed",
+  "consolidation-runs-only-after-the-delivery-barrier",
+  "cross-examination-runs-in-fresh-contexts",
+  "every-retained-finding-carries-evidence",
+  "only-the-consolidator-writes-the-final-report",
+]
+artifacts = ["final-report"]
+schemas = [
+  "contracts/review-brief.toml",
+  "contracts/reviewer-binding.toml",
+  "contracts/reviewer-selection.toml",
+  "contracts/evidenced-finding.toml",
+  "contracts/reviewer-result.toml",
+  "contracts/delivery-ledger.toml",
+  "contracts/final-report.toml",
+]

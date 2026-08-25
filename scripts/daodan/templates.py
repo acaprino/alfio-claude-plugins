@@ -25,6 +25,16 @@ ALLOWED_KEYS: frozenset[str] = frozenset(
         "workflow",
         "marketplace",
         "adapter_version",
+        "body",
+        "name",
+        "description",
+        "tools",
+        "agents",
+        "roles",
+        "strategy",
+        "role_delivery",
+        "isolation",
+        "join",
     }
 )
 

@@ -1,0 +1,3 @@
+schema = "daodan/record/v1"
+name = "reviewer-binding"
+required = ["dimension", "role", "activation_evidence"]

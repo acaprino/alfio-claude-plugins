@@ -1,0 +1,3 @@
+schema = "daodan/record/v1"
+name = "review-brief"
+required = ["target", "scope_path", "context_paths", "output_path", "constraints"]

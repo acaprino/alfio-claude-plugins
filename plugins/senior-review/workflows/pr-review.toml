@@ -1,0 +1,13 @@
+name = "pr-review"
+entrypoint = "pr-review.md"
+
+[[phases]]
+id = "run"
+isolation = "shared"
+produces = ["artifact:pr-review-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["pr-review-completed"]
+artifacts = ["pr-review-report"]
+schemas = []

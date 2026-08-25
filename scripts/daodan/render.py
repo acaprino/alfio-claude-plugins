@@ -14,6 +14,7 @@ import json
 import os
 import shutil
 import tempfile
+import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Sequence
@@ -25,6 +26,18 @@ from .provenance import ADAPTER_VERSION, write_provenance
 from .templates import render_path, render_template
 
 TEXT_SUFFIXES: frozenset[str] = frozenset({".md", ".toml", ".json", ".txt", ".yaml", ".yml"})
+
+#: Build artifacts are never content. A kernel that has been run from carries
+#: them, and copying them would publish a local machine's state.
+IGNORED_DIRECTORIES: frozenset[str] = frozenset({"__pycache__", ".pytest_cache", ".mypy_cache"})
+IGNORED_SUFFIXES: frozenset[str] = frozenset({".pyc", ".pyo", ".orig", ".rej"})
+
+
+def _is_artifact(relative: Path) -> bool:
+    return (
+        any(part in IGNORED_DIRECTORIES for part in relative.parts)
+        or relative.suffix in IGNORED_SUFFIXES
+    )
 
 DEFAULT_MANIFEST_TEMPLATE = """{
   "description": "${description}",
@@ -66,7 +79,11 @@ def tree_digest(root: Path) -> str:
 
 def _kernel_files(plugin: PluginSpec) -> list[Path]:
     return sorted(
-        (path for path in plugin.root.rglob("*") if path.is_file()),
+        (
+            path
+            for path in plugin.root.rglob("*")
+            if path.is_file() and not _is_artifact(path.relative_to(plugin.root))
+        ),
         key=lambda item: item.as_posix(),
     )
 
@@ -93,6 +110,74 @@ def _copy(source: Path, destination: Path) -> None:
         _write_text(destination, source.read_text(encoding="utf-8"))
     else:
         shutil.copyfile(source, destination)
+
+
+#: Neutral role tools, mapped onto one host's vocabulary. The kernel never names
+#: a host tool, so this table is where a Claude-shaped agent body becomes a
+#: Copilot-shaped one.
+COPILOT_TOOLS = {
+    "Read": "search",
+    "Glob": "search",
+    "Grep": "search",
+    "Write": "edit",
+    "Edit": "edit",
+    "NotebookEdit": "edit",
+    "Bash": "runCommands",
+    "WebFetch": "fetch",
+    "WebSearch": "fetch",
+    "Agent": "agent",
+    "Task": "agent",
+}
+
+
+def _frontmatter(text: str) -> tuple[dict[str, str], str]:
+    """Split a Markdown body from its frontmatter, flattening multiline scalars."""
+    normalized = text.replace("\r\n", "\n")
+    if not normalized.startswith("---\n"):
+        return {}, normalized
+    end = normalized.find("\n---\n", 4)
+    if end == -1:
+        return {}, normalized
+    block = normalized[4:end]
+    body = normalized[end + 5 :]
+
+    meta: dict[str, str] = {}
+    key: str | None = None
+    for line in block.split("\n"):
+        if line[:1] not in {" ", "\t"} and ":" in line:
+            key, _, value = line.partition(":")
+            key = key.strip()
+            meta[key] = value.strip()
+        elif key is not None and line.strip():
+            meta[key] = f"{meta[key]} {line.strip()}".strip()
+    for name, value in meta.items():
+        if value.startswith(">") or value.startswith("|"):
+            meta[name] = value[1:].strip()
+    return meta, body
+
+
+def _one_line(value: str) -> str:
+    """Frontmatter scalars are rendered inline, so they may not carry breaks or quotes."""
+    return " ".join(value.replace("'", "").split())
+
+
+def _copilot_tools(value: str) -> str:
+    declared = [item.strip() for item in value.strip("[] ").split(",") if item.strip()]
+    mapped = []
+    for item in declared:
+        target = COPILOT_TOOLS.get(item)
+        if target and target not in mapped:
+            mapped.append(target)
+    if not mapped:
+        mapped = ["search"]
+    return ", ".join(f"'{item}'" for item in mapped)
+
+
+def _template(adapters_root: Path | None, host: str, name: str | None) -> str | None:
+    if adapters_root is None or not name:
+        return None
+    candidate = Path(adapters_root) / host / "templates" / name
+    return candidate.read_text(encoding="utf-8") if candidate.is_file() else None
 
 
 def _manifest_template(adapter: HostAdapter, adapters_root: Path | None) -> str:
@@ -147,6 +232,8 @@ def render_plugin(
             if not path.is_file():
                 continue
             relative = path.relative_to(source_directory)
+            if _is_artifact(relative):
+                continue
             if relative.as_posix() == "SKILL.md":
                 _copy(path, target)
             else:
@@ -159,13 +246,46 @@ def render_plugin(
             _copy(override.root / override.replacement, target)
             applied.append(override.source)
         else:
-            _copy(plugin.root / "roles" / f"{role}.md", target)
+            source = plugin.root / "roles" / f"{role}.md"
+            role_template = _template(
+                adapters_root, adapter.host, adapter.layout.get("role_template")
+            )
+            if role_template is None:
+                _copy(source, target)
+            else:
+                meta, body = _frontmatter(source.read_text(encoding="utf-8"))
+                _write_text(
+                    target,
+                    render_template(
+                        role_template,
+                        {
+                            **context,
+                            "name": meta.get("name", role),
+                            "description": _one_line(meta.get("description", "")),
+                            "tools": _copilot_tools(meta.get("tools", "")),
+                            "body": body.strip() + "\n",
+                        },
+                    ),
+                )
 
     for policy in plugin.components.policies:
         _copy(
             plugin.root / "policies" / f"{policy}.toml",
             staging_root / "policies" / f"{policy}.toml",
         )
+        # A policy is declared neutrally and enforced per host. Where this host
+        # ships an implementation of it, that implementation travels with the
+        # package: the policy TOML says what must hold, the adapter file is how
+        # this host makes it hold.
+        if adapters_root is not None:
+            implementation = _policy_implementation(adapters_root, adapter.host, policy)
+            if implementation is not None:
+                for item in sorted(implementation.rglob("*"), key=lambda x: x.as_posix()):
+                    if item.is_file() and not _is_artifact(item.relative_to(implementation)):
+                        _copy(
+                            item,
+                            staging_root / "policies" / policy / item.relative_to(implementation),
+                        )
 
     strategies: list[tuple[str, str]] = []
     for workflow in plugin.workflows:
@@ -177,11 +297,30 @@ def render_plugin(
             adapter.layout["workflows"], {**context, "workflow": workflow.name}
         )
         override = replacements.get(f"workflow:{workflow.name}")
+        fans_out = any(phase.fanout or phase.fanout_from for phase in workflow.phases)
+        source = plugin.root / workflow.entrypoint
         if override is not None:
             _copy(override.root / override.replacement, target)
             applied.append(override.source)
+        elif fans_out:
+            harness = _harness_context(plugin, workflow, strategy, source, context)
+            team_template = _template(
+                adapters_root, adapter.host, adapter.layout.get("team_workflow_template")
+            )
+            if team_template is not None:
+                _write_text(target, render_template(team_template, harness))
+            else:
+                _copy(source, target)
+            coordinator_template = _template(
+                adapters_root, adapter.host, adapter.layout.get("coordinator_template")
+            )
+            if coordinator_template is not None:
+                coordinator = staging_root / render_path(
+                    adapter.layout["coordinators"], {**context, "workflow": workflow.name}
+                )
+                _write_text(coordinator, render_template(coordinator_template, harness))
         else:
-            _copy(plugin.root / workflow.entrypoint, target)
+            _copy(source, target)
         for schema in workflow.contract.schemas:
             _copy(plugin.root / schema, staging_root / schema)
         # The sidecar travels with the package: a harness needs the declared
@@ -210,6 +349,60 @@ def render_plugin(
     )
     write_provenance(result, plugin.version)
     return result
+
+
+def _policy_implementation(adapters_root: Path, host: str, policy: str) -> Path | None:
+    """Find this host's implementation of a neutral policy, if it ships one.
+
+    The mapping lives on the adapter side (`policy.toml`, `implements = ...`) so
+    that the kernel never has to name a host mechanism to get one.
+    """
+    root = Path(adapters_root) / host / "policies"
+    if not root.is_dir():
+        return None
+    for candidate in sorted(root.iterdir(), key=lambda item: item.name):
+        manifest = candidate / "policy.toml"
+        if not manifest.is_file():
+            continue
+        with manifest.open("rb") as handle:
+            declared = tomllib.load(handle)
+        if declared.get("implements") == policy:
+            return candidate
+    return None
+
+
+def _harness_context(plugin, workflow, strategy, source: Path, context: dict) -> dict:
+    """Everything a host harness template may substitute, and nothing else."""
+    roles = []
+    for phase in workflow.phases:
+        for reference in phase.fanout:
+            roles.append(reference.partition(":")[2] or reference)
+        if phase.role:
+            roles.append(phase.role)
+    if any(phase.fanout_from for phase in workflow.phases):
+        # Dynamic selection: which roles run is decided at runtime, so the
+        # harness must be allowed to reach every role this plugin declares.
+        roles.extend(plugin.components.roles)
+    if not roles:
+        roles = list(plugin.components.roles)
+    ordered = sorted(set(roles))
+    fanout_phase = next(
+        (phase for phase in workflow.phases if phase.fanout or phase.fanout_from),
+        workflow.phases[0],
+    )
+    meta, body = _frontmatter(source.read_text(encoding="utf-8"))
+    return {
+        **context,
+        "workflow": workflow.name,
+        "description": _one_line(meta.get("description", plugin.description)),
+        "strategy": strategy.name,
+        "role_delivery": strategy.role_delivery,
+        "isolation": fanout_phase.isolation,
+        "join": fanout_phase.join or "all-delivered",
+        "roles": ", ".join(f"`{item}`" for item in ordered),
+        "agents": ", ".join(f"'{item}'" for item in ordered),
+        "body": body.strip() + "\n",
+    }
 
 
 def replace_tree(staging: Path, live: Path) -> None:

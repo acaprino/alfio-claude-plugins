@@ -1,0 +1,3 @@
+schema = "daodan/record/v1"
+name = "final-report"
+required = ["retained_findings", "filtered_findings", "coverage", "degraded_dimensions", "output_path"]

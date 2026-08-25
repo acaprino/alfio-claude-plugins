@@ -648,27 +648,27 @@
         "testing"
       ],
       "agents": [
-        "./agents/code-auditor.md",
-        "./agents/security-auditor.md",
-        "./agents/ui-race-auditor.md",
-        "./agents/distributed-flow-auditor.md",
-        "./agents/chicken-egg-detector.md",
-        "./agents/logic-integrity-auditor.md",
         "./agents/api-contract-auditor.md",
+        "./agents/chicken-egg-detector.md",
         "./agents/cleanup-auditor.md",
-        "./agents/temporal-resilience-auditor.md",
+        "./agents/code-auditor.md",
         "./agents/data-integrity-auditor.md",
+        "./agents/distributed-flow-auditor.md",
+        "./agents/logic-integrity-auditor.md",
+        "./agents/premise-auditor.md",
         "./agents/resource-lifecycle-auditor.md",
-        "./agents/premise-auditor.md"
+        "./agents/security-auditor.md",
+        "./agents/temporal-resilience-auditor.md",
+        "./agents/ui-race-auditor.md"
+      ],
+      "commands": [
+        "./commands/code-review.md",
+        "./commands/pr-review.md",
+        "./commands/team-review.md"
       ],
       "skills": [
         "./skills/defect-taxonomy",
         "./skills/review-quality-gates"
-      ],
-      "commands": [
-        "./commands/pr-review.md",
-        "./commands/code-review.md",
-        "./commands/team-review.md"
       ]
     },
     {

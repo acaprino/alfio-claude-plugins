@@ -1,0 +1,5 @@
+implements = "write-confinement"
+mechanism = "pre-tool-use-hook"
+entrypoint = "xray_guard.py"
+invocation = "python policies/write-confinement/xray_guard.py --confine .deep-dive"
+notes = "Fail-open by design: an unparseable payload or an unknown tool resolves to allow, so a host schema change degrades this to prompt-level enforcement instead of blocking every call."

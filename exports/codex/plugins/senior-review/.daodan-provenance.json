@@ -1,0 +1,13 @@
+{
+  "adapterVersion": "1.0.0",
+  "coreDigest": "sha256:14bead466165488eae5273b225358124f379e50a1f84ef6a03c03d35fdfb7497",
+  "harnessStrategies": {
+    "code-review": "parallel-subagents",
+    "pr-review": "parallel-subagents",
+    "team-review": "parallel-subagents"
+  },
+  "host": "codex",
+  "overrides": [],
+  "plugin": "senior-review",
+  "version": "11.0.0"
+}

@@ -1,0 +1,7 @@
+schema = "daodan/record/v1"
+name = "reviewer-selection"
+required = ["dimensions"]
+
+[fields.dimensions]
+type = "array"
+items = "contract:reviewer-binding"
