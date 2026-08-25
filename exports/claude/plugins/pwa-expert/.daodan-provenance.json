@@ -1,0 +1,13 @@
+{
+  "adapterVersion": "1.0.0",
+  "coreDigest": "sha256:8e11f3ef138c77689bc6645f4516fb7d87cffdcfadf4bd546c21c7a9f7534dc4",
+  "harnessStrategies": {
+    "pwa-audit": "native-team",
+    "pwa-checklist": "native-team",
+    "pwa-scaffold": "native-team"
+  },
+  "host": "claude",
+  "overrides": [],
+  "plugin": "pwa-expert",
+  "version": "1.1.2"
+}

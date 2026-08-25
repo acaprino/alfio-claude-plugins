@@ -1,0 +1,21 @@
+name = "pwa-checklist"
+entrypoint = "pwa-checklist.md"
+
+[[phases]]
+id = "scope"
+isolation = "shared"
+produces = ["artifact:scope"]
+
+[[phases]]
+id = "review"
+needs = ["scope"]
+role = "pwa-architect"
+isolation = "required"
+consumes = ["artifact:scope"]
+produces = ["artifact:pwa-checklist-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["pwa-checklist-completed"]
+artifacts = ["pwa-checklist-report"]
+schemas = []

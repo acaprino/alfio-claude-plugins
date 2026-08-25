@@ -1306,13 +1306,13 @@
       "agents": [
         "./agents/pwa-architect.md"
       ],
-      "skills": [
-        "./skills/pwa-development"
-      ],
       "commands": [
         "./commands/pwa-audit.md",
-        "./commands/pwa-scaffold.md",
-        "./commands/pwa-checklist.md"
+        "./commands/pwa-checklist.md",
+        "./commands/pwa-scaffold.md"
+      ],
+      "skills": [
+        "./skills/pwa-development"
       ]
     },
     {

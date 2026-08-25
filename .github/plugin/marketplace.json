@@ -139,6 +139,16 @@
       "version": "1.19.0"
     },
     {
+      "dependencies": [
+        "playwright-skill@playwright-skill"
+      ],
+      "description": "Progressive Web App expert for the 2025-2026 baseline. Covers Web App Manifest (id, display_override, scope_extensions, handle_links, file_handlers, share_target), Service Workers (Workbox 7 / Serwist), Web Push (VAPID, RFC 8030/8291/8292, Declarative Push for Safari 18.4+), install flows (beforeinstallprompt, Window Controls Overlay), OPFS storage, Project Fugu capabilities, Core Web Vitals 2025 (INP < 200ms), security (HTTPS, CSP, COOP/COEP), and distribution (Bubblewrap to Google Play, PWA Builder to Microsoft Store, Capacitor to App Store, PWA Builder to Meta Quest). Includes the pwa-architect agent and three commands: /pwa-audit (hybrid local-code + live-URL via Playwright), /pwa-scaffold (manifest + SW + iOS meta + framework wiring for Vite, Next.js, Angular, Nuxt, vanilla), /pwa-checklist (deterministic production-deploy checklist walk).",
+      "license": "MIT",
+      "name": "pwa-expert",
+      "source": "./exports/copilot/plugins/pwa-expert",
+      "version": "1.1.2"
+    },
+    {
       "dependencies": [],
       "description": "Python development toolkit - TDD with pytest, code refactoring with complexity metrics, performance profiling, async patterns, uv package management, dead code detection, comment auditing, project scaffolding, deep Pydantic v2.13 guide (validators/serializers/strict/performance/security/PydanticAI+Logfire) with v1 migration, and /python-audit consolidated quality report",
       "license": "MIT",

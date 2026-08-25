@@ -1,0 +1,21 @@
+name = "pwa-scaffold"
+entrypoint = "pwa-scaffold.md"
+
+[[phases]]
+id = "scope"
+isolation = "shared"
+produces = ["artifact:scope"]
+
+[[phases]]
+id = "review"
+needs = ["scope"]
+role = "pwa-architect"
+isolation = "required"
+consumes = ["artifact:scope"]
+produces = ["artifact:pwa-scaffold-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["pwa-scaffold-completed"]
+artifacts = ["pwa-scaffold-report"]
+schemas = []
