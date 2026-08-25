@@ -299,11 +299,11 @@
       ],
       "category": "utilities",
       "strict": false,
-      "skills": [
-        "./skills/file-organizer"
-      ],
       "commands": [
         "./commands/organize-files.md"
+      ],
+      "skills": [
+        "./skills/file-organizer"
       ]
     },
     {

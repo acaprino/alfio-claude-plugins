@@ -1,0 +1,18 @@
+schema = "daodan/v1"
+name = "system-utils"
+version = "2.0.2"
+description = "File organization and cleanup utilities - sort messy folders, find duplicates, and restructure directory hierarchies"
+license = "MIT"
+
+[capabilities]
+required = ["repository.read"]
+optional = []
+
+[dependencies]
+required = []
+
+[components]
+skills = ["file-organizer"]
+roles = []
+workflows = ["organize-files"]
+policies = []

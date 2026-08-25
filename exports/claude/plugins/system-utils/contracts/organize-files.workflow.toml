@@ -1,0 +1,13 @@
+name = "organize-files"
+entrypoint = "organize-files.md"
+
+[[phases]]
+id = "run"
+isolation = "shared"
+produces = ["artifact:organize-files-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["organize-files-completed"]
+artifacts = ["organize-files-report"]
+schemas = []
