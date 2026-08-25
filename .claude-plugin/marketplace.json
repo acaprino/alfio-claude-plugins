@@ -1500,11 +1500,11 @@
       "agents": [
         "./agents/workspace-auditor.md"
       ],
-      "skills": [
-        "./skills/repo-hygiene"
-      ],
       "commands": [
         "./commands/tidy.md"
+      ],
+      "skills": [
+        "./skills/repo-hygiene"
       ]
     }
   ]

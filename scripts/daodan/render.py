@@ -161,6 +161,12 @@ def render_plugin(
         else:
             _copy(plugin.root / "roles" / f"{role}.md", target)
 
+    for policy in plugin.components.policies:
+        _copy(
+            plugin.root / "policies" / f"{policy}.toml",
+            staging_root / "policies" / f"{policy}.toml",
+        )
+
     strategies: list[tuple[str, str]] = []
     for workflow in plugin.workflows:
         strategy = select_coordination(workflow, adapter)
@@ -178,6 +184,13 @@ def render_plugin(
             _copy(plugin.root / workflow.entrypoint, target)
         for schema in workflow.contract.schemas:
             _copy(plugin.root / schema, staging_root / schema)
+        # The sidecar travels with the package: a harness needs the declared
+        # isolation, join and phase order at runtime, and a reader needs to be
+        # able to check the contract without the kernel in hand.
+        _copy(
+            plugin.root / "workflows" / f"{workflow.name}.toml",
+            staging_root / "contracts" / f"{workflow.name}.workflow.toml",
+        )
 
     files = tuple(
         sorted(

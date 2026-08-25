@@ -66,7 +66,12 @@ def check():
         name = plugin["name"]
         roots = [Path(plugin["source"])]
         kernel = PLUGINS / name
-        if kernel.is_dir() and kernel not in roots:
+        # A neutral kernel is not a Claude package: its bodies live under
+        # roles/ and workflows/ and the compiler decides their installed paths,
+        # so only the generated package is checked for it.
+        if (kernel / "plugin.toml").is_file():
+            kernel = None
+        if kernel is not None and kernel.is_dir() and kernel not in roots:
             roots.append(kernel)
         for kind in ("agents", "skills", "commands"):
             declared = set(plugin.get(kind, []))

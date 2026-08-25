@@ -1,0 +1,41 @@
+name = "deps-audit"
+entrypoint = "deps-audit.md"
+
+[[phases]]
+id = "discover"
+isolation = "shared"
+concurrency = "preferred"
+produces = ["artifact:manifest-inventory"]
+
+[[phases]]
+id = "classify"
+needs = ["discover"]
+isolation = "shared"
+consumes = ["artifact:manifest-inventory"]
+produces = ["artifact:dependency-graph"]
+
+[[phases]]
+id = "audit"
+needs = ["classify"]
+isolation = "shared"
+consumes = ["artifact:dependency-graph"]
+produces = ["artifact:tool-findings"]
+
+[[phases]]
+id = "report"
+needs = ["audit"]
+isolation = "shared"
+consumes = ["artifact:tool-findings"]
+produces = ["artifact:dependency-audit-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = [
+  "dependencies-discovered",
+  "direct-and-transitive-classified",
+  "licenses-analyzed",
+  "supply-chain-findings-evidenced",
+  "remediation-is-non-destructive",
+]
+artifacts = ["dependency-audit-report"]
+schemas = []

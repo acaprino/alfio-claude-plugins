@@ -1,0 +1,18 @@
+schema = "daodan/v1"
+name = "repo-hygiene"
+version = "1.0.0"
+description = "Workspace tidying decided by the filesystem and git alone, with no source comprehension anywhere in it: filesystem garbage and shell-redirection artifacts, generated artifacts tracked in git (checked against publication conventions before anything is proposed for untracking), .gitignore completeness per ecosystem and archaeology over stale and overly-broad rules with git check-ignore provenance, scratch and pipeline-output directories, orphan doc-assets widened past literal Markdown links to configs, stylesheets and templates, and git auxiliary state. One check catalog with a full and a lite profile, so the diff-scoped pass inside a code review and the whole-tree pass share definitions and cannot drift. /repo-hygiene:tidy detects by default and applies under --fix or --commit; untracked removals are quarantined rather than deleted, git rm --cached is confirmed per item, and the git-state dimension is permanently detection-only because a dropped stash or a removed worktree leaves no diff for a per-phase commit to revert."
+license = "MIT"
+
+[capabilities]
+required = ["repository.read", "shell.execute", "repository.write", "contexts.isolate", "roles.dispatch"]
+optional = []
+
+[dependencies]
+required = []
+
+[components]
+skills = ["repo-hygiene"]
+roles = ["workspace-auditor"]
+workflows = ["tidy"]
+policies = []

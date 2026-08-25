@@ -134,6 +134,13 @@ def validate_components(plugin: PluginSpec) -> list[ValidationIssue]:
             issues.append(
                 ValidationIssue("missing-component-file", manifest, f"roles/{name}.md")
             )
+    for name in plugin.components.policies:
+        if _is_escaping(name):
+            continue
+        if not (plugin.root / "policies" / f"{name}.toml").is_file():
+            issues.append(
+                ValidationIssue("missing-component-file", manifest, f"policies/{name}.toml")
+            )
     for name in plugin.components.skills:
         if _is_escaping(name):
             continue

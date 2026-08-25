@@ -1,0 +1,21 @@
+name = "tidy"
+entrypoint = "tidy.md"
+
+[[phases]]
+id = "scope"
+isolation = "shared"
+produces = ["artifact:scope"]
+
+[[phases]]
+id = "review"
+needs = ["scope"]
+role = "workspace-auditor"
+isolation = "required"
+consumes = ["artifact:scope"]
+produces = ["artifact:tidy-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["tidy-completed"]
+artifacts = ["tidy-report"]
+schemas = []
