@@ -1,0 +1,21 @@
+name = "prompt-optimize"
+entrypoint = "prompt-optimize.md"
+
+[[phases]]
+id = "scope"
+isolation = "shared"
+produces = ["artifact:scope"]
+
+[[phases]]
+id = "review"
+needs = ["scope"]
+role = "prompt-engineer"
+isolation = "required"
+consumes = ["artifact:scope"]
+produces = ["artifact:prompt-optimize-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["prompt-optimize-completed"]
+artifacts = ["prompt-optimize-report"]
+schemas = []

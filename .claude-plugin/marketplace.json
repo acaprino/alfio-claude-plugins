@@ -194,11 +194,11 @@
       "agents": [
         "./agents/prompt-engineer.md"
       ],
-      "skills": [
-        "./skills/agent-sdk-builder"
-      ],
       "commands": [
         "./commands/prompt-optimize.md"
+      ],
+      "skills": [
+        "./skills/agent-sdk-builder"
       ]
     },
     {

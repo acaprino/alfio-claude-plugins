@@ -19,6 +19,16 @@
       "version": "2.0.2"
     },
     {
+      "dependencies": [
+        "superpowers@claude-plugins-official"
+      ],
+      "description": "AI development workflow - prompt engineering and optimization, and Claude Agent SDK integration guide",
+      "license": "MIT",
+      "name": "ai-tooling",
+      "source": "./exports/copilot/plugins/ai-tooling",
+      "version": "5.0.2"
+    },
+    {
       "dependencies": [],
       "description": "Expert Firefox extension (WebExtension) developer covering Manifest V2/V3, all 51 browser.* APIs, content scripts, background scripts, native messaging, cross-browser compatibility, AMO publishing, web-ext CLI tooling, project scaffolding, and live MDN documentation lookup; includes /firefox-scaffold, /firefox-lint, /firefox-publish commands",
       "license": "MIT",
