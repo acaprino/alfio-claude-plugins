@@ -1,6 +1,6 @@
 {
   "adapterVersion": "1.0.0",
-  "coreDigest": "sha256:670a16526519e8c522e347e1d23fd00299f4bb199d1ad0489732a829a73a7851",
+  "coreDigest": "sha256:05a0040aeac762b789b9a072cfc328d88ad5a113f4322621ba3df1454f6ae92c",
   "harnessStrategies": {
     "python-audit": "parallel-subagents",
     "python-refactor": "parallel-subagents",

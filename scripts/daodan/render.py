@@ -27,7 +27,24 @@ from .overrides import OverrideSpec
 from .provenance import ADAPTER_VERSION, write_provenance
 from .templates import render_path, render_template
 
-TEXT_SUFFIXES: frozenset[str] = frozenset({".md", ".toml", ".json", ".txt", ".yaml", ".yml"})
+NUL = bytes([0])
+
+
+def is_text(raw: bytes) -> bool:
+    """Whether this content is text, asked of the content itself.
+
+    Deciding by extension was a whitelist that kept being incomplete: the helper
+    scripts a skill ships (`.py`, `.js`, `.sh`) fell outside it, were copied
+    byte-for-byte, and carried whatever line endings the checkout happened to
+    have. CI then reported drift on exactly those four plugins.
+    """
+    if NUL in raw:
+        return False
+    try:
+        raw.decode("utf-8")
+    except UnicodeDecodeError:
+        return False
+    return True
 
 #: Build artifacts are never content. A kernel that has been run from carries
 #: them, and copying them would publish a local machine's state.
@@ -100,7 +117,7 @@ def digest_bytes(path: Path) -> bytes:
     the checkout.
     """
     raw = path.read_bytes()
-    if path.suffix.lower() not in TEXT_SUFFIXES:
+    if not is_text(raw):
         return raw
     return raw.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
 
@@ -123,8 +140,9 @@ def _write_text(destination: Path, content: str) -> None:
 
 def _copy(source: Path, destination: Path) -> None:
     destination.parent.mkdir(parents=True, exist_ok=True)
-    if source.suffix.lower() in TEXT_SUFFIXES:
-        _write_text(destination, source.read_text(encoding="utf-8"))
+    raw = source.read_bytes()
+    if is_text(raw):
+        _write_text(destination, raw.decode("utf-8"))
     else:
         shutil.copyfile(source, destination)
 
