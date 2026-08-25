@@ -1,14 +1,14 @@
 <div align="center">
 
-# Claude Code Daodan
+# Daodan
 
-**40 specialized plugins that augment Claude Code into a specialized toolkit - so you spend less time prompting and more time shipping.**
+**40 specialized plugins that augment your coding agent into a specialized toolkit - so you spend less time prompting and more time shipping.**
 
-> The Daodan is the symbiote that enhances its host. This marketplace is the Daodan of Claude Code.
+> The Daodan is the symbiote that enhances its host. This marketplace is the Daodan of coding agents: Claude Code, GitHub Copilot and Codex, compiled from one source.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat)](LICENSE)
-[![Consistency](https://github.com/acaprino/claude-code-daodan/actions/workflows/consistency.yml/badge.svg)](https://github.com/acaprino/claude-code-daodan/actions/workflows/consistency.yml)
-[![Marketplace](https://img.shields.io/badge/dynamic/json?label=marketplace&prefix=v&query=%24.metadata.version&url=https%3A%2F%2Fraw.githubusercontent.com%2Facaprino%2Fclaude-code-daodan%2Fmaster%2F.claude-plugin%2Fmarketplace.json&style=flat&color=green)](.claude-plugin/marketplace.json)
+[![Consistency](https://github.com/acaprino/daodan/actions/workflows/consistency.yml/badge.svg)](https://github.com/acaprino/daodan/actions/workflows/consistency.yml)
+[![Marketplace](https://img.shields.io/badge/dynamic/json?label=marketplace&prefix=v&query=%24.metadata.version&url=https%3A%2F%2Fraw.githubusercontent.com%2Facaprino%2Fdaodan%2Fmaster%2F.claude-plugin%2Fmarketplace.json&style=flat&color=green)](.claude-plugin/marketplace.json)
 [![Plugins](https://img.shields.io/badge/plugins-40-orange?style=flat)](#plugins)
 [![Agents](https://img.shields.io/badge/agents-76-purple?style=flat)](#plugins)
 [![Skills](https://img.shields.io/badge/skills-57-teal?style=flat)](#plugins)
@@ -18,25 +18,36 @@
 
 ---
 
-## Why Claude Code Daodan?
+## Why Daodan?
 
 - **Domain experts, not generic prompts** - each plugin encodes months of specialized knowledge (Python, Rust, React, security, SEO, legal...)
 - **Multi-agent orchestration** - code review fires architecture, security, and pattern analysis in parallel
 - **End-to-end workflows** - chain analysis, implementation, review, and cleanup into single commands
 - **Install only what you need** - every plugin is independent, no runtime dependencies
+- **Three hosts, one source** - every plugin is compiled into native Claude Code, Copilot and Codex packages at one identical version
 - **Community-driven** - MIT licensed, upstream-synced with projects from Anthropic, Vercel, and others
 
 ## Quick Start
 
 ```bash
-# Add the marketplace
-claude plugin marketplace add acaprino/claude-code-daodan
+# Add the marketplace (Claude Code; use copilot or codex for the other hosts)
+claude plugin marketplace add acaprino/daodan
 
 # Install the plugins you need
-claude plugin install python-development@claude-code-daodan
-claude plugin install senior-review@claude-code-daodan
-claude plugin install react-development@claude-code-daodan
+claude plugin install python-development@daodan
+claude plugin install senior-review@daodan
+claude plugin install react-development@daodan
 ```
+
+The same repository is a native marketplace for the other two hosts:
+
+```bash
+copilot plugin marketplace add acaprino/daodan
+codex plugin marketplace add acaprino/daodan
+```
+
+Coming from the old `claude-code-daodan` marketplace or the VS Code extension? See
+[docs/migration-from-claude-code-daodan.md](docs/migration-from-claude-code-daodan.md).
 
 That's it. Plugins activate automatically when relevant - or invoke them directly:
 
@@ -364,7 +375,7 @@ claude plugin install codebase-cleanup@claude-code-workflows
 | **Skill** | A knowledge module Claude references automatically | Activates when the task matches its trigger keywords |
 | **Command** | A slash command that kicks off a workflow | `/code-review`, `/python-scaffold`, `/senior-review:team-review` |
 
-Plugins are pure Markdown with optional JS/Python helper scripts. No build step, no runtime framework. A consistency CI guards the marketplace contracts on every push: cross-plugin references must match declared dependencies, plugin changes must bump versions, and the VS Code export must stay in sync with its sources.
+Plugin content is pure Markdown with optional Python helper scripts, plus a declarative TOML control plane per plugin. A stdlib-only compiler turns those kernels into native packages for all three hosts, so nothing under `exports/` is written by hand. A consistency CI guards the contracts on every push: cross-plugin references must match declared dependencies, plugin changes must bump versions, and every committed package must reproduce byte-for-byte from its source.
 
 </details>
 
@@ -372,18 +383,23 @@ Plugins are pure Markdown with optional JS/Python helper scripts. No build step,
 <summary><b>Project Structure</b></summary>
 
 ```
-claude-code-daodan/
-├── .claude-plugin/
-│   └── marketplace.json       # plugin registry
+daodan/
+├── .claude-plugin/marketplace.json   # generated Claude catalog
+├── .github/plugin/marketplace.json   # generated Copilot catalog
+├── .agents/plugins/marketplace.json  # generated Codex catalog
+├── adapters/                  # one directory per host: capabilities, coordination, layout, templates
 ├── docs/plugins/              # per-plugin documentation
-├── evals/                     # review eval harness (ground-truth cases, never shipped)
+├── evals/                     # eval harnesses (never shipped)
+├── exports/                   # generated packages: claude/, copilot/, codex/
 ├── plugins/
 │   ├── python-development/
-│   │   ├── agents/            # .md files with YAML frontmatter
-│   │   ├── skills/            # SKILL.md + optional references/
-│   │   └── commands/          # slash-command .md files
+│   │   ├── plugin.toml        # neutral control plane
+│   │   ├── roles/             # agent bodies
+│   │   ├── workflows/         # entry points, each with a TOML sidecar
+│   │   └── skills/            # SKILL.md + optional references/
 │   ├── senior-review/
 │   └── ...                    # 40 plugins total
+├── scripts/daodan_build.py    # the compiler
 ├── LICENSE
 └── README.md
 ```
@@ -394,8 +410,8 @@ claude-code-daodan/
 <summary><b>Local Development Install</b></summary>
 
 ```bash
-git clone https://github.com/acaprino/claude-code-daodan.git
-claude plugin install ./claude-code-daodan/plugins/python-development
+git clone https://github.com/acaprino/daodan.git
+claude plugin install ./daodan/exports/claude/plugins/python-development
 ```
 
 </details>
