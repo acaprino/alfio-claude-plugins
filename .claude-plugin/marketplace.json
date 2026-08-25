@@ -349,14 +349,14 @@
       "strict": false,
       "dependencies": [],
       "agents": [
-        "./agents/quick-searcher.md",
-        "./agents/deep-researcher.md"
-      ],
-      "skills": [
-        "./skills/web-search-techniques"
+        "./agents/deep-researcher.md",
+        "./agents/quick-searcher.md"
       ],
       "commands": [
         "./commands/team-research.md"
+      ],
+      "skills": [
+        "./skills/web-search-techniques"
       ]
     },
     {

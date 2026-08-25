@@ -1,0 +1,13 @@
+name = "team-research"
+entrypoint = "team-research.md"
+
+[[phases]]
+id = "run"
+isolation = "shared"
+produces = ["artifact:team-research-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["team-research-completed"]
+artifacts = ["team-research-report"]
+schemas = []
