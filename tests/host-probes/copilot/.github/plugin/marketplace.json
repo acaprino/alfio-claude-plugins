@@ -1,0 +1,31 @@
+{
+  "name": "daodan-probe-copilot",
+  "metadata": {
+    "description": "Disposable protocol probe marketplace for GitHub Copilot.",
+    "version": "0.0.1"
+  },
+  "owner": {
+    "name": "Alfio Caprino"
+  },
+  "plugins": [
+    {
+      "name": "daodan-probe",
+      "source": "./plugins/probe",
+      "description": "Single-worker and two-worker coordination probe.",
+      "version": "0.0.1",
+      "author": {
+        "name": "Alfio Caprino"
+      },
+      "license": "MIT",
+      "keywords": ["probe"],
+      "category": "development",
+      "strict": false,
+      "skills": ["./skills/probe"],
+      "agents": [
+        "./agents/probe-coordinator.agent.md",
+        "./agents/probe-worker.agent.md"
+      ],
+      "dependencies": []
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "name": "daodan-probe-claude",
+  "metadata": {
+    "description": "Disposable protocol probe marketplace for Claude Code.",
+    "version": "0.0.1"
+  },
+  "owner": {
+    "name": "Alfio Caprino"
+  },
+  "plugins": [
+    {
+      "name": "daodan-probe",
+      "source": "./plugins/probe",
+      "description": "Single-worker and two-worker coordination probe.",
+      "version": "0.0.1",
+      "author": {
+        "name": "Alfio Caprino"
+      },
+      "license": "MIT",
+      "keywords": ["probe"],
+      "category": "development",
+      "strict": false,
+      "skills": ["./skills/probe"],
+      "agents": ["./agents/probe-worker.md"],
+      "commands": ["./commands/probe-team.md"],
+      "dependencies": []
+    }
+  ]
+}
