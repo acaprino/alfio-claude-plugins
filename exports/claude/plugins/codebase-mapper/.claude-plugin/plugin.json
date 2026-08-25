@@ -1,0 +1,28 @@
+{
+  "author": {
+    "name": "Alfio"
+  },
+  "category": "documentation",
+  "description": "Human-readable codebase guide generator: explores unfamiliar projects, builds a structured interconnect map (contracts, invariants, domain rules, integration hot-spots) via the codebase-xray semantic-interconnect-mapper, then autonomously profiles the project (type, audience, register) and produces audience-adaptive narrative documents with Mermaid diagrams that cite the map, including a plain-language executive summary and a domain glossary so the guide is comprehensible by everyone. Includes documentation-reality drift detection in the review phase, plus standalone documentation creation, maintenance, and humanization with bottom-up code analysis. Both docs-create and docs-maintain cover 20 documentation dimensions; docs-maintain runs a structured per-dimension drift audit (added/removed/renamed/retyped) instead of generic outdated-text matching.",
+  "keywords": [
+    "codebase",
+    "exploration",
+    "mapping",
+    "onboarding",
+    "learning",
+    "human-readable",
+    "documentation",
+    "diagrams",
+    "architecture",
+    "mermaid",
+    "technical-writing",
+    "code-analysis",
+    "api-docs",
+    "tutorials",
+    "documentation-management"
+  ],
+  "license": "MIT",
+  "name": "codebase-mapper",
+  "strict": false,
+  "version": "3.0.0"
+}

@@ -1,0 +1,18 @@
+{
+  "author": {
+    "name": "Alfio"
+  },
+  "category": "review",
+  "description": "Rewrites source code to be more readable and human-friendly without changing behavior - improves naming, removes AI boilerplate, simplifies structure, and adds clarity comments",
+  "keywords": [
+    "clean-code",
+    "readability",
+    "naming",
+    "refactor",
+    "cleanup"
+  ],
+  "license": "MIT",
+  "name": "clean-code",
+  "strict": false,
+  "version": "1.2.0"
+}

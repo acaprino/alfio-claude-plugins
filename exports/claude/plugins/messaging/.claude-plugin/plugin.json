@@ -1,0 +1,19 @@
+{
+  "author": {
+    "name": "Alfio"
+  },
+  "category": "infrastructure",
+  "description": "RabbitMQ and AMQP messaging - queue configuration, exchange routing, clustering, high availability, and event-driven architecture optimization (RabbitMQ 4.3 coverage: Khepri-only metadata store, quorum queue priorities and delayed retries, streams, MQTT 5, AMQP 1.0 SQL filters) plus a production knowledge base skill",
+  "keywords": [
+    "rabbitmq",
+    "messaging",
+    "amqp",
+    "queues",
+    "pub-sub",
+    "message-broker"
+  ],
+  "license": "MIT",
+  "name": "messaging",
+  "strict": false,
+  "version": "2.0.1"
+}

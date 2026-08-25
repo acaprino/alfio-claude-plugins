@@ -1,0 +1,22 @@
+{
+  "author": {
+    "name": "Alfio"
+  },
+  "category": "review",
+  "description": "Cross-model peer review of plans, specs, and the decisions a session has just made: a harness-agnostic deliberation protocol (challenge packet with GIVEN-tagged context, challenger findings that each carry their own falsifier, evidence-backed responses at a stable locator, a verbatim ledger, a certification pass the challenger owns, and a verdict computed from the ledger) plus a transport-only MCP server for any OpenAI-compatible endpoint. Point it at a document, or run it with no path to materialize the session's context, settled decisions and open questions into a frozen brief and put that on trial. The challenger attacks the artifact, the local session refutes with evidence, and unresolved disagreements terminate as precise standoffs for the user to settle",
+  "keywords": [
+    "peer-review",
+    "cross-model",
+    "deliberation",
+    "epistemic-independence",
+    "second-opinion",
+    "plan-review",
+    "spec-review",
+    "decision-review",
+    "mcp"
+  ],
+  "license": "MIT",
+  "name": "peer-review",
+  "strict": false,
+  "version": "2.1.0"
+}

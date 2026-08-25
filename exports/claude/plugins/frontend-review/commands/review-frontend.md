@@ -1,0 +1,478 @@
+---
+description: >
+  Full frontend review in one pass: a design and UX audit (typography, color and contrast, spacing and layout, motion, cognitive load, platform conventions, design-token architecture, component states, visual craft) alongside auto-detected code dimensions (React performance, TypeScript type safety, PWA architecture, platform compliance). Produces one scored report at `.frontend-review/report.md`.
+  TRIGGER WHEN: the user asks for a complete frontend review, a design plus code review, a UI/UX audit paired with a code audit, or a full pass over a frontend surface before shipping.
+  DO NOT TRIGGER WHEN: the request is React-only (use `/react-development:review-react`), TypeScript-only (use `/typescript-development:review-typescript`), PWA-only (use `/pwa-expert:pwa-audit`), or a general code review with no design dimension (use `/senior-review:code-review`).
+argument-hint: "[path] [--full] [--strict-mode]"
+---
+
+## Prerequisites
+
+This command orchestrates three upstream design plugins. None of them is vendored in this marketplace; all three must be installed before the design dimension can run.
+
+**`impeccable`** (`pbakaus/impeccable`, plugin 4.0.4, Apache-2.0, Paul Bakaus). Consumed component: the `impeccable:impeccable` skill, applied in its `audit` mode (accessibility, performance, and responsive checks) and its `critique` mode (UX heuristic scoring). The plugin also ships four support agents and a hooks file; this command does not touch them.
+
+**`ui-ux-pro-max`** (`nextlevelbuilder/ui-ux-pro-max-skill`, plugin 2.11.0, MIT, NextLevelBuilder). Consumed components: the `ui-ux-pro-max:ui-ux-pro-max` skill (UI review against a library of styles, palettes, font pairings, and UX guidelines) and the `ui-ux-pro-max:design-system` skill (token architecture and component specs). The plugin ships five more skills (design, ui-styling, brand, banner-design, slides) that this command never loads.
+
+**`frontend-design`** (Anthropic, `claude-plugins-official` marketplace, Apache-2.0). Consumed component: the `frontend-design:frontend-design` skill, applied here as evaluation criteria for visual craft, not for generation.
+
+Install all three:
+
+```
+/plugin marketplace add pbakaus/impeccable
+/plugin install impeccable@impeccable
+/plugin marketplace add nextlevelbuilder/ui-ux-pro-max-skill
+/plugin install ui-ux-pro-max@ui-ux-pro-max-skill
+/plugin install frontend-design@claude-plugins-official
+```
+
+All three are hard dependencies of `frontend-review`, regardless of what the rest of the project looks like. There is no partial-design-dimension mode: it runs with all three sources loaded, or it does not run, and Step 0 stops the command before Step 1 when any load fails.
+
+# Frontend Review
+
+You are a senior frontend reviewer running a single-pass audit that covers both design and code. The review has five possible dimensions: one always-on design and UX pass that runs inline against the four design skills from the three upstream plugins, plus up to four auto-detected code dimensions that spawn as parallel agents when both their signal and their owning plugin are present.
+
+| Dimension | Kind | Source |
+|---|---|---|
+| Design and UX | Always-on, inline | `impeccable`, `ui-ux-pro-max`, `frontend-design` |
+| React performance | Auto-detected | `react-development` plugin |
+| TypeScript type safety | Auto-detected | `typescript-development` plugin |
+| PWA architecture | Auto-detected | `pwa-expert` plugin |
+| Platform compliance | Auto-detected | `platform-engineering` plugin |
+
+The four code dimensions are declared as hard dependencies of this plugin, so the marketplace installs them with it and none can go missing at runtime. A code dimension is skipped only as "skipped, not matched", when the codebase shows no signal for it. The design dimension rests on three upstream plugins from other marketplaces, which the user installs by hand; it is gated at Step 0, so it either runs in full or the command never reaches Step 1.
+
+## CRITICAL RULES
+
+1. **Design is hard-gated.** All four design skills from the three upstream plugins must load in Step 0. If any fails, stop and print the install block. Never proceed with fewer than four loaded.
+2. **Code dimensions skip on signal, never on install.** A code dimension is skipped only when the codebase shows no signal for it. A spawn failing with "Agent type not found" means a broken install: stop and report it rather than scoring a partial review.
+3. **Single report.** Output is always `.frontend-review/report.md`, regardless of how many dimensions ran.
+4. **`frontend-design` is evaluation criteria, not a generator.** Apply it to judge the existing UI. Never use it to redesign, restyle, or rewrite anything in scope.
+5. **Score only what ran.** A skipped dimension is excluded from the weighted mean. It is never counted as a zero.
+6. **Never enter plan mode.** Execute immediately.
+
+## Step 0: Prerequisite Check
+
+Load the four design skills before anything else:
+
+- Load the `impeccable:impeccable` skill.
+- Load the `ui-ux-pro-max:ui-ux-pro-max` skill.
+- Load the `ui-ux-pro-max:design-system` skill.
+- Load the `frontend-design:frontend-design` skill.
+
+If any load fails, the plugin behind it is not installed. Print the install block from Prerequisites and stop. Do not attempt Step 1 with a partially loaded design dimension.
+
+## Step 1: Detect Scope
+
+### Check for changed frontend files
+
+```bash
+git diff HEAD --name-only | grep -E '\.(tsx|jsx|ts|vue|svelte|css|scss)$|(^|/)(index\.html|manifest\.(json|webmanifest))$' || true
+git diff --name-only | grep -E '\.(tsx|jsx|ts|vue|svelte|css|scss)$|(^|/)(index\.html|manifest\.(json|webmanifest))$' || true
+git diff --cached --name-only | grep -E '\.(tsx|jsx|ts|vue|svelte|css|scss)$|(^|/)(index\.html|manifest\.(json|webmanifest))$' || true
+```
+
+### Decision tree
+
+**Diff mode** (changed frontend files exist and `--full` is not set): review only the changed files. Get the diff with `git diff HEAD -- <frontend files>`.
+
+**Full mode** (no frontend changes in the diff, or `--full` is set): scan the whole frontend surface.
+
+```bash
+find src app components pages styles -type f \( -name "*.tsx" -o -name "*.jsx" -o -name "*.ts" -o -name "*.vue" -o -name "*.svelte" -o -name "*.css" -o -name "*.scss" \) 2>/dev/null | head -120
+```
+
+Or use the path from `$ARGUMENTS` if one is given.
+
+If no frontend files are found in either mode, stop and say so.
+
+Bind the resulting list to `$SCOPE_FILES`: the changed frontend files in diff mode, or the files discovered by the `find` command in full mode. Step 2 and Step 3 read `$SCOPE_FILES` by that name.
+
+## Step 2: Dimension Detection
+
+Run these signal checks against the scope from Step 1 to decide which code dimensions to spawn.
+
+| Signal | Detection rule | Dimension activated | Agent |
+|---|---|---|---|
+| React project | `package.json` has `react` in dependencies AND the scope includes `.tsx`/`.jsx` files | React performance | `react-development:react-performance-optimizer` |
+| TypeScript project | The scope matches `\.tsx?$` AND `tsconfig.json` exists at the project root | TypeScript type safety | `typescript-development:type-safety-auditor` |
+| PWA signals | A manifest file, a service worker file, or a Workbox config is present | PWA architecture | `pwa-expert:pwa-architect` |
+| Fullstack / platform signals | 2 or more of: frontend framework in `package.json`, backend framework config, API route definitions, `docker-compose.yml` with multiple services, Tauri or Electron config | Platform compliance | `platform-engineering:platform-reviewer` |
+
+### Detection implementation
+
+```bash
+# 1. React
+cat package.json 2>/dev/null | grep -q '"react"' && echo "REACT=true"
+echo "$SCOPE_FILES" | grep -qE '\.(tsx|jsx)$' && echo "REACT_FILES=true"
+
+# 2. TypeScript project
+echo "$SCOPE_FILES" | grep -qE '\.tsx?$' && [ -f tsconfig.json ] && echo "TS_PROJECT=true"
+
+# 3. PWA
+find . -maxdepth 3 \( -iname "manifest.json" -o -iname "*.webmanifest" -o -iname "sw.js" -o -iname "service-worker.*" -o -iname "workbox-config.*" \) 2>/dev/null | grep -q . && echo "PWA=true"
+
+# 4. Platform / fullstack signal count
+PLATFORM_SIGNALS=0
+[ -f package.json ] && grep -qE '"(react|vue|svelte|angular|next|nuxt)"' package.json && PLATFORM_SIGNALS=$((PLATFORM_SIGNALS+1))
+grep -rql 'fastapi\|django\|flask\|express\|nest\|hono\|actix\|axum' pyproject.toml Cargo.toml package.json 2>/dev/null && PLATFORM_SIGNALS=$((PLATFORM_SIGNALS+1))
+ls -d */routes */api */endpoints 2>/dev/null && PLATFORM_SIGNALS=$((PLATFORM_SIGNALS+1))
+[ -f docker-compose.yml ] && grep -c 'image:\|build:' docker-compose.yml | awk '$1>1{print "MULTI_SERVICE"}' && PLATFORM_SIGNALS=$((PLATFORM_SIGNALS+1))
+[ -f src-tauri/tauri.conf.json ] && PLATFORM_SIGNALS=$((PLATFORM_SIGNALS+1))
+{ [ -f electron-builder.json ] || [ -f electron.vite.config.ts ]; } && PLATFORM_SIGNALS=$((PLATFORM_SIGNALS+1))
+```
+
+### Display detected dimensions
+
+After detection, display the plan:
+
+```
+Context detection complete:
+  - Always: design-and-ux
+  - Detected: react-perf (React project), ts-safety (TypeScript project)
+  - Skipped: pwa (no manifest or service worker), platform (1 signal, needs 2+)
+
+Pipeline plan:
+  Step 3: deterministic ground truth
+  Step 4: design and UX review (inline)
+  Step 5: {N} code dimension agents in parallel
+  Step 6: consolidation and scoring
+  Step 7: report
+```
+
+Every reason on the Skipped line is a statement about the codebase, never about the install: the code dimensions come from hard dependencies and are always present.
+
+## Step 3: Deterministic Ground Truth
+
+Run linters over the files in scope, if available. A missing tool is a note in the report, not an error that stops the command.
+
+```bash
+npx eslint --format json "src/**/*.{tsx,jsx,ts,js}" 2>/dev/null || true
+```
+
+If Step 2 detected `TS_PROJECT=true`, also run:
+
+```bash
+npx tsc --noEmit 2>&1 || true
+```
+
+Carry both outputs into Step 4 and into the matching Step 5 agent as ground truth. Record "eslint not configured" or "tsc not available" in the final report instead of failing the step.
+
+## Step 4: Design and UX Review (inline)
+
+This dimension runs inline, in this conversation, using the four skills loaded in Step 0. It is not a spawned agent: the upstream plugins ship skills, not reviewer agents.
+
+### Sample the UI surface
+
+Read a representative cross-section of the scope from Step 1:
+
+- The entry layout (`App.tsx`, `Layout.tsx`, `_app.tsx`, `root.tsx`, or the framework equivalent)
+- 3 to 5 core components
+- Stylesheets, design tokens, and the Tailwind or CSS-in-JS config
+- Font declarations and loading strategy
+- Motion and transition code (CSS transitions, animation libraries, view transitions)
+- `index.html` and the manifest file, if present
+
+### Review by source
+
+**`impeccable:impeccable`**, `audit` mode and `critique` mode: typography, color and contrast, spacing and layout, motion, cognitive load, and platform conventions (native affordances, responsive behavior, i18n readiness).
+
+**`ui-ux-pro-max:ui-ux-pro-max`** and **`ui-ux-pro-max:design-system`**: design-token architecture, component state and variant coverage, and consistency between the design system (or Tailwind config) and what the sampled components actually render.
+
+**`frontend-design:frontend-design`**: overall visual craft, judged against the skill's own quality bar. This is the one place the anti-redesign rule from CRITICAL RULES matters most: the skill is built to generate polished UI, and the temptation here is to propose a rewrite. Resist it. Score what exists against what the skill considers good, list the gap as findings, and stop there.
+
+### Output
+
+Produce findings in the same JSON contract the Step 5 agents use:
+
+```json
+{
+  "findings": [
+    { "severity": "High", "category": "Typography (impeccable)", "file": "src/components/Card.tsx", "issue": "...", "fix": "..." }
+  ],
+  "positives": ["..."],
+  "score": { "typography": 7, "color_contrast": 6, "spacing_layout": 8, "motion": 7, "cognitive_load": 7, "tokens_and_system": 6, "visual_craft": 7, "overall": 7 }
+}
+```
+
+Attribute each finding to its source skill in the `category` field (for example "Typography (impeccable)", "Design tokens (ui-ux-pro-max)", "Visual craft (frontend-design)") so Step 6 can trace it back and so a reader can tell which upstream skill is behind a given call.
+
+## Step 5: Code Dimension Agents (parallel)
+
+Spawn every dimension that Step 2 activated in a single message, so they run in parallel. Each block below carries its activation condition, its skip note, and the Task call.
+
+### Agent: React Performance (conditional)
+
+**Activate when** Step 2 detected `REACT=true` and `REACT_FILES=true`.
+
+`react-development` is a hard dependency of this plugin, so this agent is always available. Skip the dimension only when its detection signal did not match.
+
+```
+Agent tool call:
+  - description: "React performance review for frontend-review command"
+  - subagent_type: "react-development:react-performance-optimizer"
+  - run_in_background: true
+  - prompt: |
+    Audit the React performance, state management, and bundle optimization of this
+    frontend codebase.
+
+    ## Scope
+    [files from Step 1]
+
+    ## File Contents
+    [sampled components and state files from Step 1, not stylesheets]
+
+    ## Linter Output
+    [ESLint JSON from Step 3, or "No linter output available"]
+
+    ## Instructions
+    Cover re-render optimization, state management, bundle impact, and React 19 API
+    adoption. For each finding: severity (Critical/High/Medium/Low), file, issue, fix.
+    Note what is done well.
+
+    Close with:
+    ```json
+    {
+      "findings": [
+        { "severity": "Critical", "category": "Re-renders", "file": "...", "issue": "...", "fix": "..." }
+      ],
+      "positives": ["..."],
+      "score": { "overall": 0 }
+    }
+    ```
+```
+
+### Agent: TypeScript Type Safety (conditional)
+
+**Activate when** Step 2 detected `TS_PROJECT=true`.
+
+`typescript-development` is a hard dependency of this plugin, so this agent is always available. Skip the dimension only when its detection signal did not match.
+
+```
+Agent tool call:
+  - description: "TypeScript type safety review for frontend-review command"
+  - subagent_type: "typescript-development:type-safety-auditor"
+  - run_in_background: true
+  - prompt: |
+    Audit the type safety of this frontend codebase: tsconfig strictness first, then
+    a mechanical sweep for unsound casts and assertions, then a boundary pass for
+    unvalidated external input.
+
+    ## Scope
+    [files from Step 1]
+
+    ## tsc Output
+    [tsc --noEmit output from Step 3, or "tsc not available"]
+
+    ## Instructions
+    Cover config strictness, unsound casts and assertions, unvalidated boundaries, and
+    non-exhaustive handling. For each finding: severity (Critical/High/Medium/Low),
+    file, issue, fix, citing the rule id where one applies. Note what is done well.
+
+    Close with:
+    ```json
+    {
+      "findings": [
+        { "severity": "High", "category": "Unsound cast", "file": "...", "issue": "...", "fix": "..." }
+      ],
+      "positives": ["..."],
+      "score": { "overall": 0 }
+    }
+    ```
+```
+
+### Agent: PWA Architecture (conditional)
+
+**Activate when** Step 2 detected `PWA=true`.
+
+`pwa-expert` is a hard dependency of this plugin, so this agent is always available. Skip the dimension only when its detection signal did not match.
+
+```
+Agent tool call:
+  - description: "PWA architecture review for frontend-review command"
+  - subagent_type: "pwa-expert:pwa-architect"
+  - run_in_background: true
+  - prompt: |
+    Audit this PWA against the 2025-2026 baseline: manifest completeness, service
+    worker lifecycle and caching strategy, install flow, Web Push if present, storage
+    and quota handling, and platform constraints across iOS WebKit, Android, and desktop.
+
+    ## Scope
+    [manifest, service worker, and install-flow files from Step 1]
+
+    ## File Contents
+    [paste the manifest and service worker source]
+
+    ## Instructions
+    For each finding: severity (Critical/High/Medium/Low), file, issue, fix. Note what
+    is done well.
+
+    Close with:
+    ```json
+    {
+      "findings": [
+        { "severity": "High", "category": "Service worker", "file": "...", "issue": "...", "fix": "..." }
+      ],
+      "positives": ["..."],
+      "score": { "overall": 0 }
+    }
+    ```
+```
+
+### Agent: Platform Compliance (conditional)
+
+**Activate when** Step 2 counted `PLATFORM_SIGNALS` at 2 or more.
+
+`platform-engineering` is a hard dependency of this plugin, so this agent is always available. Skip the dimension only when its detection signal did not match.
+
+```
+Agent tool call:
+  - description: "Platform engineering review for frontend-review command"
+  - subagent_type: "platform-engineering:platform-reviewer"
+  - run_in_background: true
+  - prompt: |
+    Review this frontend against the platform-engineering rulebook: server validation,
+    auth token storage, API security, XSS/CSP, secrets exposure, and architecture.
+
+    ## Platforms Detected
+    [signals from Step 2: SPA, PWA, Electron, Tauri, mobile]
+
+    ## Scope
+    [files from Step 1]
+
+    ## File Contents
+    [paste full contents of each file in scope]
+
+    ## Instructions
+    For each finding: severity (Critical/High/Medium/Low), file, issue, fix. Note what
+    is done well.
+
+    Close with:
+    ```json
+    {
+      "findings": [
+        { "severity": "High", "category": "API security", "file": "...", "issue": "...", "fix": "..." }
+      ],
+      "positives": ["..."],
+      "score": { "overall": 0 }
+    }
+    ```
+```
+
+## Step 6: Consolidate and Score
+
+### Deduplicate
+
+When two dimensions both flag the same file for the same underlying cause, whether that is design versus code or code versus code (PWA and platform compliance both own the manifest, service worker, and CSP; React performance and TypeScript type safety both read the same components), keep the finding from the more specific dimension. Add one line to the kept finding noting which other dimension also caught it. Do not list the same root cause twice. For example, a React re-render bug belongs to React performance, not to design and UX.
+
+### Order
+
+Within each dimension, sort findings Critical, then High, then Medium, then Low. Within a severity, sort by file path.
+
+### Score
+
+Each dimension that ran reports its own `overall` score, 0 to 10, from its JSON output. Compute the report's overall score as a weighted mean over the dimensions that ran:
+
+- **Design and UX**: 40% of the weighted mean. It always contributes: the dimension is hard-gated, so if it did not run, the command already stopped at Step 0.
+- **Code dimensions**: the remaining 60%, split evenly across however many of the four actually ran. With N code dimensions run, each contributes `60/N` percentage points. With N=0, the overall score collapses to the design score alone.
+
+A dimension that was skipped, whether for lack of a signal or for a missing plugin, is excluded from the mean entirely. Never treat a skipped dimension as a zero: that would punish a codebase for not needing a PWA reviewer, or for a maintainer choosing not to install one. Record which dimensions were skipped and why so a reader can tell the overall score is a mean over a subset, not over all five.
+
+## Step 7: Write Report
+
+Create the `.frontend-review/` directory and write `report.md`.
+
+**Output file:** `.frontend-review/report.md`
+
+```markdown
+# Frontend Review: [date]
+
+Mode: [diff / full] scope. [N] files reviewed.
+
+## Dimension Status
+
+| Dimension | Status | Note |
+|---|---|---|
+| Design and UX | Run | impeccable + ui-ux-pro-max + frontend-design |
+| React performance | Run / Skipped: not matched | [reason] |
+| TypeScript type safety | Run / Skipped: not matched | [reason] |
+| PWA architecture | Run / Skipped: not matched | [reason] |
+| Platform compliance | Run / Skipped: not matched | [reason] |
+
+## Scores
+
+| Dimension | Score |
+|---|---|
+| Design and UX | X/10 |
+| React performance | X/10 or "not run" |
+| TypeScript type safety | X/10 or "not run" |
+| PWA architecture | X/10 or "not run" |
+| Platform compliance | X/10 or "not run" |
+| **Overall (weighted mean over dimensions that ran)** | **X/10** |
+
+Critical: X | High: X | Medium: X | Low: X
+
+---
+
+## Critical & High Issues
+
+### Design and UX
+
+#### `Card.tsx`: [issue title]
+- **Severity**: Critical
+- **Category**: Typography (impeccable)
+- **Issue**: [description]
+- **Fix**: [fix instruction]
+- [ ] Fixed
+
+[repeat per dimension that produced Critical or High findings]
+
+---
+
+## Medium & Low Issues
+
+[same format as above]
+
+---
+
+## What's Working Well
+
+- [positive observation]
+- [another positive]
+
+---
+
+## Action Plan
+
+1. [ ] [top priority fix, drawn from Critical findings]
+2. [ ] [second priority]
+3. [ ] [third priority]
+4. [ ] [fourth priority]
+5. [ ] [fifth priority]
+```
+
+**Print a short summary** in the conversation:
+
+```
+Frontend review complete.
+
+Report: .frontend-review/report.md
+
+Overall Score: X/10
+Design and UX: X/10 | React perf: X/10 or skipped | TS safety: X/10 or skipped | PWA: X/10 or skipped | Platform: X/10 or skipped
+
+Critical: X | High: X | Medium: X | Low: X
+
+Dimensions skipped: [list with reasons, or "none"]
+
+Top 3 issues:
+1. [critical issue summary]
+2. [high issue summary]
+3. [high issue summary]
+```
+
+If `--strict-mode` is set and Critical findings exist:
+
+```
+STRICT MODE: X critical frontend issues found. Recommend addressing before shipping.
+```

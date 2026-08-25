@@ -1,0 +1,31 @@
+{
+  "author": {
+    "name": "Alfio"
+  },
+  "category": "business",
+  "description": "Legal advisory, compliance document generation, and SaaS business planning - Privacy Policies, Cookie Policies, DPAs, GDPR/ePrivacy/CCPA compliance, contract review, GTM strategy, market sizing, pricing, and positioning",
+  "keywords": [
+    "legal",
+    "compliance",
+    "contracts",
+    "nda",
+    "terms-of-service",
+    "privacy",
+    "gdpr",
+    "ccpa",
+    "cookie-policy",
+    "dpa",
+    "dpia",
+    "intellectual-property",
+    "risk-management",
+    "saas",
+    "gtm",
+    "business-plan",
+    "pricing",
+    "positioning"
+  ],
+  "license": "MIT",
+  "name": "business",
+  "strict": false,
+  "version": "1.10.2"
+}

@@ -1,0 +1,25 @@
+{
+  "author": {
+    "name": "Alfio"
+  },
+  "category": "review",
+  "description": "Evidence-first dependency auditing: runs each ecosystem's real audit tooling (npm/pnpm/yarn audit, pip-audit, cargo audit, govulncheck, bundler-audit, composer audit, dotnet list package, osv-scanner) for CVEs, outdated packages, license obligations, and supply-chain signals, and reports only tool-verified facts under TOOL-REPORTED/INFERRED/UNKNOWN evidence tiers. Obligations-based license analysis instead of a compatibility matrix; strictly non-destructive remediation (plan and approval before any update, never npm audit fix --force). One command (/deps-audit) plus a knowledge-base skill with per-ecosystem, license, and supply-chain references.",
+  "keywords": [
+    "dependency-audit",
+    "cve-scanning",
+    "vulnerability-scanning",
+    "license-compliance",
+    "license-obligations",
+    "supply-chain-security",
+    "outdated-dependencies",
+    "osv-scanner",
+    "pip-audit",
+    "cargo-audit",
+    "govulncheck",
+    "npm-audit"
+  ],
+  "license": "MIT",
+  "name": "dependency-audit",
+  "strict": false,
+  "version": "1.0.2"
+}

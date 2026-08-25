@@ -1,0 +1,30 @@
+{
+  "author": {
+    "name": "Alfio"
+  },
+  "category": "development",
+  "description": "Expert Python web scraping - coordinator (grabber-architect) plus three specialists: stealth-browser-expert (Patchright/Camoufox/Nodriver + CAPTCHA), http-fingerprint-expert (JA4+/curl_cffi/primp + proxies/Web Unlocker), ai-scraping-expert (Crawl4AI/Firecrawl/ScrapeGraphAI + Pydantic + GraphQL RE)",
+  "keywords": [
+    "scraping",
+    "web-scraping",
+    "crawler",
+    "anti-bot",
+    "stealth",
+    "proxy",
+    "captcha",
+    "extraction",
+    "playwright",
+    "curl-cffi",
+    "ja4",
+    "patchright",
+    "camoufox",
+    "nodriver",
+    "firecrawl",
+    "crawl4ai",
+    "scrapegraphai"
+  ],
+  "license": "MIT",
+  "name": "grabber-development",
+  "strict": false,
+  "version": "1.4.2"
+}

@@ -1,0 +1,23 @@
+{
+  "author": {
+    "name": "Alfio"
+  },
+  "category": "development",
+  "description": "Expert Firefox extension (WebExtension) developer covering Manifest V2/V3, all 51 browser.* APIs, content scripts, background scripts, native messaging, cross-browser compatibility, AMO publishing, web-ext CLI tooling, project scaffolding, and live MDN documentation lookup; includes /firefox-scaffold, /firefox-lint, /firefox-publish commands",
+  "keywords": [
+    "firefox",
+    "webextension",
+    "browser-extension",
+    "addon",
+    "manifest-v3",
+    "content-scripts",
+    "background-scripts",
+    "amo",
+    "javascript",
+    "web-ext"
+  ],
+  "license": "MIT",
+  "name": "browser-extensions",
+  "strict": false,
+  "version": "1.7.5"
+}

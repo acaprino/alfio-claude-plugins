@@ -40,6 +40,11 @@ from pathlib import Path
 MARKETPLACE = Path(".claude-plugin/marketplace.json")
 PLUGINS = Path("plugins")
 
+# Since the Claude bootstrap, `source` points at the generated package under
+# `exports/claude/plugins/<name>` rather than at the authoring kernel. Both are
+# scanned: the source is what a user installs, and the kernel is what an author
+# edits, so a file added to one and not the other is still a registration bug.
+
 failures: list[str] = []
 
 
@@ -59,17 +64,21 @@ def check():
     data = json.loads(MARKETPLACE.read_text(encoding="utf-8"))
     for plugin in data["plugins"]:
         name = plugin["name"]
-        source = Path(plugin["source"])
+        roots = [Path(plugin["source"])]
+        kernel = PLUGINS / name
+        if kernel.is_dir() and kernel not in roots:
+            roots.append(kernel)
         for kind in ("agents", "skills", "commands"):
             declared = set(plugin.get(kind, []))
-            present = on_disk(source, kind)
-            for path in sorted(present - declared):
-                yield "undeclared", name, path
-            for path in sorted(declared):
-                target = source / path[2:]
-                exists = (target / "SKILL.md").is_file() if kind == "skills" else target.is_file()
-                if not exists:
-                    yield "dangling", name, path
+            for root in roots:
+                present = on_disk(root, kind)
+                for path in sorted(present - declared):
+                    yield "undeclared", name, path
+                for path in sorted(declared):
+                    target = root / path[2:]
+                    exists = (target / "SKILL.md").is_file() if kind == "skills" else target.is_file()
+                    if not exists:
+                        yield "dangling", name, path
 
 
 def report(name, problems, hint):
@@ -87,7 +96,7 @@ def main():
     if not MARKETPLACE.is_file() or not PLUGINS.is_dir():
         sys.exit("run from the repository root: .claude-plugin/marketplace.json not found")
 
-    violations = list(check())
+    violations = sorted(set(check()))
     data = json.loads(MARKETPLACE.read_text(encoding="utf-8"))
     counted = sum(len(p.get(k, [])) for p in data["plugins"]
                   for k in ("agents", "skills", "commands"))

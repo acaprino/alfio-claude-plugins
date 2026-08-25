@@ -1,0 +1,23 @@
+{
+  "author": {
+    "name": "Alfio"
+  },
+  "category": "productivity",
+  "description": "Learning and knowledge management - mind map generation from any content, Obsidian MarkMind export, and interactive force-graph HTML visualization",
+  "keywords": [
+    "learning",
+    "mind-map",
+    "mindmap",
+    "markmind",
+    "obsidian",
+    "knowledge",
+    "study",
+    "visual",
+    "force-graph",
+    "interactive"
+  ],
+  "license": "MIT",
+  "name": "learning",
+  "strict": false,
+  "version": "1.6.4"
+}

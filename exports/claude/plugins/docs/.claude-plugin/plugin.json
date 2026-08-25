@@ -1,0 +1,22 @@
+{
+  "author": {
+    "name": "Alfio"
+  },
+  "category": "documentation",
+  "description": "README and project documentation authoring - craft magnetic, top-tier README.md files with progressive disclosure, hero sections, badges, quick start, feature tables, Mermaid diagrams, and community sections",
+  "keywords": [
+    "readme",
+    "documentation",
+    "open-source",
+    "badges",
+    "shields",
+    "quick-start",
+    "progressive-disclosure",
+    "audit",
+    "maintenance"
+  ],
+  "license": "MIT",
+  "name": "docs",
+  "strict": false,
+  "version": "1.1.4"
+}

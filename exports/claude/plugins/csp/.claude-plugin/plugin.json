@@ -1,0 +1,22 @@
+{
+  "author": {
+    "name": "Alfio"
+  },
+  "category": "optimization",
+  "description": "Constraint Satisfaction Problems and combinatorial optimization with Google OR-Tools CP-SAT solver",
+  "keywords": [
+    "constraint-programming",
+    "optimization",
+    "or-tools",
+    "cp-sat",
+    "scheduling",
+    "routing",
+    "csp",
+    "solver",
+    "combinatorial-optimization"
+  ],
+  "license": "MIT",
+  "name": "csp",
+  "strict": false,
+  "version": "1.3.4"
+}

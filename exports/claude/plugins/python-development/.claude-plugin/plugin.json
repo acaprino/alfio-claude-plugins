@@ -1,0 +1,22 @@
+{
+  "author": {
+    "name": "Alfio"
+  },
+  "category": "development",
+  "description": "Python development toolkit - TDD with pytest, code refactoring with complexity metrics, performance profiling, async patterns, uv package management, dead code detection, comment auditing, project scaffolding, deep Pydantic v2.13 guide (validators/serializers/strict/performance/security/PydanticAI+Logfire) with v1 migration, and /python-audit consolidated quality report",
+  "keywords": [
+    "python",
+    "testing",
+    "packaging",
+    "async",
+    "dead-code",
+    "vulture",
+    "pytest",
+    "uv",
+    "refactoring"
+  ],
+  "license": "MIT",
+  "name": "python-development",
+  "strict": false,
+  "version": "1.21.8"
+}

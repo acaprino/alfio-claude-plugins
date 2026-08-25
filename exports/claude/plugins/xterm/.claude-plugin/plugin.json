@@ -1,0 +1,19 @@
+{
+  "author": {
+    "name": "Alfio"
+  },
+  "category": "frontend",
+  "description": "xterm.js terminal emulator development - building, configuring, and integrating xterm.js in web and Electron apps with addon support and PTY wiring",
+  "keywords": [
+    "xterm",
+    "terminal",
+    "xtermjs",
+    "web-terminal",
+    "pty",
+    "addons"
+  ],
+  "license": "MIT",
+  "name": "xterm",
+  "strict": false,
+  "version": "1.1.2"
+}

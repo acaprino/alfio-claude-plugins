@@ -1,0 +1,149 @@
+---
+description: >
+  Report correctness, performance, and lifecycle defects.
+  TRIGGER WHEN: the user asks to review, audit, or validate a libGDX game: rendering pipeline,
+  asset disposal, Screen lifecycle, GL thread blocking, multi-platform config, version migration.
+  DO NOT TRIGGER WHEN: building a new game from scratch (use libgdx-architect).
+argument-hint: "[path-or-description]"
+---
+
+# libGDX Project Audit
+
+Analyze an existing libGDX project and produce an actionable audit report.
+
+## Instructions
+
+1. **Identify libGDX components** in the codebase:
+   - Project layout (multi-module Gradle structure)
+   - libGDX version in `build.gradle` (target 1.14.0 baseline)
+   - Generator used (gdx-liftoff vs legacy gdx-setup, detect via project shape)
+   - Language (Java vs Kotlin), and HTML5 target compatibility
+   - Application root (Game vs ApplicationListener)
+   - Screen architecture
+   - Asset loading strategy (AssetManager vs direct construction)
+   - Rendering pipeline (SpriteBatch, ShapeRenderer, ModelBatch usage)
+   - Scene2D / Ashley / Box2D presence
+   - Platform launchers (lwjgl3, android, ios, html modules)
+
+2. **Audit each component** against best practices:
+
+### Project Setup
+- [ ] libGDX version is 1.14.0 or later (or pinned with documented reason for older version)
+- [ ] Build JDK is 17 or 21
+- [ ] Gradle wrapper is current (8.x or 9.x)
+- [ ] Multi-module structure: core + at least one platform module
+- [ ] Kotlin used only if no HTML5 (GWT) target, OR HTML5 uses TeaVM
+- [ ] iOS source level pinned to Java 8 if iOS module exists
+- [ ] gdx-liftoff used for project generation (or legacy project explicitly migrated)
+- [ ] Migration to libGDX 1.14.0 `PoolManager` if `Pools` API still used
+- [ ] `JsonValue#get` calls audited for case sensitivity (1.14.0 breaking change)
+
+### Application Root
+- [ ] Game class extends `Game`, not raw `ApplicationListener` (unless intentional)
+- [ ] `create()` initializes batch/AssetManager once
+- [ ] `dispose()` cleans up all root-level OpenGL resources
+- [ ] No `new MyGame()` inside `create()` (the launcher owns the Game instance)
+
+### Screen Lifecycle
+- [ ] Each major game state implemented as a separate Screen
+- [ ] `Gdx.input.setInputProcessor(...)` set in `show()`, NOT in constructor
+- [ ] `Gdx.input.setInputProcessor(null)` in `hide()` to avoid stale handlers
+- [ ] `viewport.update(width, height, true)` called in `resize()`
+- [ ] Screen instances reused or properly disposed on permanent transition
+- [ ] No constructing new Screens on every transition (avoid asset re-allocation)
+
+### Asset Management
+- [ ] AssetManager used as central loader (not `new Texture("path")` everywhere)
+- [ ] AssetManager held as instance field (NOT static)
+- [ ] `assets.update()` called every frame during loading
+- [ ] On dedicated loading screens, `update()` pumped multiple times per frame
+- [ ] All Textures, Sounds, Music loaded via AssetManager
+- [ ] Sprites packed into TextureAtlas via TexturePacker (no loose Textures)
+- [ ] Atlases are power-of-two (typically 2048x2048)
+- [ ] No `finishLoadingAsset()` in blocking mode combined with `AbsoluteFileHandleResolver`
+
+### Disposal Discipline
+- [ ] Every Texture, Sound, Music, Skin, BitmapFont, ShaderProgram, FrameBuffer, ParticleEffect, Stage, SpriteBatch has a `.dispose()` call
+- [ ] Resources loaded via AssetManager are NOT disposed directly; only via `assets.unload(...)` or `assets.dispose()`
+- [ ] No static fields holding OpenGL resources (forbidden on Android)
+- [ ] Screen.dispose() releases everything owned by the screen
+- [ ] Game.dispose() releases batch, AssetManager, top-level Skin
+
+### Rendering Pipeline
+- [ ] SpriteBatch.begin()/end() always paired
+- [ ] No ShapeRenderer use inside SpriteBatch begin/end (or vice versa)
+- [ ] `batch.setProjectionMatrix(camera.combined)` called per frame
+- [ ] Draw calls ordered by texture, not by entity
+- [ ] Viewport configured for resize handling (FitViewport / ExtendViewport typical)
+- [ ] GLProfiler used or available for performance debugging
+- [ ] No per-frame Texture/FrameBuffer/Pixmap allocation
+
+### Performance
+- [ ] No IO, network, or heavy computation on render thread
+- [ ] Worker threads use `Gdx.app.postRunnable(...)` to push back to GL thread
+- [ ] `Group.isTransform = false` set on Scene2D Groups without rotation/scale
+- [ ] `ComponentMapper.getFor(...)` cached as `private final` field (Ashley)
+- [ ] Ashley components with collections implement `Poolable` and clear in `reset()`
+- [ ] Box2D simulation uses fixed timestep (not delta-time stepping)
+- [ ] No per-frame allocation of Vector2/Color/Matrix (pool or reuse)
+
+### Scene2D Architecture
+- [ ] Stage held by Screen, disposed in Screen.dispose()
+- [ ] Skin loaded via AssetManager (not direct construction per Screen)
+- [ ] Table layouts used instead of manual positioning where possible
+- [ ] InputMultiplexer used when Stage + custom input handlers coexist
+- [ ] `stage.act(delta); stage.draw();` called each frame in proper order
+
+### Ashley ECS (if used)
+- [ ] Engine.update(delta) called once per frame
+- [ ] Systems registered with appropriate priorities
+- [ ] No component reflection in hot paths
+- [ ] Family definitions cached in System constructors
+- [ ] Entity pool used for high-churn entities (bullets, particles, enemies)
+
+### Box2D (if used)
+- [ ] Fixed timestep (typically 1/60s) with accumulator pattern
+- [ ] `world.step(...)` called with reasonable iteration counts (6 velocity, 2 position)
+- [ ] PPM conversion constant defined and used consistently
+- [ ] ContactListener does NOT modify world inside callbacks (queue changes)
+- [ ] Box2DDebugRenderer disabled in release builds
+- [ ] Bodies disposed when entities are removed
+
+### Platform-Specific
+- [ ] Android: `targetSdk` at 34+ for Play Store
+- [ ] Android: AAB build for store submission
+- [ ] Android: No static OpenGL resource references (lifecycle safety)
+- [ ] Android: Immersive mode considered for fullscreen gameplay
+- [ ] iOS: Java 8 language level enforced in core
+- [ ] iOS: Reflection-loaded classes listed in `robovm.xml` `<forceLinkClasses>`
+- [ ] HTML5/GWT: No Kotlin code in compilation path
+- [ ] HTML5: Reflection use audited; classes added to `GdxDefinition.gwt.xml`
+- [ ] Desktop: Window icon, title, FPS limit set in `Lwjgl3ApplicationConfiguration`
+- [ ] Desktop: jpackage or PackR considered for end-user distribution
+
+### Error Handling
+- [ ] FileHandle reads checked for existence before parsing
+- [ ] JSON load failures handled (corrupt save, missing file)
+- [ ] Asset load failures handled (network drop on HTML5, missing file)
+- [ ] Box2D edge cases (NaN positions) guarded
+
+### Logging and Diagnostics
+- [ ] `Gdx.app.log` / `Gdx.app.error` used (cross-platform)
+- [ ] `Gdx.app.setLogLevel(Application.LOG_DEBUG)` configurable per build
+- [ ] GLProfiler available for performance debugging
+- [ ] Frame-time logging for slow frames
+
+### Production Hardening
+- [ ] Game saves use Preferences for small data, Json for larger files
+- [ ] Save format versioned; migration path defined
+- [ ] Crash reporting integrated where appropriate (Firebase Crashlytics on Android, Sentry, etc.)
+- [ ] Analytics opt-in respected (GDPR/CCPA where applicable)
+- [ ] Settings (volume, controls, resolution) persisted via Preferences
+
+3. **Generate report** with:
+   - Current state assessment (what is implemented correctly)
+   - Risk areas (missing or misconfigured components)
+   - Priority improvements ordered by user-impact (frame rate / crashes / leaks first)
+   - Code examples for each recommendation
+   - Migration notes if pre-1.14.0
+   - Platform-specific notes for each active target

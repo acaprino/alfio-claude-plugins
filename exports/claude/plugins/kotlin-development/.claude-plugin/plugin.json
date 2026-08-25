@@ -1,0 +1,33 @@
+{
+  "author": {
+    "name": "Jeffallan (upstream), Alfio (vendor)"
+  },
+  "category": "development",
+  "description": "Idiomatic Kotlin development toolkit - kotlin-specialist skill covering coroutines and structured concurrency, Flow / StateFlow / SharedFlow, Kotlin Multiplatform (KMP) with expect/actual, Jetpack Compose on Android, Ktor server (routing, JWT auth, Exposed, WebSockets), and type-safe DSL idioms (lambdas with receivers, delegated properties, inline reified, value classes). Vendored from Jeffallan/claude-skills (MIT).",
+  "keywords": [
+    "kotlin",
+    "coroutines",
+    "flow",
+    "stateflow",
+    "sharedflow",
+    "kotlin-multiplatform",
+    "kmp",
+    "jetpack-compose",
+    "compose",
+    "ktor",
+    "android-kotlin",
+    "suspend",
+    "structured-concurrency",
+    "sealed-class",
+    "dsl",
+    "delegated-properties",
+    "value-class",
+    "detekt",
+    "ktlint",
+    "gradle-kotlin-dsl"
+  ],
+  "license": "MIT",
+  "name": "kotlin-development",
+  "strict": false,
+  "version": "1.0.3"
+}

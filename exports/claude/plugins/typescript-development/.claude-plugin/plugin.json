@@ -1,0 +1,28 @@
+{
+  "author": {
+    "name": "Alfio"
+  },
+  "category": "development",
+  "description": "TypeScript and JavaScript development toolkit - hands-on typescript-engineer agent (architecture + implementation), dead-code detection via Knip, coding standards enforcement, and enterprise-grade TypeScript mastery (type system, generics, React/NestJS integration, Zod validation, modern toolchain), and a type-safety review layer: adversarial type-safety-auditor agent, 20-rule type-safety-rules skill, and /review-typescript command with tsc/ESLint ground truth",
+  "keywords": [
+    "typescript",
+    "javascript",
+    "coding-standards",
+    "frontend",
+    "knip",
+    "dead-code",
+    "unused-exports",
+    "generics",
+    "type-safety",
+    "zod",
+    "nestjs",
+    "vite",
+    "vitest",
+    "pnpm",
+    "eslint"
+  ],
+  "license": "MIT",
+  "name": "typescript-development",
+  "strict": false,
+  "version": "2.2.2"
+}

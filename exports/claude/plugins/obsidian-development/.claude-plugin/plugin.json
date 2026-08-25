@@ -1,0 +1,20 @@
+{
+  "author": {
+    "name": "Alfio"
+  },
+  "category": "development",
+  "description": "Obsidian community plugin development with automated review compliance (community.obsidian.md), project scaffolding, and pre-submission checks",
+  "keywords": [
+    "obsidian",
+    "plugin-development",
+    "typescript",
+    "automated-review",
+    "scaffold",
+    "lint",
+    "community-plugin"
+  ],
+  "license": "MIT",
+  "name": "obsidian-development",
+  "strict": false,
+  "version": "1.4.2"
+}

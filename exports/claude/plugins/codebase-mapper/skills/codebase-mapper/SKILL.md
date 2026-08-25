@@ -1,0 +1,96 @@
+---
+name: codebase-mapper
+description: >
+  Writing guidelines, tone rules, and diagram conventions for this plugin's project guides.
+  TRIGGER WHEN: referenced by codebase-mapper pipeline agents (codebase-explorer, overview-writer, tech-writer, flow-writer, onboarding-writer, ops-writer, config-writer, guide-reviewer) during document generation.
+  DO NOT TRIGGER WHEN: outside the /map-codebase pipeline (general documentation work should use docs:readme-craft or codebase-mapper:docs-create).
+---
+
+# Codebase Mapper Knowledge Base
+
+## Purpose
+
+Generate a human-readable project guide for unfamiliar codebases. Output is narrative, didactic material - not technical dumps or AI-oriented analysis. Target audience: a smart colleague on their first day.
+
+## Output Structure
+
+All output goes to `.codebase-map/` in the project root:
+
+```
+.codebase-map/
+  INDEX.md                    # Entry point with navigable summary
+  00-executive-summary.md     # Plain-language summary for anyone (non-technical)
+  01-overview.md              # What is this project, who is it for
+  02-features.md              # Functional capabilities
+  03-tech-stack.md            # Technologies and dependencies
+  04-architecture.md          # How code is organized, layers, components
+  05-workflows.md             # Main user/system flows with diagrams
+  06-data-model.md            # Data structures, entities, relationships
+  07-getting-started.md       # Where to start working, key files, dev setup
+  08-open-questions.md        # Gaps, unknowns, things to ask the team
+  09-project-anatomy.md       # Config files, env vars, scripts, directory tree
+  10-configuration-guide.md   # Configuration recipes, operations, troubleshooting
+  11-glossary.md              # Domain and technical glossary (plain definitions)
+  _internal/
+    context-brief.md          # Phase 1 exploration output (internal reference)
+    interconnect.md           # Phase 1b structured map: contracts, invariants, domain rules (optional)
+```
+
+## Core Principles
+
+### Tone
+- Narrative, conversational, didactic
+- Write for the audience in the Project Profile (see references/audience-adaptation.md); default to a smart colleague on their first day when no profile exists
+- Progressive disclosure: big picture first, then details
+- Honest about gaps - never fabricate or speculate
+
+### Content Rules
+- Every technical term gets a brief inline explanation on first use
+- File paths always included - reference actual code paths for every claim
+- Diagrams inline - Mermaid blocks embedded in documents, not separate files
+- No AI boilerplate: no "In this document we will...", no "Let's dive in", no trailing summaries
+
+### Diagram Standards
+- Use Mermaid syntax exclusively
+- Keep diagrams focused - max 15-20 nodes per diagram
+- Split complex systems into multiple smaller diagrams
+- Use descriptive node labels, not abbreviations
+- Supported types: mindmap, flowchart, sequence, erDiagram, block-beta
+
+## Agent Coordination
+
+### Phase 1 - Explore
+Single `codebase-explorer` agent reads the project and writes `_internal/context-brief.md`, which leads with a `## Project Profile` (type, audience, register) and a `## Why / Context` dossier.
+
+### Phase 1.5 - Confirm Profile
+The `map-codebase` command surfaces the inferred Project Profile and lets the user confirm or adjust it before the writers run. The confirmed profile drives register and depth across all documents.
+
+### Phase 1b - Interconnect Map
+Single `codebase-xray:semantic-interconnect-mapper` agent reads the context brief and writes `_internal/interconnect.md` (contracts, invariants, domain rules, integration hot-spots). Optional: if it fails, the pipeline continues in degraded mode. The `tech-writer`, `flow-writer`, `ops-writer`, and `guide-reviewer` cite this map instead of paraphrasing code.
+
+### Phase 2 - Write
+Six parallel writer agents, each reading context-brief.md:
+- `overview-writer` - 00-executive-summary.md (plain-language), 01-overview.md, 02-features.md (mindmap)
+- `tech-writer` - 03-tech-stack.md, 04-architecture.md (component diagram)
+- `flow-writer` - 05-workflows.md, 06-data-model.md (flowcharts, sequence, ER)
+- `onboarding-writer` - 07-getting-started.md, 08-open-questions.md
+- `ops-writer` - 09-project-anatomy.md (config files, env vars, scripts, directory tree)
+- `config-writer` - 10-configuration-guide.md (config recipes, operations, troubleshooting)
+
+### Phase 3 - Review
+Single `guide-reviewer` agent reads all documents, adds cross-references, fixes consistency, checks register consistency against the Project Profile, writes `11-glossary.md`, and produces INDEX.md with per-audience reading paths.
+
+## References
+
+Read on demand, not upfront:
+- `references/writing-guidelines.md` - voice, tone, structure, audience as a parameter
+- `references/audience-adaptation.md` - Project Profile schema, register matrix, archetypes, the "for everyone" rule
+- `references/diagram-patterns.md` - Mermaid templates for each document
+
+## Standalone Documentation
+
+Beyond the pipeline, the plugin provides standalone documentation agents:
+- `documentation-engineer` - Bottom-up technical documentation from code analysis (API docs, architecture, tutorials, refactoring)
+- `doc-humanizer` - Rewrites existing documentation to follow the writing guidelines
+
+Both agents use the same writing guidelines and diagram patterns as the pipeline writers.

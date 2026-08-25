@@ -1,0 +1,21 @@
+{
+  "author": {
+    "name": "Alfio"
+  },
+  "category": "development",
+  "description": "Docker best practices - optimized multi-stage Dockerfiles, layer caching, security hardening, and minimal base image selection for any language or framework (Node, Python, Go, Rust, Java, Bun, Deno)",
+  "keywords": [
+    "docker",
+    "dockerfile",
+    "multi-stage",
+    "containers",
+    "optimization",
+    "security",
+    "distroless",
+    "alpine"
+  ],
+  "license": "MIT",
+  "name": "docker",
+  "strict": false,
+  "version": "1.3.2"
+}

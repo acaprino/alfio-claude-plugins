@@ -7,7 +7,8 @@ Stdlib only, runs from the repository root:
 head-rev defaults to HEAD. Enforces steps 1 and 2 of the marketplace update
 workflow in CLAUDE.md: when a commit range touches files under
 plugins/<name>/, that plugin's version in .claude-plugin/marketplace.json must
-change across the range, and so must metadata.version. Exits non-zero on
+change across the range, and so must metadata.version. Generated packages under
+exports/<host>/plugins/<name>/ do not count: they are compiler output. Exits non-zero on
 violations.
 
 Cases handled per changed plugin directory:
@@ -54,12 +55,47 @@ def versions_of(manifest):
     return {p["name"]: p.get("version") for p in manifest.get("plugins", [])}
 
 
-def dir_exists_at(rev, name):
-    result = subprocess.run(
-        ["git", "ls-tree", "-d", rev, f"plugins/{name}"],
-        capture_output=True, text=True, encoding="utf-8",
-    )
-    return result.returncode == 0 and result.stdout.strip() != ""
+def sources_of(manifest):
+    """Repository-relative package roots, keyed by plugin name.
+
+    Since the Claude bootstrap a plugin's installable package lives under
+    `exports/<host>/plugins/<name>` and `source` points there, so the package
+    root can no longer be assumed to be `plugins/<name>`.
+    """
+    sources = {}
+    for plugin in manifest.get("plugins", []):
+        source = plugin.get("source")
+        if isinstance(source, dict):
+            source = source.get("path")
+        if isinstance(source, str):
+            sources[plugin["name"]] = source.lstrip("./")
+    return sources
+
+
+def dir_exists_at(rev, name, manifest=None):
+    candidates = [f"plugins/{name}"]
+    if manifest is not None:
+        source = sources_of(manifest).get(name)
+        if source:
+            candidates.insert(0, source)
+    for candidate in candidates:
+        result = subprocess.run(
+            ["git", "ls-tree", "-d", rev, candidate],
+            capture_output=True, text=True, encoding="utf-8",
+        )
+        if result.returncode == 0 and result.stdout.strip() != "":
+            return True
+    return False
+
+
+def plugin_name_of(path):
+    """Map a changed path to the plugin it belongs to, kernel or generated package."""
+    parts = path.split("/")
+    if len(parts) >= 2 and parts[0] == "plugins":
+        return parts[1]
+    if len(parts) >= 4 and parts[0] == "exports" and parts[2] == "plugins":
+        return parts[3]
+    return None
 
 
 def main():
@@ -68,12 +104,16 @@ def main():
     base = sys.argv[1]
     head = sys.argv[2] if len(sys.argv) > 2 else "HEAD"
 
+    # Only kernel changes count. `exports/<host>/plugins/<name>` is generated
+    # output: it moves whenever the compiler runs, including for a pure
+    # distribution move that changes no plugin behaviour and therefore owes no
+    # version bump.
     changed = git("diff", "--name-only", base, head, "--", "plugins/").splitlines()
     plugins_touched = defaultdict(list)
     for path in changed:
-        parts = path.split("/")
-        if len(parts) >= 2 and parts[0] == "plugins":
-            plugins_touched[parts[1]].append(path)
+        name = plugin_name_of(path)
+        if name is not None:
+            plugins_touched[name].append(path)
 
     if not plugins_touched:
         print(f"no plugin changes in {base}..{head}")
@@ -91,7 +131,7 @@ def main():
                 problems.append(
                     f"plugins/{name}: {n_files} file(s) changed but version stayed "
                     f"at {head_versions[name]}; bump it in {MANIFEST}")
-        elif dir_exists_at(head, name):
+        elif dir_exists_at(head, name, head_manifest):
             problems.append(
                 f"plugins/{name}: {n_files} file(s) changed but the plugin is not "
                 f"registered in {MANIFEST}")

@@ -1,0 +1,22 @@
+{
+  "author": {
+    "name": "Alfio"
+  },
+  "category": "utilities",
+  "description": "Generic Claude Code plugin marketplace manager - auditing, validation, AI quality review, upstream sync, plugin scaffolding, and health monitoring. Works against any project with the standard .claude-plugin/marketplace.json + plugins/<name>/ layout; reads project-specific conventions (author, license, category taxonomy, upstream sources) from the target marketplace.json and CLAUDE.md",
+  "keywords": [
+    "marketplace",
+    "audit",
+    "validation",
+    "sync",
+    "scaffold",
+    "plugin-management",
+    "consolidation",
+    "create",
+    "create"
+  ],
+  "license": "MIT",
+  "name": "marketplace-ops",
+  "strict": false,
+  "version": "2.2.0"
+}

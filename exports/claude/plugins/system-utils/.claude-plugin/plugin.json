@@ -1,0 +1,19 @@
+{
+  "author": {
+    "name": "ComposioHQ"
+  },
+  "category": "utilities",
+  "description": "File organization and cleanup utilities - sort messy folders, find duplicates, and restructure directory hierarchies",
+  "keywords": [
+    "files",
+    "organization",
+    "cleanup",
+    "duplicates",
+    "folders",
+    "downloads"
+  ],
+  "license": "MIT",
+  "name": "system-utils",
+  "strict": false,
+  "version": "2.0.2"
+}

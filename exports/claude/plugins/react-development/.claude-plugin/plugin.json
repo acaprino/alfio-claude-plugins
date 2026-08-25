@@ -1,0 +1,21 @@
+{
+  "author": {
+    "name": "Alfio"
+  },
+  "category": "frontend",
+  "description": "React performance optimization, React 19 API adoption, state management audit, bundle analysis, re-render detection, and Vercel best practices checklist",
+  "keywords": [
+    "react",
+    "performance",
+    "optimization",
+    "state-management",
+    "bundle",
+    "re-renders",
+    "react-compiler",
+    "react-19"
+  ],
+  "license": "MIT",
+  "name": "react-development",
+  "strict": false,
+  "version": "1.10.1"
+}

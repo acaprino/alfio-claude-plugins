@@ -1,0 +1,29 @@
+{
+  "author": {
+    "name": "Alfio"
+  },
+  "category": "review",
+  "description": "Multi-language systematic codebase X-ray analysis (Python, Java, JavaScript, TypeScript, SQL, PL/SQL, Rust) - analyzes architecture, traces data flows, detects anti-patterns, and generates structured documentation for onboarding, architecture review, or code documentation. Root of the review and documentation dependency graph: it also owns the semantic interconnect mapper (contracts / invariants / domain rules / assumptions) that team-review and codebase-mapper both consume. Concurrent-safe: every analysis is an isolated run under .deep-dive/runs/ published to a stable root mirror. The Next Steps menu wires the output into downstream documentation generators (CLAUDE.md, codebase map, interface docs) as a technical-reference backbone. Renamed from deep-dive-analysis in 2.0.0.",
+  "keywords": [
+    "analysis",
+    "codebase",
+    "documentation",
+    "semantic",
+    "deep-dive",
+    "architecture",
+    "onboarding",
+    "anti-patterns",
+    "java",
+    "javascript",
+    "typescript",
+    "sql",
+    "plsql",
+    "rust",
+    "tree-sitter",
+    "multi-language"
+  ],
+  "license": "MIT",
+  "name": "codebase-xray",
+  "strict": false,
+  "version": "2.2.1"
+}

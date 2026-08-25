@@ -1,0 +1,23 @@
+{
+  "author": {
+    "name": "Alfio"
+  },
+  "category": "analysis",
+  "description": "Comprehensive app analysis for Android (ADB) and web (Playwright MCP) - navigation mapping, competitive analysis, design system extraction, UX flow analysis, and business model intelligence",
+  "keywords": [
+    "app",
+    "analysis",
+    "competitive",
+    "ux",
+    "design-system",
+    "navigation",
+    "android",
+    "adb",
+    "playwright",
+    "webapp"
+  ],
+  "license": "MIT",
+  "name": "app-analyzer",
+  "strict": false,
+  "version": "1.1.2"
+}

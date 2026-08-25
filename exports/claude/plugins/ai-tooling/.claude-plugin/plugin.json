@@ -1,0 +1,22 @@
+{
+  "author": {
+    "name": "Alfio"
+  },
+  "category": "ai-ml",
+  "description": "AI development workflow - prompt engineering and optimization, and Claude Agent SDK integration guide",
+  "keywords": [
+    "prompt-engineering",
+    "llm",
+    "ai",
+    "optimization",
+    "skill-activation",
+    "agent-sdk",
+    "claude-code-sdk",
+    "subagents",
+    "mcp"
+  ],
+  "license": "MIT",
+  "name": "ai-tooling",
+  "strict": false,
+  "version": "5.0.2"
+}

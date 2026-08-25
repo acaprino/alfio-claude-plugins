@@ -1,0 +1,28 @@
+{
+  "author": {
+    "name": "Alfio"
+  },
+  "category": "development",
+  "description": "OpenTelemetry Python instrumentation - distributed tracing, async context propagation, custom transport propagators, OTLP exporters, AWS ADOT/X-Ray, and production observability; includes /otel-audit command",
+  "keywords": [
+    "opentelemetry",
+    "otel",
+    "tracing",
+    "distributed-tracing",
+    "observability",
+    "instrumentation",
+    "spans",
+    "context-propagation",
+    "otlp",
+    "aws-xray",
+    "adot",
+    "celery",
+    "fastapi",
+    "asyncio",
+    "metrics"
+  ],
+  "license": "MIT",
+  "name": "opentelemetry",
+  "strict": false,
+  "version": "1.3.5"
+}

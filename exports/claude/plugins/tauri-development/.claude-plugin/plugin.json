@@ -1,0 +1,18 @@
+{
+  "author": {
+    "name": "Alfio"
+  },
+  "category": "development",
+  "description": "Tauri 2 desktop and mobile development - IPC optimization, Rust backend patterns, cross-platform builds, and React integration for high-performance apps",
+  "keywords": [
+    "tauri",
+    "rust",
+    "mobile",
+    "cross-platform",
+    "desktop"
+  ],
+  "license": "MIT",
+  "name": "tauri-development",
+  "strict": false,
+  "version": "2.7.5"
+}

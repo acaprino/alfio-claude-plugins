@@ -1,0 +1,25 @@
+{
+  "author": {
+    "name": "Alfio"
+  },
+  "category": "review",
+  "description": "Full frontend review in one pass, combining a design/UX dimension driven by the impeccable, ui-ux-pro-max, and frontend-design upstream skills as hard prerequisites with stop-and-install, with auto-detected code dimensions (React performance, TypeScript type safety, PWA architecture, platform compliance) spawned from local plugins declared as hard dependencies, so a dimension is skipped only when its signal does not match. Findings consolidate into a unified scored report at .frontend-review/report.md. Pure orchestration; vendors nothing.",
+  "keywords": [
+    "frontend",
+    "review",
+    "design-review",
+    "ui",
+    "ux",
+    "design-system",
+    "typography",
+    "accessibility",
+    "react",
+    "typescript",
+    "pwa",
+    "core-web-vitals"
+  ],
+  "license": "MIT",
+  "name": "frontend-review",
+  "strict": false,
+  "version": "2.0.0"
+}
