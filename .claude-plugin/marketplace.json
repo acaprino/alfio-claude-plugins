@@ -1223,10 +1223,10 @@
         "playwright-skill@playwright-skill"
       ],
       "agents": [
+        "./agents/ai-scraping-expert.md",
         "./agents/grabber-architect.md",
-        "./agents/stealth-browser-expert.md",
         "./agents/http-fingerprint-expert.md",
-        "./agents/ai-scraping-expert.md"
+        "./agents/stealth-browser-expert.md"
       ],
       "skills": [
         "./skills/grabber-development"

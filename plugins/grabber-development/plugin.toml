@@ -1,0 +1,18 @@
+schema = "daodan/v1"
+name = "grabber-development"
+version = "1.4.2"
+description = "Expert Python web scraping - coordinator (grabber-architect) plus three specialists: stealth-browser-expert (Patchright/Camoufox/Nodriver + CAPTCHA), http-fingerprint-expert (JA4+/curl_cffi/primp + proxies/Web Unlocker), ai-scraping-expert (Crawl4AI/Firecrawl/ScrapeGraphAI + Pydantic + GraphQL RE)"
+license = "MIT"
+
+[capabilities]
+required = ["repository.read", "shell.execute", "repository.write", "network.fetch", "contexts.isolate", "roles.dispatch"]
+optional = ["execution.parallel"]
+
+[dependencies]
+required = ["playwright-skill@playwright-skill"]
+
+[components]
+skills = ["grabber-development"]
+roles = ["ai-scraping-expert", "grabber-architect", "http-fingerprint-expert", "stealth-browser-expert"]
+workflows = []
+policies = []
