@@ -29,6 +29,16 @@
       "version": "5.0.2"
     },
     {
+      "dependencies": [
+        "playwright-skill@playwright-skill"
+      ],
+      "description": "Comprehensive app analysis for Android (ADB) and web (Playwright MCP) - navigation mapping, competitive analysis, design system extraction, UX flow analysis, and business model intelligence",
+      "license": "MIT",
+      "name": "app-analyzer",
+      "source": "./exports/copilot/plugins/app-analyzer",
+      "version": "1.1.2"
+    },
+    {
       "dependencies": [],
       "description": "Expert Firefox extension (WebExtension) developer covering Manifest V2/V3, all 51 browser.* APIs, content scripts, background scripts, native messaging, cross-browser compatibility, AMO publishing, web-ext CLI tooling, project scaffolding, and live MDN documentation lookup; includes /firefox-scaffold, /firefox-lint, /firefox-publish commands",
       "license": "MIT",
