@@ -1,0 +1,13 @@
+name = "docs-create"
+entrypoint = "docs-create.md"
+
+[[phases]]
+id = "run"
+isolation = "shared"
+produces = ["artifact:docs-create-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["docs-create-completed"]
+artifacts = ["docs-create-report"]
+schemas = []

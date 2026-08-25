@@ -1,0 +1,13 @@
+name = "humanize-docs"
+entrypoint = "humanize-docs.md"
+
+[[phases]]
+id = "run"
+isolation = "shared"
+produces = ["artifact:humanize-docs-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["humanize-docs-completed"]
+artifacts = ["humanize-docs-report"]
+schemas = []

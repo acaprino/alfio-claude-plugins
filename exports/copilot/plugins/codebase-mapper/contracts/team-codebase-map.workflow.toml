@@ -1,0 +1,13 @@
+name = "team-codebase-map"
+entrypoint = "team-codebase-map.md"
+
+[[phases]]
+id = "run"
+isolation = "shared"
+produces = ["artifact:team-codebase-map-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["team-codebase-map-completed"]
+artifacts = ["team-codebase-map-report"]
+schemas = []

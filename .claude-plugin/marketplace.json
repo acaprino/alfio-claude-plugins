@@ -828,25 +828,25 @@
       ],
       "agents": [
         "./agents/codebase-explorer.md",
-        "./agents/overview-writer.md",
-        "./agents/tech-writer.md",
+        "./agents/config-writer.md",
+        "./agents/doc-humanizer.md",
+        "./agents/documentation-engineer.md",
         "./agents/flow-writer.md",
+        "./agents/guide-reviewer.md",
         "./agents/onboarding-writer.md",
         "./agents/ops-writer.md",
-        "./agents/config-writer.md",
-        "./agents/guide-reviewer.md",
-        "./agents/documentation-engineer.md",
-        "./agents/doc-humanizer.md"
-      ],
-      "skills": [
-        "./skills/codebase-mapper"
+        "./agents/overview-writer.md",
+        "./agents/tech-writer.md"
       ],
       "commands": [
-        "./commands/map-codebase.md",
         "./commands/docs-create.md",
         "./commands/docs-maintain.md",
         "./commands/humanize-docs.md",
+        "./commands/map-codebase.md",
         "./commands/team-codebase-map.md"
+      ],
+      "skills": [
+        "./skills/codebase-mapper"
       ]
     },
     {

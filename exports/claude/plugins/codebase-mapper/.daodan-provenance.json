@@ -1,0 +1,15 @@
+{
+  "adapterVersion": "1.0.0",
+  "coreDigest": "sha256:219ac857188c9071a44fc53bccbeb6082a90e99980bc8460a2c0ffee13ac07b7",
+  "harnessStrategies": {
+    "docs-create": "native-team",
+    "docs-maintain": "native-team",
+    "humanize-docs": "native-team",
+    "map-codebase": "native-team",
+    "team-codebase-map": "native-team"
+  },
+  "host": "claude",
+  "overrides": [],
+  "plugin": "codebase-mapper",
+  "version": "3.0.0"
+}

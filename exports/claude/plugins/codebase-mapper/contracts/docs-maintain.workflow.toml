@@ -1,0 +1,13 @@
+name = "docs-maintain"
+entrypoint = "docs-maintain.md"
+
+[[phases]]
+id = "run"
+isolation = "shared"
+produces = ["artifact:docs-maintain-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["docs-maintain-completed"]
+artifacts = ["docs-maintain-report"]
+schemas = []

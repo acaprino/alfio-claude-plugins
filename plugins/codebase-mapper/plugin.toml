@@ -1,0 +1,18 @@
+schema = "daodan/v1"
+name = "codebase-mapper"
+version = "3.0.0"
+description = "Human-readable codebase guide generator: explores unfamiliar projects, builds a structured interconnect map (contracts, invariants, domain rules, integration hot-spots) via the codebase-xray semantic-interconnect-mapper, then autonomously profiles the project (type, audience, register) and produces audience-adaptive narrative documents with Mermaid diagrams that cite the map, including a plain-language executive summary and a domain glossary so the guide is comprehensible by everyone. Includes documentation-reality drift detection in the review phase, plus standalone documentation creation, maintenance, and humanization with bottom-up code analysis. Both docs-create and docs-maintain cover 20 documentation dimensions; docs-maintain runs a structured per-dimension drift audit (added/removed/renamed/retyped) instead of generic outdated-text matching."
+license = "MIT"
+
+[capabilities]
+required = ["repository.read", "shell.execute", "repository.write", "network.fetch", "contexts.isolate", "roles.dispatch"]
+optional = ["execution.parallel"]
+
+[dependencies]
+required = ["agent-teams@claude-code-workflows", "codebase-xray", "text-humanizer", "senior-review"]
+
+[components]
+skills = ["codebase-mapper"]
+roles = ["codebase-explorer", "config-writer", "doc-humanizer", "documentation-engineer", "flow-writer", "guide-reviewer", "onboarding-writer", "ops-writer", "overview-writer", "tech-writer"]
+workflows = ["docs-create", "docs-maintain", "humanize-docs", "map-codebase", "team-codebase-map"]
+policies = []

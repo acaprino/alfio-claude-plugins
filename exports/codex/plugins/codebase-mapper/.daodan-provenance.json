@@ -1,0 +1,15 @@
+{
+  "adapterVersion": "1.0.0",
+  "coreDigest": "sha256:219ac857188c9071a44fc53bccbeb6082a90e99980bc8460a2c0ffee13ac07b7",
+  "harnessStrategies": {
+    "docs-create": "parallel-subagents",
+    "docs-maintain": "parallel-subagents",
+    "humanize-docs": "parallel-subagents",
+    "map-codebase": "parallel-subagents",
+    "team-codebase-map": "parallel-subagents"
+  },
+  "host": "codex",
+  "overrides": [],
+  "plugin": "codebase-mapper",
+  "version": "3.0.0"
+}
