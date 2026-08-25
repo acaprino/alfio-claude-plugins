@@ -1,0 +1,21 @@
+name = "clean-code"
+entrypoint = "clean-code.md"
+
+[[phases]]
+id = "scope"
+isolation = "shared"
+produces = ["artifact:scope"]
+
+[[phases]]
+id = "review"
+needs = ["scope"]
+role = "clean-code-agent"
+isolation = "required"
+consumes = ["artifact:scope"]
+produces = ["artifact:clean-code-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["clean-code-completed"]
+artifacts = ["clean-code-report"]
+schemas = []

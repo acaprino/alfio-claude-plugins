@@ -1,0 +1,18 @@
+schema = "daodan/v1"
+name = "clean-code"
+version = "1.2.0"
+description = "Rewrites source code to be more readable and human-friendly without changing behavior - improves naming, removes AI boilerplate, simplifies structure, and adds clarity comments"
+license = "MIT"
+
+[capabilities]
+required = ["repository.read", "shell.execute", "repository.write", "contexts.isolate", "roles.dispatch"]
+optional = []
+
+[dependencies]
+required = []
+
+[components]
+skills = []
+roles = ["clean-code-agent"]
+workflows = ["clean-code"]
+policies = []
