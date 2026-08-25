@@ -124,6 +124,14 @@
     },
     {
       "dependencies": [],
+      "description": "RAG system design, implementation, and optimization - chunking strategies, embedding models (Voyage 4 family, OpenAI v3, Cohere embed-v4, Gemini, BGE-M3, NV-Embed-v2, Nomic MoE, Jina v3), vector databases (Qdrant 1.13-1.16), hybrid search, modern rerankers (Voyage rerank-2.5, Cohere Rerank 3.5, Jina Reranker v3, mxbai-rerank-v2), advanced patterns (HippoRAG, LightRAG, LongRAG, Agentic RAG, CRAG, Self-RAG, GraphRAG), evaluation (RAGAS/DeepEval/TruLens), and production deployment",
+      "license": "MIT",
+      "name": "rag-development",
+      "source": "./exports/copilot/plugins/rag-development",
+      "version": "1.5.5"
+    },
+    {
+      "dependencies": [],
       "description": "React performance optimization, React 19 API adoption, state management audit, bundle analysis, re-render detection, and Vercel best practices checklist",
       "license": "MIT",
       "name": "react-development",

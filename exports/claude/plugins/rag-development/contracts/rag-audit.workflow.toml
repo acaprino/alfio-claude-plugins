@@ -1,0 +1,13 @@
+name = "rag-audit"
+entrypoint = "rag-audit.md"
+
+[[phases]]
+id = "run"
+isolation = "shared"
+produces = ["artifact:rag-audit-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["rag-audit-completed"]
+artifacts = ["rag-audit-report"]
+schemas = []

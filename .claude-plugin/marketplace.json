@@ -873,14 +873,14 @@
       "category": "ai-development",
       "strict": false,
       "agents": [
-        "./agents/rag-architect.md",
-        "./agents/qdrant-expert.md"
-      ],
-      "skills": [
-        "./skills/rag-development"
+        "./agents/qdrant-expert.md",
+        "./agents/rag-architect.md"
       ],
       "commands": [
         "./commands/rag-audit.md"
+      ],
+      "skills": [
+        "./skills/rag-development"
       ]
     },
     {
