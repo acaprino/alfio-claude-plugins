@@ -1,6 +1,6 @@
 {
   "adapterVersion": "1.0.0",
-  "coreDigest": "sha256:3518f97ecaa64600034b6f3e40c6c78c5873dd73c0efd8f646dc35ea0c9f133c",
+  "coreDigest": "sha256:dfb504c52454b874cafa28e83593086bb21c629bfa7e633a982023d22ea4d016",
   "harnessStrategies": {
     "test-audit": "native-team",
     "test-consolidate": "native-team"

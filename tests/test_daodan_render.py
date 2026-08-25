@@ -95,12 +95,38 @@ class RenderTests(unittest.TestCase):
         self.assertTrue(provenance["coreDigest"].startswith("sha256:"))
         self.assertEqual(len(provenance["coreDigest"].split(":")[1]), 64)
 
-    def test_core_digest_is_the_kernel_digest(self):
-        result = render_plugin(
+    def test_core_digest_is_independent_of_checkout_location(self):
+        """The digest is a property of the kernel, not of where it sits.
+
+        It used to hash absolute paths and raw bytes, so the same source hashed
+        differently on a Windows checkout and a Linux runner, and CI reported
+        drift against a tree that was identical.
+        """
+        first = render_plugin(
             load_plugin(VALID), load_adapter(ADAPTERS, "claude"), self.temp / "staging"
+        ).core_digest
+
+        elsewhere = self.temp / "relocated" / "example"
+        shutil.copytree(VALID, elsewhere)
+        second = render_plugin(
+            load_plugin(elsewhere), load_adapter(ADAPTERS, "claude"), self.temp / "staging2"
+        ).core_digest
+        self.assertEqual(first, second)
+
+    def test_core_digest_ignores_line_endings(self):
+        crlf = self.temp / "crlf" / "example"
+        shutil.copytree(VALID, crlf)
+        for path in crlf.rglob("*"):
+            if path.is_file():
+                path.write_bytes(path.read_bytes().replace(b"\n", b"\r\n"))
+        self.assertEqual(
+            render_plugin(
+                load_plugin(VALID), load_adapter(ADAPTERS, "claude"), self.temp / "s1"
+            ).core_digest,
+            render_plugin(
+                load_plugin(crlf), load_adapter(ADAPTERS, "claude"), self.temp / "s2"
+            ).core_digest,
         )
-        kernel = sorted(path for path in VALID.rglob("*") if path.is_file())
-        self.assertEqual(result.core_digest, source_digest(kernel))
 
     def test_generated_text_is_lf_normalized(self):
         live = self.compile_fixture("claude")

@@ -1,6 +1,6 @@
 {
   "adapterVersion": "1.0.0",
-  "coreDigest": "sha256:973f4f5c0759e881eac18b20c0a8d19aac427e2f8ab18021e3d3a5f72ec1a294",
+  "coreDigest": "sha256:5d51a4b32fe9239c3023a13e30b4801e8d5d00351395706c73df5f906f7ba9a9",
   "harnessStrategies": {},
   "host": "claude",
   "overrides": [],

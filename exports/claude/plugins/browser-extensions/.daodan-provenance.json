@@ -1,6 +1,6 @@
 {
   "adapterVersion": "1.0.0",
-  "coreDigest": "sha256:0357f2b2236dcb1912fd9bd05c6b87390b119c26d5f17e4a35b47b3a899a3447",
+  "coreDigest": "sha256:8115ff88fff785e05c0a030590d4704858b64e292fe881124192a3c24da0d328",
   "harnessStrategies": {
     "firefox-lint": "native-team",
     "firefox-publish": "native-team",

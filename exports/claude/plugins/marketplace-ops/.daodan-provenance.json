@@ -1,6 +1,6 @@
 {
   "adapterVersion": "1.0.0",
-  "coreDigest": "sha256:44b79f24481c4755107782c4f60d76618d8428f17abf09af4b12f5a554302a3d",
+  "coreDigest": "sha256:7dadaaa901d011a854d9b21c496889e8787eac3f5149974ed8b0f29604aa3f46",
   "harnessStrategies": {
     "marketplace-health": "native-team",
     "marketplace-review": "native-team",

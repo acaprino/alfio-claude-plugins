@@ -56,11 +56,13 @@ class OverrideError(ValueError):
 
 def source_digest(paths: Iterable[Path]) -> str:
     """Digest a set of neutral source files, path and content, order-independently."""
+    from .render import digest_bytes
+
     digest = hashlib.sha256()
     for path in sorted(paths, key=lambda item: item.as_posix()):
         digest.update(path.as_posix().encode("utf-8"))
         digest.update(b"\0")
-        digest.update(path.read_bytes())
+        digest.update(digest_bytes(path))
         digest.update(b"\0")
     return f"sha256:{digest.hexdigest()}"
 

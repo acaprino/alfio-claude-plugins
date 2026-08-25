@@ -90,12 +90,27 @@ def _kernel_files(plugin: PluginSpec) -> list[Path]:
     )
 
 
+def digest_bytes(path: Path) -> bytes:
+    """Content for hashing, with text line endings normalized to LF.
+
+    A digest over raw bytes is not reproducible across platforms: the same kernel
+    checked out on Windows carries CRLF and on Linux LF, so one source produced
+    two digests and CI reported drift against a tree that was in fact identical.
+    Normalizing here makes the digest a property of the content rather than of
+    the checkout.
+    """
+    raw = path.read_bytes()
+    if path.suffix.lower() not in TEXT_SUFFIXES:
+        return raw
+    return raw.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+
+
 def _kernel_digest(plugin: PluginSpec) -> str:
     digest = hashlib.sha256()
     for path in _kernel_files(plugin):
-        digest.update(path.as_posix().encode("utf-8"))
+        digest.update(path.relative_to(plugin.root).as_posix().encode("utf-8"))
         digest.update(b"\0")
-        digest.update(path.read_bytes())
+        digest.update(digest_bytes(path))
         digest.update(b"\0")
     return f"sha256:{digest.hexdigest()}"
 
