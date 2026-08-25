@@ -1,7 +1,15 @@
 {
+  "allowCrossMarketplaceDependenciesOn": [
+    "claude-code-workflows",
+    "claude-plugins-official",
+    "impeccable",
+    "mattpocock",
+    "playwright-skill",
+    "ui-ux-pro-max-skill"
+  ],
   "metadata": {
     "description": "The Daodan: agents, skills and workflows that augment a coding agent into a specialized toolkit.",
-    "version": "26.0.1"
+    "version": "26.0.2"
   },
   "name": "daodan",
   "owner": {

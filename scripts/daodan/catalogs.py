@@ -100,12 +100,29 @@ def catalog_document(
             entry["source"] = source
         entries.append(entry)
 
-    return {
+    document: dict[str, object] = {
         "name": CATALOG_NAME,
         "metadata": {"description": CATALOG_DESCRIPTION, "version": version},
         "owner": OWNER,
         "plugins": entries,
     }
+
+    # Cross-marketplace dependencies are blocked unless the root catalog names
+    # the marketplaces it trusts, and only the root's allowlist applies. Since
+    # every such dependency is already declared in a kernel, the allowlist is
+    # derivable: computing it is what stops a plugin from being uninstallable
+    # because someone forgot to widen a hand-maintained list.
+    foreign = sorted(
+        {
+            dependency.partition("@")[2]
+            for plugin in ordered
+            for dependency in plugin.required_dependencies
+            if "@" in dependency
+        }
+    )
+    if foreign:
+        document["allowCrossMarketplaceDependenciesOn"] = foreign
+    return document
 
 
 def render_catalog(
