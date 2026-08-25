@@ -755,13 +755,13 @@
       ],
       "category": "productivity",
       "strict": false,
-      "skills": [
-        "./skills/generate-mindmap",
-        "./skills/markmind-exporter",
-        "./skills/forcegraph-exporter"
-      ],
       "commands": [
         "./commands/export-to-markmind.md"
+      ],
+      "skills": [
+        "./skills/forcegraph-exporter",
+        "./skills/generate-mindmap",
+        "./skills/markmind-exporter"
       ]
     },
     {

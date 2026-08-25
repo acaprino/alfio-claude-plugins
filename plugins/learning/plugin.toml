@@ -1,0 +1,18 @@
+schema = "daodan/v1"
+name = "learning"
+version = "1.6.4"
+description = "Learning and knowledge management - mind map generation from any content, Obsidian MarkMind export, and interactive force-graph HTML visualization"
+license = "MIT"
+
+[capabilities]
+required = ["repository.read", "repository.write"]
+optional = []
+
+[dependencies]
+required = []
+
+[components]
+skills = ["forcegraph-exporter", "generate-mindmap", "markmind-exporter"]
+roles = []
+workflows = ["export-to-markmind"]
+policies = []

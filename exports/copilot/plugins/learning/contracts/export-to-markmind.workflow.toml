@@ -1,0 +1,13 @@
+name = "export-to-markmind"
+entrypoint = "export-to-markmind.md"
+
+[[phases]]
+id = "run"
+isolation = "shared"
+produces = ["artifact:export-to-markmind-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["export-to-markmind-completed"]
+artifacts = ["export-to-markmind-report"]
+schemas = []
