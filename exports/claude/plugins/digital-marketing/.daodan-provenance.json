@@ -1,0 +1,16 @@
+{
+  "adapterVersion": "1.0.0",
+  "coreDigest": "sha256:a707203487f84d05da9617796e17486f8ca91a9bbcd76fe247954b64585dd9de",
+  "harnessStrategies": {
+    "brand-naming": "native-team",
+    "content-strategy": "native-team",
+    "ga4-audit": "native-team",
+    "llm-seo-audit": "native-team",
+    "reply-to-customer-review": "native-team",
+    "seo-audit": "native-team"
+  },
+  "host": "claude",
+  "overrides": [],
+  "plugin": "digital-marketing",
+  "version": "2.0.2"
+}

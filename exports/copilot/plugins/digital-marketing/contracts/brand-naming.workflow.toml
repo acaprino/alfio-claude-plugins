@@ -1,0 +1,13 @@
+name = "brand-naming"
+entrypoint = "brand-naming.md"
+
+[[phases]]
+id = "run"
+isolation = "shared"
+produces = ["artifact:brand-naming-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["brand-naming-completed"]
+artifacts = ["brand-naming-report"]
+schemas = []

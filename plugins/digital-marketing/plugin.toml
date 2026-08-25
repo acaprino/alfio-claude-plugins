@@ -1,0 +1,18 @@
+schema = "daodan/v1"
+name = "digital-marketing"
+version = "2.0.2"
+description = "SEO optimization, content marketing, brand naming, domain hunting, customer review response, GA4/GTM analytics implementation, and answer-engine optimization (Google AI Overviews / SGE, Perplexity, ChatGPT Search, Claude Search, Bing Copilot) - technical audits, keyword research, content strategy, brand naming, domain checks, trademark screening, professional review reply generation with sentiment analysis, Google Analytics 4 + Google Tag Manager deployment with EU/GDPR Consent Mode v2 compliance, /ga4-audit Playwright-powered verification, and /llm-seo-audit AEO command with crawler-access matrix, E-E-A-T, structured data, passage extractability. Prose humanization lives in the standalone text-humanizer plugin."
+license = "MIT"
+
+[capabilities]
+required = ["repository.read", "shell.execute", "repository.write", "network.fetch", "contexts.isolate", "roles.dispatch"]
+optional = ["execution.parallel"]
+
+[dependencies]
+required = ["playwright-skill@playwright-skill", "text-humanizer"]
+
+[components]
+skills = ["brand-naming", "domain-hunter", "ga4-implementation", "reply-to-customer-review"]
+roles = ["content-marketer", "ga4-implementation-expert", "llm-seo-optimize", "seo-specialist"]
+workflows = ["brand-naming", "content-strategy", "ga4-audit", "llm-seo-audit", "reply-to-customer-review", "seo-audit"]
+policies = []

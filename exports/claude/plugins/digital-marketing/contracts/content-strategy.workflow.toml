@@ -1,0 +1,13 @@
+name = "content-strategy"
+entrypoint = "content-strategy.md"
+
+[[phases]]
+id = "run"
+isolation = "shared"
+produces = ["artifact:content-strategy-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["content-strategy-completed"]
+artifacts = ["content-strategy-report"]
+schemas = []

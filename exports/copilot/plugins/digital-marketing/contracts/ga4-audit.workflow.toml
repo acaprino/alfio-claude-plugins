@@ -1,0 +1,13 @@
+name = "ga4-audit"
+entrypoint = "ga4-audit.md"
+
+[[phases]]
+id = "run"
+isolation = "shared"
+produces = ["artifact:ga4-audit-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["ga4-audit-completed"]
+artifacts = ["ga4-audit-report"]
+schemas = []

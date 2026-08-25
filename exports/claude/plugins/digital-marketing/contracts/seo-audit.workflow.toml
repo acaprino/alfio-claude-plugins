@@ -1,0 +1,13 @@
+name = "seo-audit"
+entrypoint = "seo-audit.md"
+
+[[phases]]
+id = "run"
+isolation = "shared"
+produces = ["artifact:seo-audit-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["seo-audit-completed"]
+artifacts = ["seo-audit-report"]
+schemas = []

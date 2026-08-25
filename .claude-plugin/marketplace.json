@@ -576,24 +576,24 @@
         "text-humanizer"
       ],
       "agents": [
-        "./agents/seo-specialist.md",
         "./agents/content-marketer.md",
         "./agents/ga4-implementation-expert.md",
-        "./agents/llm-seo-optimize.md"
+        "./agents/llm-seo-optimize.md",
+        "./agents/seo-specialist.md"
+      ],
+      "commands": [
+        "./commands/brand-naming.md",
+        "./commands/content-strategy.md",
+        "./commands/ga4-audit.md",
+        "./commands/llm-seo-audit.md",
+        "./commands/reply-to-customer-review.md",
+        "./commands/seo-audit.md"
       ],
       "skills": [
         "./skills/brand-naming",
         "./skills/domain-hunter",
-        "./skills/reply-to-customer-review",
-        "./skills/ga4-implementation"
-      ],
-      "commands": [
-        "./commands/seo-audit.md",
-        "./commands/content-strategy.md",
-        "./commands/brand-naming.md",
-        "./commands/reply-to-customer-review.md",
-        "./commands/ga4-audit.md",
-        "./commands/llm-seo-audit.md"
+        "./skills/ga4-implementation",
+        "./skills/reply-to-customer-review"
       ]
     },
     {

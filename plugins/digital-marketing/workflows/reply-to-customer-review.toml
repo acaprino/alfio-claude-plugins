@@ -1,0 +1,13 @@
+name = "reply-to-customer-review"
+entrypoint = "reply-to-customer-review.md"
+
+[[phases]]
+id = "run"
+isolation = "shared"
+produces = ["artifact:reply-to-customer-review-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["reply-to-customer-review-completed"]
+artifacts = ["reply-to-customer-review-report"]
+schemas = []
