@@ -1,0 +1,13 @@
+name = "ibkr-audit"
+entrypoint = "ibkr-audit.md"
+
+[[phases]]
+id = "run"
+isolation = "shared"
+produces = ["artifact:ibkr-audit-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["ibkr-audit-completed"]
+artifacts = ["ibkr-audit-report"]
+schemas = []

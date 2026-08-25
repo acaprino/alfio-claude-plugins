@@ -1,0 +1,13 @@
+{
+  "adapterVersion": "1.0.0",
+  "coreDigest": "sha256:31f673576aaae502f96a92c4a761b1032995e766615e8ad457739260762a5da0",
+  "harnessStrategies": {
+    "ibkr-audit": "native-team",
+    "ibkr-verify": "native-team",
+    "mt5-audit": "native-team"
+  },
+  "host": "claude",
+  "overrides": [],
+  "plugin": "trading-broker-integration",
+  "version": "2.0.0"
+}

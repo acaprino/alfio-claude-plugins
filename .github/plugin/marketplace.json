@@ -207,6 +207,14 @@
     },
     {
       "dependencies": [],
+      "description": "Broker integration for algorithmic trading in Python: Interactive Brokers via the TWS API and ib_async across equities, options, futures, FX, CFDs and crypto (per-class contracts and market rules, order types and TIF/fill-mode capability resolution, brackets in depth, a classified catalog of all 458 published TWS message codes, venue-behaviour verification tooling, reconnection resilience, deployment on Windows, Linux, macOS and Docker), MetaTrader 5 via the official synchronous API (polling-based event systems, order execution with fill modes, historical data, the aiomql async framework, a ZeroMQ bridge, Windows production deployment), and the vendor-neutral vocabulary shared between them: five access archetypes, the single-broker/multi-broker-platform axis, a reference order-lifecycle state machine, session and recovery patterns, and a six-rank evidence ladder with provenance tags for what a claim about a venue is worth",
+      "license": "MIT",
+      "name": "trading-broker-integration",
+      "source": "./exports/copilot/plugins/trading-broker-integration",
+      "version": "2.0.0"
+    },
+    {
+      "dependencies": [],
       "description": "TypeScript and JavaScript development toolkit - hands-on typescript-engineer agent (architecture + implementation), dead-code detection via Knip, coding standards enforcement, and enterprise-grade TypeScript mastery (type system, generics, React/NestJS integration, Zod validation, modern toolchain), and a type-safety review layer: adversarial type-safety-auditor agent, 20-rule type-safety-rules skill, and /review-typescript command with tsc/ESLint ground truth",
       "license": "MIT",
       "name": "typescript-development",

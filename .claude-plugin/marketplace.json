@@ -1033,15 +1033,15 @@
         "./agents/ibkr-architect.md",
         "./agents/mt5-architect.md"
       ],
-      "skills": [
-        "./skills/broker-vocabulary",
-        "./skills/ibkr",
-        "./skills/mt5"
-      ],
       "commands": [
         "./commands/ibkr-audit.md",
         "./commands/ibkr-verify.md",
         "./commands/mt5-audit.md"
+      ],
+      "skills": [
+        "./skills/broker-vocabulary",
+        "./skills/ibkr",
+        "./skills/mt5"
       ]
     },
     {

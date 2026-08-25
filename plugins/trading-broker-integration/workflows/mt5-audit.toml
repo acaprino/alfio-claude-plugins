@@ -1,0 +1,13 @@
+name = "mt5-audit"
+entrypoint = "mt5-audit.md"
+
+[[phases]]
+id = "run"
+isolation = "shared"
+produces = ["artifact:mt5-audit-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["mt5-audit-completed"]
+artifacts = ["mt5-audit-report"]
+schemas = []

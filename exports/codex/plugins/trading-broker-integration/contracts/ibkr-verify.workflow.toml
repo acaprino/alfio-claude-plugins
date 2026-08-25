@@ -1,0 +1,13 @@
+name = "ibkr-verify"
+entrypoint = "ibkr-verify.md"
+
+[[phases]]
+id = "run"
+isolation = "shared"
+produces = ["artifact:ibkr-verify-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["ibkr-verify-completed"]
+artifacts = ["ibkr-verify-report"]
+schemas = []
