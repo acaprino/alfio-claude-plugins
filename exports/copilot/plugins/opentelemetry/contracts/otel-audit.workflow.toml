@@ -1,0 +1,21 @@
+name = "otel-audit"
+entrypoint = "otel-audit.md"
+
+[[phases]]
+id = "scope"
+isolation = "shared"
+produces = ["artifact:scope"]
+
+[[phases]]
+id = "review"
+needs = ["scope"]
+role = "otel-architect"
+isolation = "required"
+consumes = ["artifact:scope"]
+produces = ["artifact:otel-audit-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["otel-audit-completed"]
+artifacts = ["otel-audit-report"]
+schemas = []

@@ -1157,11 +1157,11 @@
       "agents": [
         "./agents/otel-architect.md"
       ],
-      "skills": [
-        "./skills/opentelemetry"
-      ],
       "commands": [
         "./commands/otel-audit.md"
+      ],
+      "skills": [
+        "./skills/opentelemetry"
       ]
     },
     {
