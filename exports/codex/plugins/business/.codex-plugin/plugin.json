@@ -1,4 +1,7 @@
 {
+  "author": {
+    "name": "Alfio Caprino"
+  },
   "description": "Legal advisory, compliance document generation, and SaaS business planning - Privacy Policies, Cookie Policies, DPAs, GDPR/ePrivacy/CCPA compliance, contract review, GTM strategy, market sizing, pricing, and positioning",
   "license": "MIT",
   "name": "business",

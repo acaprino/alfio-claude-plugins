@@ -1,4 +1,7 @@
 {
+  "author": {
+    "name": "Alfio Caprino"
+  },
   "description": "Docker best practices - optimized multi-stage Dockerfiles, layer caching, security hardening, and minimal base image selection for any language or framework (Node, Python, Go, Rust, Java, Bun, Deno)",
   "license": "MIT",
   "name": "docker",

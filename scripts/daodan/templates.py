@@ -25,6 +25,7 @@ ALLOWED_KEYS: frozenset[str] = frozenset(
         "workflow",
         "marketplace",
         "adapter_version",
+        "author",
         "body",
         "name",
         "description",

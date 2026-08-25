@@ -1,4 +1,7 @@
 {
+  "author": {
+    "name": "Alfio Caprino"
+  },
   "description": "Rewrites source code to be more readable and human-friendly without changing behavior - improves naming, removes AI boilerplate, simplifies structure, and adds clarity comments",
   "license": "MIT",
   "name": "clean-code",

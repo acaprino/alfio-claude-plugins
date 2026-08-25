@@ -17,12 +17,20 @@
         "name": "Alfio Caprino"
       },
       "license": "MIT",
-      "keywords": ["probe"],
+      "keywords": [
+        "probe"
+      ],
       "category": "development",
-      "strict": false,
-      "skills": ["./skills/probe"],
-      "agents": ["./agents/probe-worker.md"],
-      "commands": ["./commands/probe-team.md"],
+      "strict": true,
+      "skills": [
+        "./skills/probe"
+      ],
+      "agents": [
+        "./agents/probe-worker.md"
+      ],
+      "commands": [
+        "./commands/probe-team.md"
+      ],
       "dependencies": []
     }
   ]

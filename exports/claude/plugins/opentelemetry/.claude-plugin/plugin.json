@@ -1,4 +1,7 @@
 {
+  "author": {
+    "name": "Alfio Caprino"
+  },
   "description": "OpenTelemetry Python instrumentation - distributed tracing, async context propagation, custom transport propagators, OTLP exporters, AWS ADOT/X-Ray, and production observability; includes /otel-audit command",
   "license": "MIT",
   "name": "opentelemetry",

@@ -1,4 +1,7 @@
 {
+  "author": {
+    "name": "Alfio Caprino"
+  },
   "description": "Python development toolkit - TDD with pytest, code refactoring with complexity metrics, performance profiling, async patterns, uv package management, dead code detection, comment auditing, project scaffolding, deep Pydantic v2.13 guide (validators/serializers/strict/performance/security/PydanticAI+Logfire) with v1 migration, and /python-audit consolidated quality report",
   "license": "MIT",
   "name": "python-development",

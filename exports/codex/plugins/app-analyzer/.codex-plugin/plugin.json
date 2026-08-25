@@ -1,4 +1,7 @@
 {
+  "author": {
+    "name": "Alfio Caprino"
+  },
   "description": "Comprehensive app analysis for Android (ADB) and web (Playwright MCP) - navigation mapping, competitive analysis, design system extraction, UX flow analysis, and business model intelligence",
   "license": "MIT",
   "name": "app-analyzer",

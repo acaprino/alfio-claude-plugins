@@ -1,4 +1,7 @@
 {
+  "author": {
+    "name": "Alfio Caprino"
+  },
   "description": "xterm.js terminal emulator development - building, configuring, and integrating xterm.js in web and Electron apps with addon support and PTY wiring",
   "license": "MIT",
   "name": "xterm",

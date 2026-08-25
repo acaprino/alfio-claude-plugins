@@ -1,4 +1,7 @@
 {
+  "author": {
+    "name": "Alfio Caprino"
+  },
   "description": "Prose humanization toolkit: the text-humanizer editor agent removes AI writing traces from any text in any language (24 documented patterns: inflated symbolism, promotional language, AI vocabulary, filler phrases, formulaic structures, dash-as-connector asides), backed by the anti-ai-writing-patterns knowledge base and the /humanize-text command with optional 5-dimension quality scoring. Self-contained leaf plugin with zero dependencies, consumed by digital-marketing (E-E-A-T copy), codebase-mapper (AI trace removal on generated docs), business (GTM deliverables), and clean-code (prose routing). Extracted from digital-marketing in marketplace 13.3.0.",
   "license": "MIT",
   "name": "text-humanizer",

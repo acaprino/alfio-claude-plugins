@@ -1,4 +1,7 @@
 {
+  "author": {
+    "name": "Alfio Caprino"
+  },
   "description": "AI development workflow - prompt engineering and optimization, and Claude Agent SDK integration guide",
   "license": "MIT",
   "name": "ai-tooling",

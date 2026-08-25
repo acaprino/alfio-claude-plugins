@@ -1,4 +1,7 @@
 {
+  "author": {
+    "name": "Alfio Caprino"
+  },
   "description": "README and project documentation authoring - craft magnetic, top-tier README.md files with progressive disclosure, hero sections, badges, quick start, feature tables, Mermaid diagrams, and community sections",
   "license": "MIT",
   "name": "docs",

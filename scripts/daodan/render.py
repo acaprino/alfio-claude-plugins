@@ -13,6 +13,7 @@ import hashlib
 import json
 import os
 import shutil
+import time
 import tomllib
 import uuid
 from dataclasses import dataclass
@@ -20,6 +21,7 @@ from pathlib import Path
 from typing import Sequence
 
 from .adapter import HostAdapter, resolve_support, select_coordination
+from .catalogs import OWNER
 from .model import PluginSpec
 from .overrides import OverrideSpec
 from .provenance import ADAPTER_VERSION, write_provenance
@@ -216,6 +218,7 @@ def render_plugin(
         "license": plugin.license,
         "host": adapter.host,
         "adapter_version": ADAPTER_VERSION,
+        "author": OWNER["name"],
     }
 
     replacements = {spec.source: spec for spec in overrides}
@@ -405,6 +408,24 @@ def _harness_context(plugin, workflow, strategy, source: Path, context: dict) ->
     }
 
 
+def _rename_with_retry(source: Path, destination: Path, attempts: int = 10) -> None:
+    """Rename a tree, retrying a transient sharing violation.
+
+    On Windows a directory rename fails with access denied while any process
+    still holds a handle inside it, and an indexer or scanner routinely holds one
+    for a moment after a package is written. That is transient by nature, so it
+    must not abort a publication that is otherwise correct.
+    """
+    for attempt in range(attempts):
+        try:
+            source.rename(destination)
+            return
+        except OSError:
+            if attempt == attempts - 1:
+                raise
+            time.sleep(0.1 * (attempt + 1))
+
+
 def replace_tree(staging: Path, live: Path) -> None:
     """Swap a fully validated staging tree into place, or leave the live tree alone.
 
@@ -432,12 +453,12 @@ def replace_tree(staging: Path, live: Path) -> None:
             shutil.rmtree(previous)
         had_live = live.exists()
         if had_live:
-            live.rename(previous)
+            _rename_with_retry(live, previous)
         try:
-            staging.rename(live)
+            _rename_with_retry(staging, live)
         except OSError as error:
             if had_live:
-                previous.rename(live)
+                _rename_with_retry(previous, live)
             raise RenderError(f"could not publish {live}: {error}") from error
         if had_live:
             shutil.rmtree(previous, ignore_errors=True)

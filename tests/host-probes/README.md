@@ -51,14 +51,36 @@ host | isolated workers | parallel fan-out | shared tasks | peer messaging | wor
 
 | host | isolated workers | parallel fan-out | shared tasks | peer messaging | worker allowlist | packaged roles |
 |---|---|---|---|---|---|---|
-| claude | TODO | TODO | TODO | TODO | n/a | TODO |
+| claude | yes | yes | conditional | conditional | n/a | yes |
 | copilot | TODO | TODO | TODO | TODO | TODO | TODO |
 | codex | TODO | TODO | TODO | TODO | n/a | TODO |
 
-**The table above is not yet measured.** The native smoke probes require driving real Claude Code,
-Copilot and Codex sessions by hand, which is the one step of this task that cannot be automated from
-the repository. Until it is filled in, `adapters/<host>/coordination.toml` carries the spec's
-documented assumptions and every strategy row there is provisional.
+**Claude is measured; Copilot and Codex are not yet.** The Claude row comes from two headless runs
+against the fixture package, loaded with `--plugin-dir` so nothing was registered in a real profile:
+
+```bash
+cd <scratch> && claude -p "Use the daodan-probe 'probe' skill and follow it exactly."   --plugin-dir tests/host-probes/claude/plugins/probe --permission-mode bypassPermissions
+# -> DAODAN_PROBE_OK
+
+cd <scratch> && claude -p "<two-worker coordination probe>"   --plugin-dir tests/host-probes/claude/plugins/probe --permission-mode bypassPermissions
+# -> NONCE=alpha / NONCE=beta / DELIVERED=2/2 / ISOLATED=yes PARALLEL=yes
+```
+
+`shared tasks` and `peer messaging` read `conditional` because they belong to the native team layer,
+which is off by default; the probe satisfied the contract without them, which is the point of the
+`parallel-subagents` baseline. `packaged roles = yes`: the coordinator dispatched the packaged
+`probe-worker` by name.
+
+Two defects came out of running this rather than assuming it, both now fixed:
+
+1. **`strict: false` alongside component arrays is rejected by the host.** The install failed with
+   "conflicting manifests: both plugin.json and marketplace entry specify components". The fixtures now
+   declare `strict: true`. The generated catalogs never carried the key, so they were unaffected.
+2. **Generated `plugin.json` files had no `author`.** `claude plugin validate .` warned on all 40.
+   The manifest templates now emit the marketplace owner, and validation is clean.
+
+Until the other two rows are filled in, `adapters/copilot/` and `adapters/codex/` carry the spec's
+documented assumptions and their strategy rows are provisional.
 
 Release baseline, applied when the table is filled in:
 

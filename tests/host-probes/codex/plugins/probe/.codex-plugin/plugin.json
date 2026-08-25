@@ -2,5 +2,8 @@
   "name": "daodan-probe",
   "version": "0.0.1",
   "description": "Single-worker and two-worker coordination probe.",
-  "license": "MIT"
+  "license": "MIT",
+  "author": {
+    "name": "Alfio Caprino"
+  }
 }
