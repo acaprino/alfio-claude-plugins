@@ -44,6 +44,14 @@
     },
     {
       "dependencies": [],
+      "description": "README and project documentation authoring - craft magnetic, top-tier README.md files with progressive disclosure, hero sections, badges, quick start, feature tables, Mermaid diagrams, and community sections",
+      "license": "MIT",
+      "name": "docs",
+      "source": "./exports/copilot/plugins/docs",
+      "version": "1.1.4"
+    },
+    {
+      "dependencies": [],
       "description": "Cross-platform development rulebook - security (validation, auth tokens, passkeys/WebAuthn, API security, XSS/CSP, secrets), architecture (client-server, REST vs GraphQL, offline-first, monolith-first, CI/CD), and performance (bundles, images, Core Web Vitals, SSR/SSG, CDN caching) for SPA, PWA, mobile, Electron (with Fuses + asar integrity), and Tauri; includes /platform-review standalone command",
       "license": "MIT",
       "name": "platform-engineering",

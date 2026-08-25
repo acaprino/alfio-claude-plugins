@@ -1,0 +1,11 @@
+{
+  "adapterVersion": "1.0.0",
+  "coreDigest": "sha256:d9d33eb1e62ff78d3535f740045f74295fba72f643ae73388554e0f897b7c8a8",
+  "harnessStrategies": {
+    "maintain-readme": "native-team"
+  },
+  "host": "claude",
+  "overrides": [],
+  "plugin": "docs",
+  "version": "1.1.4"
+}

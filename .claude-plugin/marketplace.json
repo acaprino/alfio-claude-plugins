@@ -913,11 +913,11 @@
       ],
       "category": "documentation",
       "strict": false,
-      "skills": [
-        "./skills/readme-craft"
-      ],
       "commands": [
         "./commands/maintain-readme.md"
+      ],
+      "skills": [
+        "./skills/readme-craft"
       ]
     },
     {

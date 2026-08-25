@@ -1,0 +1,13 @@
+name = "maintain-readme"
+entrypoint = "maintain-readme.md"
+
+[[phases]]
+id = "run"
+isolation = "shared"
+produces = ["artifact:maintain-readme-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["maintain-readme-completed"]
+artifacts = ["maintain-readme-report"]
+schemas = []
