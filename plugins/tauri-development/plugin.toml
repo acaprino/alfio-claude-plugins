@@ -1,0 +1,18 @@
+schema = "daodan/v1"
+name = "tauri-development"
+version = "2.7.5"
+description = "Tauri 2 desktop and mobile development - IPC optimization, Rust backend patterns, cross-platform builds, and React integration for high-performance apps"
+license = "MIT"
+
+[capabilities]
+required = ["repository.read", "shell.execute", "repository.write", "contexts.isolate", "roles.dispatch"]
+optional = ["execution.parallel"]
+
+[dependencies]
+required = []
+
+[components]
+skills = ["tauri"]
+roles = ["rust-engineer", "tauri-desktop", "tauri-mobile"]
+workflows = []
+policies = []

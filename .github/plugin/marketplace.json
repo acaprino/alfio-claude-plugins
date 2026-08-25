@@ -123,6 +123,14 @@
       "version": "2.0.2"
     },
     {
+      "dependencies": [],
+      "description": "Tauri 2 desktop and mobile development - IPC optimization, Rust backend patterns, cross-platform builds, and React integration for high-performance apps",
+      "license": "MIT",
+      "name": "tauri-development",
+      "source": "./exports/copilot/plugins/tauri-development",
+      "version": "2.7.5"
+    },
+    {
       "dependencies": [
         "mattpocock-skills@mattpocock",
         "developer-essentials@claude-code-workflows"

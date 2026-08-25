@@ -100,9 +100,9 @@
       "category": "development",
       "strict": false,
       "agents": [
+        "./agents/rust-engineer.md",
         "./agents/tauri-desktop.md",
-        "./agents/tauri-mobile.md",
-        "./agents/rust-engineer.md"
+        "./agents/tauri-mobile.md"
       ],
       "skills": [
         "./skills/tauri"
