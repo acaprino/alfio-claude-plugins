@@ -29,16 +29,20 @@ The phase graph and record schemas ship with this package in
 
 ## Method
 
-## Prerequisites
+## Execution requirements
 
-This command requires the upstream `agent-teams` plugin from `wshobson/agents` (MIT, Seth Hobson). It provides the `agent-teams:multi-reviewer-patterns` and `agent-teams:team-communication-protocols` skills and the `agent-teams:team-reviewer` fallback agent used below. Install it first:
+This workflow fans out over the dimensions its detection step selects. Dispatch, scheduling and result
+collection belong to the host harness, generated from `contracts/team-review.workflow.toml`. What this
+workflow requires of any harness is fixed, and none of it is optional:
 
-```
-/plugin marketplace add wshobson/agents
-/plugin install agent-teams@claude-code-workflows
-```
+- every reviewer runs in its own context and never reads another reviewer's result
+- exactly the selected dimensions are dispatched, once each
+- every expected reviewer is recorded `delivered` or `failed` before anything is consolidated
+- cross-examination runs after that barrier, in fresh contexts
+- only the consolidation phase writes the final report
 
-The team infrastructure itself is a native Claude Code feature and needs no plugin, but it is experimental and OFF by default: it requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`, best set persistently in the `env` block of `~/.claude/settings.json`. As of Claude Code 2.1.178 there are no `TeamCreate`/`TeamDelete` tools: the team forms implicitly when the first teammate is spawned, and team resources are cleaned up automatically when the session ends. If teammate spawning is unavailable in this session, stop and tell the user to enable the flag and restart Claude Code; do not fall back to plain subagents without saying so.
+If the host cannot run reviewers in isolated contexts, stop and say so. A review whose dimensions
+shared a context is not the artifact this workflow claims to produce.
 
 # Team Review (Pipeline)
 
@@ -58,14 +62,12 @@ The pipeline lets reviewers find problems that are invisible from local-only ins
 ## Skills to Load
 
 Before starting, invoke these skills to inform the review process:
-- `agent-teams:multi-reviewer-patterns` -- dimension allocation, deduplication rules, severity calibration
 - `senior-review:review-quality-gates` -- context-sharing pattern, adversarial verification panel, completeness critic
 - `senior-review:defect-taxonomy` -- 140+ defect subcategories with CWE/OWASP mappings (includes `logic-integrity.md`)
-- `agent-teams:team-communication-protocols` -- message type selection, shutdown protocol
 
 ## Pre-flight Checks
 
-1. Verify `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is set.
+1. Confirm the harness can dispatch isolated reviewers; stop if it cannot.
 2. Parse `$ARGUMENTS`:
    - `<target>`: file path, directory, git diff range (e.g., `main...HEAD`), or PR number (e.g., `#123`)
    - `--reviewers`: comma-separated dimensions OR `auto` (default: `auto`)
@@ -154,7 +156,7 @@ Five of these dimensions live in other plugins: React performance (`react-develo
 | **UI/frontend files** | Changed files include `.tsx`, `.jsx`, `.vue`, `.svelte`, `.component.ts`, or files containing scroll/focus/layout manipulation | UI race conditions | `senior-review:ui-race-auditor` |
 | **React project** | `package.json` has `react` in dependencies AND changed files include `.tsx`/`.jsx` | React performance | `react-development:react-performance-optimizer` |
 | **TypeScript project** | Changed files match `\.tsx?$` AND `tsconfig.json` exists at the project root | TypeScript type safety | `typescript-development:type-safety-auditor` |
-| **Non-React frontend** | Frontend files detected but no React dependency | General performance | `agent-teams:team-reviewer` (performance dimension) |
+| **Non-React frontend** | Frontend files detected but no React dependency | General performance | `senior-review:code-auditor` (performance dimension) |
 | **Fullstack app** | 2+ signals: frontend framework in `package.json`, backend framework config, API route definitions, `docker-compose.yml` with multiple services, Tauri/Electron config | Platform / runtime integration | `platform-engineering:platform-reviewer` |
 | **Multi-service / messaging** | Changed files touch API routes, message handlers, gRPC definitions, queue consumers/producers, or `docker-compose.yml` with multiple services | Distributed flows | `senior-review:distributed-flow-auditor` |
 | **Init/startup code** | Changed files touch startup sequences, dependency injection, config bootstrap, migration runners, or service registration | Circular dependencies | `senior-review:chicken-egg-detector` |
@@ -163,7 +165,7 @@ Five of these dimensions live in other plugins: React performance (`react-develo
 | **Resource acquisition** | Diff or changed files acquire files, sockets, connections, subprocesses, listeners, subscriptions, locks, tasks, or timers, especially in manual-resource languages (C/C++/Rust/Go) or async-heavy code (see detection command 5d) | Resource lifecycle (**does every acquire release on success, error, AND cancellation?**) | `senior-review:resource-lifecycle-auditor` |
 | **Test files** | Changed files match `test_*`, `*_test.*`, `*.spec.*`, `*.test.*`, `conftest.py`, `__tests__/` | Testing quality | `testing:test-suite-auditor` |
 | **API files** | Changed files touch a formal contract file (`*.proto`, `openapi*.y*ml`, `swagger*`, `*.graphql`, `asyncapi*`, JSON Schema), or route definitions, serializers, or DTO/model declarations | API contracts | `senior-review:api-contract-auditor` |
-| **Migration files** | Changed files match database migration patterns (Alembic, Django, Rails, Prisma, SQL migrations) | Data migrations | `agent-teams:team-reviewer` (migration dimension) |
+| **Migration files** | Changed files match database migration patterns (Alembic, Django, Rails, Prisma, SQL migrations) | Data migrations | `senior-review:data-integrity-auditor` (migration dimension) |
 | **Diff target adding code** | Target resolved to a diff in Phase 0 (git range, PR number, or uncommitted changes) AND the diff adds at least one function, method, class, module, constant table, or block longer than roughly five lines. Never activated for plain file/directory targets: there is no diff to anchor on, and the whole-tree question belongs to `/abstraction-architect:audit` | Structural entropy (**does this diff add a second place where a concept the codebase already owns lives?** Seven dimensions over two evidence tracks, diff-anchored: duplicated domain knowledge, competing sources of truth, redundant representation, duplicated or derivable state, missed unification, prior art available, abstraction fitness) | `abstraction-architect:abstraction-architect` (mode `diff`) |
 
 ### Detection implementation
@@ -421,7 +423,7 @@ Mark `phase_1d_reconciliation` complete.
 | UI race conditions | `senior-review:ui-race-auditor` |
 | React performance | `react-development:react-performance-optimizer` |
 | TypeScript type safety | `typescript-development:type-safety-auditor` |
-| General performance | `agent-teams:team-reviewer` |
+| General performance | `senior-review:code-auditor` |
 | Platform / runtime integration | `platform-engineering:platform-reviewer` |
 | Distributed flows | `senior-review:distributed-flow-auditor` |
 | Circular dependencies | `senior-review:chicken-egg-detector` |
@@ -430,7 +432,7 @@ Mark `phase_1d_reconciliation` complete.
 | Resource lifecycle (ownership and release) | `senior-review:resource-lifecycle-auditor` |
 | Testing quality | `testing:test-suite-auditor` |
 | API contracts | `senior-review:api-contract-auditor` |
-| Data migrations | `agent-teams:team-reviewer` |
+| Data migrations | `senior-review:data-integrity-auditor` |
 
 ### Reviewer prompt template (context-aware)
 
@@ -574,7 +576,7 @@ Mark `phase_2_review` as `in_progress`.
 
 ## Phase 4: Consolidation
 
-Apply the deduplication and calibration rules from the `agent-teams:multi-reviewer-patterns` skill:
+Apply these deduplication and calibration rules:
 
 1. **Deduplicate**: merge findings that reference the same `file:line` + same issue. Credit all reviewers.
 2. **Co-locate**: same `file:line` but different issues -> keep separate, tag as co-located.

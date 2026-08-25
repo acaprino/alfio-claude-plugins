@@ -6,16 +6,20 @@ description: >
 argument-hint: "<target> [--critical] [--comments] [--depth=lite|full] [--partition <path>] [--partition-name <name>] [--skip-interconnect] [--skip-synthesis] [--run-name <name>] [--yes]"
 ---
 
-## Prerequisites
+## Execution requirements
 
-This command requires the upstream `agent-teams` plugin from `wshobson/agents` (MIT, Seth Hobson). It provides the `agent-teams:task-coordination-strategies`, `agent-teams:team-communication-protocols`, and `agent-teams:parallel-feature-development` skills used below. Install it first:
+This workflow fans out over partitions. Dispatch, scheduling and result collection belong to the host
+harness, which is generated from `contracts/team-analyze.workflow.toml`. What this workflow requires of
+any harness is fixed:
 
-```
-/plugin marketplace add wshobson/agents
-/plugin install agent-teams@claude-code-workflows
-```
+- every partition worker runs in its own context and owns exactly one partition directory
+- Wave 2 starts only after every Wave 1 worker has been recorded delivered or failed
+- synthesis runs only after every partition has been accounted for
+- nothing writes outside the roots named by the `write-confinement` policy
 
-The team infrastructure itself (teammate spawning via the `Agent` tool, plus TaskCreate, TaskList, TaskUpdate) is a native Claude Code feature and needs no plugin, but it is experimental and OFF by default: it requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`, best set persistently in the `env` block of `~/.claude/settings.json`. As of Claude Code 2.1.178 there are no `TeamCreate`/`TeamDelete` tools: the team forms implicitly when the first teammate is spawned, and team resources are cleaned up automatically when the session ends. If teammate spawning is unavailable in this session, stop and tell the user to enable the flag and restart Claude Code; do not fall back to plain subagents without saying so.
+If the host cannot run workers in isolated contexts, stop and say so. Do not fall back to a single
+shared context: a partition analysis that read another partition's output is not the artifact this
+workflow claims to produce.
 
 # Team X-Ray Analysis
 
@@ -30,16 +34,9 @@ Orchestrate a partitioned multi-agent codebase analysis plus global interconnect
 5. **Never enter plan mode.** Execute immediately.
 6. **Resume-safe.** Re-spawn only missing workers on resume.
 
-## Skills to Load
-
-Before starting, invoke these skills:
-- `agent-teams:task-coordination-strategies` — task dependencies, addBlockedBy semantics
-- `agent-teams:team-communication-protocols` — spawn prompt anatomy, shutdown
-- `agent-teams:parallel-feature-development` — file ownership patterns
-
 ## Pre-flight Checks
 
-1. Verify `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is set
+1. Confirm the harness can dispatch isolated workers; stop if it cannot
 2. Parse `$ARGUMENTS`:
    - `<target>`: directory to analyze (default: cwd)
    - `--critical`: prioritize auth/payment/persistence in Phase 3-4

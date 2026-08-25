@@ -97,7 +97,11 @@ def build_repository(root: Path, hosts: tuple[str, ...], check: bool) -> BuildRe
 
     for host in hosts:
         adapter = load_adapter(root / "adapters", host)
-        catalogs[host] = catalog_document(host, plugins, version)
+        packages = {
+            plugin.name: root / adapter.layout["root"] / "plugins" / plugin.name
+            for plugin in plugins
+        }
+        catalogs[host] = catalog_document(host, plugins, version, packages)
         for plugin in plugins:
             overrides = _overrides_for(root, host, plugin)
             declared = frozenset(plugin.capabilities.required) | frozenset(
@@ -162,7 +166,7 @@ def _render_host_catalog(root, adapter, host, plugins, version, catalog_path: Pa
         if legacy:
             document = merge_into_legacy(existing, plugins, host, packages)
             return (json.dumps(document, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
-    return render_catalog(host, plugins, version)
+    return render_catalog(host, plugins, version, packages)
 
 
 def _package_drifted(plugin, adapter, live: Path, overrides, root: Path) -> bool:

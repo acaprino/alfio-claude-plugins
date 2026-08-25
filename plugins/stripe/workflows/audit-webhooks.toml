@@ -1,0 +1,13 @@
+name = "audit-webhooks"
+entrypoint = "audit-webhooks.md"
+
+[[phases]]
+id = "run"
+isolation = "shared"
+produces = ["artifact:audit-webhooks-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["audit-webhooks-completed"]
+artifacts = ["audit-webhooks-report"]
+schemas = []

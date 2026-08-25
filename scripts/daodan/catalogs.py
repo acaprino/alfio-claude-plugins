@@ -35,8 +35,32 @@ def _source(host: str, name: str) -> object:
     return f"./exports/{host}/plugins/{name}"
 
 
+def package_components(root: Path) -> dict[str, list[str]]:
+    """Declared component paths for a rendered Claude package."""
+    components: dict[str, list[str]] = {}
+    for kind in ("agents", "commands"):
+        directory = root / kind
+        if directory.is_dir():
+            paths = [f"./{kind}/{item.name}" for item in sorted(directory.glob("*.md"))]
+            if paths:
+                components[kind] = paths
+    skills = root / "skills"
+    if skills.is_dir():
+        paths = [
+            f"./skills/{item.name}"
+            for item in sorted(skills.iterdir())
+            if (item / "SKILL.md").is_file()
+        ]
+        if paths:
+            components["skills"] = paths
+    return components
+
+
 def catalog_document(
-    host: str, plugins: Sequence[PluginSpec], version: str
+    host: str,
+    plugins: Sequence[PluginSpec],
+    version: str,
+    packages: Mapping[str, Path] | None = None,
 ) -> Mapping[str, object]:
     if host not in HOSTS:
         raise CatalogError(f"unknown host {host!r}")
@@ -57,8 +81,13 @@ def catalog_document(
             "description": plugin.description,
             "version": plugin.version,
             "license": plugin.license,
+            "author": dict(OWNER),
             "dependencies": list(plugin.required_dependencies),
         }
+        # A host that needs its components declared gets them from the package
+        # that was just rendered, never from a hand-maintained list.
+        if packages is not None and plugin.name in packages:
+            entry.update(package_components(packages[plugin.name]))
         source = _source(host, plugin.name)
         if isinstance(source, dict):
             entry.update(source)
@@ -74,9 +103,14 @@ def catalog_document(
     }
 
 
-def render_catalog(host: str, plugins: Sequence[PluginSpec], version: str) -> bytes:
+def render_catalog(
+    host: str,
+    plugins: Sequence[PluginSpec],
+    version: str,
+    packages: Mapping[str, Path] | None = None,
+) -> bytes:
     """Serialize one host catalog deterministically."""
-    document = catalog_document(host, plugins, version)
+    document = catalog_document(host, plugins, version, packages)
     return (json.dumps(document, sort_keys=True, indent=2) + "\n").encode("utf-8")
 
 
@@ -89,27 +123,6 @@ def assert_cross_host_identity(catalogs: Mapping[str, Mapping[str, object]]) -> 
             reference = versions
         elif versions != reference:
             raise CatalogError(f"{host}: catalog identity differs from its peers")
-
-
-def package_components(root: Path) -> dict[str, list[str]]:
-    """Declared component paths for a rendered Claude package."""
-    components: dict[str, list[str]] = {}
-    for kind in ("agents", "commands"):
-        directory = root / kind
-        if directory.is_dir():
-            paths = [f"./{kind}/{item.name}" for item in sorted(directory.glob("*.md"))]
-            if paths:
-                components[kind] = paths
-    skills = root / "skills"
-    if skills.is_dir():
-        paths = [
-            f"./skills/{item.name}"
-            for item in sorted(skills.iterdir())
-            if (item / "SKILL.md").is_file()
-        ]
-        if paths:
-            components["skills"] = paths
-    return components
 
 
 def merge_into_legacy(

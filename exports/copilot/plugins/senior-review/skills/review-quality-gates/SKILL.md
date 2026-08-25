@@ -7,7 +7,7 @@ description: >
   /senior-review:code-review Steps 4b and 4c; consolidating or deduplicating
   findings from multiple parallel reviewers.
   DO NOT TRIGGER WHEN: single-reviewer style review with no consolidation phase,
-  or generic team coordination (the upstream agent-teams skills cover that).
+  or generic team coordination (the host harness covers that).
 ---
 
 # Review Quality Gates

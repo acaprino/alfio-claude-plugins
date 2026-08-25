@@ -1,71 +1,172 @@
 {
-  "name": "claude-code-daodan",
-  "owner": {
-    "name": "Alfio",
-    "email": ""
-  },
   "metadata": {
-    "description": "Claude Code Daodan - 40 plugins that augment Claude Code into a specialized toolkit. Agents, skills, and commands for code quality, Tauri/Rust development, React and PWA frontend, AI tooling, scraping, trading, observability, constraint programming, libGDX game development, Kotlin (coroutines, KMP, Compose, Ktor), prose humanization, pure-architecture audits (missed unification, wrong abstractions), and cross-model peer review of plans and specs against a challenger on another model family.",
+    "description": "The Daodan: agents, skills and workflows that augment a coding agent into a specialized toolkit.",
     "version": "25.2.0"
+  },
+  "name": "daodan",
+  "owner": {
+    "name": "Alfio Caprino"
   },
   "plugins": [
     {
-      "name": "clean-code",
-      "source": "./exports/claude/plugins/clean-code",
-      "description": "Rewrites source code to be more readable and human-friendly without changing behavior - improves naming, removes AI boilerplate, simplifies structure, and adds clarity comments",
-      "version": "1.2.0",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "clean-code",
-        "readability",
-        "naming",
-        "refactor",
-        "cleanup"
+      "agents": [
+        "./agents/abstraction-architect.md"
       ],
-      "category": "review",
-      "strict": false,
+      "author": {
+        "name": "Alfio Caprino"
+      },
+      "commands": [
+        "./commands/audit.md"
+      ],
+      "dependencies": [
+        "codebase-xray"
+      ],
+      "description": "Structural entropy auditor: finds where the same concept is represented, owned, computed or implemented more than once, and what it costs when that concept changes. Seven dimensions over two evidence tracks. Knowledge track (duplicated domain knowledge, competing sources of truth, redundant representation, duplicated or derivable state) is judged by semantic identity and ownership, so two representations suffice behind a strict gate. Form track (missed unification, prior art available, abstraction fitness) is judged by recurrence, where the Rule of Three applies to missed unification only. Global mode censuses the codebase and persists a concept index; diff mode asks the same seven questions as 'introduced or aggravated by this change' and runs as the Abstraction dimension of /senior-review:team-review and /senior-review:code-review. Report-only, grounded in canonical theory (Metz, Beck, Fowler, Gross, North, DDD).",
+      "license": "MIT",
+      "name": "abstraction-architect",
+      "skills": [
+        "./skills/abstraction-architect"
+      ],
+      "source": "./exports/claude/plugins/abstraction-architect",
+      "version": "2.0.2"
+    },
+    {
+      "agents": [
+        "./agents/prompt-engineer.md"
+      ],
+      "author": {
+        "name": "Alfio Caprino"
+      },
+      "commands": [
+        "./commands/prompt-optimize.md"
+      ],
+      "dependencies": [
+        "superpowers@claude-plugins-official"
+      ],
+      "description": "AI development workflow - prompt engineering and optimization, and Claude Agent SDK integration guide",
+      "license": "MIT",
+      "name": "ai-tooling",
+      "skills": [
+        "./skills/agent-sdk-builder"
+      ],
+      "source": "./exports/claude/plugins/ai-tooling",
+      "version": "5.0.2"
+    },
+    {
+      "agents": [
+        "./agents/app-analyzer.md"
+      ],
+      "author": {
+        "name": "Alfio Caprino"
+      },
+      "dependencies": [
+        "playwright-skill@playwright-skill"
+      ],
+      "description": "Comprehensive app analysis for Android (ADB) and web (Playwright MCP) - navigation mapping, competitive analysis, design system extraction, UX flow analysis, and business model intelligence",
+      "license": "MIT",
+      "name": "app-analyzer",
+      "source": "./exports/claude/plugins/app-analyzer",
+      "version": "1.1.2"
+    },
+    {
+      "agents": [
+        "./agents/firefox-extension-dev.md"
+      ],
+      "author": {
+        "name": "Alfio Caprino"
+      },
+      "commands": [
+        "./commands/firefox-lint.md",
+        "./commands/firefox-publish.md",
+        "./commands/firefox-scaffold.md"
+      ],
+      "dependencies": [],
+      "description": "Expert Firefox extension (WebExtension) developer covering Manifest V2/V3, all 51 browser.* APIs, content scripts, background scripts, native messaging, cross-browser compatibility, AMO publishing, web-ext CLI tooling, project scaffolding, and live MDN documentation lookup; includes /firefox-scaffold, /firefox-lint, /firefox-publish commands",
+      "license": "MIT",
+      "name": "browser-extensions",
+      "skills": [
+        "./skills/firefox-extension-dev"
+      ],
+      "source": "./exports/claude/plugins/browser-extensions",
+      "version": "1.7.5"
+    },
+    {
+      "agents": [
+        "./agents/business-planner.md",
+        "./agents/legal-advisor.md",
+        "./agents/privacy-doc-generator.md"
+      ],
+      "author": {
+        "name": "Alfio Caprino"
+      },
+      "dependencies": [
+        "text-humanizer"
+      ],
+      "description": "Legal advisory, compliance document generation, and SaaS business planning - Privacy Policies, Cookie Policies, DPAs, GDPR/ePrivacy/CCPA compliance, contract review, GTM strategy, market sizing, pricing, and positioning",
+      "license": "MIT",
+      "name": "business",
+      "skills": [
+        "./skills/saas-business-plan"
+      ],
+      "source": "./exports/claude/plugins/business",
+      "version": "1.10.2"
+    },
+    {
       "agents": [
         "./agents/clean-code-agent.md"
       ],
+      "author": {
+        "name": "Alfio Caprino"
+      },
       "commands": [
         "./commands/clean-code.md"
-      ]
+      ],
+      "dependencies": [],
+      "description": "Rewrites source code to be more readable and human-friendly without changing behavior - improves naming, removes AI boilerplate, simplifies structure, and adds clarity comments",
+      "license": "MIT",
+      "name": "clean-code",
+      "source": "./exports/claude/plugins/clean-code",
+      "version": "1.2.0"
     },
     {
-      "name": "codebase-xray",
-      "source": "./exports/claude/plugins/codebase-xray",
-      "description": "Multi-language systematic codebase X-ray analysis (Python, Java, JavaScript, TypeScript, SQL, PL/SQL, Rust) - analyzes architecture, traces data flows, detects anti-patterns, and generates structured documentation for onboarding, architecture review, or code documentation. Root of the review and documentation dependency graph: it also owns the semantic interconnect mapper (contracts / invariants / domain rules / assumptions) that team-review and codebase-mapper both consume. Concurrent-safe: every analysis is an isolated run under .deep-dive/runs/ published to a stable root mirror. The Next Steps menu wires the output into downstream documentation generators (CLAUDE.md, codebase map, interface docs) as a technical-reference backbone. Renamed from deep-dive-analysis in 2.0.0.",
-      "version": "2.2.1",
+      "agents": [
+        "./agents/codebase-explorer.md",
+        "./agents/config-writer.md",
+        "./agents/doc-humanizer.md",
+        "./agents/documentation-engineer.md",
+        "./agents/flow-writer.md",
+        "./agents/guide-reviewer.md",
+        "./agents/onboarding-writer.md",
+        "./agents/ops-writer.md",
+        "./agents/overview-writer.md",
+        "./agents/tech-writer.md"
+      ],
       "author": {
-        "name": "Alfio"
+        "name": "Alfio Caprino"
       },
-      "license": "MIT",
-      "keywords": [
-        "analysis",
-        "codebase",
-        "documentation",
-        "semantic",
-        "deep-dive",
-        "architecture",
-        "onboarding",
-        "anti-patterns",
-        "java",
-        "javascript",
-        "typescript",
-        "sql",
-        "plsql",
-        "rust",
-        "tree-sitter",
-        "multi-language"
+      "commands": [
+        "./commands/docs-create.md",
+        "./commands/docs-maintain.md",
+        "./commands/humanize-docs.md",
+        "./commands/map-codebase.md",
+        "./commands/team-codebase-map.md"
       ],
-      "category": "review",
-      "strict": false,
       "dependencies": [
-        "agent-teams@claude-code-workflows"
+        "agent-teams@claude-code-workflows",
+        "codebase-xray",
+        "text-humanizer",
+        "senior-review"
       ],
+      "description": "Human-readable codebase guide generator: explores unfamiliar projects, builds a structured interconnect map (contracts, invariants, domain rules, integration hot-spots) via the codebase-xray semantic-interconnect-mapper, then autonomously profiles the project (type, audience, register) and produces audience-adaptive narrative documents with Mermaid diagrams that cite the map, including a plain-language executive summary and a domain glossary so the guide is comprehensible by everyone. Includes documentation-reality drift detection in the review phase, plus standalone documentation creation, maintenance, and humanization with bottom-up code analysis. Both docs-create and docs-maintain cover 20 documentation dimensions; docs-maintain runs a structured per-dimension drift audit (added/removed/renamed/retyped) instead of generic outdated-text matching.",
+      "license": "MIT",
+      "name": "codebase-mapper",
+      "skills": [
+        "./skills/codebase-mapper"
+      ],
+      "source": "./exports/claude/plugins/codebase-mapper",
+      "version": "3.0.0"
+    },
+    {
       "agents": [
         "./agents/partition-behavior-worker.md",
         "./agents/partition-quality-worker.md",
@@ -73,166 +174,397 @@
         "./agents/partition-synthesizer.md",
         "./agents/semantic-interconnect-mapper.md"
       ],
+      "author": {
+        "name": "Alfio Caprino"
+      },
       "commands": [
         "./commands/analyze.md",
         "./commands/team-analyze.md"
       ],
+      "dependencies": [],
+      "description": "Multi-language systematic codebase X-ray analysis (Python, Java, JavaScript, TypeScript, SQL, PL/SQL, Rust) - analyzes architecture, traces data flows, detects anti-patterns, and generates structured documentation for onboarding, architecture review, or code documentation. Root of the review and documentation dependency graph: it also owns the semantic interconnect mapper (contracts / invariants / domain rules / assumptions) that team-review and codebase-mapper both consume. Concurrent-safe: every analysis is an isolated run under .deep-dive/runs/ published to a stable root mirror. The Next Steps menu wires the output into downstream documentation generators (CLAUDE.md, codebase map, interface docs) as a technical-reference backbone. Renamed from deep-dive-analysis in 2.0.0.",
+      "license": "MIT",
+      "name": "codebase-xray",
       "skills": [
         "./skills/analyze"
-      ]
+      ],
+      "source": "./exports/claude/plugins/codebase-xray",
+      "version": "2.2.1"
     },
     {
-      "name": "tauri-development",
-      "source": "./exports/claude/plugins/tauri-development",
-      "description": "Tauri 2 desktop and mobile development - IPC optimization, Rust backend patterns, cross-platform builds, and React integration for high-performance apps",
-      "version": "2.7.5",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "tauri",
-        "rust",
-        "mobile",
-        "cross-platform",
-        "desktop"
-      ],
-      "category": "development",
-      "strict": false,
       "agents": [
-        "./agents/rust-engineer.md",
-        "./agents/tauri-desktop.md",
-        "./agents/tauri-mobile.md"
+        "./agents/or-tools-expert.md"
       ],
-      "skills": [
-        "./skills/tauri"
-      ]
+      "author": {
+        "name": "Alfio Caprino"
+      },
+      "dependencies": [],
+      "description": "Constraint Satisfaction Problems and combinatorial optimization with Google OR-Tools CP-SAT solver",
+      "license": "MIT",
+      "name": "csp",
+      "source": "./exports/claude/plugins/csp",
+      "version": "1.3.4"
     },
     {
-      "name": "react-development",
-      "source": "./exports/claude/plugins/react-development",
-      "description": "React performance optimization, React 19 API adoption, state management audit, bundle analysis, re-render detection, and Vercel best practices checklist",
-      "version": "1.10.1",
       "author": {
-        "name": "Alfio"
+        "name": "Alfio Caprino"
       },
-      "license": "MIT",
-      "keywords": [
-        "react",
-        "performance",
-        "optimization",
-        "state-management",
-        "bundle",
-        "re-renders",
-        "react-compiler",
-        "react-19"
+      "commands": [
+        "./commands/deps-audit.md"
       ],
-      "category": "frontend",
-      "strict": false,
+      "dependencies": [],
+      "description": "Evidence-first dependency auditing: runs each ecosystem's real audit tooling for CVEs, outdated packages, license obligations and supply-chain signals, and reports only tool-verified facts under TOOL-REPORTED, INFERRED and UNKNOWN evidence tiers. Obligations-based license analysis instead of a compatibility matrix, and strictly non-destructive remediation.",
+      "license": "MIT",
+      "name": "dependency-audit",
+      "skills": [
+        "./skills/dependency-audit"
+      ],
+      "source": "./exports/claude/plugins/dependency-audit",
+      "version": "1.0.2"
+    },
+    {
       "agents": [
-        "./agents/react-performance-optimizer.md"
+        "./agents/content-marketer.md",
+        "./agents/ga4-implementation-expert.md",
+        "./agents/llm-seo-optimize.md",
+        "./agents/seo-specialist.md"
       ],
+      "author": {
+        "name": "Alfio Caprino"
+      },
       "commands": [
-        "./commands/review-react.md"
+        "./commands/brand-naming.md",
+        "./commands/content-strategy.md",
+        "./commands/ga4-audit.md",
+        "./commands/llm-seo-audit.md",
+        "./commands/reply-to-customer-review.md",
+        "./commands/seo-audit.md"
       ],
+      "dependencies": [
+        "playwright-skill@playwright-skill",
+        "text-humanizer"
+      ],
+      "description": "SEO optimization, content marketing, brand naming, domain hunting, customer review response, GA4/GTM analytics implementation, and answer-engine optimization (Google AI Overviews / SGE, Perplexity, ChatGPT Search, Claude Search, Bing Copilot) - technical audits, keyword research, content strategy, brand naming, domain checks, trademark screening, professional review reply generation with sentiment analysis, Google Analytics 4 + Google Tag Manager deployment with EU/GDPR Consent Mode v2 compliance, /ga4-audit Playwright-powered verification, and /llm-seo-audit AEO command with crawler-access matrix, E-E-A-T, structured data, passage extractability. Prose humanization lives in the standalone text-humanizer plugin.",
+      "license": "MIT",
+      "name": "digital-marketing",
       "skills": [
-        "./skills/react-best-practices"
-      ]
+        "./skills/brand-naming",
+        "./skills/domain-hunter",
+        "./skills/ga4-implementation",
+        "./skills/reply-to-customer-review"
+      ],
+      "source": "./exports/claude/plugins/digital-marketing",
+      "version": "2.0.2"
     },
     {
-      "name": "xterm",
-      "source": "./exports/claude/plugins/xterm",
-      "description": "xterm.js terminal emulator development - building, configuring, and integrating xterm.js in web and Electron apps with addon support and PTY wiring",
-      "version": "1.1.2",
       "author": {
-        "name": "Alfio"
+        "name": "Alfio Caprino"
       },
+      "dependencies": [],
+      "description": "Docker best practices - optimized multi-stage Dockerfiles, layer caching, security hardening, and minimal base image selection for any language or framework (Node, Python, Go, Rust, Java, Bun, Deno)",
       "license": "MIT",
-      "keywords": [
-        "xterm",
-        "terminal",
-        "xtermjs",
-        "web-terminal",
-        "pty",
-        "addons"
-      ],
-      "category": "frontend",
-      "strict": false,
-      "commands": [
-        "./commands/xterm-debug.md",
-        "./commands/xterm-implement.md"
-      ],
+      "name": "docker",
       "skills": [
-        "./skills/xtermjs-skill"
-      ]
+        "./skills/multi-stage-dockerfile"
+      ],
+      "source": "./exports/claude/plugins/docker",
+      "version": "1.3.2"
     },
     {
-      "name": "ai-tooling",
-      "source": "./exports/claude/plugins/ai-tooling",
-      "description": "AI development workflow - prompt engineering and optimization, and Claude Agent SDK integration guide",
-      "version": "5.0.2",
       "author": {
-        "name": "Alfio"
+        "name": "Alfio Caprino"
       },
-      "license": "MIT",
-      "keywords": [
-        "prompt-engineering",
-        "llm",
-        "ai",
-        "optimization",
-        "skill-activation",
-        "agent-sdk",
-        "claude-code-sdk",
-        "subagents",
-        "mcp"
+      "commands": [
+        "./commands/maintain-readme.md"
       ],
-      "category": "ai-ml",
-      "strict": false,
+      "dependencies": [],
+      "description": "README and project documentation authoring - craft magnetic, top-tier README.md files with progressive disclosure, hero sections, badges, quick start, feature tables, Mermaid diagrams, and community sections",
+      "license": "MIT",
+      "name": "docs",
+      "skills": [
+        "./skills/readme-craft"
+      ],
+      "source": "./exports/claude/plugins/docs",
+      "version": "1.1.4"
+    },
+    {
+      "author": {
+        "name": "Alfio Caprino"
+      },
+      "commands": [
+        "./commands/review-frontend.md"
+      ],
+      "dependencies": [
+        "impeccable@impeccable",
+        "ui-ux-pro-max@ui-ux-pro-max-skill",
+        "frontend-design@claude-plugins-official",
+        "react-development",
+        "typescript-development",
+        "pwa-expert",
+        "platform-engineering"
+      ],
+      "description": "Full frontend review in one pass, combining a design/UX dimension driven by the impeccable, ui-ux-pro-max, and frontend-design upstream skills as hard prerequisites with stop-and-install, with auto-detected code dimensions (React performance, TypeScript type safety, PWA architecture, platform compliance) spawned from local plugins declared as hard dependencies, so a dimension is skipped only when its signal does not match. Findings consolidate into a unified scored report at .frontend-review/report.md. Pure orchestration; vendors nothing.",
+      "license": "MIT",
+      "name": "frontend-review",
+      "source": "./exports/claude/plugins/frontend-review",
+      "version": "2.0.0"
+    },
+    {
+      "agents": [
+        "./agents/ai-scraping-expert.md",
+        "./agents/grabber-architect.md",
+        "./agents/http-fingerprint-expert.md",
+        "./agents/stealth-browser-expert.md"
+      ],
+      "author": {
+        "name": "Alfio Caprino"
+      },
+      "dependencies": [
+        "playwright-skill@playwright-skill"
+      ],
+      "description": "Expert Python web scraping - coordinator (grabber-architect) plus three specialists: stealth-browser-expert (Patchright/Camoufox/Nodriver + CAPTCHA), http-fingerprint-expert (JA4+/curl_cffi/primp + proxies/Web Unlocker), ai-scraping-expert (Crawl4AI/Firecrawl/ScrapeGraphAI + Pydantic + GraphQL RE)",
+      "license": "MIT",
+      "name": "grabber-development",
+      "skills": [
+        "./skills/grabber-development"
+      ],
+      "source": "./exports/claude/plugins/grabber-development",
+      "version": "1.4.2"
+    },
+    {
+      "author": {
+        "name": "Alfio Caprino"
+      },
+      "dependencies": [],
+      "description": "Idiomatic Kotlin development toolkit - kotlin-specialist skill covering coroutines and structured concurrency, Flow / StateFlow / SharedFlow, Kotlin Multiplatform (KMP) with expect/actual, Jetpack Compose on Android, Ktor server (routing, JWT auth, Exposed, WebSockets), and type-safe DSL idioms (lambdas with receivers, delegated properties, inline reified, value classes). Vendored from Jeffallan/claude-skills (MIT).",
+      "license": "MIT",
+      "name": "kotlin-development",
+      "skills": [
+        "./skills/kotlin-specialist"
+      ],
+      "source": "./exports/claude/plugins/kotlin-development",
+      "version": "1.0.3"
+    },
+    {
+      "author": {
+        "name": "Alfio Caprino"
+      },
+      "commands": [
+        "./commands/export-to-markmind.md"
+      ],
+      "dependencies": [],
+      "description": "Learning and knowledge management - mind map generation from any content, Obsidian MarkMind export, and interactive force-graph HTML visualization",
+      "license": "MIT",
+      "name": "learning",
+      "skills": [
+        "./skills/forcegraph-exporter",
+        "./skills/generate-mindmap",
+        "./skills/markmind-exporter"
+      ],
+      "source": "./exports/claude/plugins/learning",
+      "version": "1.6.4"
+    },
+    {
+      "agents": [
+        "./agents/libgdx-architect.md"
+      ],
+      "author": {
+        "name": "Alfio Caprino"
+      },
+      "commands": [
+        "./commands/libgdx-audit.md"
+      ],
+      "dependencies": [],
+      "description": "libGDX cross-platform game development - project generation via gdx-liftoff, rendering pipeline (SpriteBatch, TextureAtlas, viewports), Scene2D + Ashley ECS architecture, Box2D physics, AssetManager lifecycle, Screen management, Tiled maps, and deployment to Desktop (LWJGL3), Android, iOS (RoboVM), and HTML5 (GWT/TeaVM); includes libGDX 1.14.0 migration notes and a /libgdx-audit command",
+      "license": "MIT",
+      "name": "libgdx-development",
+      "skills": [
+        "./skills/libgdx-development"
+      ],
+      "source": "./exports/claude/plugins/libgdx-development",
+      "version": "1.0.6"
+    },
+    {
+      "agents": [
+        "./agents/marketplace-manager.md"
+      ],
+      "author": {
+        "name": "Alfio Caprino"
+      },
+      "commands": [
+        "./commands/marketplace-health.md",
+        "./commands/marketplace-review.md",
+        "./commands/marketplace-scaffold-plugin.md",
+        "./commands/skills-validate.md"
+      ],
+      "dependencies": [],
+      "description": "Generic Claude Code plugin marketplace manager - auditing, validation, AI quality review, upstream sync, plugin scaffolding, and health monitoring. Works against any project with the standard .claude-plugin/marketplace.json + plugins/<name>/ layout; reads project-specific conventions (author, license, category taxonomy, upstream sources) from the target marketplace.json and CLAUDE.md",
+      "license": "MIT",
+      "name": "marketplace-ops",
+      "skills": [
+        "./skills/marketplace-audit",
+        "./skills/skills-creator"
+      ],
+      "source": "./exports/claude/plugins/marketplace-ops",
+      "version": "2.2.0"
+    },
+    {
+      "agents": [
+        "./agents/rabbitmq-expert.md"
+      ],
+      "author": {
+        "name": "Alfio Caprino"
+      },
+      "dependencies": [],
+      "description": "RabbitMQ and AMQP messaging - queue configuration, exchange routing, clustering, high availability, and event-driven architecture optimization (RabbitMQ 4.3 coverage: Khepri-only metadata store, quorum queue priorities and delayed retries, streams, MQTT 5, AMQP 1.0 SQL filters) plus a production knowledge base skill",
+      "license": "MIT",
+      "name": "messaging",
+      "skills": [
+        "./skills/rabbitmq-production"
+      ],
+      "source": "./exports/claude/plugins/messaging",
+      "version": "2.0.1"
+    },
+    {
+      "author": {
+        "name": "Alfio Caprino"
+      },
+      "dependencies": [],
+      "description": "Obsidian community plugin development with automated review compliance (community.obsidian.md), project scaffolding, and pre-submission checks",
+      "license": "MIT",
+      "name": "obsidian-development",
+      "skills": [
+        "./skills/obsidian-check",
+        "./skills/obsidian-plugin-development",
+        "./skills/obsidian-scaffold"
+      ],
+      "source": "./exports/claude/plugins/obsidian-development",
+      "version": "1.4.2"
+    },
+    {
+      "agents": [
+        "./agents/otel-architect.md"
+      ],
+      "author": {
+        "name": "Alfio Caprino"
+      },
+      "commands": [
+        "./commands/otel-audit.md"
+      ],
+      "dependencies": [],
+      "description": "OpenTelemetry Python instrumentation - distributed tracing, async context propagation, custom transport propagators, OTLP exporters, AWS ADOT/X-Ray, and production observability; includes /otel-audit command",
+      "license": "MIT",
+      "name": "opentelemetry",
+      "skills": [
+        "./skills/opentelemetry"
+      ],
+      "source": "./exports/claude/plugins/opentelemetry",
+      "version": "1.3.5"
+    },
+    {
+      "agents": [
+        "./agents/brief-builder.md",
+        "./agents/packet-builder.md",
+        "./agents/respondent.md"
+      ],
+      "author": {
+        "name": "Alfio Caprino"
+      },
+      "commands": [
+        "./commands/review.md"
+      ],
       "dependencies": [
         "superpowers@claude-plugins-official"
       ],
-      "agents": [
-        "./agents/prompt-engineer.md"
-      ],
-      "commands": [
-        "./commands/prompt-optimize.md"
-      ],
+      "description": "Cross-model peer review of plans, specs, and the decisions a session has just made: a harness-agnostic deliberation protocol (challenge packet with GIVEN-tagged context, challenger findings that each carry their own falsifier, evidence-backed responses at a stable locator, a verbatim ledger, a certification pass the challenger owns, and a verdict computed from the ledger) plus a transport-only MCP server for any OpenAI-compatible endpoint. Point it at a document, or run it with no path to materialize the session's context, settled decisions and open questions into a frozen brief and put that on trial. The challenger attacks the artifact, the local session refutes with evidence, and unresolved disagreements terminate as precise standoffs for the user to settle",
+      "license": "MIT",
+      "name": "peer-review",
       "skills": [
-        "./skills/agent-sdk-builder"
-      ]
+        "./skills/cross-model-peer-review"
+      ],
+      "source": "./exports/claude/plugins/peer-review",
+      "version": "2.1.0"
     },
     {
-      "name": "python-development",
-      "source": "./exports/claude/plugins/python-development",
-      "description": "Python development toolkit - TDD with pytest, code refactoring with complexity metrics, performance profiling, async patterns, uv package management, dead code detection, comment auditing, project scaffolding, deep Pydantic v2.13 guide (validators/serializers/strict/performance/security/PydanticAI+Logfire) with v1 migration, and /python-audit consolidated quality report",
-      "version": "1.21.8",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "python",
-        "testing",
-        "packaging",
-        "async",
-        "dead-code",
-        "vulture",
-        "pytest",
-        "uv",
-        "refactoring"
+      "agents": [
+        "./agents/platform-reviewer.md"
       ],
-      "category": "development",
-      "strict": false,
+      "author": {
+        "name": "Alfio Caprino"
+      },
+      "commands": [
+        "./commands/platform-review.md"
+      ],
+      "dependencies": [],
+      "description": "Cross-platform development rulebook - security (validation, auth tokens, passkeys/WebAuthn, API security, XSS/CSP, secrets), architecture (client-server, REST vs GraphQL, offline-first, monolith-first, CI/CD), and performance (bundles, images, Core Web Vitals, SSR/SSG, CDN caching) for SPA, PWA, mobile, Electron (with Fuses + asar integrity), and Tauri; includes /platform-review standalone command",
+      "license": "MIT",
+      "name": "platform-engineering",
+      "skills": [
+        "./skills/platform-engineering"
+      ],
+      "source": "./exports/claude/plugins/platform-engineering",
+      "version": "1.2.9"
+    },
+    {
+      "agents": [
+        "./agents/claude-md-auditor.md"
+      ],
+      "author": {
+        "name": "Alfio Caprino"
+      },
+      "commands": [
+        "./commands/create-claude-md.md",
+        "./commands/maintain-claude-md.md"
+      ],
+      "dependencies": [],
+      "description": "Project configuration and setup tools including CLAUDE.md creation and maintenance with ground truth validation. The maintain flow preserves existing references and information by default - removal requires cross-verification proving the content false or obsolete (else: keep, extract to docs/, or ask the user) - and surfaces every single drift to the user via AskUserQuestion before applying any change (no batch-auto-fix, default on unanswered = leave unchanged). Includes a Phase 4b internal-duplication detection pass: file paths, pointers, and external resources are counted across the document; reference outliers (one path appearing N>1 times while peers appear once), conceptual restatements, and weak-justification duplicates (e.g., 'scannability' for jumping readers) are surfaced as per-drift questions with all N occurrences, peer-group comparison, and concrete merge/keep/cross-reference/extract options. Dedup merges are treated as deletions and require explicit per-item approval. Enforces a hard 40,000-character cap on CLAUDE.md (Claude Code performance warning threshold) by extracting bloated sections to docs/ via thin pointers. The project-structure section is required to document the EVERGREEN shape (top-level layout + repeating structural patterns + role per category), not an exhaustive file-by-file tree; file-by-file annotation is justified only where names alone are ambiguous, where the file is a key entry point, or to disambiguate siblings. Exhaustive file-by-file trees in existing CLAUDE.md files are flagged as Medium consolidation candidates (high decay risk, tokens without evergreen value) and surfaced as per-finding questions (consolidate / extract to docs/ / keep / skip), never collapsed autonomously. Generated CLAUDE.md files always include a canonical Working Principles section with 5 principles (4 inspired by upstream agentic-coding meta-rules: Think Before Coding, Simplicity First, Surgical Changes, Goal-Driven Execution; plus the locally authored Centralize Shared Logic for DRY / Single Source of Truth across external calls and cross-cutting concerns). Each of principles 1-4 ships with 3 inline sub-bullets covering the deeper meta-rules (root-cause analysis, evergreen tests, surgical diffs) so the block is self-contained and never linked out. The create/maintain flows auto-detect .deep-dive/ output and offer to ingest it as the technical-reference backbone. When the project has a test suite, generated CLAUDE.md files also carry a canonical Test-Suite Rules block (7 binding rules condensed from the testing plugin's hygiene knowledge base: search before writing, mirrored placement, explicit layers, behavior over implementation, no skip markers, assertion integrity, delete tests with the feature), offered on create and verified on audit; projects without tests do not get the block.",
+      "license": "MIT",
+      "name": "project-setup",
+      "source": "./exports/claude/plugins/project-setup",
+      "version": "1.19.0"
+    },
+    {
+      "agents": [
+        "./agents/pwa-architect.md"
+      ],
+      "author": {
+        "name": "Alfio Caprino"
+      },
+      "commands": [
+        "./commands/pwa-audit.md",
+        "./commands/pwa-checklist.md",
+        "./commands/pwa-scaffold.md"
+      ],
+      "dependencies": [
+        "playwright-skill@playwright-skill"
+      ],
+      "description": "Progressive Web App expert for the 2025-2026 baseline. Covers Web App Manifest (id, display_override, scope_extensions, handle_links, file_handlers, share_target), Service Workers (Workbox 7 / Serwist), Web Push (VAPID, RFC 8030/8291/8292, Declarative Push for Safari 18.4+), install flows (beforeinstallprompt, Window Controls Overlay), OPFS storage, Project Fugu capabilities, Core Web Vitals 2025 (INP < 200ms), security (HTTPS, CSP, COOP/COEP), and distribution (Bubblewrap to Google Play, PWA Builder to Microsoft Store, Capacitor to App Store, PWA Builder to Meta Quest). Includes the pwa-architect agent and three commands: /pwa-audit (hybrid local-code + live-URL via Playwright), /pwa-scaffold (manifest + SW + iOS meta + framework wiring for Vite, Next.js, Angular, Nuxt, vanilla), /pwa-checklist (deterministic production-deploy checklist walk).",
+      "license": "MIT",
+      "name": "pwa-expert",
+      "skills": [
+        "./skills/pwa-development"
+      ],
+      "source": "./exports/claude/plugins/pwa-expert",
+      "version": "1.1.2"
+    },
+    {
       "agents": [
         "./agents/python-engineer.md",
         "./agents/python-refactor-agent.md",
         "./agents/python-test-engineer.md"
       ],
+      "author": {
+        "name": "Alfio Caprino"
+      },
       "commands": [
         "./commands/python-audit.md",
         "./commands/python-refactor.md",
         "./commands/python-scaffold.md"
       ],
+      "dependencies": [],
+      "description": "Python development toolkit - TDD with pytest, code refactoring with complexity metrics, performance profiling, async patterns, uv package management, dead code detection, comment auditing, project scaffolding, deep Pydantic v2.13 guide (validators/serializers/strict/performance/security/PydanticAI+Logfire) with v1 migration, and /python-audit consolidated quality report",
+      "license": "MIT",
+      "name": "python-development",
       "skills": [
         "./skills/async-python-patterns",
         "./skills/pydantic-v2",
@@ -243,402 +575,93 @@
         "./skills/python-refactor",
         "./skills/python-tdd",
         "./skills/uv-package-manager"
-      ]
+      ],
+      "source": "./exports/claude/plugins/python-development",
+      "version": "1.21.8"
     },
     {
-      "name": "stripe",
-      "source": "./exports/claude/plugins/stripe",
-      "description": "Stripe payments, subscriptions, Connect marketplaces, and revenue optimization for SaaS monetization; includes a dedicated skill (link-first references + scripts) for API patterns, Next.js/TypeScript integration, Embedded Checkout, Billing Meters, Entitlements, webhook reliability and auditing, Stripe Agent Toolkit for LLM tool-calling, test-clock simulation, PCI DSS 4.0 compliance, and pricing design",
-      "version": "2.4.5",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "stripe",
-        "payments",
-        "subscriptions",
-        "monetization",
-        "pricing",
-        "revenue",
-        "saas",
-        "webhooks",
-        "checkout",
-        "connect"
-      ],
-      "category": "payments",
-      "strict": false,
-      "skills": [
-        "./skills/stripe"
-      ]
-    },
-    {
-      "name": "system-utils",
-      "source": "./exports/claude/plugins/system-utils",
-      "description": "File organization and cleanup utilities - sort messy folders, find duplicates, and restructure directory hierarchies",
-      "version": "2.0.2",
-      "author": {
-        "name": "ComposioHQ"
-      },
-      "license": "MIT",
-      "keywords": [
-        "files",
-        "organization",
-        "cleanup",
-        "duplicates",
-        "folders",
-        "downloads"
-      ],
-      "category": "utilities",
-      "strict": false,
-      "commands": [
-        "./commands/organize-files.md"
-      ],
-      "skills": [
-        "./skills/file-organizer"
-      ]
-    },
-    {
-      "name": "messaging",
-      "source": "./exports/claude/plugins/messaging",
-      "description": "RabbitMQ and AMQP messaging - queue configuration, exchange routing, clustering, high availability, and event-driven architecture optimization (RabbitMQ 4.3 coverage: Khepri-only metadata store, quorum queue priorities and delayed retries, streams, MQTT 5, AMQP 1.0 SQL filters) plus a production knowledge base skill",
-      "version": "2.0.1",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "rabbitmq",
-        "messaging",
-        "amqp",
-        "queues",
-        "pub-sub",
-        "message-broker"
-      ],
-      "category": "infrastructure",
-      "strict": false,
       "agents": [
-        "./agents/rabbitmq-expert.md"
+        "./agents/qdrant-expert.md",
+        "./agents/rag-architect.md"
       ],
+      "author": {
+        "name": "Alfio Caprino"
+      },
+      "commands": [
+        "./commands/rag-audit.md"
+      ],
+      "dependencies": [],
+      "description": "RAG system design, implementation, and optimization - chunking strategies, embedding models (Voyage 4 family, OpenAI v3, Cohere embed-v4, Gemini, BGE-M3, NV-Embed-v2, Nomic MoE, Jina v3), vector databases (Qdrant 1.13-1.16), hybrid search, modern rerankers (Voyage rerank-2.5, Cohere Rerank 3.5, Jina Reranker v3, mxbai-rerank-v2), advanced patterns (HippoRAG, LightRAG, LongRAG, Agentic RAG, CRAG, Self-RAG, GraphRAG), evaluation (RAGAS/DeepEval/TruLens), and production deployment",
+      "license": "MIT",
+      "name": "rag-development",
       "skills": [
-        "./skills/rabbitmq-production"
-      ]
+        "./skills/rag-development"
+      ],
+      "source": "./exports/claude/plugins/rag-development",
+      "version": "1.5.5"
     },
     {
-      "name": "research",
-      "source": "./exports/claude/plugins/research",
-      "description": "Deep web research (any topic) modelled on the commercial deep-research products: /research:team-research clarifies scope only when needed, shows a plan of sub-questions for approval, spawns one iterative deep-researcher per sub-question in parallel, verifies contradictions with quick-searcher, synthesizes a long-form cited report and writes it to disk; tiers quick/standard/deep scale effort; optional serper.dev backend via websearch.py when SERPER_API_KEY is set, native WebSearch otherwise. quick-searcher (sonnet) also answers single-fact lookups directly",
-      "version": "6.1.0",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "search",
-        "research",
-        "information-retrieval",
-        "query-optimization",
-        "knowledge-discovery",
-        "web-search",
-        "quick-search",
-        "deep-research",
-        "serper",
-        "citations"
+      "agents": [
+        "./agents/react-performance-optimizer.md"
       ],
-      "category": "research",
-      "strict": false,
+      "author": {
+        "name": "Alfio Caprino"
+      },
+      "commands": [
+        "./commands/review-react.md"
+      ],
       "dependencies": [],
+      "description": "React performance optimization, React 19 API adoption, state management audit, bundle analysis, re-render detection, and Vercel best practices checklist",
+      "license": "MIT",
+      "name": "react-development",
+      "skills": [
+        "./skills/react-best-practices"
+      ],
+      "source": "./exports/claude/plugins/react-development",
+      "version": "1.10.1"
+    },
+    {
+      "agents": [
+        "./agents/workspace-auditor.md"
+      ],
+      "author": {
+        "name": "Alfio Caprino"
+      },
+      "commands": [
+        "./commands/tidy.md"
+      ],
+      "dependencies": [],
+      "description": "Workspace tidying decided by the filesystem and git alone, with no source comprehension anywhere in it: filesystem garbage and shell-redirection artifacts, generated artifacts tracked in git (checked against publication conventions before anything is proposed for untracking), .gitignore completeness per ecosystem and archaeology over stale and overly-broad rules with git check-ignore provenance, scratch and pipeline-output directories, orphan doc-assets widened past literal Markdown links to configs, stylesheets and templates, and git auxiliary state. One check catalog with a full and a lite profile, so the diff-scoped pass inside a code review and the whole-tree pass share definitions and cannot drift. /repo-hygiene:tidy detects by default and applies under --fix or --commit; untracked removals are quarantined rather than deleted, git rm --cached is confirmed per item, and the git-state dimension is permanently detection-only because a dropped stash or a removed worktree leaves no diff for a per-phase commit to revert.",
+      "license": "MIT",
+      "name": "repo-hygiene",
+      "skills": [
+        "./skills/repo-hygiene"
+      ],
+      "source": "./exports/claude/plugins/repo-hygiene",
+      "version": "1.0.0"
+    },
+    {
       "agents": [
         "./agents/deep-researcher.md",
         "./agents/quick-searcher.md"
       ],
+      "author": {
+        "name": "Alfio Caprino"
+      },
       "commands": [
         "./commands/team-research.md"
       ],
+      "dependencies": [],
+      "description": "Deep web research (any topic) modelled on the commercial deep-research products: /research:team-research clarifies scope only when needed, shows a plan of sub-questions for approval, spawns one iterative deep-researcher per sub-question in parallel, verifies contradictions with quick-searcher, synthesizes a long-form cited report and writes it to disk; tiers quick/standard/deep scale effort; optional serper.dev backend via websearch.py when SERPER_API_KEY is set, native WebSearch otherwise. quick-searcher (sonnet) also answers single-fact lookups directly",
+      "license": "MIT",
+      "name": "research",
       "skills": [
         "./skills/web-search-techniques"
-      ]
+      ],
+      "source": "./exports/claude/plugins/research",
+      "version": "6.1.0"
     },
     {
-      "name": "business",
-      "source": "./exports/claude/plugins/business",
-      "description": "Legal advisory, compliance document generation, and SaaS business planning - Privacy Policies, Cookie Policies, DPAs, GDPR/ePrivacy/CCPA compliance, contract review, GTM strategy, market sizing, pricing, and positioning",
-      "version": "1.10.2",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "legal",
-        "compliance",
-        "contracts",
-        "nda",
-        "terms-of-service",
-        "privacy",
-        "gdpr",
-        "ccpa",
-        "cookie-policy",
-        "dpa",
-        "dpia",
-        "intellectual-property",
-        "risk-management",
-        "saas",
-        "gtm",
-        "business-plan",
-        "pricing",
-        "positioning"
-      ],
-      "category": "business",
-      "strict": false,
-      "dependencies": [
-        "text-humanizer"
-      ],
-      "agents": [
-        "./agents/business-planner.md",
-        "./agents/legal-advisor.md",
-        "./agents/privacy-doc-generator.md"
-      ],
-      "skills": [
-        "./skills/saas-business-plan"
-      ]
-    },
-    {
-      "name": "project-setup",
-      "source": "./exports/claude/plugins/project-setup",
-      "description": "Project configuration and setup tools including CLAUDE.md creation and maintenance with ground truth validation. The maintain flow preserves existing references and information by default - removal requires cross-verification proving the content false or obsolete (else: keep, extract to docs/, or ask the user) - and surfaces every single drift to the user via AskUserQuestion before applying any change (no batch-auto-fix, default on unanswered = leave unchanged). Includes a Phase 4b internal-duplication detection pass: file paths, pointers, and external resources are counted across the document; reference outliers (one path appearing N>1 times while peers appear once), conceptual restatements, and weak-justification duplicates (e.g., 'scannability' for jumping readers) are surfaced as per-drift questions with all N occurrences, peer-group comparison, and concrete merge/keep/cross-reference/extract options. Dedup merges are treated as deletions and require explicit per-item approval. Enforces a hard 40,000-character cap on CLAUDE.md (Claude Code performance warning threshold) by extracting bloated sections to docs/ via thin pointers. The project-structure section is required to document the EVERGREEN shape (top-level layout + repeating structural patterns + role per category), not an exhaustive file-by-file tree; file-by-file annotation is justified only where names alone are ambiguous, where the file is a key entry point, or to disambiguate siblings. Exhaustive file-by-file trees in existing CLAUDE.md files are flagged as Medium consolidation candidates (high decay risk, tokens without evergreen value) and surfaced as per-finding questions (consolidate / extract to docs/ / keep / skip), never collapsed autonomously. Generated CLAUDE.md files always include a canonical Working Principles section with 5 principles (4 inspired by upstream agentic-coding meta-rules: Think Before Coding, Simplicity First, Surgical Changes, Goal-Driven Execution; plus the locally authored Centralize Shared Logic for DRY / Single Source of Truth across external calls and cross-cutting concerns). Each of principles 1-4 ships with 3 inline sub-bullets covering the deeper meta-rules (root-cause analysis, evergreen tests, surgical diffs) so the block is self-contained and never linked out. The create/maintain flows auto-detect .deep-dive/ output and offer to ingest it as the technical-reference backbone. When the project has a test suite, generated CLAUDE.md files also carry a canonical Test-Suite Rules block (7 binding rules condensed from the testing plugin's hygiene knowledge base: search before writing, mirrored placement, explicit layers, behavior over implementation, no skip markers, assertion integrity, delete tests with the feature), offered on create and verified on audit; projects without tests do not get the block.",
-      "version": "1.19.0",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "claude-md",
-        "configuration",
-        "project-setup",
-        "maintenance",
-        "verification",
-        "ground-truth",
-        "best-practices",
-        "duplication-detection"
-      ],
-      "category": "utilities",
-      "strict": false,
-      "agents": [
-        "./agents/claude-md-auditor.md"
-      ],
-      "commands": [
-        "./commands/create-claude-md.md",
-        "./commands/maintain-claude-md.md"
-      ]
-    },
-    {
-      "name": "app-analyzer",
-      "source": "./exports/claude/plugins/app-analyzer",
-      "description": "Comprehensive app analysis for Android (ADB) and web (Playwright MCP) - navigation mapping, competitive analysis, design system extraction, UX flow analysis, and business model intelligence",
-      "version": "1.1.2",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "app",
-        "analysis",
-        "competitive",
-        "ux",
-        "design-system",
-        "navigation",
-        "android",
-        "adb",
-        "playwright",
-        "webapp"
-      ],
-      "category": "analysis",
-      "strict": false,
-      "dependencies": [
-        "playwright-skill@playwright-skill"
-      ],
-      "agents": [
-        "./agents/app-analyzer.md"
-      ]
-    },
-    {
-      "name": "typescript-development",
-      "source": "./exports/claude/plugins/typescript-development",
-      "description": "TypeScript and JavaScript development toolkit - hands-on typescript-engineer agent (architecture + implementation), dead-code detection via Knip, coding standards enforcement, and enterprise-grade TypeScript mastery (type system, generics, React/NestJS integration, Zod validation, modern toolchain), and a type-safety review layer: adversarial type-safety-auditor agent, 20-rule type-safety-rules skill, and /review-typescript command with tsc/ESLint ground truth",
-      "version": "2.2.2",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "typescript",
-        "javascript",
-        "coding-standards",
-        "frontend",
-        "knip",
-        "dead-code",
-        "unused-exports",
-        "generics",
-        "type-safety",
-        "zod",
-        "nestjs",
-        "vite",
-        "vitest",
-        "pnpm",
-        "eslint"
-      ],
-      "category": "development",
-      "strict": false,
-      "agents": [
-        "./agents/type-safety-auditor.md",
-        "./agents/typescript-engineer.md"
-      ],
-      "commands": [
-        "./commands/review-typescript.md"
-      ],
-      "skills": [
-        "./skills/knip",
-        "./skills/mastering-typescript",
-        "./skills/type-safety-rules",
-        "./skills/typescript-write"
-      ]
-    },
-    {
-      "name": "csp",
-      "source": "./exports/claude/plugins/csp",
-      "description": "Constraint Satisfaction Problems and combinatorial optimization with Google OR-Tools CP-SAT solver",
-      "version": "1.3.4",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "constraint-programming",
-        "optimization",
-        "or-tools",
-        "cp-sat",
-        "scheduling",
-        "routing",
-        "csp",
-        "solver",
-        "combinatorial-optimization"
-      ],
-      "category": "optimization",
-      "strict": false,
-      "agents": [
-        "./agents/or-tools-expert.md"
-      ]
-    },
-    {
-      "name": "digital-marketing",
-      "source": "./exports/claude/plugins/digital-marketing",
-      "description": "SEO optimization, content marketing, brand naming, domain hunting, customer review response, GA4/GTM analytics implementation, and answer-engine optimization (Google AI Overviews / SGE, Perplexity, ChatGPT Search, Claude Search, Bing Copilot) - technical audits, keyword research, content strategy, brand naming, domain checks, trademark screening, professional review reply generation with sentiment analysis, Google Analytics 4 + Google Tag Manager deployment with EU/GDPR Consent Mode v2 compliance, /ga4-audit Playwright-powered verification, and /llm-seo-audit AEO command with crawler-access matrix, E-E-A-T, structured data, passage extractability. Prose humanization lives in the standalone text-humanizer plugin.",
-      "version": "2.0.2",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "seo",
-        "content-marketing",
-        "digital-marketing",
-        "keyword-research",
-        "content-strategy",
-        "organic-traffic",
-        "search-optimization",
-        "brand",
-        "naming",
-        "branding",
-        "domain-check",
-        "trademark",
-        "domain-hunter",
-        "registrar",
-        "domain-price",
-        "review",
-        "review-response",
-        "reputation",
-        "customer-feedback",
-        "ga4",
-        "google-analytics",
-        "gtm",
-        "google-tag-manager",
-        "consent-mode",
-        "gdpr",
-        "cookie-banner",
-        "conversion-tracking",
-        "remarketing",
-        "web-analytics"
-      ],
-      "category": "marketing",
-      "strict": false,
-      "dependencies": [
-        "playwright-skill@playwright-skill",
-        "text-humanizer"
-      ],
-      "agents": [
-        "./agents/content-marketer.md",
-        "./agents/ga4-implementation-expert.md",
-        "./agents/llm-seo-optimize.md",
-        "./agents/seo-specialist.md"
-      ],
-      "commands": [
-        "./commands/brand-naming.md",
-        "./commands/content-strategy.md",
-        "./commands/ga4-audit.md",
-        "./commands/llm-seo-audit.md",
-        "./commands/reply-to-customer-review.md",
-        "./commands/seo-audit.md"
-      ],
-      "skills": [
-        "./skills/brand-naming",
-        "./skills/domain-hunter",
-        "./skills/ga4-implementation",
-        "./skills/reply-to-customer-review"
-      ]
-    },
-    {
-      "name": "senior-review",
-      "source": "./exports/claude/plugins/senior-review",
-      "description": "Multi-agent code review orchestration with unified code auditing (architecture, failure flow, pattern analysis, scoring), security auditing, UI race condition detection, distributed flow analysis, platform engineering review, codebase-hygiene auditing (dead code + orphan assets + generated artifacts in VCS + phantom/unused deps + barrel-file and eager-bundle bloat + stale documentation and historical artifacts), a lite dead-code and VCS-hygiene pass in code-review and pr-review plus incremental-phase removal inside the code-review fix loop with commit-per-category and build+test gates, logic-integrity auditing for cross-component contract violations driven by the interconnect map that codebase-xray produces, git blame/history analysis, temporal-resilience auditing (failure-over-time: uncapped retries, silent subsystem death, user-invisible degradation, clock/suspend hazards), data-integrity auditing (persistence semantics: application-only invariants, lost updates, cache/DB divergence), resource-lifecycle auditing (ownership and release across success/error/cancellation), all signal-activated, evidence classes for quantitative claims (measured vs derived) and a user-visible-consequence gate on metric-based closures, a delivery gate (every reviewer delivers or is reported degraded; the work tree is left as found), epistemic independence between the context pipeline and the reviewers that consume it: every finding declares the load-bearing premise it stands on and whether that premise was derived independently or inherited from shared context, a premise auditor derives a second set of claims blind to the X-ray output, the interconnect map carries a per-row status including disputed, consolidation reports agreement inherited from a shared premise as an echo rather than as corroboration, finding validation with false-positive filtering (a 4-lens panel: premise veto gated on provenance and requiring a file:line counterexample, then reachability and refutation, with severity calibration gated on survival), committable PR suggestions, pre-review skip logic, intent-driven review, confidence gating, cross-agent deduplication, pre-existing issue separation, verdict system, interactive fix loop (--fix edits and verifies, --commit adds the commits and gates the bulk cleanup), and signal-activated reviewers for testing quality (test-suite-auditor), TypeScript type safety (type-safety-auditor), API contracts, and data migrations, all backed by hard dependencies so a dimension is skipped only when the change shows no signal for it. Backed by a comprehensive defect taxonomy knowledge base (140+ defect patterns, CWE/OWASP mappings, plus a dedicated logic-integrity reference).",
-      "version": "11.0.0",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "senior-review",
-        "code-review",
-        "code-audit",
-        "architecture",
-        "security",
-        "patterns",
-        "quality",
-        "dead-code",
-        "ui-race-condition",
-        "distributed",
-        "microservices",
-        "cross-service",
-        "defect-taxonomy",
-        "chicken-egg",
-        "circular-dependency",
-        "bootstrap",
-        "temporal-resilience",
-        "silent-failure",
-        "data-integrity",
-        "resource-lifecycle"
-      ],
-      "category": "review",
-      "strict": false,
-      "dependencies": [
-        "agent-teams@claude-code-workflows",
-        "repo-hygiene",
-        "codebase-xray",
-        "abstraction-architect",
-        "react-development",
-        "platform-engineering",
-        "typescript-development",
-        "testing"
-      ],
       "agents": [
         "./agents/api-contract-auditor.md",
         "./agents/chicken-egg-detector.md",
@@ -653,851 +676,194 @@
         "./agents/temporal-resilience-auditor.md",
         "./agents/ui-race-auditor.md"
       ],
+      "author": {
+        "name": "Alfio Caprino"
+      },
       "commands": [
         "./commands/code-review.md",
         "./commands/pr-review.md",
         "./commands/team-review.md"
       ],
+      "dependencies": [
+        "repo-hygiene",
+        "codebase-xray",
+        "abstraction-architect",
+        "react-development",
+        "platform-engineering",
+        "typescript-development",
+        "testing"
+      ],
+      "description": "Multi-agent code review orchestration with unified code auditing (architecture, failure flow, pattern analysis, scoring), security auditing, UI race condition detection, distributed flow analysis, platform engineering review, codebase-hygiene auditing (dead code + orphan assets + generated artifacts in VCS + phantom/unused deps + barrel-file and eager-bundle bloat + stale documentation and historical artifacts), a lite dead-code and VCS-hygiene pass in code-review and pr-review plus incremental-phase removal inside the code-review fix loop with commit-per-category and build+test gates, logic-integrity auditing for cross-component contract violations driven by the interconnect map that codebase-xray produces, git blame/history analysis, temporal-resilience auditing (failure-over-time: uncapped retries, silent subsystem death, user-invisible degradation, clock/suspend hazards), data-integrity auditing (persistence semantics: application-only invariants, lost updates, cache/DB divergence), resource-lifecycle auditing (ownership and release across success/error/cancellation), all signal-activated, evidence classes for quantitative claims (measured vs derived) and a user-visible-consequence gate on metric-based closures, a delivery gate (every reviewer delivers or is reported degraded; the work tree is left as found), epistemic independence between the context pipeline and the reviewers that consume it: every finding declares the load-bearing premise it stands on and whether that premise was derived independently or inherited from shared context, a premise auditor derives a second set of claims blind to the X-ray output, the interconnect map carries a per-row status including disputed, consolidation reports agreement inherited from a shared premise as an echo rather than as corroboration, finding validation with false-positive filtering (a 4-lens panel: premise veto gated on provenance and requiring a file:line counterexample, then reachability and refutation, with severity calibration gated on survival), committable PR suggestions, pre-review skip logic, intent-driven review, confidence gating, cross-agent deduplication, pre-existing issue separation, verdict system, interactive fix loop (--fix edits and verifies, --commit adds the commits and gates the bulk cleanup), and signal-activated reviewers for testing quality (test-suite-auditor), TypeScript type safety (type-safety-auditor), API contracts, and data migrations, all backed by hard dependencies so a dimension is skipped only when the change shows no signal for it. Backed by a comprehensive defect taxonomy knowledge base (140+ defect patterns, CWE/OWASP mappings, plus a dedicated logic-integrity reference).",
+      "license": "MIT",
+      "name": "senior-review",
       "skills": [
         "./skills/defect-taxonomy",
         "./skills/review-quality-gates"
-      ]
+      ],
+      "source": "./exports/claude/plugins/senior-review",
+      "version": "11.0.0"
     },
     {
-      "name": "obsidian-development",
-      "source": "./exports/claude/plugins/obsidian-development",
-      "description": "Obsidian community plugin development with automated review compliance (community.obsidian.md), project scaffolding, and pre-submission checks",
-      "version": "1.4.2",
       "author": {
-        "name": "Alfio"
+        "name": "Alfio Caprino"
       },
+      "dependencies": [],
+      "description": "Stripe payments, subscriptions, Connect marketplaces, and revenue optimization for SaaS monetization; includes a dedicated skill (link-first references + scripts) for API patterns, Next.js/TypeScript integration, Embedded Checkout, Billing Meters, Entitlements, webhook reliability and auditing, Stripe Agent Toolkit for LLM tool-calling, test-clock simulation, PCI DSS 4.0 compliance, and pricing design",
       "license": "MIT",
-      "keywords": [
-        "obsidian",
-        "plugin-development",
-        "typescript",
-        "automated-review",
-        "scaffold",
-        "lint",
-        "community-plugin"
-      ],
-      "category": "development",
-      "strict": false,
+      "name": "stripe",
       "skills": [
-        "./skills/obsidian-check",
-        "./skills/obsidian-plugin-development",
-        "./skills/obsidian-scaffold"
-      ]
+        "./skills/stripe"
+      ],
+      "source": "./exports/claude/plugins/stripe",
+      "version": "2.4.5"
     },
     {
-      "name": "browser-extensions",
-      "source": "./exports/claude/plugins/browser-extensions",
-      "description": "Expert Firefox extension (WebExtension) developer covering Manifest V2/V3, all 51 browser.* APIs, content scripts, background scripts, native messaging, cross-browser compatibility, AMO publishing, web-ext CLI tooling, project scaffolding, and live MDN documentation lookup; includes /firefox-scaffold, /firefox-lint, /firefox-publish commands",
-      "version": "1.7.5",
       "author": {
-        "name": "Alfio"
+        "name": "Alfio Caprino"
       },
-      "license": "MIT",
-      "keywords": [
-        "firefox",
-        "webextension",
-        "browser-extension",
-        "addon",
-        "manifest-v3",
-        "content-scripts",
-        "background-scripts",
-        "amo",
-        "javascript",
-        "web-ext"
+      "commands": [
+        "./commands/organize-files.md"
       ],
-      "category": "development",
-      "strict": false,
+      "dependencies": [],
+      "description": "File organization and cleanup utilities - sort messy folders, find duplicates, and restructure directory hierarchies",
+      "license": "MIT",
+      "name": "system-utils",
+      "skills": [
+        "./skills/file-organizer"
+      ],
+      "source": "./exports/claude/plugins/system-utils",
+      "version": "2.0.2"
+    },
+    {
       "agents": [
-        "./agents/firefox-extension-dev.md"
+        "./agents/rust-engineer.md",
+        "./agents/tauri-desktop.md",
+        "./agents/tauri-mobile.md"
       ],
-      "commands": [
-        "./commands/firefox-lint.md",
-        "./commands/firefox-publish.md",
-        "./commands/firefox-scaffold.md"
-      ],
+      "author": {
+        "name": "Alfio Caprino"
+      },
+      "dependencies": [],
+      "description": "Tauri 2 desktop and mobile development - IPC optimization, Rust backend patterns, cross-platform builds, and React integration for high-performance apps",
+      "license": "MIT",
+      "name": "tauri-development",
       "skills": [
-        "./skills/firefox-extension-dev"
-      ]
+        "./skills/tauri"
+      ],
+      "source": "./exports/claude/plugins/tauri-development",
+      "version": "2.7.5"
     },
     {
-      "name": "learning",
-      "source": "./exports/claude/plugins/learning",
-      "description": "Learning and knowledge management - mind map generation from any content, Obsidian MarkMind export, and interactive force-graph HTML visualization",
-      "version": "1.6.4",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "learning",
-        "mind-map",
-        "mindmap",
-        "markmind",
-        "obsidian",
-        "knowledge",
-        "study",
-        "visual",
-        "force-graph",
-        "interactive"
-      ],
-      "category": "productivity",
-      "strict": false,
-      "commands": [
-        "./commands/export-to-markmind.md"
-      ],
-      "skills": [
-        "./skills/forcegraph-exporter",
-        "./skills/generate-mindmap",
-        "./skills/markmind-exporter"
-      ]
-    },
-    {
-      "name": "marketplace-ops",
-      "source": "./exports/claude/plugins/marketplace-ops",
-      "description": "Generic Claude Code plugin marketplace manager - auditing, validation, AI quality review, upstream sync, plugin scaffolding, and health monitoring. Works against any project with the standard .claude-plugin/marketplace.json + plugins/<name>/ layout; reads project-specific conventions (author, license, category taxonomy, upstream sources) from the target marketplace.json and CLAUDE.md",
-      "version": "2.2.0",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "marketplace",
-        "audit",
-        "validation",
-        "sync",
-        "scaffold",
-        "plugin-management",
-        "consolidation",
-        "create",
-        "create"
-      ],
-      "category": "utilities",
-      "strict": false,
-      "agents": [
-        "./agents/marketplace-manager.md"
-      ],
-      "commands": [
-        "./commands/marketplace-health.md",
-        "./commands/marketplace-review.md",
-        "./commands/marketplace-scaffold-plugin.md",
-        "./commands/skills-validate.md"
-      ],
-      "skills": [
-        "./skills/marketplace-audit",
-        "./skills/skills-creator"
-      ]
-    },
-    {
-      "name": "codebase-mapper",
-      "source": "./exports/claude/plugins/codebase-mapper",
-      "description": "Human-readable codebase guide generator: explores unfamiliar projects, builds a structured interconnect map (contracts, invariants, domain rules, integration hot-spots) via the codebase-xray semantic-interconnect-mapper, then autonomously profiles the project (type, audience, register) and produces audience-adaptive narrative documents with Mermaid diagrams that cite the map, including a plain-language executive summary and a domain glossary so the guide is comprehensible by everyone. Includes documentation-reality drift detection in the review phase, plus standalone documentation creation, maintenance, and humanization with bottom-up code analysis. Both docs-create and docs-maintain cover 20 documentation dimensions; docs-maintain runs a structured per-dimension drift audit (added/removed/renamed/retyped) instead of generic outdated-text matching.",
-      "version": "3.0.0",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "codebase",
-        "exploration",
-        "mapping",
-        "onboarding",
-        "learning",
-        "human-readable",
-        "documentation",
-        "diagrams",
-        "architecture",
-        "mermaid",
-        "technical-writing",
-        "code-analysis",
-        "api-docs",
-        "tutorials",
-        "documentation-management"
-      ],
-      "category": "documentation",
-      "strict": false,
-      "dependencies": [
-        "agent-teams@claude-code-workflows",
-        "codebase-xray",
-        "text-humanizer",
-        "senior-review"
-      ],
-      "agents": [
-        "./agents/codebase-explorer.md",
-        "./agents/config-writer.md",
-        "./agents/doc-humanizer.md",
-        "./agents/documentation-engineer.md",
-        "./agents/flow-writer.md",
-        "./agents/guide-reviewer.md",
-        "./agents/onboarding-writer.md",
-        "./agents/ops-writer.md",
-        "./agents/overview-writer.md",
-        "./agents/tech-writer.md"
-      ],
-      "commands": [
-        "./commands/docs-create.md",
-        "./commands/docs-maintain.md",
-        "./commands/humanize-docs.md",
-        "./commands/map-codebase.md",
-        "./commands/team-codebase-map.md"
-      ],
-      "skills": [
-        "./skills/codebase-mapper"
-      ]
-    },
-    {
-      "name": "rag-development",
-      "source": "./exports/claude/plugins/rag-development",
-      "description": "RAG system design, implementation, and optimization - chunking strategies, embedding models (Voyage 4 family, OpenAI v3, Cohere embed-v4, Gemini, BGE-M3, NV-Embed-v2, Nomic MoE, Jina v3), vector databases (Qdrant 1.13-1.16), hybrid search, modern rerankers (Voyage rerank-2.5, Cohere Rerank 3.5, Jina Reranker v3, mxbai-rerank-v2), advanced patterns (HippoRAG, LightRAG, LongRAG, Agentic RAG, CRAG, Self-RAG, GraphRAG), evaluation (RAGAS/DeepEval/TruLens), and production deployment",
-      "version": "1.5.5",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "rag",
-        "retrieval",
-        "embeddings",
-        "vector-database",
-        "qdrant",
-        "chunking",
-        "semantic-search",
-        "hybrid-search",
-        "re-ranking",
-        "llm"
-      ],
-      "category": "ai-development",
-      "strict": false,
-      "agents": [
-        "./agents/qdrant-expert.md",
-        "./agents/rag-architect.md"
-      ],
-      "commands": [
-        "./commands/rag-audit.md"
-      ],
-      "skills": [
-        "./skills/rag-development"
-      ]
-    },
-    {
-      "name": "docs",
-      "source": "./exports/claude/plugins/docs",
-      "description": "README and project documentation authoring - craft magnetic, top-tier README.md files with progressive disclosure, hero sections, badges, quick start, feature tables, Mermaid diagrams, and community sections",
-      "version": "1.1.4",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "readme",
-        "documentation",
-        "open-source",
-        "badges",
-        "shields",
-        "quick-start",
-        "progressive-disclosure",
-        "audit",
-        "maintenance"
-      ],
-      "category": "documentation",
-      "strict": false,
-      "commands": [
-        "./commands/maintain-readme.md"
-      ],
-      "skills": [
-        "./skills/readme-craft"
-      ]
-    },
-    {
-      "name": "testing",
-      "source": "./exports/claude/plugins/testing",
-      "description": "Test-suite hygiene and generation toolkit - binding test-hygiene rules (search-before-write protocol, mirror-the-source placement, deterministic ownership per layer, explicit layers with budgets, no skip markers, assertion integrity, delete tests with the feature), a report-only test-suite-auditor agent (orphan, skipped, failing, flaky, duplicate, contradictory, implementation-coupled and never-failing test detection plus layer and runtime/coverage distribution), /test-audit with a versioned TEST_AUDIT.md and gated quarantine to tests/_quarantine/, /test-consolidate with behavior-inventory approval, same-commit rewrite plus delete and a coverage gate, and a test-writer agent that generates behavior-driven test suites and extends existing test files instead of creating parallel ones. TDD methodology and browser E2E patterns are delegated to hard dependencies: mattpocock-skills (tdd) and developer-essentials (e2e-testing-patterns)",
-      "version": "2.2.1",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "testing",
-        "test-hygiene",
-        "test-audit",
-        "quarantine",
-        "test-consolidation",
-        "flaky-tests",
-        "mutation-testing",
-        "tdd",
-        "e2e",
-        "unit-tests",
-        "integration-tests",
-        "test-generation",
-        "behavior-driven"
-      ],
-      "category": "testing",
-      "strict": false,
-      "dependencies": [
-        "mattpocock-skills@mattpocock",
-        "developer-essentials@claude-code-workflows"
-      ],
       "agents": [
         "./agents/test-suite-auditor.md",
         "./agents/test-writer.md"
       ],
+      "author": {
+        "name": "Alfio Caprino"
+      },
       "commands": [
         "./commands/test-audit.md",
         "./commands/test-consolidate.md"
       ],
+      "dependencies": [
+        "mattpocock-skills@mattpocock",
+        "developer-essentials@claude-code-workflows"
+      ],
+      "description": "Test-suite hygiene and generation toolkit - binding test-hygiene rules (search-before-write protocol, mirror-the-source placement, deterministic ownership per layer, explicit layers with budgets, no skip markers, assertion integrity, delete tests with the feature), a report-only test-suite-auditor agent (orphan, skipped, failing, flaky, duplicate, contradictory, implementation-coupled and never-failing test detection plus layer and runtime/coverage distribution), /test-audit with a versioned TEST_AUDIT.md and gated quarantine to tests/_quarantine/, /test-consolidate with behavior-inventory approval, same-commit rewrite plus delete and a coverage gate, and a test-writer agent that generates behavior-driven test suites and extends existing test files instead of creating parallel ones. TDD methodology and browser E2E patterns are delegated to hard dependencies: mattpocock-skills (tdd) and developer-essentials (e2e-testing-patterns)",
+      "license": "MIT",
+      "name": "testing",
       "skills": [
         "./skills/test-hygiene"
-      ]
+      ],
+      "source": "./exports/claude/plugins/testing",
+      "version": "2.2.1"
     },
     {
-      "name": "platform-engineering",
-      "source": "./exports/claude/plugins/platform-engineering",
-      "description": "Cross-platform development rulebook - security (validation, auth tokens, passkeys/WebAuthn, API security, XSS/CSP, secrets), architecture (client-server, REST vs GraphQL, offline-first, monolith-first, CI/CD), and performance (bundles, images, Core Web Vitals, SSR/SSG, CDN caching) for SPA, PWA, mobile, Electron (with Fuses + asar integrity), and Tauri; includes /platform-review standalone command",
-      "version": "1.2.9",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "cross-platform",
-        "security",
-        "architecture",
-        "performance",
-        "web-vitals",
-        "oauth",
-        "csp",
-        "xss",
-        "electron",
-        "tauri",
-        "pwa",
-        "mobile",
-        "fullstack"
-      ],
-      "category": "development",
-      "strict": false,
       "agents": [
-        "./agents/platform-reviewer.md"
+        "./agents/text-humanizer.md"
       ],
+      "author": {
+        "name": "Alfio Caprino"
+      },
       "commands": [
-        "./commands/platform-review.md"
+        "./commands/humanize-text.md"
       ],
+      "dependencies": [],
+      "description": "Prose humanization toolkit: the text-humanizer editor agent removes AI writing traces from any text in any language (24 documented patterns: inflated symbolism, promotional language, AI vocabulary, filler phrases, formulaic structures, dash-as-connector asides), backed by the anti-ai-writing-patterns knowledge base and the /humanize-text command with optional 5-dimension quality scoring. Self-contained leaf plugin with zero dependencies, consumed by digital-marketing (E-E-A-T copy), codebase-mapper (AI trace removal on generated docs), business (GTM deliverables), and clean-code (prose routing). Extracted from digital-marketing in marketplace 13.3.0.",
+      "license": "MIT",
+      "name": "text-humanizer",
       "skills": [
-        "./skills/platform-engineering"
-      ]
+        "./skills/anti-ai-writing-patterns"
+      ],
+      "source": "./exports/claude/plugins/text-humanizer",
+      "version": "1.0.1"
     },
     {
-      "name": "trading-broker-integration",
-      "source": "./exports/claude/plugins/trading-broker-integration",
-      "description": "Broker integration for algorithmic trading in Python: Interactive Brokers via the TWS API and ib_async across equities, options, futures, FX, CFDs and crypto (per-class contracts and market rules, order types and TIF/fill-mode capability resolution, brackets in depth, a classified catalog of all 458 published TWS message codes, venue-behaviour verification tooling, reconnection resilience, deployment on Windows, Linux, macOS and Docker), MetaTrader 5 via the official synchronous API (polling-based event systems, order execution with fill modes, historical data, the aiomql async framework, a ZeroMQ bridge, Windows production deployment), and the vendor-neutral vocabulary shared between them: five access archetypes, the single-broker/multi-broker-platform axis, a reference order-lifecycle state machine, session and recovery patterns, and a six-rank evidence ladder with provenance tags for what a claim about a venue is worth",
-      "version": "2.0.0",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "interactive-brokers",
-        "ibkr",
-        "metatrader",
-        "mt5",
-        "algotrading",
-        "broker",
-        "connectivity",
-        "tws-api",
-        "ib-async",
-        "ib-insync",
-        "forex",
-        "cfd",
-        "aiomql",
-        "mql5",
-        "zeromq",
-        "trading",
-        "market-data",
-        "bracket-orders",
-        "ibc",
-        "gateway",
-        "polling",
-        "fix-protocol",
-        "order-lifecycle",
-        "archetypes",
-        "evidence-ladder",
-        "integration"
-      ],
-      "category": "algotrading",
-      "strict": false,
       "agents": [
         "./agents/ibkr-architect.md",
         "./agents/mt5-architect.md"
       ],
+      "author": {
+        "name": "Alfio Caprino"
+      },
       "commands": [
         "./commands/ibkr-audit.md",
         "./commands/ibkr-verify.md",
         "./commands/mt5-audit.md"
       ],
+      "dependencies": [],
+      "description": "Broker integration for algorithmic trading in Python: Interactive Brokers via the TWS API and ib_async across equities, options, futures, FX, CFDs and crypto (per-class contracts and market rules, order types and TIF/fill-mode capability resolution, brackets in depth, a classified catalog of all 458 published TWS message codes, venue-behaviour verification tooling, reconnection resilience, deployment on Windows, Linux, macOS and Docker), MetaTrader 5 via the official synchronous API (polling-based event systems, order execution with fill modes, historical data, the aiomql async framework, a ZeroMQ bridge, Windows production deployment), and the vendor-neutral vocabulary shared between them: five access archetypes, the single-broker/multi-broker-platform axis, a reference order-lifecycle state machine, session and recovery patterns, and a six-rank evidence ladder with provenance tags for what a claim about a venue is worth",
+      "license": "MIT",
+      "name": "trading-broker-integration",
       "skills": [
         "./skills/broker-vocabulary",
         "./skills/ibkr",
         "./skills/mt5"
-      ]
+      ],
+      "source": "./exports/claude/plugins/trading-broker-integration",
+      "version": "2.0.0"
     },
     {
-      "name": "libgdx-development",
-      "source": "./exports/claude/plugins/libgdx-development",
-      "description": "libGDX cross-platform game development - project generation via gdx-liftoff, rendering pipeline (SpriteBatch, TextureAtlas, viewports), Scene2D + Ashley ECS architecture, Box2D physics, AssetManager lifecycle, Screen management, Tiled maps, and deployment to Desktop (LWJGL3), Android, iOS (RoboVM), and HTML5 (GWT/TeaVM); includes libGDX 1.14.0 migration notes and a /libgdx-audit command",
-      "version": "1.0.6",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "libgdx",
-        "game-development",
-        "gamedev",
-        "2d",
-        "3d",
-        "java-game",
-        "kotlin-game",
-        "scene2d",
-        "ashley-ecs",
-        "box2d",
-        "gdx-liftoff",
-        "lwjgl3",
-        "android-game",
-        "ios-game",
-        "html5-game",
-        "robovm",
-        "gwt",
-        "teavm",
-        "tiled",
-        "spritebatch",
-        "asset-manager",
-        "opengl"
-      ],
-      "category": "development",
-      "strict": false,
       "agents": [
-        "./agents/libgdx-architect.md"
+        "./agents/type-safety-auditor.md",
+        "./agents/typescript-engineer.md"
       ],
+      "author": {
+        "name": "Alfio Caprino"
+      },
       "commands": [
-        "./commands/libgdx-audit.md"
+        "./commands/review-typescript.md"
       ],
+      "dependencies": [],
+      "description": "TypeScript and JavaScript development toolkit - hands-on typescript-engineer agent (architecture + implementation), dead-code detection via Knip, coding standards enforcement, and enterprise-grade TypeScript mastery (type system, generics, React/NestJS integration, Zod validation, modern toolchain), and a type-safety review layer: adversarial type-safety-auditor agent, 20-rule type-safety-rules skill, and /review-typescript command with tsc/ESLint ground truth",
+      "license": "MIT",
+      "name": "typescript-development",
       "skills": [
-        "./skills/libgdx-development"
-      ]
+        "./skills/knip",
+        "./skills/mastering-typescript",
+        "./skills/type-safety-rules",
+        "./skills/typescript-write"
+      ],
+      "source": "./exports/claude/plugins/typescript-development",
+      "version": "2.2.2"
     },
     {
-      "name": "kotlin-development",
-      "source": "./exports/claude/plugins/kotlin-development",
-      "description": "Idiomatic Kotlin development toolkit - kotlin-specialist skill covering coroutines and structured concurrency, Flow / StateFlow / SharedFlow, Kotlin Multiplatform (KMP) with expect/actual, Jetpack Compose on Android, Ktor server (routing, JWT auth, Exposed, WebSockets), and type-safe DSL idioms (lambdas with receivers, delegated properties, inline reified, value classes). Vendored from Jeffallan/claude-skills (MIT).",
-      "version": "1.0.3",
       "author": {
-        "name": "Jeffallan (upstream), Alfio (vendor)"
+        "name": "Alfio Caprino"
       },
-      "license": "MIT",
-      "keywords": [
-        "kotlin",
-        "coroutines",
-        "flow",
-        "stateflow",
-        "sharedflow",
-        "kotlin-multiplatform",
-        "kmp",
-        "jetpack-compose",
-        "compose",
-        "ktor",
-        "android-kotlin",
-        "suspend",
-        "structured-concurrency",
-        "sealed-class",
-        "dsl",
-        "delegated-properties",
-        "value-class",
-        "detekt",
-        "ktlint",
-        "gradle-kotlin-dsl"
-      ],
-      "category": "development",
-      "strict": false,
-      "skills": [
-        "./skills/kotlin-specialist"
-      ]
-    },
-    {
-      "name": "opentelemetry",
-      "source": "./exports/claude/plugins/opentelemetry",
-      "description": "OpenTelemetry Python instrumentation - distributed tracing, async context propagation, custom transport propagators, OTLP exporters, AWS ADOT/X-Ray, and production observability; includes /otel-audit command",
-      "version": "1.3.5",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "opentelemetry",
-        "otel",
-        "tracing",
-        "distributed-tracing",
-        "observability",
-        "instrumentation",
-        "spans",
-        "context-propagation",
-        "otlp",
-        "aws-xray",
-        "adot",
-        "celery",
-        "fastapi",
-        "asyncio",
-        "metrics"
-      ],
-      "category": "development",
-      "strict": false,
-      "agents": [
-        "./agents/otel-architect.md"
-      ],
       "commands": [
-        "./commands/otel-audit.md"
+        "./commands/xterm-debug.md",
+        "./commands/xterm-implement.md"
       ],
-      "skills": [
-        "./skills/opentelemetry"
-      ]
-    },
-    {
-      "name": "docker",
-      "source": "./exports/claude/plugins/docker",
-      "description": "Docker best practices - optimized multi-stage Dockerfiles, layer caching, security hardening, and minimal base image selection for any language or framework (Node, Python, Go, Rust, Java, Bun, Deno)",
-      "version": "1.3.2",
-      "author": {
-        "name": "Alfio"
-      },
+      "dependencies": [],
+      "description": "xterm.js terminal emulator development - building, configuring, and integrating xterm.js in web and Electron apps with addon support and PTY wiring",
       "license": "MIT",
-      "keywords": [
-        "docker",
-        "dockerfile",
-        "multi-stage",
-        "containers",
-        "optimization",
-        "security",
-        "distroless",
-        "alpine"
-      ],
-      "category": "development",
-      "strict": false,
+      "name": "xterm",
       "skills": [
-        "./skills/multi-stage-dockerfile"
-      ]
-    },
-    {
-      "name": "grabber-development",
-      "source": "./exports/claude/plugins/grabber-development",
-      "description": "Expert Python web scraping - coordinator (grabber-architect) plus three specialists: stealth-browser-expert (Patchright/Camoufox/Nodriver + CAPTCHA), http-fingerprint-expert (JA4+/curl_cffi/primp + proxies/Web Unlocker), ai-scraping-expert (Crawl4AI/Firecrawl/ScrapeGraphAI + Pydantic + GraphQL RE)",
-      "version": "1.4.2",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "scraping",
-        "web-scraping",
-        "crawler",
-        "anti-bot",
-        "stealth",
-        "proxy",
-        "captcha",
-        "extraction",
-        "playwright",
-        "curl-cffi",
-        "ja4",
-        "patchright",
-        "camoufox",
-        "nodriver",
-        "firecrawl",
-        "crawl4ai",
-        "scrapegraphai"
+        "./skills/xtermjs-skill"
       ],
-      "category": "development",
-      "strict": false,
-      "dependencies": [
-        "playwright-skill@playwright-skill"
-      ],
-      "agents": [
-        "./agents/ai-scraping-expert.md",
-        "./agents/grabber-architect.md",
-        "./agents/http-fingerprint-expert.md",
-        "./agents/stealth-browser-expert.md"
-      ],
-      "skills": [
-        "./skills/grabber-development"
-      ]
-    },
-    {
-      "name": "dependency-audit",
-      "source": "./exports/claude/plugins/dependency-audit",
-      "description": "Evidence-first dependency auditing: runs each ecosystem's real audit tooling for CVEs, outdated packages, license obligations and supply-chain signals, and reports only tool-verified facts under TOOL-REPORTED, INFERRED and UNKNOWN evidence tiers. Obligations-based license analysis instead of a compatibility matrix, and strictly non-destructive remediation.",
-      "version": "1.0.2",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "dependency-audit",
-        "cve-scanning",
-        "vulnerability-scanning",
-        "license-compliance",
-        "license-obligations",
-        "supply-chain-security",
-        "outdated-dependencies",
-        "osv-scanner",
-        "pip-audit",
-        "cargo-audit",
-        "govulncheck",
-        "npm-audit"
-      ],
-      "category": "review",
-      "strict": false,
-      "commands": [
-        "./commands/deps-audit.md"
-      ],
-      "skills": [
-        "./skills/dependency-audit"
-      ]
-    },
-    {
-      "name": "pwa-expert",
-      "source": "./exports/claude/plugins/pwa-expert",
-      "description": "Progressive Web App expert for the 2025-2026 baseline. Covers Web App Manifest (id, display_override, scope_extensions, handle_links, file_handlers, share_target), Service Workers (Workbox 7 / Serwist), Web Push (VAPID, RFC 8030/8291/8292, Declarative Push for Safari 18.4+), install flows (beforeinstallprompt, Window Controls Overlay), OPFS storage, Project Fugu capabilities, Core Web Vitals 2025 (INP < 200ms), security (HTTPS, CSP, COOP/COEP), and distribution (Bubblewrap to Google Play, PWA Builder to Microsoft Store, Capacitor to App Store, PWA Builder to Meta Quest). Includes the pwa-architect agent and three commands: /pwa-audit (hybrid local-code + live-URL via Playwright), /pwa-scaffold (manifest + SW + iOS meta + framework wiring for Vite, Next.js, Angular, Nuxt, vanilla), /pwa-checklist (deterministic production-deploy checklist walk).",
-      "version": "1.1.2",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "pwa",
-        "progressive-web-app",
-        "service-worker",
-        "manifest",
-        "web-push",
-        "vapid",
-        "workbox",
-        "serwist",
-        "offline",
-        "installable",
-        "bubblewrap",
-        "twa",
-        "capacitor",
-        "opfs",
-        "indexeddb",
-        "background-sync",
-        "wake-lock",
-        "window-controls-overlay",
-        "fugu",
-        "ios-safari",
-        "webapk",
-        "core-web-vitals",
-        "inp"
-      ],
-      "category": "frontend",
-      "strict": false,
-      "dependencies": [
-        "playwright-skill@playwright-skill"
-      ],
-      "agents": [
-        "./agents/pwa-architect.md"
-      ],
-      "commands": [
-        "./commands/pwa-audit.md",
-        "./commands/pwa-checklist.md",
-        "./commands/pwa-scaffold.md"
-      ],
-      "skills": [
-        "./skills/pwa-development"
-      ]
-    },
-    {
-      "name": "abstraction-architect",
-      "source": "./exports/claude/plugins/abstraction-architect",
-      "description": "Structural entropy auditor: finds where the same concept is represented, owned, computed or implemented more than once, and what it costs when that concept changes. Seven dimensions over two evidence tracks. Knowledge track (duplicated domain knowledge, competing sources of truth, redundant representation, duplicated or derivable state) is judged by semantic identity and ownership, so two representations suffice behind a strict gate. Form track (missed unification, prior art available, abstraction fitness) is judged by recurrence, where the Rule of Three applies to missed unification only. Global mode censuses the codebase and persists a concept index; diff mode asks the same seven questions as 'introduced or aggravated by this change' and runs as the Abstraction dimension of /senior-review:team-review and /senior-review:code-review. Report-only, grounded in canonical theory (Metz, Beck, Fowler, Gross, North, DDD).",
-      "version": "2.0.2",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "architecture",
-        "abstraction",
-        "refactoring",
-        "dry",
-        "wet",
-        "aha",
-        "wrong-abstraction",
-        "god-service",
-        "code-quality",
-        "audit",
-        "metz",
-        "bounded-context",
-        "structural-entropy",
-        "source-of-truth",
-        "semantic-duplication",
-        "derivable-state",
-        "knowledge-duplication"
-      ],
-      "category": "code-quality",
-      "strict": false,
-      "dependencies": [
-        "codebase-xray"
-      ],
-      "agents": [
-        "./agents/abstraction-architect.md"
-      ],
-      "commands": [
-        "./commands/audit.md"
-      ],
-      "skills": [
-        "./skills/abstraction-architect"
-      ]
-    },
-    {
-      "name": "text-humanizer",
-      "source": "./exports/claude/plugins/text-humanizer",
-      "description": "Prose humanization toolkit: the text-humanizer editor agent removes AI writing traces from any text in any language (24 documented patterns: inflated symbolism, promotional language, AI vocabulary, filler phrases, formulaic structures, dash-as-connector asides), backed by the anti-ai-writing-patterns knowledge base and the /humanize-text command with optional 5-dimension quality scoring. Self-contained leaf plugin with zero dependencies, consumed by digital-marketing (E-E-A-T copy), codebase-mapper (AI trace removal on generated docs), business (GTM deliverables), and clean-code (prose routing). Extracted from digital-marketing in marketplace 13.3.0.",
-      "version": "1.0.1",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "text-humanization",
-        "humanize",
-        "ai-writing",
-        "anti-ai",
-        "prose",
-        "editing",
-        "writing",
-        "ai-detection",
-        "copywriting"
-      ],
-      "category": "writing",
-      "strict": false,
-      "agents": [
-        "./agents/text-humanizer.md"
-      ],
-      "commands": [
-        "./commands/humanize-text.md"
-      ],
-      "skills": [
-        "./skills/anti-ai-writing-patterns"
-      ]
-    },
-    {
-      "name": "frontend-review",
-      "source": "./exports/claude/plugins/frontend-review",
-      "description": "Full frontend review in one pass, combining a design/UX dimension driven by the impeccable, ui-ux-pro-max, and frontend-design upstream skills as hard prerequisites with stop-and-install, with auto-detected code dimensions (React performance, TypeScript type safety, PWA architecture, platform compliance) spawned from local plugins declared as hard dependencies, so a dimension is skipped only when its signal does not match. Findings consolidate into a unified scored report at .frontend-review/report.md. Pure orchestration; vendors nothing.",
-      "version": "2.0.0",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "frontend",
-        "review",
-        "design-review",
-        "ui",
-        "ux",
-        "design-system",
-        "typography",
-        "accessibility",
-        "react",
-        "typescript",
-        "pwa",
-        "core-web-vitals"
-      ],
-      "category": "review",
-      "strict": false,
-      "dependencies": [
-        "impeccable@impeccable",
-        "ui-ux-pro-max@ui-ux-pro-max-skill",
-        "frontend-design@claude-plugins-official",
-        "react-development",
-        "typescript-development",
-        "pwa-expert",
-        "platform-engineering"
-      ],
-      "commands": [
-        "./commands/review-frontend.md"
-      ]
-    },
-    {
-      "name": "peer-review",
-      "source": "./exports/claude/plugins/peer-review",
-      "description": "Cross-model peer review of plans, specs, and the decisions a session has just made: a harness-agnostic deliberation protocol (challenge packet with GIVEN-tagged context, challenger findings that each carry their own falsifier, evidence-backed responses at a stable locator, a verbatim ledger, a certification pass the challenger owns, and a verdict computed from the ledger) plus a transport-only MCP server for any OpenAI-compatible endpoint. Point it at a document, or run it with no path to materialize the session's context, settled decisions and open questions into a frozen brief and put that on trial. The challenger attacks the artifact, the local session refutes with evidence, and unresolved disagreements terminate as precise standoffs for the user to settle",
-      "version": "2.1.0",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "peer-review",
-        "cross-model",
-        "deliberation",
-        "epistemic-independence",
-        "second-opinion",
-        "plan-review",
-        "spec-review",
-        "decision-review",
-        "mcp"
-      ],
-      "category": "review",
-      "strict": false,
-      "dependencies": [
-        "superpowers@claude-plugins-official"
-      ],
-      "mcpServers": "./.mcp.json",
-      "agents": [
-        "./agents/brief-builder.md",
-        "./agents/packet-builder.md",
-        "./agents/respondent.md"
-      ],
-      "skills": [
-        "./skills/cross-model-peer-review"
-      ],
-      "commands": [
-        "./commands/review.md"
-      ]
-    },
-    {
-      "name": "repo-hygiene",
-      "source": "./exports/claude/plugins/repo-hygiene",
-      "description": "Workspace tidying decided by the filesystem and git alone, with no source comprehension anywhere in it: filesystem garbage and shell-redirection artifacts, generated artifacts tracked in git (checked against publication conventions before anything is proposed for untracking), .gitignore completeness per ecosystem and archaeology over stale and overly-broad rules with git check-ignore provenance, scratch and pipeline-output directories, orphan doc-assets widened past literal Markdown links to configs, stylesheets and templates, and git auxiliary state. One check catalog with a full and a lite profile, so the diff-scoped pass inside a code review and the whole-tree pass share definitions and cannot drift. /repo-hygiene:tidy detects by default and applies under --fix or --commit; untracked removals are quarantined rather than deleted, git rm --cached is confirmed per item, and the git-state dimension is permanently detection-only because a dropped stash or a removed worktree leaves no diff for a per-phase commit to revert.",
-      "version": "1.0.0",
-      "author": {
-        "name": "Alfio"
-      },
-      "license": "MIT",
-      "keywords": [
-        "repo-hygiene",
-        "gitignore",
-        "workspace",
-        "cleanup",
-        "tidy",
-        "generated-artifacts",
-        "scratch-directories",
-        "git-state",
-        "stale-branches",
-        "worktrees"
-      ],
-      "category": "review",
-      "strict": false,
-      "agents": [
-        "./agents/workspace-auditor.md"
-      ],
-      "commands": [
-        "./commands/tidy.md"
-      ],
-      "skills": [
-        "./skills/repo-hygiene"
-      ]
+      "source": "./exports/claude/plugins/xterm",
+      "version": "1.1.2"
     }
   ]
 }
