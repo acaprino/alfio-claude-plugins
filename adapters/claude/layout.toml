@@ -1,7 +1,7 @@
 [layout]
 root = "exports/claude"
 marketplace = ".claude-plugin/marketplace.json"
-plugin_manifest = "plugins/${plugin}/.claude-plugin/plugin.json"
+plugin_manifest = ".claude-plugin/plugin.json"
 plugin_root = "plugins/${plugin}"
 skills = "skills/${skill}/SKILL.md"
 roles = "agents/${role}.md"

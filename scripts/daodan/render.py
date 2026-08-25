@@ -137,7 +137,8 @@ def render_plugin(
     applied: list[str] = []
 
     manifest = render_template(_manifest_template(adapter, adapters_root), context)
-    _write_text(staging_root / "plugin.json", manifest)
+    manifest_path = render_path(adapter.layout["plugin_manifest"], context)
+    _write_text(staging_root / manifest_path, manifest)
 
     for skill in plugin.components.skills:
         source_directory = plugin.root / "skills" / skill
