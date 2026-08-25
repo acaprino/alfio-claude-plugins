@@ -1,6 +1,6 @@
 {
   "adapterVersion": "1.0.0",
-  "coreDigest": "sha256:5054784c189a6644cb84faaa51fb226c881117e61a8bacedff777968de310422",
+  "coreDigest": "sha256:52403dc696fd9337b9fc5b4b34fef2c6c450ca0e576aee7a2807ff9a8ccb7939",
   "harnessStrategies": {
     "xterm-debug": "native-team",
     "xterm-implement": "native-team"

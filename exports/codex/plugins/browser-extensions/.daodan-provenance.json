@@ -1,6 +1,6 @@
 {
   "adapterVersion": "1.0.0",
-  "coreDigest": "sha256:0357f2b2236dcb1912fd9bd05c6b87390b119c26d5f17e4a35b47b3a899a3447",
+  "coreDigest": "sha256:8ce667ab1dc2f830f264315b80bdda127c99cfc5691c82d0f1ae33bf02e89d5a",
   "harnessStrategies": {
     "firefox-lint": "parallel-subagents",
     "firefox-publish": "parallel-subagents",

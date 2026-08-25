@@ -1,6 +1,6 @@
 {
   "adapterVersion": "1.0.0",
-  "coreDigest": "sha256:9e20ab635bc14f1ffe8fcf95ba2d7e5608ef164a29a8712cc520c4eb1a7ef876",
+  "coreDigest": "sha256:002b97924c84d60af8e9f7c31094723e00f071c5ccc63b94cb012e0caf6ca412",
   "harnessStrategies": {
     "create-claude-md": "native-team",
     "maintain-claude-md": "native-team"

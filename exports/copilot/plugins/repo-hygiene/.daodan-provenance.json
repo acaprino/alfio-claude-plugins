@@ -1,6 +1,6 @@
 {
   "adapterVersion": "1.0.0",
-  "coreDigest": "sha256:b763f140cd980d3bf62aa3ff404baa210af0efe16b0b69ec710022f353a32631",
+  "coreDigest": "sha256:84fa9a4e32196db0d32bc58ca09045ce68be697d93dd612991a19e2875ddb26e",
   "harnessStrategies": {
     "tidy": "parallel-subagents"
   },

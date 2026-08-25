@@ -1,6 +1,6 @@
 {
   "adapterVersion": "1.0.0",
-  "coreDigest": "sha256:3a39ed6c2b5020c3f33228f746deca02f93502442ac62b2ce6108e49960c0a8e",
+  "coreDigest": "sha256:ffefaeae6b835a85a3ff59573e5bec0a410d9b1e4bb49f73b3226519c6f2405e",
   "harnessStrategies": {
     "maintain-readme": "native-team"
   },

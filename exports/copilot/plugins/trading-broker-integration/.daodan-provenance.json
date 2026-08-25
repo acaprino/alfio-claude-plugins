@@ -1,6 +1,6 @@
 {
   "adapterVersion": "1.0.0",
-  "coreDigest": "sha256:0195428934befce90bb96b55fa3f52db4ec4b1f3c19289a46d62529526290ef7",
+  "coreDigest": "sha256:2462c0d165221832306349cf64bbc26aa39300b2d29b01502b7bb53c75c70bf0",
   "harnessStrategies": {
     "ibkr-audit": "parallel-subagents",
     "ibkr-verify": "parallel-subagents",

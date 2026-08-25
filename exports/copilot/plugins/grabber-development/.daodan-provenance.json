@@ -1,6 +1,6 @@
 {
   "adapterVersion": "1.0.0",
-  "coreDigest": "sha256:5817c3be82d52e4adf7e2efe1f0ba19df18a32e61051826741f078c78ad69f0f",
+  "coreDigest": "sha256:236fadae8f97c275629dda5b0274607ff259f1e86a8846327e503dd61e7adf13",
   "harnessStrategies": {},
   "host": "copilot",
   "overrides": [],

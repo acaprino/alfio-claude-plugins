@@ -1,6 +1,6 @@
 {
   "adapterVersion": "1.0.0",
-  "coreDigest": "sha256:5ca3d9a12c8751680f4e1de93ffc4862947f22b683f7851a9ecab39ba2f15300",
+  "coreDigest": "sha256:be8717d0d1997698216f64ab909ead12749210bb1cf5ab1ee1bd0f25ca8b400e",
   "harnessStrategies": {
     "python-audit": "native-team",
     "python-refactor": "native-team",
