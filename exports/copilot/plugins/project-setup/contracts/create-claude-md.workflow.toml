@@ -1,0 +1,21 @@
+name = "create-claude-md"
+entrypoint = "create-claude-md.md"
+
+[[phases]]
+id = "scope"
+isolation = "shared"
+produces = ["artifact:scope"]
+
+[[phases]]
+id = "review"
+needs = ["scope"]
+role = "claude-md-auditor"
+isolation = "required"
+consumes = ["artifact:scope"]
+produces = ["artifact:create-claude-md-report"]
+
+[contract]
+inputs = ["repository"]
+outcomes = ["create-claude-md-completed"]
+artifacts = ["create-claude-md-report"]
+schemas = []

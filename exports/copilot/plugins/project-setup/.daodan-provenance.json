@@ -1,0 +1,12 @@
+{
+  "adapterVersion": "1.0.0",
+  "coreDigest": "sha256:465d218e3b64204df9b146687986b2b024fae43384cec86feb88ed07bd11863c",
+  "harnessStrategies": {
+    "create-claude-md": "parallel-subagents",
+    "maintain-claude-md": "parallel-subagents"
+  },
+  "host": "copilot",
+  "overrides": [],
+  "plugin": "project-setup",
+  "version": "1.19.0"
+}
