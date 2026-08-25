@@ -816,7 +816,7 @@ git commit -m "Add universal Daodan compiler CLI"
 - Consumes: the current 40 directories under `plugins/` and marketplace entries.
 - Produces: a byte-equivalent installable Claude catalog whose sources point to `exports/claude/plugins/<name>`.
 
-- [ ] **Step 1: Write a failing parity test before copying**
+- [x] **Step 1: Write a failing parity test before copying**
 
 The test loads each current marketplace entry, resolves its registered agents, skills and commands, and asserts the same relative files and bytes exist under `exports/claude/plugins/<name>`.
 
@@ -829,25 +829,25 @@ def test_bootstrap_export_matches_registered_components(self):
             self.assertEqual(exported.read_bytes(), source.read_bytes())
 ```
 
-- [ ] **Step 2: Run the parity test and verify missing exports**
+- [x] **Step 2: Run the parity test and verify missing exports**
 
 Run: `python -m unittest discover -s tests -p "test_claude_bootstrap_parity.py" -v`
 
 Expected: FAIL on `exports/claude/plugins/clean-code`.
 
-- [ ] **Step 3: Copy current plugin packages mechanically**
+- [x] **Step 3: Copy current plugin packages mechanically**
 
 Copy all plugin content, excluding `__pycache__`, `.pyc`, `.pyo` and temporary artifacts. Do not neutralize content in this task. Add a native `.claude-plugin/plugin.json` derived from each current marketplace entry.
 
-- [ ] **Step 4: Point the existing Claude catalog at the export**
+- [x] **Step 4: Point the existing Claude catalog at the export**
 
 Change only each `source` to `./exports/claude/plugins/<name>`. Keep marketplace name, plugin names and versions unchanged in this bootstrap release.
 
-- [ ] **Step 5: Update legacy linters to follow marketplace sources**
+- [x] **Step 5: Update legacy linters to follow marketplace sources**
 
 Registration and version-bump checks must resolve the active Claude package through the marketplace source rather than assuming `plugins/<name>` is directly installable.
 
-- [ ] **Step 6: Run parity and all existing consistency checks**
+- [x] **Step 6: Run parity and all existing consistency checks**
 
 ```bash
 python -m unittest discover -s tests -v
@@ -860,7 +860,7 @@ claude plugin validate .
 
 Expected: all PASS and the marketplace still lists 40 plugins.
 
-- [ ] **Step 7: Commit the Claude bootstrap atomically**
+- [x] **Step 7: Commit the Claude bootstrap atomically**
 
 ```bash
 git add exports/claude .claude-plugin/marketplace.json scripts/lint_plugin_registration.py scripts/check_version_bumps.py tests/test_claude_bootstrap_parity.py
@@ -882,25 +882,25 @@ git commit -m "Move Claude packages behind the generated export"
 - Consumes: compiler from Milestone A and the existing dependency-audit method.
 - Produces: the first plugin compiled from neutral source with `deps-audit` contract parity on three hosts.
 
-- [ ] **Step 1: Write failing package parity assertions**
+- [x] **Step 1: Write failing package parity assertions**
 
 Assert all three manifests report the same name and version, all three packages contain the skill resources, and each host exposes one invocable audit workflow.
 
-- [ ] **Step 2: Run the canary test and verify neutral metadata is missing**
+- [x] **Step 2: Run the canary test and verify neutral metadata is missing**
 
 Run: `python -m unittest discover -s tests -p "test_dependency_audit_ports.py" -v`
 
 Expected: FAIL because `plugin.toml` does not exist.
 
-- [ ] **Step 3: Write the neutral manifest and workflow contract**
+- [x] **Step 3: Write the neutral manifest and workflow contract**
 
 The contract requires dependency discovery, direct-versus-transitive classification, license analysis, supply-chain findings with evidence, and one written report. Preserve the existing three reference files byte-for-byte.
 
-- [ ] **Step 4: Add only the host wrappers required by the canary**
+- [x] **Step 4: Add only the host wrappers required by the canary**
 
 Claude emits a skill plus invocable command-compatible workflow. Copilot emits a skill plus prompt entrypoint. Codex emits a skill whose instructions execute the workflow directly. No semantic override is expected for this single-context plugin.
 
-- [ ] **Step 5: Build and run the canary eval**
+- [ ] **Step 5: Build and run the canary eval** (build, `--check` and the port tests pass; the per-host install-and-run half is unmeasured, see `evals/universal-daodan/dependency-audit.md`)
 
 ```bash
 python scripts/daodan_build.py
@@ -910,7 +910,7 @@ python -m unittest discover -s tests -p "test_dependency_audit_ports.py" -v
 
 Install the package from each disposable marketplace and run it against `tests/fixtures/daodan/dependency-project`. Record contract results in `evals/universal-daodan/dependency-audit.md`.
 
-- [ ] **Step 6: Commit the simple canary**
+- [x] **Step 6: Commit the simple canary**
 
 ```bash
 git add plugins/dependency-audit exports adapters evals/universal-daodan/dependency-audit.md tests/test_dependency_audit_ports.py
@@ -952,7 +952,7 @@ git commit -m "Compile dependency audit for three native hosts"
 - Consumes: the current eight-plugin review dependency cluster, `.deep-dive/` artifact contract, the Task 1 protocol evidence and the harness selector from Task 4.
 - Produces: one content-kernel `team-review` DAG plus three generated host harnesses whose observable review contract is identical.
 
-- [ ] **Step 1: Write failing cross-host contract tests**
+- [x] **Step 1: Write failing cross-host contract tests**
 
 Write these concrete assertions:
 
@@ -978,13 +978,13 @@ def test_every_host_preserves_team_review_contract(self):
         self.assertEqual(package.artifact_root("xray"), ".deep-dive")
 ```
 
-- [ ] **Step 2: Run the test and verify neutral workflow metadata is missing**
+- [x] **Step 2: Run the test and verify neutral workflow metadata is missing**
 
 Run: `python -m unittest discover -s tests -p "test_review_pipeline_ports.py" -v`
 
 Expected: FAIL on missing `plugins/codebase-xray/plugin.toml`.
 
-- [ ] **Step 3: Neutralize the dependency cluster one plugin per commit**
+- [x] **Step 3: Neutralize the dependency cluster one plugin per commit**
 
 For each plugin, add `plugin.toml`, move agent bodies to `roles/`, move command bodies to `workflows/`, add one TOML sidecar per workflow, and preserve skill references, scripts and assets. Use this commit order so dependencies always point backward:
 
@@ -1003,7 +1003,7 @@ After each plugin, run a normal build, then `python scripts/daodan_build.py --ch
 
 For `codebase-xray`, express partition selection, isolated workers, artifact ownership and synthesis barriers in its own workflow contract. Once all three generated harnesses pass, remove its runtime dependency on `agent-teams@Codex-workflows`; scheduling now belongs to the host harness.
 
-- [ ] **Step 4: Encode the host-neutral review kernel**
+- [x] **Step 4: Encode the host-neutral review kernel**
 
 Define this phase order in `team-review.toml`:
 
@@ -1077,7 +1077,7 @@ name = "final-report"
 required = ["retained_findings", "filtered_findings", "coverage", "degraded_dimensions", "output_path"]
 ```
 
-- [ ] **Step 5: Generate each host's execution harness**
+- [x] **Step 5: Generate each host's execution harness**
 
 Generate the strongest strategy supported by each harness without editing the kernel:
 
@@ -1087,7 +1087,7 @@ Generate the strongest strategy supported by each harness without editing the ke
 
 Do not create semantic overrides merely because the topologies differ. Create an override only if a behavioral contract cannot be rendered from these generic harness templates. Move the current Copilot-only X-ray guard into the Copilot adapter as an implementation of the neutral write-confinement policy; do not treat its VS Code JSON vocabulary as core content.
 
-- [ ] **Step 6: Run structural, contract, topology and guard tests**
+- [ ] **Step 6: Run structural, contract, topology and guard tests** (all four commands pass, guard 36/36; the one-fixture-review-per-host half is unmeasured, see `evals/universal-daodan/team-review-contract.md`)
 
 ```bash
 python scripts/daodan_build.py
@@ -1098,7 +1098,7 @@ python adapters/copilot/policies/xray-guard/test_xray_guard.py
 
 Run one fixture review on each host. The eval passes only when every worker uses an isolated context, each expected reviewer is marked delivered or failed, cross-examination occurs after the ledger barrier, all retained findings carry evidence, and the final report artifact exists. Record the actual selected topology for each host in `.daodan-provenance.json`; topology names may differ while contract assertions must match.
 
-- [ ] **Step 7: Commit the complex canary and parity evidence**
+- [x] **Step 7: Commit the complex canary and parity evidence**
 
 ```bash
 git add plugins adapters exports evals/universal-daodan/team-review-contract.md tests/test_review_pipeline_ports.py
@@ -1120,7 +1120,7 @@ git commit -m "Compile the review pipeline for three hosts"
 - Consumes: the proven simple and complex patterns.
 - Produces: exactly 40 core plugins and exactly 40 entries in each generated catalog, all `native` or `adapted`.
 
-- [ ] **Step 1: Add a failing complete-catalog test**
+- [x] **Step 1: Add a failing complete-catalog test**
 
 ```python
 def test_every_core_plugin_is_in_every_catalog(self):
@@ -1131,7 +1131,7 @@ def test_every_core_plugin_is_in_every_catalog(self):
         self.assertNotIn("unsupported", parity_states(host))
 ```
 
-- [ ] **Step 2: Migrate the knowledge and utility family**
+- [x] **Step 2: Migrate the knowledge and utility family**
 
 Migrate and commit each plugin independently in this order:
 
@@ -1141,7 +1141,7 @@ docker, docs, text-humanizer, system-utils, learning, obsidian-development
 
 For every plugin: add neutral TOML, move commands to workflows, move agents to roles, compile all hosts, run its focused eval, then commit before starting the next plugin.
 
-- [ ] **Step 3: Migrate the language and application tooling family**
+- [x] **Step 3: Migrate the language and application tooling family**
 
 ```text
 clean-code, tauri-development, xterm, python-development, stripe,
@@ -1152,7 +1152,7 @@ opentelemetry, pwa-expert
 
 Apply the same per-plugin cycle. Browser or MCP requirements must be declared as capabilities and never guessed as tool identifiers.
 
-- [ ] **Step 4: Migrate the multi-role and integration family**
+- [x] **Step 4: Migrate the multi-role and integration family**
 
 ```text
 ai-tooling, research, business, app-analyzer, digital-marketing,
@@ -1164,7 +1164,7 @@ Keep Codex-as-subject vocabulary intact in `marketplace-ops` and `ai-tooling/age
 
 For `research` and `codebase-mapper`, migrate the local pipeline semantics into their own kernel contracts and remove `agent-teams@Codex-workflows` only after three-host contract evals pass. Preserve any external dependency that contributes actual knowledge or behavior rather than generic dispatch mechanics.
 
-- [ ] **Step 5: Run the complete parity gate**
+- [x] **Step 5: Run the complete parity gate**
 
 ```bash
 python scripts/daodan_build.py
@@ -1177,7 +1177,7 @@ python scripts/lint_fact_anchors.py
 
 Expected: 40 core plugins, 40 Claude packages, 40 Copilot packages, 40 Codex packages, zero unsupported required components, zero stale overrides.
 
-- [ ] **Step 6: Record catalog parity and commit the completed migration**
+- [x] **Step 6: Record catalog parity and commit the completed migration**
 
 Write the compiler parity table and host smoke results to `evals/universal-daodan/catalog-parity.md`.
 
@@ -1203,21 +1203,21 @@ git commit -m "Complete the universal plugin catalog"
 - Consumes: `python scripts/daodan_build.py --check` and full compiler output.
 - Produces: PR drift gate and one bot publication commit containing all host exports and catalogs.
 
-- [ ] **Step 1: Write a workflow contract test**
+- [x] **Step 1: Write a workflow contract test**
 
 Parse workflow text and assert it invokes the universal check, stages all three exports and all three catalog paths, uses the bot-email identity guard, and never references `vsce`, `exports/vscode` or `gen_extension_manifest.py`.
 
-- [ ] **Step 2: Run the workflow test and verify it fails on current CI**
+- [x] **Step 2: Run the workflow test and verify it fails on current CI**
 
 Run: `python -m unittest discover -s tests -p "test_publish_workflow_contract.py" -v`
 
 Expected: FAIL because current workflows still package the VSIX.
 
-- [ ] **Step 3: Update consistency CI**
+- [x] **Step 3: Update consistency CI**
 
 Set Python to `3.11`, keep existing neutral content linters that still apply, add `python scripts/daodan_build.py --check`, and remove the VSIX package job and extension-manifest checks.
 
-- [ ] **Step 4: Implement atomic publication workflow**
+- [x] **Step 4: Implement atomic publication workflow**
 
 The workflow performs a full clean build, full unit and contract validation, then stages exactly:
 
@@ -1232,11 +1232,11 @@ exports/codex/
 
 If the tree is unchanged, exit successfully. Otherwise create one bot commit named `Publish native Daodan marketplaces` and push. Run the final `--check` before the commit, not after it.
 
-- [ ] **Step 5: Update version-bump rules and remove superseded mirror code**
+- [x] **Step 5: Update version-bump rules and remove superseded mirror code**
 
 A change to neutral plugin content or an adapter override affecting that plugin must bump the common plugin version and marketplace version. Delete mirror and extension checks only after their universal replacements pass.
 
-- [ ] **Step 6: Run workflow, compiler and existing tests**
+- [x] **Step 6: Run workflow, compiler and existing tests**
 
 ```bash
 python -m unittest discover -s tests -v
@@ -1245,7 +1245,7 @@ python scripts/daodan_build.py --check
 
 Expected: PASS and no workflow text references the VSIX.
 
-- [ ] **Step 7: Commit the CI replacement**
+- [x] **Step 7: Commit the CI replacement**
 
 ```bash
 git add .github/workflows scripts tests/test_publish_workflow_contract.py
@@ -1273,17 +1273,17 @@ git commit -m "Publish three native marketplaces atomically"
 - Consumes: complete parity evidence and universal publication workflow.
 - Produces: repository marketplace identity `daodan` on all hosts and no extension distribution path.
 
-- [ ] **Step 1: Write failing cutover identity tests**
+- [x] **Step 1: Write failing cutover identity tests**
 
 Assert the three native root manifests exist, all declare `name = daodan`, all versions and plugin sets match, `exports/vscode` is absent, and no tracked workflow or script contains `vsce`, `vscode-v` or `release-vscode`.
 
-- [ ] **Step 2: Run the identity test and verify failure before cutover**
+- [x] **Step 2: Run the identity test and verify failure before cutover**
 
 Run: `python -m unittest discover -s tests -p "test_cutover_identity.py" -v`
 
 Expected: FAIL because the new root catalogs do not yet exist and VSIX files remain.
 
-- [ ] **Step 3: Generate and install-test the three final catalogs**
+- [ ] **Step 3: Generate and install-test the three final catalogs** (generated and `--check` clean; the six disposable-profile installs are unmeasured)
 
 ```bash
 python scripts/daodan_build.py
@@ -1293,15 +1293,15 @@ claude plugin validate .
 
 In disposable profiles, register the same local repository root with Claude, Copilot and Codex. Browse all 40 entries and install both canaries on each host. Do not continue unless all six installations and invocations pass.
 
-- [ ] **Step 4: Remove the complete VSIX surface**
+- [x] **Step 4: Remove the complete VSIX surface**
 
 Delete `exports/vscode/`, `release-vscode.yml`, `extension_release_notes.py`, extension packaging instructions, extension version and changelog obligations, and the skill-copy lifecycle. Keep historical GitHub Release assets untouched.
 
-- [ ] **Step 5: Write migration and rollback instructions**
+- [x] **Step 5: Write migration and rollback instructions**
 
 Document the one-time sequence for each host: remove `claude-code-daodan`, uninstall any old VSIX, add `acaprino/daodan`, install selected plugins, start a fresh session and verify no duplicate plugin names remain. Document rollback as a Git revert followed by a new patch marketplace version; published versions are never reused and the repository name is never rolled back. State that future submissions to curated host directories reference an immutable release tag or SHA and are independent of repository-store publication.
 
-- [ ] **Step 6: Run the entire repository gate**
+- [x] **Step 6: Run the entire repository gate**
 
 ```bash
 python scripts/daodan_build.py --check
@@ -1313,7 +1313,7 @@ python scripts/lint_fact_anchors.py
 
 Expected: all PASS, three catalogs with 40 identical plugin identities, no tracked VSIX files.
 
-- [ ] **Step 7: Commit the cutover before renaming the remote**
+- [x] **Step 7: Commit the cutover before renaming the remote**
 
 ```bash
 git add .claude-plugin/marketplace.json .github/plugin/marketplace.json .agents/plugins/marketplace.json exports/claude exports/copilot exports/codex README.md CLAUDE.md docs/migration-from-claude-code-daodan.md tests/test_cutover_identity.py
@@ -1334,7 +1334,7 @@ git ls-remote origin HEAD
 
 Expected: the new remote returns the cutover commit. Do not automate this external account-level action.
 
-- [ ] **Step 9: Push and observe publication**
+- [ ] **Step 9: Push and observe publication** (blocked on step 8, and on the owner's decision to push)
 
 ```bash
 git push origin master
@@ -1354,15 +1354,15 @@ git push origin master
 
 ## Final acceptance gate
 
-- [ ] `plugins/*/plugin.toml` count is exactly 40.
-- [ ] Each native catalog contains exactly the same 40 names and versions.
-- [ ] Every package has the correct host-native manifest.
-- [ ] Every required component is `native` or `adapted`; none is `unsupported`.
+- [x] `plugins/*/plugin.toml` count is exactly 40.
+- [x] Each native catalog contains exactly the same 40 names and versions.
+- [x] Every package has the correct host-native manifest.
+- [x] Every required component is `native` or `adapted`; none is `unsupported`.
 - [ ] `team-review` selects the same review dimensions on all hosts, runs every selected role in an isolated context, accounts for every delivery and performs cross-examination before the final report.
-- [ ] Harness provenance records Claude, Copilot and Codex coordination strategies without leaking host dispatch APIs into the core.
-- [ ] All committed exports reproduce byte-for-byte with `python scripts/daodan_build.py --check`.
+- [x] Harness provenance records Claude, Copilot and Codex coordination strategies without leaking host dispatch APIs into the core.
+- [x] All committed exports reproduce byte-for-byte with `python scripts/daodan_build.py --check`.
 - [ ] Claude Code, Copilot and Codex each register `acaprino/daodan` from the repository root.
 - [ ] `dependency-audit` and `senior-review` install and satisfy their contracts on all three hosts.
-- [ ] No tracked file under `exports/vscode/` or VSIX release workflow remains.
-- [ ] Historical VSIX GitHub Release assets remain untouched and are documented as unsupported.
+- [x] No tracked file under `exports/vscode/` or VSIX release workflow remains.
+- [x] Historical VSIX GitHub Release assets remain untouched and are documented as unsupported (`docs/migration-from-claude-code-daodan.md`).
 - [ ] Marketplace identity `daodan` is stable after cutover.
