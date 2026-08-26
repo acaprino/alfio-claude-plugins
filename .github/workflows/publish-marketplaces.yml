@@ -11,6 +11,12 @@
 # commit message, which reads the body as well as the subject, so a commit that
 # merely mentioned the marker in its prose silenced the job. Never gate a
 # workflow on prose the author is free to write.
+#
+# The last step tags the published tree as a GitHub Release, one per marketplace
+# version. It is keyed on metadata.version rather than on the push, so a push
+# that changes no version finds the release already there and does nothing. The
+# release carries no asset: the install path is the marketplace, and the tag
+# exists so a revision can be pinned and a version can be traced to a commit.
 name: publish-marketplaces
 
 on:
@@ -63,3 +69,36 @@ jobs:
           fi
           git commit -m "Publish native Daodan marketplaces"
           git push
+
+      - name: Release the published marketplace version, or skip when it is already tagged
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="$(python -c "import json; print(json.load(open('.claude-plugin/marketplace.json'))['metadata']['version'])")"
+          tag="v${version}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "release ${tag} is already published: nothing to do"
+            exit 0
+          fi
+          cat > "${RUNNER_TEMP}/release-notes.md" <<'NOTES'
+          Marketplace version `__DAODAN_VERSION__`, identical across all three hosts.
+
+          ```bash
+          claude plugin marketplace add acaprino/daodan
+          copilot plugin marketplace add acaprino/daodan
+          codex plugin marketplace add acaprino/daodan
+          ```
+
+          Then install what you need, for example `claude plugin install senior-review@daodan`.
+
+          This tag records the commit a version was published from, for anyone pinning a
+          revision or submitting to a curated directory. It carries no asset. Registering the
+          repository root as a marketplace installs from `master`, which is the supported path.
+          NOTES
+          sed -i "s/__DAODAN_VERSION__/${version}/g" "${RUNNER_TEMP}/release-notes.md"
+          gh release create "$tag" \
+            --target "$(git rev-parse HEAD)" \
+            --title "Daodan ${version}" \
+            --notes-file "${RUNNER_TEMP}/release-notes.md" \
+            --generate-notes \
+            --latest

@@ -81,6 +81,8 @@ actually resolve.
 
 ## Curated host directories
 
-A future submission to any curated directory references an immutable release tag or SHA. That is
-independent of publication from this repository: registering `acaprino/daodan` as a marketplace
-installs from `master`, and a directory listing installs from whatever revision it pinned.
+A future submission to any curated directory references an immutable release tag or SHA. Each published
+marketplace version now has one: `publish-marketplaces.yml` tags it `v<metadata.version>` on the commit it
+published from, with no asset attached. That is independent of publication from this repository:
+registering `acaprino/daodan` as a marketplace installs from `master`, and a directory listing installs
+from whatever revision it pinned.

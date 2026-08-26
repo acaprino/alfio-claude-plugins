@@ -9,6 +9,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat)](LICENSE)
 [![Consistency](https://github.com/acaprino/daodan/actions/workflows/consistency.yml/badge.svg)](https://github.com/acaprino/daodan/actions/workflows/consistency.yml)
 [![Marketplace](https://img.shields.io/badge/dynamic/json?label=marketplace&prefix=v&query=%24.metadata.version&url=https%3A%2F%2Fraw.githubusercontent.com%2Facaprino%2Fdaodan%2Fmaster%2F.claude-plugin%2Fmarketplace.json&style=flat&color=green)](.claude-plugin/marketplace.json)
+[![Release](https://img.shields.io/github/v/release/acaprino/daodan?style=flat&color=blue&label=release)](https://github.com/acaprino/daodan/releases/latest)
 [![Plugins](https://img.shields.io/badge/plugins-40-orange?style=flat)](#plugins)
 [![Agents](https://img.shields.io/badge/agents-76-purple?style=flat)](#plugins)
 [![Skills](https://img.shields.io/badge/skills-57-teal?style=flat)](#plugins)
