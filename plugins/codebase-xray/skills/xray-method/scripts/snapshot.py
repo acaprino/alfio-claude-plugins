@@ -23,6 +23,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -36,6 +37,7 @@ from ast_parser import parse_file  # noqa: E402
 from languages import SUPPORTED_EXTENSIONS  # noqa: E402
 
 __all__ = [
+    "MARKER_PREFIX",
     "PHASE_FILES",
     "SCHEMA",
     "blast_radius",
@@ -49,6 +51,7 @@ __all__ = [
     "iter_files",
     "read_text",
     "recommend",
+    "renumber_line",
     "repo_root",
     "resolve_module",
     "scan_claims",
@@ -804,6 +807,84 @@ def cmd_diff(args: argparse.Namespace) -> int:
     return 0
 
 
+MARKER_PREFIX = "<!-- xray:stale"
+
+
+def renumber_line(text: str, renumber: dict, index: dict) -> str:
+    """
+    Move every `path:line` citation of a modified file onto its new line, when
+    the old line falls inside a symbol that survived the edit. A citation
+    outside every surviving span is left alone: the diff already marked its
+    claim affected, so the model rewrites it rather than trusting the number.
+    """
+    def replace(match: "re.Match[str]") -> str:
+        cited, number = match.group(1), int(match.group(2))
+        path = _match_cited_path(cited, index)
+        entries = renumber.get(path or "", [])
+        for entry in entries:
+            if entry["start_old"] <= number <= entry["end_old"]:
+                return f"{cited}:{entry['start_new'] + (number - entry['start_old'])}"
+        return match.group(0)
+
+    return CITE_LINE.sub(replace, text)
+
+
+def cmd_carry(args: argparse.Namespace) -> int:
+    parent_dir = Path(args.parent_run)
+    run_dir = Path(args.run_dir)
+    changes = _read_json(run_dir / "changes.json")
+    if changes is None:
+        print("carry: no changes.json in the run directory; run `diff` first", file=sys.stderr)
+        return 2
+
+    knowledge = parent_dir / "knowledge"
+    if knowledge.is_dir():
+        shutil.copytree(knowledge, run_dir / "knowledge", dirs_exist_ok=True)
+
+    renumber = changes.get("renumber", {})
+    index = _path_index(
+        set(renumber)
+        | set(changes["files"]["modified"])
+        | set(changes["files"]["added"])
+        | set(changes["files"]["removed"])
+    )
+    by_file: dict[str, dict[int, dict]] = {}
+    for claim in changes.get("claims", []):
+        by_file.setdefault(claim["phase_file"], {})[claim["line"]] = claim
+
+    copied = 0
+    marked = 0
+    for name in PHASE_FILES:
+        source = parent_dir / name
+        if not source.exists() or name == "07-final-report.md":
+            continue  # Phase 7 is regenerated, never carried.
+        marks = by_file.get(name, {})
+        out_lines: list[str] = []
+        for number, line in enumerate(read_text(source).split("\n"), start=1):
+            claim = marks.get(number)
+            if claim:
+                cites = " ".join(claim["cites"])
+                out_lines.append(f"{MARKER_PREFIX} reason={claim['reason']} cites={cites} -->")
+                out_lines.append(line)
+                marked += 1
+            else:
+                out_lines.append(renumber_line(line, renumber, index))
+        (run_dir / name).write_text("\n".join(out_lines), encoding="utf-8")
+        copied += 1
+
+    added = changes.get("symbols", {}).get("added", [])
+    if added:
+        with (run_dir / "changes.md").open("a", encoding="utf-8") as handle:
+            handle.write("\n## Added symbols\n\n")
+            handle.write("No claim cites these yet. Phases 01 and 02 always; 03 to 06 at full depth.\n\n")
+            handle.write("| Symbol | File | Kind |\n|---|---|---|\n")
+            for item in added:
+                handle.write(f"| `{item['symbol']}` | `{item['file']}` | {item['kind']} |\n")
+
+    print(f"carry: {copied} phase files copied, {marked} claims marked stale, {len(added)} symbols added")
+    return 0
+
+
 def cmd_write(args: argparse.Namespace) -> int:
     manifest = build_manifest(Path(args.target))
     out = Path(args.out)
@@ -830,6 +911,11 @@ def main(argv: list[str] | None = None) -> int:
     diff_parser.add_argument("--threshold", type=float, default=0.4)
     diff_parser.add_argument("--flags", default=None, help="this run's flags as JSON, compared with the parent's")
     diff_parser.set_defaults(func=cmd_diff)
+
+    carry_parser = sub.add_parser("carry", help="copy a parent run's phase files and mark the stale claims")
+    carry_parser.add_argument("parent_run")
+    carry_parser.add_argument("run_dir")
+    carry_parser.set_defaults(func=cmd_carry)
 
     args = parser.parse_args(argv)
     return args.func(args)

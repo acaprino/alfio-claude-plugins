@@ -537,5 +537,74 @@ class DiffCommandTests(_DiffFixture):
         self.assertIn("## Affected claims", text)
 
 
+class CarryTests(_DiffFixture):
+    def carry(self):
+        code, out, err = run_script("carry", self.parent, self.run_dir, cwd=self.tmp)
+        self.assertEqual(code, 0, err + out)
+        return (self.run_dir / "03-flows.md").read_text(encoding="utf-8")
+
+    def test_unaffected_claims_are_carried_verbatim(self):
+        (self.src / "orders/service.py").write_text(
+            PY_SOURCE.replace("self.repo.save(order)", "self.repo.save(order)\n        self.audit(order)"),
+            encoding="utf-8",
+        )
+        self.diff()
+        carried = self.carry()
+        self.assertIn("- Cancelling calls `src/orders/service.py::OrderService.cancel`.", carried)
+
+    def test_affected_claims_get_a_marker(self):
+        (self.src / "orders/service.py").write_text(
+            PY_SOURCE.replace("self.repo.save(order)", "self.repo.save(order)\n        self.audit(order)"),
+            encoding="utf-8",
+        )
+        self.diff()
+        carried = self.carry()
+        lines = carried.split("\n")
+        marked = [i for i, line in enumerate(lines) if line.startswith("<!-- xray:stale")]
+        self.assertTrue(marked)
+        self.assertTrue(
+            any("OrderService.place" in lines[index] + lines[index + 1] for index in marked)
+        )
+
+    def test_a_removed_symbol_marker_says_so(self):
+        (self.src / "orders/service.py").write_text(
+            PY_SOURCE.replace("    def cancel(self, order_id):\n        self.repo.delete(order_id)\n", ""),
+            encoding="utf-8",
+        )
+        self.diff()
+        carried = self.carry()
+        self.assertIn("reason=symbol-removed", carried)
+
+    def test_a_carried_line_citation_is_renumbered(self):
+        (self.src / "orders/service.py").write_text(
+            PY_SOURCE.replace("CONSTANT = 3", "CONSTANT = 3\nEXTRA = 1\nMORE = 2"), encoding="utf-8"
+        )
+        self.diff()
+        carried = self.carry()
+        self.assertIn("src/orders/service.py:19", carried)
+        self.assertNotIn("src/orders/service.py:17", carried)
+
+    def test_added_symbols_are_listed_in_changes_md(self):
+        (self.src / "orders/service.py").write_text(
+            PY_SOURCE.replace(
+                "def retry_policy(attempts=3):",
+                "def audit_log(entry):\n    return entry\n\n\ndef retry_policy(attempts=3):",
+            ),
+            encoding="utf-8",
+        )
+        self.diff()
+        self.carry()
+        text = (self.run_dir / "changes.md").read_text(encoding="utf-8")
+        self.assertIn("## Added symbols", text)
+        self.assertIn("audit_log", text)
+
+    def test_knowledge_and_phase_files_are_copied(self):
+        write(self.parent, "knowledge/navigation.md", "# Project Knowledge Navigation\n")
+        self.diff()
+        self.carry()
+        self.assertTrue((self.run_dir / "knowledge/navigation.md").exists())
+        self.assertTrue((self.run_dir / "03-flows.md").exists())
+
+
 if __name__ == "__main__":
     unittest.main()
