@@ -727,6 +727,21 @@ class CheckTests(_DiffFixture):
         self.assertEqual(code, 1)
         self.assertIn(f"added symbol never documented: {item['file']}::audit_log", out)
 
+    def test_a_same_named_symbol_in_an_unrelated_file_does_not_document_the_addition(self):
+        # web/views.py's new `handler` shares its bare name with the existing,
+        # unrelated `api/routes.py::handler` that 03-flows.md already cites.
+        # Matching by name alone would count the new symbol as documented; a
+        # citation must resolve to the SAME file the symbol was actually
+        # added in. Nothing else in the tree changes, so no marker is
+        # generated at all: this isolates the added-symbol check completely.
+        write(self.src, "web/views.py", "def handler():\n    return None\n")
+        changes = self.diff()
+        run_script("carry", self.parent, self.run_dir, cwd=self.tmp)
+        item = next(i for i in changes["symbols"]["added"] if i["symbol"] == "handler")
+        code, out, _ = run_script("check", self.run_dir, cwd=self.tmp)
+        self.assertEqual(code, 1)
+        self.assertIn(f"added symbol never documented: {item['file']}::handler", out)
+
 
 if __name__ == "__main__":
     unittest.main()

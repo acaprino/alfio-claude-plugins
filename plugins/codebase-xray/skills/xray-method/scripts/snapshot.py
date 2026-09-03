@@ -909,7 +909,12 @@ def cmd_check(args: argparse.Namespace) -> int:
     every other citation in this file is matched by, on a line that is not
     itself a stale marker: a marker's own `cites=` field is written in that
     same shape, so it must be excluded before matching, or a claim's own
-    unresolved marker would count as the documentation that resolves it.
+    unresolved marker would count as the documentation that resolves it. The
+    citation must also resolve to the SAME file the symbol was added in, not
+    merely carry the same bare name: two files can each define a `handler`,
+    and a citation of one must never document an addition to the other. The
+    path index is built from the added symbols' own files only, so a
+    citation of an unrelated file never even attempts to resolve.
     """
     run_dir = Path(args.run_dir)
     changes = _read_json(run_dir / "changes.json")
@@ -917,8 +922,11 @@ def cmd_check(args: argparse.Namespace) -> int:
         print("check: no changes.json in the run directory; run `diff` first", file=sys.stderr)
         return 2
 
+    added = changes.get("symbols", {}).get("added", [])
+    index = _path_index({item["file"] for item in added})
+
     problems: list[str] = []
-    cited_symbols: set[str] = set()
+    documented: set[tuple[str, str]] = set()
     for name in PHASE_FILES:
         path = run_dir / name
         if not path.exists():
@@ -927,10 +935,13 @@ def cmd_check(args: argparse.Namespace) -> int:
             if line.startswith(MARKER_PREFIX):
                 problems.append(f"{name}:{number}: claim still marked stale: {line.strip()}")
                 continue
-            cited_symbols.update(symbol for _, symbol in CITE_SYMBOL.findall(line))
+            for path_text, symbol in CITE_SYMBOL.findall(line):
+                resolved = _match_cited_path(path_text, index)
+                if resolved:
+                    documented.add((resolved, symbol))
 
-    for item in changes.get("symbols", {}).get("added", []):
-        if item["symbol"] not in cited_symbols:
+    for item in added:
+        if (item["file"], item["symbol"]) not in documented:
             problems.append(
                 f"added symbol never documented: {item['file']}::{item['symbol']}"
             )
