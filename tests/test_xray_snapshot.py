@@ -375,5 +375,143 @@ class BlastRadiusTests(unittest.TestCase):
         self.assertTrue(any(entry["file"].endswith("orders/service.py") for entry in importers))
 
 
+PARENT_STATE = {
+    "run_id": "src-20260901-101200",
+    "target": "src",
+    "mode": "classic",
+    "status": "complete",
+    "flags": {"critical": False, "comments": False, "docs_only": False, "phase": None, "depth": "full"},
+}
+
+
+class _DiffFixture(unittest.TestCase):
+    """Shared fixture for diff, carry and check. Holds no test of its own, so
+    the loader collects it and finds nothing to run; the three suites below
+    inherit the setup without inheriting each other's cases."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="xray-diff-"))
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+        self.src = self.tmp / "src"
+        write(self.src, "orders/service.py", PY_SOURCE)
+        write(
+            self.src,
+            "api/routes.py",
+            "from orders.service import OrderService\n\n\ndef handler():\n    return OrderService(None)\n",
+        )
+        # Four more recorded files that nothing imports and that import nothing,
+        # so the manifest holds six files. A two-file tree makes any single edit
+        # with a one-hop importer 100% of the tree by construction, which would
+        # trip the ratio threshold on every case regardless of what changed;
+        # these give the threshold something real to measure against.
+        write(self.src, "reports/monthly.py", "def summarize():\n    return 1\n")
+        write(self.src, "reports/weekly.py", "def summarize():\n    return 2\n")
+        write(self.src, "util/text.py", "def normalize(s):\n    return s.strip()\n")
+        write(self.src, "util/dates.py", "def today():\n    return None\n")
+        self.parent = self.tmp / ".deep-dive/runs/src-20260901-101200"
+        self.parent.mkdir(parents=True)
+        (self.parent / "state.json").write_text(json.dumps(PARENT_STATE), encoding="utf-8")
+        import snapshot
+        self.snapshot = snapshot
+        manifest = snapshot.build_manifest(self.src)
+        (self.parent / "snapshot").mkdir()
+        (self.parent / "snapshot/manifest.json").write_text(
+            json.dumps(manifest, indent=2, sort_keys=True), encoding="utf-8"
+        )
+        write(
+            self.parent,
+            "03-flows.md",
+            "# Phase 3: Flow Tracing\n"
+            "\n"
+            "## Critical Paths\n"
+            "\n"
+            "- Placing an order calls `src/orders/service.py::OrderService.place` at src/orders/service.py:17.\n"
+            "- Cancelling calls `src/orders/service.py::OrderService.cancel`.\n"
+            "- The retry budget is set in `src/orders/service.py::retry_policy`.\n"
+            "- The HTTP entry point is `src/api/routes.py::handler`.\n",
+        )
+        self.run_dir = self.tmp / ".deep-dive/runs/src-20260903-101500"
+
+    def diff(self, *extra):
+        code, out, err = run_script(
+            "diff", self.parent, self.src, "--out", self.run_dir, *extra, cwd=self.tmp
+        )
+        self.assertEqual(code, 0, err + out)
+        return json.loads((self.run_dir / "changes.json").read_text(encoding="utf-8"))
+
+
+class DiffCommandTests(_DiffFixture):
+    def test_an_unchanged_tree_recommends_nothing(self):
+        changes = self.diff()
+        self.assertEqual(changes["recommendation"], "none")
+        self.assertEqual(changes["claims"], [])
+
+    def test_a_changed_symbol_marks_only_the_claims_that_cite_it(self):
+        path = self.src / "orders/service.py"
+        path.write_text(
+            PY_SOURCE.replace("self.repo.save(order)", "self.repo.save(order)\n        self.audit(order)"),
+            encoding="utf-8",
+        )
+        changes = self.diff()
+        self.assertEqual(changes["recommendation"], "incremental")
+        reasons = {(c["phase_file"], c["reason"]) for c in changes["claims"]}
+        cited = " ".join(" ".join(c["cites"]) for c in changes["claims"])
+        self.assertIn("OrderService.place", cited)
+        self.assertNotIn("OrderService.cancel", cited)
+        self.assertIn(("03-flows.md", "symbol-changed"), reasons)
+        # routes.py imports service.py, so its claim is affected as an importer.
+        self.assertIn("importer", {c["reason"] for c in changes["claims"]})
+
+    def test_a_removed_symbol_is_reported_as_removed(self):
+        path = self.src / "orders/service.py"
+        path.write_text(
+            PY_SOURCE.replace("    def cancel(self, order_id):\n        self.repo.delete(order_id)\n", ""),
+            encoding="utf-8",
+        )
+        changes = self.diff()
+        reasons = {c["reason"] for c in changes["claims"]}
+        self.assertIn("symbol-removed", reasons)
+
+    def test_every_claim_records_its_section(self):
+        path = self.src / "orders/service.py"
+        path.write_text(PY_SOURCE.replace("return attempts * 2", "return attempts * 5"), encoding="utf-8")
+        changes = self.diff()
+        self.assertTrue(changes["claims"])
+        for claim in changes["claims"]:
+            self.assertEqual(claim["section"], "## Critical Paths")
+
+    def test_the_threshold_flips_the_recommendation(self):
+        # orders/service.py plus its importer api/routes.py is 2 of 6 files,
+        # ratio 0.33: under the 0.4 default that is "incremental" (see the
+        # case above). An explicit threshold below 0.33 flips the verdict.
+        (self.src / "orders/service.py").write_text("X = 1\n", encoding="utf-8")
+        changes = self.diff("--threshold", "0.1")
+        self.assertEqual(changes["recommendation"], "full")
+        self.assertTrue(any("ratio" in reason for reason in changes["reasons"]))
+
+    def test_different_flags_force_a_full_run(self):
+        changes = self.diff("--flags", json.dumps({"depth": "lite"}))
+        self.assertEqual(changes["recommendation"], "full")
+        self.assertTrue(any("flags" in reason for reason in changes["reasons"]))
+
+    def test_a_parent_without_a_manifest_forces_a_full_run(self):
+        (self.parent / "snapshot/manifest.json").unlink()
+        code, out, _ = run_script("diff", self.parent, self.src, "--out", self.run_dir, cwd=self.tmp)
+        self.assertEqual(code, 0, out)
+        changes = json.loads((self.run_dir / "changes.json").read_text(encoding="utf-8"))
+        self.assertEqual(changes["recommendation"], "full")
+        self.assertTrue(any("manifest" in reason for reason in changes["reasons"]))
+
+    def test_changes_md_carries_the_three_mechanical_sections(self):
+        (self.src / "orders/service.py").write_text(
+            PY_SOURCE.replace("return attempts * 2", "return attempts * 6"), encoding="utf-8"
+        )
+        self.diff()
+        text = (self.run_dir / "changes.md").read_text(encoding="utf-8")
+        self.assertIn("## Code changes", text)
+        self.assertIn("## Blast radius", text)
+        self.assertIn("## Affected claims", text)
+
+
 if __name__ == "__main__":
     unittest.main()

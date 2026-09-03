@@ -22,6 +22,7 @@ import fnmatch
 import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -35,6 +36,7 @@ from ast_parser import parse_file  # noqa: E402
 from languages import SUPPORTED_EXTENSIONS  # noqa: E402
 
 __all__ = [
+    "PHASE_FILES",
     "SCHEMA",
     "blast_radius",
     "build_import_index",
@@ -46,8 +48,10 @@ __all__ = [
     "is_forbidden",
     "iter_files",
     "read_text",
+    "recommend",
     "repo_root",
     "resolve_module",
+    "scan_claims",
     "symbol_spans",
 ]
 
@@ -507,6 +511,295 @@ def blast_radius(index: dict[str, list[str]], comparison: dict, symbols: dict) -
     return [{"file": key, "imports": sorted(value)} for key, value in sorted(reverse.items())]
 
 
+PHASE_FILES = (
+    "01-structure.md", "02-interfaces.md", "03-flows.md", "04-semantics.md",
+    "05-risks.md", "06-documentation.md", "07-final-report.md",
+    "08-interconnect-map.md",
+)
+
+# `src/app/service.py::Class.method`
+CITE_SYMBOL = re.compile(r"([\w./\\-]+\.[A-Za-z0-9_]+)::([A-Za-z_][\w.]*)")
+# `src/app/service.py:42`
+CITE_LINE = re.compile(r"([\w./\\-]+\.[A-Za-z0-9_]+):(\d+)\b")
+# A bare path inside backticks or a table cell.
+CITE_PATH = re.compile(r"[`|\s(\[]([\w./\\-]+\.[A-Za-z0-9_]+)[`|\s),\]]")
+
+
+def _path_index(paths) -> dict[str, list[str]]:
+    return _by_basename(paths)
+
+
+def _match_cited_path(cited: str, index: dict[str, list[str]]) -> str | None:
+    """A phase file cites a path as the model wrote it; match at a segment boundary."""
+    normalized = cited.replace("\\", "/").lstrip("./")
+    if not normalized:
+        return None
+    for candidate in index.get(normalized.rsplit("/", 1)[-1], []):
+        if candidate == normalized or candidate.endswith("/" + normalized) or normalized.endswith("/" + candidate):
+            return candidate
+    return None
+
+
+def _symbol_verdict(path: str, symbol: str, changed: set, removed: set, added_files: set,
+                    removed_files: set) -> str | None:
+    """
+    A claim about a symbol is affected by what happened to THAT symbol, matched
+    exactly. Never by what happened to its enclosing class: a class span
+    encloses its methods, so editing any one method moves the class hash, and
+    walking up to the class would mark every claim about every sibling method.
+    A claim about the class as a whole cites the class, and is caught by the
+    exact match on it.
+    """
+    if path in removed_files:
+        return "file-removed"
+    if path in added_files:
+        return "file-added"
+    if (path, symbol) in removed:
+        return "symbol-removed"
+    if (path, symbol) in changed:
+        return "symbol-changed"
+    return None
+
+
+def scan_claims(parent_dir: Path, comparison: dict, symbols: dict, importers: list[dict]) -> list[dict]:
+    """
+    Every line in the parent's phase files that cites something the change set
+    touched, with the reason it is affected.
+    """
+    modified = set(comparison["modified"])
+    added_files = set(comparison["added"])
+    removed_files = set(comparison["removed"])
+    importer_files = {entry["file"] for entry in importers}
+    changed = {(item["file"], item["symbol"]) for item in symbols["changed"]}
+    removed = {(item["file"], item["symbol"]) for item in symbols["removed"]}
+    spans = {
+        rel: {entry["symbol"]: entry for entry in entries}
+        for rel, entries in symbols["renumber"].items()
+    }
+    index = _path_index(
+        set(comparison["unchanged"]) | modified | added_files | removed_files | importer_files
+    )
+
+    claims: list[dict] = []
+    for name in PHASE_FILES:
+        phase_path = parent_dir / name
+        if not phase_path.exists():
+            continue
+        section = ""
+        for number, line in enumerate(read_text(phase_path).split("\n"), start=1):
+            if line.startswith("#"):
+                section = line.strip()
+                continue
+            cites: list[str] = []
+            reason: str | None = None
+
+            for path_text, symbol in CITE_SYMBOL.findall(line):
+                path = _match_cited_path(path_text, index)
+                if not path:
+                    continue
+                cites.append(f"{path}::{symbol}")
+                verdict = _symbol_verdict(path, symbol, changed, removed, added_files, removed_files)
+                reason = reason or verdict
+                if verdict is None and path in importer_files:
+                    reason = reason or "importer"
+
+            for path_text, line_text in CITE_LINE.findall(line):
+                path = _match_cited_path(path_text, index)
+                if not path:
+                    continue
+                cites.append(f"{path}:{line_text}")
+                if path in removed_files:
+                    reason = reason or "file-removed"
+                elif path in added_files:
+                    reason = reason or "file-added"
+                elif path in modified:
+                    inside = any(
+                        entry["start_old"] <= int(line_text) <= entry["end_old"]
+                        for entry in spans.get(path, {}).values()
+                    )
+                    if not inside:
+                        reason = reason or "line-outside-known-symbol"
+                elif path in importer_files:
+                    reason = reason or "importer"
+
+            # The bare-path fallback runs ONLY when the line carried no precise
+            # citation. A line that named a symbol or a line number has already
+            # been judged at that precision, and re-judging it by its file would
+            # mark every claim about every unchanged symbol in a modified file:
+            # the symbol-level granularity, thrown away at the last step.
+            if reason is None and not cites:
+                for path_text in CITE_PATH.findall(line):
+                    path = _match_cited_path(path_text, index)
+                    if not path:
+                        continue
+                    if path in removed_files:
+                        reason = "file-removed"
+                    elif path in added_files:
+                        reason = "file-added"
+                    elif path in modified:
+                        reason = "file-modified"
+                    elif path in importer_files:
+                        reason = "importer"
+                    if reason:
+                        cites.append(path)
+                        break
+
+            if reason:
+                claims.append({
+                    "phase_file": name,
+                    "line": number,
+                    "section": section,
+                    "cites": sorted(set(cites)),
+                    "reason": reason,
+                })
+    return claims
+
+
+def recommend(ratio: float, threshold: float, affected: int, reasons: list[str]) -> str:
+    if reasons:
+        return "full"
+    if affected == 0:
+        return "none"
+    if ratio > threshold:
+        reasons.append(f"ratio {ratio:.2f} over threshold {threshold:.2f}")
+        return "full"
+    return "incremental"
+
+
+def _read_json(path: Path) -> dict | None:
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+
+
+def _changes_markdown(changes: dict) -> str:
+    files = changes["files"]
+    lines = ["# X-Ray Change Set", ""]
+    parent = changes.get("parent_run") or "none"
+    git = changes.get("git") or {}
+    head = f"Parent run: {parent}."
+    if git.get("commit"):
+        head += f" Worktree at {git['commit']}" + (" (dirty)." if git.get("dirty") else ".")
+    lines += [head, "", "## Code changes", ""]
+    lines.append(
+        f"{len(files['modified'])} modified, {len(files['added'])} added, "
+        f"{len(files['removed'])} removed, of {changes['totals']['files_in_snapshot']} in the snapshot."
+    )
+    lines.append("")
+    for label, key in (("Modified", "modified"), ("Added", "added"), ("Removed", "removed")):
+        if files[key]:
+            lines.append(f"**{label}:**")
+            lines += [f"- `{path}`" for path in files[key]]
+            lines.append("")
+    if any(changes["symbols"].values()):
+        lines += ["| Symbol | File | Kind | Change |", "|---|---|---|---|"]
+        for state in ("changed", "added", "removed"):
+            for item in changes["symbols"][state]:
+                lines.append(f"| `{item['symbol']}` | `{item['file']}` | {item['kind']} | {state} |")
+        lines.append("")
+    lines += ["## Blast radius", ""]
+    if changes["importers"]:
+        lines += ["| Importer | Imports |", "|---|---|"]
+        lines += [
+            f"| `{entry['file']}` | {', '.join('`' + i + '`' for i in entry['imports'])} |"
+            for entry in changes["importers"]
+        ]
+    else:
+        lines.append("No file imports anything that changed.")
+    lines += ["", "## Affected claims", ""]
+    if changes["claims"]:
+        lines += ["| Phase file | Line | Section | Cites | Reason |", "|---|---|---|---|---|"]
+        lines += [
+            f"| {c['phase_file']} | {c['line']} | {c['section']} | "
+            f"{', '.join('`' + x + '`' for x in c['cites'])} | {c['reason']} |"
+            for c in changes["claims"]
+        ]
+    else:
+        lines.append("No claim in the parent run cites anything that changed.")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def cmd_diff(args: argparse.Namespace) -> int:
+    parent_dir = Path(args.parent_run)
+    target = Path(args.target)
+    out_dir = Path(args.out)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    reasons: list[str] = []
+    manifest = _read_json(parent_dir / "snapshot" / "manifest.json")
+    parent_state = _read_json(parent_dir / "state.json") or {}
+    if manifest is None:
+        reasons.append("parent run has no snapshot manifest")
+        manifest = {"files": {}, "target": None, "created_at": None}
+    if parent_state.get("status") not in (None, "complete"):
+        reasons.append(f"parent run status is {parent_state.get('status')}")
+    if args.flags:
+        try:
+            requested = json.loads(args.flags)
+        except ValueError:
+            requested = {}
+        parent_flags = parent_state.get("flags") or {}
+        differing = sorted(k for k, v in requested.items() if parent_flags.get(k) != v)
+        if differing:
+            reasons.append("flags differ from the parent run: " + ", ".join(differing))
+
+    comparison = compare_files(manifest, target, verify=args.verify)
+    symbols = compare_symbols(manifest, comparison)
+    index = build_import_index(manifest, comparison, symbols)
+    importers = blast_radius(index, comparison, symbols)
+    claims = scan_claims(parent_dir, comparison, symbols, importers) if manifest.get("files") else []
+
+    affected_files = sorted(
+        set(comparison["added"]) | set(comparison["removed"]) | set(comparison["modified"])
+        | {entry["file"] for entry in importers}
+    )
+    total = len(manifest.get("files") or {}) or len(comparison["current"]) or 1
+    ratio = len(affected_files) / total
+    recommendation = recommend(ratio, args.threshold, len(affected_files), reasons)
+
+    from datetime import datetime, timezone
+    changes = {
+        "schema": SCHEMA,
+        "parent_run": parent_state.get("run_id") or parent_dir.name,
+        "base_snapshot_created_at": manifest.get("created_at"),
+        "computed_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "git": git_info(repo_root(target.resolve()).resolve()),
+        "files": {
+            "added": comparison["added"],
+            "removed": comparison["removed"],
+            "modified": comparison["modified"],
+        },
+        "symbols": {
+            "added": symbols["added"],
+            "removed": symbols["removed"],
+            "changed": symbols["changed"],
+        },
+        "renumber": symbols["renumber"],
+        "importers": importers,
+        "affected_files": affected_files,
+        "claims": claims,
+        "totals": {
+            "files_in_snapshot": len(manifest.get("files") or {}),
+            "affected_files": len(affected_files),
+            "ratio": round(ratio, 4),
+            "claims_affected": len(claims),
+        },
+        "recommendation": recommendation,
+        "reasons": reasons,
+    }
+    (out_dir / "changes.json").write_text(
+        json.dumps(changes, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    (out_dir / "changes.md").write_text(_changes_markdown(changes), encoding="utf-8")
+    print(
+        f"change set: {recommendation}; {len(affected_files)} affected files of {total}, "
+        f"{len(claims)} affected claims -> {out_dir / 'changes.json'}"
+    )
+    return 0
+
+
 def cmd_write(args: argparse.Namespace) -> int:
     manifest = build_manifest(Path(args.target))
     out = Path(args.out)
@@ -524,6 +817,15 @@ def main(argv: list[str] | None = None) -> int:
     write_parser.add_argument("target")
     write_parser.add_argument("--out", required=True)
     write_parser.set_defaults(func=cmd_write)
+
+    diff_parser = sub.add_parser("diff", help="diff a parent run's snapshot against the worktree")
+    diff_parser.add_argument("parent_run")
+    diff_parser.add_argument("target")
+    diff_parser.add_argument("--out", required=True)
+    diff_parser.add_argument("--verify", action="store_true", help="hash every file, ignoring size and mtime")
+    diff_parser.add_argument("--threshold", type=float, default=0.4)
+    diff_parser.add_argument("--flags", default=None, help="this run's flags as JSON, compared with the parent's")
+    diff_parser.set_defaults(func=cmd_diff)
 
     args = parser.parse_args(argv)
     return args.func(args)
