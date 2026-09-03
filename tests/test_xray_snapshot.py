@@ -643,5 +643,46 @@ class CarryTests(_DiffFixture):
         self.assertEqual(carried, content)
 
 
+class CheckTests(_DiffFixture):
+    def prepare(self):
+        (self.src / "orders/service.py").write_text(
+            PY_SOURCE.replace("self.repo.save(order)", "self.repo.save(order)\n        self.audit(order)"),
+            encoding="utf-8",
+        )
+        self.diff()
+        run_script("carry", self.parent, self.run_dir, cwd=self.tmp)
+
+    def test_a_surviving_marker_fails_the_check(self):
+        self.prepare()
+        code, out, _ = run_script("check", self.run_dir, cwd=self.tmp)
+        self.assertEqual(code, 1)
+        self.assertIn("03-flows.md", out)
+
+    def test_the_check_passes_once_every_marker_is_resolved(self):
+        self.prepare()
+        path = self.run_dir / "03-flows.md"
+        cleaned = "\n".join(
+            line for line in path.read_text(encoding="utf-8").split("\n")
+            if not line.startswith("<!-- xray:stale")
+        )
+        path.write_text(cleaned, encoding="utf-8")
+        code, out, _ = run_script("check", self.run_dir, cwd=self.tmp)
+        self.assertEqual(code, 0, out)
+
+    def test_an_added_symbol_with_no_claim_fails_the_check(self):
+        (self.src / "orders/service.py").write_text(
+            PY_SOURCE.replace(
+                "def retry_policy(attempts=3):",
+                "def audit_log(entry):\n    return entry\n\n\ndef retry_policy(attempts=3):",
+            ),
+            encoding="utf-8",
+        )
+        self.diff()
+        run_script("carry", self.parent, self.run_dir, cwd=self.tmp)
+        code, out, _ = run_script("check", self.run_dir, cwd=self.tmp)
+        self.assertEqual(code, 1)
+        self.assertIn("audit_log", out)
+
+
 if __name__ == "__main__":
     unittest.main()

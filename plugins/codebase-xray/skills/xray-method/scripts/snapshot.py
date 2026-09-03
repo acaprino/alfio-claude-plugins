@@ -900,6 +900,43 @@ def cmd_carry(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_check(args: argparse.Namespace) -> int:
+    """
+    The publication gate for an incremental run: no claim may still be marked
+    stale, and every symbol the change set added must be cited somewhere.
+    """
+    run_dir = Path(args.run_dir)
+    problems: list[str] = []
+
+    for name in PHASE_FILES:
+        path = run_dir / name
+        if not path.exists():
+            continue
+        for number, line in enumerate(read_text(path).split("\n"), start=1):
+            if line.startswith(MARKER_PREFIX):
+                problems.append(f"{name}:{number}: claim still marked stale: {line.strip()}")
+
+    changes = _read_json(run_dir / "changes.json") or {}
+    added = changes.get("symbols", {}).get("added", [])
+    if added:
+        corpus = "\n".join(
+            read_text(run_dir / name) for name in PHASE_FILES if (run_dir / name).exists()
+        )
+        for item in added:
+            if item["symbol"] not in corpus:
+                problems.append(
+                    f"added symbol never documented: {item['file']}::{item['symbol']}"
+                )
+
+    if problems:
+        print("check: FAILED")
+        for problem in problems:
+            print(f"  {problem}")
+        return 1
+    print("check: clean")
+    return 0
+
+
 def cmd_write(args: argparse.Namespace) -> int:
     manifest = build_manifest(Path(args.target))
     out = Path(args.out)
@@ -931,6 +968,10 @@ def main(argv: list[str] | None = None) -> int:
     carry_parser.add_argument("parent_run")
     carry_parser.add_argument("run_dir")
     carry_parser.set_defaults(func=cmd_carry)
+
+    check_parser = sub.add_parser("check", help="verify an incremental run before publishing")
+    check_parser.add_argument("run_dir")
+    check_parser.set_defaults(func=cmd_check)
 
     args = parser.parse_args(argv)
     return args.func(args)
