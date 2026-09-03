@@ -161,7 +161,7 @@ Available only when pre-flight point 4 found a candidate parent and its change s
 
 1. **The partition set must match.** The names this detection produced must be the same set as the parent's `state.json -> partitions`. Any difference means a full run, with the difference named at the checkpoint. A partition that appeared, vanished or was renamed changes what every other partition's boundaries mean.
 2. **Assign the affected files.** For each partition, its affected files are the `affected_files` of the change set that fall under its path.
-3. **A partition with no affected file is copied**, whole, from `.deep-dive/runs/<parent-id>/partitions/<name>/` into `$RUN_DIR/partitions/<name>/`, once the checkpoint's update option is accepted. Mark its `partitions[i].status` as `"done"` directly: Phase 1's per-partition loop, in both waves, dispatches no worker for a partition already `"done"` when Wave 1 begins.
+3. **A partition with no affected file is copied**, whole, from `.deep-dive/runs/<parent-id>/partitions/<name>/` into `$RUN_DIR/partitions/<name>/`, once the checkpoint's update option is accepted. Mark its `partitions[i].status` as `"done"` directly. Phase 1's Wave 1 loop and its post-barrier status update both exclude a partition already `"done"`, so no worker is ever dispatched for it in either wave, and Wave 2's `structure_done` gate excludes it too since its status never changes from `"done"`.
 4. **A partition with at least one affected file is re-analyzed**, both waves, exactly as in a fresh run. Its workers receive their normal prompts and never see the change set.
 5. **Synthesis and the interconnect map always run**, over the mix of copied and fresh partition output. Both are cross-partition by construction, so neither can be carried.
 6. **`changes.md` holds the change set's three mechanical sections plus a `## Partitions` table** naming each partition as copied or re-analyzed.
@@ -221,7 +221,7 @@ It is global, like Phase 0: no partition owns it, and no worker writes to it. Co
 
 ### Wave 1: Structure workers (parallel)
 
-For each partition `P_i` in `state.json`:
+For each partition `P_i` in `state.json` whose `status` is not already `"done"`:
 
 1. Create directory `$RUN_DIR/partitions/<P_i.name>/`
 2. Dispatch one `partition-structure-worker` (how the role reaches the worker is the harness's business):
@@ -254,9 +254,9 @@ Completion: when both owned files are written, report delivered and name them. I
 
 3. Record the dispatch in `agents_spawned[]` with `{name: "P<i>.A", role: "partition-structure-worker", partition: "<P_i.name>", status: "dispatched"}`.
 
-After dispatching every `P_i.A`: hold the Wave 1 barrier. Every `P_i.A` worker must be recorded `delivered` or `failed` before anything else starts.
+After dispatching every `P_i.A`: hold the Wave 1 barrier. Every `P_i.A` worker must be recorded `delivered` or `failed` before anything else starts. A partition already `"done"` (copied at the partition-level update) has no `P_i.A` to wait for: the barrier skips it and its status stays `"done"`.
 
-For each partition: if `P_i.A` failed, mark `partitions[i].status = "failed"`. If completed, mark `partitions[i].status = "structure_done"`.
+For each partition whose `status` is not already `"done"`: if `P_i.A` failed, mark `partitions[i].status = "failed"`. If completed, mark `partitions[i].status = "structure_done"`.
 
 Mark `phase_1_partition_workers: "wave1_done"`.
 
