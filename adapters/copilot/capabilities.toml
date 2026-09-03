@@ -42,6 +42,9 @@ strategy = "none"
 state = "unsupported"
 strategy = "none"
 
+# Copilot CLI reads a plugin's `hooks` manifest entry but does not run the
+# hooks it names (github/copilot-cli#2540, open as of 2026-09-03). Unsupported
+# until a probe shows otherwise.
 [capabilities."hooks.lifecycle"]
 state = "unsupported"
 strategy = "none"

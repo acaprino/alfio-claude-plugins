@@ -83,6 +83,14 @@ An override replaces one rendered file for one host, and it carries the digest o
 
 There are currently no overrides at all. Every host divergence so far was expressible through the generic templates, which is the outcome the gate exists to make visible rather than to encourage. Reach for one only after establishing that a *behavioural contract* cannot be rendered generically. A different topology is not a reason; a different meaning is.
 
+## Policies: what is enforced where
+
+A neutral policy under `plugins/<name>/policies/` says what must hold. An adapter's `policies/<name>/policy.toml` says how one host makes it hold, and the compiler ships that implementation inside the package. Only one such implementation exists, `copilot/policies/xray-guard` for `codebase-xray`'s `write-confinement`, and it is shipped but not wired, for reasons that bind any future policy:
+
+- **A plugin-level hook is session-global.** `hooks/hooks.json`, which Claude Code and Codex both read, fires for every tool call of every agent while the plugin is enabled. A confinement rule there would refuse every write outside `.deep-dive/` in every session. A confinement policy can never ship as a plugin hook, on any host.
+- **Per-agent hooks are the right mechanism and are not yet safe to generate.** Claude agent frontmatter and VS Code custom agents accept a `hooks:` block scoped to that agent. A hook command that fails to find its script does not fail open: a non-zero exit blocks that worker's every tool call, and `${CLAUDE_PLUGIN_ROOT}` is not reliably expanded in agent-frontmatter hook commands. Copilot CLI does not run plugin hooks at all (github/copilot-cli#2540).
+- **So the policy is prompt-level everywhere**, carried by the worker prompts and the ownership contracts in the roles, and the kernel's `write-confinement.toml` says so in its `[enforcement]` table. Wire a mechanism only after a host probe shows a per-agent hook running from an installed plugin, and wrap the command so a missing script allows rather than blocks.
+
 ## Content that deliberately keeps host-as-subject vocabulary
 
 `marketplace-ops` and `ai-tooling`'s `agent-sdk-builder` are *about* the agent tooling, so their tool names and trigger labels are content rather than accidental host coupling. Never de-brand or tool-rename them.

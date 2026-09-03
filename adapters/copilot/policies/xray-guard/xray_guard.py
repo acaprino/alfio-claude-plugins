@@ -14,12 +14,17 @@ decision on stdout. Two independent rules:
      source code fails at the tool layer instead of silently corrupting a
      sibling partition.
 
-Usage in an .agent.md frontmatter:
+Usage in an .agent.md frontmatter, added by hand (nothing generated wires it):
 
     hooks:
       PreToolUse:
         - type: command
-          command: "python .github/skills/codebase-xray/hooks/xray_guard.py --confine .deep-dive"
+          command: "python policies/write-confinement/xray_guard.py --confine .deep-dive"
+
+It ships under policies/write-confinement/ of the Copilot package as an opt-in.
+It is deliberately not a plugin hook: a plugin-level hook is session-global and
+would confine every write in every session, and Copilot CLI does not run plugin
+hooks at all (github/copilot-cli#2540).
 
 Fail-open by design. A payload this script cannot parse, an unrecognized tool
 name, or an unexpected key layout all resolve to "allow", so a schema change in

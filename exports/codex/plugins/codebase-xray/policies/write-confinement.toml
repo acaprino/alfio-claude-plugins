@@ -9,3 +9,26 @@ xray = ".deep-dive"
 run_directory = ".deep-dive/runs/${run}"
 published_mirror = ".deep-dive"
 forbid_writes_outside_roots = true
+
+# Where this policy is enforced, decided on 2026-09-03 after the cross-host
+# review, and why it is prompt-level on every host.
+#
+# A plugin-level hook (hooks/hooks.json, which Claude Code and Codex both read)
+# is session-global: it fires for every tool call of every agent while the
+# plugin is enabled, so a confinement rule there would refuse every write
+# outside .deep-dive/ in every session, not only inside an X-ray worker. A
+# confinement rule can therefore never ship as a plugin hook.
+#
+# Per-agent hooks exist on Claude (agent frontmatter) and in VS Code custom
+# agents, and adapters/copilot/policies/xray-guard is written for them. Nothing
+# generated wires it: a hook command that cannot find its script blocks every
+# tool call of that worker (a non-zero exit is a block, not a pass), the
+# plugin-root variable is not reliably expanded in agent-frontmatter hook
+# commands, and Copilot CLI does not run plugin hooks at all
+# (github/copilot-cli#2540, open). Until a host probe shows a per-agent hook
+# running from an installed plugin, the worker prompts and the ownership
+# contracts in the roles are the enforcement, on every host.
+[enforcement]
+level = "prompt"
+mechanical_implementation = "copilot:xray-guard"
+mechanical_wired = false
