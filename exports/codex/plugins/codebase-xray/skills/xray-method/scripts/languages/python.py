@@ -174,6 +174,7 @@ def _parse_function(node) -> FunctionInfo:
         visibility="private" if node.name.startswith("_") and not node.name.startswith("__") else "public",
         docstring=_extract_docstring(node),
         line_number=node.lineno,
+        end_line=getattr(node, "end_lineno", None),
     )
 
 
@@ -204,6 +205,7 @@ def _parse_class(node: ast.ClassDef) -> ClassInfo:
         visibility="private" if node.name.startswith("_") else "public",
         docstring=_extract_docstring(node),
         line_number=node.lineno,
+        end_line=getattr(node, "end_lineno", None),
     )
 
 

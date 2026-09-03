@@ -95,7 +95,10 @@ Multiple analyses can run at the same time (different targets, different session
 ├── runs.json                          # registry: active runs + latest completed
 ├── runs/
 │   └── <run-id>/                      # one directory per analysis run
-│       ├── state.json                 # per-run phase tracking
+│       ├── state.json                 # per-run phase tracking, flags, lineage
+│       ├── snapshot/manifest.json     # the tree this run analyzed: files, symbols, hashes
+│       ├── changes.json               # incremental runs: the change set since the parent
+│       ├── changes.md                 # incremental runs: what changed and what it did to the claims
 │       ├── knowledge/                   # Phase 0: navigation.md, documentation-leads.md
 │       ├── 01-structure.md .. 07-final-report.md
 │       ├── partitions/<name>/...      # team mode only
@@ -112,6 +115,21 @@ Rules:
 4. **Publish step.** On successful completion, the orchestrating command copies the run's `01..0N.md` files and `state.json` to the `.deep-dive/` root and sets `latest_completed`. The root mirror is the **downstream contract**: consumers (`/senior-review:team-review`, `/senior-review:code-review`, `/codebase-mapper:map-codebase`, `/project-setup:create-claude-md`) keep reading `.deep-dive/01-structure.md` etc. unchanged. If two runs finish concurrently, the last one to publish owns the root mirror; both remain intact under `runs/`.
 5. **Resume.** On invocation, the command reads `runs.json`: active runs are offered for resume; completed runs can be archived or re-published. A root `state.json` containing `current_phase` with no `runs.json` present is a pre-runs legacy layout: offer to migrate it into `runs/legacy-<date>/` before starting.
 6. **Mirror is for latest-state consumers only.** `.deep-dive/` is a mutable convenience mirror of the latest published run. It MUST NOT be used by an orchestrated workflow to consume the output of a specific X-ray invocation: rule 4 makes the root mirror owned by whichever run published last, so a concurrent run can replace it between production and consumption. A workflow that started a run and then consumes it MUST retain and propagate the immutable run directory `.deep-dive/runs/<run-id>/`. The general form: a specific invocation implies the immutable run directory, a latest-state consumer implies the mirror. One-shot commands asking for the most recent published analysis are correct on the mirror.
+7. **Lineage.** Every run writes `snapshot/manifest.json`, the structural record of the tree it analyzed, which makes it a possible parent for a later run. An incremental run records its parent in `state.json -> parent_run` and in its `runs.json` entry. The chain of those values is the analysis history, and no other structure holds it. A mirror consumer never needs any of this: `snapshot/`, `changes.json` and `changes.md` stay in the run directory and are never published to the root.
+
+## Incremental Updates
+
+A second X-ray of the same target rebuilds from nothing only if nobody asked what changed. The mechanism that asks is `scripts/snapshot.py`, and every part of it runs outside the model.
+
+**The snapshot** (`snapshot/manifest.json`, written by every run) records each file with its size, mtime and content hash, and each symbol with its line span and a hash of its body, plus the git commit as metadata. A class span encloses its methods, so editing a method moves both hashes. Files in languages the adapters do not parse get a file-level entry and no symbols. Forbidden files never enter it, not even as a hash.
+
+**The change set** (`changes.json`, written by `snapshot.py diff`) compares that manifest with the current worktree. Equal size and mtime means unchanged with no read at all; anything else is hashed, because a checkout moves mtimes without changing a byte. It classifies files and symbols, resolves the one-hop blast radius from the manifest's import edges, and scans the parent's phase files for every claim citing anything it touched. It recommends `incremental`, `full` (with reasons: too much changed, no parent manifest, an incomplete parent, flags differing from the parent's) or `none`.
+
+**The carry** (`snapshot.py carry`) copies the parent's phase files, except the final report, which is never carried and is always regenerated. It renumbers every citation whose symbol survived, and marks every affected claim with `<!-- xray:stale reason=... cites=... -->`. The model then reads only the affected files and re-derives only the marked claims.
+
+**The gate** (`snapshot.py check`) fails if any marker survives or any added symbol went undocumented. An incremental run does not publish until it passes. That gate is the whole reason an incremental result can be trusted the way a full one is: the claims it kept were not re-checked, so what it did not carry must be provably finished.
+
+Two things this deliberately does not do. It never uses a git range as the source of truth, because the tree a developer wants re-analyzed is usually dirty and sometimes not in a repository at all; git is metadata. And it never widens the blast radius past one hop, because the transitive closure of imports is, on most codebases, the whole tree.
 
 ## CRITICAL PRINCIPLE: EVIDENCE-ANCHORED OUTPUT
 
@@ -344,6 +362,35 @@ python "<plugin-root>/skills/xray-method/scripts/rewrite_comments.py" rewrite \
 ```bash
 python "<plugin-root>/skills/xray-method/scripts/rewrite_comments.py" standards
 ```
+
+---
+
+## Incremental Update Commands
+
+### 14. Write a structural snapshot
+
+```bash
+python <plugin-root>/skills/xray-method/scripts/snapshot.py write <target> \
+  --out <run-dir>/snapshot/manifest.json
+```
+
+Records the tree a run analyzed. Every run writes one, which is what makes it a possible parent.
+
+### 15. Diff, carry and check an update
+
+```bash
+# what changed since a parent run, and which of its claims that affects
+python <plugin-root>/skills/xray-method/scripts/snapshot.py diff \
+  <parent-run-dir> <target> --out <run-dir> [--verify] [--threshold 0.4] [--flags '{"depth":"full"}']
+
+# copy the parent's phase files, renumber citations, mark the stale claims
+python <plugin-root>/skills/xray-method/scripts/snapshot.py carry <parent-run-dir> <run-dir>
+
+# publication gate: no marker left, no undocumented new symbol
+python <plugin-root>/skills/xray-method/scripts/snapshot.py check <run-dir>
+```
+
+`--verify` hashes every file instead of trusting size and mtime. `--threshold` is the affected-file ratio above which a full run is recommended instead.
 
 ---
 

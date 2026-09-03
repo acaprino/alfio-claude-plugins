@@ -86,6 +86,10 @@ class FunctionInfo:
     visibility: Visibility | None = None
     docstring: str | None = None
     line_number: int = 0
+    # Last line of the symbol body, when the adapter knows it exactly (Python,
+    # from the stdlib AST). None everywhere else: snapshot.py infers the span
+    # from the next symbol's start line.
+    end_line: int | None = None
 
 
 @dataclass
@@ -100,6 +104,10 @@ class ClassInfo:
     visibility: Visibility | None = None
     docstring: str | None = None
     line_number: int = 0
+    # Last line of the symbol body, when the adapter knows it exactly (Python,
+    # from the stdlib AST). None everywhere else: snapshot.py infers the span
+    # from the next symbol's start line.
+    end_line: int | None = None
 
 
 @dataclass

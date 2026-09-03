@@ -3,7 +3,7 @@ description: >
   Run an X-ray: document WHAT, WHY, HOW and CONSEQUENCES into phased files, with concurrent-run support.
   TRIGGER WHEN: the user asks for a deep analysis of an unfamiliar codebase, pre-review context, or a structure-plus-semantics snapshot.
   DO NOT TRIGGER WHEN: the user wants human-readable narrative docs (use /codebase-mapper:map-codebase) or a shallow overview.
-argument-hint: "<target path> [--critical] [--comments] [--docs-only] [--phase N] [--depth=lite|full] [--run-name <name>]"
+argument-hint: "<target path> [--critical] [--comments] [--docs-only] [--phase N] [--depth=lite|full] [--run-name <name>] [--update] [--no-update]"
 ---
 
 # Codebase X-Ray Analysis
@@ -54,6 +54,26 @@ Analyses are concurrent-safe: each invocation is an isolated **run** under `.dee
    - **Legacy layout** (root `state.json` with a `current_phase` field and no `runs.json`): offer to migrate the old files into `.deep-dive/runs/legacy-<date>/` before proceeding.
 4. Register the run: create/update `runs.json` with read-modify-write, appending `{run_id, target, mode: "classic", started_at}` to `active`. Never drop entries you did not create.
 
+### 1b. Detect an update base
+
+An X-ray run is a set of claims about a tree. When that tree has barely moved since the last run, re-deriving every claim is the whole reading cost paid again for an answer already on disk. This step finds out mechanically whether that is the case. It spends no model tokens: `snapshot.py` does the work.
+
+Skip this step entirely if `--no-update` was passed.
+
+1. From `runs.json`, take `latest_completed`. The candidate parent is that run when its recorded `target` normalizes to the same path as this invocation's target and `.deep-dive/runs/<id>/snapshot/manifest.json` exists.
+2. With a candidate, run the change set:
+
+   ```bash
+   python ${CLAUDE_PLUGIN_ROOT}/skills/xray-method/scripts/snapshot.py diff \
+     .deep-dive/runs/<parent-id> <target> --out $RUN_DIR --flags '<this run's flags as JSON>'
+   ```
+
+3. Read `$RUN_DIR/changes.json` and take `recommendation` and `totals`. They drive the checkpoint in step 3.
+
+With `--update` and no candidate parent, stop and say which condition failed (no completed run for this target, or a parent with no manifest), and that a full run is the way to create one. Never fabricate a parent. With a candidate present, `--update` changes nothing else: the checkpoint in step 3 still presents both options and waits, exactly as CRITICAL RULE 4 requires.
+
+A parent from before this feature has no manifest, and the change set says so with `recommendation: full`. That is reported, never guessed at.
+
 ### 2. Initialize state
 
 Create `$RUN_DIR/` and `$RUN_DIR/state.json`:
@@ -71,6 +91,10 @@ Create `$RUN_DIR/` and `$RUN_DIR/state.json`:
     "phase": null,
     "depth": "full"
   },
+  "parent_run": null,
+  "base_snapshot_created_at": null,
+  "git": null,
+  "incremental": null,
   "current_phase": 1,
   "completed_phases": [],
   "files_created": [],
@@ -80,9 +104,34 @@ Create `$RUN_DIR/` and `$RUN_DIR/state.json`:
 
 Parse flags: `--critical` (prioritize high-risk code), `--comments` (comment quality mode), `--docs-only` (documentation health only, skip to Phase 6), `--phase N` (start at phase N), `--depth=lite` (lightweight analysis: skip flow tracing diagrams, state machine diagrams, and detailed dependency analysis for non-critical files, producing only structure + interfaces + risks + final summary), `--run-name <name>` (explicit run identity for concurrent or repeated analyses).
 
+On an incremental run, step 1b's change set already exists by the time this file is written, so `parent_run` (the parent's run-id), `base_snapshot_created_at` (the parent manifest's `created_at`) and `incremental` (`{affected_files, files_in_snapshot, claims_affected, extra_reads}` from the change set) are written here with their real values, not left for later. `git` cannot follow that rule: the snapshot that supplies it is not written until `## Execution Order`, so it starts `null` here and is copied in right after that step. A full run leaves `parent_run` and `incremental` as `null` and still records `git` and the snapshot: every run is a possible parent.
+
+Register `parent_run` in the run's `runs.json` entry as well, `null` for a full run. The chain of `parent_run` values is the analysis history; nothing else is added to hold it.
+
 ### 3. Confirm scope
 
-Scan the target and present:
+Scan the target and present the scope. With no candidate parent from step 1b, present the classic block below. With a candidate, present the variant that matches the change set's `recommendation`.
+
+**With `recommendation: incremental`:**
+
+```
+X-ray target: [path]
+Run: [run-id]   parent: [parent-id] ([commit], [age])
+Since parent: [N] modified, [N] added, [N] removed files; [N] symbols changed, [N] added, [N] removed
+Blast radius: [N] importing files
+Affected claims: [N] ([per-phase-file breakdown])
+Files to read: [N] of [total]
+
+1. Incremental update from [parent-id] (reads [N] files)
+2. Full analysis (reads [total] files)
+3. Cancel
+```
+
+**With `recommendation: full`**, present the same figures with the options reversed, and print every entry of `reasons` under the figures so the user sees why (ratio over threshold, parent without a manifest, parent not complete, flags differing from the parent's). The incremental option stays selectable: the recommendation is advice, and the user decides.
+
+**With `recommendation: none`**, say that nothing in the target has changed since the parent run, name the parent's published output, and offer a full analysis or exit. Do not run an incremental update that would re-derive nothing.
+
+**With no candidate parent:**
 
 ```
 X-ray target: [path]
@@ -111,6 +160,17 @@ Analysis phases:
 
 After scope confirmation, every phase runs inline in this context, in order. Nothing is dispatched. The target a classic run is for (one package, under about 200 files, one language) fits one context, and one context that reads the code once costs less than three workers that each read it again. A target larger than that belongs to `/codebase-xray:team-analyze`, which partitions it and runs the same phases per partition in isolated workers; the scope confirmation above is where to say so and stop.
 
+**Every run writes a snapshot.** Right after scope confirmation, before Phase 0:
+
+```bash
+python ${CLAUDE_PLUGIN_ROOT}/skills/xray-method/scripts/snapshot.py write \
+  <target> --out $RUN_DIR/snapshot/manifest.json
+```
+
+The snapshot records the tree this run is about to read: every file with its size, mtime and content hash, every symbol with its span and a hash of its body, and the git commit as metadata. It is what makes this run a possible parent for the next one. A full run writes it too.
+
+Immediately after, copy the manifest's own `git` field into `$RUN_DIR/state.json`'s `git` field. This is the only new `state.json` field this step fills: `parent_run`, `base_snapshot_created_at` and `incremental` were already written with their real values when `state.json` was created, in step 2, because step 1b's change set already existed by then.
+
 ### Full depth (default)
 
 1. **Phase 0**, Project Knowledge Discovery. Writes `$RUN_DIR/knowledge/navigation.md` and `$RUN_DIR/knowledge/documentation-leads.md`.
@@ -127,6 +187,45 @@ Lightweight mode for smaller projects, MVPs, or quick assessments: Phase 0, then
 Skip Phase 3 (Flow Tracing), Phase 4 (Semantic Understanding), and Phase 6 (Documentation Health). **Phase 0 (Project Knowledge Discovery) is not skippable and runs in lite exactly as in full**: it is the cheap discovery pass, while Phase 6 is the expensive audit. Conflating the two is what made lite mode blind to a project's own documentation. In Phase 5, skip detailed state machine diagrams and Mermaid flowcharts for non-critical files, focusing on anti-patterns, red flags, and tech debt items.
 
 The condensed `$RUN_DIR/07-final-report.md` covers structure, interfaces, and risks only. It omits the "Critical Paths", "Design Insights", "Key Process Diagrams", and "Documentation vs Reality" sections.
+
+### Incremental depth (an update accepted at the checkpoint)
+
+The phases and their numbering are unchanged. What changes is that most claims are already on disk and only the affected ones are re-derived.
+
+1. **Write the snapshot** for this run, as above.
+
+2. **Carry the parent forward**, mechanically:
+
+   ```bash
+   python ${CLAUDE_PLUGIN_ROOT}/skills/xray-method/scripts/snapshot.py carry \
+     .deep-dive/runs/<parent-id> $RUN_DIR
+   ```
+
+   This copies the parent's `01` to `06` and `knowledge/` into the run, renumbers every carried `file:line` citation whose symbol survived the edit, and inserts an `<!-- xray:stale reason=... cites=... -->` marker above every claim the change set affects. Phase 7 is never carried: it is regenerated.
+
+3. **Phase 0 runs in full**, exactly as in a fresh run, overwriting the carried `knowledge/`. It is the cheap discovery pass and what it finds shapes what the re-derivation looks for.
+
+4. **Phases 1 to 6, in order, only where work exists.** For each phase file: open it, and for every `xray:stale` marker re-derive that claim by reading the affected files it cites, then delete the marker. A marker whose reason is `symbol-removed` or `file-removed` means the claim is retired: delete the claim with the marker. Then write claims for the symbols listed under `## Added symbols` in `changes.md` that belong to this phase file (`01` and `02` always, `03` to `06` at full depth). **A phase file with no marker and no added symbol is not opened at all.**
+
+5. **Read only the affected files.** `changes.json` lists them under `affected_files`. When re-deriving a flow or a contract genuinely requires a file outside that set, read it and log it under `## Extra reads` in `changes.md`, naming the claim that needed it. That log is the evidence a future threshold gets tuned from.
+
+6. **A flow that cites even one affected symbol is re-derived whole.** Flows cite every step, and a step that changed can change the steps after it.
+
+7. **Phase 7 is regenerated** from the phase files, as in a full run.
+
+8. **Gate publication:**
+
+   ```bash
+   python ${CLAUDE_PLUGIN_ROOT}/skills/xray-method/scripts/snapshot.py check $RUN_DIR
+   ```
+
+   A non-zero exit means a claim is still marked stale or an added symbol was never documented. Do not publish: report what the check named and finish the work. This gate is what makes an incremental run worth trusting.
+
+9. **Write the completion sections of `changes.md`**: `## Claims confirmed`, `## Claims revised` (old and new text, one row each), `## Claims retired`, `## Claims added`, `## Extra reads`.
+
+10. **Publish** exactly as a full run does.
+
+`--phase N` and `--docs-only` are full-run flags. They change this run's flags, so the change set already recommends a full run.
 
 ### Overrides
 
@@ -530,6 +629,9 @@ Update `$RUN_DIR/state.json`: set `status` to `"complete"`.
 After Phase 7 completes:
 
 1. Copy `$RUN_DIR/01-*.md` through `$RUN_DIR/07-final-report.md` (the ones that exist for the active flags) and `$RUN_DIR/state.json` to the `.deep-dive/` root, overwriting the previous mirror.
+
+`changes.md`, `changes.json` and `snapshot/` stay in the run directory and are never mirrored: the root mirror is the latest-state contract, and history lives under `runs/`.
+
 2. Update `runs.json` with read-modify-write: remove this run from `active`, set `latest_completed` to this run-id.
 3. The root mirror is what downstream consumers (`/senior-review:team-review`, `/senior-review:code-review`, `/codebase-mapper:map-codebase`, `/project-setup:create-claude-md`, `/project-setup:maintain-claude-md`) read. The run directory stays intact for history and comparison.
 
@@ -544,6 +646,8 @@ Present the analysis summary and a proposed action plan derived from findings, t
 ```
 Codebase X-ray complete for: $ARGUMENTS
 Run: [run-id] (published to .deep-dive/ root)
+Parent: [parent-id or "none (full run)"]
+Claims: [N] carried, [N] revised, [N] retired, [N] added. Detail in .deep-dive/runs/[run-id]/changes.md
 
 Output Files:
 - Structure: .deep-dive/runs/[run-id]/01-structure.md
@@ -630,6 +734,8 @@ Present a summary of changes made after applying fixes. For languages outside th
 - `/codebase-xray:analyze src/ --comments` -- Include comment quality audit
 - `/codebase-xray:analyze src/ --phase 5` -- Jump to pattern & risk detection
 - `/codebase-xray:analyze src/api --run-name api` -- Named run; a second session can run `/codebase-xray:analyze src/web --run-name web` concurrently
+- `/codebase-xray:analyze src/ --update` -- require an update base; a missing or unusable parent run is a hard stop instead of a silent full run
+- `/codebase-xray:analyze src/ --no-update` -- skip detection and run a full analysis
 
 ## Integration with Code Review
 
