@@ -106,4 +106,4 @@ Evaluate existing documentation in the partition against code reality:
 
 ## COMPLETION
 
-When done, call `TaskUpdate` to mark your task `completed`.
+When your owned files are written, report delivered: name their paths and nothing else. If you could not write them, report failed with the reason.

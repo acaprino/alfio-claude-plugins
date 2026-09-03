@@ -127,4 +127,4 @@ For each module in the partition, document the public interface.
 
 ## COMPLETION
 
-When you finish writing both files, call `TaskUpdate` to mark your assigned task `completed`. Do not write a final summary or status report — the orchestrator handles synthesis.
+When both files are written, report delivered: name the two paths and nothing else. If you could not write them, report failed with the reason. Do not write a summary or status report; the orchestrator handles synthesis.

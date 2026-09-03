@@ -28,6 +28,9 @@ jobs:
       - name: Bundled path lint
         run: python scripts/lint_bundled_paths.py
 
+      - name: Host vocabulary lint
+        run: python scripts/lint_host_vocabulary.py
+
       - name: Unit and contract tests
         run: python -m unittest discover -s tests -v
 

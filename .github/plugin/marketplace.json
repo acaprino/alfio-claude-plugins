@@ -9,7 +9,7 @@
   ],
   "metadata": {
     "description": "The Daodan: agents, skills and workflows that augment a coding agent into a specialized toolkit.",
-    "version": "26.0.2"
+    "version": "26.1.0"
   },
   "name": "daodan",
   "owner": {
@@ -173,7 +173,7 @@
         "./skills/analyze"
       ],
       "source": "./exports/copilot/plugins/codebase-xray",
-      "version": "2.3.0"
+      "version": "2.4.0"
     },
     {
       "agents": [

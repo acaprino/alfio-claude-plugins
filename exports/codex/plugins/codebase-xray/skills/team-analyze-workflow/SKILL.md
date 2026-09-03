@@ -76,11 +76,11 @@ Orchestrate a partitioned multi-agent codebase analysis plus global interconnect
    - Read `.deep-dive/runs.json`: list active runs; offer to resume a matching in-progress team run or start this new run alongside. A root `state.json` with `current_phase` and no `runs.json` is a pre-runs legacy layout: offer to migrate it into `.deep-dive/runs/legacy-<date>/` first
    - Register the run in `runs.json` (`read-modify-write`, append `{run_id, target, mode: "team", started_at}` to `active`)
 
-## Phase 0: Team Setup + Partition Detection
+## Phase 0: Run Setup + Partition Detection
 
-### Team formation
+### Worker dispatch
 
-There is no explicit team-creation step: the team forms implicitly when the first worker teammate is spawned, its name is session-derived, and a session has exactly one team. The run identity lives in `{run-id}` and the run directory, not in the team name.
+There is no explicit team-creation step. The host harness dispatches each worker as the phases below require, and the harness is what records every worker as `delivered` or `failed`. The run identity lives in `{run-id}` and the run directory, never in anything the harness names.
 
 ### Initialize state
 
@@ -203,10 +203,9 @@ Finalize `partitions` array in `state.json` with `{name, path, language_primary,
 For each partition `P_i` in `state.json`:
 
 1. Create directory `$RUN_DIR/partitions/<P_i.name>/`
-2. Spawn `codebase-xray:partition-structure-worker`:
-   - `subagent_type`: `codebase-xray:partition-structure-worker`
-   - Task title: `"P<i>.A — Structure+Interfaces for partition <P_i.name>"`
-   - Task prompt:
+2. Dispatch one `partition-structure-worker` (how the role reaches the worker is the harness's business):
+   - Worker title: `"P<i>.A — Structure+Interfaces for partition <P_i.name>"`
+   - Worker prompt:
 
 ```
 You are partition-structure-worker on partition "<P_i.name>".
@@ -229,12 +228,12 @@ Required reads before writing:
   - ${CLAUDE_PLUGIN_ROOT}/skills/analyze/SKILL.md
   - Scripts at ${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/
 
-Completion: when done, call TaskUpdate to mark your task completed.
+Completion: when both owned files are written, report delivered and name them. If you could not write them, report failed and say why.
 ```
 
-3. Record spawn in `agents_spawned[]` with `{name: "P<i>.A", type: "partition-structure-worker", partition: "<P_i.name>", task_id: "..."}`.
+3. Record the dispatch in `agents_spawned[]` with `{name: "P<i>.A", role: "partition-structure-worker", partition: "<P_i.name>", status: "dispatched"}`.
 
-After spawning all `P_i.A`: monitor via `TaskList`. Wait until every `P_i.A` task is `completed` OR `failed`.
+After dispatching every `P_i.A`: hold the Wave 1 barrier. Every `P_i.A` worker must be recorded `delivered` or `failed` before anything else starts.
 
 For each partition: if `P_i.A` failed, mark `partitions[i].status = "failed"`. If completed, mark `partitions[i].status = "structure_done"`.
 
@@ -246,9 +245,9 @@ Skip behavior workers (B) if `--depth=lite`.
 
 For each partition `P_i` where `partitions[i].status == "structure_done"`:
 
-1. If `--depth != lite`: spawn `codebase-xray:partition-behavior-worker`:
-   - Task title: `"P<i>.B — Flows+Semantics for partition <P_i.name>"`
-   - Task prompt:
+1. If `--depth != lite`: dispatch one `partition-behavior-worker`:
+   - Worker title: `"P<i>.B — Flows+Semantics for partition <P_i.name>"`
+   - Worker prompt:
 
 ```
 You are partition-behavior-worker on partition "<P_i.name>".
@@ -273,16 +272,16 @@ Required reads before writing:
 Cross-partition citations: when you find an outgoing call/import that leaves
 your partition, cite it as <other-partition>::<symbol>.
 
-Completion: TaskUpdate to mark completed.
+Completion: report delivered when both owned files are written, failed (with the reason) otherwise.
 ```
 
-2. Spawn `codebase-xray:partition-quality-worker`:
-   - Task title: `"P<i>.C — Risks+Docs for partition <P_i.name>"`
-   - Task prompt: same template as B, but with `partition-quality-worker` type. Owned files: `05-risks.md` and `06-documentation.md` at full depth; `05-risks.md` only under `--depth=lite` (the worker skips Phase 6 in lite mode).
+2. Dispatch one `partition-quality-worker`:
+   - Worker title: `"P<i>.C — Risks+Docs for partition <P_i.name>"`
+   - Worker prompt: same template as B, but for the `partition-quality-worker` role. Owned files: `05-risks.md` and `06-documentation.md` at full depth; `05-risks.md` only under `--depth=lite` (the worker skips Phase 6 in lite mode).
 
-Record both spawns in `agents_spawned[]`.
+Record both dispatches in `agents_spawned[]`.
 
-Monitor `TaskList`. For each partition, when both `P_i.B` and `P_i.C` complete (only `P_i.C` in lite mode):
+Hold the Wave 2 barrier. For each partition, when both `P_i.B` and `P_i.C` are recorded `delivered` (only `P_i.C` in lite mode):
 - Mark `partitions[i].status = "done"`
 
 When all partitions reach `done` or `failed`: mark `phase_1_partition_workers: "complete"` (or `"failed"` if EVERY partition is failed).
@@ -291,8 +290,8 @@ When all partitions reach `done` or `failed`: mark `phase_1_partition_workers: "
 
 Skip if `--skip-synthesis`.
 
-Spawn a single `codebase-xray:partition-synthesizer`:
-- Task prompt:
+Dispatch one `partition-synthesizer`:
+- Worker prompt:
 
 ```
 You are partition-synthesizer.
@@ -311,17 +310,17 @@ For any partition with status=failed, add a "⚠ Missing partitions" callout in 
 
 Read <RUN_DIR>/partitions/*/ and apply the consolidation rules in your agent definition.
 
-Completion: TaskUpdate to mark completed.
+Completion: report delivered when every owned file is written, failed (with the reason) otherwise.
 ```
 
-Monitor. On completion: mark `phase_2_synthesis: "complete"`. On failure: mark `phase_2_synthesis: "failed"` and `phase_3_interconnect: "skipped_due_to_phase_2_failure"`, then jump to Phase 4.
+Wait for delivery. On delivery: mark `phase_2_synthesis: "complete"`. On failure: mark `phase_2_synthesis: "failed"` and `phase_3_interconnect: "skipped_due_to_phase_2_failure"`, then jump to Phase 4.
 
 ## Phase 3: Interconnect Map
 
 Skip if `--skip-interconnect` or `--skip-synthesis` or Phase 2 failed.
 
-Spawn a single `codebase-xray:semantic-interconnect-mapper`:
-- Task prompt:
+Dispatch one `semantic-interconnect-mapper`:
+- Worker prompt:
 
 ```
 Build the interconnect map for this codebase using the team X-ray consolidated output as primary context.
@@ -335,15 +334,14 @@ Produce the full structured map following your agent definition: Call Graph (2-3
 Every claim must cite file:line. No recommendations, no fixes. Empty sections are acceptable if nothing applies.
 ```
 
-Monitor. On completion: mark `phase_3_interconnect: "complete"`. On failure: mark `phase_3_interconnect: "failed"` and continue to Phase 4 (failure is non-blocking).
+Wait for delivery. On delivery: mark `phase_3_interconnect: "complete"`. On failure: mark `phase_3_interconnect: "failed"` and continue to Phase 4 (failure is non-blocking).
 
 ## Phase 4: Publish, Completion & Next Steps Menu
 
 1. Update `$RUN_DIR/state.json`: `status: "complete"`, `completed_at: <ISO_TIMESTAMP>`.
 2. **Publish** (skip if `--skip-synthesis`): copy `$RUN_DIR/01-*.md` .. `$RUN_DIR/07-final-report.md` (those that exist), `$RUN_DIR/08-interconnect-map.md` (if Phase 3 ran), and `$RUN_DIR/state.json` to the `.deep-dive/` root, overwriting the previous mirror. Update `runs.json` with read-modify-write: remove this run from `active`, set `latest_completed`. The root mirror is the downstream contract for `/senior-review:team-review`, `/codebase-mapper:map-codebase`, and `/project-setup:create-claude-md`.
-3. Send `shutdown_request` to all remaining teammates.
-4. Team resources are cleaned up automatically when the session ends; there is no `TeamDelete` step.
-5. Present summary:
+3. No worker may still be writing after publish. Every dispatched worker has been recorded `delivered` or `failed` by now, and the harness owns whatever cleanup its workers need.
+4. Present summary:
 
 ```
 X-ray (team mode) complete for: <target>
@@ -365,7 +363,7 @@ Summary:
   - Cross-partition flows: <count>
 ```
 
-6. Show Next Steps Menu:
+5. Show Next Steps Menu:
 
 ```
 What would you like to do next?
@@ -395,7 +393,7 @@ On pre-flight detection of an active run in `runs.json` with `mode == "team"` wh
 - If `phases.phase_2_synthesis == "complete"` and `phase_3_interconnect != "complete"`: re-run Phase 3
 - If `phases.phase_3_interconnect == "complete"`: run the Phase 4 publish step and present the menu directly
 
-Resuming spawns fresh teammates as needed; teams are not restored across sessions, and the run directory (not the team name) carries the run identity.
+Resuming dispatches fresh workers as needed. Worker contexts are not restored across sessions, and the run directory carries the run identity.
 
 ## Quick Examples
 

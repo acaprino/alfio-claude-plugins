@@ -277,5 +277,5 @@ Template:
 
 ## COMPLETION
 
-When you finish writing all output files (respecting `--depth=lite` skips), call `TaskUpdate` to mark your task `completed`.
+When every output file is written (respecting `--depth=lite` skips), report delivered: name their paths and nothing else. If you could not write them, report failed with the reason.
 

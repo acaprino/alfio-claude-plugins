@@ -86,12 +86,7 @@ Systematic codebase analysis that combines structure extraction with semantic un
 
 Multi-agent variant of `/codebase-xray:analyze` for large or partitioned codebases: auto-detects partitions, runs the structural/behavioral/quality phases in parallel per partition across two waves, then consolidates into the same `01..07.md` layout plus a global cross-partition interconnect map, all inside an isolated run directory.
 
-**Prerequisites:** requires the upstream `agent-teams` plugin (`wshobson/agents`, MIT) for the `agent-teams:task-coordination-strategies`, `agent-teams:team-communication-protocols`, and `agent-teams:parallel-feature-development` skills:
-
-```
-/plugin marketplace add wshobson/agents
-/plugin install agent-teams@claude-code-workflows
-```
+**Prerequisites:** none beyond the host. Worker dispatch, context isolation and the delivery barrier come from the harness the compiler generates for each host, so the plugin declares no dependency and its bodies name no host primitive.
 
 | | |
 |---|---|
@@ -100,7 +95,7 @@ Multi-agent variant of `/codebase-xray:analyze` for large or partitioned codebas
 **Pipeline:**
 
 0. **Project knowledge discovery**: the same Phase 0 as `/codebase-xray:analyze`, run once inline for the whole run before partition detection. It is global, not per partition, and no worker owns any of its output: `knowledge/navigation.md` and `knowledge/documentation-leads.md`.
-1. **Partition detection** (its own Phase 0): explicit workspace manifests (pnpm/npm workspaces, Lerna, Nx, Turbo, Cargo, uv) -> convention-based monorepo layout (`apps/`, `packages/`, `services/`) -> frontend/backend layer split -> language-cluster split -> single-partition fallback. Presents a checkpoint to accept, modify, or manually override the partition list before spawning anything. The team forms implicitly when the first worker is spawned (no explicit creation step on Claude Code 2.1.178+).
+1. **Partition detection** (its own Phase 0): explicit workspace manifests (pnpm/npm workspaces, Lerna, Nx, Turbo, Cargo, uv) -> convention-based monorepo layout (`apps/`, `packages/`, `services/`) -> frontend/backend layer split -> language-cluster split -> single-partition fallback. Presents a checkpoint to accept, modify, or manually override the partition list before dispatching anything. There is no team-creation step: the host harness dispatches each worker and records it as delivered or failed.
 2. **Wave 1** (parallel): one `partition-structure-worker` per partition writes structure and interfaces.
 3. **Wave 2** (parallel): `partition-behavior-worker` and `partition-quality-worker` per partition write flows/semantics and risks/documentation, each citing sibling partitions' Wave 1 output for cross-partition calls. Under `--depth=lite` the behavior workers are not spawned and quality workers write risks only.
 4. **Synthesis**: `partition-synthesizer` consolidates every partition's output into the standard `01-structure.md` through `07-final-report.md` files inside the run directory, flagging any failed partition inline.

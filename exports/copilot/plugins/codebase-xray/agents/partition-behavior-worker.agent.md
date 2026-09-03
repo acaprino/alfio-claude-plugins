@@ -136,5 +136,5 @@ ADRs that depend on cross-partition behavior (e.g. "API never calls DB directly,
 
 ## COMPLETION
 
-When you finish writing both files, call `TaskUpdate` to mark your task `completed`.
+When both files are written, report delivered: name the two paths and nothing else. If you could not write them, report failed with the reason.
 

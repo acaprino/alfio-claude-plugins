@@ -68,6 +68,7 @@ The build is `python scripts/daodan_build.py`. It loads every kernel, validates 
 6. `python scripts/daodan_build.py --check --support` — the drift gate. Every committed package and catalog must reproduce byte-for-byte from the kernels and adapters in the same commit.
 7. `python adapters/copilot/policies/xray-guard/test_xray_guard.py` — the Copilot write-confinement policy implementation, 36 cases.
 8. `python scripts/check_version_bumps.py <base-rev> [<head-rev>]` — over the pushed or PR range, a change under `plugins/<name>/` or under `adapters/<host>/overrides/<name>/` must come with a bump of that plugin's version and of `metadata.version`. Generated packages under `exports/` never count: they are compiler output, and a rebuild is not a plugin change.
+9. `python scripts/lint_host_vocabulary.py` — the host-vocabulary linter. A kernel body is copied into three host packages as it is, so a role that says "call `TaskUpdate` when done" ships that instruction to Codex and Copilot, where no such tool exists and a worker either refuses or improvises. The linter fails any shipped body that names the Claude Agent Teams or Agent-tool primitives (`TaskUpdate`, `TaskList`, `SendMessage`, `subagent_type`, `teammate` and the rest of its list); the kernel states the obligation (deliver the owned files, report delivered or failed, hold the barrier) and each host's harness template supplies the mechanism. Its motivating case was `codebase-xray`, whose four partition workers and team workflow carried ten such instructions into the Codex and Copilot packages. Its `GRANDFATHERED` map records the per-file count found in every other plugin when it landed: neutralize a file and delete its entry, never raise a count. `marketplace-ops`, the `agent-sdk-builder` skill and the `project-setup` example files are exempt because the host tooling is their subject.
 
 When a change legitimately trips a linter, fix the declaration or the reference, not the linter; heuristic misreads go in its `ALLOWLIST` with a reason.
 
@@ -176,7 +177,7 @@ The universal cutover also retired the whole hand-mirroring apparatus it depende
 
 **`marketplace-ops` and `ai-tooling/agent-sdk-builder` keep their host-as-subject vocabulary.** Their subject matter *is* the agent tooling, so their tool names and trigger labels are content rather than accidental host coupling. Never de-brand or tool-rename them.
 
-The same policy applies to the team pipelines: `/senior-review:team-review`, `/codebase-xray:team-analyze`, and `/codebase-mapper:team-codebase-map` declare the upstream `agent-teams` plugin (wshobson/agents) as a hard prerequisite in their Prerequisites blocks, and as of marketplace 13.2.0 all three owning plugins also declare it as a hard dependency in `marketplace.json` (`"agent-teams@claude-code-workflows"`, qualified form per the superpowers note above). The upstream plugin keeps the same `agent-teams:*` namespace, so those references resolve as written once it is installed (`/plugin marketplace add wshobson/agents`, then `/plugin install agent-teams@claude-code-workflows`). The three pipelines, `/research:team-research` (which dropped agent-teams in marketplace 25.0.0 and runs on plain subagents) and the `senior-review:review-quality-gates` skill are local content with no upstream sync.
+The same policy applied to the team pipelines until the universal cutover: `/senior-review:team-review`, `/codebase-xray:team-analyze`, and `/codebase-mapper:team-codebase-map` declared the upstream `agent-teams` plugin (wshobson/agents) as a hard prerequisite, and from marketplace 13.2.0 all three owning plugins declared it as a hard dependency in `marketplace.json` (`"agent-teams@claude-code-workflows"`, qualified form per the superpowers note above). Scheduling now belongs to the host harness the compiler generates, so `senior-review` and `codebase-xray` no longer declare it, and `scripts/lint_host_vocabulary.py` fails a kernel that names its primitives. Only `codebase-mapper` still declares it. The upstream plugin keeps the same `agent-teams:*` namespace, so a reference resolves as written once it is installed (`/plugin marketplace add wshobson/agents`, then `/plugin install agent-teams@claude-code-workflows`). The three pipelines, `/research:team-research` (which dropped agent-teams in marketplace 25.0.0 and runs on plain subagents) and the `senior-review:review-quality-gates` skill are local content with no upstream sync.
 
 ## Dependency policy: every internal dependency is mandatory
 
@@ -202,9 +203,9 @@ Marketplace 16.0.0 restructured the review and documentation layer so that the h
 
 | Plugin | `dependencies` (all hard, per the policy above) |
 |---|---|
-| `codebase-xray` | `agent-teams@claude-code-workflows` |
+| `codebase-xray` | none. Worker dispatch, isolation and the delivery barrier come from the host harness the compiler generates |
 | `abstraction-architect` | `codebase-xray` |
-| `senior-review` | `agent-teams@claude-code-workflows`, `repo-hygiene`, `codebase-xray`, `abstraction-architect`, `react-development`, `platform-engineering`, `typescript-development`, `testing` |
+| `senior-review` | `repo-hygiene`, `codebase-xray`, `abstraction-architect`, `react-development`, `platform-engineering`, `typescript-development`, `testing` |
 | `repo-hygiene` | none. It is a leaf by rule, not by accident |
 | `codebase-mapper` | `agent-teams@claude-code-workflows`, `codebase-xray`, `text-humanizer`, `senior-review` |
 
