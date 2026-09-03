@@ -904,10 +904,21 @@ def cmd_check(args: argparse.Namespace) -> int:
     """
     The publication gate for an incremental run: no claim may still be marked
     stale, and every symbol the change set added must be cited somewhere.
+
+    "Cited" means a phase file names it through the same `path::symbol` form
+    every other citation in this file is matched by, on a line that is not
+    itself a stale marker: a marker's own `cites=` field is written in that
+    same shape, so it must be excluded before matching, or a claim's own
+    unresolved marker would count as the documentation that resolves it.
     """
     run_dir = Path(args.run_dir)
-    problems: list[str] = []
+    changes = _read_json(run_dir / "changes.json")
+    if changes is None:
+        print("check: no changes.json in the run directory; run `diff` first", file=sys.stderr)
+        return 2
 
+    problems: list[str] = []
+    cited_symbols: set[str] = set()
     for name in PHASE_FILES:
         path = run_dir / name
         if not path.exists():
@@ -915,18 +926,14 @@ def cmd_check(args: argparse.Namespace) -> int:
         for number, line in enumerate(read_text(path).split("\n"), start=1):
             if line.startswith(MARKER_PREFIX):
                 problems.append(f"{name}:{number}: claim still marked stale: {line.strip()}")
+                continue
+            cited_symbols.update(symbol for _, symbol in CITE_SYMBOL.findall(line))
 
-    changes = _read_json(run_dir / "changes.json") or {}
-    added = changes.get("symbols", {}).get("added", [])
-    if added:
-        corpus = "\n".join(
-            read_text(run_dir / name) for name in PHASE_FILES if (run_dir / name).exists()
-        )
-        for item in added:
-            if item["symbol"] not in corpus:
-                problems.append(
-                    f"added symbol never documented: {item['file']}::{item['symbol']}"
-                )
+    for item in changes.get("symbols", {}).get("added", []):
+        if item["symbol"] not in cited_symbols:
+            problems.append(
+                f"added symbol never documented: {item['file']}::{item['symbol']}"
+            )
 
     if problems:
         print("check: FAILED")

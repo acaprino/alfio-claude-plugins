@@ -683,6 +683,50 @@ class CheckTests(_DiffFixture):
         self.assertEqual(code, 1)
         self.assertIn("audit_log", out)
 
+    def test_a_substring_of_an_unrelated_citation_does_not_count_as_documented(self):
+        # "cancel" is a new top-level function, distinct from the existing
+        # `OrderService.cancel` method that 03-flows.md already cites. Under a
+        # bare substring match, "cancel" is found "inside" that unrelated
+        # citation's text and wrongly counted as documented. The fix requires
+        # the cited symbol itself to equal the added symbol, so this must
+        # still fail.
+        (self.src / "orders/service.py").write_text(
+            PY_SOURCE + "\n\ndef cancel():\n    return None\n", encoding="utf-8",
+        )
+        changes = self.diff()
+        run_script("carry", self.parent, self.run_dir, cwd=self.tmp)
+        item = next(i for i in changes["symbols"]["added"] if i["symbol"] == "cancel")
+        code, out, _ = run_script("check", self.run_dir, cwd=self.tmp)
+        self.assertEqual(code, 1)
+        self.assertIn(f"added symbol never documented: {item['file']}::cancel", out)
+
+    def test_a_symbol_named_only_inside_a_stale_marker_is_not_documented(self):
+        # A marker's own `cites=` field is written in the same `path::symbol`
+        # shape as a real citation. Craft a run directory where the only
+        # mention of the added symbol is inside that field, on a line that
+        # itself starts with MARKER_PREFIX: that is the tool's own unresolved
+        # bookkeeping, not documentation, and must not count as either.
+        (self.src / "orders/service.py").write_text(
+            PY_SOURCE.replace(
+                "def retry_policy(attempts=3):",
+                "def audit_log(entry):\n    return entry\n\n\ndef retry_policy(attempts=3):",
+            ),
+            encoding="utf-8",
+        )
+        changes = self.diff()
+        item = next(i for i in changes["symbols"]["added"] if i["symbol"] == "audit_log")
+        write(
+            self.run_dir,
+            "03-flows.md",
+            "# Phase 3: Flow Tracing\n\n"
+            "## Critical Paths\n\n"
+            f"<!-- xray:stale reason=symbol-added cites={item['file']}::audit_log -->\n"
+            "- An unrelated, already-resolved claim.\n",
+        )
+        code, out, _ = run_script("check", self.run_dir, cwd=self.tmp)
+        self.assertEqual(code, 1)
+        self.assertIn(f"added symbol never documented: {item['file']}::audit_log", out)
+
 
 if __name__ == "__main__":
     unittest.main()
