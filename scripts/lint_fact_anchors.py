@@ -138,6 +138,11 @@ ANCHORS = {
         r"ladder has \*\*(\w+) ranks\*\*",
         "the evidence ladder's rank count, stated in the generic plugin and in the ibkr skill",
     ),
+    "xray-snapshot-path": (
+        "plugins/codebase-xray/skills/xray-method/SKILL.md",
+        r"snapshot/(manifest\.json)",
+        "X-ray snapshot manifest path, stated in the skill and the plugin doc",
+    ),
 }
 
 # Directories that are not shipped content and may legitimately restate a fact in

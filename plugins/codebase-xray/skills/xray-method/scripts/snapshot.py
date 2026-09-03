@@ -11,6 +11,17 @@ it.
 
 Subcommands:
     write <target> --out <manifest.json>
+        Write a structural snapshot of a target tree.
+    diff <parent_run> <target> --out <run_dir>
+        Compare a parent run's snapshot with the current worktree and write
+        changes.json and changes.md, with a recommendation of incremental,
+        full, or none.
+    carry <parent_run> <run_dir>
+        Copy the parent run's phase files into the new run, renumbering
+        citations and marking affected claims stale.
+    check <run_dir>
+        Publication gate: fail if any claim is still marked stale or any
+        added symbol went undocumented.
 
 Standard library only. Parsing reuses the adapters in ./languages/.
 """
