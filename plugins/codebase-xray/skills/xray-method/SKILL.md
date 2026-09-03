@@ -123,7 +123,7 @@ A second X-ray of the same target rebuilds from nothing only if nobody asked wha
 
 **The change set** (`changes.json`, written by `snapshot.py diff`) compares that manifest with the current worktree. Equal size and mtime means unchanged with no read at all; anything else is hashed, because a checkout moves mtimes without changing a byte. It classifies files and symbols, resolves the one-hop blast radius from the manifest's import edges, and scans the parent's phase files for every claim citing anything it touched. It recommends `incremental`, `full` (with reasons: too much changed, no parent manifest, an incomplete parent, flags differing from the parent's) or `none`.
 
-**The carry** (`snapshot.py carry`) copies the parent's phase files, renumbers every citation whose symbol survived, and marks every affected claim with `<!-- xray:stale reason=... cites=... -->`. The model then reads only the affected files and re-derives only the marked claims.
+**The carry** (`snapshot.py carry`) copies the parent's phase files, except the final report, which is never carried and is always regenerated. It renumbers every citation whose symbol survived, and marks every affected claim with `<!-- xray:stale reason=... cites=... -->`. The model then reads only the affected files and re-derives only the marked claims.
 
 **The gate** (`snapshot.py check`) fails if any marker survives or any added symbol went undocumented. An incremental run does not publish until it passes. That gate is the whole reason an incremental result can be trusted the way a full one is: the claims it kept were not re-checked, so what it did not carry must be provably finished.
 

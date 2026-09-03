@@ -140,7 +140,7 @@ ANCHORS = {
     ),
     "xray-snapshot-path": (
         "plugins/codebase-xray/skills/xray-method/SKILL.md",
-        r"snapshot/(manifest\.json)",
+        r"snapshot/([\w.-]+\.json)",
         "X-ray snapshot manifest path, stated in the skill and the plugin doc",
     ),
 }
