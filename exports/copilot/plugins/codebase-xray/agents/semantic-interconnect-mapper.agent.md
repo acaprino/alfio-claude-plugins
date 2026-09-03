@@ -1,6 +1,6 @@
 ---
 name: semantic-interconnect-mapper
-description: 'Phase 1b context builder whose output downstream reviewers, doc writers and drift hunters work against. Produces no verdicts of its own. TRIGGER WHEN: the user runs /team-review or /map-codebase, or explicitly asks to map contracts, invariants, domain rules, call graphs, or integration boundaries. DO NOT TRIGGER WHEN: no prior context artifact exists (neither .deep-dive/ nor codebase-explorers context-brief.md), or the task is a surface-level operation that does not need the map.'
+description: 'Phase 1b context builder whose output downstream reviewers, doc writers and drift hunters work against. Produces no verdicts of its own. TRIGGER WHEN: spawned by /codebase-xray:team-analyze, /senior-review:team-review or /codebase-mapper:map-codebase, or the user explicitly asks to map contracts, invariants, domain rules, call graphs, or integration boundaries. DO NOT TRIGGER WHEN: no prior context artifact exists (neither .deep-dive/ nor codebase-explorers context-brief.md), or the task is a surface-level operation that does not need the map.'
 tools: ['search', 'edit']
 ---
 
@@ -27,7 +27,7 @@ Before starting, locate and read these inputs. The invoking command specifies wh
 
 1. **Primary context source** (one of the following, required):
 
-   **1a. Deep-dive output directory** (used by `/team-review`): `.deep-dive/` from the prior `codebase-xray` run
+   **1a. X-ray run directory** (used by `/team-review` and `/team-analyze`): the `.deep-dive/runs/<run-id>/` directory the prompt names, or the `.deep-dive/` mirror for a one-shot request that wants the latest published run
    - `01-structure.md` -- file inventory, dependency graph, entry points
    - `02-interfaces.md` -- public APIs, exported symbols, contracts declared explicitly
    - `05-risks.md` -- anti-patterns, red flags identified
@@ -37,7 +37,7 @@ Before starting, locate and read these inputs. The invoking command specifies wh
 
    Read whichever source the prompt points you to. If neither is available, stop and report the missing prerequisite.
 
-2. **Target files**: the files in scope (provided in your task prompt). For `/team-review` this is a diff or a small file set; for `/map-codebase` this is the whole project.
+2. **Target files**: the files in scope (provided in your task prompt). For `/team-review` this is a diff or a small file set; for `/map-codebase` this is the whole project; for `/team-analyze` it is the cross-partition surface only: the symbols in `02-interfaces.md ## Cross-Partition Exports`, the flows in `03-flows.md ## Cross-Partition Flows`, the contracts in `04-semantics.md ## Hidden Contracts (cross-partition)` and the risks in `05-risks.md ## Cross-Partition Risk Attribution`, plus the source those sections cite. Partition-internal contracts are the partition workers' output already; re-deriving them here is what blows the length cap.
 
 3. **Repo context** (as needed regardless of source):
    - Callers outside the target: Grep for target symbols across repo (2-3 hop call graph)
@@ -165,13 +165,14 @@ This is the blast radius the reviewer uses to calibrate severity.
 Write a single file to the path specified in your prompt. Default paths by invoker:
 - `/team-review`: `.team-review/02-interconnect.md`
 - `/map-codebase`: `.codebase-map/_internal/interconnect.md`
+- `/team-analyze`: `.deep-dive/runs/<run-id>/08-interconnect-map.md`
 
 Follow this exact structure with stable anchors regardless of output path:
 
 ```markdown
 # Interconnect Map
 
-> Produced by `semantic-interconnect-mapper` on {ISO date}. Session: `.team-review/`. Deep-dive input: `.deep-dive/`.
+> Produced by `semantic-interconnect-mapper` on {ISO date}. Output: `{output path}`. Primary context: `{context source path}`. Scope: {diff | whole project | cross-partition surface}.
 
 > **Status: fallible hypothesis index, not ground truth.** Every row below is a claim by one observer. Rows marked `documented`, `unverified` or `disputed` MUST be independently re-derived before being used as the premise of a finding. An absent row is not evidence of absence.
 
@@ -238,12 +239,12 @@ Follow this exact structure with stable anchors regardless of output path:
 - **distributed-flow-auditor**: `## Integration Hot-Spots` (HTTP/queue/IPC), `## Call Graph`
 - **chicken-egg-detector**: `## Assumptions` (initialization order), `## Integration Hot-Spots` (Env/config)
 - **ui-race-auditor**: `## Invariants` (temporal), `## Integration Hot-Spots` (UI state)
-- **api-contract-auditor** (planned, not yet implemented): `## Contracts` (formal)
+- **api-contract-auditor**: `## Contracts` (formal), `## Change Impact Radius` (persisted data shape)
 ```
 
 ## CALIBRATION
 
-**Target length for the output file:** 400-1200 lines for a medium review (5-15 files). Scale up or down with scope. Err on precision over completeness -- reviewers need signal, not noise.
+**Target length for the output file:** 400-1200 lines for a medium review (5-15 files). Scale up or down with scope. Err on precision over completeness -- reviewers need signal, not noise. Under `/team-analyze`, scale with the number of cross-partition edges, not with the codebase: a map that lists partition-internal contracts has widened past its scope.
 
 **Empty sections are acceptable.** If no cross-component invariants exist, write `*(none identified)*` under that section and move on. Do NOT invent contracts to fill space.
 

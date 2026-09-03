@@ -47,13 +47,13 @@ Input source differs per pipeline: X-ray output for `team-review`, the consolida
 
 ## Skills
 
-### `analyze`
+### `xray-method`
 
-Systematic codebase analysis that combines structure extraction with semantic understanding. Ships the multi-language script suite (Python stdlib-only; optional tree-sitter for Java/JS/TS/Rust fidelity; Python >= 3.10).
+The method itself: structure extraction fused with semantic reading, the concurrent runs model, Phase 0, and the multi-language script suite (Python stdlib-only; optional tree-sitter for Java/JS/TS/Rust fidelity; Python >= 3.10). Named `analyze` until plugin 3.0.0, when it shared its name with the command and the command shadowed it on any host that lists both under one identifier.
 
 | | |
 |---|---|
-| **Invoke** | `/codebase-xray:analyze` |
+| **Load as** | `codebase-xray:xray-method`; the `team-analyze` workers read it directly, and `/codebase-xray:analyze` is the command that applies it |
 | **Use for** | Codebase understanding, architecture mapping, onboarding, pre-review ground truth |
 
 **Capabilities:**

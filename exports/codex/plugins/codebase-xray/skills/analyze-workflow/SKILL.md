@@ -21,13 +21,13 @@ description: 'Run an X-ray: document WHAT, WHY, HOW and CONSEQUENCES into phased
 
 ## Tool Integration
 
-The scripts in `<plugin-root>/skills/analyze/scripts/` are language-aware and support: **Python, Java, JavaScript, TypeScript (incl. TSX/JSX), SQL, PL/SQL, Rust**. You MUST use them instead of manual file reading whenever the target file matches one of those languages.
+The scripts in `<plugin-root>/skills/xray-method/scripts/` are language-aware and support: **Python, Java, JavaScript, TypeScript (incl. TSX/JSX), SQL, PL/SQL, Rust**. You MUST use them instead of manual file reading whenever the target file matches one of those languages.
 
 - **Phase 1-2 (Structure):** Use `ast_parser.py` for class/function/import extraction and `classifier.py` for file classification. Do NOT attempt to parse AST manually or count imports with grep.
 - **Phase 5 (Risks):** Use `usage_finder.py` to trace symbol usages across the codebase. Multi-language: matches Python `from/import`, Java `import`, JS/TS `import`/`require`, Rust `use`, etc.
 - **Phase 6 (Docs):** Use `doc_review.py` for link validation and marker checks, and `rewrite_comments.py` for multi-language comment quality analysis (Python `#`/docstrings, Java/JS/TS `//` / `/* */` / Javadoc / JSDoc, SQL/PL-SQL `--` / `/* */`, Rust `//` / rustdoc).
 
-For unsupported languages, use the Read tool and Grep tool directly. Tree-sitter is optional (see Prerequisites in the `codebase-xray:analyze` skill): when `tree-sitter-language-pack` is installed, Java/JS/TS/Rust use the tree-sitter parsers for higher fidelity; otherwise a regex fallback is used. Python always uses the stdlib `ast` module. SQL/PL-SQL use a regex-based DDL extractor.
+For unsupported languages, use the Read tool and Grep tool directly. Tree-sitter is optional (see Prerequisites in the `codebase-xray:xray-method` skill): when `tree-sitter-language-pack` is installed, Java/JS/TS/Rust use the tree-sitter parsers for higher fidelity; otherwise a regex fallback is used. Python always uses the stdlib `ast` module. SQL/PL-SQL use a regex-based DDL extractor.
 
 Do NOT use raw bash commands (cat, grep, find) to extract structure when a dedicated script exists. The scripts use real parsers, which are faster, more accurate, and consume fewer tokens than reading files line by line.
 
@@ -47,7 +47,7 @@ If encountered: note file existence only ("`.env` present - contains environment
 
 ### 1. Resolve the run
 
-Analyses are concurrent-safe: each invocation is an isolated **run** under `.deep-dive/runs/<run-id>/` (see `## Concurrent Runs Model` in the `codebase-xray:analyze` skill).
+Analyses are concurrent-safe: each invocation is an isolated **run** under `.deep-dive/runs/<run-id>/` (see `## Concurrent Runs Model` in the `codebase-xray:xray-method` skill).
 
 1. Compute `run-id`: value of `--run-name` (normalized to `[a-z0-9-]`) or `<slug-of-target>-<YYYYMMDD-HHMMSS>`. On collision with an existing run directory, append `-2`, `-3`, ...
 2. Set `RUN_DIR = .deep-dive/runs/<run-id>`.
@@ -109,47 +109,36 @@ Analysis phases:
 5. Cancel
 ```
 
-## Parallel Execution Strategy
+## Execution Order
 
-After scope confirmation, execute in two waves. All agents write output files directly to `$RUN_DIR/` and receive the target path, the run directory, and active flags as context.
+After scope confirmation, every phase runs inline in this context, in order. Nothing is dispatched. The target a classic run is for (one package, under about 200 files, one language) fits one context, and one context that reads the code once costs less than three workers that each read it again. A target larger than that belongs to `/codebase-xray:team-analyze`, which partitions it and runs the same phases per partition in isolated workers; the scope confirmation above is where to say so and stop.
 
 ### Full depth (default)
 
-**Phase 0 (inline, before any agent spawns):** Project Knowledge Discovery. Writes `$RUN_DIR/knowledge/navigation.md` and `$RUN_DIR/knowledge/documentation-leads.md`.
+1. **Phase 0**, Project Knowledge Discovery. Writes `$RUN_DIR/knowledge/navigation.md` and `$RUN_DIR/knowledge/documentation-leads.md`.
+2. **Phases 1 and 2**, Structure and Interfaces. Their output (dependency graph, entry points, module inventory) is what every later phase reads first.
+3. **Phases 3 and 4**, Flows and Semantics, then **Phases 5 and 6**, Risks and Documentation. Each phase re-reads `$RUN_DIR/01-structure.md` and `$RUN_DIR/02-interfaces.md` from disk rather than relying on what is still in context.
+4. **Phase 7**, Final Report, with the context-management strategy it describes.
 
-**Wave 1 -- Structure (sequential, must complete first):**
-
-- **Agent A (Structure):** Executes Phase 1 + Phase 2. Writes `$RUN_DIR/01-structure.md` and `$RUN_DIR/02-interfaces.md`.
-
-Wait for Agent A to complete. Its output provides the structural foundation (dependency graph, entry points, module inventory) that Agents B and C need to do meaningful analysis.
-
-**Wave 2 -- Behavior + Quality (parallel, with structure context):**
-
-- **Agent B (Behavior):** Executes Phase 3 + Phase 4. Receives `$RUN_DIR/01-structure.md` as input context. Writes `$RUN_DIR/03-flows.md` and `$RUN_DIR/04-semantics.md`.
-- **Agent C (Quality):** Executes Phase 5 + Phase 6. Receives `$RUN_DIR/01-structure.md` as input context. Writes `$RUN_DIR/05-risks.md` and `$RUN_DIR/06-documentation.md`.
-
-Wait for both agents to complete, then execute Phase 7 in the main context.
+Write each phase file the moment its phase completes. A phase file on disk is the context the next phase reads; nothing carried only in this context survives a long run.
 
 ### Lite depth (`--depth=lite`)
 
-Lightweight mode for smaller projects, MVPs, or quick assessments. Spawn 2 agents:
-
-- **Agent A (Structure):** Executes Phase 1 + Phase 2. Writes `$RUN_DIR/01-structure.md` and `$RUN_DIR/02-interfaces.md`.
-- **Agent B (Risks):** Executes Phase 5 only. Writes `$RUN_DIR/05-risks.md`.
+Lightweight mode for smaller projects, MVPs, or quick assessments: Phase 0, then Phases 1 and 2, then Phase 5, then a condensed Phase 7.
 
 Skip Phase 3 (Flow Tracing), Phase 4 (Semantic Understanding), and Phase 6 (Documentation Health). **Phase 0 (Project Knowledge Discovery) is not skippable and runs in lite exactly as in full**: it is the cheap discovery pass, while Phase 6 is the expensive audit. Conflating the two is what made lite mode blind to a project's own documentation. In Phase 5, skip detailed state machine diagrams and Mermaid flowcharts for non-critical files, focusing on anti-patterns, red flags, and tech debt items.
 
-Wait for both agents to complete, then generate a condensed `$RUN_DIR/07-final-report.md` covering structure, interfaces, and risks only. The report omits the "Critical Paths", "Design Insights", "Key Process Diagrams", and "Documentation vs Reality" sections.
+The condensed `$RUN_DIR/07-final-report.md` covers structure, interfaces, and risks only. It omits the "Critical Paths", "Design Insights", "Key Process Diagrams", and "Documentation vs Reality" sections.
 
 ### Overrides
 
-If `--phase N` or `--docs-only` flags are set, skip parallel execution and run only the requested phase(s) sequentially.
+If `--phase N` or `--docs-only` flags are set, run only the requested phase(s), after Phase 0.
 
 ---
 
 ## Phase 0: Project Knowledge Discovery
 
-Runs in **every depth, including `--depth=lite`**, and runs first. It executes inline in the orchestrating context, not as a spawned agent: reading project instructions and globbing for index files is cheap, and Phase 7 already sets the precedent for inline work.
+Runs in **every depth, including `--depth=lite`**, and runs first, in the orchestrating context: reading project instructions and globbing for index files is cheap, and what it finds shapes what every later phase looks for.
 
 Phases 1 through 7 keep their numbers. `--phase N` is a user-facing flag and renumbering would break every invocation that names a phase.
 
@@ -198,7 +187,7 @@ This phase owns discovery of **how the repository documents itself**. It does no
 downstream consumer must discover independently.]
 ```
 
-The canonical copy of this section lives in `## Phase 0: Project Knowledge Discovery` of the `codebase-xray:analyze` skill, because `/senior-review:team-review` reaches this phase by invoking the skill and never loads this command. The copy here keeps the command path self-contained. Edit both together.
+The canonical copy of this section lives in `## Phase 0: Project Knowledge Discovery` of the `codebase-xray:xray-method` skill, which the `team-analyze` workers read directly. The copy here keeps the command path self-contained, and it is the copy `/senior-review:team-review` reaches when it invokes this command. Edit both together.
 
 ---
 
@@ -646,4 +635,4 @@ Present a summary of changes made after applying fixes. For languages outside th
 
 ## Integration with Code Review
 
-Published analysis output in `.deep-dive/` is automatically picked up by `/senior-review:code-review`. `/senior-review:team-review` builds the same context itself: its Phase 1a invokes the `codebase-xray:analyze` skill (`--depth=lite` by default). Run an X-ray first, then run a code review for the most thorough analysis possible.
+Published analysis output in `.deep-dive/` is automatically picked up by `/senior-review:code-review`. `/senior-review:team-review` builds the same context itself: its Phase 1a invokes this command (`--depth=lite` by default). Run an X-ray first, then run a code review for the most thorough analysis possible.

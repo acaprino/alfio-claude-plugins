@@ -42,7 +42,7 @@ If encountered: note file existence only (`".env present — contains environmen
 
 ## TOOL USAGE
 
-Use the language-aware scripts in `${PLUGIN_ROOT}/skills/analyze/scripts/` whenever the target language is supported (Python, Java, JavaScript, TypeScript, SQL, PL/SQL, Rust):
+Use the language-aware scripts in `${PLUGIN_ROOT}/skills/xray-method/scripts/` whenever the target language is supported (Python, Java, JavaScript, TypeScript, SQL, PL/SQL, Rust):
 
 - **Structure extraction:** `ast_parser.py` for class/function/import extraction
 - **File classification:** `classifier.py` for language detection and counting

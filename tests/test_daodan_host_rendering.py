@@ -153,8 +153,8 @@ class HostRenderingTests(unittest.TestCase):
                 self.assertTrue(using, f"{host}: nothing references {reference}")
                 for name, text in using.items():
                     self.assertIn(manifest, text, name)
-                skill = texts["skills/analyze/SKILL.md"]
-                self.assertIn(f"{reference}/skills/analyze/scripts/", skill)
+                skill = texts["skills/xray-method/SKILL.md"]
+                self.assertIn(f"{reference}/skills/xray-method/scripts/", skill)
 
     # -- workflow frontmatter and arguments --------------------------------
 

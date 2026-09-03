@@ -275,7 +275,7 @@ If modifying this code, also check:
 |--------|--------|----------|
 | Structure | VALIDATED | AST parsing |
 | Behavior | {VERIFIED/UNVERIFIED} | {file.py::Class.method or "needs review"} |
-| Integration | {VERIFIED/UNVERIFIED} | {trace_id or "needs runtime check"} |
+| Integration | {VERIFIED/UNVERIFIED} | {file:line of the call site, or "unverified: no caller found"} |
 
 ---
 

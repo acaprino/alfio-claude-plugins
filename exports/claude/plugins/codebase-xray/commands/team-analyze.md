@@ -79,7 +79,7 @@ Orchestrate a partitioned multi-agent codebase analysis plus global interconnect
    - `--run-name <name>`: explicit run identity for concurrent or repeated analyses
    - `--yes`: auto-accept partition checkpoint
    - REJECT with explicit error if `--phase N` or `--docs-only` are passed (suggest classic `/codebase-xray:analyze`)
-3. Resolve the run (see `## Concurrent Runs Model` in the `codebase-xray:analyze` skill):
+3. Resolve the run (see `## Concurrent Runs Model` in the `codebase-xray:xray-method` skill):
    - Compute `run-id`: `--run-name` (normalized to `[a-z0-9-]`) or `<slug-of-target>-<YYYYMMDD-HHMMSS>`; append `-2`, `-3`, ... on collision
    - Set `RUN_DIR = .deep-dive/runs/<run-id>`
    - Read `.deep-dive/runs.json`: list active runs; offer to resume a matching in-progress team run or start this new run alongside. A root `state.json` with `current_phase` and no `runs.json` is a pre-runs legacy layout: offer to migrate it into `.deep-dive/runs/legacy-<date>/` first
@@ -149,7 +149,7 @@ Otherwise, run the detection chain (first rule that matches wins):
 3. **Layer split:**
    - `src/{backend,frontend}`, `src/{api,web}`, `src/{server,client}`, or root-level `backend/` + `frontend/`
 4. **Language split:**
-   - Use `${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/classifier.py` to count files per language
+   - Use `${CLAUDE_PLUGIN_ROOT}/skills/xray-method/scripts/classifier.py` to count files per language
    - If ≥2 languages with ≥20 files each: partition per language (`*.py` -> "python", `*.ts/*.tsx` -> "typescript")
 5. **Fallback:** single partition wrapping the entire target, name = `root`
 
@@ -234,8 +234,8 @@ Sibling partitions (for cross-partition citation lookup if needed):
 
 Required reads before writing:
   - <P_i.path>: all source files within scope
-  - ${CLAUDE_PLUGIN_ROOT}/skills/analyze/SKILL.md
-  - Scripts at ${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/
+  - ${CLAUDE_PLUGIN_ROOT}/skills/xray-method/SKILL.md
+  - Scripts at ${CLAUDE_PLUGIN_ROOT}/skills/xray-method/scripts/
 
 Completion: when both owned files are written, report delivered and name them. If you could not write them, report failed and say why.
 ```
@@ -335,12 +335,16 @@ Dispatch one `semantic-interconnect-mapper`:
 Build the interconnect map for this codebase using the team X-ray consolidated output as primary context.
 
 Primary context source: `<RUN_DIR>/01-07.md` (consolidated from partition outputs by the synthesizer).
-Target files: the entire codebase (union of partitions; see `<RUN_DIR>/01-structure.md ## Partition Map`).
+Scope: the cross-partition surface only. Read `<RUN_DIR>/02-interfaces.md ## Cross-Partition Exports`,
+`<RUN_DIR>/03-flows.md ## Cross-Partition Flows`, `<RUN_DIR>/04-semantics.md ## Hidden Contracts (cross-partition)`
+and `<RUN_DIR>/05-risks.md ## Cross-Partition Risk Attribution` (whichever exist at this depth), then the
+source files those sections cite. Partition-internal contracts are already in the partition outputs;
+do not re-derive them here.
 Output path: `<RUN_DIR>/08-interconnect-map.md`
 
-Produce the full structured map following your agent definition: Call Graph (2-3 hop for public entry points, with cross-partition edges marked), Contracts (formal / structural / implicit), Invariants, Domain Rules, Assumptions (verified / documented / unverified), Integration Hot-Spots, Change Impact Radius, Reviewer Hints.
+Produce the full structured map following your agent definition: Call Graph limited to the symbols that cross a partition boundary (2-3 hops out from each crossing, cross-partition edges marked), Contracts (formal / structural / implicit), Invariants, Domain Rules, Assumptions (verified / documented / unverified / disputed), Integration Hot-Spots, Change Impact Radius, Reviewer Hints.
 
-Every claim must cite file:line. No recommendations, no fixes. Empty sections are acceptable if nothing applies.
+Every claim must cite file:line. No recommendations, no fixes. Empty sections are acceptable if nothing applies. Scale the map with the number of cross-partition edges, never with the size of the codebase.
 ```
 
 Wait for delivery. On delivery: mark `phase_3_interconnect: "complete"`. On failure: mark `phase_3_interconnect: "failed"` and continue to Phase 4 (failure is non-blocking).

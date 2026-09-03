@@ -41,7 +41,7 @@ You DO NOT touch any other file under `.deep-dive/` (other runs may be in progre
 
 ## TOOL USAGE
 
-Use the scripts in `<plugin-root>/skills/analyze/scripts/`:
+Use the scripts in `<plugin-root>/skills/xray-method/scripts/`:
 - `usage_finder.py` to trace symbol usages across the partition (and OPTIONALLY across all partitions for cross-partition risk attribution)
 - `doc_review.py` for link validation and marker checks in `06-documentation.md` work
 - `rewrite_comments.py` for comment quality analysis if `active_flags.comments` is true

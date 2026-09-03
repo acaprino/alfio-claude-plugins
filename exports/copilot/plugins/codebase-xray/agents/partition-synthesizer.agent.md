@@ -52,6 +52,10 @@ You do NOT re-analyze the code. You consolidate text. Your only source material 
 
 Run each rule below in order. Output one file per rule.
 
+### Context budget
+
+You never hold every partition file at once: six partitions times six phase files does not fit one context, and a consolidation that drops the middle is worse than none. Produce one consolidated file at a time. For it, read only the sections that rule names, one partition at a time: Grep the partition file for the `## ` heading, Read that section, keep what the rule needs, and move to the next partition before reading anything else. Write the consolidated file once its sections are complete, then start the next rule needing nothing from the previous one. Six section reads for one output file is the budget; whole partition files are not.
+
 ### Rule 01-structure.md: unified inventory
 
 ```markdown
