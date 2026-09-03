@@ -199,7 +199,13 @@ def _ts_parse(content: str, language: str = _LANGUAGE_NAME) -> ParseResult | Non
                     methods.append(parse_function_like(child, "method"))
                 elif child.type in ("field_definition", "public_field_definition", "property_definition"):
                     n = child.child_by_field_name("name") or (child.children[0] if child.children else None)
-                    if n is not None:
+                    value = child.child_by_field_name("value")
+                    if value is not None and value.type in ("arrow_function", "function_expression", "function"):
+                        # `handler = (x) => {...}` is a method in everything but syntax.
+                        method = parse_function_like(value, "method", default_name=text(n) if n else None)
+                        method.line_number = child.start_point[0] + 1
+                        methods.append(method)
+                    elif n is not None:
                         class_vars.append(text(n))
         return ClassInfo(
             name=text(name_node) if name_node else "?",
@@ -263,15 +269,23 @@ def _ts_parse(content: str, language: str = _LANGUAGE_NAME) -> ParseResult | Non
                                                 is_internal=_is_internal_module(raw),
                                             )
                                         )
-                # Top-level lexical decls produce constants if UPPER_CASE.
-                if depth == 0:
+                # Top-level lexical decls produce constants if UPPER_CASE, and
+                # functions when their value is a function: `const f = () => ...`
+                # is how most module-level functions are written now.
+                if depth == 0 or in_export:
                     for sub in child.children:
                         if sub.type == "variable_declarator":
                             n = sub.child_by_field_name("name")
-                            if n is not None:
-                                name = text(n)
-                                if name.isidentifier() and name.isupper():
-                                    constants.append(name)
+                            if n is None:
+                                continue
+                            name = text(n)
+                            val = sub.child_by_field_name("value")
+                            if val is not None and val.type in ("arrow_function", "function_expression", "function"):
+                                fn = parse_function_like(val, "function", default_name=name)
+                                fn.line_number = sub.start_point[0] + 1
+                                functions.append(fn)
+                            elif depth == 0 and name.isidentifier() and name.isupper():
+                                constants.append(name)
             elif t == "class_declaration":
                 cls = parse_class(child)
                 classes.append(cls)

@@ -194,6 +194,18 @@ def _ts_parse(content: str) -> ParseResult | None:
                                 class_vars.append(fname)
                                 if fname.isupper():
                                     constants.append(fname)
+                elif child.type in (
+                    "class_declaration",
+                    "interface_declaration",
+                    "enum_declaration",
+                    "record_declaration",
+                ):
+                    # Nested types are types: a listener interface or a builder
+                    # class declared inside its owner is part of the surface.
+                    nested = parse_class_like(child, child.type.removesuffix("_declaration"))
+                    if name_node is not None:
+                        nested.name = f"{text(name_node)}.{nested.name}"
+                    classes.append(nested)
         visibility, _is_static, _is_final, _is_abstract = parse_modifiers(node)
         return ClassInfo(
             name=text(name_node) if name_node else "?",
@@ -271,6 +283,10 @@ _CLASS_RE = re.compile(
     r"^\s*(?P<vis>public\s+|protected\s+|private\s+)?"
     r"(?:abstract\s+|final\s+|static\s+|sealed\s+|non-sealed\s+)*"
     r"(?P<kind>class|interface|enum|record|@interface)\s+(?P<name>\w+)"
+    # A generic parameter list sits between the name and the clauses:
+    # `class Svc<T extends Comparable<T>>`. Without this the fallback
+    # skipped every generic class and reported only its nested types.
+    r"(?:\s*<[^{;]*>)?"
     r"(?:\s+extends\s+(?P<ext>[\w<>,\s.]+?))?"
     r"(?:\s+implements\s+(?P<impl>[\w<>,\s.]+?))?"
     r"\s*[\{(]",

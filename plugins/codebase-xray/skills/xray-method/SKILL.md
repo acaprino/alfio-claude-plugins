@@ -350,7 +350,7 @@ python "${CLAUDE_PLUGIN_ROOT}/skills/xray-method/scripts/rewrite_comments.py" st
 | Classification | Criteria | Verification |
 |---------------|----------|--------------|
 | **Critical** | Handles authentication, security, encryption, sensitive data | Mandatory |
-| **High-Complexity** | >300 LOC, >5 dependencies, state machines, async patterns | Mandatory |
+| **High-Complexity** | >300 LOC, >12 dependencies, state machines, async patterns | Mandatory |
 | **Standard** | Normal business logic, data models, utilities | Recommended |
 | **Utility** | Pure functions, helpers, constants | Optional |
 

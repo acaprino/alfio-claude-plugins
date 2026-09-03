@@ -100,8 +100,8 @@ if __name__ == "__main__":
             for f in result.functions
         ],
         "imports": {
-            "internal": [i.module for i in result.imports if i.is_internal],
-            "external": [i.module for i in result.imports if not i.is_internal],
+            "internal": list(dict.fromkeys(i.module for i in result.imports if i.is_internal)),
+            "external": list(dict.fromkeys(i.module for i in result.imports if not i.is_internal)),
         },
         "constants": result.constants,
         "external_calls": [

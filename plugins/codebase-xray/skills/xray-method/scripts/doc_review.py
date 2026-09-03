@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Documentation Review Tool (Phase 8)
+Documentation Review Tool (X-ray Phase 6)
 
 SECURITY HARDENED VERSION - Addresses all critical review findings.
 
@@ -365,7 +365,13 @@ class DocReviewer:
         print(f"Total files: {report.total_files}")
         print(f"Directories: {len(files_by_dir)}")
         print(f"Files with TODOs: {len(report.files_with_todos)}")
-        print(f"Files missing metadata: {len(report.files_missing_metadata)}")
+        # A project that never writes a last_updated field is not "missing"
+        # it in every file; it does not use the convention. Reporting 41
+        # missing entries there is noise that hides the real findings.
+        if any(doc.last_updated for doc in self.doc_files.values()):
+            print(f"Files missing metadata: {len(report.files_missing_metadata)}")
+        else:
+            print("Metadata (last_updated frontmatter): not used by this project, not reported")
         print(f"Large files (>1500 lines): {len(report.large_files)}")
 
         print(f"\n{'='*60}")
@@ -386,9 +392,10 @@ class DocReviewer:
                 print("  WARNING: Documentation integrity below acceptable threshold!")
                 print("  Run 'validate-markers' to check if claims are still valid.")
         else:
-            print(f"\nNO VERIFICATION MARKERS FOUND")
-            print("  ALL DOCUMENTATION SHOULD BE CONSIDERED UNVERIFIED")
-            print("  Add [VERIFIED: file.py::Class.method] markers after code verification")
+            print("\nNo verification markers found: this project does not use the")
+            print("  [VERIFIED] / [VALIDATED] / [UNVERIFIED] convention. Phase 6 verifies its")
+            print("  documentation against the code regardless; adopt the markers only for")
+            print("  documentation maintained with this toolkit.")
 
     def validate_links(self, path: str = "docs/", fix: bool = False, dry_run: bool = False) -> list[dict]:
         """Validate all relative links in documentation."""
@@ -923,7 +930,7 @@ class DocReviewer:
         output: Optional[str] = None,
         dry_run: bool = False
     ) -> HealthReport:
-        """Run complete Phase 8 documentation maintenance workflow."""
+        """Run the complete Phase 6 documentation maintenance workflow."""
         self.dry_run = dry_run
 
         print("=" * 60)
@@ -994,7 +1001,7 @@ class DocReviewer:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Documentation Review Tool (Phase 8)"
+        description="Documentation Review Tool (X-ray Phase 6)"
     )
     subparsers = parser.add_subparsers(dest="command", help="Commands")
 

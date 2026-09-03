@@ -37,9 +37,12 @@ __all__ = [
     "classify_from_content",
 ]
 
-# Classification thresholds (tunable).
+# Classification thresholds (tunable). The dependency threshold used to be 5,
+# which is fewer imports than an ordinary module carries: it flagged a third of
+# a small stdlib tool as high-complexity on import count alone. A file earns
+# the label for what it does, not for how many names it pulls in.
 HIGH_LOC_THRESHOLD: int = 300
-HIGH_DEPS_THRESHOLD: int = 5
+HIGH_DEPS_THRESHOLD: int = 12
 HIGH_COMPLEXITY_PATTERN_THRESHOLD: int = 3
 UTILITY_LOC_MAX: int = 100
 UTILITY_DEPS_MAX: int = 3
@@ -75,7 +78,11 @@ class ClassificationResult:
 # regex strings, so a second hand-written copy of a primary pattern would stop
 # matching the moment either copy was edited.
 _CRITICAL_PATTERN_SPEC: tuple[tuple[str, bool], ...] = (
-    (r"\bauth", True),  # auth, authentication, authorize, authenticate
+    # auth, authentication, authorize, authenticate. The negative lookahead
+    # keeps "author" out: with a bare \bauth, every module with an author
+    # line or an "authored_by" field classified as security-critical, which
+    # made the triage flag most of a build tool.
+    (r"\bauth(?!or)", True),
     (r"\btoken\b", False),
     (r"\bjwt\b", False),
     (r"\bsecret\b", True),
