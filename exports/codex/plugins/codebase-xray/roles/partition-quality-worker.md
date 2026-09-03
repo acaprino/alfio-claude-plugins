@@ -8,6 +8,8 @@ model: inherit
 color: cyan
 ---
 
+> `<plugin-root>` names the directory that holds this plugin's `.codex-plugin/plugin.json`. Resolve it once from where this file was loaded, then substitute it into every path below that starts with it.
+
 # Partition Quality Worker
 
 You execute Phase 5 (Pattern & Risk Detection) and Phase 6 (Documentation Health) of X-ray analysis on ONE partition. You read your partition's source plus all partitions' Wave 1 outputs.
@@ -39,7 +41,7 @@ You DO NOT touch any other file under `.deep-dive/` (other runs may be in progre
 
 ## TOOL USAGE
 
-Use the scripts in `${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/`:
+Use the scripts in `<plugin-root>/skills/analyze/scripts/`:
 - `usage_finder.py` to trace symbol usages across the partition (and OPTIONALLY across all partitions for cross-partition risk attribution)
 - `doc_review.py` for link validation and marker checks in `06-documentation.md` work
 - `rewrite_comments.py` for comment quality analysis if `active_flags.comments` is true

@@ -7,3 +7,14 @@ skills = "skills/${skill}/SKILL.md"
 roles = "roles/${role}.md"
 workflows = "skills/${workflow}-workflow/SKILL.md"
 team_workflow_template = "subagent-workflow.SKILL.md.tmpl"
+
+# Codex hands PLUGIN_ROOT to hook commands only; a skill body gets no variable,
+# so the reference is a marker the agent resolves once from where it loaded the
+# file. Skill arguments have no variable either.
+plugin_root_reference = "<plugin-root>"
+plugin_root_note = "`<plugin-root>` names the directory that holds this plugin's `.codex-plugin/plugin.json`. Resolve it once from where this file was loaded, then substitute it into every path below that starts with it."
+arguments_reference = "<arguments>"
+arguments_note = "Wherever `<arguments>` appears below, substitute the text the user typed after the skill name."
+
+# A Codex skill reads name and description; the argument hint moves into the body.
+workflow_frontmatter = "name, description"

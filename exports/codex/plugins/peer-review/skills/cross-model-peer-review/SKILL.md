@@ -6,10 +6,12 @@ description: >
   DO NOT TRIGGER WHEN: reviewing code diffs (use senior-review), or running same-family multi-reviewer pipelines (use senior-review:review-quality-gates).
 ---
 
+> `<plugin-root>` names the directory that holds this plugin's `.codex-plugin/plugin.json`. Resolve it once from where this file was loaded, then substitute it into every path below that starts with it.
+
 # Cross-Model Peer Review
 
 The protocol is the product, this plugin is its Claude Code implementation. The
-normative text is `${CLAUDE_PLUGIN_ROOT}/protocol/PROTOCOL.md`: harness-independent,
+normative text is `<plugin-root>/protocol/PROTOCOL.md`: harness-independent,
 provider-independent, its requirement numbers stable identifiers that this skill and
 every agent in this plugin cite by number rather than restate loosely. Read it before
 touching a run that behaves unexpectedly; this skill explains why the rules exist and

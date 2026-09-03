@@ -9,6 +9,8 @@ description: >
   DO NOT TRIGGER WHEN: MetaTrader 5 (use mt5), or the IBKR Web API with no TWS connection.
 ---
 
+> `<plugin-root>` names the directory that holds this plugin's `.codex-plugin/plugin.json`. Resolve it once from where this file was loaded, then substitute it into every path below that starts with it.
+
 # Interactive Brokers Integration
 
 Reference for building, operating and debugging systems that trade through the Interactive Brokers TWS
@@ -101,7 +103,7 @@ So the order of resort, for any question, is:
 ## Tooling
 
 ```bash
-S=${CLAUDE_PLUGIN_ROOT}/skills/ibkr/scripts
+S=<plugin-root>/skills/ibkr/scripts
 
 python $S/ibkr_gateway.py doctor              # what is installed, which ports are open
 python $S/ibkr_gateway.py install             # download and install Gateway + IBC, unattended

@@ -6,6 +6,8 @@ description: >
   DO NOT TRIGGER WHEN: content quality review (use marketplace-review) or scaffolding new plugins (use marketplace-scaffold-plugin / skills-creator).
 ---
 
+> `${PLUGIN_ROOT}` is this plugin's install directory, the one that holds its `plugin.json`. If the host has not expanded it, resolve it from where this file was loaded.
+
 # Marketplace Audit
 
 Run a comprehensive structural validation of any Claude Code plugin marketplace. Works against any project that follows the standard `.claude-plugin/marketplace.json` + `plugins/<name>/` layout.
@@ -18,10 +20,10 @@ Execute the audit script to get a machine-readable report:
 
 ```bash
 # Validate only
-python "${CLAUDE_PLUGIN_ROOT}/skills/marketplace-audit/scripts/audit_marketplace.py"
+python "${PLUGIN_ROOT}/skills/marketplace-audit/scripts/audit_marketplace.py"
 
 # Validate and auto-fix color issues (invalid, missing, disharmonious)
-python "${CLAUDE_PLUGIN_ROOT}/skills/marketplace-audit/scripts/audit_marketplace.py" --fix
+python "${PLUGIN_ROOT}/skills/marketplace-audit/scripts/audit_marketplace.py" --fix
 ```
 
 The script resolves the target project root by walking up from the script location, or respects a `--project-root <path>` flag if invoking it from a different marketplace than where the plugin is installed.

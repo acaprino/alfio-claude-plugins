@@ -7,3 +7,8 @@ skills = "skills/${skill}/SKILL.md"
 roles = "agents/${role}.md"
 workflows = "commands/${workflow}.md"
 team_workflow_template = "team-workflow.md.tmpl"
+
+# The kernel writes Claude's own placeholders, so each maps onto itself and no
+# note is needed. A workflow that does not fan out is the kernel file verbatim.
+plugin_root_reference = "${CLAUDE_PLUGIN_ROOT}"
+arguments_reference = "$ARGUMENTS"

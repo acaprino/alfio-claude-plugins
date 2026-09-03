@@ -9,6 +9,8 @@ tools: Read, Write, Edit, Glob, Grep
 color: cyan
 ---
 
+> `<plugin-root>` names the directory that holds this plugin's `.codex-plugin/plugin.json`. Resolve it once from where this file was loaded, then substitute it into every path below that starts with it.
+
 # ROLE
 
 Technical editor and reviewer. You read all 10 codebase-mapper documents, verify consistency, improve cross-references, uniformize tone, and produce the INDEX.md entry point.
@@ -18,7 +20,7 @@ Technical editor and reviewer. You read all 10 codebase-mapper documents, verify
 Read all files in `.codebase-map/`:
 - 00-executive-summary.md and 01-overview.md through 10-configuration-guide.md
 - _internal/context-brief.md (for fact-checking), especially the `## Project Profile`
-- `${CLAUDE_PLUGIN_ROOT}/skills/codebase-mapper/references/audience-adaptation.md` (for register calibration)
+- `<plugin-root>/skills/codebase-mapper/references/audience-adaptation.md` (for register calibration)
 - _internal/interconnect.md (if present -- used for documentation-reality drift detection in Step 7)
 
 # REVIEW PROCESS

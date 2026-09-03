@@ -5,6 +5,8 @@ description: >
   TRIGGER WHEN: working with the Stripe API (Payment Intents, Customers, Subscriptions, Checkout Sessions, Connect, webhooks, tax, usage-based billing), Firebase integration, pricing strategy, or revenue modeling.
 ---
 
+> `${PLUGIN_ROOT}` is this plugin's install directory, the one that holds its `plugin.json`. If the host has not expanded it, resolve it from where this file was loaded.
+
 # Stripe Knowledge Base
 
 Unified reference for Stripe integrations. Content is split across `references/` (topic-specific patterns) and `scripts/` (ready-to-run helpers).
@@ -40,7 +42,7 @@ Ready-to-run Python helpers (adapt to your project; require `STRIPE_SECRET_KEY` 
 - `scripts/webhook_audit.py` -- report gaps between configured webhook endpoints and the must-have event catalog
 - `scripts/simulate_subscription.py` -- walk a test-clock subscription through trial end, renewal, failed payment, and recovery
 
-All scripts live at `${CLAUDE_PLUGIN_ROOT}/skills/stripe/scripts/<name>.py`. Agents should reference them by that path.
+All scripts live at `${PLUGIN_ROOT}/skills/stripe/scripts/<name>.py`. Agents should reference them by that path.
 
 ## API version notes
 

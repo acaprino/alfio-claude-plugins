@@ -9,3 +9,14 @@ workflows = "prompts/${workflow}.prompt.md"
 coordinator_template = "coordinator.agent.md.tmpl"
 role_template = "worker.agent.md.tmpl"
 coordinators = "agents/${workflow}-coordinator.agent.md"
+
+# Copilot CLI documents ${PLUGIN_ROOT} for paths inside the plugin directory
+# and defines no CLAUDE_PLUGIN_ROOT. It documents no arguments variable either:
+# what the user types after the prompt name is simply part of the request.
+plugin_root_reference = "${PLUGIN_ROOT}"
+plugin_root_note = "`${PLUGIN_ROOT}` is this plugin's install directory, the one that holds its `plugin.json`. If the host has not expanded it, resolve it from where this file was loaded."
+arguments_reference = "<arguments>"
+arguments_note = "Wherever `<arguments>` appears below, substitute the text the user typed after the prompt name."
+
+# A prompt file reads name, description and argument-hint, in that order.
+workflow_frontmatter = "name, description, argument-hint"

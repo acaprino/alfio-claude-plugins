@@ -28,6 +28,7 @@ strategy = "custom-agent"
 [capabilities."roles.dispatch"]
 state = "native"
 strategy = "named-agent"
+value = "agent"
 
 [capabilities."execution.parallel"]
 state = "adapted"

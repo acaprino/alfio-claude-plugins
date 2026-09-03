@@ -36,6 +36,7 @@ ALLOWED_KEYS: frozenset[str] = frozenset(
         "role_delivery",
         "isolation",
         "join",
+        "dispatch_plan",
     }
 )
 

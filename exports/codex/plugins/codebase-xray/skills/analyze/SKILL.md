@@ -6,6 +6,8 @@ description: >
   DO NOT TRIGGER WHEN: the user wants human-readable narrative docs (use /codebase-mapper:map-codebase), a public-facing README, or a review verdict (senior-review consumes this output instead).
 ---
 
+> `<plugin-root>` names the directory that holds this plugin's `.codex-plugin/plugin.json`. Resolve it once from where this file was loaded, then substitute it into every path below that starts with it.
+
 # Codebase X-Ray Analysis Skill
 
 ## Overview
@@ -37,9 +39,9 @@ The scripts require Python >= 3.10 and work **out of the box** with just the std
 
 ```bash
 # Optional: install for higher-fidelity parsing
-pip install -r "${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/requirements.txt"
+pip install -r "<plugin-root>/skills/analyze/scripts/requirements.txt"
 # or
-uv pip install -r "${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/requirements.txt"
+uv pip install -r "<plugin-root>/skills/analyze/scripts/requirements.txt"
 ```
 
 What changes when tree-sitter is installed:
@@ -214,30 +216,30 @@ The analysis NEVER reads or includes contents from sensitive files: `.env`, `.en
 
 ## Script Commands
 
-All scripts live in `${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/`.
+All scripts live in `<plugin-root>/skills/analyze/scripts/`.
 
 ### 1. Analyze Single File
 
 ```bash
 # Python
-python "${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/analyze_file.py" \
+python "<plugin-root>/skills/analyze/scripts/analyze_file.py" \
   --file src/utils/circuit_breaker.py \
   --output-format markdown
 
 # Java
-python "${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/analyze_file.py" \
+python "<plugin-root>/skills/analyze/scripts/analyze_file.py" \
   --file src/main/java/com/example/UserService.java
 
 # TypeScript
-python "${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/analyze_file.py" \
+python "<plugin-root>/skills/analyze/scripts/analyze_file.py" \
   --file src/services/auth.ts
 
 # Rust
-python "${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/analyze_file.py" \
+python "<plugin-root>/skills/analyze/scripts/analyze_file.py" \
   --file src/lib.rs
 
 # SQL / PL-SQL
-python "${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/analyze_file.py" \
+python "<plugin-root>/skills/analyze/scripts/analyze_file.py" \
   --file migrations/0042_users.sql
 ```
 
@@ -249,7 +251,7 @@ python "${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/analyze_file.py" \
 ### 2. Find Usages of One Symbol
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/analyze_file.py" \
+python "<plugin-root>/skills/analyze/scripts/analyze_file.py" \
   --file src/utils/circuit_breaker.py --find-usages --symbol CircuitBreaker
 ```
 
@@ -258,7 +260,7 @@ python "${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/analyze_file.py" \
 ### 3. Structural Parse Only
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/ast_parser.py" src/services/auth.ts
+python "<plugin-root>/skills/analyze/scripts/ast_parser.py" src/services/auth.ts
 ```
 
 Emits the raw structural extraction (classes, functions, imports, exports) as JSON. Reports the active parser in `notes`.
@@ -270,28 +272,28 @@ Emits the raw structural extraction (classes, functions, imports, exports) as JS
 ### 4. Scan Documentation Health
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/doc_review.py" scan \
+python "<plugin-root>/skills/analyze/scripts/doc_review.py" scan \
   --path docs/ --output doc_health_report.json
 ```
 
 ### 5. Validate Links
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/doc_review.py" validate-links \
+python "<plugin-root>/skills/analyze/scripts/doc_review.py" validate-links \
   --path docs/ --fix
 ```
 
 ### 6. Verify Against Source Code
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/doc_review.py" verify \
+python "<plugin-root>/skills/analyze/scripts/doc_review.py" verify \
   --doc docs/agents/lifecycle.md --source src/agents/lifecycle.py
 ```
 
 ### 7. Update Navigation Indexes
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/doc_review.py" update-indexes \
+python "<plugin-root>/skills/analyze/scripts/doc_review.py" update-indexes \
   --search-index docs/00_navigation/SEARCH_INDEX.md \
   --by-domain docs/00_navigation/BY_DOMAIN.md
 ```
@@ -299,7 +301,7 @@ python "${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/doc_review.py" update-index
 ### 8. Full Documentation Maintenance
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/doc_review.py" full-maintenance \
+python "<plugin-root>/skills/analyze/scripts/doc_review.py" full-maintenance \
   --path docs/ --auto-fix --output doc_health_report.json
 ```
 
@@ -312,35 +314,35 @@ Executes: scan health, validate/fix links, identify obsolete files, update index
 ### 9. Analyze Comment Quality
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/rewrite_comments.py" analyze \
+python "<plugin-root>/skills/analyze/scripts/rewrite_comments.py" analyze \
   src/main.py --report
 ```
 
 ### 10. Scan Directory for Comment Issues
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/rewrite_comments.py" scan \
+python "<plugin-root>/skills/analyze/scripts/rewrite_comments.py" scan \
   src/ --recursive --issues-only
 ```
 
 ### 11. Generate Comment Health Report
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/rewrite_comments.py" report \
+python "<plugin-root>/skills/analyze/scripts/rewrite_comments.py" report \
   src/ --output comment_health.md
 ```
 
 ### 12. Rewrite Comments
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/rewrite_comments.py" rewrite \
+python "<plugin-root>/skills/analyze/scripts/rewrite_comments.py" rewrite \
   src/main.py --apply --backup
 ```
 
 ### 13. View Standards Reference
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/rewrite_comments.py" standards
+python "<plugin-root>/skills/analyze/scripts/rewrite_comments.py" standards
 ```
 
 ---

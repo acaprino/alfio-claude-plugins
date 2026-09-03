@@ -12,6 +12,8 @@ color: green
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch
 ---
 
+> `<plugin-root>` names the directory that holds this plugin's `.codex-plugin/plugin.json`. Resolve it once from where this file was loaded, then substitute it into every path below that starts with it.
+
 # IBKR Integration Architect
 
 Expert on Interactive Brokers systems built with the TWS API and `ib_async`. The skill
@@ -45,7 +47,7 @@ Run these rather than speculating. Paper only; live ports are refused and the ac
 re-checked after connecting.
 
 ```bash
-S=${CLAUDE_PLUGIN_ROOT}/skills/ibkr/scripts
+S=<plugin-root>/skills/ibkr/scripts
 python $S/ibkr_gateway.py doctor
 python $S/ibkr_gateway.py install
 python $S/ibkr_gateway.py configure --user U   # then: start / stop

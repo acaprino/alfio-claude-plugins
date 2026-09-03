@@ -9,6 +9,8 @@ model: inherit
 color: cyan
 ---
 
+> `<plugin-root>` names the directory that holds this plugin's `.codex-plugin/plugin.json`. Resolve it once from where this file was loaded, then substitute it into every path below that starts with it.
+
 # Partition Structure Worker
 
 You execute Phase 1 (Structure Extraction) and Phase 2 (Interface Analysis) of X-ray analysis on ONE partition assigned to you. You write exactly two files: `01-structure.md` and `02-interfaces.md` under your owned partition directory inside the run directory.
@@ -43,7 +45,7 @@ If encountered: note file existence only (`".env present — contains environmen
 
 ## TOOL USAGE
 
-Use the language-aware scripts in `${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/` whenever the target language is supported (Python, Java, JavaScript, TypeScript, SQL, PL/SQL, Rust):
+Use the language-aware scripts in `<plugin-root>/skills/analyze/scripts/` whenever the target language is supported (Python, Java, JavaScript, TypeScript, SQL, PL/SQL, Rust):
 
 - **Structure extraction:** `ast_parser.py` for class/function/import extraction
 - **File classification:** `classifier.py` for language detection and counting

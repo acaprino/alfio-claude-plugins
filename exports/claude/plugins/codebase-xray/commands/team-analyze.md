@@ -14,13 +14,22 @@ which one answered changes nothing a reader of the report can observe.
 
 Harness obligations, none of them optional:
 
-- Every worker runs in its own context (`isolation: required`). A worker never reads another
-  worker's result, and never runs in the coordinator's context.
-- Dispatch exactly the selected roles, once each: `partition-behavior-worker`, `partition-quality-worker`, `partition-structure-worker`, `partition-synthesizer`, `semantic-interconnect-mapper`
-- Hold the `all-delivered` barrier. Record every expected role as `delivered` or `failed` before anything
-  downstream runs. A missing result is a recorded failure, never a silently shorter report.
-- Run later phases only after their declared `needs` are satisfied.
+- Every dispatched worker runs in its own context. A worker never reads another worker's result,
+  and never runs in the coordinator's context.
+- Follow the dispatch plan below in phase order. A phase starts only after every phase it needs has
+  closed, and a phase closes only when every worker it dispatched is recorded `delivered` or
+  `failed`. A missing result is a recorded failure, never a silently shorter report.
+- Dispatch only roles from this set, and only as the plan says: `partition-behavior-worker`, `partition-quality-worker`, `partition-structure-worker`, `partition-synthesizer`, `semantic-interconnect-mapper`
 - Only the phase that declares the report artifact may write it.
+
+Dispatch plan:
+
+1. `partition-selection`: runs in the orchestrating context; produces `selection:partitions`.
+2. `structure`: one `partition-structure-worker` per item of `selection:partitions`, each in its own isolated context, in parallel where the host allows; barrier `all-delivered`; needs `partition-selection`; produces `artifact:partition-structure`.
+3. `behavior`: one `partition-behavior-worker` per item of `selection:partitions`, each in its own isolated context, in parallel where the host allows; barrier `all-delivered`; needs `structure`; consumes `artifact:partition-structure`; produces `artifact:partition-behavior`.
+4. `quality`: one `partition-quality-worker` per item of `selection:partitions`, each in its own isolated context, in parallel where the host allows; barrier `all-delivered`; needs `structure`; consumes `artifact:partition-structure`; produces `artifact:partition-quality`.
+5. `interconnect`: one `semantic-interconnect-mapper` in an isolated context; needs `behavior`; consumes `artifact:partition-behavior`; produces `artifact:interconnect-map`.
+6. `synthesis`: one `partition-synthesizer` in an isolated context; needs `behavior`, `quality`, `interconnect`; consumes `artifact:partition-structure`, `artifact:partition-behavior`, `artifact:partition-quality`, `artifact:interconnect-map`; produces `artifact:xray-report`.
 
 The phase graph, the isolation and join policies and the record schemas are in
 `contracts/team-analyze.workflow.toml`, which ships with this package.

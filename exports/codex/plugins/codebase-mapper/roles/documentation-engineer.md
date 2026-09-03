@@ -9,6 +9,8 @@ model: inherit
 color: cyan
 ---
 
+> `<plugin-root>` names the directory that holds this plugin's `.codex-plugin/plugin.json`. Resolve it once from where this file was loaded, then substitute it into every path below that starts with it.
+
 # GOLDEN RULES
 
 - NEVER document without reading code first - verify everything in source
@@ -35,7 +37,7 @@ color: cyan
 - Structure tutorials starting from zero assumptions about prior knowledge
 - When documenting architecture, briefly explain the "why" behind design choices visible in the code
 - Adapt depth and vocabulary to the target audience (ask the user if unclear)
-- Before writing, determine the audience and register. If the caller passes an audience, use it. Otherwise infer a lightweight profile (project type plus primary audience) from the source material and `${CLAUDE_PLUGIN_ROOT}/skills/codebase-mapper/references/audience-adaptation.md`. Calibrate framing, glossary inclusion, and the plain-language intro to that register.
+- Before writing, determine the audience and register. If the caller passes an audience, use it. Otherwise infer a lightweight profile (project type plus primary audience) from the source material and `<plugin-root>/skills/codebase-mapper/references/audience-adaptation.md`. Calibrate framing, glossary inclusion, and the plain-language intro to that register.
 
 ---
 

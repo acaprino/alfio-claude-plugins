@@ -5,6 +5,8 @@ description: >
   TRIGGER WHEN: the user wants to buy a domain, check domain prices, compare registrars, find domain deals, or search for .ai/.com names.
 ---
 
+> `<plugin-root>` names the directory that holds this plugin's `.codex-plugin/plugin.json`. Resolve it once from where this file was loaded, then substitute it into every path below that starts with it.
+
 <!-- upstream: ReScienceLab/opc-skills - skills/domain-hunter/SKILL.md -->
 <!-- Local drift: Step 3 (Find Promo Codes) uses WebSearch queries instead of upstream Python scripts -->
 
@@ -126,7 +128,7 @@ Present final recommendation in this format:
 For bulk availability checks, use the domain checker script:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/skills/domain-hunter/scripts/domain_checker.py" name1 name2 --tlds .com,.io
+python "<plugin-root>/skills/domain-hunter/scripts/domain_checker.py" name1 name2 --tlds .com,.io
 ```
 
 The script checks availability via RDAP. No API key and no third-party packages are needed. It defaults to `.com`, `.app`, `.io`, `.co`; pass `--tlds` to override. Each line reports `AVAILABLE`, `TAKEN`, or `UNKNOWN`, and UNKNOWN means the lookup failed rather than that the domain is free.

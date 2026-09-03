@@ -1,13 +1,15 @@
+> `<plugin-root>` names the directory that holds this plugin's `.codex-plugin/plugin.json`. Resolve it once from where this file was loaded, then substitute it into every path below that starts with it.
+
 # Gateway Verification
 
 Provisioning a disposable paper Gateway and using it to answer questions instead of guessing.
 
 Two scripts ship with this skill:
 
-- **`${CLAUDE_PLUGIN_ROOT}/skills/ibkr/scripts/ibkr_gateway.py`** downloads, installs,
+- **`<plugin-root>/skills/ibkr/scripts/ibkr_gateway.py`** downloads, installs,
   configures, starts and stops an IB Gateway pinned to paper trading. Standard library only, so it runs
   before anything else is installed.
-- **`${CLAUDE_PLUGIN_ROOT}/skills/ibkr/scripts/ibkr_probe.py`** connects to it and measures
+- **`<plugin-root>/skills/ibkr/scripts/ibkr_probe.py`** connects to it and measures
   venue behaviour: capability dumps, order-shape verdicts, compatibility matrices, bracket lifecycle
   transcripts, and message-code lookups. Requires `ib_async`.
 
@@ -32,7 +34,7 @@ deployment tooling, where it can be reviewed.
 ## Provisioning
 
 ```bash
-S=${CLAUDE_PLUGIN_ROOT}/skills/ibkr/scripts
+S=<plugin-root>/skills/ibkr/scripts
 
 python $S/ibkr_gateway.py doctor                       # what is present, which ports are open
 python $S/ibkr_gateway.py install --channel stable     # download + unattended install of Gateway and IBC

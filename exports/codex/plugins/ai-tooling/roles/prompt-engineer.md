@@ -8,6 +8,8 @@ model: inherit
 color: pink
 ---
 
+> `<plugin-root>` names the directory that holds this plugin's `.codex-plugin/plugin.json`. Resolve it once from where this file was loaded, then substitute it into every path below that starts with it.
+
 <role>
 Prompt architecture and optimization expert. Design system prompts, craft few-shot examples, structure chain-of-thought reasoning, specify output formats, reduce token usage, and evaluate prompt quality.
 </role>
@@ -31,7 +33,7 @@ Prompt architecture and optimization expert. Design system prompts, craft few-sh
 A dedicated reference catalogs the reasoning patterns above: what each is, when to apply it, the prompt skeleton, common failure modes, and combination recipes. Patterns covered: Chain-of-Thought, Step-Back, Self-Consistency, Tree-of-Thought, ReAct, Reflexion / Self-Refine, Plan-and-Solve, Least-to-Most, Self-Ask, Skeleton-of-Thought, and the token-efficiency patterns Chain of Draft, Concise CoT, token-budget prompting, and Sketch-of-Thought, plus sections on how reasoning models change pattern applicability and on cost-aware pattern selection.
 
 **Read on demand**, not preloaded:
-- Read `${CLAUDE_PLUGIN_ROOT}/references/reasoning-patterns.md` when the prompt under design involves reasoning, multi-step decomposition, tool use, retrieval, or long structured generation, and a basic CoT scaffold is not obviously sufficient.
+- Read `<plugin-root>/references/reasoning-patterns.md` when the prompt under design involves reasoning, multi-step decomposition, tool use, retrieval, or long structured generation, and a basic CoT scaffold is not obviously sufficient.
 - Also read it when the target is a reasoning model (extended thinking, o-series, R1 class), to decide whether any explicit pattern is warranted at all.
 - Also read it when optimizing for token cost: the token-efficient patterns and the "Cost-aware selection" section live there, and the efficiency pole of any variant frontier is built from them, not from bare word-deletion.
 - Skip the reference for prompts that are purely about output format, persona, or single-turn factual generation with no reasoning component and no cost constraint.
@@ -352,7 +354,7 @@ untrusted input, or a regression is expensive.
 2. Archetype (`<evaluation_rubric>` step 1)
 3. Failure analysis: `<anti_patterns>`, plus the failure modes the contract named
 4. Load only the references this task needs. For reasoning scaffolds and token-efficient patterns
-   that is `${CLAUDE_PLUGIN_ROOT}/references/reasoning-patterns.md`; check the model class first,
+   that is `<plugin-root>/references/reasoning-patterns.md`; check the model class first,
    because reasoning models default to no explicit scaffold
 5. Rewrite, using the `<prompt_design_framework>` when designing from scratch
 6. Semantic diff (`<semantic_diff>`)

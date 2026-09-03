@@ -14,6 +14,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from scripts.daodan.adapter import load_adapter  # noqa: E402
 from scripts.daodan.load import load_plugin  # noqa: E402
 
 PLUGIN = "dependency-audit"
@@ -77,13 +78,32 @@ class DependencyAuditPortTests(unittest.TestCase):
                     )
 
     def test_every_host_exposes_one_invocable_audit_workflow(self):
+        """The kernel body reaches every host whole; only the frontmatter is the host's.
+
+        Claude gets the kernel file verbatim. Codex and Copilot get host
+        frontmatter (`name`, `description`, and on Copilot `argument-hint`)
+        above the same body, with the compiler's generated-file comment in
+        between, so the comparison strips both frontmatters and asks for the
+        body itself.
+        """
+        kernel = normalized(KERNEL / "workflows/deps-audit.md")
+        kernel_body = kernel[kernel.index("\n---\n", 4) + 5 :].strip()
         for host, entrypoint in WORKFLOW_ENTRYPOINT.items():
             with self.subTest(host=host):
                 target = package(host) / entrypoint
                 self.assertTrue(target.is_file(), f"missing: {target}")
-                self.assertEqual(
-                    normalized(target), normalized(KERNEL / "workflows/deps-audit.md")
-                )
+                rendered = normalized(target)
+                if host == "claude":
+                    self.assertEqual(rendered, kernel)
+                    continue
+                # The two Claude placeholders are the one rewrite a body gets on
+                # another host; the adapter layout says what they become there.
+                layout = load_adapter(REPO_ROOT / "adapters", host).layout
+                expected = kernel_body.replace(
+                    "${CLAUDE_PLUGIN_ROOT}", layout["plugin_root_reference"]
+                ).replace("$ARGUMENTS", layout["arguments_reference"])
+                self.assertTrue(rendered.startswith("---\nname: deps-audit\n"), rendered[:60])
+                self.assertIn(expected, rendered)
 
     def test_the_kernel_declares_the_audit_contract(self):
         workflow = load_plugin(KERNEL).workflows[0]

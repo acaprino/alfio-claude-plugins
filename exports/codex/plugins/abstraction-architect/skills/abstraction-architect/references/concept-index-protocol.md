@@ -1,3 +1,5 @@
+> `<plugin-root>` names the directory that holds this plugin's `.codex-plugin/plugin.json`. Resolve it once from where this file was loaded, then substitute it into every path below that starts with it.
+
 # Concept Index Protocol
 
 The concept index is the bridge between the two modes. Global mode builds it. Diff mode reads it and answers "does this change introduce a second authority" by consulting an index instead of re-censusing the repository on every review.
@@ -86,7 +88,7 @@ Freshness is never binary. Discarding the whole index on any HEAD movement throw
 
 ## The script
 
-`${CLAUDE_PLUGIN_ROOT}/skills/abstraction-architect/scripts/concept_index.py`
+`<plugin-root>/skills/abstraction-architect/scripts/concept_index.py`
 
 **The script never discovers concepts.** It validates the schema, resolves the three notions of change above, intersects the delta with indexed file paths, and emits the partition. Every semantic judgement belongs to the agent.
 
@@ -106,7 +108,7 @@ SCRIPT (deterministic, Python)          AGENT (semantic, model)
 ### Invocation
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/skills/abstraction-architect/scripts/concept_index.py" \
+python "<plugin-root>/skills/abstraction-architect/scripts/concept_index.py" \
   status --index .abstraction-architect/concept-index.json --repo . \
   --changed-files /tmp/changed.txt
 ```

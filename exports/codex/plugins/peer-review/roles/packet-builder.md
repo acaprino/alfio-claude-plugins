@@ -7,6 +7,8 @@ model: inherit
 color: cyan
 ---
 
+> `<plugin-root>` names the directory that holds this plugin's `.codex-plugin/plugin.json`. Resolve it once from where this file was loaded, then substitute it into every path below that starts with it.
+
 # Packet Builder
 
 Builds the packet: the challenger's entire world (R3, R15). Everything the challenger
@@ -16,7 +18,7 @@ picks depth; it never picks sources.
 ## Mission
 
 Produce one file: `00-packet.md`, the nine sections of
-`${CLAUDE_PLUGIN_ROOT}/protocol/packet-anatomy.md`, in order, immutable once written.
+`<plugin-root>/protocol/packet-anatomy.md`, in order, immutable once written.
 No review, no opinion on the artifact's merits. Build the brief; do not argue it.
 
 ## Inputs
@@ -31,14 +33,14 @@ Read from the invoking command's prompt:
 
 ## Protocol
 
-Read `${CLAUDE_PLUGIN_ROOT}/protocol/packet-anatomy.md` before writing anything. Build
+Read `<plugin-root>/protocol/packet-anatomy.md` before writing anything. Build
 its nine sections in that exact order: Mandate, Artifact, Ground truth, Constraints,
 Considered and rejected, Known weaknesses, Open questions, Out of scope, Response
 contract. Never reorder, merge, or silently drop a section. An empty section is
 written empty, with its rule stated.
 
 For section 9 (Response contract), also read
-`${CLAUDE_PLUGIN_ROOT}/protocol/round-prompts.md` and copy its Round 1 block verbatim.
+`<plugin-root>/protocol/round-prompts.md` and copy its Round 1 block verbatim.
 Do not paraphrase, summarize, or trim it.
 
 ## Mechanical Extraction Rule

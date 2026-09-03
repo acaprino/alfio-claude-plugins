@@ -14,13 +14,25 @@ which one answered changes nothing a reader of the report can observe.
 
 Harness obligations, none of them optional:
 
-- Every worker runs in its own context (`isolation: required`). A worker never reads another
-  worker's result, and never runs in the coordinator's context.
-- Dispatch exactly the selected roles, once each: `api-contract-auditor`, `chicken-egg-detector`, `cleanup-auditor`, `code-auditor`, `data-integrity-auditor`, `distributed-flow-auditor`, `logic-integrity-auditor`, `premise-auditor`, `resource-lifecycle-auditor`, `security-auditor`, `temporal-resilience-auditor`, `ui-race-auditor`
-- Hold the `all-delivered` barrier. Record every expected role as `delivered` or `failed` before anything
-  downstream runs. A missing result is a recorded failure, never a silently shorter report.
-- Run later phases only after their declared `needs` are satisfied.
+- Every dispatched worker runs in its own context. A worker never reads another worker's result,
+  and never runs in the coordinator's context.
+- Follow the dispatch plan below in phase order. A phase starts only after every phase it needs has
+  closed, and a phase closes only when every worker it dispatched is recorded `delivered` or
+  `failed`. A missing result is a recorded failure, never a silently shorter report.
+- Dispatch only roles from this set, and only as the plan says: `api-contract-auditor`, `chicken-egg-detector`, `cleanup-auditor`, `code-auditor`, `data-integrity-auditor`, `distributed-flow-auditor`, `logic-integrity-auditor`, `premise-auditor`, `resource-lifecycle-auditor`, `security-auditor`, `temporal-resilience-auditor`, `ui-race-auditor`
 - Only the phase that declares the report artifact may write it.
+
+Dispatch plan:
+
+1. `scope`: runs in the orchestrating context; produces `artifact:review-brief`.
+2. `context-building`: runs in the orchestrating context; needs `scope`; consumes `artifact:review-brief`; produces `artifact:context-map`.
+3. `dimension-detection`: runs in the orchestrating context; needs `context-building`; consumes `artifact:context-map`; produces `selection:reviewers`.
+4. `independent-review`: one worker per item of `selection:reviewers`, each bound to the role the selection names (any role this plugin declares), each in its own isolated context, in parallel where the host allows; barrier `all-delivered`; needs `dimension-detection`; consumes `artifact:review-brief`, `artifact:context-map`; produces `artifact:reviewer-result`.
+5. `delivery-accounting`: runs in the orchestrating context; needs `independent-review`; consumes `artifact:reviewer-result`; produces `artifact:delivery-ledger`.
+6. `initial-consolidation`: runs in the orchestrating context; needs `delivery-accounting`; consumes `artifact:reviewer-result`, `artifact:delivery-ledger`; produces `artifact:initial-findings`.
+7. `cross-examination`: `logic-integrity-auditor` and `premise-auditor`, once each, each in its own isolated context, in parallel where the host allows; barrier `all-delivered`; needs `initial-consolidation`; consumes `artifact:initial-findings`; produces `artifact:cross-examination`.
+8. `consolidation`: one `code-auditor` in an isolated context; needs `cross-examination`; consumes `artifact:initial-findings`, `artifact:cross-examination`, `artifact:delivery-ledger`; produces `artifact:final-report`.
+9. `report-delivery`: runs in the orchestrating context; needs `consolidation`; consumes `artifact:final-report`.
 
 The phase graph, the isolation and join policies and the record schemas are in
 `contracts/team-review.workflow.toml`, which ships with this package.

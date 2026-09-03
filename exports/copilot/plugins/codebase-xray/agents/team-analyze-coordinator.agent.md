@@ -1,9 +1,12 @@
 ---
 name: team-analyze-coordinator
 description: 'Multi-agent X-ray for large or multi-workspace codebases: splits the project into its natural units, works them in parallel, and publishes one consolidated result set to the .deep-dive/ root. TRIGGER WHEN: the user wants X-ray analysis on a monorepo, or a cross-partition interconnection map produced as part of the same flow. DO NOT TRIGGER WHEN: the target is a single small directory, or the user wants a documentation-only audit (use /codebase-xray:analyze, optionally with --docs-only).'
-tools: ['agent', 'search']
+tools: ['agent', 'edit', 'runCommands', 'search']
 agents: ['partition-behavior-worker', 'partition-quality-worker', 'partition-structure-worker', 'partition-synthesizer', 'semantic-interconnect-mapper']
 ---
+
+> `${PLUGIN_ROOT}` is this plugin's install directory, the one that holds its `plugin.json`. If the host has not expanded it, resolve it from where this file was loaded.
+> Arguments: `<target> [--critical] [--comments] [--depth=lite|full] [--partition <path>] [--partition-name <name>] [--skip-interconnect] [--skip-synthesis] [--run-name <name>] [--yes]`. Wherever `<arguments>` appears below, substitute the text the user typed after the prompt name.
 
 # team-analyze
 
@@ -12,17 +15,27 @@ agents: ['partition-behavior-worker', 'partition-quality-worker', 'partition-str
 ## Execution harness
 
 Selected topology: **parallel-subagents**. Dispatch the workers listed in this agent's `agents` allowlist and
-nothing else. Request them in parallel; serializing them is allowed and changes no part of the
-contract.
+nothing else. Request them in parallel where the plan allows it; serializing them is permitted and
+changes no part of the contract.
 
 Harness obligations, none of them optional:
 
-- Every worker runs in its own context (`isolation: required`), and never reads another worker's
-  result.
-- Dispatch exactly the selected roles, once each: `partition-behavior-worker`, `partition-quality-worker`, `partition-structure-worker`, `partition-synthesizer`, `semantic-interconnect-mapper`
-- Hold the `all-delivered` barrier: every expected worker is recorded `delivered` or `failed` before
-  anything downstream runs.
+- Every dispatched worker runs in its own context, and never reads another worker's result.
+- Follow the dispatch plan below in phase order. A phase starts only after every phase it needs has
+  closed, and a phase closes only when every worker it dispatched is recorded `delivered` or
+  `failed`. A worker reports delivered or failed in its final message; there is no shared task
+  list, so this coordinator keeps that record itself.
+- Dispatch only roles from this set, and only as the plan says: `partition-behavior-worker`, `partition-quality-worker`, `partition-structure-worker`, `partition-synthesizer`, `semantic-interconnect-mapper`
 - Only the phase that declares the report artifact may write it.
+
+Dispatch plan:
+
+1. `partition-selection`: runs in the orchestrating context; produces `selection:partitions`.
+2. `structure`: one `partition-structure-worker` per item of `selection:partitions`, each in its own isolated context, in parallel where the host allows; barrier `all-delivered`; needs `partition-selection`; produces `artifact:partition-structure`.
+3. `behavior`: one `partition-behavior-worker` per item of `selection:partitions`, each in its own isolated context, in parallel where the host allows; barrier `all-delivered`; needs `structure`; consumes `artifact:partition-structure`; produces `artifact:partition-behavior`.
+4. `quality`: one `partition-quality-worker` per item of `selection:partitions`, each in its own isolated context, in parallel where the host allows; barrier `all-delivered`; needs `structure`; consumes `artifact:partition-structure`; produces `artifact:partition-quality`.
+5. `interconnect`: one `semantic-interconnect-mapper` in an isolated context; needs `behavior`; consumes `artifact:partition-behavior`; produces `artifact:interconnect-map`.
+6. `synthesis`: one `partition-synthesizer` in an isolated context; needs `behavior`, `quality`, `interconnect`; consumes `artifact:partition-structure`, `artifact:partition-behavior`, `artifact:partition-quality`, `artifact:interconnect-map`; produces `artifact:xray-report`.
 
 The phase graph and record schemas ship with this package in
 `contracts/team-analyze.workflow.toml`.
@@ -60,7 +73,7 @@ Orchestrate a partitioned multi-agent codebase analysis plus global interconnect
 ## Pre-flight Checks
 
 1. Confirm the harness can dispatch isolated workers; stop if it cannot
-2. Parse `$ARGUMENTS`:
+2. Parse `<arguments>`:
    - `<target>`: directory to analyze (default: cwd)
    - `--critical`: prioritize auth/payment/persistence in Phase 3-4
    - `--comments`: activate comment audit in Phase 6
@@ -142,7 +155,7 @@ Otherwise, run the detection chain (first rule that matches wins):
 3. **Layer split:**
    - `src/{backend,frontend}`, `src/{api,web}`, `src/{server,client}`, or root-level `backend/` + `frontend/`
 4. **Language split:**
-   - Use `${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/classifier.py` to count files per language
+   - Use `${PLUGIN_ROOT}/skills/analyze/scripts/classifier.py` to count files per language
    - If ≥2 languages with ≥20 files each: partition per language (`*.py` -> "python", `*.ts/*.tsx` -> "typescript")
 5. **Fallback:** single partition wrapping the entire target, name = `root`
 
@@ -227,8 +240,8 @@ Sibling partitions (for cross-partition citation lookup if needed):
 
 Required reads before writing:
   - <P_i.path>: all source files within scope
-  - ${CLAUDE_PLUGIN_ROOT}/skills/analyze/SKILL.md
-  - Scripts at ${CLAUDE_PLUGIN_ROOT}/skills/analyze/scripts/
+  - ${PLUGIN_ROOT}/skills/analyze/SKILL.md
+  - Scripts at ${PLUGIN_ROOT}/skills/analyze/scripts/
 
 Completion: when both owned files are written, report delivered and name them. If you could not write them, report failed and say why.
 ```

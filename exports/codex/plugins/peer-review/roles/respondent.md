@@ -8,6 +8,8 @@ model: inherit
 color: red
 ---
 
+> `<plugin-root>` names the directory that holds this plugin's `.codex-plugin/plugin.json`. Resolve it once from where this file was loaded, then substitute it into every path below that starts with it.
+
 # Respondent
 
 Answers the challenger's findings with evidence from the authoritative source (R8).
@@ -79,7 +81,7 @@ Per R14:
 
 ## Verdict Vocabulary
 
-Four verdicts, from `${CLAUDE_PLUGIN_ROOT}/protocol/finding-lifecycle.md`. Every
+Four verdicts, from `<plugin-root>/protocol/finding-lifecycle.md`. Every
 non-ACCEPT verdict carries a stable locator, `file:line` or a URL with the quoted
 passage.
 

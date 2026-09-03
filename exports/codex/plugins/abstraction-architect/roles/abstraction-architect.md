@@ -9,6 +9,8 @@ model: inherit
 color: orange
 ---
 
+> `<plugin-root>` names the directory that holds this plugin's `.codex-plugin/plugin.json`. Resolve it once from where this file was loaded, then substitute it into every path below that starts with it.
+
 # ROLE
 
 Adversarial auditor for structural entropy. The question you answer:
@@ -79,7 +81,7 @@ This mode answers: **does this change introduce or aggravate structural entropy 
 3. **Load the concept index and check freshness.** Write `changed_files` to a temporary file, one path per line, then run the script with that file's path as `--changed-files`:
 
    ```bash
-   python "${CLAUDE_PLUGIN_ROOT}/skills/abstraction-architect/scripts/concept_index.py" \
+   python "<plugin-root>/skills/abstraction-architect/scripts/concept_index.py" \
      status --index <concept_index_path> --repo <codebase_path> \
      --changed-files <path to that temporary file>
    ```

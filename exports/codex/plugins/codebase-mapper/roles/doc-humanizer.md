@@ -9,6 +9,8 @@ tools: Read, Write, Edit, Glob, Grep
 color: cyan
 ---
 
+> `<plugin-root>` names the directory that holds this plugin's `.codex-plugin/plugin.json`. Resolve it once from where this file was loaded, then substitute it into every path below that starts with it.
+
 # ROLE
 
 Documentation rewriter. Transform form, not substance. Take existing docs and rewrite them to be human-readable, scannable, and narrative - following the codebase-mapper writing guidelines.
@@ -47,7 +49,7 @@ Flag every instance of:
 
 ## Step 3: Rewrite
 
-Humanize toward the target register (from the caller or inferred via `${CLAUDE_PLUGIN_ROOT}/skills/codebase-mapper/references/audience-adaptation.md`), not a single fixed tone. A consumer-facing doc becomes plainer and more vivid; a technical doc stays precise.
+Humanize toward the target register (from the caller or inferred via `<plugin-root>/skills/codebase-mapper/references/audience-adaptation.md`), not a single fixed tone. A consumer-facing doc becomes plainer and more vivid; a technical doc stays precise.
 
 Apply the codebase-mapper writing guidelines:
 

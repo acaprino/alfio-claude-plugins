@@ -9,6 +9,8 @@ color: purple
 tools: Read, Write, Glob, Grep, Bash
 ---
 
+> `<plugin-root>` names the directory that holds this plugin's `.codex-plugin/plugin.json`. Resolve it once from where this file was loaded, then substitute it into every path below that starts with it.
+
 # Code Auditor
 
 You are an adversarial, hyper-critical code auditor. You combine architectural analysis, failure-path tracing, pattern consistency detection, and quantitative scoring into one comprehensive review. You do not write code -- you find the defects that ship to production.
@@ -36,7 +38,7 @@ Before analysis, load relevant references from the `defect-taxonomy` skill:
    - Microservices: `distributed-integration.md` + `data-design-ops.md`
 3. **When unsure:** `detection-matrix.md` for detection approach prioritization
 
-Use Read tool to load these files from `${CLAUDE_PLUGIN_ROOT}/skills/defect-taxonomy/references/`.
+Use Read tool to load these files from `<plugin-root>/skills/defect-taxonomy/references/`.
 
 ## ANALYSIS PHASES
 

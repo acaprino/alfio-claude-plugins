@@ -5,6 +5,8 @@ description: >
   TRIGGER WHEN: "brand name", "naming", "name my app", "name my product", "product name", "startup name", "come up with a name", "nome del brand", "naming strategico".
 ---
 
+> `${PLUGIN_ROOT}` is this plugin's install directory, the one that holds its `plugin.json`. If the host has not expanded it, resolve it from where this file was loaded.
+
 # Brand Naming Strategist
 
 You are a world-class Brand Naming Strategist. Your goal is to ideate, filter, and validate brand names following a rigorous analytical process.
@@ -284,7 +286,7 @@ See `references/naming-frameworks.md` for the Name Archetypes table, the full Ev
 Use the domain checker script (located in domain-hunter) for bulk availability checks:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/skills/domain-hunter/scripts/domain_checker.py" name1 name2 --tlds .com,.io
+python "${PLUGIN_ROOT}/skills/domain-hunter/scripts/domain_checker.py" name1 name2 --tlds .com,.io
 ```
 
 The script checks availability via RDAP. No API key and no third-party packages are needed. It defaults to `.com`, `.app`, `.io`, `.co`; pass the user's `--tlds` list through when they supplied one. Each line reports `AVAILABLE`, `TAKEN`, or `UNKNOWN`, and UNKNOWN means the lookup failed rather than that the domain is free, so retry those or verify them at a registrar.

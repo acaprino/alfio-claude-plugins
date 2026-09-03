@@ -50,11 +50,30 @@ Codex suffixes workflow directories with `-workflow` on purpose: it is the one h
 
 ## Harness rendering
 
-A workflow whose phases fan out is not copied, it is rendered through that host's harness template, which wraps the neutral body with the dispatch obligations the contract requires: isolated worker contexts, exactly-once dispatch of the selected roles, the delivery barrier, and the single-writer rule for the report. The templates are `claude/templates/team-workflow.md.tmpl`, `copilot/templates/coordinator.agent.md.tmpl` (plus `worker.agent.md.tmpl` for the roles) and `codex/templates/subagent-workflow.SKILL.md.tmpl`.
+A workflow whose phases fan out is not copied, it is rendered through that host's harness template, which wraps the neutral body with the dispatch obligations the contract requires: isolated worker contexts, the delivery barrier, the single-writer rule for the report, and a **dispatch plan**. The templates are `claude/templates/team-workflow.md.tmpl`, `copilot/templates/coordinator.agent.md.tmpl` (plus `worker.agent.md.tmpl` for the roles) and `codex/templates/subagent-workflow.SKILL.md.tmpl`.
+
+The dispatch plan (`${dispatch_plan}`) is one numbered line per phase of the sidecar, in order: how many workers (once each for a static `fanout`, one per item for a `fanout_from` selection, one for a single `role`, none for a shared phase), in what context, at what concurrency, behind which barrier, and what the phase needs, consumes and produces. It replaced a header that said "dispatch the selected roles, once each", which was right for one wave of reviewers and wrong for `codebase-xray:team-analyze`, which fans out one worker per partition across three waves: on Codex and Copilot that header was the only dispatch guidance, and read literally it produced one structure worker for the whole codebase.
+
+The Copilot coordinator's `tools` line is derived, not fixed: every capability the plugin requires whose binding carries a `value` contributes that tool, and `repository.read` and `roles.dispatch` are always included. That is why `roles.dispatch` carries `value = "agent"` in the Copilot bindings. A coordinator that writes run state, runs a detection script and publishes a mirror gets `edit` and `runCommands` because its kernel declared `repository.write` and `shell.execute`, and a hand-written `['agent', 'search']` would have left it unable to do any of that.
 
 Copilot is the only host that rewrites role frontmatter: the compiler maps Claude-shaped tool names onto Copilot's (`Read`/`Glob`/`Grep` to `search`, `Write`/`Edit` to `edit`, `Bash` to `runCommands`, `WebFetch`/`WebSearch` to `fetch`, `Agent`/`Task` to `agent`) and flattens the description to a quoted one-liner. Frontmatter scalars are rendered inline, so a description carrying a colon or a stray quote is what breaks a whole block: that failure mode is the reason `_one_line` exists.
 
 Substitution is `string.Template` with an allowlisted context (`scripts/daodan/templates.py`). An unknown placeholder is an error, never an empty string, and a layout path that escapes its package is refused.
+
+## The two Claude placeholders a kernel may write
+
+A kernel body says `${CLAUDE_PLUGIN_ROOT}/skills/x/scripts/y.py` because the bundled-path linter requires that form: it is what survives installation on Claude. It says `$ARGUMENTS` because that is what a Claude command expands. Neither is defined on Copilot or Codex, so the renderer rewrites both per host from four layout keys, and inserts the host's explanation once, after the frontmatter, in every Markdown file that uses the reference:
+
+| key | claude | copilot | codex |
+|---|---|---|---|
+| `plugin_root_reference` | `${CLAUDE_PLUGIN_ROOT}` (itself) | `${PLUGIN_ROOT}`, which Copilot CLI documents for paths inside the plugin directory | `<plugin-root>`, a marker the agent resolves once: Codex hands `PLUGIN_ROOT` to hook commands only |
+| `plugin_root_note` | none | names `plugin.json` as the directory to find | names `.codex-plugin/plugin.json` |
+| `arguments_reference` | `$ARGUMENTS` (itself) | `<arguments>` | `<arguments>` |
+| `arguments_note` | none | "substitute what the user typed after the prompt name" | "... after the skill name" |
+
+Claude's keys map each placeholder onto itself and carry no note, so its packages are unchanged by this pass. Only the `${CLAUDE_PLUGIN_ROOT}` form is rewritten; a bare `$CLAUDE_PLUGIN_ROOT` would pass through and fail `tests/test_daodan_host_rendering.py`.
+
+A workflow that does not fan out is rendered under host frontmatter from the `workflow_frontmatter` layout key, which lists the keys the host reads in order: Claude has none and gets the kernel file verbatim, Codex gets `name` and `description` with the argument hint moved into the body as an `Arguments:` line, Copilot gets `name`, `description` and `argument-hint`, which its prompt files support.
 
 Which strategy each host selected is recorded per package in `.daodan-provenance.json`, together with the kernel digest and any overrides applied. Topology names may differ between hosts; contract assertions may not.
 

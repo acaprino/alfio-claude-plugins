@@ -1,3 +1,5 @@
+> Wherever `<arguments>` appears below, substitute the text the user typed after the prompt name.
+
 # Code-review fix loop (Step 7)
 
 The complete `--fix` / `--commit` workflow for `/senior-review:code-review`:
@@ -129,5 +131,5 @@ After the fix-review cycle completes (clean verdict or user chose to stop):
 **On main/master:**
 - **Continue**
 
-$ARGUMENTS
+<arguments>
 

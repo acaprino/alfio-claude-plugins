@@ -1,9 +1,11 @@
 ---
 name: team-review-coordinator
 description: 'Six-phase pipeline. Builds X-ray and interconnect context first, then runs specialized dimensions in parallel so cross-component logic bugs surface, not just local ones. TRIGGER WHEN: the user wants a multi-reviewer review of a whole codebase or a large change, or asks for the deepest review available.'
-tools: ['agent', 'search']
+tools: ['agent', 'edit', 'runCommands', 'search']
 agents: ['api-contract-auditor', 'chicken-egg-detector', 'cleanup-auditor', 'code-auditor', 'data-integrity-auditor', 'distributed-flow-auditor', 'logic-integrity-auditor', 'premise-auditor', 'resource-lifecycle-auditor', 'security-auditor', 'temporal-resilience-auditor', 'ui-race-auditor']
 ---
+
+> Arguments: `<target> [--reviewers auto|security,performance,...] [--base-branch main] [--all] [--deep] [--no-context] [--fast] [--rigorous]`. Wherever `<arguments>` appears below, substitute the text the user typed after the prompt name.
 
 # team-review
 
@@ -12,17 +14,30 @@ agents: ['api-contract-auditor', 'chicken-egg-detector', 'cleanup-auditor', 'cod
 ## Execution harness
 
 Selected topology: **parallel-subagents**. Dispatch the workers listed in this agent's `agents` allowlist and
-nothing else. Request them in parallel; serializing them is allowed and changes no part of the
-contract.
+nothing else. Request them in parallel where the plan allows it; serializing them is permitted and
+changes no part of the contract.
 
 Harness obligations, none of them optional:
 
-- Every worker runs in its own context (`isolation: required`), and never reads another worker's
-  result.
-- Dispatch exactly the selected roles, once each: `api-contract-auditor`, `chicken-egg-detector`, `cleanup-auditor`, `code-auditor`, `data-integrity-auditor`, `distributed-flow-auditor`, `logic-integrity-auditor`, `premise-auditor`, `resource-lifecycle-auditor`, `security-auditor`, `temporal-resilience-auditor`, `ui-race-auditor`
-- Hold the `all-delivered` barrier: every expected worker is recorded `delivered` or `failed` before
-  anything downstream runs.
+- Every dispatched worker runs in its own context, and never reads another worker's result.
+- Follow the dispatch plan below in phase order. A phase starts only after every phase it needs has
+  closed, and a phase closes only when every worker it dispatched is recorded `delivered` or
+  `failed`. A worker reports delivered or failed in its final message; there is no shared task
+  list, so this coordinator keeps that record itself.
+- Dispatch only roles from this set, and only as the plan says: `api-contract-auditor`, `chicken-egg-detector`, `cleanup-auditor`, `code-auditor`, `data-integrity-auditor`, `distributed-flow-auditor`, `logic-integrity-auditor`, `premise-auditor`, `resource-lifecycle-auditor`, `security-auditor`, `temporal-resilience-auditor`, `ui-race-auditor`
 - Only the phase that declares the report artifact may write it.
+
+Dispatch plan:
+
+1. `scope`: runs in the orchestrating context; produces `artifact:review-brief`.
+2. `context-building`: runs in the orchestrating context; needs `scope`; consumes `artifact:review-brief`; produces `artifact:context-map`.
+3. `dimension-detection`: runs in the orchestrating context; needs `context-building`; consumes `artifact:context-map`; produces `selection:reviewers`.
+4. `independent-review`: one worker per item of `selection:reviewers`, each bound to the role the selection names (any role this plugin declares), each in its own isolated context, in parallel where the host allows; barrier `all-delivered`; needs `dimension-detection`; consumes `artifact:review-brief`, `artifact:context-map`; produces `artifact:reviewer-result`.
+5. `delivery-accounting`: runs in the orchestrating context; needs `independent-review`; consumes `artifact:reviewer-result`; produces `artifact:delivery-ledger`.
+6. `initial-consolidation`: runs in the orchestrating context; needs `delivery-accounting`; consumes `artifact:reviewer-result`, `artifact:delivery-ledger`; produces `artifact:initial-findings`.
+7. `cross-examination`: `logic-integrity-auditor` and `premise-auditor`, once each, each in its own isolated context, in parallel where the host allows; barrier `all-delivered`; needs `initial-consolidation`; consumes `artifact:initial-findings`; produces `artifact:cross-examination`.
+8. `consolidation`: one `code-auditor` in an isolated context; needs `cross-examination`; consumes `artifact:initial-findings`, `artifact:cross-examination`, `artifact:delivery-ledger`; produces `artifact:final-report`.
+9. `report-delivery`: runs in the orchestrating context; needs `consolidation`; consumes `artifact:final-report`.
 
 The phase graph and record schemas ship with this package in
 `contracts/team-review.workflow.toml`.
@@ -68,7 +83,7 @@ Before starting, invoke these skills to inform the review process:
 ## Pre-flight Checks
 
 1. Confirm the harness can dispatch isolated reviewers; stop if it cannot.
-2. Parse `$ARGUMENTS`:
+2. Parse `<arguments>`:
    - `<target>`: file path, directory, git diff range (e.g., `main...HEAD`), or PR number (e.g., `#123`)
    - `--reviewers`: comma-separated dimensions OR `auto` (default: `auto`)
    - `--base-branch`: base branch for diff comparison (default: `main`)
@@ -85,7 +100,7 @@ Before starting, invoke these skills to inform the review process:
 
    ```json
    {
-     "target": "$ARGUMENTS",
+     "target": "<arguments>",
      "status": "in_progress",
      "flags": {
        "reviewers": "auto",
