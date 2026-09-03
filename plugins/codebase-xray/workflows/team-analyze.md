@@ -3,7 +3,7 @@ description: >
   Multi-agent X-ray for large or multi-workspace codebases: splits the project into its natural units, works them in parallel, and publishes one consolidated result set to the .deep-dive/ root.
   TRIGGER WHEN: the user wants X-ray analysis on a monorepo, or a cross-partition interconnection map produced as part of the same flow.
   DO NOT TRIGGER WHEN: the target is a single small directory, or the user wants a documentation-only audit (use /codebase-xray:analyze, optionally with --docs-only).
-argument-hint: "<target> [--critical] [--comments] [--depth=lite|full] [--partition <path>] [--partition-name <name>] [--skip-interconnect] [--skip-synthesis] [--run-name <name>] [--yes]"
+argument-hint: "<target> [--critical] [--comments] [--depth=lite|full] [--partition <path>] [--partition-name <name>] [--skip-interconnect] [--skip-synthesis] [--run-name <name>] [--yes] [--update] [--no-update]"
 ---
 
 ## Execution requirements
@@ -48,12 +48,22 @@ Orchestrate a partitioned multi-agent codebase analysis plus global interconnect
    - `--skip-synthesis`: skip Phase 2 AND Phase 3
    - `--run-name <name>`: explicit run identity for concurrent or repeated analyses
    - `--yes`: auto-accept partition checkpoint
+   - `--update`: require an update base; error out if no usable parent team run exists (the checkpoint still offers both the update and a full run)
+   - `--no-update`: skip parent detection and run every partition fresh
    - REJECT with explicit error if `--phase N` or `--docs-only` are passed (suggest classic `/codebase-xray:analyze`)
 3. Resolve the run (see `## Concurrent Runs Model` in the `codebase-xray:xray-method` skill):
    - Compute `run-id`: `--run-name` (normalized to `[a-z0-9-]`) or `<slug-of-target>-<YYYYMMDD-HHMMSS>`; append `-2`, `-3`, ... on collision
    - Set `RUN_DIR = .deep-dive/runs/<run-id>`
    - Read `.deep-dive/runs.json`: list active runs; offer to resume a matching in-progress team run or start this new run alongside. A root `state.json` with `current_phase` and no `runs.json` is a pre-runs legacy layout: offer to migrate it into `.deep-dive/runs/legacy-<date>/` first
    - Register the run in `runs.json` (`read-modify-write`, append `{run_id, target, mode: "team", started_at}` to `active`)
+4. Detect an update base, unless `--no-update` was passed. From `runs.json`, take `latest_completed`. It is a candidate parent when it is a completed **team** run, its `target` normalizes to this target, and `.deep-dive/runs/<id>/snapshot/manifest.json` exists. With a candidate, run the change set once over the whole target:
+
+   ```bash
+   python ${CLAUDE_PLUGIN_ROOT}/skills/xray-method/scripts/snapshot.py diff \
+     .deep-dive/runs/<parent-id> <target> --out $RUN_DIR --flags '<this run's flags as JSON>'
+   ```
+
+   Hold `changes.json` for the partition checkpoint. With `--update` and no candidate, stop and say which condition failed (no completed run for this target, a completed run that is not team mode, or a parent with no manifest), and that a full run is the way to create one. Never fabricate a parent. With a candidate present, `--update` changes nothing else: the checkpoint still presents the update and full-run options and waits for a choice, unless `--yes` auto-accepts.
 
 ## Phase 0: Run Setup + Partition Detection
 
@@ -76,6 +86,10 @@ Create `$RUN_DIR/` and `$RUN_DIR/state.json`:
     "comments": false,
     "depth": "full"
   },
+  "parent_run": null,
+  "base_snapshot_created_at": null,
+  "git": null,
+  "incremental": null,
   "partitions": [],
   "phases": {
     "phase_0_detection": "pending",
@@ -89,6 +103,10 @@ Create `$RUN_DIR/` and `$RUN_DIR/state.json`:
   "completed_at": null
 }
 ```
+
+Pre-flight point 4 already ran the change set before this file is written. On an incremental run, `parent_run` (the parent's run-id), `base_snapshot_created_at` (the parent manifest's `created_at`) and `incremental` (holding `{affected_files, files_in_snapshot}` from the change set's `totals`) are written here with their real values, not left for later. `git` cannot follow that rule: the snapshot that supplies it is not written until after the checkpoint is accepted, so it starts `null` here and is copied in right after that write. A full run leaves `parent_run` and `incremental` as `null` and still records `git` and the snapshot: every run is a possible parent.
+
+Register `parent_run` in the run's `runs.json` entry as well, `null` for a full run.
 
 ### Project Knowledge Discovery (X-ray Phase 0)
 
@@ -135,7 +153,22 @@ Normalize names: lowercase, separators -> hyphen, strip accents, allowed chars `
 
 For each partition, compute `file_count` and `loc_estimate` (use `classifier.py` + `wc -l` or `cloc` if available).
 
+### Partition-level update
+
+The unit of an update here is the partition, deliberately coarser than the claim-level update of `/codebase-xray:analyze`. A partition either changed or it did not, and a touched partition is worth re-analyzing whole: threading a change set through every worker would put it into every spawn prompt for a saving the partition split already provides most of.
+
+Available only when pre-flight point 4 found a candidate parent and its change set does not recommend `full`; the checkpoint below still presents it as a choice, never as a forced path.
+
+1. **The partition set must match.** The names this detection produced must be the same set as the parent's `state.json -> partitions`. Any difference means a full run, with the difference named at the checkpoint. A partition that appeared, vanished or was renamed changes what every other partition's boundaries mean.
+2. **Assign the affected files.** For each partition, its affected files are the `affected_files` of the change set that fall under its path.
+3. **A partition with no affected file is copied**, whole, from `.deep-dive/runs/<parent-id>/partitions/<name>/` into `$RUN_DIR/partitions/<name>/`, once the checkpoint's update option is accepted. Mark its `partitions[i].status` as `"done"` directly: Phase 1's per-partition loop, in both waves, dispatches no worker for a partition already `"done"` when Wave 1 begins.
+4. **A partition with at least one affected file is re-analyzed**, both waves, exactly as in a fresh run. Its workers receive their normal prompts and never see the change set.
+5. **Synthesis and the interconnect map always run**, over the mix of copied and fresh partition output. Both are cross-partition by construction, so neither can be carried.
+6. **`changes.md` holds the change set's three mechanical sections plus a `## Partitions` table** naming each partition as copied or re-analyzed.
+
 ### Checkpoint
+
+When a partition-level update applies, present each partition as `unchanged (copied)` or `re-analyzed ([N] affected files)`, with the parent run-id and the change set totals above the table, and offer the update as option 1 and a full run as option 2. When the change set recommends `full`, or the partition set does not match the parent's, present the reasons (from `changes.json`'s `reasons`, plus "the partition set changed since the parent run" when that is why) and reverse the options. Otherwise present the block below unchanged.
 
 Present to the user:
 
@@ -174,6 +207,15 @@ If `[m]`, prompt for paths and optional names.
 If `[c]`, set state to `cancelled`, remove the run from `active` in `runs.json`, and exit.
 
 Finalize `partitions` array in `state.json` with `{name, path, language_primary, file_count, loc_estimate, status: "pending"}` for each. Mark `phase_0_detection: "complete"`.
+
+Immediately after the checkpoint is accepted, write this run's snapshot over the whole target, before any worker is dispatched:
+
+```bash
+python ${CLAUDE_PLUGIN_ROOT}/skills/xray-method/scripts/snapshot.py write \
+  <target> --out $RUN_DIR/snapshot/manifest.json
+```
+
+It is global, like Phase 0: no partition owns it, and no worker writes to it. Copy the manifest's own `git` field into `$RUN_DIR/state.json`'s `git` field right after: it is the only `state.json` field this step fills, since `parent_run`, `base_snapshot_created_at` and `incremental` were already written with their real values when `state.json` was created. When the accepted option is a partition-level update, apply `### Partition-level update` now, before Phase 1 begins.
 
 ## Phase 1: Partition Workers (2 waves)
 
