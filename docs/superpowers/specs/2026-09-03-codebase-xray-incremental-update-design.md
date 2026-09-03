@@ -208,8 +208,8 @@ Mechanical, before any phase runs:
 
 ### 6.4 Execution order, incremental depth
 
-1. **Phase 0** runs in full, exactly as today. It is cheap and its leads shape what the re-derivation looks for. Its output overwrites the carried `knowledge/`.
-2. **Snapshot** is written now, over the confirmed target (section 4.1). It records the tree this run reads.
+1. **Snapshot** is written first, over the confirmed target (section 4.1). It records the tree this run reads.
+2. **Phase 0** runs in full, exactly as today. It is cheap and its leads shape what the re-derivation looks for. Its output overwrites the carried `knowledge/`.
 3. **Phases 1 to 6, in order, only where markers exist.** For each phase file in order: open it, find every `xray:stale` marker, and for each one re-derive the claim by reading the affected files it cites and nothing else. Replace the claim, or delete it when the reason is a removal, and delete the marker. Then add claims for the symbols listed under `## Added symbols` for that phase file. A phase file with no marker and no added symbol is not opened by the model at all.
 4. **Reading budget.** The model reads only `affected_files`. When re-deriving a flow or a contract genuinely requires a file outside that set (a callee the changed code now reaches), reading it is allowed and is logged under `## Extra reads` in `changes.md` with the claim that needed it. That log is how a future threshold gets tuned from evidence.
 5. **Flows.** A flow description that cites even one affected symbol is re-derived as a whole, because flows cite every step and a step that changed can change the steps after it.
@@ -232,7 +232,7 @@ Mechanical, before any phase runs:
 
 A full run writes `parent_run: null` and `incremental: null`, and still writes `git` and the snapshot: every run from now on is a possible parent.
 
-`changes.md` after the model's pass has these sections in this order: `## Code changes`, `## Blast radius`, `## Affected claims` (from the script), then `## Claims confirmed` (affected claims re-derived to the same conclusion), `## Claims revised` (old and new text, one row each), `## Claims retired`, `## Claims added`, `## Extra reads`. The first line under the title states the parent run and the commit range when git is present.
+`changes.md` after the model's pass has these sections in this order: `## Code changes`, `## Blast radius`, `## Affected claims` (from the script), `## Added symbols` (from the carry step), then `## Claims confirmed` (affected claims re-derived to the same conclusion), `## Claims revised` (old and new text, one row each), `## Claims retired`, `## Claims added`, `## Extra reads`. The first line under the title states the parent run and the commit range when git is present.
 
 `runs.json` entries gain `parent_run` (`null` for a full run). The registry schema number stays 2: the field is additive and readers that ignore it lose nothing. The chain of `parent_run` values is the history; no other structure is added.
 
