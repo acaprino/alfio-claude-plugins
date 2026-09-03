@@ -23,6 +23,7 @@
 
   ```
   Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+  Claude-Session: https://claude.ai/code/session_01FyH29UfafjSKzwa1Qw4xM5
   ```
 
 - **Run the tests from the repository root** with `python -m unittest tests.test_xray_snapshot -v`. The full gate is `python -m unittest discover -s tests`.
@@ -217,7 +218,8 @@ git add plugins/codebase-xray/skills/xray-method/scripts/languages/base.py \
         tests/test_xray_snapshot.py
 git commit -m "Record symbol end lines where the parser knows them
 
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01FyH29UfafjSKzwa1Qw4xM5"
 ```
 
 ---
@@ -680,7 +682,8 @@ git add plugins/codebase-xray/skills/xray-method/scripts/snapshot.py \
         docs/superpowers/specs/2026-09-03-codebase-xray-incremental-update-design.md
 git commit -m "Add the X-ray structural snapshot
 
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01FyH29UfafjSKzwa1Qw4xM5"
 ```
 
 ---
@@ -927,7 +930,8 @@ git add plugins/codebase-xray/skills/xray-method/scripts/snapshot.py \
         docs/superpowers/specs/2026-09-03-codebase-xray-incremental-update-design.md
 git commit -m "Compare a snapshot against the worktree, by file and by symbol
 
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01FyH29UfafjSKzwa1Qw4xM5"
 ```
 
 ---
@@ -1162,7 +1166,8 @@ git add plugins/codebase-xray/skills/xray-method/scripts/snapshot.py \
         docs/superpowers/specs/2026-09-03-codebase-xray-incremental-update-design.md
 git commit -m "Derive the one-hop blast radius from the snapshot import index
 
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01FyH29UfafjSKzwa1Qw4xM5"
 ```
 
 ---
@@ -1636,7 +1641,8 @@ Expected: PASS.
 git add plugins/codebase-xray/skills/xray-method/scripts/snapshot.py tests/test_xray_snapshot.py
 git commit -m "Scan a parent run for claims the change set affects
 
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01FyH29UfafjSKzwa1Qw4xM5"
 ```
 
 ---
@@ -1835,7 +1841,8 @@ Expected: PASS.
 git add plugins/codebase-xray/skills/xray-method/scripts/snapshot.py tests/test_xray_snapshot.py
 git commit -m "Carry a parent run's claims forward and mark the stale ones
 
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01FyH29UfafjSKzwa1Qw4xM5"
 ```
 
 ---
@@ -1965,7 +1972,8 @@ Expected: PASS, no regression anywhere.
 git add plugins/codebase-xray/skills/xray-method/scripts/snapshot.py tests/test_xray_snapshot.py
 git commit -m "Gate publication on every stale marker being resolved
 
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01FyH29UfafjSKzwa1Qw4xM5"
 ```
 
 ---
@@ -2200,7 +2208,8 @@ Expected: all four exit 0. If `lint_bundled_paths.py` flags a path, it means a `
 git add plugins/codebase-xray/workflows/analyze.md
 git commit -m "Give the classic X-ray an incremental path from its last run
 
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01FyH29UfafjSKzwa1Qw4xM5"
 ```
 
 ---
@@ -2299,7 +2308,8 @@ Expected: exit 0 for both.
 git add plugins/codebase-xray/workflows/team-analyze.md
 git commit -m "Update a team X-ray one partition at a time
 
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01FyH29UfafjSKzwa1Qw4xM5"
 ```
 
 ---
@@ -2429,7 +2439,8 @@ Expected: all exit 0. If the anchor reports a conflict, the two files disagree o
 git add plugins/codebase-xray/skills/xray-method/SKILL.md docs/plugins/codebase-xray.md scripts/lint_fact_anchors.py
 git commit -m "Document the incremental X-ray in the method skill and the plugin doc
 
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01FyH29UfafjSKzwa1Qw4xM5"
 ```
 
 ---
@@ -2482,7 +2493,8 @@ Raise the case count from eight to nine and add the row for this case, in the ta
 git add evals/codebase-xray/
 git commit -m "Assert the incremental X-ray invariants as an eval case
 
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01FyH29UfafjSKzwa1Qw4xM5"
 ```
 
 ---
@@ -2539,7 +2551,8 @@ git add plugins/codebase-xray/plugin.toml .claude-plugin/marketplace.json \
         .github/plugin/marketplace.json .agents/plugins/marketplace.json exports/
 git commit -m "Publish codebase-xray 3.2.0 with incremental runs
 
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01FyH29UfafjSKzwa1Qw4xM5"
 ```
 
 - [ ] **Step 6: Verify the working tree is clean and the history reads well**
