@@ -70,7 +70,7 @@ Skip this step entirely if `--no-update` was passed.
 
 3. Read `$RUN_DIR/changes.json` and take `recommendation` and `totals`. They drive the checkpoint in step 3.
 
-With `--update` and no candidate parent, stop and say which condition failed (no completed run for this target, or a parent with no manifest), and that a full run is the way to create one. Never fabricate a parent.
+With `--update` and no candidate parent, stop and say which condition failed (no completed run for this target, or a parent with no manifest), and that a full run is the way to create one. Never fabricate a parent. With a candidate present, `--update` changes nothing else: the checkpoint in step 3 still presents both options and waits, exactly as CRITICAL RULE 4 requires.
 
 A parent from before this feature has no manifest, and the change set says so with `recommendation: full`. That is reported, never guessed at.
 
@@ -104,7 +104,7 @@ Create `$RUN_DIR/` and `$RUN_DIR/state.json`:
 
 Parse flags: `--critical` (prioritize high-risk code), `--comments` (comment quality mode), `--docs-only` (documentation health only, skip to Phase 6), `--phase N` (start at phase N), `--depth=lite` (lightweight analysis: skip flow tracing diagrams, state machine diagrams, and detailed dependency analysis for non-critical files, producing only structure + interfaces + risks + final summary), `--run-name <name>` (explicit run identity for concurrent or repeated analyses).
 
-`git` is copied from the snapshot the run writes. On an incremental run, `parent_run` is the parent's run-id, `base_snapshot_created_at` is the parent manifest's `created_at`, and `incremental` holds `{affected_files, files_in_snapshot, claims_affected, extra_reads}` from the change set. A full run leaves `parent_run` and `incremental` as `null` and still records `git` and the snapshot: every run is a possible parent.
+On an incremental run, step 1b's change set already exists by the time this file is written, so `parent_run` (the parent's run-id), `base_snapshot_created_at` (the parent manifest's `created_at`) and `incremental` (`{affected_files, files_in_snapshot, claims_affected, extra_reads}` from the change set) are written here with their real values, not left for later. `git` cannot follow that rule: the snapshot that supplies it is not written until `## Execution Order`, so it starts `null` here and is copied in right after that step. A full run leaves `parent_run` and `incremental` as `null` and still records `git` and the snapshot: every run is a possible parent.
 
 Register `parent_run` in the run's `runs.json` entry as well, `null` for a full run. The chain of `parent_run` values is the analysis history; nothing else is added to hold it.
 
@@ -169,6 +169,8 @@ python ${CLAUDE_PLUGIN_ROOT}/skills/xray-method/scripts/snapshot.py write \
 
 The snapshot records the tree this run is about to read: every file with its size, mtime and content hash, every symbol with its span and a hash of its body, and the git commit as metadata. It is what makes this run a possible parent for the next one. A full run writes it too.
 
+Immediately after, copy the manifest's own `git` field into `$RUN_DIR/state.json`'s `git` field. This is the only new `state.json` field this step fills: `parent_run`, `base_snapshot_created_at` and `incremental` were already written with their real values when `state.json` was created, in step 2, because step 1b's change set already existed by then.
+
 ### Full depth (default)
 
 1. **Phase 0**, Project Knowledge Discovery. Writes `$RUN_DIR/knowledge/navigation.md` and `$RUN_DIR/knowledge/documentation-leads.md`.
@@ -190,7 +192,9 @@ The condensed `$RUN_DIR/07-final-report.md` covers structure, interfaces, and ri
 
 The phases and their numbering are unchanged. What changes is that most claims are already on disk and only the affected ones are re-derived.
 
-1. **Carry the parent forward**, mechanically:
+1. **Write the snapshot** for this run, as above.
+
+2. **Carry the parent forward**, mechanically:
 
    ```bash
    python ${CLAUDE_PLUGIN_ROOT}/skills/xray-method/scripts/snapshot.py carry \
@@ -199,9 +203,7 @@ The phases and their numbering are unchanged. What changes is that most claims a
 
    This copies the parent's `01` to `06` and `knowledge/` into the run, renumbers every carried `file:line` citation whose symbol survived the edit, and inserts an `<!-- xray:stale reason=... cites=... -->` marker above every claim the change set affects. Phase 7 is never carried: it is regenerated.
 
-2. **Phase 0 runs in full**, exactly as in a fresh run, overwriting the carried `knowledge/`. It is the cheap discovery pass and what it finds shapes what the re-derivation looks for.
-
-3. **Write the snapshot** for this run, as above.
+3. **Phase 0 runs in full**, exactly as in a fresh run, overwriting the carried `knowledge/`. It is the cheap discovery pass and what it finds shapes what the re-derivation looks for.
 
 4. **Phases 1 to 6, in order, only where work exists.** For each phase file: open it, and for every `xray:stale` marker re-derive that claim by reading the affected files it cites, then delete the marker. A marker whose reason is `symbol-removed` or `file-removed` means the claim is retired: delete the claim with the marker. Then write claims for the symbols listed under `## Added symbols` in `changes.md` that belong to this phase file (`01` and `02` always, `03` to `06` at full depth). **A phase file with no marker and no added symbol is not opened at all.**
 
@@ -732,7 +734,7 @@ Present a summary of changes made after applying fixes. For languages outside th
 - `/codebase-xray:analyze src/ --comments` -- Include comment quality audit
 - `/codebase-xray:analyze src/ --phase 5` -- Jump to pattern & risk detection
 - `/codebase-xray:analyze src/api --run-name api` -- Named run; a second session can run `/codebase-xray:analyze src/web --run-name web` concurrently
-- `/codebase-xray:analyze src/ --update` -- force the incremental path; error out if no usable parent run exists
+- `/codebase-xray:analyze src/ --update` -- require an update base; a missing or unusable parent run is a hard stop instead of a silent full run
 - `/codebase-xray:analyze src/ --no-update` -- skip detection and run a full analysis
 
 ## Integration with Code Review

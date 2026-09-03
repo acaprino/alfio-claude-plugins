@@ -235,6 +235,8 @@ Mechanical, before any phase runs:
 "incremental": {"affected_files": 2, "files_in_snapshot": 41, "claims_affected": 9, "extra_reads": 1}
 ```
 
+`parent_run`, `base_snapshot_created_at` and `incremental` are known as soon as step 1b's change set exists, before `state.json` is even created, so they are written with these real values at creation. `git` is the one field that cannot follow that rule: the snapshot that supplies it is written later, in section 6.4, so `state.json` is created with `git: null` and gets it copied in immediately after that step.
+
 A full run writes `parent_run: null` and `incremental: null`, and still writes `git` and the snapshot: every run from now on is a possible parent.
 
 `changes.md` after the model's pass has these sections in this order: `## Code changes`, `## Blast radius`, `## Affected claims` (from the script), `## Added symbols` (from the carry step), then `## Claims confirmed` (affected claims re-derived to the same conclusion), `## Claims revised` (old and new text, one row each), `## Claims retired`, `## Claims added`, `## Extra reads`. The first line under the title states the parent run and the commit range when git is present.
