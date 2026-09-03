@@ -755,6 +755,10 @@ def cmd_diff(args: argparse.Namespace) -> int:
         set(comparison["added"]) | set(comparison["removed"]) | set(comparison["modified"])
         | {entry["file"] for entry in importers}
     )
+    # With no parent manifest, this falls back to the current worktree's file
+    # count: the same fallback the ratio's denominator uses just below, so the
+    # two always agree. A consumer that recomputes the ratio from the stored
+    # totals must never divide by a files_in_snapshot of 0.
     total = len(manifest.get("files") or {}) or len(comparison["current"]) or 1
     ratio = len(affected_files) / total
     recommendation = recommend(ratio, args.threshold, len(affected_files), reasons)
@@ -781,7 +785,7 @@ def cmd_diff(args: argparse.Namespace) -> int:
         "affected_files": affected_files,
         "claims": claims,
         "totals": {
-            "files_in_snapshot": len(manifest.get("files") or {}),
+            "files_in_snapshot": total,
             "affected_files": len(affected_files),
             "ratio": round(ratio, 4),
             "claims_affected": len(claims),

@@ -489,6 +489,21 @@ class DiffCommandTests(_DiffFixture):
         self.assertEqual(changes["recommendation"], "full")
         self.assertTrue(any("ratio" in reason for reason in changes["reasons"]))
 
+    def test_the_default_threshold_forces_a_full_run(self):
+        # orders/service.py plus its importer api/routes.py, plus two filler
+        # files edited directly: 4 of 6, ratio 0.67, above the TRUE default
+        # of 0.4, with no --threshold passed at all. Every other case here
+        # either passes an explicit threshold or only requires the default to
+        # be at least 0.33 (the changed-symbol case), so none of them would
+        # catch a future change that silently raised the default: this one
+        # pins the actual value.
+        (self.src / "orders/service.py").write_text("X = 1\n", encoding="utf-8")
+        (self.src / "reports/monthly.py").write_text("def summarize():\n    return 99\n", encoding="utf-8")
+        (self.src / "util/text.py").write_text("def normalize(s):\n    return s.upper()\n", encoding="utf-8")
+        changes = self.diff()
+        self.assertEqual(changes["recommendation"], "full")
+        self.assertTrue(any("ratio" in reason for reason in changes["reasons"]))
+
     def test_different_flags_force_a_full_run(self):
         changes = self.diff("--flags", json.dumps({"depth": "lite"}))
         self.assertEqual(changes["recommendation"], "full")
@@ -501,6 +516,15 @@ class DiffCommandTests(_DiffFixture):
         changes = json.loads((self.run_dir / "changes.json").read_text(encoding="utf-8"))
         self.assertEqual(changes["recommendation"], "full")
         self.assertTrue(any("manifest" in reason for reason in changes["reasons"]))
+        # With no parent manifest, the raw manifest file count is 0. The
+        # reported files_in_snapshot must be the denominator the ratio was
+        # actually computed against (the current worktree's file count), not
+        # that 0, or a consumer recomputing the ratio divides by zero.
+        totals = changes["totals"]
+        self.assertGreater(totals["files_in_snapshot"], 0)
+        self.assertAlmostEqual(
+            totals["ratio"], totals["affected_files"] / totals["files_in_snapshot"], places=4
+        )
 
     def test_changes_md_carries_the_three_mechanical_sections(self):
         (self.src / "orders/service.py").write_text(
