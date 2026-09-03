@@ -860,16 +860,31 @@ def cmd_carry(args: argparse.Namespace) -> int:
             continue  # Phase 7 is regenerated, never carried.
         marks = by_file.get(name, {})
         out_lines: list[str] = []
-        for number, line in enumerate(read_text(source).split("\n"), start=1):
+        # A carried claim must survive byte for byte, so the source is read
+        # raw here rather than through read_text: that helper deliberately
+        # normalizes CRLF and CR to LF for the hashing and diff paths it was
+        # written for, which would silently rewrite a CRLF parent phase file
+        # to LF. Splitting and joining on "\n" alone, with no newline style
+        # detected or re-normalized, keeps each line's own trailing "\r" (if
+        # it has one) attached to it, so mixed line endings survive too.
+        raw = source.read_bytes().decode("utf-8", errors="replace")
+        for number, line in enumerate(raw.split("\n"), start=1):
             claim = marks.get(number)
             if claim:
                 cites = " ".join(claim["cites"])
-                out_lines.append(f"{MARKER_PREFIX} reason={claim['reason']} cites={cites} -->")
+                # The inserted marker takes the same line ending as the claim
+                # line it sits above, so it does not break that file's style.
+                ending = "\r" if line.endswith("\r") else ""
+                out_lines.append(f"{MARKER_PREFIX} reason={claim['reason']} cites={cites} -->{ending}")
                 out_lines.append(line)
                 marked += 1
             else:
                 out_lines.append(renumber_line(line, renumber, index))
-        (run_dir / name).write_text("\n".join(out_lines), encoding="utf-8")
+        # newline="" so Python writes "\n" literally instead of translating
+        # it to the platform's line separator, the other half of preserving
+        # whatever ending style each line already carries.
+        with (run_dir / name).open("w", encoding="utf-8", newline="") as handle:
+            handle.write("\n".join(out_lines))
         copied += 1
 
     added = changes.get("symbols", {}).get("added", [])

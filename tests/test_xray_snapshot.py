@@ -575,7 +575,7 @@ class CarryTests(_DiffFixture):
 
         importer = next(i for i in marked if "reason=importer" in lines[i])
         self.assertIn("api/routes.py::handler", lines[importer])
-        self.assertIn("routes.py", lines[importer + 1])
+        self.assertIn("api/routes.py::handler", lines[importer + 1])
 
     def test_a_removed_symbol_marker_says_so(self):
         (self.src / "orders/service.py").write_text(
@@ -615,6 +615,32 @@ class CarryTests(_DiffFixture):
         self.carry()
         self.assertTrue((self.run_dir / "knowledge/navigation.md").exists())
         self.assertTrue((self.run_dir / "03-flows.md").exists())
+
+    def test_a_crlf_parent_phase_file_survives_byte_for_byte(self):
+        # Mixed endings on purpose: mostly CRLF, one bare-LF line in the
+        # middle, and no trailing newline on the last line at all. A test
+        # using only CRLF would not discriminate a normalize-then-translate
+        # bug on a host whose own default text-write happens to reintroduce
+        # CRLF for every "\n" (this repo's own Windows dev machine does
+        # exactly that), so the bare-LF line is what actually catches it
+        # here: normalizing collapses it into the surrounding CRLF style,
+        # and re-translating on write cannot tell it apart from its
+        # neighbours afterward. Nothing in orders/service.py changes, so
+        # every line here is unmarked and passes straight through: the
+        # carried bytes must equal the source bytes exactly, not merely
+        # match once both are decoded through a newline-translating read.
+        content = (
+            "# Phase 3: Flow Tracing\r\n"
+            "\r\n"
+            "## Critical Paths\n"
+            "\r\n"
+            "- Cancelling calls `src/orders/service.py::OrderService.cancel`."
+        ).encode("utf-8")
+        (self.parent / "03-flows.md").write_bytes(content)
+        self.diff()
+        self.carry()
+        carried = (self.run_dir / "03-flows.md").read_bytes()
+        self.assertEqual(carried, content)
 
 
 if __name__ == "__main__":
