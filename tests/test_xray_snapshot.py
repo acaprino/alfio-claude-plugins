@@ -366,6 +366,14 @@ class BlastRadiusTests(unittest.TestCase):
         _, importers = self.radius()
         self.assertTrue(any(entry["file"].endswith("web/cart.js") for entry in importers))
 
+    def test_a_removed_files_surviving_importer_is_in_the_radius(self):
+        # models.py is removed outright. service.py, itself unchanged, still
+        # names "orders.models" in its own recorded imports, so the removed
+        # file must still resolve as a target for that edge to surface.
+        (self.src / "orders/models.py").unlink()
+        _, importers = self.radius()
+        self.assertTrue(any(entry["file"].endswith("orders/service.py") for entry in importers))
+
 
 if __name__ == "__main__":
     unittest.main()

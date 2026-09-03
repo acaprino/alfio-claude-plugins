@@ -404,7 +404,8 @@ def _lookup(candidate: str, known: dict[str, list[str]], importer: str) -> str |
     directory wins; a tie with no local winner resolves to nothing, since
     inflating the radius on a guess costs a re-read of the wrong file.
     """
-    candidate = candidate.lstrip("./")
+    while candidate.startswith("./"):
+        candidate = candidate[2:]
     if not candidate:
         return None
     hits = [p for p in known.get(candidate.rsplit("/", 1)[-1], [])
@@ -447,7 +448,15 @@ def build_import_index(manifest: dict, comparison: dict, symbols: dict) -> dict[
     """
     Reverse import edges over the CURRENT view of the tree: the manifest's
     imports for unchanged files, the fresh parse for added and modified ones.
-    Removed files contribute nothing.
+    Removed files contribute no outgoing edges of their own, since a deleted
+    file no longer imports anything.
+
+    They still have to be resolvable AS TARGETS, though: a surviving,
+    unchanged importer's own import list still names the module that used to
+    point at the removed file, and that edge is exactly what a removed file's
+    blast radius depends on. So the known set for resolution is the current
+    tree plus every removed file's last-known path, while the set actually
+    walked for outgoing edges stays the current tree only.
     """
     old_files = manifest.get("files", {})
     fresh = symbols.get("fresh", {})
@@ -457,7 +466,8 @@ def build_import_index(manifest: dict, comparison: dict, symbols: dict) -> dict[
     for rel, entry in fresh.items():
         current_imports[rel] = list(entry.get("imports", []))
 
-    known = _by_basename(current_imports)
+    resolvable = list(current_imports) + [rel for rel in comparison["removed"] if rel not in current_imports]
+    known = _by_basename(resolvable)
     index: dict[str, list[str]] = {}
     for importer, modules in current_imports.items():
         for module in modules:
