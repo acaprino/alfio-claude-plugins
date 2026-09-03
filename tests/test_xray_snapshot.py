@@ -561,10 +561,21 @@ class CarryTests(_DiffFixture):
         carried = self.carry()
         lines = carried.split("\n")
         marked = [i for i, line in enumerate(lines) if line.startswith("<!-- xray:stale")]
-        self.assertTrue(marked)
-        self.assertTrue(
-            any("OrderService.place" in lines[index] + lines[index + 1] for index in marked)
-        )
+        # This edit affects exactly two claims: the line citing OrderService.place
+        # itself (symbol-changed), and the routes.py handler line (importer,
+        # since routes.py imports the file whose place method just changed). A
+        # marker must sit immediately above the claim it belongs to, carrying
+        # that claim's own reason and citation, so pin the correspondence by
+        # reason rather than merely asserting some marker exists somewhere.
+        self.assertEqual(len(marked), 2)
+
+        changed = next(i for i in marked if "reason=symbol-changed" in lines[i])
+        self.assertIn("OrderService.place", lines[changed])
+        self.assertIn("OrderService.place", lines[changed + 1])
+
+        importer = next(i for i in marked if "reason=importer" in lines[i])
+        self.assertIn("api/routes.py::handler", lines[importer])
+        self.assertIn("routes.py", lines[importer + 1])
 
     def test_a_removed_symbol_marker_says_so(self):
         (self.src / "orders/service.py").write_text(
