@@ -36,6 +36,8 @@ from languages import SUPPORTED_EXTENSIONS  # noqa: E402
 
 __all__ = [
     "SCHEMA",
+    "blast_radius",
+    "build_import_index",
     "build_manifest",
     "compare_files",
     "compare_symbols",
@@ -45,6 +47,7 @@ __all__ = [
     "iter_files",
     "read_text",
     "repo_root",
+    "resolve_module",
     "symbol_spans",
 ]
 
@@ -376,6 +379,122 @@ def compare_symbols(manifest: dict, comparison: dict) -> dict:
         "renumber": renumber,
         "fresh": fresh,
     }
+
+
+# Extensions an import specifier may resolve to, in preference order.
+_MODULE_EXTENSIONS = (".py", ".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".java", ".rs")
+# Directory imports: `orders` resolving to the package's entry file.
+_PACKAGE_FILES = ("__init__.py", "index.ts", "index.tsx", "index.js", "index.jsx", "mod.rs")
+
+
+def _by_basename(paths) -> dict[str, list[str]]:
+    index: dict[str, list[str]] = {}
+    for path in paths:
+        index.setdefault(path.rsplit("/", 1)[-1], []).append(path)
+    return index
+
+
+def _lookup(candidate: str, known: dict[str, list[str]], importer: str) -> str | None:
+    """
+    Resolve one candidate path against the known set.
+
+    A candidate matches a known path when it equals it or is a suffix of it at a
+    segment boundary, because an import specifier names a module, not a path
+    from the repository root. When several match, the one in the importer's own
+    directory wins; a tie with no local winner resolves to nothing, since
+    inflating the radius on a guess costs a re-read of the wrong file.
+    """
+    candidate = candidate.lstrip("./")
+    if not candidate:
+        return None
+    hits = [p for p in known.get(candidate.rsplit("/", 1)[-1], [])
+            if p == candidate or p.endswith("/" + candidate)]
+    if not hits:
+        return None
+    if len(hits) == 1:
+        return hits[0]
+    home = importer.rsplit("/", 1)[0] if "/" in importer else ""
+    local = [p for p in hits if p.rsplit("/", 1)[0] == home]
+    return local[0] if len(local) == 1 else None
+
+
+def resolve_module(module: str, importer: str, known: dict[str, list[str]]) -> str | None:
+    """Map an import specifier to a path in the snapshot, or None."""
+    if not module:
+        return None
+    candidates: list[str] = []
+    if module.startswith("."):
+        base = importer.rsplit("/", 1)[0] if "/" in importer else ""
+        joined = os.path.normpath(os.path.join(base, module)).replace(os.sep, "/")
+        candidates.append(joined)
+        candidates += [joined + ext for ext in _MODULE_EXTENSIONS]
+        candidates += [f"{joined}/{name}" for name in _PACKAGE_FILES]
+    else:
+        dotted = module.replace(".", "/")
+        candidates += [dotted + ext for ext in _MODULE_EXTENSIONS]
+        candidates += [f"{dotted}/{name}" for name in _PACKAGE_FILES]
+        # A specifier that is already path-shaped ("orders/service").
+        if "/" in module:
+            candidates += [module] + [module + ext for ext in _MODULE_EXTENSIONS]
+    for candidate in candidates:
+        hit = _lookup(candidate, known, importer)
+        if hit:
+            return hit
+    return None
+
+
+def build_import_index(manifest: dict, comparison: dict, symbols: dict) -> dict[str, list[str]]:
+    """
+    Reverse import edges over the CURRENT view of the tree: the manifest's
+    imports for unchanged files, the fresh parse for added and modified ones.
+    Removed files contribute nothing.
+    """
+    old_files = manifest.get("files", {})
+    fresh = symbols.get("fresh", {})
+    current_imports: dict[str, list[str]] = {}
+    for rel in comparison["unchanged"]:
+        current_imports[rel] = list(old_files.get(rel, {}).get("imports", []))
+    for rel, entry in fresh.items():
+        current_imports[rel] = list(entry.get("imports", []))
+
+    known = _by_basename(current_imports)
+    index: dict[str, list[str]] = {}
+    for importer, modules in current_imports.items():
+        for module in modules:
+            imported = resolve_module(module, importer, known)
+            if imported and imported != importer:
+                index.setdefault(imported, [])
+                if importer not in index[imported]:
+                    index[imported].append(importer)
+    return {key: sorted(value) for key, value in index.items()}
+
+
+def blast_radius(index: dict[str, list[str]], comparison: dict, symbols: dict) -> list[dict]:
+    """
+    Files importing something that changed. One hop, never the transitive
+    closure: on most codebases the closure is the whole tree, which is a full
+    run wearing a different name.
+
+    A modified file whose symbols all survived unchanged (lines shifted, a
+    comment rewritten) puts nobody in the radius: an importer depends on what a
+    module offers, not on where its lines sit. A removed file, and a modified
+    file with no symbols at all, always do.
+    """
+    moved: set[str] = set()
+    for state in ("added", "removed", "changed"):
+        moved.update(item["file"] for item in symbols[state])
+    structureless = {
+        rel for rel in comparison["modified"]
+        if not symbols.get("fresh", {}).get(rel, {}).get("symbols")
+    }
+    touched = (set(comparison["modified"]) & (moved | structureless)) | set(comparison["removed"])
+    reverse: dict[str, list[str]] = {}
+    for imported in touched:
+        for importer in index.get(imported, []):
+            if importer in touched:
+                continue
+            reverse.setdefault(importer, []).append(imported)
+    return [{"file": key, "imports": sorted(value)} for key, value in sorted(reverse.items())]
 
 
 def cmd_write(args: argparse.Namespace) -> int:

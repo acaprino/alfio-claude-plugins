@@ -104,7 +104,9 @@ Every modified file is parsed again. Symbols are matched by qualified name: pres
 
 ### 5.3 Blast radius
 
-For every modified or removed file, `find_importing_modules` from `usage_finder.py` lists the files that import it. Those are **importers**, one hop, never the transitive closure: on most codebases the closure is the whole tree, which is the full run by another name. `affected_files` is the union of added, removed, modified and importers.
+Every manifest entry records the file's internal imports, so the reverse edges are a lookup rather than a search: the index is built over the current view of the tree (the manifest's imports for unchanged files, the fresh parse for added and modified ones), and an import specifier is resolved to a path by candidate extension and package-entry matching, preferring the importer's own directory when several paths match. For every modified or removed file, the files importing it are **importers**, one hop, never the transitive closure: on most codebases the closure is the whole tree, which is the full run by another name. `affected_files` is the union of added, removed, modified and importers.
+
+Two known limits, both erring toward re-reading rather than toward silence. A Python `from . import x` records no module and produces no edge. An ambiguous specifier that resolves to several paths outside the importer's directory produces no edge either. In both cases the changed file itself is still affected; only the importer edge is missed.
 
 ### 5.4 Affected claims
 

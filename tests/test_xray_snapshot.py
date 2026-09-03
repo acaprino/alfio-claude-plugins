@@ -216,6 +216,17 @@ class ManifestTests(unittest.TestCase):
         edited_files = self.manifest_of("cart.ts", edited)
         self.assertNotEqual(span["hash"], edited_files["symbols"]["Cart.place"]["hash"])
 
+        # Editing the FIRST overload must also move the widened span's hash.
+        # Before the widening fix, a second `record()` call overwrote the
+        # first overload's span entirely, so an edit confined to it changed
+        # no hash and the loss went unnoticed.
+        edited_first = source.replace(
+            "place(item) { return item; }",
+            "place(item) { return item * 1; }",
+        )
+        edited_first_files = self.manifest_of("cart.ts", edited_first)
+        self.assertNotEqual(span["hash"], edited_first_files["symbols"]["Cart.place"]["hash"])
+
     def manifest_of(self, rel: str, content: str) -> dict:
         write(self.src, rel, content)
         files = self.manifest()["files"]
@@ -294,6 +305,66 @@ class ComparisonTests(unittest.TestCase):
         place = next(e for e in entries if e["symbol"] == "OrderService.place")
         self.assertEqual(place["start_new"], place["start_old"] + 2)
         self.assertGreaterEqual(place["end_old"], place["start_old"])
+
+
+class BlastRadiusTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="xray-radius-"))
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+        self.src = self.tmp / "src"
+        write(self.src, "orders/service.py", PY_SOURCE)
+        write(self.src, "orders/models.py", "class Order:\n    pass\n")
+        write(
+            self.src,
+            "api/routes.py",
+            "from orders.service import OrderService\n\n\ndef handler():\n    return OrderService(None)\n",
+        )
+        write(self.src, "reports/monthly.py", "import csv\n\n\ndef build():\n    return csv\n")
+        import snapshot
+        self.snapshot = snapshot
+        self.manifest = snapshot.build_manifest(self.src)
+
+    def radius(self):
+        files = self.snapshot.compare_files(self.manifest, self.src)
+        symbols = self.snapshot.compare_symbols(self.manifest, files)
+        index = self.snapshot.build_import_index(self.manifest, files, symbols)
+        return files, self.snapshot.blast_radius(index, files, symbols)
+
+    def test_a_pure_line_shift_puts_nobody_in_the_radius(self):
+        path = self.src / "orders/service.py"
+        path.write_text(PY_SOURCE.replace("CONSTANT = 3", "CONSTANT = 3\nEXTRA = 1"), encoding="utf-8")
+        files, importers = self.radius()
+        self.assertTrue(any(p.endswith("orders/service.py") for p in files["modified"]))
+        self.assertEqual(importers, [])
+
+    def test_a_direct_importer_is_in_the_radius(self):
+        path = self.src / "orders/service.py"
+        path.write_text(PY_SOURCE.replace("return attempts * 2", "return attempts * 4"), encoding="utf-8")
+        _, importers = self.radius()
+        self.assertTrue(any(entry["file"].endswith("api/routes.py") for entry in importers))
+
+    def test_an_unrelated_file_is_not(self):
+        path = self.src / "orders/service.py"
+        path.write_text(PY_SOURCE.replace("return attempts * 2", "return attempts * 4"), encoding="utf-8")
+        _, importers = self.radius()
+        self.assertFalse(any(entry["file"].endswith("reports/monthly.py") for entry in importers))
+
+    def test_the_radius_is_one_hop_only(self):
+        # models.py changes. service.py imports it, routes.py imports service.py.
+        # Only service.py is in the radius: routes.py is two hops away.
+        (self.src / "orders/models.py").write_text("class Order:\n    id = 0\n", encoding="utf-8")
+        _, importers = self.radius()
+        names = {entry["file"] for entry in importers}
+        self.assertTrue(any(n.endswith("orders/service.py") for n in names))
+        self.assertFalse(any(n.endswith("api/routes.py") for n in names))
+
+    def test_a_relative_javascript_import_resolves(self):
+        write(self.src, "web/models.js", "export class Order {}\n")
+        write(self.src, "web/cart.js", JS_SOURCE)
+        self.manifest = self.snapshot.build_manifest(self.src)
+        (self.src / "web/models.js").write_text("export class Order { id = 0; }\n", encoding="utf-8")
+        _, importers = self.radius()
+        self.assertTrue(any(entry["file"].endswith("web/cart.js") for entry in importers))
 
 
 if __name__ == "__main__":
