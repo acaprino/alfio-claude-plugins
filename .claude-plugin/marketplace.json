@@ -9,7 +9,7 @@
   ],
   "metadata": {
     "description": "The Daodan: agents, skills and workflows that augment a coding agent into a specialized toolkit.",
-    "version": "26.4.0"
+    "version": "26.5.0"
   },
   "name": "daodan",
   "owner": {
@@ -709,7 +709,7 @@
         "./skills/review-quality-gates"
       ],
       "source": "./exports/claude/plugins/senior-review",
-      "version": "11.1.0"
+      "version": "11.2.0"
     },
     {
       "author": {

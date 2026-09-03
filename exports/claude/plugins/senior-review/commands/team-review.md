@@ -297,20 +297,17 @@ Skip this phase entirely if `--no-context` was passed. Mark `phase_1a_deep_dive`
 
 ### Phase 1a: Deep-Dive Analysis
 
-> **CRITICAL: `codebase-xray:analyze` is a SKILL, NOT an agent.**
-> There is no agent named `codebase-xray`. Do NOT call the `Agent` tool with `subagent_type: "codebase-xray:analyze"` -- it will fail with "Agent type not found".
-> Invoke it via the `Skill` tool: `Skill(skill: "codebase-xray:analyze", args: "--depth=lite <target>")`.
-> The disambiguation matters because the rest of this command (Phase 1b, Phase 2) spawns many `subagent_type: plugin:name` teammates and the same `plugin:name` shape is reused for skill identifiers -- treat Phase 1a as a Skill invocation, full stop.
+> **`codebase-xray:analyze` is a workflow of the `codebase-xray` plugin, not an agent.** Nothing dispatches it as a worker: it runs in this context, the way a user would invoke it, with its arguments. The host lists it under the `codebase-xray` plugin as `analyze` (a host that renders workflows as skills suffixes it `-workflow`). The `codebase-xray:xray-method` skill is the method that workflow applies; loading the method alone runs no phase and creates no run directory. The distinction matters because the rest of this command (Phase 1b, Phase 2) dispatches many `plugin:name` workers and the same shape names workflows and skills; treat Phase 1a as running a workflow, full stop.
 
-1. Invoke the `codebase-xray:analyze` **skill** via the `Skill` tool against the target:
+1. Run the `codebase-xray:analyze` workflow against the target, in this context:
    - Default mode: `--depth=lite` (structure + interfaces + risks only)
    - If `--deep` flag: full analysis
    - Target scope: the files from Phase 0
-2. Read `.deep-dive/runs.json` to resolve the run the skill just created, and record it in `state.json -> xray` as `run_id`, `run_dir`, `target` and `depth`. Every later phase derives its paths from this block and never from the `.deep-dive/` root. `$XRAY_RUN_DIR` below always means `state.json -> xray.run_dir`. If the run cannot be resolved, halt: an unresolvable provenance is a broken pipeline, not a reason to fall back to the mirror.
+2. Read `.deep-dive/runs.json` to resolve the run the workflow just created, and record it in `state.json -> xray` as `run_id`, `run_dir`, `target` and `depth`. Every later phase derives its paths from this block and never from the `.deep-dive/` root. `$XRAY_RUN_DIR` below always means `state.json -> xray.run_dir`. If the run cannot be resolved, halt: an unresolvable provenance is a broken pipeline, not a reason to fall back to the mirror.
 3. Verify on completion that at minimum `01-structure.md`, `02-interfaces.md`, and `05-risks.md` exist.
 4. Mark `phase_1a_deep_dive` complete.
 
-If the skill is unavailable (not installed) or produces no output, halt the pipeline and report the error. Do **not** fall back to spawning a `general-purpose` agent to fake the deep-dive output -- the file naming and section anchors that Phase 1b/Phase 2 depend on come from the skill itself, and a freelance fallback breaks the contract for `logic-integrity-auditor`.
+If the workflow is unavailable (plugin not installed) or produces no output, halt the pipeline and report the error. Do **not** fall back to spawning a `general-purpose` agent to fake the deep-dive output -- the file naming and section anchors that Phase 1b/Phase 2 depend on come from the workflow itself, and a freelance fallback breaks the contract for `logic-integrity-auditor`.
 
 ### Phase 1c: Independent Premise Derivation (parallel with 1a)
 

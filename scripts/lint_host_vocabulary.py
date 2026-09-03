@@ -71,7 +71,7 @@ GRANDFATHERED: dict[str, int] = {
     "plugins/senior-review/skills/review-quality-gates/references/code-review-fix-loop.md": 1,
     "plugins/senior-review/workflows/code-review.md": 3,
     "plugins/senior-review/workflows/pr-review.md": 2,
-    "plugins/senior-review/workflows/team-review.md": 20,
+    "plugins/senior-review/workflows/team-review.md": 17,
     "plugins/text-humanizer/workflows/humanize-text.md": 1,
     "plugins/typescript-development/workflows/review-typescript.md": 1,
 }
