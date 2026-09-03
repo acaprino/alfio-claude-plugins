@@ -1,6 +1,6 @@
 # codebase-xray eval harness
 
-Measures whether `codebase-xray` still behaves the way it is designed to behave. The plugin has no bug ground truth to recall: its value is a set of **behavioral invariants** (Phase 0 always runs, a run never writes outside its own directory, structure comes from the parsers and not from reading files by hand, a secret file is noted and never quoted, every claim cites where it came from and how sure it is), and the failure mode is drift, where a later edit quietly removes one and nothing notices.
+Measures whether `codebase-xray` still behaves the way it is designed to behave. The plugin has no bug ground truth to recall: its value is a set of **behavioral invariants** (Phase 0 always runs, a run never writes outside its own directory, structure comes from the parsers and not from reading files by hand, a secret file is noted and never quoted, every claim cites where it came from and how sure it is, an incremental run carries forward what it did not re-check and never publishes with a marker still stale), and the failure mode is drift, where a later edit quietly removes one and nothing notices.
 
 Each case states a target, the command, and assertions that either hold or do not. Assertions target the philosophy, never the wording: "every finding cites a file and a line" is an invariant, "uses the phrase file:line" is not. This directory is a development asset of the marketplace repository: not part of the `codebase-xray` plugin, not registered in `marketplace.json`, never shipped.
 
@@ -36,3 +36,4 @@ MUST assertions are the invariant. A single MUST failure fails the case. SHOULD 
 | `claims-carry-status` | `semantic-interconnect-mapper` | Every row carries one of the four statuses, and `verified` always cites its enforcement |
 | `team-mode-partition-ownership` | `/codebase-xray:team-analyze` | Each worker writes only its owned files; the consolidated layout is the classic one |
 | `mapper-scope-in-team-mode` | `/codebase-xray:team-analyze` | The interconnect map covers the cross-partition surface, not the whole codebase |
+| `incremental-carry-and-rederive` | `/codebase-xray:analyze` (four sessions) plus a fifth in a separate scratch | An incremental run carries unmarked claims byte for byte, re-derives or retires every marked one, documents every added symbol, and never publishes with a marker still stale; `--update` and `--no-update` change only whether detection runs, never whether the checkpoint waits |
