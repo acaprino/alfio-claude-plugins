@@ -153,6 +153,8 @@ A line that carries several citations is affected if any of them is. Each affect
 }
 ```
 
+The checkpoint states the number of affected claims but never a total, because there is no total to state. `scan_claims` records only the claims a change set affects and never counts the rest, and computing a real denominator would mean reading every citation in the parent's phase files at the checkpoint, which is the model-token cost this whole step exists to avoid. `Files to read` does carry a denominator, since `affected_files` and `files_in_snapshot` are both real fields.
+
 `recommendation` is one of:
 
 - `none`: no file affected. The tree is what the parent analyzed.
@@ -183,7 +185,7 @@ With `incremental`:
 X-ray target: src
 Run: src-20260903-101500   parent: src-20260901-101200 (commit d5a11cef, 2 days ago)
 Since parent: 1 file modified, 0 added, 0 removed, 2 symbols changed, 1 added, 1 importer
-Affected claims: 9 of 214 (03-flows: 4, 02-interfaces: 3, 05-risks: 2)
+Affected claims: 9 (03-flows: 4, 02-interfaces: 3, 05-risks: 2)
 Files to read: 2 of 41
 
 1. Incremental update from src-20260901-101200 (reads 2 files)
