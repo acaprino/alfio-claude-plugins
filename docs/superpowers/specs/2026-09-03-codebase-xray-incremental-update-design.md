@@ -79,7 +79,8 @@ Rules:
 - **File identity** is `path` plus `size`, `mtime` and `hash`. The hash is the truth. `size` and `mtime` exist for the fast path in section 5.1.
 - **Symbols** come from the adapters: classes, functions, methods (qualified `Class.method`), and the SQL and PL/SQL kinds the adapters already emit. `start` is the adapter's line. `end` is the exact end line where the adapter has it (Python, from the stdlib `ast` end line, which requires a new optional `end_line` field on `FunctionInfo` and `ClassInfo`, `None` everywhere else) and otherwise the line before the next symbol's `start` in file order, or the last line of the file for the last symbol. A class span contains its methods, so editing a method changes the method hash and the class hash. That is intended: a claim about the class as a whole is affected too.
 - **Symbol hash** is the hash of the raw lines in the span. A whitespace-only or comment-only edit changes it. Accepted: a false positive costs one re-derivation, a stale claim costs trust.
-- **Unsupported languages** get a file entry with `language: null` and no symbols. Claims about those files are affected whenever the file is.
+- **A file whose extension is a recognized document type** (`DOC_EXTENSIONS` in `snapshot.py`: `.cfg`, `.ini`, `.json`, `.md`, `.ps1`, `.rst`, `.sh`, `.toml`, `.txt`, `.xml`, `.yaml`, `.yml`) gets a file entry with `language: null` and no symbols. Claims about those files are affected whenever the file is.
+- **A file whose extension is neither a supported language nor a recognized document type never enters the manifest at all**, not even as a hash. A claim citing it is carried forward without being re-checked. This is a known limit, accepted because the X-ray reads only its seven supported languages plus documents; pulling in every binary and image would bloat the manifest for files no claim can cite by content.
 - **Excluded paths** are the same list `team-analyze` always excludes (`node_modules/`, `dist/`, `build/`, `.next/`, `target/`, `vendor/`, `__pycache__/`, `.venv/`) plus `.git/` and the run's own `.deep-dive/`.
 - **Forbidden files** (the list in the workflow's `## Forbidden Files`) never appear in the manifest, not even as a hash. Their existence is recorded in the phase files as today, not in the snapshot.
 
@@ -99,7 +100,7 @@ For every path in the manifest that still exists: if `size` and `mtime` both mat
 
 ### 5.2 Symbol comparison
 
-Every modified file is parsed again. Symbols are matched by qualified name: present on both sides with equal hash is **unchanged**, with different hash is **changed**; present only in the new parse is **added**, only in the manifest is **removed**. Every symbol of an added file is added; every symbol of a removed file is removed. For each unchanged symbol in a modified file the diff records `start_old` and `start_new`, which is the renumbering map used in section 6.3.
+Every modified file is parsed again. Symbols are matched by qualified name: present on both sides with equal hash is **unchanged**, with different hash is **changed**; present only in the new parse is **added**, only in the manifest is **removed**. Every symbol of an added file is added; every symbol of a removed file is removed. For each unchanged symbol in a modified file the diff records `start_old`, `end_old` and `start_new`: mapping a bare `path:line` citation onto its new position needs the old span, not just the old start.
 
 ### 5.3 Blast radius
 
@@ -137,7 +138,7 @@ A line that carries several citations is affected if any of them is. Each affect
     "changed": [{"file": "src/orders/service.py", "symbol": "OrderService", "kind": "class"},
                 {"file": "src/orders/service.py", "symbol": "OrderService.place", "kind": "method"}]
   },
-  "renumber": {"src/orders/service.py": [{"symbol": "retry_policy", "start_old": 99, "start_new": 121}]},
+  "renumber": {"src/orders/service.py": [{"symbol": "retry_policy", "start_old": 99, "end_old": 132, "start_new": 121}]},
   "importers": [{"file": "src/api/orders.py", "imports": ["src/orders/service.py"]}],
   "affected_files": ["src/orders/service.py", "src/api/orders.py"],
   "claims": [

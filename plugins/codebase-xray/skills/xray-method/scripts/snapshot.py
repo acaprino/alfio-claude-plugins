@@ -37,6 +37,8 @@ from languages import SUPPORTED_EXTENSIONS  # noqa: E402
 __all__ = [
     "SCHEMA",
     "build_manifest",
+    "compare_files",
+    "compare_symbols",
     "file_entry",
     "hash_text",
     "is_forbidden",
@@ -179,6 +181,17 @@ def symbol_spans(result, lines: list[str]) -> dict[str, dict]:
     def record(name: str, kind: str, start: int, end: int) -> None:
         start = max(1, min(start, total))
         end = max(start, min(end, total))
+        # A class carrying two methods of the same name (an overload) would
+        # otherwise have the second `record()` call overwrite the first,
+        # losing the earlier span entirely: an edit inside the lost overload
+        # then changes no hash, and compare_symbols never reports it. Widen
+        # the span to cover every occurrence instead, so any edit to any of
+        # them moves the hash. That over-marks rather than under-marks: it
+        # costs one extra re-derivation instead of a missed claim.
+        existing = spans.get(name)
+        if existing is not None:
+            start = min(start, existing["start"])
+            end = max(end, existing["end"])
         spans[name] = {
             "kind": kind,
             "start": start,
@@ -253,6 +266,115 @@ def build_manifest(target: Path) -> dict:
         "created_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "git": git_info(root),
         "files": files,
+    }
+
+
+def compare_files(manifest: dict, target: Path, verify: bool = False) -> dict:
+    """
+    Classify every path as added, removed, modified or unchanged.
+
+    Fast path: equal size and mtime means unchanged, with no read at all. Any
+    other case is hashed, because a checkout or a `touch` moves the mtime
+    without changing a byte, and the hash is what decides.
+    """
+    target = target.resolve()
+    root = repo_root(target).resolve()
+    old = manifest.get("files", {})
+    current: dict[str, Path] = {}
+    for path in iter_files(target):
+        try:
+            if path.stat().st_size > MAX_FILE_BYTES:
+                continue
+        except OSError:
+            continue
+        current[relative_to_root(path, root)] = path
+
+    added, removed, modified, unchanged = [], [], [], []
+    for rel, entry in old.items():
+        path = current.get(rel)
+        if path is None:
+            removed.append(rel)
+            continue
+        try:
+            stat = path.stat()
+        except OSError:
+            removed.append(rel)
+            continue
+        if not verify and stat.st_size == entry.get("size") and round(stat.st_mtime, 3) == entry.get("mtime"):
+            unchanged.append(rel)
+            continue
+        try:
+            same = hash_text(read_text(path)) == entry.get("hash")
+        except OSError:
+            same = False
+        (unchanged if same else modified).append(rel)
+    for rel in current:
+        if rel not in old:
+            added.append(rel)
+
+    return {
+        "root": root.as_posix(),
+        "added": sorted(added),
+        "removed": sorted(removed),
+        "modified": sorted(modified),
+        "unchanged": sorted(unchanged),
+        "current": current,
+    }
+
+
+def compare_symbols(manifest: dict, comparison: dict) -> dict:
+    """
+    Classify symbols inside added and modified files, and record how the lines
+    of every surviving symbol moved.
+
+    `fresh` carries the re-parsed structure of those files so the caller does
+    not parse them a second time.
+    """
+    old_files = manifest.get("files", {})
+    added, removed, changed = [], [], []
+    renumber: dict[str, list[dict]] = {}
+    fresh: dict[str, dict] = {}
+
+    for rel in comparison["added"] + comparison["modified"]:
+        path = comparison["current"][rel]
+        try:
+            entry = file_entry(path)
+        except OSError:
+            continue
+        fresh[rel] = {"symbols": entry["symbols"], "imports": entry["imports"]}
+        old_symbols = old_files.get(rel, {}).get("symbols", {})
+        new_symbols = entry["symbols"]
+        moved: list[dict] = []
+        for name, spec in new_symbols.items():
+            previous = old_symbols.get(name)
+            if previous is None:
+                added.append({"file": rel, "symbol": name, "kind": spec["kind"]})
+            elif previous["hash"] != spec["hash"]:
+                changed.append({"file": rel, "symbol": name, "kind": spec["kind"]})
+            else:
+                moved.append({
+                    "symbol": name,
+                    "start_old": previous["start"],
+                    "end_old": previous["end"],
+                    "start_new": spec["start"],
+                })
+        for name, previous in old_symbols.items():
+            if name not in new_symbols:
+                removed.append({"file": rel, "symbol": name, "kind": previous["kind"]})
+        if moved:
+            renumber[rel] = sorted(moved, key=lambda m: m["start_old"])
+
+    for rel in comparison["removed"]:
+        for name, previous in old_files.get(rel, {}).get("symbols", {}).items():
+            removed.append({"file": rel, "symbol": name, "kind": previous["kind"]})
+
+    order = lambda item: (item["file"], item["symbol"])  # noqa: E731
+    return {
+        "added": sorted(added, key=order),
+        "removed": sorted(removed, key=order),
+        "changed": sorted(changed, key=order),
+        "renumber": renumber,
+        "fresh": fresh,
     }
 
 
