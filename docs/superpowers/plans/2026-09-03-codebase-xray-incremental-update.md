@@ -2187,7 +2187,7 @@ Claims: [N] carried, [N] revised, [N] retired, [N] added. Detail in .deep-dive/r
 In `## Quick Examples`, append:
 
 ```markdown
-- `/codebase-xray:analyze src/ --update` -- force the incremental path; error out if no usable parent run exists
+- `/codebase-xray:analyze src/ --update` -- require an update base; a missing or unusable parent run is a hard stop instead of a silent full run
 - `/codebase-xray:analyze src/ --no-update` -- skip detection and run a full analysis
 ```
 
@@ -2408,7 +2408,7 @@ python ${CLAUDE_PLUGIN_ROOT}/skills/xray-method/scripts/snapshot.py check <run-d
 In `docs/plugins/codebase-xray.md`, immediately after the paragraph describing the runs model, add:
 
 ```markdown
-Every run also records the tree it analyzed as `snapshot/manifest.json`: each file with its size, mtime and content hash, each symbol with its span and body hash. A later run on the same target detects that snapshot, diffs it against the current worktree with no model tokens spent, and offers an incremental update: unaffected claims are carried over verbatim, only the claims citing changed symbols or their direct importers are re-derived, and a mechanical gate refuses to publish while any of them is still marked stale. Each run records its parent, so the chain under `.deep-dive/runs/` is the analysis history, and `changes.md` in each run says what changed in the code and what that did to the claims. `--update` forces the path, `--no-update` skips detection, and a target that changed too much is reported as needing a full run rather than being updated quietly.
+Every run also records the tree it analyzed as `snapshot/manifest.json`: each file with its size, mtime and content hash, each symbol with its span and body hash. A later run on the same target detects that snapshot, diffs it against the current worktree with no model tokens spent, and offers an incremental update: unaffected claims are carried over verbatim, only the claims citing changed symbols or their direct importers are re-derived, and a mechanical gate refuses to publish while any of them is still marked stale. Each run records its parent, so the chain under `.deep-dive/runs/` is the analysis history, and `changes.md` in each run says what changed in the code and what that did to the claims. `--update` requires an update base and turns a missing or unusable parent into a hard stop, `--no-update` skips detection, and a target that changed too much is reported as needing a full run rather than being updated quietly.
 ```
 
 - [ ] **Step 5: Add the fact anchor**
