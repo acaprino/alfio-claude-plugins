@@ -109,7 +109,7 @@ For each invariant found in Phase 1, locate its enforcement:
 - **Enforcement gap:** [code-only / missing constraint / missing transaction / missing lock]
 - **Evidence:** `file:line` (write path), `file:line` or schema (missing guard)
 - **Load-bearing premise:** [the single proposition whose falsity collapses this finding: minimal, falsifiable, scoped. Not a paraphrase of the finding itself]
-- **premise_provenance:** independent | shared-context | mixed [causal dependence, not citation: shared-context if you absorbed the premise from the deep-dive output or the interconnect map, even when your finding cites no anchor]
+- **premise_provenance:** independent | shared-context | mixed [causal dependence, not citation: shared-context if you absorbed the premise from the X-ray output or the interconnect map, even when your finding cites no anchor]
 - **Corruption scenario:** [concrete interleaving or failure: request A ..., request B ..., resulting impossible state]
 - **Who reads the corrupted state:** [downstream consumer and what it does with it]
 - **Fix:** [constraint / transaction boundary / lock / version column / idempotency key, with concrete DDL or code]

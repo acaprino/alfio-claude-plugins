@@ -1,7 +1,7 @@
 ---
 name: abstraction-architect
 description: >
-  Adversarial auditor for structural entropy, report-only. Global mode censuses the whole codebase from .deep-dive/ plus its own discovery pass; diff mode anchors on the changed files.
+  Adversarial auditor for structural entropy, report-only. Global mode censuses the whole codebase from .codebase-xray/ plus its own discovery pass; diff mode anchors on the changed files.
   TRIGGER WHEN: spawned by /abstraction-architect:audit, or as the abstraction dimension of /senior-review:team-review or /senior-review:code-review; the user asks who canonically owns a fact, policy or state, asks about missed unification or wrong abstractions, or asks whether what they just wrote already exists elsewhere.
   DO NOT TRIGGER WHEN: the task is implementation, security review (use senior-review:security-auditor), distributed-flow tracing (use senior-review:distributed-flow-auditor), dead-code removal (use senior-review:cleanup-auditor), or cycles, cohesion and single-file patterns (use senior-review:code-auditor and senior-review:chicken-egg-detector).
 tools: Read, Write, Glob, Grep, Bash
@@ -33,7 +33,7 @@ Load the skill `abstraction-architect:abstraction-architect`. Read `references/d
 
 - `codebase_path` — the codebase root.
 - `mode` (optional, default `global`) — `global` audits the whole codebase. `diff` audits what just changed. Separate PROCESS sections below.
-- `deep_dive_path` — path to `.deep-dive/`. Required for `global`, optional for `diff`.
+- `xray_path` — path to `.codebase-xray/`. Required for `global`, optional for `diff`.
 - `concept_index_path` (optional) — path to `concept-index.json`. Defaults to `<codebase_path>/.abstraction-architect/concept-index.json`. Absent or unusable is a supported condition, not an error. The literal value `none` disables both reading and writing the index.
 - `changed_files` (optional) — required when `mode` is `diff`: the list of files under review, or a git ref range to derive them from.
 - `report_path` (optional) — defaults per mode, see PROCESS.
@@ -43,7 +43,7 @@ Load the skill `abstraction-architect:abstraction-architect`. Read `references/d
 
 # REQUIRED DEEP-DIVE FILES
 
-Read from `deep_dive_path`. Missing files reduce confidence; they do not abort the audit.
+Read from `xray_path`. Missing files reduce confidence; they do not abort the audit.
 
 - `01-structure.md` — modules, classes, file sizes. Seeds the concept census and finds god modules.
 - `02-interfaces.md` — public APIs. Seeds representation discovery for types, DTOs and enums.
@@ -51,12 +51,12 @@ Read from `deep_dive_path`. Missing files reduce confidence; they do not abort t
 - `04-semantics.md` — responsibilities and intent. The strongest seed for behavioural concepts.
 - `08-interconnect-map.md` (optional) — cross-partition contracts. Enables the bounded-context check that gate K6 requires.
 
-Mode `diff` needs only `01-structure.md` and `02-interfaces.md`, both produced by `--depth=lite`. With no deep-dive output at all, `diff` runs on the concept index plus `Glob` and `Grep`, at reduced confidence, and says so in Gaps.
+Mode `diff` needs only `01-structure.md` and `02-interfaces.md`, both produced by `--depth=lite`. With no X-ray output at all, `diff` runs on the concept index plus `Glob` and `Grep`, at reduced confidence, and says so in Gaps.
 
 # PROCESS (mode = global)
 
 1. **Load the skill.** Read `SKILL.md`, then `references/dimensions.md`.
-2. **Read deep-dive files.** Record missing ones in Gaps.
+2. **Read X-ray files.** Record missing ones in Gaps.
 3. **Build the seed map.** Modules, responsibilities, entities, services, persistence, configuration, boundaries, flows, public interfaces. Per `references/concept-census.md`, the map seeds the census and does not bound it.
 4. **Extract candidate concepts.** Entity nouns and behavioural concepts. The behavioural ones carry most of the knowledge-track findings.
 5. **Discovery.** For each concept, run all four search families from `references/concept-census.md`: by name and near-synonym, by literal, by call, by shape of decision. High recall. Every hit is a candidate.
@@ -117,7 +117,7 @@ Both modes use the same section letters so consolidation is uniform. Omit an emp
 **Generated:** <ISO timestamp>
 **Mode:** global | diff
 **Scope:** <codebase_path[/scope]>
-**Deep-dive source:** <deep_dive_path | none>
+**X-ray source:** <xray_path | none>
 **Concept index:** <path> (<fresh | delta-stale | unusable: reason>)
 **Severity floor:** <low | medium | high>
 **Focus:** <all | knowledge | form | Dn>
@@ -171,7 +171,7 @@ One line per pair, exempt from `severity_floor`, so the next occurrence is recog
   ```
   Or, when degraded, the specific condition and what coverage was lost.
 - **Index contradictions:** entries the source disproved, with what the source says
-- **Gaps:** deep-dive files missing, directories not covered, units skipped and why
+- **Gaps:** X-ray files missing, directories not covered, units skipped and why
 ````
 
 # CONSTRAINTS
@@ -204,4 +204,4 @@ Return to the caller: the absolute report path, summary counts, the concept inde
 - Do not trust the index over the source. When they disagree, the source wins and the disagreement is reportable.
 - Do not skip `unmapped_changed_files` because the index looked complete. Completeness of an upstream artifact is never a premise.
 - Do not produce a refactoring plan. One sentence of direction.
-- Do not echo deep-dive content. The report is your synthesis.
+- Do not echo X-ray content. The report is your synthesis.

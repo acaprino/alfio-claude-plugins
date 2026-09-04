@@ -10,7 +10,7 @@ decision on stdout. Two independent rules:
 
   2. Write confinement (opt-in via --confine <prefix>). Deny any file-creating
      or file-editing tool call whose target lies outside the given prefix. The
-     worker agents pass `--confine .deep-dive` so an off-contract write to
+     worker agents pass `--confine .codebase-xray` so an off-contract write to
      source code fails at the tool layer instead of silently corrupting a
      sibling partition.
 
@@ -19,7 +19,7 @@ Usage in an .agent.md frontmatter, added by hand (nothing generated wires it):
     hooks:
       PreToolUse:
         - type: command
-          command: "python policies/write-confinement/xray_guard.py --confine .deep-dive"
+          command: "python policies/write-confinement/xray_guard.py --confine .codebase-xray"
 
 It ships under policies/write-confinement/ of the Copilot package as an opt-in.
 It is deliberately not a plugin hook: a plugin-level hook is session-global and

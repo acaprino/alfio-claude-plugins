@@ -3,11 +3,11 @@ name = "write-confinement"
 description = "Every X-ray writer may only create files under its own run directory. The published root mirror is the stable downstream contract, so nothing outside it is a legitimate target for an analysis run."
 
 [roots]
-xray = ".deep-dive"
+xray = ".codebase-xray"
 
 [confinement]
-run_directory = ".deep-dive/runs/${run}"
-published_mirror = ".deep-dive"
+run_directory = ".codebase-xray/runs/${run}"
+published_mirror = ".codebase-xray"
 forbid_writes_outside_roots = true
 
 # Where this policy is enforced, decided on 2026-09-03 after the cross-host
@@ -16,7 +16,7 @@ forbid_writes_outside_roots = true
 # A plugin-level hook (hooks/hooks.json, which Claude Code and Codex both read)
 # is session-global: it fires for every tool call of every agent while the
 # plugin is enabled, so a confinement rule there would refuse every write
-# outside .deep-dive/ in every session, not only inside an X-ray worker. A
+# outside .codebase-xray/ in every session, not only inside an X-ray worker. A
 # confinement rule can therefore never ship as a plugin hook.
 #
 # Per-agent hooks exist on Claude (agent frontmatter) and in VS Code custom

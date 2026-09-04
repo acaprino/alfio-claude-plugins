@@ -1,6 +1,6 @@
 implements = "write-confinement"
 mechanism = "custom-agent-hook"
 entrypoint = "xray_guard.py"
-invocation = "python policies/write-confinement/xray_guard.py --confine .deep-dive"
+invocation = "python policies/write-confinement/xray_guard.py --confine .codebase-xray"
 wired = false
 notes = "A PreToolUse guard for VS Code custom agents (agent-frontmatter `hooks:`, behind `chat.useCustomAgentHooks`). It ships with the package as an opt-in the user adds to a worker's frontmatter by hand; nothing generated references it. It is not a plugin hook on purpose: a plugin-level hook is session-global and would confine every write in every session. Copilot CLI does not run plugin hooks at all (github/copilot-cli#2540, open). Fail-open by design: an unparseable payload or an unknown tool resolves to allow, so a host schema change degrades this to prompt-level enforcement instead of blocking every call."

@@ -16,7 +16,7 @@ You execute Phase 3 (Flow Tracing) and Phase 4 (Semantic Understanding) of X-ray
 
 The spawn prompt gives you:
 - `partition_name`, `partition_path`, `active_flags` (you respect `critical`)
-- `run_dir`: the run directory for this analysis (e.g. `.deep-dive/runs/<run-id>`)
+- `run_dir`: the run directory for this analysis (e.g. `.codebase-xray/runs/<run-id>`)
 - Implicit: all `<run_dir>/partitions/*/01-structure.md` and `02-interfaces.md` already exist (Wave 1 barrier has closed)
 
 ## OWNERSHIP CONTRACT
@@ -29,7 +29,7 @@ You read freely from:
 - `partition_path` (source code in your partition)
 - `<run_dir>/partitions/*/01-structure.md` and `02-interfaces.md` (all partitions)
 
-You DO NOT touch any other file under `.deep-dive/` (other runs may be in progress concurrently). You DO NOT update `<run_dir>/state.json`.
+You DO NOT touch any other file under `.codebase-xray/` (other runs may be in progress concurrently). You DO NOT update `<run_dir>/state.json`.
 
 ## FORBIDDEN FILES
 

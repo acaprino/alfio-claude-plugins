@@ -216,7 +216,7 @@ Find dependencies that work only because of timing coincidence.
   - B requires C: `service-b/path/file:line` (what it needs from C)
   - C requires A: `service-c/path/file:line` (what it needs from A)
 - **Load-bearing premise:** [the single proposition whose falsity collapses this finding: minimal, falsifiable, scoped. Not a paraphrase of the finding itself]
-- **premise_provenance:** independent | shared-context | mixed [causal dependence, not citation: shared-context if you absorbed the premise from the deep-dive output or the interconnect map, even when your finding cites no anchor]
+- **premise_provenance:** independent | shared-context | mixed [causal dependence, not citation: shared-context if you absorbed the premise from the X-ray output or the interconnect map, even when your finding cites no anchor]
 - **Manifestation:** [when does this break -- cold start, fresh deploy, infra rebuild]
 - **Fix:** [concrete cycle-breaking strategy with code references]
 

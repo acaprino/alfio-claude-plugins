@@ -12,7 +12,7 @@ argument-hint: "<target path> [--critical] [--comments] [--docs-only] [--phase N
 
 1. **Execute phases in order.** Unless `--phase N` skips to a specific phase.
 2. **Write output files.** Each phase produces a file in the run directory for context passing.
-3. **Run isolation.** All writes go to `$RUN_DIR` until the publish step. Never write phase files to the `.deep-dive/` root during analysis: concurrent runs share that root.
+3. **Run isolation.** All writes go to `$RUN_DIR` until the publish step. Never write phase files to the `.codebase-xray/` root during analysis: concurrent runs share that root.
 4. **Stop at checkpoints.** Confirm scope before starting analysis and before applying changes.
 5. **Never enter plan mode.** Execute immediately.
 6. **Code is ground truth.** Document what the code actually does, not what you think it should do.
@@ -45,13 +45,13 @@ If encountered: note file existence only ("`.env` present - contains environment
 
 ### 1. Resolve the run
 
-Analyses are concurrent-safe: each invocation is an isolated **run** under `.deep-dive/runs/<run-id>/` (see `## Concurrent Runs Model` in the `codebase-xray:xray-method` skill).
+Analyses are concurrent-safe: each invocation is an isolated **run** under `.codebase-xray/runs/<run-id>/` (see `## Concurrent Runs Model` in the `codebase-xray:xray-method` skill).
 
 1. Compute `run-id`: value of `--run-name` (normalized to `[a-z0-9-]`) or `<slug-of-target>-<YYYYMMDD-HHMMSS>`. On collision with an existing run directory, append `-2`, `-3`, ...
-2. Set `RUN_DIR = .deep-dive/runs/<run-id>`.
-3. Read `.deep-dive/runs.json` if it exists:
+2. Set `RUN_DIR = .codebase-xray/runs/<run-id>`.
+3. Read `.codebase-xray/runs.json` if it exists:
    - **Active runs listed**: show them (run-id, target, mode, started_at) and ask: resume one of them, or start this new run alongside? Starting alongside is normal and safe; runs never share files.
-   - **Legacy layout** (root `state.json` with a `current_phase` field and no `runs.json`): offer to migrate the old files into `.deep-dive/runs/legacy-<date>/` before proceeding.
+   - **Legacy layout** (root `state.json` with a `current_phase` field and no `runs.json`): offer to migrate the old files into `.codebase-xray/runs/legacy-<date>/` before proceeding.
 4. Register the run: create/update `runs.json` with read-modify-write, appending `{run_id, target, mode: "classic", started_at}` to `active`. Never drop entries you did not create.
 
 ### 1b. Detect an update base
@@ -60,12 +60,12 @@ An X-ray run is a set of claims about a tree. When that tree has barely moved si
 
 Skip this step entirely if `--no-update` was passed.
 
-1. From `runs.json`, take `latest_completed`. The candidate parent is that run when its recorded `target` normalizes to the same path as this invocation's target, `.deep-dive/runs/<id>/state.json` records `mode: "classic"`, and `.deep-dive/runs/<id>/snapshot/manifest.json` exists. A completed **team** run is never a usable parent here: its `08-interconnect-map.md` is cross-partition output this workflow has no phase to regenerate, so carrying it forward would leave a stale marker nothing in `## Execution Order` ever revisits, and the check in step 8 would then refuse to publish. Treat a `latest_completed` team run the same as no candidate parent at all.
+1. From `runs.json`, take `latest_completed`. The candidate parent is that run when its recorded `target` normalizes to the same path as this invocation's target, `.codebase-xray/runs/<id>/state.json` records `mode: "classic"`, and `.codebase-xray/runs/<id>/snapshot/manifest.json` exists. A completed **team** run is never a usable parent here: its `08-interconnect-map.md` is cross-partition output this workflow has no phase to regenerate, so carrying it forward would leave a stale marker nothing in `## Execution Order` ever revisits, and the check in step 8 would then refuse to publish. Treat a `latest_completed` team run the same as no candidate parent at all.
 2. With a candidate, run the change set:
 
    ```bash
    python ${CLAUDE_PLUGIN_ROOT}/skills/xray-method/scripts/snapshot.py diff \
-     .deep-dive/runs/<parent-id> <target> --out $RUN_DIR --flags '<this run's flags as JSON>'
+     .codebase-xray/runs/<parent-id> <target> --out $RUN_DIR --flags '<this run's flags as JSON>'
    ```
 
 3. Read `$RUN_DIR/changes.json` and take `recommendation` and `totals`. They drive the checkpoint in step 3.
@@ -127,7 +127,7 @@ Files to read: [N] of [total]
 3. Cancel
 ```
 
-`[commit]` and `[age]` describe the parent run, not this one: read `[commit]` from `.deep-dive/runs/<parent-id>/state.json -> git.commit` (copied into that run's own state right after it wrote its snapshot) and derive `[age]` from that run's `started_at`. `changes.json`'s own `git` field describes the current worktree instead, and is never the source for this line.
+`[commit]` and `[age]` describe the parent run, not this one: read `[commit]` from `.codebase-xray/runs/<parent-id>/state.json -> git.commit` (copied into that run's own state right after it wrote its snapshot) and derive `[age]` from that run's `started_at`. `changes.json`'s own `git` field describes the current worktree instead, and is never the source for this line.
 
 **With `recommendation: full`**, present the same figures with the options reversed, and print every entry of `reasons` under the figures so the user sees why (ratio over threshold, parent without a manifest, parent not complete, flags differing from the parent's). The incremental option stays selectable: the recommendation is advice, and the user decides.
 
@@ -200,7 +200,7 @@ The phases and their numbering are unchanged. What changes is that most claims a
 
    ```bash
    python ${CLAUDE_PLUGIN_ROOT}/skills/xray-method/scripts/snapshot.py carry \
-     .deep-dive/runs/<parent-id> $RUN_DIR
+     .codebase-xray/runs/<parent-id> $RUN_DIR
    ```
 
    This copies the parent's `01` to `06` and `knowledge/` into the run, renumbers every carried `file:line` citation whose symbol survived the edit, and inserts an `<!-- xray:stale reason=... cites=... -->` marker above every claim the change set affects. Phase 7 is never carried: it is regenerated.
@@ -630,7 +630,7 @@ Update `$RUN_DIR/state.json`: set `status` to `"complete"`.
 
 After Phase 7 completes:
 
-1. Copy `$RUN_DIR/01-*.md` through `$RUN_DIR/07-final-report.md` (the ones that exist for the active flags) and `$RUN_DIR/state.json` to the `.deep-dive/` root, overwriting the previous mirror.
+1. Copy `$RUN_DIR/01-*.md` through `$RUN_DIR/07-final-report.md` (the ones that exist for the active flags) and `$RUN_DIR/state.json` to the `.codebase-xray/` root, overwriting the previous mirror.
 
 `changes.md`, `changes.json` and `snapshot/` stay in the run directory and are never mirrored: the root mirror is the latest-state contract, and history lives under `runs/`.
 
@@ -647,18 +647,18 @@ Present the analysis summary and a proposed action plan derived from findings, t
 
 ```
 Codebase X-ray complete for: $ARGUMENTS
-Run: [run-id] (published to .deep-dive/ root)
+Run: [run-id] (published to .codebase-xray/ root)
 Parent: [parent-id or "none (full run)"]
 
 Output Files:
-- Structure: .deep-dive/runs/[run-id]/01-structure.md
-- Interfaces: .deep-dive/runs/[run-id]/02-interfaces.md
-- Flows: .deep-dive/runs/[run-id]/03-flows.md
-- Semantics: .deep-dive/runs/[run-id]/04-semantics.md
-- Risks: .deep-dive/runs/[run-id]/05-risks.md
-- Documentation: .deep-dive/runs/[run-id]/06-documentation.md
-- Final Report: .deep-dive/runs/[run-id]/07-final-report.md
-(mirrored to .deep-dive/ root for downstream consumers)
+- Structure: .codebase-xray/runs/[run-id]/01-structure.md
+- Interfaces: .codebase-xray/runs/[run-id]/02-interfaces.md
+- Flows: .codebase-xray/runs/[run-id]/03-flows.md
+- Semantics: .codebase-xray/runs/[run-id]/04-semantics.md
+- Risks: .codebase-xray/runs/[run-id]/05-risks.md
+- Documentation: .codebase-xray/runs/[run-id]/06-documentation.md
+- Final Report: .codebase-xray/runs/[run-id]/07-final-report.md
+(mirrored to .codebase-xray/ root for downstream consumers)
 
 Summary:
 - Files analyzed: [count]
@@ -666,7 +666,7 @@ Summary:
 - Documentation gaps: [count]
 ```
 
-On an incremental run, add a fourth line after `Parent:` naming the same four buckets `### Incremental depth` step 9 writes to `changes.md`: `Claims: [N] confirmed, [N] revised, [N] retired, [N] added. Detail in .deep-dive/runs/[run-id]/changes.md`. A full run has no such line: there is no `changes.md` to point at, and "carried" is not a bucket anything writes, since counting it would mean reading every citation in the parent's phase files, the cost this whole mechanism exists to avoid.
+On an incremental run, add a fourth line after `Parent:` naming the same four buckets `### Incremental depth` step 9 writes to `changes.md`: `Claims: [N] confirmed, [N] revised, [N] retired, [N] added. Detail in .codebase-xray/runs/[run-id]/changes.md`. A full run has no such line: there is no `changes.md` to point at, and "carried" is not a bucket anything writes, since counting it would mean reading every citation in the parent's phase files, the cost this whole mechanism exists to avoid.
 
 ### Proposed Action Plan
 
@@ -718,7 +718,7 @@ What would you like to do next?
 
 Wait for the user's choice before proceeding. If the user picks option 1, confirm which actions to execute and in what order before starting.
 
-If the user picks option 4 (any sub-option), the downstream command auto-detects the published `.deep-dive/` mirror on its pre-flight and offers to ingest it as the technical source. The user does not need to pass any flag manually -- detection is automatic. If the user picks 4a and `CLAUDE.md` already exists, route to `/project-setup:maintain-claude-md` (audit + improve); otherwise route to `/project-setup:create-claude-md` (fresh generation).
+If the user picks option 4 (any sub-option), the downstream command auto-detects the published `.codebase-xray/` mirror on its pre-flight and offers to ingest it as the technical source. The user does not need to pass any flag manually -- detection is automatic. If the user picks 4a and `CLAUDE.md` already exists, route to `/project-setup:maintain-claude-md` (audit + improve); otherwise route to `/project-setup:create-claude-md` (fresh generation).
 
 If the user picks option 2, use the dedicated scripts for safe, automated fixes:
 
@@ -742,4 +742,4 @@ Present a summary of changes made after applying fixes. For languages outside th
 
 ## Integration with Code Review
 
-Published analysis output in `.deep-dive/` is automatically picked up by `/senior-review:code-review`. `/senior-review:team-review` builds the same context itself: its Phase 1a invokes this command (`--depth=lite` by default). Run an X-ray first, then run a code review for the most thorough analysis possible.
+Published analysis output in `.codebase-xray/` is automatically picked up by `/senior-review:code-review`. `/senior-review:team-review` builds the same context itself: its Phase 1a invokes this command (`--depth=lite` by default). Run an X-ray first, then run a code review for the most thorough analysis possible.

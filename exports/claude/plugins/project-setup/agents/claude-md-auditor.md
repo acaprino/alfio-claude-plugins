@@ -137,20 +137,20 @@ Why the block is short: it carries only rules that are universally binding and v
 
 ## AUDIT METHODOLOGY
 
-### Phase 0: Deep-Dive Detection (optional shortcut)
+### Phase 0: X-Ray Detection (optional shortcut)
 
-Before doing bottom-up discovery from scratch, check whether the project already has a recent deep-dive analysis on disk:
+Before doing bottom-up discovery from scratch, check whether the project already has a recent X-ray analysis on disk:
 
 ```bash
-ls .deep-dive/01-structure.md .deep-dive/02-interfaces.md 2>/dev/null
+ls .codebase-xray/01-structure.md .codebase-xray/02-interfaces.md 2>/dev/null
 ```
 
-If `.deep-dive/` exists with at least `01-structure.md` AND `02-interfaces.md`:
+If `.codebase-xray/` exists with at least `01-structure.md` AND `02-interfaces.md`:
 
-1. Read `.deep-dive/state.json` if present to confirm the analysis is complete (not stale/in-progress).
+1. Read `.codebase-xray/state.json` if present to confirm the analysis is complete (not stale/in-progress).
 2. Surface the finding to the user (during the create flow this comes from the host command's pre-flight; during the audit/maintain flow ask explicitly):
    ```
-   Found .deep-dive/ from a previous /codebase-xray:analyze session
+   Found .codebase-xray/ from a previous /codebase-xray:analyze session
    (target: <state.json target>, status: <state.json status>, completed: <state.json started_at>).
    Available docs:
      - 01-structure.md (file inventory, dependency graph, naming conventions)
@@ -159,17 +159,17 @@ If `.deep-dive/` exists with at least `01-structure.md` AND `02-interfaces.md`:
      - 03-flows.md, 04-semantics.md, 06-documentation.md, 07-final-report.md (if --depth=full was used)
 
    Use it as the technical source instead of re-analyzing from scratch?
-   [Y] Use deep-dive output (faster, claims already verified)
+   [Y] Use X-ray output (faster, claims already verified)
    [n] Re-analyze bottom-up (current behavior - skip Phase 0)
    ```
-3. If the user accepts (or the host command set `--from-deep-dive`):
-   - Read `.deep-dive/01-structure.md` as the canonical source for the project structure section. The "File Inventory" table, "Dependency Graph", "Entry Points", "Where to Add New Code", and "Naming Conventions" become the technical backbone of CLAUDE.md.
-   - Read `.deep-dive/02-interfaces.md` for the public APIs, contracts, and "How to Add a New Module" guidance.
-   - Read `.deep-dive/05-risks.md` (if present) to surface known anti-patterns, red flags, and tech debt that CLAUDE.md should warn Claude about (e.g., "Note: legacy module X is being phased out - prefer Y").
-   - Skip Phase 1 (Bottom-Up Discovery) below. Treat deep-dive outputs as ground truth and proceed directly to Phase 2 (Claim Verification, when auditing) or to drafting (when creating).
-   - **Still verify spot-checks**: the deep-dive output is a snapshot in time. Confirm 3-5 critical claims against current code (entry points exist, top dependencies match `package.json`, key directories exist). If divergence is high (>20% of spot-checks fail), the deep-dive is stale - fall back to Phase 1.
-   - When applying improvements, every CLAUDE.md claim derived from deep-dive output cites its source: `(source: .deep-dive/01-structure.md)` as an inline comment in the draft, removable before finalization.
-4. If the user declines (or `.deep-dive/` is absent / incomplete), proceed with Phase 1 as normal.
+3. If the user accepts (or the host command set `--from-xray`):
+   - Read `.codebase-xray/01-structure.md` as the canonical source for the project structure section. The "File Inventory" table, "Dependency Graph", "Entry Points", "Where to Add New Code", and "Naming Conventions" become the technical backbone of CLAUDE.md.
+   - Read `.codebase-xray/02-interfaces.md` for the public APIs, contracts, and "How to Add a New Module" guidance.
+   - Read `.codebase-xray/05-risks.md` (if present) to surface known anti-patterns, red flags, and tech debt that CLAUDE.md should warn Claude about (e.g., "Note: legacy module X is being phased out - prefer Y").
+   - Skip Phase 1 (Bottom-Up Discovery) below. Treat X-ray outputs as ground truth and proceed directly to Phase 2 (Claim Verification, when auditing) or to drafting (when creating).
+   - **Still verify spot-checks**: the X-ray output is a snapshot in time. Confirm 3-5 critical claims against current code (entry points exist, top dependencies match `package.json`, key directories exist). If divergence is high (>20% of spot-checks fail), the X-ray is stale - fall back to Phase 1.
+   - When applying improvements, every CLAUDE.md claim derived from X-ray output cites its source: `(source: .codebase-xray/01-structure.md)` as an inline comment in the draft, removable before finalization.
+4. If the user declines (or `.codebase-xray/` is absent / incomplete), proceed with Phase 1 as normal.
 
 ### Phase 1: Bottom-Up Discovery
 
@@ -300,23 +300,23 @@ Categorize findings by severity:
 
 ### Workflow A: Audit Existing CLAUDE.md
 
-1. **Phase 0**: detect `.deep-dive/` and offer it as ground-truth source (skip Phase 1 if accepted, after spot-check confirmation)
+1. **Phase 0**: detect `.codebase-xray/` and offer it as ground-truth source (skip Phase 1 if accepted, after spot-check confirmation)
 2. If Phase 0 was skipped: build ground truth bottom-up (Phase 1), reading CLAUDE.md last
-3. Verify each claim against ground truth (Phase 2). If Phase 0 was used, "ground truth" = deep-dive output + 3-5 spot checks against current code
+3. Verify each claim against ground truth (Phase 2). If Phase 0 was used, "ground truth" = X-ray output + 3-5 spot checks against current code
 4. Detect obsolescence and gaps (Phase 3, 3b)
 5. Evaluate against best practices (Phase 4)
 6. Run the duplication detection pass (Phase 4b) - apply all 5 heuristics; produce a candidate list with line numbers, peer-group comparison, and the triggering heuristic for each
-7. Generate audit report with findings and prioritized fixes. When findings reference deep-dive sources, include the `.deep-dive/<file>:<section>` anchor so the user can verify the chain. Dedup findings include the full per-finding question format from Phase 4b
+7. Generate audit report with findings and prioritized fixes. When findings reference X-ray sources, include the `.codebase-xray/<file>:<section>` anchor so the user can verify the chain. Dedup findings include the full per-finding question format from Phase 4b
 8. **Per-drift confirmation gate.** Before applying ANY change, every finding is presented to the user one-by-one (or in tightly grouped clusters of closely related items) via `AskUserQuestion`. For deletions specifically (including dedup merges, which ARE deletions of the redundant occurrences), confirm one of: (a) cross-verification proves the content false (cite the contradicting file/manifest), (b) cross-verification proves it obsolete (cite the removed/renamed target), or (c) the user has explicitly approved deletion of this specific item in this session. If none of the three holds for a deletion, do NOT delete. Default action on any finding the user has not yet answered is **leave unchanged**.
 9. Apply only the improvements the user has approved for each specific finding
 
 ### Workflow B: Create New CLAUDE.md
 
-1. **Phase 0**: detect `.deep-dive/` and offer it as ground-truth source (skip Phase 1 if accepted, after spot-check confirmation). The host `create-claude-md` command's pre-flight may have already prompted the user - in that case the choice is already in the session context and no second prompt is needed
+1. **Phase 0**: detect `.codebase-xray/` and offer it as ground-truth source (skip Phase 1 if accepted, after spot-check confirmation). The host `create-claude-md` command's pre-flight may have already prompted the user - in that case the choice is already in the session context and no second prompt is needed
 2. If Phase 0 was skipped: discover project architecture thoroughly (Phase 1)
-3. Generate an evergreen project-structure section: top-level layout, repeating structural patterns, role of each top-level category. File-by-file annotation is justified only where names alone do not reveal purpose, where the file is itself a key entry point, or to disambiguate siblings with overlapping names. Do NOT enumerate every file - Claude recovers transient details via Glob on demand. If Phase 0 was used, distill the "File Inventory" + "Dependency Graph" + "Where to Add New Code" + "Naming Conventions" sections of `.deep-dive/01-structure.md` into categorical shape (groups + roles + entry points), not a verbatim file-by-file copy; the public API surface from `.deep-dive/02-interfaces.md` is the per-module reference
+3. Generate an evergreen project-structure section: top-level layout, repeating structural patterns, role of each top-level category. File-by-file annotation is justified only where names alone do not reveal purpose, where the file is itself a key entry point, or to disambiguate siblings with overlapping names. Do NOT enumerate every file - Claude recovers transient details via Glob on demand. If Phase 0 was used, distill the "File Inventory" + "Dependency Graph" + "Where to Add New Code" + "Naming Conventions" sections of `.codebase-xray/01-structure.md` into categorical shape (groups + roles + entry points), not a verbatim file-by-file copy; the public API surface from `.codebase-xray/02-interfaces.md` is the per-module reference
 4. Ask user about workflow priorities, conventions, and desired detail level
-5. Draft CLAUDE.md structured around WHAT/WHY/HOW, all claims verified. Include the full structure map AND the canonical `## Working Principles` block (REQUIRED SECTION) inserted verbatim. When the project has a test suite (or the user says tests are planned), offer the canonical `## Test-Suite Rules` block (CONDITIONAL SECTION, default yes) and insert it verbatim in the HOW group. If `.deep-dive/05-risks.md` exists, surface its red-flags as a brief "Known Tech Debt" section that warns Claude (e.g., "legacy module X is being phased out - prefer Y")
+5. Draft CLAUDE.md structured around WHAT/WHY/HOW, all claims verified. Include the full structure map AND the canonical `## Working Principles` block (REQUIRED SECTION) inserted verbatim. When the project has a test suite (or the user says tests are planned), offer the canonical `## Test-Suite Rules` block (CONDITIONAL SECTION, default yes) and insert it verbatim in the HOW group. If `.codebase-xray/05-risks.md` exists, surface its red-flags as a brief "Known Tech Debt" section that warns Claude (e.g., "legacy module X is being phased out - prefer Y")
 6. **Pre-finalize dedup pass.** Before showing the draft to the user, run Phase 4b heuristics on the draft itself. The goal is to catch duplicates introduced during drafting (e.g., the same `docs/X.md` pointer added both in the project-structure section and in the workflow section without each occurrence carrying a distinct directive). Any dedup candidate is surfaced as a per-finding question in step 7
 7. Review with user and finalize
 

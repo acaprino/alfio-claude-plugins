@@ -74,7 +74,7 @@ MAX_FILE_BYTES = 20_000_000
 
 # Pruned during the walk, so a large dependency tree is never descended into.
 EXCLUDED_DIRS = frozenset({
-    ".deep-dive", ".git", ".idea", ".mypy_cache", ".next", ".pytest_cache",
+    ".codebase-xray", ".git", ".idea", ".mypy_cache", ".next", ".pytest_cache",
     ".tox", ".venv", ".vscode", "__pycache__", "build", "dist", "node_modules",
     "target", "vendor", "venv",
 })

@@ -18,7 +18,7 @@ Each host picks a different topology to do that. The topology may differ; the co
   `initial-consolidation`, `consolidation` needs `cross-examination`
 - only `consolidation` produces `artifact:final-report`
 - all seven record contracts exist and travel with every package
-- `codebase-xray` keeps `.deep-dive` as its artifact root, through the neutral write-confinement
+- `codebase-xray` keeps `.codebase-xray` as its artifact root, through the neutral write-confinement
   policy
 - `senior-review` declares no external team runtime, and every dimension plugin stays a hard
   dependency

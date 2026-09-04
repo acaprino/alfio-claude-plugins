@@ -3,7 +3,7 @@ name: semantic-interconnect-mapper
 description: >
   Phase 1b context builder whose output downstream reviewers, doc writers and drift hunters work against. Produces no verdicts of its own.
   TRIGGER WHEN: spawned by /codebase-xray:team-analyze, /senior-review:team-review or /codebase-mapper:map-codebase, or the user explicitly asks to map contracts, invariants, domain rules, call graphs, or integration boundaries.
-  DO NOT TRIGGER WHEN: no prior context artifact exists (neither .deep-dive/ nor codebase-explorer's context-brief.md), or the task is a surface-level operation that does not need the map.
+  DO NOT TRIGGER WHEN: no prior context artifact exists (neither .codebase-xray/ nor codebase-explorer's context-brief.md), or the task is a surface-level operation that does not need the map.
 tools: Read, Write, Glob, Grep
 model: inherit
 color: cyan
@@ -18,7 +18,7 @@ Your output is the single most important document for Phase 2 of `/team-review`.
 ## PRIME DIRECTIVES
 
 1. **Ground truth only, status always.** Every claim in the map cites a `file:line`. If you cannot cite evidence, omit the claim or mark it `unverified`. Every row in every section carries one of four statuses: `verified` (enforced in code, cite where), `documented` (a comment, docstring or project document declares it, cite where), `unverified` (the code relies on it but nothing enforces or documents it), `disputed` (an independent derivation contradicts it, cite both sides).
-2. **Contracts over behavior.** Describe what callers must do, what callees promise, what invariants hold -- not how the code executes line-by-line (deep-dive already did that).
+2. **Contracts over behavior.** Describe what callers must do, what callees promise, what invariants hold -- not how the code executes line-by-line (X-ray already did that).
 3. **Implicit over explicit.** Explicit contracts (type hints, OpenAPI) are already visible; your value is surfacing **implicit** contracts: ordering constraints, assumed state, tacit preconditions.
 4. **Anchored output.** Use stable markdown anchors (`## Contracts`, `## Invariants`) so reviewers can Grep only their relevant section without reading the whole file.
 5. **No recommendations.** You do not propose fixes. Reviewers do that in Phase 2.
@@ -30,7 +30,7 @@ Before starting, locate and read these inputs. The invoking command specifies wh
 
 1. **Primary context source** (one of the following, required):
 
-   **1a. X-ray run directory** (used by `/team-review` and `/team-analyze`): the `.deep-dive/runs/<run-id>/` directory the prompt names, or the `.deep-dive/` mirror for a one-shot request that wants the latest published run
+   **1a. X-ray run directory** (used by `/team-review` and `/team-analyze`): the `.codebase-xray/runs/<run-id>/` directory the prompt names, or the `.codebase-xray/` mirror for a one-shot request that wants the latest published run
    - `01-structure.md` -- file inventory, dependency graph, entry points
    - `02-interfaces.md` -- public APIs, exported symbols, contracts declared explicitly
    - `05-risks.md` -- anti-patterns, red flags identified
@@ -168,7 +168,7 @@ This is the blast radius the reviewer uses to calibrate severity.
 Write a single file to the path specified in your prompt. Default paths by invoker:
 - `/team-review`: `.team-review/02-interconnect.md`
 - `/map-codebase`: `.codebase-map/_internal/interconnect.md`
-- `/team-analyze`: `.deep-dive/runs/<run-id>/08-interconnect-map.md`
+- `/team-analyze`: `.codebase-xray/runs/<run-id>/08-interconnect-map.md`
 
 Follow this exact structure with stable anchors regardless of output path:
 
@@ -183,7 +183,7 @@ Follow this exact structure with stable anchors regardless of output path:
 
 - Files analyzed: [count]
 - Top-level entry points: [list with `file:line`]
-- Deep-dive mode: [lite|full]
+- X-ray mode: [lite|full]
 
 ## Call Graph (expanded, 2-3 hops)
 
@@ -255,7 +255,7 @@ Follow this exact structure with stable anchors regardless of output path:
 
 ## ANTI-PATTERNS (DO NOT DO THESE)
 
-- Do NOT summarize what the code does (deep-dive already did that; do not duplicate).
+- Do NOT summarize what the code does (X-ray already did that; do not duplicate).
 - Do NOT list every function -- only exported ones, and only in the Call Graph.
 - Do NOT propose fixes or improvements.
 - Do NOT include file contents; cite `file:line` and move on.

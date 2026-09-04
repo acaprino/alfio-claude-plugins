@@ -281,7 +281,7 @@ If modifying this code, also check:
 
 ## Links
 
-- **Run report:** `.deep-dive/runs/{run_id}/07-final-report.md`
+- **Run report:** `.codebase-xray/runs/{run_id}/07-final-report.md`
 - **Callers:** {list_of_files_that_import_this}
 - **Callees:** {list_of_files_this_imports}
 

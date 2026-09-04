@@ -132,7 +132,7 @@ When a `derived` estimate is cheap to check (a rate, a loop count), prefer measu
 **[HIGH-001] [Title]**
 - **Mechanism:** [which timer/loop/retry]
 - **Load-bearing premise:** [the single proposition whose falsity collapses this finding: minimal, falsifiable, scoped. Not a paraphrase of the finding itself]
-- **premise_provenance:** independent | shared-context | mixed [causal dependence, not citation: shared-context if you absorbed the premise from the deep-dive output or the interconnect map, even when your finding cites no anchor]
+- **premise_provenance:** independent | shared-context | mixed [causal dependence, not citation: shared-context if you absorbed the premise from the X-ray output or the interconnect map, even when your finding cites no anchor]
 - **Failure chain:** trigger -> [swallowed/retried/stuck] -> steady state after 24h
 - **Evidence:** `file:line` (failure path), `file:line` (missing recovery/escalation)
 - **Quantified damage:** [N/day, MB/day, $/month] (`measured`: method / `derived`: from code)

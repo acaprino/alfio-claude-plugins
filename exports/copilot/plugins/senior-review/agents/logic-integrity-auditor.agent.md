@@ -153,7 +153,7 @@ Start at 10/10. Floor at 1/10. Justify any score below 7 with specific deduction
 - **Map anchor:** `## [anchor name]` row "[quoted row]" (or `[MAP-GAP]` -- rule absent from the map; cite the rule's own `file:line` evidence instead)
 - **Violation site:** `file:line`
 - **Load-bearing premise:** [the single proposition whose falsity collapses this finding: minimal, falsifiable, scoped. Not a paraphrase of the finding itself]
-- **premise_provenance:** independent | shared-context | mixed [causal dependence, not citation: shared-context if you absorbed the premise from the deep-dive output or the interconnect map, even when your finding cites no anchor]
+- **premise_provenance:** independent | shared-context | mixed [causal dependence, not citation: shared-context if you absorbed the premise from the X-ray output or the interconnect map, even when your finding cites no anchor]
 - **Scenario:** [T1 -> T2 -> T3 sequence showing the broken state]
 - **Observable symptom:** [what a user/operator/downstream sees]
 - **Fix:** [concrete remediation with file:line]

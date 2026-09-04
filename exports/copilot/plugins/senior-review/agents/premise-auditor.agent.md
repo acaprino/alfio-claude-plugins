@@ -18,7 +18,7 @@ You have two modes. The prompt that spawns you names which one. They have differ
 
 **Forbidden inputs.** Do not read, and do not accept in your prompt:
 
-- `.deep-dive/` in any form, including a run directory under `.deep-dive/runs/`
+- `.codebase-xray/` in any form, including a run directory under `.codebase-xray/runs/`
 - `.team-review/02-interconnect.md`
 - any summary, excerpt or paraphrase of an X-ray conclusion
 
@@ -57,7 +57,7 @@ an honest gap is more useful than a confident guess.]
 
 ## Mode 2: Adversarial premise challenge (Phase 4b, Lens 0)
 
-**Inputs:** everything. The finding, its declared load-bearing premise, the interconnect map, the deep-dive output, `.team-review/01-knowledge-provenance.md`, the repository. Full context is correct here: you are attacking a specific proposition, not producing an independent derivation.
+**Inputs:** everything. The finding, its declared load-bearing premise, the interconnect map, the X-ray output, `.team-review/01-knowledge-provenance.md`, the repository. Full context is correct here: you are attacking a specific proposition, not producing an independent derivation.
 
 **Mandate: try to falsify the premise, not the finding.** Lens 1 asks whether the described defect is reachable. Lens 2 asks whether the finding is a misread. You ask a different question: **is the proposition the finding stands on true at all, across every path it ranges over?**
 

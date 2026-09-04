@@ -1,5 +1,5 @@
 """
-Language adapter dispatch for Deep Dive Analysis.
+Language adapter dispatch for the codebase X-ray.
 
 Maps file extensions to language adapters that implement the LanguageAdapter
 protocol. Each adapter provides structural extraction (classes, functions,

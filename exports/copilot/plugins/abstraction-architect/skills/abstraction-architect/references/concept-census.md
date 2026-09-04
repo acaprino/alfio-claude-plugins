@@ -23,7 +23,7 @@ FINDING                      only here does precision apply
 
 ## Phase 1: the seed map
 
-Read `.deep-dive/` and extract the territory: modules, responsibilities, entities and domain concepts, services, persistence, configuration, boundaries, principal flows, public interfaces.
+Read `.codebase-xray/` and extract the territory: modules, responsibilities, entities and domain concepts, services, persistence, configuration, boundaries, principal flows, public interfaces.
 
 The census is seeded by this map on purpose. Beginning by sweeping eighty thousand files at random produces order-dependent coverage and burns the budget before reaching the interesting part.
 

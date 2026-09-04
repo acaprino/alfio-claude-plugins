@@ -20,7 +20,7 @@ Gates and consolidation rules shared by /senior-review:team-review and /senior-r
 
 This is the pipeline's first-level invariant, not quality advice. Three consequences bind every gate below:
 
-1. A reviewer that consumed a claim from the deep-dive output or the interconnect map has not verified that claim. It must re-derive the claim independently before standing a finding on it.
+1. A reviewer that consumed a claim from the X-ray output or the interconnect map has not verified that claim. It must re-derive the claim independently before standing a finding on it.
 2. Concordance between reviewers who share a premise is an **echo**. It raises no confidence and no severity. Consolidation reports it as such.
 3. No metric may reward agreement with a shared artifact. Utilization of the map is an operational number, never a quality signal.
 
@@ -30,7 +30,7 @@ The same rule applied across model families instead of across reviewers is imple
 
 When `/team-review` runs in pipeline mode (no `--no-context`), reviewers do not receive raw code only. They receive three context artifacts produced in Phase 1:
 
-1. **Deep-dive output** (from `codebase-xray` plugin) at the path the orchestrating command recorded: `$XRAY_RUN_DIR` when that command started the X-ray run itself (`/team-review` Phase 1a), or the `.deep-dive/` mirror when it is consuming an analysis that already existed (`/code-review` Step 2). A command that started a run never reads the mirror: the mirror means "latest published run", not "the run I just produced". Files: `01-structure.md`, `02-interfaces.md`, `05-risks.md`, and optionally `03-flows.md`, `04-semantics.md`, `06-documentation.md`, `07-final-report.md`.
+1. **X-ray output** (from `codebase-xray` plugin) at the path the orchestrating command recorded: `$XRAY_RUN_DIR` when that command started the X-ray run itself (`/team-review` Phase 1a), or the `.codebase-xray/` mirror when it is consuming an analysis that already existed (`/code-review` Step 2). A command that started a run never reads the mirror: the mirror means "latest published run", not "the run I just produced". Files: `01-structure.md`, `02-interfaces.md`, `05-risks.md`, and optionally `03-flows.md`, `04-semantics.md`, `06-documentation.md`, `07-final-report.md`.
 2. **Interconnect map** at `.team-review/02-interconnect.md` (from `codebase-xray:semantic-interconnect-mapper`): contracts (formal / structural / implicit), invariants, domain rules, assumptions (verified / documented / unverified), integration hot-spots, change impact radius.
 3. **Knowledge provenance** at `.team-review/01-knowledge-provenance.md` (from `/team-review` Phase 1d): which concepts each discovery branch found, which neither found, and which they disagree about. Reviewers derive candidate concerns from it, so it is distributed with the other two.
 
@@ -74,7 +74,7 @@ You are reviewing for the {dimension} dimension.
 [...]
 
 ## Context files
-- Deep-dive output: $XRAY_RUN_DIR
+- X-ray output: $XRAY_RUN_DIR
 - Interconnect map: .team-review/02-interconnect.md
 - Knowledge provenance: .team-review/01-knowledge-provenance.md
 
@@ -102,7 +102,7 @@ also cite the map anchor that surfaced the concern.
 Write your output to .team-review/findings-{dimension}.md.
 ```
 
-**Path substitution.** This template is `/team-review`'s: the deep-dive line resolves to `$XRAY_RUN_DIR`, the immutable directory of the run Phase 1a started. A command that started a run never reads the mirror, per the X-ray Concurrent Runs Model: the mirror means "latest published run", not "the run I just produced". `/code-review` does not use this template; it builds its own Deep Dive Context Template and reads the `.deep-dive/` mirror there, because it consumes an analysis it did not produce.
+**Path substitution.** This template is `/team-review`'s: the X-ray line resolves to `$XRAY_RUN_DIR`, the immutable directory of the run Phase 1a started. A command that started a run never reads the mirror, per the X-ray Concurrent Runs Model: the mirror means "latest published run", not "the run I just produced". `/code-review` does not use this template; it builds its own X-Ray Context Template and reads the `.codebase-xray/` mirror there, because it consumes an analysis it did not produce.
 
 ### Metrics
 
@@ -112,7 +112,7 @@ Quality signals:
 
 | Metric | Meaning |
 |---|---|
-| **Independent premise reconstruction rate** | fraction of findings whose load-bearing premise was obtained **without exposure to that premise**: derived by the Premise Auditor in Phase 1c, or genuinely re-derived by a reviewer. **Lens 0 does not count.** Mode 2 receives the finding, the declared premise, the map and the deep-dive output, so it is deliberately primed. It falsifies well and derives nothing independently, and counting it here would let dependent observation masquerade as independent corroboration inside the very metrics built to stop that |
+| **Independent premise reconstruction rate** | fraction of findings whose load-bearing premise was obtained **without exposure to that premise**: derived by the Premise Auditor in Phase 1c, or genuinely re-derived by a reviewer. **Lens 0 does not count.** Mode 2 receives the finding, the declared premise, the map and the X-ray output, so it is deliberately primed. It falsifies well and derives nothing independently, and counting it here would let dependent observation masquerade as independent corroboration inside the very metrics built to stop that |
 | **Premise challenge rate** | fraction of eligible premises actually attacked by Lens 0. Eligible means provenance `shared-context` or `mixed`, or a premise carrying a universal or negative quantifier at any provenance |
 | **Map challenge rate** | fraction of consumed map rows explicitly tested rather than assumed |
 | **Map gap rate** | rules, paths and invariants discovered independently that the map never carried, meaning `[MAP-GAP]` findings over total findings |
@@ -128,7 +128,7 @@ When the pipeline is skipped, reviewers receive only target + diff. In this mode
 - Phase 0c does not run. The flag means "give me the raw mode", and a normally-on phase does not override it: `01a-review-knowledge-leads.md` distributed to N reviewers is itself shared context, so keeping the phase alive under the flag would make findings legitimately `shared-context`, let Lens 0 fire, and stop the mode reproducing the pre-pipeline behaviour it exists to provide.
 - Every finding is `independent` by construction, so Lens 0 never fires and consolidation never reports an echo. The quantifier route in `### The four lenses` cannot rescue this: with no `premise-auditor` dispatched there is no Lens 0 to route to. Raw mode trades the premise gate away along with the shared context, which is what the flag is for.
 - All other reviewers fall back to their pre-pipeline behavior.
-- No `.deep-dive/`, `$XRAY_RUN_DIR` or `.team-review/02-interconnect.md` references should appear in reviewer prompts.
+- No `.codebase-xray/`, `$XRAY_RUN_DIR` or `.team-review/02-interconnect.md` references should appear in reviewer prompts.
 
 ## Reviewer Pipeline Conventions
 
@@ -190,7 +190,7 @@ Mode 2: adversarial premise challenge.
 ## Context available
 - Interconnect map: .team-review/02-interconnect.md
 - Knowledge provenance: .team-review/01-knowledge-provenance.md
-- Deep-dive: $XRAY_RUN_DIR
+- X-ray: $XRAY_RUN_DIR
 
 ## Instructions
 Follow mode 2 of your agent definition. Attack the premise, not the finding.
@@ -199,7 +199,7 @@ Decide and state whether the counterexample falsifies the PREMISE itself or only
 a piece of shared SUPPORT.
 ```
 
-**Path substitution differs by command.** In `/team-review` the deep-dive line resolves to `$XRAY_RUN_DIR`, the immutable directory of the run that command started. In `/code-review` it resolves to the `.deep-dive/` mirror, because that command consumes a pre-existing analysis it did not produce. The interconnect map and knowledge provenance lines exist only in the `/team-review` path; in `/code-review` they are omitted, and a finding there is `independent` unless the deep-dive context supplied its premise.
+**Path substitution differs by command.** In `/team-review` the X-ray line resolves to `$XRAY_RUN_DIR`, the immutable directory of the run that command started. In `/code-review` it resolves to the `.codebase-xray/` mirror, because that command consumes a pre-existing analysis it did not produce. The interconnect map and knowledge provenance lines exist only in the `/team-review` path; in `/code-review` they are omitted, and a finding there is `independent` unless the X-ray context supplied its premise.
 
 **Lens 1 prompt (Reachability / Correctness):**
 
@@ -340,7 +340,7 @@ This section is the source of truth. `/senior-review:team-review` (Phase 4c) and
 
 ### Inputs
 
-The critic reads: the verified findings, the review scope, the list of dimensions that ran, and whatever context exists (deep-dive output and the interconnect map for team-review; `.deep-dive/` if present for code-review).
+The critic reads: the verified findings, the review scope, the list of dimensions that ran, and whatever context exists (X-ray output and the interconnect map for team-review; `.codebase-xray/` if present for code-review).
 
 ### Gap taxonomy
 
@@ -349,7 +349,7 @@ The critic evaluates coverage against a fixed taxonomy and writes a `## Coverage
 1. **Dimensions not run** that the scope warranted (e.g. security skipped on auth code; no distributed-flows despite messaging signals; no temporal-resilience despite timers/retry/scheduler code in the diff).
 2. **Files in scope cited by no reviewer** (cross-check the changed-file list against files referenced in findings).
 3. **Unverified assumptions** in the interconnect map that no finding addressed.
-4. **High-risk hot-spots** (from deep-dive `05-risks.md` or the map's Integration Hot-Spots) with zero findings.
+4. **High-risk hot-spots** (from X-ray `05-risks.md` or the map's Integration Hot-Spots) with zero findings.
 5. **Findings closed on metrics alone**: any finding archived as acceptable ("bounded", "low traffic", "within budget") that does not state the user-visible consequence, or whose quantitative basis is `derived` and unmeasured (see `## Evidence Classes`). These are re-opened as gaps, not silently accepted.
 
 ### Critic prompt
@@ -368,7 +368,7 @@ to find new bugs directly. It is to find what the review did not examine.
 [list]
 
 ## Context available
-[deep-dive paths and interconnect map path, or "none"]
+[X-ray paths and interconnect map path, or "none"]
 
 ## Instructions
 Produce a "## Coverage Gaps" list across these categories, each item actionable and specific:

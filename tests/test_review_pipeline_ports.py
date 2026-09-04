@@ -160,7 +160,7 @@ class ReviewPipelinePortTests(unittest.TestCase):
                 self.assertTrue(package.has_delivery_barrier)
                 self.assertTrue(package.has_cross_examination)
                 self.assertTrue(package.has_consolidation)
-                self.assertEqual(package.artifact_root("xray"), ".deep-dive")
+                self.assertEqual(package.artifact_root("xray"), ".codebase-xray")
 
     def test_senior_review_no_longer_depends_on_an_external_team_runtime(self):
         plugin = load_plugin(REPO_ROOT / "plugins/senior-review")

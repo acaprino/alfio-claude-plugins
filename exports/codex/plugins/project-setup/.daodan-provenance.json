@@ -1,6 +1,6 @@
 {
   "adapterVersion": "1.0.0",
-  "coreDigest": "sha256:484da5245e95b86d124fc4bafdfc6af91f5d7c6ae00770e6c9ecf7054a2e92a9",
+  "coreDigest": "sha256:1b0ca24c0eb26935e4f545ffc388a08c9e2a5ca920b26ed3f4f4158260175ca1",
   "harnessStrategies": {
     "create-claude-md": "parallel-subagents",
     "maintain-claude-md": "parallel-subagents"
@@ -8,5 +8,5 @@
   "host": "codex",
   "overrides": [],
   "plugin": "project-setup",
-  "version": "1.20.0"
+  "version": "2.0.0"
 }

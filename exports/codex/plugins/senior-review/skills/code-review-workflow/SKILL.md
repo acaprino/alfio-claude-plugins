@@ -152,24 +152,24 @@ gh api repos/{owner}/{repo}/pulls/{number}/comments --jq '.[].path' | sort -u
 
 5. **Read CLAUDE.md** if it exists -- note project conventions, naming rules, patterns
 
-6. **Check for deep-dive context** (optional -- requires `codebase-xray` plugin) -- if `.deep-dive/` exists and contains completed analysis files:
-   - Read `.deep-dive/01-structure.md` for structural context
-   - Read `.deep-dive/03-flows.md` for execution flow context
-   - Read `.deep-dive/04-semantics.md` for design decision context
-   - Read `.deep-dive/05-risks.md` for known risk context
-   - Include a "Deep Dive Context" section in each agent's prompt (see template below)
-   - Note in the review output that deep-dive context was used
-   - If `.deep-dive/` does not exist or is incomplete, proceed normally without it -- this is expected behavior when the X-ray has not been run for this project yet
+6. **Check for X-ray context** (optional -- requires `codebase-xray` plugin) -- if `.codebase-xray/` exists and contains completed analysis files:
+   - Read `.codebase-xray/01-structure.md` for structural context
+   - Read `.codebase-xray/03-flows.md` for execution flow context
+   - Read `.codebase-xray/04-semantics.md` for design decision context
+   - Read `.codebase-xray/05-risks.md` for known risk context
+   - Include an "X-Ray Context" section in each agent's prompt (see template below)
+   - Note in the review output that X-ray context was used
+   - If `.codebase-xray/` does not exist or is incomplete, proceed normally without it -- this is expected behavior when the X-ray has not been run for this project yet
    - This is a deliberate classification, not an oversight: `code-review` consumes a pre-existing analysis rather than starting a run, so per the X-ray Concurrent Runs Model the mirror is the correct contract for it. If this command is ever changed to invoke the X-ray skill itself, it moves to the immutable run directory (`$XRAY_RUN_DIR`) at that point
 
-### Deep Dive Context Template
+### X-Ray Context Template
 
-When deep-dive output is available, append this section to each agent prompt after existing context sections:
+When X-ray output is available, append this section to each agent prompt after existing context sections:
 
 ```
-## Deep Dive Context
+## X-Ray Context
 
-The following context was gathered from a prior deep-dive analysis. It is an index
+The following context was gathered from a prior X-ray analysis. It is an index
 of hypotheses produced by one upstream observer, not ground truth.
 
 Use it to know WHERE to look. Do not use it to know WHAT IS TRUE: re-derive any
@@ -236,7 +236,7 @@ Every finding carries two extra fields:
     Good: "No credential-bearing response path exists after registration."
 - **premise_provenance:** one of `independent`, `shared-context`, `mixed`.
   This records CAUSAL DEPENDENCE, not citation. If you absorbed the premise from
-  the deep-dive output or the interconnect map, it is `shared-context`, even if
+  the X-ray output or the interconnect map, it is `shared-context`, even if
   your finding never cites an anchor. `mixed` means part of the premise rests on
   shared context and part on evidence you derived yourself. Declare `independent`
   only when you re-derived the whole premise from code, tests or documents you
@@ -325,7 +325,7 @@ The cost-guard threshold is a finding-count proxy (no token budget exists in thi
 
 ### Panel
 
-**Lens 0 first.** For each selected finding whose `premise_provenance` is `shared-context` or `mixed`, **or whose declared premise carries a universal or negative quantifier (`no`, `never`, `cannot`, `always`, `only`) at any provenance**, spawn lens 0 (`subagent_type: senior-review:premise-auditor`, mode 2, inheriting the session model) using the Lens 0 prompt from the skill, with the deep-dive line resolved to the `.deep-dive/` mirror and the interconnect-map and knowledge-provenance lines omitted, since this command builds neither. A finding declaring no provenance is `shared-context` whenever `.deep-dive/` context was injected into the agent prompts, and the report records the agent as format-non-compliant; it is `independent` only when no such context was supplied at all. Defaulting the other way would send exactly the non-compliant findings Lens 0 exists to catch straight past the veto. Apply the skill's Lens 0 resolution table: a `REFUTED` verdict targeting `PREMISE` discards the finding (`filtered: premise-refuted`) without spawning lenses 1-2; targeting `SUPPORT` on `mixed` provenance strikes the shared leg and restates the finding from the surviving independent evidence before it proceeds; targeting `SUPPORT` on `shared-context` provenance discards it the same way. `UNCERTAIN` and `HOLDS` proceed to lenses 1-2, `UNCERTAIN` tagged `premise-contested`. Findings declared `independent` whose premise carries no such quantifier skip lens 0 entirely and proceed directly to lenses 1-2.
+**Lens 0 first.** For each selected finding whose `premise_provenance` is `shared-context` or `mixed`, **or whose declared premise carries a universal or negative quantifier (`no`, `never`, `cannot`, `always`, `only`) at any provenance**, spawn lens 0 (`subagent_type: senior-review:premise-auditor`, mode 2, inheriting the session model) using the Lens 0 prompt from the skill, with the X-ray line resolved to the `.codebase-xray/` mirror and the interconnect-map and knowledge-provenance lines omitted, since this command builds neither. A finding declaring no provenance is `shared-context` whenever `.codebase-xray/` context was injected into the agent prompts, and the report records the agent as format-non-compliant; it is `independent` only when no such context was supplied at all. Defaulting the other way would send exactly the non-compliant findings Lens 0 exists to catch straight past the veto. Apply the skill's Lens 0 resolution table: a `REFUTED` verdict targeting `PREMISE` discards the finding (`filtered: premise-refuted`) without spawning lenses 1-2; targeting `SUPPORT` on `mixed` provenance strikes the shared leg and restates the finding from the surviving independent evidence before it proceeds; targeting `SUPPORT` on `shared-context` provenance discards it the same way. `UNCERTAIN` and `HOLDS` proceed to lenses 1-2, `UNCERTAIN` tagged `premise-contested`. Findings declared `independent` whose premise carries no such quantifier skip lens 0 entirely and proceed directly to lenses 1-2.
 
 For each finding that reaches this step, spawn lenses 1 and 2 in parallel using the lens prompts from the skill (`general-purpose`; inherit the session model; `run_in_background: true`), substituting the finding, the diff, and the full file content. Spawn lens 3 (`model: sonnet`) only for findings that survive lenses 1-2, per the skill's gated-lens rule: calibrating a finding about to be discarded is spend for nothing.
 
@@ -343,7 +343,7 @@ Medium and Low findings are no longer skipped by default: they enter the panel l
 
 Skip this step if `--fast` was passed. Otherwise run the critic defined in the `senior-review:review-quality-gates` skill, section `## Completeness Critic` (if the skill is unavailable, skip this step).
 
-1. Spawn one `general-purpose` critic with the skill's critic prompt. Pass the verified findings, the changed-file scope, the agents that ran, and the deep-dive context paths if `.deep-dive/` exists (else "none").
+1. Spawn one `general-purpose` critic with the skill's critic prompt. Pass the verified findings, the changed-file scope, the agents that ran, and the X-ray context paths if `.codebase-xray/` exists (else "none").
 2. If the critic names a single high-risk uncovered area under `## Recommended follow-up` AND the cost guard did not fire: spawn ONE targeted reviewer (the most specialized agent for that area) scoped to the files named, then route its findings back through Step 4 (dedup) and Step 4b (panel). At most one round.
 3. Otherwise degrade to report-only.
 4. Carry the critic's `## Coverage Gaps` list into the Step 5 report.

@@ -1,6 +1,6 @@
 ---
 name: team-analyze
-description: 'Multi-agent X-ray for large or multi-workspace codebases: splits the project into its natural units, works them in parallel, and publishes one consolidated result set to the .deep-dive/ root. TRIGGER WHEN: the user wants X-ray analysis on a monorepo, or a cross-partition interconnection map produced as part of the same flow. DO NOT TRIGGER WHEN: the target is a single small directory, or the user wants a documentation-only audit (use /codebase-xray:analyze, optionally with --docs-only).'
+description: 'Multi-agent X-ray for large or multi-workspace codebases: splits the project into its natural units, works them in parallel, and publishes one consolidated result set to the .codebase-xray/ root. TRIGGER WHEN: the user wants X-ray analysis on a monorepo, or a cross-partition interconnection map produced as part of the same flow. DO NOT TRIGGER WHEN: the target is a single small directory, or the user wants a documentation-only audit (use /codebase-xray:analyze, optionally with --docs-only).'
 ---
 
 > `<plugin-root>` names the directory that holds this plugin's `.codex-plugin/plugin.json`. Resolve it once from where this file was loaded, then substitute it into every path below that starts with it.
@@ -89,14 +89,14 @@ Orchestrate a partitioned multi-agent codebase analysis plus global interconnect
    - REJECT with explicit error if `--phase N` or `--docs-only` are passed (suggest classic `/codebase-xray:analyze`)
 3. Resolve the run (see `## Concurrent Runs Model` in the `codebase-xray:xray-method` skill):
    - Compute `run-id`: `--run-name` (normalized to `[a-z0-9-]`) or `<slug-of-target>-<YYYYMMDD-HHMMSS>`; append `-2`, `-3`, ... on collision
-   - Set `RUN_DIR = .deep-dive/runs/<run-id>`
-   - Read `.deep-dive/runs.json`: list active runs; offer to resume a matching in-progress team run or start this new run alongside. A root `state.json` with `current_phase` and no `runs.json` is a pre-runs legacy layout: offer to migrate it into `.deep-dive/runs/legacy-<date>/` first
+   - Set `RUN_DIR = .codebase-xray/runs/<run-id>`
+   - Read `.codebase-xray/runs.json`: list active runs; offer to resume a matching in-progress team run or start this new run alongside. A root `state.json` with `current_phase` and no `runs.json` is a pre-runs legacy layout: offer to migrate it into `.codebase-xray/runs/legacy-<date>/` first
    - Register the run in `runs.json` (`read-modify-write`, append `{run_id, target, mode: "team", started_at}` to `active`)
-4. Detect an update base, unless `--no-update` was passed. From `runs.json`, take `latest_completed`. It is a candidate parent when it is a completed **team** run, its `target` normalizes to this target, and `.deep-dive/runs/<id>/snapshot/manifest.json` exists. With a candidate, run the change set once over the whole target:
+4. Detect an update base, unless `--no-update` was passed. From `runs.json`, take `latest_completed`. It is a candidate parent when it is a completed **team** run, its `target` normalizes to this target, and `.codebase-xray/runs/<id>/snapshot/manifest.json` exists. With a candidate, run the change set once over the whole target:
 
    ```bash
    python <plugin-root>/skills/xray-method/scripts/snapshot.py diff \
-     .deep-dive/runs/<parent-id> <target> --out $RUN_DIR --flags '<this run's flags as JSON>'
+     .codebase-xray/runs/<parent-id> <target> --out $RUN_DIR --flags '<this run's flags as JSON>'
    ```
 
    Hold `changes.json` for the partition checkpoint. With `--update` and no candidate, stop and say which condition failed (no completed run for this target, a completed run that is not team mode, or a parent with no manifest), and that a full run is the way to create one. Never fabricate a parent. With a candidate present, `--update` changes nothing else: the checkpoint still presents the update and full-run options and waits for a choice, unless `--yes` auto-accepts.
@@ -197,7 +197,7 @@ Available only when pre-flight point 4 found a candidate parent and its change s
 
 1. **The partition set must match.** The names this detection produced must be the same set as the parent's `state.json -> partitions`. Any difference means a full run, with the difference named at the checkpoint. A partition that appeared, vanished or was renamed changes what every other partition's boundaries mean.
 2. **Assign the affected files.** For each partition, its affected files are the `affected_files` of the change set that fall under its path. Record `partitions[i].update` as `"copied"` when that list is empty and `"re-analyzed"` (with the affected-file count) otherwise, before either branch below runs: the completion summary in Phase 4 and the `## Partitions` table both read this field, and neither can be reconstructed later, since `partitions[i].status` ends at `"done"` for both outcomes.
-3. **A partition with no affected file is copied**, whole, from `.deep-dive/runs/<parent-id>/partitions/<name>/` into `$RUN_DIR/partitions/<name>/`, once the checkpoint's update option is accepted. Mark its `partitions[i].status` as `"done"` directly. Phase 1's Wave 1 loop and its post-barrier status update both exclude a partition already `"done"`, so no worker is ever dispatched for it in either wave, and Wave 2's `structure_done` gate excludes it too since its status never changes from `"done"`.
+3. **A partition with no affected file is copied**, whole, from `.codebase-xray/runs/<parent-id>/partitions/<name>/` into `$RUN_DIR/partitions/<name>/`, once the checkpoint's update option is accepted. Mark its `partitions[i].status` as `"done"` directly. Phase 1's Wave 1 loop and its post-barrier status update both exclude a partition already `"done"`, so no worker is ever dispatched for it in either wave, and Wave 2's `structure_done` gate excludes it too since its status never changes from `"done"`.
 4. **A partition with at least one affected file is re-analyzed**, both waves, exactly as in a fresh run. Its workers receive their normal prompts and never see the change set.
 5. **Synthesis and the interconnect map always run**, over the mix of copied and fresh partition output. Both are cross-partition by construction, so neither can be carried.
 6. **`changes.md` holds the change set's three mechanical sections plus a `## Partitions` table** naming each partition as copied or re-analyzed, read from `partitions[i].update`.
@@ -272,7 +272,7 @@ Run directory: <RUN_DIR>
 Owned files:
   - <RUN_DIR>/partitions/<P_i.name>/01-structure.md
   - <RUN_DIR>/partitions/<P_i.name>/02-interfaces.md
-DO NOT touch any other file under .deep-dive/.
+DO NOT touch any other file under .codebase-xray/.
 
 Target path for this partition: <P_i.path>
 Active flags: --critical=<bool> --comments=<bool> --depth=<lite|full>
@@ -314,7 +314,7 @@ Run directory: <RUN_DIR>
 Owned files:
   - <RUN_DIR>/partitions/<P_i.name>/03-flows.md
   - <RUN_DIR>/partitions/<P_i.name>/04-semantics.md
-DO NOT touch any other file under .deep-dive/.
+DO NOT touch any other file under .codebase-xray/.
 
 Target path for this partition: <P_i.path>
 Active flags: --critical=<bool> --comments=<bool> --depth=<lite|full>
@@ -356,7 +356,7 @@ You are partition-synthesizer.
 Identity: SYNTH
 Run directory: <RUN_DIR>
 Owned files: <RUN_DIR>/01-structure.md through <RUN_DIR>/07-final-report.md (skip 03, 04, 06 if depth=lite).
-DO NOT touch <RUN_DIR>/08-interconnect-map.md, any partition file, or anything at the .deep-dive/ root.
+DO NOT touch <RUN_DIR>/08-interconnect-map.md, any partition file, or anything at the .codebase-xray/ root.
 
 Active flags: <flags from state.json>
 
@@ -400,23 +400,23 @@ Wait for delivery. On delivery: mark `phase_3_interconnect: "complete"`. On fail
 ## Phase 4: Publish, Completion & Next Steps Menu
 
 1. Update `$RUN_DIR/state.json`: `status: "complete"`, `completed_at: <ISO_TIMESTAMP>`.
-2. **Publish** (skip if `--skip-synthesis`): copy `$RUN_DIR/01-*.md` .. `$RUN_DIR/07-final-report.md` (those that exist), `$RUN_DIR/08-interconnect-map.md` (if Phase 3 ran), and `$RUN_DIR/state.json` to the `.deep-dive/` root, overwriting the previous mirror. Update `runs.json` with read-modify-write: remove this run from `active`, set `latest_completed`. The root mirror is the downstream contract for `/senior-review:team-review`, `/codebase-mapper:map-codebase`, and `/project-setup:create-claude-md`.
+2. **Publish** (skip if `--skip-synthesis`): copy `$RUN_DIR/01-*.md` .. `$RUN_DIR/07-final-report.md` (those that exist), `$RUN_DIR/08-interconnect-map.md` (if Phase 3 ran), and `$RUN_DIR/state.json` to the `.codebase-xray/` root, overwriting the previous mirror. Update `runs.json` with read-modify-write: remove this run from `active`, set `latest_completed`. The root mirror is the downstream contract for `/senior-review:team-review`, `/codebase-mapper:map-codebase`, and `/project-setup:create-claude-md`.
 3. No worker may still be writing after publish. Every dispatched worker has been recorded `delivered` or `failed` by now, and the harness owns whatever cleanup its workers need.
 4. Present summary:
 
 ```
 X-ray (team mode) complete for: <target>
-Run: <run-id> (published to .deep-dive/ root)
+Run: <run-id> (published to .codebase-xray/ root)
 Parent: <parent-id or "none (full run)">
 
 Partitions: <N> (<list of names + status>)
 
 Output Files:
-  Knowledge discovery:      .deep-dive/runs/<run-id>/knowledge/navigation.md, documentation-leads.md (Phase 0)
-  Per-partition reports:    .deep-dive/runs/<run-id>/partitions/*/01..06.md
-  Consolidated reports:     .deep-dive/runs/<run-id>/01-structure.md .. 07-final-report.md
-  Interconnect map:         .deep-dive/runs/<run-id>/08-interconnect-map.md (if Phase 3 ran)
-  Root mirror:              .deep-dive/01..08.md (for downstream consumers)
+  Knowledge discovery:      .codebase-xray/runs/<run-id>/knowledge/navigation.md, documentation-leads.md (Phase 0)
+  Per-partition reports:    .codebase-xray/runs/<run-id>/partitions/*/01..06.md
+  Consolidated reports:     .codebase-xray/runs/<run-id>/01-structure.md .. 07-final-report.md
+  Interconnect map:         .codebase-xray/runs/<run-id>/08-interconnect-map.md (if Phase 3 ran)
+  Root mirror:              .codebase-xray/01..08.md (for downstream consumers)
 
 Summary:
   - Files analyzed:  <count>
@@ -425,7 +425,7 @@ Summary:
   - Cross-partition flows: <count>
 ```
 
-On an incremental run, name the parent run-id on the `Parent:` line and list each partition using `partitions[i].update` in place of its raw status: `<name>: copied` or `<name>: re-analyzed ([N] affected files)`, except a partition whose `status` is `"failed"` still reports `failed`. Point at `.deep-dive/runs/<run-id>/changes.md ## Partitions` for the full detail. A full run keeps today's format: `Parent: none (full run)`, and every partition reports `done` or `failed`.
+On an incremental run, name the parent run-id on the `Parent:` line and list each partition using `partitions[i].update` in place of its raw status: `<name>: copied` or `<name>: re-analyzed ([N] affected files)`, except a partition whose `status` is `"failed"` still reports `failed`. Point at `.codebase-xray/runs/<run-id>/changes.md ## Partitions` for the full detail. A full run keeps today's format: `Parent: none (full run)`, and every partition reports `done` or `failed`.
 
 5. Show Next Steps Menu:
 
@@ -439,7 +439,7 @@ What would you like to do next?
    4a. CLAUDE.md (suggests /project-setup:create-claude-md or maintain-claude-md)
    4b. Codebase map (suggests /codebase-mapper:map-codebase)
    4c. API / interface docs (suggests /codebase-mapper:docs-create)
-5. Run code review — launch /senior-review:team-review (will reuse the published .deep-dive/ mirror + 08-interconnect-map.md)
+5. Run code review — launch /senior-review:team-review (will reuse the published .codebase-xray/ mirror + 08-interconnect-map.md)
 6. Export report
 7. Nothing for now
 ```

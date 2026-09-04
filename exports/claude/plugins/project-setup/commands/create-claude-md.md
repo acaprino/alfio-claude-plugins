@@ -11,18 +11,18 @@ subagent: project-setup:claude-md-auditor
 
 This command launches an interactive session to create a new `CLAUDE.md` file perfectly tailored to your project and preferences.
 
-## Pre-flight: detect existing deep-dive output
+## Pre-flight: detect existing X-ray output
 
 Before the agent starts its own bottom-up analysis, check whether the project already has technical-reference output on disk from a previous `/codebase-xray:analyze` session:
 
 ```bash
-ls .deep-dive/01-structure.md .deep-dive/02-interfaces.md 2>/dev/null
+ls .codebase-xray/01-structure.md .codebase-xray/02-interfaces.md 2>/dev/null
 ```
 
 If both files exist, prompt the user:
 
 ```
-Found .deep-dive/ from a previous /codebase-xray:analyze session.
+Found .codebase-xray/ from a previous /codebase-xray:analyze session.
 Available technical references:
   - 01-structure.md (file inventory, dependency graph, entry points, naming conventions)
   - 02-interfaces.md (public APIs, contracts, "How to Add a New Module")
@@ -32,18 +32,18 @@ Available technical references:
 Use these as the technical source for CLAUDE.md? You'll still answer the
 workflow/preferences questions interactively.
 
-  [Y] Use deep-dive output (faster, claims already verified)
+  [Y] Use X-ray output (faster, claims already verified)
   [n] Re-analyze bottom-up (full discovery from scratch)
 ```
 
-If the user accepts, the spawned `claude-md-auditor` agent skips Phase 1 (Bottom-Up Discovery) and ingests `.deep-dive/01-structure.md` and `.deep-dive/02-interfaces.md` as ground truth, with 3-5 spot-checks against current code to confirm freshness. See the agent's "Phase 0: Deep-Dive Detection" section for the full protocol.
+If the user accepts, the spawned `claude-md-auditor` agent skips Phase 1 (Bottom-Up Discovery) and ingests `.codebase-xray/01-structure.md` and `.codebase-xray/02-interfaces.md` as ground truth, with 3-5 spot-checks against current code to confirm freshness. See the agent's "Phase 0: X-Ray Detection" section for the full protocol.
 
-If the user declines (or `.deep-dive/` is absent), the agent does its own bottom-up analysis as in step 1 below.
+If the user declines (or `.codebase-xray/` is absent), the agent does its own bottom-up analysis as in step 1 below.
 
 ## What This Does
 
 The agent will:
-1. Analyze your project bottom-up (dependencies, entry points, source, config, tests, docs) -- OR ingest `.deep-dive/` if the pre-flight check accepted that shortcut
+1. Analyze your project bottom-up (dependencies, entry points, source, config, tests, docs) -- OR ingest `.codebase-xray/` if the pre-flight check accepted that shortcut
 2. Ask you questions about your workflow and preferences
 3. Clarify any ambiguous patterns found in the codebase
 4. Generate a concise, accurate `CLAUDE.md` following best practices
@@ -125,4 +125,4 @@ Your new CLAUDE.md will:
 ## Related Commands
 
 - `/maintain-claude-md` - Audit and improve existing CLAUDE.md
-- `/codebase-xray:analyze` - Run first to generate `.deep-dive/` technical references; this command can then ingest them as the structure backbone
+- `/codebase-xray:analyze` - Run first to generate `.codebase-xray/` technical references; this command can then ingest them as the structure backbone

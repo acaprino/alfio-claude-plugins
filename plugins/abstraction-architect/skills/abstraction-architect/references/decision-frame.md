@@ -32,7 +32,7 @@ Default to **Medium**. Escalate or de-escalate only when the evidence supports i
 Severity says how much it matters. Confidence says how sure you are, and they are reported separately.
 
 - **High confidence**: every cited representation was read on current source, and the dimension gate passed on evidence from more than one signal.
-- **Medium confidence**: the gate passed but one input was unavailable, for example a missing deep-dive file or an `unusable` concept index.
+- **Medium confidence**: the gate passed but one input was unavailable, for example a missing X-ray file or an `unusable` concept index.
 - **Low confidence**: a single signal, worth manual verification. Say what would raise it.
 
 Two flags are mandatory when they apply, because they mark the failure modes that cost the most:

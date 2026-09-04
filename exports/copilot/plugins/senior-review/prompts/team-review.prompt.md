@@ -28,7 +28,7 @@ shared a context is not the artifact this workflow claims to produce.
 Orchestrate a multi-dimensional code review as a **6-phase pipeline**:
 
 0. **Phase 0 -- Scope and Discovery**: resolve the target (0), detect which dimensions the change warrants (0b), and discover independently what evidence this review needs (0c), reading no X-ray output at all.
-1. **Phase 1 -- Context Building**: deep-dive analysis (1a) runs in parallel with a blind second derivation of the same premises (1c); the two are joined into `01-knowledge-provenance.md` (1d); an interconnect map is built last (1b), covering contracts, invariants, assumptions, domain rules and integration hot-spots. Output goes to `.team-review/`.
+1. **Phase 1 -- Context Building**: X-ray analysis (1a) runs in parallel with a blind second derivation of the same premises (1c); the two are joined into `01-knowledge-provenance.md` (1d); an interconnect map is built last (1b), covering contracts, invariants, assumptions, domain rules and integration hot-spots. Output goes to `.team-review/`.
 2. **Phase 2 -- Adversarial Review (parallel)**: specialized reviewers read the context files and hunt for violations within their dimension. Every finding declares the load-bearing premise it stands on and where that premise came from. Each reviewer writes structured findings to `.team-review/findings-<dim>.md`.
 3. **Phase 3 -- Monitor and Collect**: every spawned reviewer delivers findings or an explicit no-findings report before consolidation starts.
 4. **Phase 4 -- Consolidation and Gates**: findings are deduplicated and organized by severity, with agreement weighted by premise provenance; then the verification panel runs (4b, Lens 0's premise veto first) and the completeness critic asks what the review missed (4c).
@@ -81,7 +81,7 @@ Before starting, invoke these skills to inform the review process:
        "phase_0c_evidence_discovery": "pending",
        "phase_1c_premise_audit": "pending",
        "phase_1d_reconciliation": "pending",
-       "phase_1a_deep_dive": "pending",
+       "phase_1a_xray": "pending",
        "phase_1b_interconnect": "pending",
        "phase_2_review": "pending",
        "phase_3_consolidation": "pending",
@@ -223,7 +223,7 @@ Runs inline in the orchestrating context, on every invocation **except** raw mod
 
 This phase owns discovery of **what evidence is relevant to this review**. X-ray owns discovery of how the repository documents itself. The two are different jobs and the division is deliberate.
 
-**This phase MUST NOT read `.deep-dive/` in any form**, including the mirror and the output of previous runs. A previous X-ray run is still an X-ray derivation, and admitting one would contaminate the single artifact that has to be demonstrably independent of X-ray. X-ray's leads enter at the Phase 1d join and nowhere earlier.
+**This phase MUST NOT read `.codebase-xray/` in any form**, including the mirror and the output of previous runs. A previous X-ray run is still an X-ray derivation, and admitting one would contaminate the single artifact that has to be demonstrably independent of X-ray. X-ray's leads enter at the Phase 1d join and nowhere earlier.
 
 1. Read `CLAUDE.md`, `AGENTS.md` and equivalent project instruction files, and follow any navigation rule they state. If the project says a specific file is where to look first to find where a concept lives, open that file before opening any code. Discover the conventions from the repository itself, never from a prior X-ray run.
 2. Extract the concepts, domains and symbols the diff touches. Names of changed functions, classes, modules and config keys are the starting set; add the domain nouns that appear in the diff's own strings and comments.
@@ -262,9 +262,9 @@ Mark `phase_0c_evidence_discovery` complete in `state.json`.
 
 The sub-phases below are listed in **execution order**, not in label order: 1a and 1c start together, 1d joins them, 1b runs last on the joined result. Nothing named here is missing.
 
-Skip this phase entirely if `--no-context` was passed. Mark `phase_1a_deep_dive`, `phase_1c_premise_audit`, `phase_1d_reconciliation`, `phase_1b_interconnect`, and `phase_0c_evidence_discovery` as `skipped` in `state.json`. Jump to Phase 2 with raw target files only.
+Skip this phase entirely if `--no-context` was passed. Mark `phase_1a_xray`, `phase_1c_premise_audit`, `phase_1d_reconciliation`, `phase_1b_interconnect`, and `phase_0c_evidence_discovery` as `skipped` in `state.json`. Jump to Phase 2 with raw target files only.
 
-### Phase 1a: Deep-Dive Analysis
+### Phase 1a: X-Ray Analysis
 
 > **`codebase-xray:analyze` is a workflow of the `codebase-xray` plugin, not an agent.** Nothing dispatches it as a worker: it runs in this context, the way a user would invoke it, with its arguments. The host lists it under the `codebase-xray` plugin as `analyze` (a host that renders workflows as skills suffixes it `-workflow`). The `codebase-xray:xray-method` skill is the method that workflow applies; loading the method alone runs no phase and creates no run directory. The distinction matters because the rest of this command (Phase 1b, Phase 2) dispatches many `plugin:name` workers and the same shape names workflows and skills; treat Phase 1a as running a workflow, full stop.
 
@@ -272,11 +272,11 @@ Skip this phase entirely if `--no-context` was passed. Mark `phase_1a_deep_dive`
    - Default mode: `--depth=lite` (structure + interfaces + risks only)
    - If `--deep` flag: full analysis
    - Target scope: the files from Phase 0
-2. Read `.deep-dive/runs.json` to resolve the run the workflow just created, and record it in `state.json -> xray` as `run_id`, `run_dir`, `target` and `depth`. Every later phase derives its paths from this block and never from the `.deep-dive/` root. `$XRAY_RUN_DIR` below always means `state.json -> xray.run_dir`. If the run cannot be resolved, halt: an unresolvable provenance is a broken pipeline, not a reason to fall back to the mirror.
+2. Read `.codebase-xray/runs.json` to resolve the run the workflow just created, and record it in `state.json -> xray` as `run_id`, `run_dir`, `target` and `depth`. Every later phase derives its paths from this block and never from the `.codebase-xray/` root. `$XRAY_RUN_DIR` below always means `state.json -> xray.run_dir`. If the run cannot be resolved, halt: an unresolvable provenance is a broken pipeline, not a reason to fall back to the mirror.
 3. Verify on completion that at minimum `01-structure.md`, `02-interfaces.md`, and `05-risks.md` exist.
-4. Mark `phase_1a_deep_dive` complete.
+4. Mark `phase_1a_xray` complete.
 
-If the workflow is unavailable (plugin not installed) or produces no output, halt the pipeline and report the error. Do **not** fall back to spawning a `general-purpose` agent to fake the deep-dive output -- the file naming and section anchors that Phase 1b/Phase 2 depend on come from the workflow itself, and a freelance fallback breaks the contract for `logic-integrity-auditor`.
+If the workflow is unavailable (plugin not installed) or produces no output, halt the pipeline and report the error. Do **not** fall back to spawning a `general-purpose` agent to fake the X-ray output -- the file naming and section anchors that Phase 1b/Phase 2 depend on come from the workflow itself, and a freelance fallback breaks the contract for `logic-integrity-auditor`.
 
 ### Phase 1c: Independent Premise Derivation (parallel with 1a)
 
@@ -296,7 +296,7 @@ Spawn immediately when Phase 1a starts. Do not wait for X-ray. The whole point o
    Write .team-review/01b-independent-claims.md in the format your agent
    definition prescribes.
 
-   You have NO access to .deep-dive/ or to .team-review/02-interconnect.md.
+   You have NO access to .codebase-xray/ or to .team-review/02-interconnect.md.
    Neither exists for you. Do not look for them, and report contamination if
    anything in this prompt paraphrases an X-ray conclusion.
    ```
@@ -362,7 +362,7 @@ Mark `phase_1d_reconciliation` complete.
    Build the interconnect map for this review.
 
    Target scope: [contents of .team-review/00-scope.md]
-   Deep-dive output: $XRAY_RUN_DIR (files: 01-structure.md, 02-interfaces.md, 05-risks.md, knowledge/documentation-leads.md, ...)
+   X-ray output: $XRAY_RUN_DIR (files: 01-structure.md, 02-interfaces.md, 05-risks.md, knowledge/documentation-leads.md, ...)
    Independent claims: .team-review/01b-independent-claims.md
    Knowledge provenance: .team-review/01-knowledge-provenance.md
 
@@ -424,7 +424,7 @@ You are reviewing for the {dimension} dimension.
 {diff content}
 
 ## Context files (read these before analyzing code)
-- Deep-dive output: $XRAY_RUN_DIR (see 01-structure.md, 02-interfaces.md, 05-risks.md)
+- X-ray output: $XRAY_RUN_DIR (see 01-structure.md, 02-interfaces.md, 05-risks.md)
 - Interconnect map: .team-review/02-interconnect.md
 - Knowledge provenance: .team-review/01-knowledge-provenance.md
 
@@ -458,7 +458,7 @@ Every finding carries two extra fields:
     Good: "No credential-bearing response path exists after registration."
 - **premise_provenance:** one of `independent`, `shared-context`, `mixed`.
   This records CAUSAL DEPENDENCE, not citation. If you absorbed the premise from
-  the deep-dive output or the interconnect map, it is `shared-context`, even if
+  the X-ray output or the interconnect map, it is `shared-context`, even if
   your finding never cites an anchor. `mixed` means part of the premise rests on
   shared context and part on evidence you derived yourself. Declare `independent`
   only when you re-derived the whole premise from code, tests or documents you
@@ -474,7 +474,7 @@ If `--no-context` was set, omit the "Context files" and "Reviewer Hints" section
 ```
 mode: diff
 codebase_path: {target root}
-deep_dive_path: {$XRAY_RUN_DIR when Phase 1a ran and produced output, otherwise "none"}
+xray_path: {$XRAY_RUN_DIR when Phase 1a ran and produced output, otherwise "none"}
 concept_index_path: {target root}/.abstraction-architect/concept-index.json
 changed_files: {the same file list used to build the diff above}
 report_path: .team-review/findings-abstraction.md
@@ -485,7 +485,7 @@ Four things about this reviewer, because they invert the default reviewer contra
 
 - Its search space is the **whole codebase**, not the diff. The diff is only the anchor; the existing representation it is hunting for is by definition in files that did not change. Do not scope it to the changed files.
 - It runs fine on `--depth=lite` output, since it consumes only `01-structure.md` and `02-interfaces.md`. Do not force `--deep` on its account.
-- `--no-context` does NOT skip it (that rule removes only `logic-integrity-auditor`). It runs with `deep_dive_path: none` and degrades to Glob plus Grep, reporting the reduced confidence in its Gaps section.
+- `--no-context` does NOT skip it (that rule removes only `logic-integrity-auditor`). It runs with `xray_path: none` and degrades to Glob plus Grep, reporting the reduced confidence in its Gaps section.
 - It reads a **concept index** at `.abstraction-architect/concept-index.json` when one exists, which is what makes its knowledge-track dimensions (duplicated domain knowledge, competing sources of truth, redundant representation, duplicated state) worth running on a diff. The index is produced by `/abstraction-architect:audit` in global mode. When it is absent or stale the reviewer degrades to diff-anchored discovery and declares the reduced coverage; it never blocks. This reviewer never writes the index.
 
 **Testing dimension addendum.** `testing:test-suite-auditor` partly inverts the default reviewer contract. Append this to its prompt:
@@ -574,7 +574,7 @@ Skip this phase if `--fast` was passed (mark `phase_4b_verification` as `skipped
 2. Apply the selection rule from the skill:
    - If `--rigorous`, or 25 or fewer findings survive: verify all selected findings.
    - Otherwise (more than 25 findings, no `--rigorous`): narrow to stakes + uncertainty band per the skill, and record the count of findings left `unverified (cost-guard)`.
-3. **Lens 0 first.** For each finding to verify whose `premise_provenance` is `shared-context` or `mixed`, **or whose declared premise carries a universal or negative quantifier (`no`, `never`, `cannot`, `always`, `only`) at any provenance**, spawn lens 0 (`subagent_type: senior-review:premise-auditor`, mode 2, inheriting the session model) using the Lens 0 prompt from the skill, with the deep-dive line resolved to `$XRAY_RUN_DIR`. Apply the skill's Lens 0 resolution table: a `REFUTED` verdict targeting `PREMISE` discards the finding (`filtered: premise-refuted`) without spawning lenses 1-2; targeting `SUPPORT` on `mixed` provenance strikes the shared leg and restates the finding from the surviving independent evidence before it proceeds; targeting `SUPPORT` on `shared-context` provenance discards it the same way. `UNCERTAIN` and `HOLDS` proceed to lenses 1-2, `UNCERTAIN` tagged `premise-contested`. Findings declared `independent` whose premise carries no such quantifier skip lens 0 entirely and proceed directly to lenses 1-2.
+3. **Lens 0 first.** For each finding to verify whose `premise_provenance` is `shared-context` or `mixed`, **or whose declared premise carries a universal or negative quantifier (`no`, `never`, `cannot`, `always`, `only`) at any provenance**, spawn lens 0 (`subagent_type: senior-review:premise-auditor`, mode 2, inheriting the session model) using the Lens 0 prompt from the skill, with the X-ray line resolved to `$XRAY_RUN_DIR`. Apply the skill's Lens 0 resolution table: a `REFUTED` verdict targeting `PREMISE` discards the finding (`filtered: premise-refuted`) without spawning lenses 1-2; targeting `SUPPORT` on `mixed` provenance strikes the shared leg and restates the finding from the surviving independent evidence before it proceeds; targeting `SUPPORT` on `shared-context` provenance discards it the same way. `UNCERTAIN` and `HOLDS` proceed to lenses 1-2, `UNCERTAIN` tagged `premise-contested`. Findings declared `independent` whose premise carries no such quantifier skip lens 0 entirely and proceed directly to lenses 1-2.
 4. For each finding that reaches this step, spawn lenses 1 and 2 in parallel using the lens prompts from the skill (`general-purpose`; inherit the session model; `run_in_background: true`), then spawn lens 3 (`model: sonnet`) only for findings that survive them, per the skill's gated-lens rule. Substitute the finding, diff, and full file content into each prompt.
 5. Apply the survival rule from the skill: survive if `>= 2` of lenses 1-2 vote REAL; discard (`filtered`) if `>= 2` vote FALSE_POSITIVE; tie or fewer-than-2-verdicts means survive and mark `contested`. Final severity is the lens-3 vote when confirmed real, else the original.
 6. Write `.team-review/98-verification.md`: one row per verified finding with the per-lens verdicts (including, for findings that reached lens 0, its verdict, refutation target, and counterexample), final severity, and flag (`verified` / `contested` / `filtered: premise-refuted` / `filtered`), plus a trailing count of `unverified (cost-guard)` findings.
@@ -599,7 +599,7 @@ Skip this phase if `--fast` was passed (mark `phase_4c_critic` as `skipped`). Ot
    ## Code Review Report: {target}
 
    Session: .team-review/
-   Context: deep-dive ({lite|full}) + interconnect map ({anchor count} anchors)
+   Context: X-ray ({lite|full}) + interconnect map ({anchor count} anchors)
    Reviewed by: {dimensions} ({N} reviewers)
    Files reviewed: {count}
    Verification: {verified} verified, {filtered} false positives, {contested} contested, {premise_refuted} premise-refuted, {premise_contested} premise-contested{cost_guard_note}

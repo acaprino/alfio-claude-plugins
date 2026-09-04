@@ -124,7 +124,7 @@ Write findings grouped by severity. Every finding includes spec citation + imple
 - Prior version: `openapi.yaml@v3.7.0:142` -- field `email_address` (removed)
 - Consumer: `web-client/src/types/user.ts:18` still references `email_address`
 - **Load-bearing premise:** [the single proposition whose falsity collapses this finding: minimal, falsifiable, scoped. Not a paraphrase of the finding itself]
-- **premise_provenance:** independent | shared-context | mixed [causal dependence, not citation: shared-context if you absorbed the premise from the deep-dive output or the interconnect map, even when your finding cites no anchor]
+- **premise_provenance:** independent | shared-context | mixed [causal dependence, not citation: shared-context if you absorbed the premise from the X-ray output or the interconnect map, even when your finding cites no anchor]
 - Impact: web client reads `user.email_address`, now undefined -> null coalesces to empty string in display
 - Fix: keep `email_address` as an alias (spec `additionalProperties`), bump to v4.0.0, or coordinate client update before release
 

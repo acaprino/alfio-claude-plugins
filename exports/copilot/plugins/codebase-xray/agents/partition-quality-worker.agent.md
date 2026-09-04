@@ -16,7 +16,7 @@ You execute Phase 5 (Pattern & Risk Detection) and Phase 6 (Documentation Health
 
 The spawn prompt gives you:
 - `partition_name`, `partition_path`, `active_flags` (you respect `comments` and `depth`)
-- `run_dir`: the run directory for this analysis (e.g. `.deep-dive/runs/<run-id>`)
+- `run_dir`: the run directory for this analysis (e.g. `.codebase-xray/runs/<run-id>`)
 - Implicit: all `<run_dir>/partitions/*/01-structure.md` and `02-interfaces.md` already exist
 
 ## DEPTH HANDLING
@@ -31,7 +31,7 @@ You write ONLY:
 
 You read freely from `partition_path` and `<run_dir>/partitions/*/01-structure.md` + `02-interfaces.md`.
 
-You DO NOT touch any other file under `.deep-dive/` (other runs may be in progress concurrently). You DO NOT update `<run_dir>/state.json`.
+You DO NOT touch any other file under `.codebase-xray/` (other runs may be in progress concurrently). You DO NOT update `<run_dir>/state.json`.
 
 ## FORBIDDEN FILES
 

@@ -95,7 +95,7 @@ Every teammate spawn prompt must include:
 
 1. **Identity / name** the lead will use to address this teammate later.
 2. **Scope** as explicit file / directory ownership ("you own `src/auth/`, do not touch `src/api/`").
-3. **Context references** — pointers to specific files or sections (`CLAUDE.md` references, deep-dive output paths, interconnect map anchors) the teammate must read before producing work.
+3. **Context references** — pointers to specific files or sections (`CLAUDE.md` references, X-ray output paths, interconnect map anchors) the teammate must read before producing work.
 4. **Output contract** — what they produce, where it goes (file path), in what format. If a downstream agent reads it, say so.
 5. **Completion protocol** — for example: "When done, call `TaskUpdate` to mark completed before claiming the next task."
 

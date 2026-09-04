@@ -4,13 +4,13 @@
 
 ## Prerequisites
 
-The `codebase-xray` plugin is a hard dependency: the global audit consumes `.deep-dive/` output and `/abstraction-architect:audit` auto-launches deep-dive when that output is missing. Diff mode degrades gracefully without it.
+The `codebase-xray` plugin is a hard dependency: the global audit consumes `.codebase-xray/` output and `/abstraction-architect:audit` auto-launches X-ray when that output is missing. Diff mode degrades gracefully without it.
 
 ## Agents
 
 ### `abstraction-architect`
 
-Adversarial auditor with two modes. Global mode reads `.deep-dive/` output and hunts whole-codebase failures. Diff mode anchors on newly written code and searches the rest of the codebase for prior art, answering one question: was this code already available, or did it just become the occurrence that justifies unifying?
+Adversarial auditor with two modes. Global mode reads `.codebase-xray/` output and hunts whole-codebase failures. Diff mode anchors on newly written code and searches the rest of the codebase for prior art, answering one question: was this code already available, or did it just become the occurrence that justifies unifying?
 
 | | |
 |---|---|
@@ -34,7 +34,7 @@ Also spawned by `/abstraction-architect:audit` and, in diff mode, as the Abstrac
 - Extracts the added units from the diff, then hunts prior art three ways: by name (near-synonym identifiers), by shape (distinctive literals: regexes, magic numbers, endpoint paths, error strings), by call (same external call with the same parameters)
 - Classifies each added unit: R1 exact prior art, R2 near prior art, R3 third occurrence (the Rule of Three fires on this diff), R4 second occurrence (noted, not flagged), R5 new wrong abstraction
 - Search space is the whole codebase, never just the changed files: the prior art it hunts is by definition outside the diff
-- Needs only `01-structure.md` and `02-interfaces.md` (lite deep-dive is enough); runs on Glob and Grep alone at reduced confidence when no deep-dive output exists
+- Needs only `01-structure.md` and `02-interfaces.md` (lite X-ray is enough); runs on Glob and Grep alone at reduced confidence when no X-ray output exists
 - Opens and compares every claimed prior-art site before reporting; matching names alone are never enough
 - Writes the report to `.abstraction-architect/findings-diff.md`, or wherever the calling review pipeline directs it
 
@@ -62,18 +62,18 @@ References, loaded on demand by the agent: `theory.md`, `unification-patterns.md
 
 | Flag | Effect |
 |------|--------|
-| `--diff [<base-ref>]` | Diff-anchored mode: prior-art hunt for the changed code instead of a whole-codebase audit. Skips the deep-dive auto-launch. Base ref defaults to the merge base with the default branch |
+| `--diff [<base-ref>]` | Diff-anchored mode: prior-art hunt for the changed code instead of a whole-codebase audit. Skips the X-ray auto-launch. Base ref defaults to the merge base with the default branch |
 | `--scope <subpath>` | Limit findings to a subtree |
 | `--severity-floor low\|medium\|high` | Drop findings below this severity (default `medium`) |
 | `--focus unification\|wrong-abstraction\|both` | Restrict to one category (default `both`). Under `--diff`, `unification` maps to classes R1-R4 and `wrong-abstraction` to R5 |
 
-Without `--diff`, the command checks for `.deep-dive/` and auto-launches `/codebase-xray:analyze` when it is missing or incomplete. Report-only: no file outside `.abstraction-architect/` is ever edited, and the suggested direction in each finding is one sentence, not a refactoring plan.
+Without `--diff`, the command checks for `.codebase-xray/` and auto-launches `/codebase-xray:analyze` when it is missing or incomplete. Report-only: no file outside `.abstraction-architect/` is ever edited, and the suggested direction in each finding is one sentence, not a refactoring plan.
 
 ## Ecosystem integration
 
 - **`/senior-review:team-review`** activates the agent in diff mode as the conditional Abstraction dimension whenever the review target resolves to a diff that adds code and this plugin is installed. Plain file/directory targets skip the dimension and point here instead.
 - **`/senior-review:code-review`** runs it as Agent J (Abstraction & Reuse Review) under the same conditions.
 - **`senior-review:code-auditor`** keeps the single-file abstraction smells (leaky abstractions, premature interfaces, god objects); this agent owns the cross-file reuse question. The dedup boundary is declared on both sides.
-- **`/codebase-xray:team-analyze`** adds `08-interconnect-map.md` to the deep-dive output, which enables the bounded-context fusion findings in global mode.
+- **`/codebase-xray:team-analyze`** adds `08-interconnect-map.md` to the X-ray output, which enables the bounded-context fusion findings in global mode.
 
-**Related:** [codebase-xray](codebase-xray.md) (produces the `.deep-dive/` input) | [senior-review](senior-review.md) (`/team-review` Abstraction dimension, code-review Agent J, code-auditor dedup boundary) | [clean-code](clean-code.md) (readability cleanup, different concern)
+**Related:** [codebase-xray](codebase-xray.md) (produces the `.codebase-xray/` input) | [senior-review](senior-review.md) (`/team-review` Abstraction dimension, code-review Agent J, code-auditor dedup boundary) | [clean-code](clean-code.md) (readability cleanup, different concern)

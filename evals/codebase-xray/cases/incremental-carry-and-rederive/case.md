@@ -19,7 +19,7 @@ An incremental run is only worth trusting if it is honest about what it did not 
 
 No other file changes. With 11 files in the parent snapshot and 3 touched, the affected ratio is comfortably under the default 0.4 threshold.
 
-**Second scratch directory.** A handful of unrelated files with no `.deep-dive/` present, used only for the `--update`-with-no-parent check below.
+**Second scratch directory.** A handful of unrelated files with no `.codebase-xray/` present, used only for the `--update`-with-no-parent check below.
 
 ## Run
 
@@ -80,7 +80,7 @@ At the checkpoint, read which option is the incremental one and note its number,
 | 9 | MUST | In Session 2, `snapshot.py check` runs after re-derivation and before the publish step, and the publish step runs only after that check exited 0 |
 | 10 | MUST | Session 2's `changes.md` carries all four sections, `## Claims confirmed`, `## Claims revised`, `## Claims retired`, `## Claims added`, and every claim that cited `deprecated_helper.py` or `deprecated_helper.py::old_helper`, in whichever phase file it appeared, is listed under `## Claims retired`, none under confirmed or revised |
 | 11 | MUST | By the time Session 2 publishes, `01-structure.md` and `02-interfaces.md` each document `validator.py::validate_schema` |
-| 12 | MUST | After Session 2 publishes, `.deep-dive/snapshot/`, `.deep-dive/changes.json` and `.deep-dive/changes.md` do not exist at the mirror root; those three live only under `.deep-dive/runs/second/` |
+| 12 | MUST | After Session 2 publishes, `.codebase-xray/snapshot/`, `.codebase-xray/changes.json` and `.codebase-xray/changes.md` do not exist at the mirror root; those three live only under `.codebase-xray/runs/second/` |
 | 13 | SHOULD | Session 2's checkpoint showed real figures (files modified/added/removed, symbols changed/added/removed, affected claims) matching `changes.json`'s `totals`, not placeholder text |
 
 ## Scoring notes

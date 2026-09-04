@@ -18,7 +18,7 @@ You execute Phase 1 (Structure Extraction) and Phase 2 (Interface Analysis) of X
 The spawn prompt gives you:
 - `partition_name`: kebab-case identifier (e.g. `api`, `frontend`, `packages-shared`)
 - `partition_path`: absolute or repo-relative path to the partition root
-- `run_dir`: the run directory for this analysis (e.g. `.deep-dive/runs/<run-id>`). All your output paths are relative to it.
+- `run_dir`: the run directory for this analysis (e.g. `.codebase-xray/runs/<run-id>`). All your output paths are relative to it.
 - `active_flags`: object with `critical`, `comments`, `depth` (you only use `depth` -- if `lite`, your output is identical to full because Phase 1+2 always run)
 
 ## OWNERSHIP CONTRACT
@@ -26,7 +26,7 @@ The spawn prompt gives you:
 - You write ONLY:
   - `<run_dir>/partitions/<partition_name>/01-structure.md`
   - `<run_dir>/partitions/<partition_name>/02-interfaces.md`
-- You DO NOT touch any other file under `.deep-dive/` (other runs may be in progress concurrently).
+- You DO NOT touch any other file under `.codebase-xray/` (other runs may be in progress concurrently).
 - You DO NOT update `<run_dir>/state.json` — that is the orchestrator's job.
 
 ## FORBIDDEN FILES

@@ -27,40 +27,40 @@ subagent: project-setup:claude-md-auditor
 
 This command launches an interactive session to audit and optionally improve your `CLAUDE.md` file. It verifies accuracy, detects obsolete information, and guides you through prioritized improvements.
 
-## Pre-flight: detect existing deep-dive output
+## Pre-flight: detect existing X-ray output
 
 Before the agent starts its own bottom-up analysis, check whether the project already has technical-reference output on disk from a previous `/codebase-xray:analyze` session:
 
 ```bash
-ls .deep-dive/01-structure.md .deep-dive/02-interfaces.md 2>/dev/null
+ls .codebase-xray/01-structure.md .codebase-xray/02-interfaces.md 2>/dev/null
 ```
 
 If both files exist, prompt the user:
 
 ```
-Found .deep-dive/ from a previous /codebase-xray:analyze session.
+Found .codebase-xray/ from a previous /codebase-xray:analyze session.
 
-For an AUDIT, deep-dive output is especially valuable: every claim in
+For an AUDIT, X-ray output is especially valuable: every claim in
 CLAUDE.md can be cross-checked against an already-verified technical
-snapshot. Drift between CLAUDE.md and the deep-dive findings will be
+snapshot. Drift between CLAUDE.md and the X-ray findings will be
 surfaced explicitly (e.g., "CLAUDE.md says webpack but 01-structure.md
 shows Vite").
 
-Use deep-dive output as the audit ground truth?
-  [Y] Use deep-dive output + spot-checks against current code
+Use X-ray output as the audit ground truth?
+  [Y] Use X-ray output + spot-checks against current code
   [n] Re-analyze bottom-up (current behavior)
 ```
 
-If the user accepts, the spawned `claude-md-auditor` agent skips Phase 1 (Bottom-Up Discovery) and uses `.deep-dive/01-structure.md` + `.deep-dive/02-interfaces.md` as the verification baseline, with 3-5 spot-checks against current code to confirm the deep-dive isn't stale. Drift findings cite both the CLAUDE.md line AND the contradicting `.deep-dive/<file>:<section>` anchor. See the agent's "Phase 0: Deep-Dive Detection" for the full protocol.
+If the user accepts, the spawned `claude-md-auditor` agent skips Phase 1 (Bottom-Up Discovery) and uses `.codebase-xray/01-structure.md` + `.codebase-xray/02-interfaces.md` as the verification baseline, with 3-5 spot-checks against current code to confirm the X-ray isn't stale. Drift findings cite both the CLAUDE.md line AND the contradicting `.codebase-xray/<file>:<section>` anchor. See the agent's "Phase 0: X-Ray Detection" for the full protocol.
 
-If the user declines (or `.deep-dive/` is absent), the agent does its own bottom-up analysis as in step 1 below.
+If the user declines (or `.codebase-xray/` is absent), the agent does its own bottom-up analysis as in step 1 below.
 
 ## What This Does
 
 The agent will:
-1. Analyze your codebase bottom-up (dependencies, entry points, source, config, tests, docs) -- OR ingest `.deep-dive/` if the pre-flight check accepted that shortcut
+1. Analyze your codebase bottom-up (dependencies, entry points, source, config, tests, docs) -- OR ingest `.codebase-xray/` if the pre-flight check accepted that shortcut
 2. Read your `CLAUDE.md` last and verify every claim against established ground truth
-3. Detect obsolete file paths, dependencies, or commands -- with explicit `.deep-dive/` anchor citations when applicable
+3. Detect obsolete file paths, dependencies, or commands -- with explicit `.codebase-xray/` anchor citations when applicable
 4. Identify gaps - undocumented commands, dependencies, configs, or patterns
 5. Check for best practices (conciseness, progressive disclosure, instruction economy)
 6. Present findings with prioritized recommendations

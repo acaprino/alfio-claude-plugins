@@ -95,7 +95,7 @@ DEGRADE_PROSE_ALLOWLIST = {
 # rather than a spawn or a skill load. (owner, dependency): the artifact.
 ARTIFACT_DEPENDENCIES = {
     ("abstraction-architect", "codebase-xray"):
-        "reads the .deep-dive/ run output; deep_dive_path is required in global mode",
+        "reads the .codebase-xray/ run output; xray_path is required in global mode",
 }
 
 failures = []
@@ -321,7 +321,11 @@ def check_no_local_degrade_prose(plugins):
             if POLICY_AFFIRMATION.search(line):
                 continue  # states the rule, does not breach it
             for ns in sorted(hard_local):
-                if re.search(rf"(?<![\w-]){re.escape(ns)}(?![\w-])", line):
+                # A dot before the name makes it a path, not a plugin reference:
+                # codebase-xray publishes its artifacts to `.codebase-xray/`, so
+                # every line naming that directory near the words "fall back"
+                # would otherwise read as a degrade branch for the plugin.
+                if re.search(rf"(?<![\w.-]){re.escape(ns)}(?![\w-])", line):
                     problems.append(
                         f"{md.as_posix()}:{i} makes something conditional on "
                         f"'{ns}' being installed (or names a fallback for it), "

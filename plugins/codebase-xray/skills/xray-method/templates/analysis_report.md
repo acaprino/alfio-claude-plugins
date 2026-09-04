@@ -85,8 +85,8 @@ Files requiring runtime verification:
 
 ## Links
 
-- `.deep-dive/runs/{run_id}/01-structure.md` - Structural map this module appears in
-- `.deep-dive/runs/{run_id}/07-final-report.md` - Consolidated analysis report
+- `.codebase-xray/runs/{run_id}/01-structure.md` - Structural map this module appears in
+- `.codebase-xray/runs/{run_id}/07-final-report.md` - Consolidated analysis report
 
 ---
 

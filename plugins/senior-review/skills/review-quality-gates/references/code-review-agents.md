@@ -267,7 +267,7 @@ Agent tool call:
     - Load-bearing premise: the single proposition whose falsity collapses this
       finding. Minimal, falsifiable, scoped. Not a paraphrase of the finding
     - premise_provenance: independent | shared-context | mixed (causal dependence
-      on the deep-dive output or interconnect map, not citation of it)
+      on the X-ray output or interconnect map, not citation of it)
     - What is unused or misplaced, and why
     - Recommended action (remove, prefix with _, verify dynamic usage, add to
       __all__, or `/repo-hygiene:tidy` for anything the filesystem and git decide)
@@ -610,7 +610,7 @@ Agent tool call:
 
     mode: diff
     codebase_path: [repo root]
-    deep_dive_path: [.deep-dive/ if Step 2 produced one, otherwise "none"]
+    xray_path: [.codebase-xray/ if Step 2 produced one, otherwise "none"]
     concept_index_path: [repo root]/.abstraction-architect/concept-index.json
     changed_files: [list of changed files]
     report_path: [scratch path for this review]

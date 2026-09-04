@@ -309,8 +309,8 @@ Multi-dimensional code review as a **6-phase pipeline**: independent evidence di
 |-------|---------------|
 | 0. Target resolution | Resolves `<target>` (path, git diff range, or PR number) and collects the diff |
 | 0b. Context detection | Auto-selects review dimensions from changed files and codebase signals (skipped if `--reviewers` is explicit) |
-| 0c. Review evidence discovery | Inline. Discovers what evidence this review needs from the project's own indexes and tests, forbidden from reading `.deep-dive/` in any form including prior runs, and writes the immutable `.team-review/01a-review-knowledge-leads.md` |
-| 1a. Deep-dive analysis | Invokes the `codebase-xray:analyze` **skill** (`--depth=lite` by default, full with `--deep`) |
+| 0c. Review evidence discovery | Inline. Discovers what evidence this review needs from the project's own indexes and tests, forbidden from reading `.codebase-xray/` in any form including prior runs, and writes the immutable `.team-review/01a-review-knowledge-leads.md` |
+| 1a. X-ray analysis | Invokes the `codebase-xray:analyze` **skill** (`--depth=lite` by default, full with `--deep`) |
 | 1c. Independent premise derivation | `premise-auditor` in mode 1, spawned in the same turn as 1a and blind to its output, writes `.team-review/01b-independent-claims.md`. A second observer, not the same observer consulted twice |
 | 1d. Knowledge reconciliation | Inline join of 01a, 01b and X-ray's `knowledge/documentation-leads.md` into `.team-review/01-knowledge-provenance.md`, keeping `Missing` and `Disputed` strictly apart |
 | 1b. Interconnect mapping | `semantic-interconnect-mapper` builds `.team-review/02-interconnect.md`, turning every contradiction between the two derivations into a `disputed` row |

@@ -10,7 +10,7 @@ The script suite has a separate, mechanical guard: `tests/test_xray_scripts.py` 
 
 0. **Establish which version is under test, and prove it.** Check `~/.claude/plugins/cache/<marketplace>/codebase-xray/` against `marketplace.json`; if they differ, update the marketplace and start a new session, or run against the working-tree files and say so in the scorecard. A run whose scorecard does not name the version it exercised is not a result.
 1. **Materialize the target** the case describes in a scratch directory, never in this repository: the plugin's own files would become part of the codebase under test. Most cases give a small fixture; `team-mode-partition-ownership` needs a two-package workspace.
-2. **Run the case's command in a FRESH session.** Context from a previous case leaks the answers, and a stale `.deep-dive/` in the scratch directory leaks a previous run.
+2. **Run the case's command in a FRESH session.** Context from a previous case leaks the answers, and a stale `.codebase-xray/` in the scratch directory leaks a previous run.
 3. **Keep the transcript.** Several assertions read it: whether the scripts were invoked, whether a secret was quoted, whether a worker wrote outside its directory.
 4. **Score each assertion** `pass`, `fail`, or `n/a` (only when the case makes it conditional).
 5. **Record the run** in a copy of `scorecard-template.md` inside the case directory (`scorecard-<date>.md`), and add one row to `RESULTS.md`.

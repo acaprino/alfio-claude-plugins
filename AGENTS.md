@@ -14,7 +14,7 @@ The Daodan is the symbiote that augments its host. This repository is the Daodan
 
 The compiler is `scripts/daodan/`: `model.py` and `load.py` (strict TOML loading), `validate.py` and `trust.py` (semantic and secret validation), `adapter.py` (capability parity and strategy selection), `overrides.py` (the fingerprint gate), `render.py`, `templates.py`, `provenance.py`, `catalogs.py` and `report.py`. Standard library only, no third-party dependency anywhere in the toolchain.
 
-`codebase-xray` was named `deep-dive-analysis` until marketplace 14.0.0. Its analysis artifact directory is still `.deep-dive/`, which is the stable downstream contract, now declared as its `write-confinement` policy.
+`codebase-xray` was named `deep-dive-analysis` until marketplace 14.0.0, and its analysis artifact directory kept the old name, `.deep-dive/`, until marketplace 27.0.0. It is now `.codebase-xray/`, matching the plugin. That directory is the stable downstream contract, declared as the plugin's `write-confinement` policy: every consumer reads it by that path, so a rename is a marketplace-wide change and never a local one. There is no fallback to the old path, by decision: a reader that silently accepted both would leave two contracts alive and nothing would ever name which one it read.
 
 ## Conventions
 
