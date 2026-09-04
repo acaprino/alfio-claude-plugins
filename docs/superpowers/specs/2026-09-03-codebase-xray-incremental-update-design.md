@@ -115,12 +115,14 @@ The script scans every phase file of the parent (`01` to `07`, plus `08-intercon
 | Citation | Verdict |
 |---|---|
 | any citation of an added or removed file | affected, `file-added` or `file-removed` |
-| `path::Sym` where `Sym` or a prefix of it is changed or removed | affected, `symbol-changed` or `symbol-removed` |
+| `path::Sym` where `Sym` itself, matched exactly, is changed or removed | affected, `symbol-changed` or `symbol-removed` |
 | `path::Sym` where `Sym` is unchanged, in a modified file | carried; any `path:line` beside it renumbered |
 | `path:line` alone, in a modified file, line inside an unchanged symbol span (old numbering) | carried, renumbered |
 | `path:line` alone, in a modified file, line outside every unchanged span | affected, `line-outside-known-symbol` |
 | any citation of an importer, not itself modified | affected, `importer` |
 | any citation of an unchanged file | carried |
+
+Matching is exact, never a prefix. A class span encloses its methods, so editing any one method already moves the class's own hash; matching a citation of `Class.method` against a prefix would mark every sibling method's claim as affected too, on every edit anywhere in the class, and destroy the symbol-level granularity this mechanism exists to buy. A claim about the class as a whole cites the class by name and is caught by the exact match on it, with no prefix rule needed.
 
 A line that carries several citations is affected if any of them is. Each affected claim is recorded with its phase file, line number, nearest enclosing heading and reason.
 
@@ -232,10 +234,10 @@ Mechanical, before any phase runs:
 "parent_run": "src-20260901-101200",
 "base_snapshot_created_at": "...",
 "git": {"commit": "...", "branch": "...", "dirty": false},
-"incremental": {"affected_files": 2, "files_in_snapshot": 41, "claims_affected": 9, "extra_reads": 1}
+"incremental": {"affected_files": 2, "files_in_snapshot": 41, "claims_affected": 9, "extra_reads": 0}
 ```
 
-`parent_run`, `base_snapshot_created_at` and `incremental` are known as soon as step 1b's change set exists, before `state.json` is even created, so they are written with these real values at creation. `git` is the one field that cannot follow that rule: the snapshot that supplies it is written later, in section 6.4, so `state.json` is created with `git: null` and gets it copied in immediately after that step.
+`parent_run`, `base_snapshot_created_at`, and `incremental`'s `affected_files`, `files_in_snapshot` and `claims_affected` are known as soon as step 1b's change set exists, before `state.json` is even created, so they are written with these real values at creation. `extra_reads` has no source in the change set: it counts reads outside the affected-files budget, which cannot happen before any phase has run. It starts at `0` and is updated once the `## Extra reads` log in `changes.md` is written, alongside the other completion sections in section 6.4's publish step. `git` is the other field that cannot follow the at-creation rule: the snapshot that supplies it is written later, in section 6.4, so `state.json` is created with `git: null` and gets it copied in immediately after that step.
 
 A full run writes `parent_run: null` and `incremental: null`, and still writes `git` and the snapshot: every run from now on is a possible parent.
 
@@ -245,7 +247,7 @@ A full run writes `parent_run: null` and `incremental: null`, and still writes `
 
 ### 6.6 Completion output
 
-The summary printed today gains two lines: the parent run, and the counts of carried, revised, retired and added claims, with a pointer at `changes.md`.
+The summary printed today gains a parent-run line, unconditionally, and, on an incremental run only, a second line with the counts of confirmed, revised, retired and added claims, with a pointer at `changes.md`. A full run has no `changes.md` to point at, so that second line is omitted rather than printed empty.
 
 ## 7. `/codebase-xray:team-analyze`
 

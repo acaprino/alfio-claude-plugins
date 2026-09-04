@@ -60,7 +60,7 @@ An X-ray run is a set of claims about a tree. When that tree has barely moved si
 
 Skip this step entirely if `--no-update` was passed.
 
-1. From `runs.json`, take `latest_completed`. The candidate parent is that run when its recorded `target` normalizes to the same path as this invocation's target and `.deep-dive/runs/<id>/snapshot/manifest.json` exists.
+1. From `runs.json`, take `latest_completed`. The candidate parent is that run when its recorded `target` normalizes to the same path as this invocation's target, `.deep-dive/runs/<id>/state.json` records `mode: "classic"`, and `.deep-dive/runs/<id>/snapshot/manifest.json` exists. A completed **team** run is never a usable parent here: its `08-interconnect-map.md` is cross-partition output this workflow has no phase to regenerate, so carrying it forward would leave a stale marker nothing in `## Execution Order` ever revisits, and the check in step 8 would then refuse to publish. Treat a `latest_completed` team run the same as no candidate parent at all.
 2. With a candidate, run the change set:
 
    ```bash
@@ -70,7 +70,7 @@ Skip this step entirely if `--no-update` was passed.
 
 3. Read `$RUN_DIR/changes.json` and take `recommendation` and `totals`. They drive the checkpoint in step 3.
 
-With `--update` and no candidate parent, stop and say which condition failed (no completed run for this target, or a parent with no manifest), and that a full run is the way to create one. Never fabricate a parent. With a candidate present, `--update` changes nothing else: the checkpoint in step 3 still presents both options and waits, exactly as CRITICAL RULE 4 requires.
+With `--update` and no candidate parent, stop and say which condition failed (no completed run for this target, the latest completed run for this target is a team run, or a parent with no manifest), and that a full run is the way to create one. Never fabricate a parent. With a candidate present, `--update` changes nothing else: the checkpoint in step 3 still presents both options and waits, exactly as CRITICAL RULE 4 requires.
 
 A parent from before this feature has no manifest, and the change set says so with `recommendation: full`. That is reported, never guessed at.
 
@@ -104,7 +104,7 @@ Create `$RUN_DIR/` and `$RUN_DIR/state.json`:
 
 Parse flags: `--critical` (prioritize high-risk code), `--comments` (comment quality mode), `--docs-only` (documentation health only, skip to Phase 6), `--phase N` (start at phase N), `--depth=lite` (lightweight analysis: skip flow tracing diagrams, state machine diagrams, and detailed dependency analysis for non-critical files, producing only structure + interfaces + risks + final summary), `--run-name <name>` (explicit run identity for concurrent or repeated analyses).
 
-On an incremental run, step 1b's change set already exists by the time this file is written, so `parent_run` (the parent's run-id), `base_snapshot_created_at` (the parent manifest's `created_at`) and `incremental` (`{affected_files, files_in_snapshot, claims_affected, extra_reads}` from the change set) are written here with their real values, not left for later. `git` cannot follow that rule: the snapshot that supplies it is not written until `## Execution Order`, so it starts `null` here and is copied in right after that step. A full run leaves `parent_run` and `incremental` as `null` and still records `git` and the snapshot: every run is a possible parent.
+On an incremental run, step 1b's change set already exists by the time this file is written, so `parent_run` (the parent's run-id), `base_snapshot_created_at` (the parent manifest's `created_at`) and `incremental`'s `affected_files`, `files_in_snapshot` and `claims_affected` (from the change set's `totals`) are written here with their real values, not left for later. `extra_reads` has no source in the change set: it counts reads outside the affected-files budget, which cannot happen before any phase has run, so it starts at `0` here and is updated once the `## Extra reads` log is written, at step 9 of `### Incremental depth` below. `git` cannot follow the at-creation rule either: the snapshot that supplies it is not written until `## Execution Order`, so it starts `null` here and is copied in right after that step. A full run leaves `parent_run` and `incremental` as `null` and still records `git` and the snapshot: every run is a possible parent.
 
 Register `parent_run` in the run's `runs.json` entry as well, `null` for a full run. The chain of `parent_run` values is the analysis history; nothing else is added to hold it.
 
@@ -126,6 +126,8 @@ Files to read: [N] of [total]
 2. Full analysis (reads [total] files)
 3. Cancel
 ```
+
+`[commit]` and `[age]` describe the parent run, not this one: read `[commit]` from `.deep-dive/runs/<parent-id>/state.json -> git.commit` (copied into that run's own state right after it wrote its snapshot) and derive `[age]` from that run's `started_at`. `changes.json`'s own `git` field describes the current worktree instead, and is never the source for this line.
 
 **With `recommendation: full`**, present the same figures with the options reversed, and print every entry of `reasons` under the figures so the user sees why (ratio over threshold, parent without a manifest, parent not complete, flags differing from the parent's). The incremental option stays selectable: the recommendation is advice, and the user decides.
 
@@ -219,7 +221,7 @@ The phases and their numbering are unchanged. What changes is that most claims a
    python ${CLAUDE_PLUGIN_ROOT}/skills/xray-method/scripts/snapshot.py check $RUN_DIR
    ```
 
-   A non-zero exit means a claim is still marked stale or an added symbol was never documented. Do not publish: report what the check named and finish the work. This gate is what makes an incremental run worth trusting.
+   Exit `0` means clean: proceed to publish. Exit `1` means a claim is still marked stale or an added symbol was never documented: do not publish, report what the check named, and finish the work. Exit `2` means `changes.json` is missing, which should not happen this late in an incremental run: do not publish, and treat it as a bug in the run rather than in the code under analysis. This gate is what makes an incremental run worth trusting.
 
 9. **Write the completion sections of `changes.md`**: `## Claims confirmed`, `## Claims revised` (old and new text, one row each), `## Claims retired`, `## Claims added`, `## Extra reads`.
 
@@ -647,7 +649,6 @@ Present the analysis summary and a proposed action plan derived from findings, t
 Codebase X-ray complete for: $ARGUMENTS
 Run: [run-id] (published to .deep-dive/ root)
 Parent: [parent-id or "none (full run)"]
-Claims: [N] carried, [N] revised, [N] retired, [N] added. Detail in .deep-dive/runs/[run-id]/changes.md
 
 Output Files:
 - Structure: .deep-dive/runs/[run-id]/01-structure.md
@@ -664,6 +665,8 @@ Summary:
 - Anti-patterns: [count] | Red flags: [count] | Tech debt items: [count]
 - Documentation gaps: [count]
 ```
+
+On an incremental run, add a fourth line after `Parent:` naming the same four buckets `### Incremental depth` step 9 writes to `changes.md`: `Claims: [N] confirmed, [N] revised, [N] retired, [N] added. Detail in .deep-dive/runs/[run-id]/changes.md`. A full run has no such line: there is no `changes.md` to point at, and "carried" is not a bucket anything writes, since counting it would mean reading every citation in the parent's phase files, the cost this whole mechanism exists to avoid.
 
 ### Proposed Action Plan
 

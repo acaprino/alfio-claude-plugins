@@ -190,11 +190,11 @@ The unit of an update here is the partition, deliberately coarser than the claim
 Available only when pre-flight point 4 found a candidate parent and its change set does not recommend `full`; the checkpoint below still presents it as a choice, never as a forced path.
 
 1. **The partition set must match.** The names this detection produced must be the same set as the parent's `state.json -> partitions`. Any difference means a full run, with the difference named at the checkpoint. A partition that appeared, vanished or was renamed changes what every other partition's boundaries mean.
-2. **Assign the affected files.** For each partition, its affected files are the `affected_files` of the change set that fall under its path.
+2. **Assign the affected files.** For each partition, its affected files are the `affected_files` of the change set that fall under its path. Record `partitions[i].update` as `"copied"` when that list is empty and `"re-analyzed"` (with the affected-file count) otherwise, before either branch below runs: the completion summary in Phase 4 and the `## Partitions` table both read this field, and neither can be reconstructed later, since `partitions[i].status` ends at `"done"` for both outcomes.
 3. **A partition with no affected file is copied**, whole, from `.deep-dive/runs/<parent-id>/partitions/<name>/` into `$RUN_DIR/partitions/<name>/`, once the checkpoint's update option is accepted. Mark its `partitions[i].status` as `"done"` directly. Phase 1's Wave 1 loop and its post-barrier status update both exclude a partition already `"done"`, so no worker is ever dispatched for it in either wave, and Wave 2's `structure_done` gate excludes it too since its status never changes from `"done"`.
 4. **A partition with at least one affected file is re-analyzed**, both waves, exactly as in a fresh run. Its workers receive their normal prompts and never see the change set.
 5. **Synthesis and the interconnect map always run**, over the mix of copied and fresh partition output. Both are cross-partition by construction, so neither can be carried.
-6. **`changes.md` holds the change set's three mechanical sections plus a `## Partitions` table** naming each partition as copied or re-analyzed.
+6. **`changes.md` holds the change set's three mechanical sections plus a `## Partitions` table** naming each partition as copied or re-analyzed, read from `partitions[i].update`.
 
 ### Checkpoint
 
@@ -401,6 +401,7 @@ Wait for delivery. On delivery: mark `phase_3_interconnect: "complete"`. On fail
 ```
 X-ray (team mode) complete for: <target>
 Run: <run-id> (published to .deep-dive/ root)
+Parent: <parent-id or "none (full run)">
 
 Partitions: <N> (<list of names + status>)
 
@@ -417,6 +418,8 @@ Summary:
   - Documentation gaps: <count>
   - Cross-partition flows: <count>
 ```
+
+On an incremental run, name the parent run-id on the `Parent:` line and list each partition using `partitions[i].update` in place of its raw status: `<name>: copied` or `<name>: re-analyzed ([N] affected files)`, except a partition whose `status` is `"failed"` still reports `failed`. Point at `.deep-dive/runs/<run-id>/changes.md ## Partitions` for the full detail. A full run keeps today's format: `Parent: none (full run)`, and every partition reports `done` or `failed`.
 
 5. Show Next Steps Menu:
 

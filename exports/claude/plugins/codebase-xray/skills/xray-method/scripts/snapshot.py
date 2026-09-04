@@ -402,9 +402,21 @@ _PACKAGE_FILES = ("__init__.py", "index.ts", "index.tsx", "index.js", "index.jsx
 
 
 def _by_basename(paths) -> dict[str, list[str]]:
+    """
+    Group paths by their final segment, each group sorted.
+
+    Sorted rather than insertion order because the caller usually passes a
+    set, whose iteration order depends on Python's per-process hash
+    randomization: left unsorted, an ambiguous bare-basename citation with
+    several candidates could resolve to a different one on every run of the
+    identical tree. The ambiguity itself is not resolved here, only made to
+    pick the same candidate consistently.
+    """
     index: dict[str, list[str]] = {}
     for path in paths:
         index.setdefault(path.rsplit("/", 1)[-1], []).append(path)
+    for candidates in index.values():
+        candidates.sort()
     return index
 
 
@@ -574,7 +586,10 @@ def _symbol_verdict(path: str, symbol: str, changed: set, removed: set, added_fi
 def scan_claims(parent_dir: Path, comparison: dict, symbols: dict, importers: list[dict]) -> list[dict]:
     """
     Every line in the parent's phase files that cites something the change set
-    touched, with the reason it is affected.
+    touched, with the reason it is affected. Excludes 07-final-report.md:
+    Phase 7 is regenerated on every run, never carried, so a claim living only
+    there is not a work item, and counting it would inflate claims_affected
+    and the per-phase breakdown the checkpoint prints.
     """
     modified = set(comparison["modified"])
     added_files = set(comparison["added"])
@@ -592,6 +607,8 @@ def scan_claims(parent_dir: Path, comparison: dict, symbols: dict, importers: li
 
     claims: list[dict] = []
     for name in PHASE_FILES:
+        if name == "07-final-report.md":
+            continue  # Phase 7 is regenerated, never carried; see docstring.
         phase_path = parent_dir / name
         if not phase_path.exists():
             continue

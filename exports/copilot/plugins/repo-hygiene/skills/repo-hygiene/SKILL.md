@@ -120,7 +120,7 @@ ls NOTES.md TODO.md SCRATCH.md 2>/dev/null
 
 Three states, three dispositions:
 
-- **Untracked and already ignored**: local clutter only. LOW, removable without a commit.
+- **Untracked and already ignored**: local clutter only. LOW, removable without a commit, except `.deep-dive`, whose removal also discards the X-ray run lineage and forces the next analysis to run full instead of incremental.
 - **Tracked**: clutters every clone. HIGH, `git rm -r` plus an ignore entry.
 - **Tracked and already ignored**: an impossible state that means the file was committed
   before the pattern existed. Sanity-check before acting.

@@ -1,11 +1,11 @@
 {
   "adapterVersion": "1.0.0",
-  "coreDigest": "sha256:9601cbe9f7bf82c28966c13c053ce9767196711b7a6e39fba879995cf432741f",
+  "coreDigest": "sha256:cc9eb2ce09119d32752be5b6875c5fbc6a74204c455ab1ee26393e58a45ddbef",
   "harnessStrategies": {
     "tidy": "parallel-subagents"
   },
   "host": "copilot",
   "overrides": [],
   "plugin": "repo-hygiene",
-  "version": "1.1.0"
+  "version": "1.1.1"
 }

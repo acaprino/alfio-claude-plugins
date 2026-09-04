@@ -536,6 +536,32 @@ class DiffCommandTests(_DiffFixture):
         self.assertIn("## Blast radius", text)
         self.assertIn("## Affected claims", text)
 
+    def test_a_claim_living_only_in_the_final_report_is_not_counted(self):
+        # 07-final-report.md is regenerated on every run, never carried, so a
+        # citation living only there is not a work item: scan_claims must
+        # exclude it even though PHASE_FILES lists it for cmd_carry and
+        # cmd_check, which have their own reasons to include it.
+        write(
+            self.parent,
+            "07-final-report.md",
+            "# Codebase X-Ray Analysis Report\n"
+            "\n"
+            "## Top Priority Actions\n"
+            "\n"
+            "1. Review `src/orders/service.py::OrderService.place` before the next release.\n",
+        )
+        path = self.src / "orders/service.py"
+        path.write_text(
+            PY_SOURCE.replace("self.repo.save(order)", "self.repo.save(order)\n        self.audit(order)"),
+            encoding="utf-8",
+        )
+        changes = self.diff()
+        phase_files = {c["phase_file"] for c in changes["claims"]}
+        self.assertNotIn("07-final-report.md", phase_files)
+        # The same symbol is legitimately cited in 03-flows.md too (from
+        # setUp), so the fix must not have simply stopped detecting the edit.
+        self.assertIn("03-flows.md", phase_files)
+
 
 class CarryTests(_DiffFixture):
     def carry(self):
