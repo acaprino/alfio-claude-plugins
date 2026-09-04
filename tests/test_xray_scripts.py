@@ -138,6 +138,15 @@ class ParserTests(unittest.TestCase):
         result = parse_file(_write(self.temp, "svc.ts", TYPESCRIPT))
         self.assertIn("UserService", [c.name for c in result.classes])
         self.assertIn("UserService", result.exported_symbols)
+        # Members too, on either parser. Asserting only the class name was the
+        # gap that let the regex fallback ship with no member extraction at
+        # all: snapshot.py then recorded one span for the whole class, so an
+        # edit to one method was indistinguishable from an edit to any other,
+        # and every overload collapsed into nothing to key a span on.
+        service = next(c for c in result.classes if c.name == "UserService")
+        self.assertEqual(
+            {m.name for m in service.methods}, {"constructor", "get", "onUser"}
+        )
 
     @unittest.skipUnless(HAVE_TREE_SITTER, "tree-sitter not installed")
     def test_typescript_tree_sitter_sees_arrow_methods_and_const_functions(self):

@@ -357,6 +357,27 @@ _CONSTANT_RE = re.compile(
     r"^\s*(?:export\s+)?const\s+(?P<name>[A-Z][A-Z0-9_]*)\s*=",
     re.MULTILINE,
 )
+# Class members. Two forms: the shorthand method `name(args) {`, with the
+# modifiers and TypeScript annotations one may carry, and the arrow property
+# `name = (args) =>`. Indentation is required, which is what keeps a top-level
+# call or statement out: a class member is never at column 0 in either form.
+_METHOD_RE = re.compile(
+    r"^[ \t]+(?:(?:public|private|protected)\s+)?"
+    r"(?:(?:static|readonly|abstract|override|async|declare|get|set)\s+|\*\s*)*"
+    r"(?P<name>[A-Za-z_$][\w$]*)\s*"
+    r"(?:"
+    r"(?:<[^>(]*>)?\((?P<params>[^)]*)\)\s*(?::[^{;=]+)?\{"
+    r"|=\s*(?:async\s+)?\((?P<aparams>[^)]*)\)\s*(?::[^=]+)?=>"
+    r")",
+    re.MULTILINE,
+)
+# Words that reach _METHOD_RE's shape without being a member: `if (x) {` and its
+# relatives read as a call followed by a block.
+_NOT_A_METHOD = frozenset({
+    "if", "for", "while", "switch", "catch", "do", "else", "try", "finally",
+    "with", "return", "function", "typeof", "instanceof", "new", "delete",
+    "void", "await", "yield", "case", "throw", "class", "import", "export",
+})
 _EXPORT_RE = re.compile(
     r"^\s*export\s+(?:default\s+)?(?:class|function|const|let|var)\s+(?P<name>\w+)",
     re.MULTILINE,
@@ -432,6 +453,43 @@ def _regex_parse(content: str, language: str = _LANGUAGE_NAME) -> ParseResult:
                 line_number=content[: m.start()].count("\n") + 1,
             )
         )
+
+    # Methods, associated to the nearest preceding class: the same rough
+    # association the Java adapter makes. Without this pass a class parsed by
+    # the fallback carries no members at all, so snapshot.py records one span
+    # for the whole class and an edit to a single method is indistinguishable
+    # from an edit to any other.
+    if classes:
+        by_line = sorted(classes, key=lambda c: c.line_number)
+        for m in _METHOD_RE.finditer(content):
+            name = m.group("name")
+            if name in _NOT_A_METHOD:
+                continue
+            line_no = content[: m.start()].count("\n") + 1
+            owner = None
+            for cls in by_line:
+                if cls.line_number <= line_no:
+                    owner = cls
+                else:
+                    break
+            if owner is None:
+                continue
+            params_raw = m.group("params")
+            if params_raw is None:
+                params_raw = m.group("aparams") or ""
+            params = [
+                ParameterInfo(name=piece.strip().split(":")[0].strip().lstrip("."))
+                for piece in params_raw.split(",")
+                if piece.strip()
+            ]
+            owner.methods.append(
+                FunctionInfo(
+                    name=name,
+                    parameters=params,
+                    is_async=re.search(r"\basync\b", m.group(0)) is not None,
+                    line_number=line_no,
+                )
+            )
 
     constants = list({m.group("name") for m in _CONSTANT_RE.finditer(content)})
     exported = list({m.group("name") for m in _EXPORT_RE.finditer(content)})
