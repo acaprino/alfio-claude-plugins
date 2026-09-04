@@ -78,9 +78,33 @@ The method itself: structure extraction fused with semantic reading, the concurr
 ```
 /codebase-xray:analyze src/core/ --critical
 /codebase-xray:analyze src/api --run-name api      # named run, safe to run others concurrently
+/codebase-xray:analyze src/                        # second time on the same target: offers an incremental update
+/codebase-xray:analyze src/ --update               # require an update base; no usable parent is a hard stop
+/codebase-xray:analyze src/ --no-update            # skip detection and run a full analysis
 ```
 
-**Output:** `.deep-dive/runs/<run-id>/` with a `knowledge/` directory from Phase 0, 7 phase files, and a final consolidated report, published to the `.deep-dive/` root on completion.
+**Output:** `.deep-dive/runs/<run-id>/` with a `knowledge/` directory from Phase 0, 7 phase files, a final consolidated report, and a `snapshot/manifest.json` recording the tree the run read. The phase files and the report are published to the `.deep-dive/` root on completion; the snapshot, and on an incremental run `changes.json` and `changes.md`, stay in the run directory.
+
+#### Incremental updates
+
+The first X-ray of a target is always a full run, and it writes the snapshot that makes the next one cheap. Every later invocation on the same target starts by finding the last completed classic run for it and diffing that run's snapshot against the current worktree. The diff is mechanical and spends no model tokens: size and mtime decide an unchanged file without reading it, a hash settles anything that moved, and a changed symbol is found by comparing the hash of its body. The scope checkpoint then shows the result before anything is read:
+
+```
+X-ray target: src
+Run: src-20260904-101500   parent: src-20260901-101200 (d5a11cef, 3 days ago)
+Since parent: 2 modified, 1 added, 0 removed files; 3 symbols changed, 1 added, 0 removed
+Blast radius: 2 importing files
+Affected claims: 11 (03-flows: 5, 02-interfaces: 4, 05-risks: 2)
+Files to read: 5 of 41
+
+1. Incremental update from src-20260901-101200 (reads 5 files)
+2. Full analysis (reads 41 files)
+3. Cancel
+```
+
+Accepting the update carries every claim the change set did not touch forward byte for byte, with `file:line` citations renumbered where lines shifted, and re-derives only the claims that cite a changed symbol, a changed file, or a file that imports one. New symbols get new claims, removed symbols lose theirs, and the final report is regenerated from the phase files. A mechanical gate then refuses to publish while any re-derivation is still marked pending, so an incremental result is either finished or not published. `changes.md` in the run directory records what changed in the code and what happened to each affected claim, and `state.json` names the parent run, so the chain of runs under `.deep-dive/runs/` is the analysis history.
+
+The checkpoint recommends a full run instead, with the reason printed, when more than 40% of the files are affected, when the parent has no snapshot (a run from before this feature), when the parent did not complete, or when the flags differ from the parent's. The incremental option stays selectable in every case: the recommendation is advice and the user decides. Neither `--update` nor `--no-update` skips the checkpoint. `--update` only makes a missing or unusable parent a hard stop rather than a silent full run, which is the form for scripts and pipelines that must not quietly pay for a full analysis. A team run is never a usable parent for the classic command, because its interconnect map is cross-partition output this command has no phase to regenerate; `/codebase-xray:team-analyze` has its own update path at partition granularity, described below.
 
 ---
 
@@ -108,7 +132,11 @@ Multi-agent variant of `/codebase-xray:analyze` for large or partitioned codebas
 /codebase-xray:team-analyze .                                   # auto-detect, full depth
 /codebase-xray:team-analyze . --depth=lite                      # lite mode, fewer agents
 /codebase-xray:team-analyze . --partition packages/api --partition packages/web --yes
+/codebase-xray:team-analyze .                                   # second time: partitions that did not change are copied, not re-run
+/codebase-xray:team-analyze . --update                          # require a usable team parent; none is a hard stop
 ```
+
+**Incremental updates at partition granularity.** A second team run on the same target diffs the last completed team run's snapshot against the worktree, once for the whole tree, and assigns each affected file to its partition. A partition with no affected file is copied whole from the parent run and gets no worker; a partition with at least one is re-analyzed through both waves exactly as in a fresh run. Synthesis and the interconnect map always run, because both are cross-partition by construction. The partition checkpoint labels each partition `unchanged (copied)` or `re-analyzed (N affected files)` before anything is dispatched, and the completion output repeats that split with a pointer to the `## Partitions` table in `changes.md`. The parent's partition set must match this run's exactly; a partition that appeared, vanished or was renamed forces a full run, with the reason named. As in the classic command, no flag skips the checkpoint.
 
 Resume-safe: re-running against an in-progress run in `runs.json` re-spawns only the missing workers for the phase that stopped.
 
