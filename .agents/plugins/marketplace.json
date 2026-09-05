@@ -9,7 +9,7 @@
   ],
   "metadata": {
     "description": "The Daodan: agents, skills and workflows that augment a coding agent into a specialized toolkit.",
-    "version": "27.1.0"
+    "version": "27.2.0"
   },
   "name": "daodan",
   "owner": {
@@ -395,7 +395,7 @@
         "./skills/review-workflow"
       ],
       "source": "./exports/codex/plugins/peer-review",
-      "version": "2.2.0"
+      "version": "2.3.0"
     },
     {
       "author": {
@@ -529,7 +529,7 @@
         "./skills/web-search-techniques"
       ],
       "source": "./exports/codex/plugins/research",
-      "version": "6.2.0"
+      "version": "6.2.1"
     },
     {
       "author": {

@@ -14,7 +14,7 @@ from pathlib import Path
 from unittest import mock
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-SCRIPT = REPO_ROOT / "plugins" / "research" / "scripts" / "websearch.py"
+SCRIPT = REPO_ROOT / "plugins" / "research" / "skills" / "web-search-techniques" / "scripts" / "websearch.py"
 
 
 def load_module():

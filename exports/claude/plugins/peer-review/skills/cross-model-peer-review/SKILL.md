@@ -9,7 +9,7 @@ description: >
 # Cross-Model Peer Review
 
 The protocol is the product, this plugin is its Claude Code implementation. The
-normative text is `${CLAUDE_PLUGIN_ROOT}/protocol/PROTOCOL.md`: harness-independent,
+normative text is `${CLAUDE_PLUGIN_ROOT}/skills/cross-model-peer-review/references/PROTOCOL.md`: harness-independent,
 provider-independent, its requirement numbers stable identifiers that this skill and
 every agent in this plugin cite by number rather than restate loosely. Read it before
 touching a run that behaves unexpectedly; this skill explains why the rules exist and

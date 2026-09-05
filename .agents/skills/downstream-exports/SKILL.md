@@ -83,6 +83,26 @@ An override replaces one rendered file for one host, and it carries the digest o
 
 There are currently no overrides at all. Every host divergence so far was expressible through the generic templates, which is the outcome the gate exists to make visible rather than to encourage. Reach for one only after establishing that a *behavioural contract* cannot be rendered generically. A different topology is not a reason; a different meaning is.
 
+## MCP servers: a manifest where the host starts them, a note where it does not
+
+A kernel that ships an MCP server declares it in `plugin.toml`, with the server file under one of its skills so every package carries it, and requires the `mcp.servers` capability:
+
+```toml
+[[mcp.servers]]
+name = "peer-review"
+command = "uv"
+args = ["run", "--script", "${CLAUDE_PLUGIN_ROOT}/skills/cross-model-peer-review/scripts/server.py"]
+```
+
+The validator refuses a server without the capability, the capability without a server, and an argument that names a file outside `skills/` (the compiler copies nothing else, so the server would exist in the checkout only). What the binding decides per host:
+
+| strategy | host | what the package gets |
+|---|---|---|
+| `mcp-manifest` | claude | a plugin-root `.mcp.json`, auto-discovered on install, with `${CLAUDE_PLUGIN_ROOT}` left for the host to expand, and `"mcpServers": "./.mcp.json"` in the catalog entry, derived from the package like every other component |
+| `mcp-registration` | codex, copilot | the server file, and one note per server at the top of every workflow giving the exact command (with the host's own plugin-root reference) to register under that name in the host's MCP configuration |
+
+Both non-Claude bindings are `adapted`, not `native`, because no probe has shown either host starting a server declared by an installed plugin. Promote a binding to `mcp-manifest` only after such a probe, and record it in the evidence table. `tests/test_daodan_mcp.py` pins the rendering on the `valid-mcp` fixture.
+
 ## Policies: what is enforced where
 
 A neutral policy under `plugins/<name>/policies/` says what must hold. An adapter's `policies/<name>/policy.toml` says how one host makes it hold, and the compiler ships that implementation inside the package. Only one such implementation exists, `copilot/policies/xray-guard` for `codebase-xray`'s `write-confinement`, and it is shipped but not wired, for reasons that bind any future policy:

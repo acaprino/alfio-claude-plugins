@@ -35,8 +35,19 @@ CAPABILITY_REGISTRY: frozenset[str] = frozenset(
         "tasks.share",
         "peers.message",
         "hooks.lifecycle",
+        "mcp.servers",
     }
 )
+
+#: The capability a kernel must require when it declares `[[mcp.servers]]`,
+#: so that a host with no way to start the server fails the build instead of
+#: shipping a workflow whose tool calls can never connect.
+MCP_CAPABILITY = "mcp.servers"
+
+#: The only prefix an MCP server argument may use to name a shipped file: the
+#: compiler copies every file under a declared skill and nothing else at the
+#: kernel root, so a server kept anywhere else would exist in the checkout only.
+MCP_SHIPPED_PREFIX = "${CLAUDE_PLUGIN_ROOT}/skills/"
 
 #: Declaring this outcome is what makes a workflow's fan-out independent, and
 #: therefore what makes isolation mandatory rather than an optimization.
@@ -278,6 +289,51 @@ def validate_execution_contracts(plugin: PluginSpec) -> list[ValidationIssue]:
     return issues
 
 
+def validate_mcp_servers(plugin: PluginSpec) -> list[ValidationIssue]:
+    """An MCP server is a capability the host must supply and a file the package must ship.
+
+    Declaring servers without requiring `mcp.servers` would let a host with no
+    binding render the package and ship a workflow that can never connect;
+    requiring the capability without a server is a declaration nothing backs.
+    A server started from a path the compiler does not copy is the defect the
+    bundled-path linter's third pass exists for, caught here at the source.
+    """
+    issues: list[ValidationIssue] = []
+    manifest = plugin.root / "plugin.toml"
+    required = MCP_CAPABILITY in plugin.capabilities.required
+    if plugin.mcp_servers and not required:
+        issues.append(
+            ValidationIssue("mcp-capability-undeclared", manifest, MCP_CAPABILITY)
+        )
+    if required and not plugin.mcp_servers:
+        issues.append(
+            ValidationIssue("mcp-capability-without-servers", manifest, MCP_CAPABILITY)
+        )
+    seen: set[str] = set()
+    for server in plugin.mcp_servers:
+        where = f"mcp.servers: {server.name}"
+        if not KEBAB.match(server.name):
+            issues.append(ValidationIssue("non-kebab-identity", manifest, where))
+        if server.name in seen:
+            issues.append(ValidationIssue("duplicate-mcp-server", manifest, where))
+        seen.add(server.name)
+        if not server.command.strip():
+            issues.append(ValidationIssue("mcp-server-without-command", manifest, where))
+        for argument in server.args:
+            if not argument.startswith("${CLAUDE_PLUGIN_ROOT}/"):
+                continue
+            relative = argument[len("${CLAUDE_PLUGIN_ROOT}/") :]
+            if _is_escaping(relative):
+                issues.append(ValidationIssue("path-outside-plugin", manifest, argument))
+            elif not argument.startswith(MCP_SHIPPED_PREFIX) or not (
+                plugin.root / relative
+            ).is_file():
+                issues.append(
+                    ValidationIssue("mcp-server-file-not-shipped", manifest, argument)
+                )
+    return issues
+
+
 def validate_plugins(
     plugins: Sequence[PluginSpec], capabilities: AbstractSet[str]
 ) -> list[ValidationIssue]:
@@ -289,6 +345,7 @@ def validate_plugins(
         issues.extend(validate_components(plugin))
         issues.extend(validate_dependencies(plugin))
         issues.extend(validate_capabilities(plugin, capabilities))
+        issues.extend(validate_mcp_servers(plugin))
         issues.extend(validate_workflow_graph(plugin))
         issues.extend(validate_execution_contracts(plugin))
     return issues

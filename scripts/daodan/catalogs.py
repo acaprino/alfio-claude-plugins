@@ -40,9 +40,17 @@ def _source(host: str, name: str) -> object:
     return f"./exports/{host}/plugins/{name}"
 
 
-def package_components(root: Path) -> dict[str, list[str]]:
-    """Declared component paths for a rendered Claude package."""
-    components: dict[str, list[str]] = {}
+MCP_MANIFEST = ".mcp.json"
+
+
+def package_components(root: Path) -> dict[str, object]:
+    """Declared component paths for a rendered Claude package.
+
+    Includes the `mcpServers` pointer when the package carries a rendered
+    `.mcp.json`, so the catalog names the server file the way the package
+    ships it and never from a hand-maintained entry.
+    """
+    components: dict[str, object] = {}
     for kind in ("agents", "commands"):
         directory = root / kind
         if directory.is_dir():
@@ -58,6 +66,8 @@ def package_components(root: Path) -> dict[str, list[str]]:
         ]
         if paths:
             components["skills"] = paths
+    if (root / MCP_MANIFEST).is_file():
+        components["mcpServers"] = f"./{MCP_MANIFEST}"
     return components
 
 
@@ -174,7 +184,7 @@ def merge_into_legacy(
                 entry.update(source)
             else:
                 entry["source"] = source
-            for kind in ("agents", "skills", "commands"):
+            for kind in ("agents", "skills", "commands", "mcpServers"):
                 entry.pop(kind, None)
             entry.update(package_components(packages[plugin.name]))
         entries.append(entry)

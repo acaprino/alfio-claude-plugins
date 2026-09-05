@@ -48,8 +48,9 @@ What is deliberately NOT flagged:
 GRANDFATHERED holds references that predate this linter. Each entry is real debt,
 not a heuristic misread: fix the reference and delete the entry rather than adding
 to the list. New violations must fail. UNSHIPPED is the same kind of baseline for
-the third pass: the references its first run found pointing at files no host
-package contains. Move the file under a skill, fix the reference, delete the entry.
+the third pass, and it is empty too: the 23 references its first run found were
+fixed by moving the files under their plugins' skills. Move the file under a
+skill, fix the reference, never add an entry.
 """
 import json
 import re
@@ -93,42 +94,15 @@ ROOT_REF = re.compile(r"\$\{CLAUDE_PLUGIN_ROOT\}/([A-Za-z0-9_./*-]+)")
 # The generated Claude package is the layout ${CLAUDE_PLUGIN_ROOT} resolves in.
 CLAUDE_PACKAGES = Path("exports/claude/plugins")
 
-# Debt recorded when the third pass landed (marketplace 27.1.0), keyed by file
-# AND exact path so a NEW unshipped reference in a listed file still fails.
-# Two plugins keep files at the kernel root that no host package contains:
-#
-#   peer-review   `protocol/` and `mcp/` (and the `.mcp.json` that starts the
-#                 server) predate the compiler, which has no MCP concept yet.
-#                 The protocol documents can move under the
-#                 cross-model-peer-review skill today; the server needs a
-#                 capability the kernel model does not declare.
-#   research      `scripts/websearch.py` and `scripts/webfetch.py` live at the
-#                 kernel root and belong under the web-search-techniques skill.
+# Debt baseline for the third pass, keyed by file AND exact path so a NEW
+# unshipped reference in a listed file still fails. Empty since marketplace
+# 27.2.0: the pass landed in 27.1.0 with 23 references baselined across
+# peer-review (protocol documents, MCP server, profiles example) and research
+# (both search scripts), and every one was fixed in the next release by moving
+# the file under its plugin's skill rather than left here.
 #
 # Fix a reference, delete its entry. Never add one to make a build pass.
-UNSHIPPED: dict[str, set[str]] = {
-    "plugins/peer-review/README.md": {"mcp/server.py"},
-    "plugins/peer-review/roles/packet-builder.md": {
-        "protocol/packet-anatomy.md",
-        "protocol/round-prompts.md",
-    },
-    "plugins/peer-review/roles/respondent.md": {"protocol/finding-lifecycle.md"},
-    "plugins/peer-review/skills/cross-model-peer-review/SKILL.md": {"protocol/PROTOCOL.md"},
-    "plugins/peer-review/workflows/review.md": {
-        "mcp/profiles.example.json",
-        "protocol/finding-lifecycle.md",
-        "protocol/round-prompts.md",
-    },
-    "plugins/research/roles/quick-searcher.md": {
-        "scripts/webfetch.py",
-        "scripts/websearch.py",
-    },
-    "plugins/research/skills/web-search-techniques/SKILL.md": {
-        "scripts/webfetch.py",
-        "scripts/websearch.py",
-    },
-    "plugins/research/workflows/team-research.md": {"scripts/websearch.py"},
-}
+UNSHIPPED: dict[str, set[str]] = {}
 
 failures: list[str] = []
 

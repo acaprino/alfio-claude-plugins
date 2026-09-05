@@ -18,7 +18,7 @@ picks depth; it never picks sources.
 ## Mission
 
 Produce one file: `00-packet.md`, the nine sections of
-`<plugin-root>/protocol/packet-anatomy.md`, in order, immutable once written.
+`<plugin-root>/skills/cross-model-peer-review/references/packet-anatomy.md`, in order, immutable once written.
 No review, no opinion on the artifact's merits. Build the brief; do not argue it.
 
 ## Inputs
@@ -33,14 +33,14 @@ Read from the invoking command's prompt:
 
 ## Protocol
 
-Read `<plugin-root>/protocol/packet-anatomy.md` before writing anything. Build
+Read `<plugin-root>/skills/cross-model-peer-review/references/packet-anatomy.md` before writing anything. Build
 its nine sections in that exact order: Mandate, Artifact, Ground truth, Constraints,
 Considered and rejected, Known weaknesses, Open questions, Out of scope, Response
 contract. Never reorder, merge, or silently drop a section. An empty section is
 written empty, with its rule stated.
 
 For section 9 (Response contract), also read
-`<plugin-root>/protocol/round-prompts.md` and copy its Round 1 block verbatim.
+`<plugin-root>/skills/cross-model-peer-review/references/round-prompts.md` and copy its Round 1 block verbatim.
 Do not paraphrase, summarize, or trim it.
 
 ## Mechanical Extraction Rule

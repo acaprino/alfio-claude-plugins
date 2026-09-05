@@ -190,13 +190,18 @@ file in it is plain markdown you can diff, grep, or hand to someone else.
 
 ## The MCP server
 
-This plugin ships a plugin-root `.mcp.json` declaring one stdio server, `peer-review`,
-running `uv run --script ${CLAUDE_PLUGIN_ROOT}/mcp/server.py`. A plugin-root
-`.mcp.json` is auto-discovered on install with no extra configuration, and
-`${CLAUDE_PLUGIN_ROOT}` expands to wherever your Claude Code installation placed this
-plugin, so the declaration is portable across machines and installs. The marketplace
-entry additionally points at the same file (`"mcpServers": "./.mcp.json"`), so there is
-one source of truth for the server's configuration rather than two.
+This plugin declares one stdio server, `peer-review`, in its kernel `plugin.toml`
+(`[[mcp.servers]]`), running `uv run --script
+${CLAUDE_PLUGIN_ROOT}/skills/cross-model-peer-review/scripts/server.py`. The compiler
+renders that declaration as the Claude package's plugin-root `.mcp.json`, which is
+auto-discovered on install with no extra configuration, and as the marketplace entry's
+`mcpServers` pointer to the same file, so there is one source of truth for the server's
+configuration rather than two. `${CLAUDE_PLUGIN_ROOT}` expands to wherever your Claude
+Code installation placed this plugin, so the declaration is portable across machines and
+installs. On Codex and Copilot the compiler cannot register the server for you: their
+packages carry the same server file, and the review workflow opens with a note giving
+the exact command to register under the name `peer-review` in the host's MCP
+configuration.
 
 If a server fails to start, it degrades per-server: `/mcp` shows it as `Failed to
 connect` with an Issue line naming the problem. This does not break the rest of the
@@ -210,7 +215,7 @@ connected in `/mcp`, register it directly at user scope instead of waiting on
 auto-discovery. Locate this plugin's installed copy of `server.py` under Claude Code's
 plugin cache directory (typically
 `~/.claude/plugins/cache/claude-code-daodan/peer-review/<installed
-version>/mcp/server.py` on this marketplace; this is also what `${CLAUDE_PLUGIN_ROOT}`
+version>/skills/cross-model-peer-review/scripts/server.py` on this marketplace; this is also what `${CLAUDE_PLUGIN_ROOT}`
 resolves to at runtime, and `/mcp` or your Claude Code installation's plugin listing
 will confirm the exact installed version), then add the same server definition this
 plugin already ships, with that path substituted in for `${CLAUDE_PLUGIN_ROOT}`, to
@@ -224,7 +229,7 @@ your user-level MCP configuration:
       "args": [
         "run",
         "--script",
-        "~/.claude/plugins/cache/claude-code-daodan/peer-review/<installed version>/mcp/server.py"
+        "~/.claude/plugins/cache/claude-code-daodan/peer-review/<installed version>/skills/cross-model-peer-review/scripts/server.py"
       ]
     }
   }

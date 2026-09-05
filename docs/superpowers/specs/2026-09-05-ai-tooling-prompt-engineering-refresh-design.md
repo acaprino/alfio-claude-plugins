@@ -43,6 +43,9 @@ baselined in its `UNSHIPPED` map and not fixed here because they are outside thi
   skill; `mcp/server.py` and `mcp/profiles.example.json`; and `.mcp.json` itself. The compiler
   has no MCP concept, so the server needs a design decision rather than a file move.
 
+Both were fixed in the next release, marketplace 27.2.0: the files moved under their plugins'
+skills, the compiler gained the `mcp.servers` capability, and the `UNSHIPPED` baseline is empty.
+
 ### 2. Host-vocabulary debt in the command (cleared)
 
 The command's spawn block named `subagent_type`, one of the Claude primitives the

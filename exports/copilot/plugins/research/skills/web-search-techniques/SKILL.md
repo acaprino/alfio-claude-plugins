@@ -47,11 +47,11 @@ Two backends produce candidate pages. Neither produces claims: only a page that 
 | Backend | When | How |
 |---|---|---|
 | Native `WebSearch` | Default. Always available when the tool is in the toolset | The tool call, with the operators below |
-| serper.dev (Google) | A key is available, or `--backend serper` | `python ${PLUGIN_ROOT}/scripts/websearch.py "<query>" [--vertical search|news|scholar] [--num N] [--since h|d|w|m|y] [--gl CC] [--hl LANG] [--page P] [--json]` via Bash |
+| serper.dev (Google) | A key is available, or `--backend serper` | `python ${PLUGIN_ROOT}/skills/web-search-techniques/scripts/websearch.py "<query>" [--vertical search|news|scholar] [--num N] [--since h|d|w|m|y] [--gl CC] [--hl LANG] [--page P] [--json]` via Bash |
 
 Selection rule (the lead decides once per run and writes it into every spawn prompt): `auto` means serper when a key is available, else native. The chosen backend is stated in the plan, in each researcher report and in the final report header.
 
-Where the key comes from, in order: `SERPER_API_KEY` in the environment, then `~/.serper_key`. Ask the script rather than looking yourself: `python ${PLUGIN_ROOT}/scripts/websearch.py --check-key` exits 0 when a key is available and 2 when none is, makes no network call, and costs no credit. A key the user pastes in chat is saved by piping it to `--set-key`, which is the lead's job at pre-flight and nobody else's: researchers never see a key, they call the script and the script reads it. Never echo a key, never write one into a prompt, a report or any other file, and never read the key file yourself.
+Where the key comes from, in order: `SERPER_API_KEY` in the environment, then `~/.serper_key`. Ask the script rather than looking yourself: `python ${PLUGIN_ROOT}/skills/web-search-techniques/scripts/websearch.py --check-key` exits 0 when a key is available and 2 when none is, makes no network call, and costs no credit. A key the user pastes in chat is saved by piping it to `--set-key`, which is the lead's job at pre-flight and nobody else's: researchers never see a key, they call the script and the script reads it. Never echo a key, never write one into a prompt, a report or any other file, and never read the key file yourself.
 
 A run never silently upgrades or degrades: with `auto` and no key the backend is native search and the plan says so, and a forced `--backend serper` with no key either collects one in chat or stops with the setup line, never quietly searches elsewhere.
 
@@ -69,7 +69,7 @@ Cost note (checked 2026-08-23): serper.dev gives 2,500 free queries, then $1.00 
 
 A search result is a candidate. A claim enters a researcher's ledger only from a page that was read:
 1. `WebFetch` the page (prefer docs and primary sources; target anchors on long pages)
-2. On a bot-block (403, 429, challenge page) or thin content (under ~200 useful characters), `python3 ${PLUGIN_ROOT}/scripts/webfetch.py <url>`
+2. On a bot-block (403, 429, challenge page) or thin content (under ~200 useful characters), `python3 ${PLUGIN_ROOT}/skills/web-search-techniques/scripts/webfetch.py <url>`
 3. If the `playwright-skill` plugin is installed and the page is a primary source the answer depends on, drive a real browser with it as the last resort; if it is not installed, record the URL under limitations and move on. This is a pointer, not a dependency.
 4. Record: URL, title, the date the page carries, authority rank (below), and the claims taken from it
 
@@ -85,7 +85,7 @@ A search result is a candidate. A claim enters a researcher's ledger only from a
 When WebFetch returns a bot-block (403, 429, Cloudflare challenge) or thin content (under ~200 chars of useful text), fall back to the plugin's stealth fetcher:
 
 ```bash
-python3 ${PLUGIN_ROOT}/scripts/webfetch.py <url>
+python3 ${PLUGIN_ROOT}/skills/web-search-techniques/scripts/webfetch.py <url>
 ```
 
 Behavior:

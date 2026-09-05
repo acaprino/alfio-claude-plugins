@@ -44,3 +44,10 @@ strategy = "runtime-team"
 [capabilities."hooks.lifecycle"]
 state = "native"
 strategy = "hooks-manifest"
+
+# A plugin-root `.mcp.json` is auto-discovered on install and `${CLAUDE_PLUGIN_ROOT}`
+# expands inside it, so a declared server is rendered as that manifest and named
+# by the catalog entry's `mcpServers` pointer.
+[capabilities."mcp.servers"]
+state = "native"
+strategy = "mcp-manifest"

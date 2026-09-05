@@ -141,17 +141,17 @@ judges that. From Phase 1 onward the two are the same run: every later phase rea
    - Chosen name: `--challenger` value if given, else `default`.
    - If `default` is null and no `--challenger` was given: stop. No profile is
      configured (`peer_profiles`'s `source` field is `null` when no profiles file was
-     found at all). Point at `${CLAUDE_PLUGIN_ROOT}/mcp/profiles.example.json`, the
+     found at all). Point at `${CLAUDE_PLUGIN_ROOT}/skills/cross-model-peer-review/scripts/profiles.example.json`, the
      `.peer-review/profiles.json` / `~/.peer-review/profiles.json` locations it can be
      placed at, and the `PEER_REVIEW_PROFILES` environment variable, which names any
      other path to check first, ahead of both defaults.
    - If the chosen name does not appear in `profiles`: stop, listing the configured
      profile names, the `source` path `peer_profiles` reported (which file was
-     actually loaded), and pointing at `${CLAUDE_PLUGIN_ROOT}/mcp/profiles.example.json`
+     actually loaded), and pointing at `${CLAUDE_PLUGIN_ROOT}/skills/cross-model-peer-review/scripts/profiles.example.json`
      and `PEER_REVIEW_PROFILES` for placing or relocating a profiles file.
    - If the chosen profile's `available` is `false`: stop, naming its `api_key_env`
      value as the environment variable that must be set, pointing at
-     `${CLAUDE_PLUGIN_ROOT}/mcp/profiles.example.json`.
+     `${CLAUDE_PLUGIN_ROOT}/skills/cross-model-peer-review/scripts/profiles.example.json`.
    - Otherwise record the resolved profile's `name`, `base_url`, and `model` for later
      phases.
 6. Initialize an empty transport-failures list and an empty token-accounting list, both
@@ -320,7 +320,7 @@ makes this gate a decision about a document rather than about an intention.
 
 ## Phase 2: Round 1
 
-1. Load the Round 1 prompt: read `${CLAUDE_PLUGIN_ROOT}/protocol/round-prompts.md` and
+1. Load the Round 1 prompt: read `${CLAUDE_PLUGIN_ROOT}/skills/cross-model-peer-review/references/round-prompts.md` and
    extract the fenced block under `## Round 1 (critique)`.
 2. Call the `mcp__peer-review__peer_ask` tool: `profile` is the resolved profile name,
    `system` is the Round 1 prompt text, `content_path` is `<run directory>/00-packet.md`.
@@ -337,7 +337,7 @@ makes this gate a decision about a document rather than about an intention.
    `usage`, `model`, and `latency_ms` fields in the token-accounting list under round 1.
 6. **Initialize `03-ledger.md`.** Parse the `## Findings` section of
    `01-challenge-r1.md`. For each finding `F<NN>`, create one entry using the template
-   from `${CLAUDE_PLUGIN_ROOT}/protocol/finding-lifecycle.md`:
+   from `${CLAUDE_PLUGIN_ROOT}/skills/cross-model-peer-review/references/finding-lifecycle.md`:
 
    ```
    Finding F<NN>
@@ -468,7 +468,7 @@ For round `r` (2 or 3), files `05-challenge-r2.md`/`07-challenge-r3.md` and
 `06-response-r2.md`/`08-response-r3.md`:
 
 1. Load the Challenge round prompt: read
-   `${CLAUDE_PLUGIN_ROOT}/protocol/round-prompts.md`, extract the fenced block under
+   `${CLAUDE_PLUGIN_ROOT}/skills/cross-model-peer-review/references/round-prompts.md`, extract the fenced block under
    `## Challenge round (2..N)`.
 2. Build the round payload: for each still-open finding, its `claim` and `falsifier`
    verbatim, the respondent's current `position` and `evidence`, and (round 2 only) any
@@ -587,7 +587,7 @@ For round `r` (2 or 3), files `05-challenge-r2.md`/`07-challenge-r3.md` and
    `TRANSMISSION_ARTIFACT` findings are excluded: they closed before the respondent
    ever answered them, so there is no respondent rendering to certify against, and no
    claim of the challenger's own words to defend.
-2. Load the Certification prompt: read `${CLAUDE_PLUGIN_ROOT}/protocol/round-prompts.md`
+2. Load the Certification prompt: read `${CLAUDE_PLUGIN_ROOT}/skills/cross-model-peer-review/references/round-prompts.md`
    under `## Certification`. Write the collected findings plus renderings to
    `sent/certification.md`, then call `mcp__peer-review__peer_ask` with the prompt as
    `system` and `content_path` pointing at that file. Handle the error shape per

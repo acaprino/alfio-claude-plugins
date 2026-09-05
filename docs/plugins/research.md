@@ -84,8 +84,8 @@ $env:SERPER_API_KEY = "..."        # PowerShell
 Either way `--backend auto` (the default) uses serper whenever a key is available, `--backend websearch` forces the native tool even when one is, and `--backend serper` forces serper. To check what the plugin can see, or to save a key by hand:
 
 ```
-python plugins/research/scripts/websearch.py --check-key
-printf '%s' YOUR_KEY | python plugins/research/scripts/websearch.py --set-key
+python plugins/research/skills/web-search-techniques/scripts/websearch.py --check-key
+printf '%s' YOUR_KEY | python plugins/research/skills/web-search-techniques/scripts/websearch.py --set-key
 ```
 
 `--check-key` makes no network call and costs no credit. To revoke, delete `~/.serper_key` (and unset the environment variable). Unattended runs never ask: `--backend serper --auto` with no key stops with the setup line rather than waiting on a question nobody is there to answer.
@@ -135,8 +135,8 @@ Query formulation, source authority ranking, the two search backends, reading ru
 
 | Script | Purpose |
 |---|---|
-| `scripts/websearch.py` | Optional serper.dev backend. Used when a key is available or `--backend serper`; `--vertical search\|news\|scholar`, `--num`, `--since h\|d\|w\|m\|y`, `--gl`, `--hl`, `--json`. `--check-key` reports availability without a network call; `--set-key` saves a key from stdin to `~/.serper_key`. Reads `SERPER_API_KEY` first, then that file. Exit 2 when no key is available, 1 on HTTP errors. Stdlib only |
-| `scripts/webfetch.py` | Bot-block fallback fetcher (Chrome TLS impersonation via curl_cffi, httpx fallback) |
+| `skills/web-search-techniques/scripts/websearch.py` | Optional serper.dev backend. Used when a key is available or `--backend serper`; `--vertical search\|news\|scholar`, `--num`, `--since h\|d\|w\|m\|y`, `--gl`, `--hl`, `--json`. `--check-key` reports availability without a network call; `--set-key` saves a key from stdin to `~/.serper_key`. Reads `SERPER_API_KEY` first, then that file. Exit 2 when no key is available, 1 on HTTP errors. Stdlib only |
+| `skills/web-search-techniques/scripts/webfetch.py` | Bot-block fallback fetcher (Chrome TLS impersonation via curl_cffi, httpx fallback) |
 
 Backend rule: `auto` uses serper when a key is available, native `WebSearch` otherwise; the choice is stated in the plan, in each researcher report and in the report header. Serper never replaces reading: snippets qualify a page for fetching, only read pages are cited.
 

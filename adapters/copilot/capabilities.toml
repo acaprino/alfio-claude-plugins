@@ -48,3 +48,10 @@ strategy = "none"
 [capabilities."hooks.lifecycle"]
 state = "unsupported"
 strategy = "none"
+
+# No probe has shown Copilot CLI starting an MCP server declared by an installed
+# plugin. The package ships the server file, and every workflow of the plugin
+# carries a note asking the user to register the command with the host.
+[capabilities."mcp.servers"]
+state = "adapted"
+strategy = "mcp-registration"

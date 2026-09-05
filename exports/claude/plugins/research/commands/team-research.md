@@ -37,7 +37,7 @@ A one-fact question (single answer, one source suffices) is not a tier: spawn `r
 ## Phase 0: Pre-flight
 
 1. Parse `$ARGUMENTS` into the question and the flags above.
-2. Ask the script whether a serper key is available: `python ${CLAUDE_PLUGIN_ROOT}/scripts/websearch.py --check-key`. Exit 0 means yes (it names the source, the environment or the key file), exit 2 means no. The check makes no network call, so it costs no credit.
+2. Ask the script whether a serper key is available: `python ${CLAUDE_PLUGIN_ROOT}/skills/web-search-techniques/scripts/websearch.py --check-key`. Exit 0 means yes (it names the source, the environment or the key file), exit 2 means no. The check makes no network call, so it costs no credit.
 3. Resolve the backend:
    - Key available: `auto` and `serper` both mean `serper`; `--backend websearch` still means `websearch`.
    - No key, `--backend serper`: the user asked for serper by name, so offer to set it up (step 4) instead of silently doing something else.
@@ -51,7 +51,7 @@ A one-fact question (single answer, one source suffices) is not a tier: spawn `r
    With a key in hand, save it through the script rather than by writing the file yourself, so the permissions and the format are the script's business:
 
    ```bash
-   printf '%s' '<the key the user pasted>' | python ${CLAUDE_PLUGIN_ROOT}/scripts/websearch.py --set-key
+   printf '%s' '<the key the user pasted>' | python ${CLAUDE_PLUGIN_ROOT}/skills/web-search-techniques/scripts/websearch.py --set-key
    ```
 
    Then re-run `--check-key` to confirm, and continue with the backend `serper`. Handling rules, all of them absolute: never echo the key back (the script prints only the last four characters), never write it into the plan, a spawn prompt, the report, the companion file, or any other file, and never read `~/.serper_key` yourself. Researchers never receive the key: they call the script, and the script reads it. If the user pastes something that is not a key, `--check-key` still passes (the file holds whatever was given) and the first real search fails with `HTTP 401` or `403`; treat that as a bad key, say so, and offer the same question again once.
@@ -95,7 +95,7 @@ Objective: <the sub-question as one paragraph, with what a complete answer conta
 Boundaries: <what the neighbouring sub-questions cover; do not investigate it>
 Source families: <in priority order>
 Domain hint: <--domain or detected>
-Backend: websearch | serper   (serper: python ${CLAUDE_PLUGIN_ROOT}/scripts/websearch.py ...)
+Backend: websearch | serper   (serper: python ${CLAUDE_PLUGIN_ROOT}/skills/web-search-techniques/scripts/websearch.py ...)
 Budget: <N> searches / <M> pages read / <R> rounds
 Return format: the researcher report (## Researcher report, Exit reason, Rounds, ### Claims, ### Sources read, ### Contradictions seen, ### Open threads, ### Searched and not found), nothing else
 ```

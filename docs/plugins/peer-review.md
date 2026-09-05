@@ -24,9 +24,9 @@ Three steps: install the plugin, write a profiles file, export the key it names.
 claude plugin install peer-review@claude-code-daodan
 ```
 
-The plugin ships a plugin-root `.mcp.json` declaring one stdio server that runs `uv run --script ${CLAUDE_PLUGIN_ROOT}/mcp/server.py`, and Claude Code auto-discovers it on install. Check `/mcp`: `peer-review` should be listed as connected. If it is not, the README's manual fallback registers the same definition at user scope with the cache path substituted for `${CLAUDE_PLUGIN_ROOT}`.
+The plugin ships a plugin-root `.mcp.json` declaring one stdio server that runs `uv run --script ${CLAUDE_PLUGIN_ROOT}/skills/cross-model-peer-review/scripts/server.py`, and Claude Code auto-discovers it on install. Check `/mcp`: `peer-review` should be listed as connected. If it is not, the README's manual fallback registers the same definition at user scope with the cache path substituted for `${CLAUDE_PLUGIN_ROOT}`. The declaration lives in the kernel's `plugin.toml` (`[[mcp.servers]]`) and the compiler renders the manifest; on Codex and Copilot, which do not start a plugin-declared server on their own, the package carries the same server file and the review workflow opens with a note giving the exact command to register under the name `peer-review`.
 
-**2. Write a profiles file.** Copy the shipped `plugins/peer-review/mcp/profiles.example.json` to one of three locations. The server checks them in this order and the first file that exists wins, with no merging of the others:
+**2. Write a profiles file.** Copy the shipped `plugins/peer-review/skills/cross-model-peer-review/scripts/profiles.example.json` to one of three locations. The server checks them in this order and the first file that exists wins, with no merging of the others:
 
 | Order | Location | Scope |
 |---|---|---|
@@ -163,9 +163,9 @@ The plugin is one conforming binding of a protocol it does not own, and the laye
 
 | Layer | What it is | Where |
 |---|---|---|
-| Protocol | Harness-independent, provider-independent. Fifteen numbered requirements (R1-R15), a nine-state finding lifecycle, packet anatomy, three round prompts. Names no tool, vendor, model, or transport | `plugins/peer-review/protocol/` |
+| Protocol | Harness-independent, provider-independent. Fifteen numbered requirements (R1-R15), a nine-state finding lifecycle, packet anatomy, three round prompts. Names no tool, vendor, model, or transport | `plugins/peer-review/skills/cross-model-peer-review/references/` |
 | Claude Code binding | This plugin's implementation of the protocol | `commands/review.md`, `agents/packet-builder.md`, `agents/respondent.md`, `skills/cross-model-peer-review/` |
-| Transport | Two stateless MCP tools, `peer_profiles` and `peer_ask`, against any OpenAI-compatible endpoint | `mcp/server.py` |
+| Transport | Two stateless MCP tools, `peer_profiles` and `peer_ask`, against any OpenAI-compatible endpoint | `skills/cross-model-peer-review/scripts/server.py` |
 
 `evals/peer-review/check_protocol_ontology.py` mechanically enforces that the protocol names no concrete tool or vendor. The protocol is the product; everything else here is its Claude Code implementation.
 

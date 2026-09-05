@@ -79,7 +79,7 @@ Per R14:
 
 ## Verdict Vocabulary
 
-Four verdicts, from `${CLAUDE_PLUGIN_ROOT}/protocol/finding-lifecycle.md`. Every
+Four verdicts, from `${CLAUDE_PLUGIN_ROOT}/skills/cross-model-peer-review/references/finding-lifecycle.md`. Every
 non-ACCEPT verdict carries a stable locator, `file:line` or a URL with the quoted
 passage.
 

@@ -8,7 +8,7 @@ how every branch the protocol allows gets reached.
 **The specifics below are invented.** The plan on trial, the repository it cites, the challenger's
 findings and the respondent's evidence are a fabricated example. What is real: the phase order, the
 file names, the consent gate text, the reply verbs, the nine finding states and every transition
-rule. Those come from `plugins/peer-review/commands/review.md` and `plugins/peer-review/protocol/`.
+rule. Those come from `plugins/peer-review/commands/review.md` and `plugins/peer-review/skills/cross-model-peer-review/references/`.
 
 The example is also deliberately maximal. One run here trips a transmission artifact, an
 inadmissible falsifier, an unexplained withdrawal and a certification failure. A real run usually
@@ -339,7 +339,7 @@ disappointing run traces back to a thin packet far more often than to a weak cha
 
 ## Phase 2: round 1, the challenge
 
-The command reads the Round 1 prompt out of `protocol/round-prompts.md` and calls `peer_ask` with
+The command reads the Round 1 prompt out of `skills/cross-model-peer-review/references/round-prompts.md` and calls `peer_ask` with
 `content_path` pointing at `00-packet.md`. **The packet is never pasted into the call.** The
 transport opens the file itself, which is R15's third link made mechanical: a participant asked to
 reproduce tens of kilobytes into a tool argument will summarize it under length, silently, and

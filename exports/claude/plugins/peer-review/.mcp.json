@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "peer-review": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--script",
+        "${CLAUDE_PLUGIN_ROOT}/skills/cross-model-peer-review/scripts/server.py"
+      ]
+    }
+  }
+}

@@ -20,6 +20,7 @@ from .model import (
     CapabilityRequirements,
     ComponentIndex,
     ContractSpec,
+    McpServerSpec,
     ModelError,
     PhaseSpec,
     PluginSpec,
@@ -36,6 +37,7 @@ PLUGIN_KEYS = frozenset(
         "capabilities",
         "dependencies",
         "components",
+        "mcp",
     }
 )
 PLUGIN_REQUIRED_KEYS = ("schema", "name", "version", "description", "license")
@@ -44,6 +46,8 @@ PLUGIN_REQUIRED_TABLES = ("capabilities", "dependencies", "components")
 CAPABILITY_KEYS = frozenset({"required", "optional"})
 DEPENDENCY_KEYS = frozenset({"required"})
 COMPONENT_KEYS = frozenset({"skills", "roles", "workflows", "policies"})
+MCP_KEYS = frozenset({"servers"})
+MCP_SERVER_KEYS = frozenset({"name", "command", "args"})
 
 WORKFLOW_KEYS = frozenset({"name", "entrypoint", "phases", "contract"})
 PHASE_KEYS = frozenset(
@@ -181,6 +185,30 @@ def load_workflow(path: Path, workflow_directory: Path) -> WorkflowSpec:
     )
 
 
+def load_mcp_servers(manifest: Path, table: Mapping[str, Any]) -> tuple[McpServerSpec, ...]:
+    """Read the optional `[mcp]` table: `[[mcp.servers]]` entries with name, command, args."""
+    mcp_table = table.get("mcp")
+    if mcp_table is None:
+        return ()
+    if not isinstance(mcp_table, dict):
+        raise ModelError(manifest, "[mcp] must be a table")
+    _reject_unknown(manifest, mcp_table, MCP_KEYS, "mcp")
+    rows = mcp_table.get("servers", [])
+    if not isinstance(rows, list) or any(not isinstance(row, dict) for row in rows):
+        raise ModelError(manifest, "mcp.servers must be an array of tables")
+    servers = []
+    for row in rows:
+        _reject_unknown(manifest, row, MCP_SERVER_KEYS, "mcp.servers")
+        servers.append(
+            McpServerSpec(
+                name=_string(manifest, row, "name", "mcp.servers"),
+                command=_string(manifest, row, "command", "mcp.servers"),
+                args=_strings(manifest, row, "args", "mcp.servers"),
+            )
+        )
+    return tuple(servers)
+
+
 def load_plugin(path: Path) -> PluginSpec:
     """Load one plugin content kernel from its directory."""
     root = Path(path)
@@ -235,4 +263,5 @@ def load_plugin(path: Path) -> PluginSpec:
         required_dependencies=required_dependencies,
         components=components,
         workflows=workflows,
+        mcp_servers=load_mcp_servers(manifest, table),
     )

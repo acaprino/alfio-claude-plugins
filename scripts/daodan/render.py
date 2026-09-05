@@ -27,6 +27,14 @@ from .model import PluginSpec, WorkflowSpec
 from .overrides import OverrideSpec
 from .provenance import ADAPTER_VERSION, write_provenance
 from .templates import render_path, render_template
+from .validate import MCP_CAPABILITY
+
+#: The strategy of a host that starts a plugin-declared MCP server from a
+#: manifest at the package root, and the strategy of a host that does not and
+#: must be told by the user instead.
+MCP_MANIFEST_STRATEGY = "mcp-manifest"
+MCP_REGISTRATION_STRATEGY = "mcp-registration"
+MCP_MANIFEST = ".mcp.json"
 
 NUL = bytes([0])
 
@@ -235,7 +243,12 @@ def _insert_after_frontmatter(text: str, block: str) -> str:
     return block + text
 
 
-def _host_text(text: str, adapter: HostAdapter, hint: str | None = None) -> str:
+def _host_text(
+    text: str,
+    adapter: HostAdapter,
+    hint: str | None = None,
+    extra_notes: Sequence[str] = (),
+) -> str:
     """Make one Markdown body speak the host's vocabulary for the two Claude placeholders.
 
     `${CLAUDE_PLUGIN_ROOT}` and `$ARGUMENTS` are what a kernel writes, because
@@ -255,12 +268,16 @@ def _host_text(text: str, adapter: HostAdapter, hint: str | None = None) -> str:
 
     notes: list[str] = []
     root_note = layout.get("plugin_root_note")
-    if root_note and root_reference in rewritten:
+    mentions_root = root_reference in rewritten or any(
+        root_reference in note for note in extra_notes
+    )
+    if root_note and mentions_root:
         notes.append(root_note)
     arguments_note = layout.get("arguments_note")
     if arguments_note and (hint or arguments_reference in rewritten):
         prefix = f"Arguments: `{hint}`. " if hint else ""
         notes.append(prefix + arguments_note)
+    notes.extend(extra_notes)
     if not notes:
         return rewritten
     block = "\n".join(f"> {note}" for note in notes) + "\n\n"
@@ -268,9 +285,57 @@ def _host_text(text: str, adapter: HostAdapter, hint: str | None = None) -> str:
 
 
 def _write_markdown(
-    destination: Path, text: str, adapter: HostAdapter, hint: str | None = None
+    destination: Path,
+    text: str,
+    adapter: HostAdapter,
+    hint: str | None = None,
+    extra_notes: Sequence[str] = (),
 ) -> None:
-    _write_text(destination, _host_text(text, adapter, hint))
+    _write_text(destination, _host_text(text, adapter, hint, extra_notes))
+
+
+def _host_arguments(server_args: Sequence[str], adapter: HostAdapter) -> list[str]:
+    root_reference = adapter.layout.get("plugin_root_reference", DEFAULT_PLUGIN_ROOT_REFERENCE)
+    return [PLUGIN_ROOT_PLACEHOLDER.sub(lambda _: root_reference, arg) for arg in server_args]
+
+
+def _mcp_manifest(plugin: PluginSpec, adapter: HostAdapter) -> str:
+    """The package-root manifest a host that starts declared servers reads."""
+    servers = {
+        server.name: {"command": server.command, "args": _host_arguments(server.args, adapter)}
+        for server in plugin.mcp_servers
+    }
+    return json.dumps({"mcpServers": servers}, indent=2) + "\n"
+
+
+def _mcp_registration_notes(plugin: PluginSpec, adapter: HostAdapter) -> tuple[str, ...]:
+    """One note per server for a host that does not start declared servers itself."""
+    notes = []
+    for server in plugin.mcp_servers:
+        command = " ".join([server.command, *_host_arguments(server.args, adapter)])
+        notes.append(
+            f"This plugin declares an MCP server, `{server.name}`, started with `{command}`. "
+            "This host does not start a plugin-declared MCP server on its own: register that "
+            "command under that name in the host's MCP configuration before running this "
+            "workflow, because its calls to that server fail until it is connected."
+        )
+    return tuple(notes)
+
+
+def _mcp_rendering(
+    plugin: PluginSpec, adapter: HostAdapter, staging_root: Path
+) -> tuple[str, ...]:
+    """Write the manifest where the host starts servers; return the notes where it does not."""
+    if not plugin.mcp_servers:
+        return ()
+    binding = adapter.bindings.get(MCP_CAPABILITY)
+    strategy = binding.strategy if binding is not None else "none"
+    if strategy == MCP_MANIFEST_STRATEGY:
+        _write_text(staging_root / MCP_MANIFEST, _mcp_manifest(plugin, adapter))
+        return ()
+    if strategy == MCP_REGISTRATION_STRATEGY:
+        return _mcp_registration_notes(plugin, adapter)
+    raise RenderError(f"{adapter.host}: no MCP server strategy for {plugin.name} ({strategy})")
 
 
 def _flat_workflow(source: Path, workflow: str, adapter: HostAdapter) -> tuple[str, str | None]:
@@ -440,6 +505,11 @@ def render_plugin(
     manifest_path = render_path(adapter.layout["plugin_manifest"], context)
     _write_text(staging_root / manifest_path, manifest)
 
+    # A declared MCP server becomes a package-root manifest on a host that
+    # starts it, and a note on every workflow of the plugin on a host that
+    # needs the user to register it.
+    mcp_notes = _mcp_rendering(plugin, adapter, staging_root)
+
     for skill in plugin.components.skills:
         source_directory = plugin.root / "skills" / skill
         target = staging_root / render_path(adapter.layout["skills"], {**context, "skill": skill})
@@ -526,10 +596,12 @@ def render_plugin(
                 adapters_root, adapter.host, adapter.layout.get("team_workflow_template")
             )
             if team_template is not None:
-                _write_markdown(target, render_template(team_template, harness), adapter, hint)
+                _write_markdown(
+                    target, render_template(team_template, harness), adapter, hint, mcp_notes
+                )
             else:
                 rendered, hint = _flat_workflow(source, workflow.name, adapter)
-                _write_markdown(target, rendered, adapter, hint)
+                _write_markdown(target, rendered, adapter, hint, mcp_notes)
             coordinator_template = _template(
                 adapters_root, adapter.host, adapter.layout.get("coordinator_template")
             )
@@ -538,11 +610,15 @@ def render_plugin(
                     adapter.layout["coordinators"], {**context, "workflow": workflow.name}
                 )
                 _write_markdown(
-                    coordinator, render_template(coordinator_template, harness), adapter, hint
+                    coordinator,
+                    render_template(coordinator_template, harness),
+                    adapter,
+                    hint,
+                    mcp_notes,
                 )
         else:
             rendered, hint = _flat_workflow(source, workflow.name, adapter)
-            _write_markdown(target, rendered, adapter, hint)
+            _write_markdown(target, rendered, adapter, hint, mcp_notes)
         for schema in workflow.contract.schemas:
             _copy(plugin.root / schema, staging_root / schema)
         # The sidecar travels with the package: a harness needs the declared

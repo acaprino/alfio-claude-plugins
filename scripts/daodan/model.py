@@ -68,6 +68,21 @@ class ComponentIndex:
 
 
 @dataclass(frozen=True)
+class McpServerSpec:
+    """One stdio MCP server the plugin ships and needs the host to start.
+
+    The command and its arguments are written the way a kernel writes every
+    path, with `${CLAUDE_PLUGIN_ROOT}` naming the installed package; each
+    adapter decides whether it can render the declaration as a manifest the
+    host starts on its own, or must ask the user to register it.
+    """
+
+    name: str
+    command: str
+    args: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
 class PluginSpec:
     root: Path
     schema: str
@@ -79,6 +94,7 @@ class PluginSpec:
     required_dependencies: tuple[str, ...]
     components: ComponentIndex
     workflows: tuple[WorkflowSpec, ...]
+    mcp_servers: tuple[McpServerSpec, ...] = ()
 
 
 class ModelError(ValueError):

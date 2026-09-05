@@ -1,0 +1,23 @@
+schema = "daodan/v1"
+name = "example"
+version = "1.2.3"
+description = "Fixture plugin"
+license = "MIT"
+
+[capabilities]
+required = ["repository.read", "contexts.isolate", "roles.dispatch", "mcp.servers"]
+optional = ["execution.parallel"]
+
+[dependencies]
+required = []
+
+[components]
+skills = ["tools"]
+roles = ["inspector"]
+workflows = ["review"]
+policies = []
+
+[[mcp.servers]]
+name = "example-tools"
+command = "uv"
+args = ["run", "--script", "${CLAUDE_PLUGIN_ROOT}/skills/tools/scripts/server.py"]
