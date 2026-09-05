@@ -11,7 +11,7 @@ nothing and the reference silently does not load. `${CLAUDE_PLUGIN_ROOT}` is the
 substitution that survives installation, and it expands inside agent, command and
 skill bodies, not only in hooks and MCP configs.
 
-Two passes, each independently reported. Exits non-zero if any fails.
+Three passes, each independently reported. Exits non-zero if any fails.
 
   1. self refs     a plugin referencing its OWN bundled file must go through
                    ${CLAUDE_PLUGIN_ROOT}/... (or a skill-relative references/...
@@ -20,6 +20,20 @@ Two passes, each independently reported. Exits non-zero if any fails.
                    all. ${CLAUDE_PLUGIN_ROOT} points at the referencing plugin, so
                    it cannot express this, and the target may not even be
                    installed. Load the other plugin's skill by name instead.
+  3. shipped refs  a ${CLAUDE_PLUGIN_ROOT}/<path> reference only survives
+                   installation if the compiler ships <path>. It ships roles,
+                   workflows, contracts, policies and every file under
+                   skills/<name>/; a references/, scripts/ or mcp/ directory at
+                   the kernel root is copied nowhere, so the read fails on all
+                   three hosts and nothing else notices. Each reference is
+                   resolved against the generated Claude package under
+                   exports/claude/plugins/<name>/, which is the layout the
+                   placeholder maps onto itself in; the other two hosts are
+                   rendered from the same kernel by the same rules and the drift
+                   gate keeps them in step. Its motivating case: ai-tooling's
+                   reasoning-patterns reference sat unshipped for eleven days
+                   after the kernel neutralization, read by an agent and a
+                   command on every host, and passed every other check.
 
 What is deliberately NOT flagged:
 
@@ -33,7 +47,9 @@ What is deliberately NOT flagged:
 
 GRANDFATHERED holds references that predate this linter. Each entry is real debt,
 not a heuristic misread: fix the reference and delete the entry rather than adding
-to the list. New violations must fail.
+to the list. New violations must fail. UNSHIPPED is the same kind of baseline for
+the third pass: the references its first run found pointing at files no host
+package contains. Move the file under a skill, fix the reference, delete the entry.
 """
 import json
 import re
@@ -69,6 +85,50 @@ TAXONOMY = "plugins/senior-review/skills/defect-taxonomy/references/"
 #
 # Fix a reference, delete its entry. Never add one to make a build pass.
 GRANDFATHERED: dict[str, set[str]] = {}
+
+# ${CLAUDE_PLUGIN_ROOT}/<path>: the form that survives installation, which only
+# helps when the compiler actually ships <path>.
+ROOT_REF = re.compile(r"\$\{CLAUDE_PLUGIN_ROOT\}/([A-Za-z0-9_./*-]+)")
+
+# The generated Claude package is the layout ${CLAUDE_PLUGIN_ROOT} resolves in.
+CLAUDE_PACKAGES = Path("exports/claude/plugins")
+
+# Debt recorded when the third pass landed (marketplace 27.1.0), keyed by file
+# AND exact path so a NEW unshipped reference in a listed file still fails.
+# Two plugins keep files at the kernel root that no host package contains:
+#
+#   peer-review   `protocol/` and `mcp/` (and the `.mcp.json` that starts the
+#                 server) predate the compiler, which has no MCP concept yet.
+#                 The protocol documents can move under the
+#                 cross-model-peer-review skill today; the server needs a
+#                 capability the kernel model does not declare.
+#   research      `scripts/websearch.py` and `scripts/webfetch.py` live at the
+#                 kernel root and belong under the web-search-techniques skill.
+#
+# Fix a reference, delete its entry. Never add one to make a build pass.
+UNSHIPPED: dict[str, set[str]] = {
+    "plugins/peer-review/README.md": {"mcp/server.py"},
+    "plugins/peer-review/roles/packet-builder.md": {
+        "protocol/packet-anatomy.md",
+        "protocol/round-prompts.md",
+    },
+    "plugins/peer-review/roles/respondent.md": {"protocol/finding-lifecycle.md"},
+    "plugins/peer-review/skills/cross-model-peer-review/SKILL.md": {"protocol/PROTOCOL.md"},
+    "plugins/peer-review/workflows/review.md": {
+        "mcp/profiles.example.json",
+        "protocol/finding-lifecycle.md",
+        "protocol/round-prompts.md",
+    },
+    "plugins/research/roles/quick-searcher.md": {
+        "scripts/webfetch.py",
+        "scripts/websearch.py",
+    },
+    "plugins/research/skills/web-search-techniques/SKILL.md": {
+        "scripts/webfetch.py",
+        "scripts/websearch.py",
+    },
+    "plugins/research/workflows/team-research.md": {"scripts/websearch.py"},
+}
 
 failures: list[str] = []
 
@@ -117,6 +177,44 @@ def check(hits):
     return self_refs, cross_refs, skipped
 
 
+def scan_root_refs():
+    """Yield (owner, path, line_no, relative_path, line) per ${CLAUDE_PLUGIN_ROOT} reference."""
+    for owner, path in body_files():
+        for line_no, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            if line.lstrip().startswith("```"):
+                continue
+            for match in ROOT_REF.finditer(line):
+                relative = match.group(1).rstrip(".")
+                # `${CLAUDE_PLUGIN_ROOT}/...` in prose names the shape, not a file.
+                if not relative or relative.strip("./") == "" or ".." in relative.split("/"):
+                    continue
+                yield owner, path, line_no, relative, line.strip()
+
+
+def shipped(owner: str, relative: str) -> bool:
+    package = CLAUDE_PACKAGES / owner
+    if "*" in relative:
+        return any(package.glob(relative))
+    return (package / relative).exists()
+
+
+def check_shipped(hits):
+    missing, skipped = [], 0
+    seen: set[tuple[str, int, str]] = set()
+    for owner, path, line_no, relative, line in hits:
+        if shipped(owner, relative):
+            continue
+        if relative in UNSHIPPED.get(path.as_posix(), ()):
+            skipped += 1
+            continue
+        key = (path.as_posix(), line_no, relative)
+        if key in seen:
+            continue
+        seen.add(key)
+        missing.append((path.as_posix(), line_no, owner, f"{relative}  |  {line}"))
+    return missing, skipped
+
+
 def report(name, problems, hint):
     if problems:
         failures.append(name)
@@ -150,6 +248,19 @@ def main():
     report("cross refs", cross_refs,
            "do not read another plugin's files by path; load its skill by name, "
            "and declare the dependency in marketplace.json")
+
+    root_hits = list(scan_root_refs())
+    missing, unshipped_skipped = check_shipped(root_hits)
+    print(f"\n{len(root_hits)} ${{CLAUDE_PLUGIN_ROOT}} reference(s) resolved against "
+          f"{CLAUDE_PACKAGES.as_posix()}/<name>/")
+    if unshipped_skipped:
+        owners = sorted({p.split("/")[1] for p in UNSHIPPED})
+        print(f"{unshipped_skipped} known-unshipped reference(s) in {len(UNSHIPPED)} file(s) "
+              f"baselined: {', '.join(owners)}")
+    report("shipped refs", missing,
+           "the compiler ships roles/, workflows/, contracts/, policies/ and skills/<name>/** "
+           "only; move the file under a skill, point the reference there, then rebuild "
+           "with python scripts/daodan_build.py")
 
     if failures:
         sys.exit(f"\n{len(failures)} check(s) failed: {', '.join(failures)}")

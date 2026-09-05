@@ -9,7 +9,7 @@
   ],
   "metadata": {
     "description": "The Daodan: agents, skills and workflows that augment a coding agent into a specialized toolkit.",
-    "version": "27.0.1"
+    "version": "27.1.0"
   },
   "name": "daodan",
   "owner": {
@@ -40,15 +40,16 @@
       "dependencies": [
         "superpowers@claude-plugins-official"
       ],
-      "description": "AI development workflow - prompt engineering and optimization, and Claude Agent SDK integration guide",
+      "description": "AI development workflow: prompt engineering knowledge base and optimization, and Claude Agent SDK integration guide",
       "license": "MIT",
       "name": "ai-tooling",
       "skills": [
         "./skills/agent-sdk-builder",
+        "./skills/prompt-engineering",
         "./skills/prompt-optimize-workflow"
       ],
       "source": "./exports/codex/plugins/ai-tooling",
-      "version": "5.1.0"
+      "version": "5.2.0"
     },
     {
       "author": {

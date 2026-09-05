@@ -45,6 +45,8 @@ MUST assertions are the invariant. A single MUST failure fails the case, regardl
 | `audit-depth` | `prompt-engineer` | A trivial prompt gets the quick pass, not the full ladder |
 | `epistemic-labels` | `prompt-engineer` | No unmeasured claim is stated as a measurement |
 | `trust-boundary` | `prompt-engineer` | Untrusted interpolated content is treated as a boundary, not as a string to filter |
+| `reasoning-trace-exemplars` | `/prompt-optimize` | Worked reasoning traces in few-shot examples are a model-fit defect on a reasoning target, and their removal is reported |
+| `small-model-structured-output` | `/prompt-optimize` | On a small open-weight target every variant names its enforcement rung, and a format instruction alone is never the enforcement |
 | `pinned-old-sdk` | `agent-sdk-builder` | The installed version is inspected and honored |
 | `reference-vs-installed` | `agent-sdk-builder` | When the bundled reference and the installed SDK disagree, the SDK wins |
 | `always-on-security` | `agent-sdk-builder` | An every-call rule uses a `PreToolUse` hook, never `canUseTool` alone |

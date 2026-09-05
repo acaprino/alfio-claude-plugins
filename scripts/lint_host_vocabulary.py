@@ -56,7 +56,6 @@ SUBJECT_MATTER = (
 # File -> occurrence count when the linter landed. Fix a file, delete its entry.
 # Never raise a count to make a build pass.
 GRANDFATHERED: dict[str, int] = {
-    "plugins/ai-tooling/workflows/prompt-optimize.md": 1,
     "plugins/business/roles/business-planner.md": 1,
     "plugins/clean-code/workflows/clean-code.md": 1,
     "plugins/codebase-mapper/workflows/docs-create.md": 2,

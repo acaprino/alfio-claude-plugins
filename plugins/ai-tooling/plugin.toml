@@ -1,7 +1,7 @@
 schema = "daodan/v1"
 name = "ai-tooling"
-version = "5.1.0"
-description = "AI development workflow - prompt engineering and optimization, and Claude Agent SDK integration guide"
+version = "5.2.0"
+description = "AI development workflow: prompt engineering knowledge base and optimization, and Claude Agent SDK integration guide"
 license = "MIT"
 
 [capabilities]
@@ -12,7 +12,7 @@ optional = []
 required = ["superpowers@claude-plugins-official"]
 
 [components]
-skills = ["agent-sdk-builder"]
+skills = ["agent-sdk-builder", "prompt-engineering"]
 roles = ["prompt-engineer"]
 workflows = ["prompt-optimize"]
 policies = []

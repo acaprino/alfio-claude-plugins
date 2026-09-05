@@ -8,7 +8,8 @@ On-demand reference for the `prompt-engineer` agent and the `/prompt-optimize` c
 > 2026-08-10 review and deliberately deferred: the selection cheat sheet and the reasoning-model
 > section are the parts read on most invocations, and they are already at the top. If the
 > empirical numbers below start driving decisions on their own, that is the signal to split and
-> to date each result.
+> to date each result. Empirical results were re-checked on 2026-09-05 against arXiv metadata;
+> venue and revision status is stated inline where it matters.
 
 ## Selection cheat sheet
 
@@ -24,7 +25,10 @@ On-demand reference for the `prompt-engineer` agent and the `/prompt-optimize` c
 | Iterative correction loop on a single output | Reflexion / Self-Refine |
 | Multi-hop QA where intermediate questions are needed | Self-Ask |
 | Math/symbolic/commonsense where output-token cost or latency matters | Chain of Draft (few-shot, frontier models) |
-| Mixed-difficulty workload under a cost target | Token-budget prompting (TALE-style) |
+| Mixed-difficulty workload under a cost target | Token-budget prompting (TALE-style) on models that accept a budget; the native effort setting on reasoning models |
+| Any task on a reasoning model at its lowest effort setting | A brief explicit plan or thought summary at the start of the answer: the one scaffold that helps there (OpenAI GPT-5 guide) |
+| Hybrid open reasoner (Qwen3, Gemma 4, DeepSeek V3.x, gpt-oss) under a cost target | Prompt-based depth self-selection at 9B and below; draft-agreement routing from 8B to 32B; see "Reasoning models change the defaults" |
+| Small open reasoner (Gemma 4 E2B/E4B, Phi-4-mini, Qwen3-8B) | Zero-shot first; CoT and few-shot CoT are per-model choices that measured anywhere from a gain to a 56-point loss |
 
 If two patterns fit, prefer the one that adds the least latency and token cost; the "Cost-aware selection" section below puts numbers on this.
 
@@ -34,14 +38,16 @@ Reasoning models (Claude with extended/adaptive thinking, OpenAI o-series and su
 
 On reasoning models:
 
-- **No explicit CoT scaffolds.** OpenAI's official guidance: "think step by step" prompts are unnecessary on reasoning models and can degrade performance. Anthropic: prefer general instructions ("think thoroughly") over prescriptive step-by-step plans; manual CoT with `<thinking>`/`<answer>` tags is a fallback for when thinking is off. The Wharton "Decreasing Value of Chain of Thought" study (Meincke et al., 2025, arXiv:2506.07142) measured explicit CoT on reasoning models at marginal gains for 20-80% added time cost.
-- **Minimize few-shot.** Start zero-shot; add examples only to steer format or tone.
-- **Spend effort elsewhere**: precise success criteria, input curation, and thinking budget (adaptive thinking / effort settings) beat any reasoning scaffold.
-- **Patterns that keep value**: Self-Consistency only where answers are cheaply verifiable (majority vote over 3-8 traces); Tree-of-Thought only for genuinely search-structured tasks (game playing, theorem proving), preferably with deterministic checkers instead of model-judged scoring at the nodes.
-- **Verification prompts are model-dependent.** "Check your answer against the criteria before finishing" still helps mid-tier models on coding and math, but the newest top-tier models self-verify; carried-over verification instructions there cause over-verification (token and latency waste). Remove them when migrating upward.
-- **Cap or route the thinking budget by difficulty.** Reasoning models overthink: on trivial questions they spend up to ~20x more tokens than conventional models for no accuracy gain, and accuracy follows an inverted-U in reasoning length, so past the peak longer thinking reduces it (replicated across groups; see "Cost-aware selection"). On easy-to-medium tasks a calibrated budget (`budget_tokens`, `reasoning_effort`) cuts cost and can raise accuracy.
+- **No explicit CoT scaffolds.** OpenAI's official guidance: "think step by step" and "explain your reasoning" prompts are unnecessary on reasoning models (the page says unnecessary, not harmful). Anthropic: "Prefer general instructions over prescriptive steps. A prompt like 'think thoroughly' often produces better reasoning than a hand-written step-by-step plan"; manual CoT with `<thinking>`/`<answer>` tags is a fallback for when thinking is off. The Wharton "Decreasing Value of Chain of Thought" study (Meincke et al., 2025, arXiv:2506.07142, v1 only and unpublished as of 2026-09) measured explicit CoT on reasoning models at marginal gains for 20-80% added time cost. One exception, from the OpenAI GPT-5 guide: at the **lowest effort setting** ("minimal"), asking for a brief explanation of the thought process at the start of the answer, and prompting the planning explicitly, improves results, because the model has few reasoning tokens to plan with. Use that scaffold there and nowhere else.
+- **Never paste worked reasoning traces as exemplars.** Few-shot CoT often does worse than direct answering on RL-trained reasoners, and adding more exemplars, even optimal DeepSeek-R1 traces, degrades accuracy further through copied steps and failed strategy transfer; distilling the demonstrations into explicit insights instead recovered +14.0% on AIME'25 for GPT-4.1 and +2.7% for o1-mini (arXiv 2509.23196, 2025-09). Start zero-shot; if examples are needed for format or tone, show input and output only; if the demonstrations carry a strategy, state the strategy as an instruction. On Claude, an example that carries `<thinking>` tags teaches that reasoning style, which is the same mechanism pointed the other way.
+- **Spend effort elsewhere**: precise success criteria, input curation, and the native effort setting beat any reasoning scaffold. The control is a parameter, not prompt text: `effort` on Claude (where `budget_tokens` is deprecated on 4.6 and returns a 400 error from 4.7 on, and Anthropic reports adaptive thinking beating extended thinking in internal evaluations), `reasoning_effort` on OpenAI, `thinking_level` on Gemini 3. A token budget written into the prompt is a soft hint on every one of them.
+- **Patterns that keep value**: Self-Consistency only where answers are cheaply verifiable, and then voting among the first chains to finish rather than all of them (short-m@k, pattern 3); Tree-of-Thought only for genuinely search-structured tasks (game playing, theorem proving), preferably with deterministic checkers instead of model-judged scoring at the nodes.
+- **Verification prompts are model-dependent.** "Check your answer against the criteria before finishing" still helps mid-tier models on coding and math, but the newest top-tier models self-verify; carried-over verification instructions there cause over-verification (token and latency waste). Anthropic's own guidance: a self-check instruction helps, except on Opus 5, where it should be removed. Remove them when migrating upward.
+- **Cap the thinking by difficulty; overthinking is measured, not folklore.** On DeepSeek-R1-32B over AIME 2024/25 (arXiv 2604.10739, 2026-04), accuracy rises about 3.2 points per 500 thinking tokens from 0.5K to 2K, peaks at 55.8% at 12K, and falls to 54.9% at 16K; past about 7K tokens, correct-to-incorrect flips outnumber the reverse (83 to 11 at 16K), and 67.5% of the sampled negative flips were the model explicitly rejecting a correct answer. The optimal budget scales with difficulty (about 1.5K tokens at MATH-500 level 1 to about 8K at level 5); stopping at about 6K cut compute by about half for about 6% accuracy; a stop rule keyed on answer oscillation and hesitation markers ("wait", "reconsider") kept 97% of peak accuracy at 60% of compute. Reasoning traces also cross a commitment boundary well before the thinking block ends, after which further steps leave the answer unchanged (arXiv 2606.13603, 2026-06: early exit shortens chains up to 55% at negligible loss). Prompt-side levers: a lower effort level, and Anthropic's "choose an approach and commit to it, avoid revisiting decisions" for Opus 4.6 at high effort.
+- **Hybrid open reasoners are controlled through their mode switch, not through prose.** On think/no-think models (Qwen3, Gemma 4, DeepSeek V3.x, gpt-oss) a few trigger tokens decide whether the model reasons (Mid-Think, arXiv 2601.07036: a leading "Okay" induces reasoning, the newline after `</think>` suppresses it), so control depth through the native mode token or a thinking prefill, not through "think briefly". Under a cost target, HRBench (arXiv 2605.28398, 2026-05, six hybrid models from 2B to 1.1T) finds training-free prompt-based depth self-selection Pareto-optimal on math and science at small scale (Qwen3.5-9B: 47.6% accuracy with 24% token savings, against 44.1% and 13% for an external router), speculative fast-then-escalate winning on code and at 20B and above, and no strategy dominating. Draft-agreement routing (DART, arXiv 2606.23181, EMNLP 2026 Findings) samples two no-think drafts, answers directly when they agree and thinks only when they disagree: thinking tokens fall 32% to 73% at parity or better from 8B to 32B (Qwen3-8B on MATH-500: 88.2% at 1,743 mean thinking tokens against 85.6% at 5,343 for always-think), and it trails always-think below 4B.
+- **Small open reasoners get no default at all.** On Gemma 4 E2B/E4B/26B-A4B, Phi-4-mini-reasoning, Phi-4-reasoning, Qwen3-8B and Qwen3-30B-A3B (arXiv 2604.07035 v2, 2026-05, 19,992 evaluations), "prompting strategy changes model rankings rather than shifting all models uniformly": Gemma-4-E4B drops from 0.40 zero-shot to 0.34 with CoT on GSM8K, Phi-4-reasoning collapses from 0.67 under CoT to 0.11 under few-shot CoT on the same set, and some failures are interface adherence rather than reasoning. Evaluate zero-shot first; treat CoT and few-shot CoT as per-model choices, never as a default.
 
-On non-reasoning models the patterns below apply as documented, with one caveat: CoT gains concentrate in math, logic, and symbolic tasks, and come with increased answer variability elsewhere (Sprague et al., 2024, arXiv:2409.12183).
+On non-reasoning models the patterns below apply as documented, with one caveat: CoT gains concentrate in math, logic, and symbolic tasks, and come with increased answer variability elsewhere (Sprague et al., 2024, arXiv:2409.12183, ICLR 2025; confirmed on soft-reasoning tasks by arXiv 2508.19827, EMNLP 2025, which also finds that how much a model's CoT drives its answer differs between instruction-tuned, reasoning and distilled models).
 
 ---
 
@@ -65,7 +71,7 @@ Think step by step. Show your work inside <reasoning> tags, then produce the fin
 
 **Failure modes**: hallucinated steps that look plausible, premature commitment to a wrong first step, token bloat on simple tasks.
 
-**Reasoning-model note**: redundant on reasoning models (internalized) and officially discouraged by OpenAI. On non-reasoning models, expect modest average gains with higher answer variability outside math and symbolic tasks.
+**Reasoning-model note**: redundant on reasoning models (internalized) and officially called unnecessary by OpenAI. Never as few-shot exemplars on a reasoning model: worked reasoning traces degrade RL-trained reasoners (arXiv 2509.23196). On non-reasoning models, expect modest average gains with higher answer variability outside math and symbolic tasks.
 
 **Cost note**: the baseline other patterns are priced against. When output-token cost matters, see Chain of Draft (pattern 11): near-parity on frontier models at roughly a tenth of the tokens.
 
@@ -115,7 +121,7 @@ Wang et al., 2022.
 
 **Reasoning-model note**: reasoning models already sample multiple internal paths. Keep this pattern only when answers are cheaply verifiable and the vote is deterministic.
 
-**Cost note**: the one pattern with consolidated evidence against it on cost grounds. The Token Cost benchmark (arXiv 2505.14880) measures ~119 tokens per accuracy point at N=10 vs ~5 for zero-shot CoT, with the marginal price of the last accuracy points at ~6,700 tokens each. Reserve it for cases where each point is worth ~100x its marginal token price.
+**Cost note**: the one pattern with consolidated evidence against it on cost grounds. The Token Cost benchmark (arXiv 2505.14880) measures ~119 tokens per accuracy point at N=10 vs ~5 for zero-shot CoT, with the marginal price of the last accuracy points at ~6,700 tokens each. Reserve it for cases where each point is worth ~100x its marginal token price. When you do run it, vote among the first m chains to finish rather than all k (short-m@k, arXiv 2505.17813, v2 2026-02): shorter chains are more often correct within a question (the shortest sampled chain up to 34.5% more accurate than the longest), short-1@k matches majority voting with up to 40% fewer thinking tokens, and short-3@k beats it at every budget with up to 33% less wall time.
 
 ---
 
@@ -298,7 +304,7 @@ Return the final answer after ####.
 [2-4 worked examples whose reasoning is written as terse drafts]
 ```
 
-**Measured**: on GPT-4o / Claude 3.5 Sonnet class models, GSM8K ~91% vs ~95% for full CoT at as little as 7.6% of the output tokens and half the latency; parity or better on symbolic and commonsense tasks. Near-parity, not exact parity, on math.
+**Measured**: on GPT-4o / Claude 3.5 Sonnet class models, GSM8K ~91% vs ~95% for full CoT at as little as 7.6% of the output tokens and half the latency; parity or better on symbolic and commonsense tasks. Near-parity, not exact parity, on math. Status 2026-09: v2 (2025-03), no venue, and no replication or refutation found on arXiv through 2026-09; single-source numbers.
 
 **Failure modes**: zero-shot use (drops ~7 points and the outputs stop being concise; the draft-style exemplars are required), models under ~3B parameters (the gap vs CoT widens), problems near their intrinsic token complexity.
 
@@ -328,13 +334,13 @@ Han et al., 2024 (arXiv 2412.18547, Findings of ACL 2025).
 
 **Measured**: 67-69% output-token reduction at under 3-5% average accuracy loss across seven datasets; on GSM8K accuracy improved (81.4% to 84.5%) while mean output fell from 318 to 77 tokens.
 
-**Failure modes**: token elasticity: budgets set too low make the model overshoot them, so calibrate rather than minimize; budget-estimator calls count against the savings.
+**Failure modes**: token elasticity: budgets set too low make the model overshoot them, so calibrate rather than minimize; budget-estimator calls count against the savings. A budget stated in the prompt is a soft hint, not a constraint: precise length control needed control tokens injected during decoding (BudgetThinker, arXiv 2508.17196, a training method), and on API reasoning models the native control is the lever instead (`effort` on Claude, where `budget_tokens` returns a 400 error from 4.7 on; `reasoning_effort` on OpenAI; `thinking_level` on Gemini 3).
 
 ---
 
 ## 14. Sketch-of-Thought
 
-Aytes et al., 2025 (arXiv 2503.05179). Not to be confused with Skeleton-of-Thought (pattern 10), which shares the SoT abbreviation; use full names.
+Aytes et al., 2025 (arXiv 2503.05179, EMNLP 2025). Not to be confused with Skeleton-of-Thought (pattern 10), which shares the SoT abbreviation; use full names.
 
 **What**: reasoning in a compressed notation instead of prose. Three paradigms: Conceptual Chaining (linked key ideas), Chunked Symbolism (equations and variables), Expert Lexicons (domain shorthand); pick one per task.
 
@@ -352,8 +358,9 @@ What the measurements say when token cost or latency is a constraint:
 
 - **Tokens per accuracy point.** The one cost-aware benchmark of prompting strategies (arXiv 2505.14880) measures vanilla IO and zero-shot CoT at ~5 tokens per accuracy point, Self-Consistency@10 at ~119, and the marginal price of accuracy climbing from ~65 tokens per point to ~6,700 across that range; returns diminish roughly as log(log(tokens)). Chain of Draft, Step-Back, and Plan-and-Solve have no published cost-aware ranking yet.
 - **One curve, not competing tricks.** Brevity instructions, word caps, and draft styles all land on the same accuracy-vs-length curve, governed by a per-problem token-complexity threshold (arXiv 2503.01141): roughly 60% of reasoning length is typically removable at little cost, and quality drops past the threshold no matter the phrasing.
+- **Prompt-only brevity holds on black-box reasoning APIs.** PREMISE (arXiv 2506.10716, 2025-06) optimized only the prompt and held accuracy on GSM8K, SVAMP and MATH500 (Claude 3.7 Sonnet 96% to 96%, Gemini 91% to 92%) while cutting reasoning tokens by up to 87.5% and dollar cost by 69% to 82%. Shorter is also more often right within a question (arXiv 2505.17813). Measurement caveat from DART (arXiv 2606.23181): under a single generation cap the always-think baseline gets truncated mid-reasoning, which overstates every router's or brevity prompt's gain; cap thinking and answer separately when you measure.
 - **Where parity breaks** (replicated): small or weak models, math especially; zero-shot use of few-shot styles; compression past the task's token complexity; genuinely hard problems. A parity claim must state model class, shot regime, and task difficulty; without an eval run it is an estimate, not a result.
-- **Cache changes the economics.** With prompt caching, cached prefix reads bill at ~0.1x: shortening a cached system prompt saves ~10% of what it appears to, and an edit that breaks the cache re-bills the prefix at 1.25x. Output tokens bill at full price and dominate latency. Cut reasoning verbosity first, then the uncached input; batch cached-prefix edits.
+- **Cache changes the economics.** With prompt caching, cached prefix reads bill at 0.1x (0.025x on Claude Fable 5.1 and Mythos 5.1) and writes at 1.25x for the 5-minute TTL or 2x for the 1-hour TTL: shortening a cached system prompt saves 10% of what it appears to (2.5% on Fable 5.1), and an edit that breaks the cache re-bills the prefix at the write multiplier. Output tokens bill at full price and dominate latency. Cut reasoning verbosity first, then the uncached input; batch cached-prefix edits. Below the per-model minimum cacheable length (512 to 4,096 tokens depending on the model) nothing is cached at all.
 - **The efficiency/effectiveness trade-off belongs to the user.** When both poles are viable, present variants along the frontier (max effectiveness, balanced, max efficiency) with token estimates and what each gives up; do not silently pick a pole.
 
 ---
@@ -374,7 +381,7 @@ Do not stack more than two patterns without a clear reason. Each adds latency, t
 
 Run through this when designing or optimizing a prompt that needs reasoning:
 
-0. Is the target a reasoning model (extended thinking, o-series, R1 class)? Default to no explicit pattern: direct instructions, precise success criteria, and a thinking budget. Continue below only if the output shows a gap that instructions alone cannot close.
+0. Is the target a reasoning model (adaptive or extended thinking, o-series and GPT-5.x/6, Gemini 3, R1 class)? Default to no explicit pattern: direct instructions, precise success criteria, and the native effort setting. Two exceptions: at the lowest effort setting a brief explicit plan at the start of the answer helps; on a hybrid open reasoner under a cost target, ask the model to pick its own depth by difficulty (9B and below) or route by draft agreement (8B to 32B). Never paste worked reasoning traces as exemplars. On a small open reasoner, measure zero-shot before anything else. Continue below only if the output shows a gap that instructions alone cannot close.
 1. Is token cost or latency a stated constraint? Read "Cost-aware selection" first. On capable models prefer Chain of Draft (few-shot) or token-budget prompting over full CoT, and skip Self-Consistency unless each accuracy point is worth ~100x its marginal token price.
 2. Is the answer a short discrete label? Consider Self-Consistency over CoT (mind its cost note).
 3. Does the right answer follow from a general principle the model knows? Apply Step-Back before CoT.
