@@ -12,6 +12,17 @@
       "model": "gpt-5.6",
       "api_key": "PASTE-THE-KEY-HERE",
       "max_output_tokens": 8000
+    },
+    "gpt-max-effort": {
+      "base_url": "https://api.openai.com/v1",
+      "model": "gpt-5.6",
+      "api_key_env": "OPENAI_API_KEY",
+      "max_output_tokens": 16000,
+      "token_param": "max_completion_tokens",
+      "timeout_seconds": 1200,
+      "params": {
+        "reasoning_effort": "high"
+      }
     }
   }
 }

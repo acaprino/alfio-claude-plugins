@@ -50,6 +50,38 @@ LEGACY_PARAM_HINTS = (
 )
 
 
+# Body fields the server itself decides. A profile's `params` may not name them: the
+# first three are the request, `stream_options` is what makes usage accounting work,
+# and the two token caps have their own profile fields (`max_output_tokens` and
+# `token_param`), so a duplicate here would be two answers to one question.
+RESERVED_PARAMS = frozenset(
+    ("model", "messages", "stream", "stream_options", "max_tokens", "max_completion_tokens")
+)
+
+
+def _profile_params(profile: str, entry: dict) -> tuple[dict, str | None]:
+    """Validate a profile's `params`, the extra fields merged into the request body.
+
+    Returns (params, error). This is how a profile pins what the endpoint decides per
+    model and the server has no field for: `reasoning_effort`, `top_p`, a vendor's
+    `reasoning` object, and whatever else the endpoint accepts. The server does not
+    know the names and does not try to: anything the endpoint rejects comes back as its
+    HTTP 400, verbatim, rather than being dropped on the way out.
+    """
+    params = entry.get("params")
+    if params is None:
+        return {}, None
+    if not isinstance(params, dict):
+        return {}, f"profile '{profile}' has invalid params: expected a JSON object"
+    reserved = sorted(RESERVED_PARAMS.intersection(params))
+    if reserved:
+        return {}, (
+            f"profile '{profile}' params may not set {', '.join(reserved)}: the server "
+            f"owns those fields (the output cap is 'max_output_tokens' and 'token_param')"
+        )
+    return dict(params), None
+
+
 def _rejects_modern_params(error_body: str) -> bool:
     low = error_body.lower()
     return any(hint in low for hint in LEGACY_PARAM_HINTS)
@@ -192,14 +224,20 @@ def peer_profiles() -> dict:
     for name, entry in config.get("profiles", {}).items():
         key, key_source, warnings = _resolve_key(entry)
         any_literal = any_literal or key_source == "literal"
+        params, params_error = _profile_params(name, entry)
+        if params_error:
+            warnings = [*warnings, params_error]
         profiles.append({
             "name": name,
             "base_url": entry.get("base_url", ""),
             "model": entry.get("model", ""),
             "api_key_env": entry.get("api_key_env", "") if ENV_NAME.match(entry.get("api_key_env", "") or "") else "",
+            # Echoed because it reaches the network: the consent gate should be able
+            # to say exactly what goes out with the packet. Nothing in it is a secret.
+            "params": params,
             "key_source": key_source,
             "warnings": warnings,
-            "available": bool(key),
+            "available": bool(key) and not params_error,
         })
 
     result = {"default": config.get("default"), "profiles": profiles, "source": source}
@@ -304,6 +342,9 @@ def peer_ask(
     if token_param not in ("max_tokens", "max_completion_tokens"):
         return {"error": f"profile '{profile}' has invalid token_param '{token_param}'"}
     timeout_s = entry.get("timeout_seconds") or REQUEST_TIMEOUT_SECONDS
+    params, params_error = _profile_params(profile, entry)
+    if params_error:
+        return {"error": params_error}
 
     sent, payload_error = _load_payload(content_path)
     if payload_error:
@@ -330,7 +371,15 @@ def peer_ask(
             # Without this, a streamed response carries no usage block at all, and
             # the verdict's token accounting would silently report nothing.
             payload["stream_options"] = {"include_usage": True}
+        # The profile's extra fields go in as written, on both request shapes. The
+        # legacy downgrade exists for fields this server chose on its own; a field
+        # the operator wrote into the profile is deliberate, so an endpoint that
+        # rejects it fails the call with its own error text instead of being sent a
+        # request quietly missing what the profile asked for.
+        payload.update(params)
         if temperature is not None:
+            # A per-call temperature wins over one pinned in the profile, the same
+            # precedence max_output_tokens has over the profile's cap.
             payload["temperature"] = temperature
         return json.dumps(payload).encode("utf-8")
 
@@ -379,6 +428,9 @@ def peer_ask(
                 "sent_path": sent["path"],
                 "sent_bytes": sent["bytes"],
                 "sent_sha256": sent["sha256"],
+                # The profile fields that went out with the packet, so the verdict
+                # can state the challenger's settings and not only its name.
+                "params": params,
             }
             # An endpoint that drops the cap does it silently, so the only evidence is
             # spending more than was allowed. Say so: an ignored cap is an unbounded

@@ -137,7 +137,10 @@ judges that. From Phase 1 onward the two are the same run: every later phase rea
    directory before any write.
 5. **Resolve the challenger profile.** Call the `mcp__peer-review__peer_profiles` tool
    with no arguments. It returns `{default, profiles: [{name, base_url, model,
-   api_key_env, available}], source}`.
+   api_key_env, params, key_source, warnings, available}], source}`. `params` is the
+   profile's extra request fields (`reasoning_effort` and the like), already validated:
+   a profile whose `params` the server refuses reports `available: false` with the
+   reason in `warnings`.
    - Chosen name: `--challenger` value if given, else `default`.
    - If `default` is null and no `--challenger` was given: stop. No profile is
      configured (`peer_profiles`'s `source` field is `null` when no profiles file was
@@ -149,11 +152,12 @@ judges that. From Phase 1 onward the two are the same run: every later phase rea
      profile names, the `source` path `peer_profiles` reported (which file was
      actually loaded), and pointing at `${CLAUDE_PLUGIN_ROOT}/skills/cross-model-peer-review/scripts/profiles.example.json`
      and `PEER_REVIEW_PROFILES` for placing or relocating a profiles file.
-   - If the chosen profile's `available` is `false`: stop, naming its `api_key_env`
-     value as the environment variable that must be set, pointing at
-     `${CLAUDE_PLUGIN_ROOT}/skills/cross-model-peer-review/scripts/profiles.example.json`.
-   - Otherwise record the resolved profile's `name`, `base_url`, and `model` for later
-     phases.
+   - If the chosen profile's `available` is `false`: stop, quoting its `warnings`. When
+     the cause is the key, name its `api_key_env` value as the environment variable
+     that must be set; when the cause is a refused `params` field, name the field.
+     Point at `${CLAUDE_PLUGIN_ROOT}/skills/cross-model-peer-review/scripts/profiles.example.json`.
+   - Otherwise record the resolved profile's `name`, `base_url`, `model` and `params`
+     for later phases.
 6. Initialize an empty transport-failures list and an empty token-accounting list, both
    held in memory for Phase 6.
 
@@ -279,6 +283,7 @@ No transport call of any kind precedes this phase.
 ```
 About to send this packet to an external service:
   destination: <base_url>  model: <model>
+  request params: <params, one `key=value` per entry, or `none`>
   size: <N> bytes (transport cap: 400000 bytes)
   sha256: <PACKET_SHA>
   sections: Mandate, Artifact, Ground truth, Constraints, Considered and rejected,
@@ -287,7 +292,8 @@ Nothing else leaves this machine. Later rounds, certification, a corrective roun
 and any granted repository excerpt travel under this same consent.
 ```
 
-Where `<base_url>` and `<model>` come from the profile resolved in Phase 0, `<N>` is
+Where `<base_url>`, `<model>` and `<params>` come from the profile resolved in Phase 0
+(`<params>` is shown because those fields go out with every request), `<N>` is
 the byte size of `00-packet.md`, and `<PACKET_SHA>` is step 0's digest. The digest is
 shown because consent is given to one specific file, and the transport reports back
 the digest of what it actually sent: the two are compared in Phase 2, which is what
@@ -684,7 +690,9 @@ not already a ledger field. Sections, in order:
      Claude Code subagent `peer-review:packet-builder`; context, full repository
      access; human, none.
    - **Challenger**: model and runtime filled directly from the resolved profile
-     (`<model>` at `<base_url>`); context, packet-only plus any Phase 2b grants,
+     (`<model>` at `<base_url>`, with its `params` listed when any were set, since a
+     verdict from `reasoning_effort: high` is not the same evidence as one without
+     it); context, packet-only plus any Phase 2b grants,
      tagged GIVEN; human, none. If a future run fills this role with a human
      reviewer instead, mark the model axis absent per R4 and fill the human axis
      instead.

@@ -40,7 +40,8 @@ mechanism; the requirements it satisfies live in the protocol document, not here
 These steps assume the plugin is already installed
 (`claude plugin install peer-review@claude-code-daodan`).
 
-1. Copy the shipped example profile file, `mcp/profiles.example.json`, to one of the
+1. Copy the shipped example profile file,
+   `skills/cross-model-peer-review/scripts/profiles.example.json`, to one of the
    two locations the server checks by default: project-scoped
    `./.peer-review/profiles.json`, or user-scoped `~/.peer-review/profiles.json`. (Or
    set `$PEER_REVIEW_PROFILES` to any path of your choosing; when set, it is checked
@@ -82,6 +83,23 @@ These steps assume the plugin is already installed
    A literal key belongs in `~/.peer-review/profiles.json`, which sits outside every
    repository. If you keep one in a project-scoped file instead, `peer_profiles` checks
    whether git ignores that file and warns when it does not.
+
+   Four optional fields tune the request itself:
+
+   | Field | Meaning |
+   |---|---|
+   | `max_output_tokens` | Output cap for the profile; a per-call value overrides it |
+   | `token_param` | Which body field carries that cap: `max_tokens` (the default, understood by every endpoint) or `max_completion_tokens` (for reasoning-model APIs that reject the old name) |
+   | `timeout_seconds` | Idle allowance per socket read, default 600. Raise it for a model expected to think for longer before its first token |
+   | `params` | A JSON object merged into the request body as written: `reasoning_effort`, `top_p`, a vendor's `reasoning` object, anything else the endpoint accepts per model |
+
+   `params` is how a profile pins what the server has no field for. The server does
+   not know the names and does not filter them: a field the endpoint rejects fails the
+   call with the endpoint's own error text, never dropped on the way out. It may not
+   set what the server decides (`model`, `messages`, `stream`, `stream_options`, or
+   either token cap, which stay on `max_output_tokens` and `token_param`); a profile
+   that tries is refused and `peer_profiles` reports it as unavailable with the reason.
+   The shipped `gpt-max-effort` example pins `reasoning_effort` this way.
 3. If you chose `api_key_env`, export that variable in the shell Claude Code runs in,
    matching whichever profile you intend to use: `export OPENAI_API_KEY=...` for the
    example above.
@@ -273,7 +291,8 @@ granted to the challenger's context requests, mechanically capped at 10 files / 
 is sent as part of round 2's payload, tagged GIVEN, without a second approval step.
 Everything else stays local: the rest of your repository beyond whatever the packet
 and any granted amendments carried, `profiles.json` itself (only the resolved
-`base_url` and `model` are transmitted as part of each request, never the file), the
+`base_url`, `model` and `params` are transmitted as part of each request, never the
+file), the
 ledger, the verdict, and the packet-building and response-answering work that happens
 inside Claude Code subagents with full repository access. The API key travels only in
 the outgoing request's `Authorization` header; the server never logs or returns it,

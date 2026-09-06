@@ -56,9 +56,14 @@ Each entry under `profiles` is a named challenger that `--challenger=<name>` sel
 | `model` | Model id sent in the request body. Required; a profile without it is refused at call time |
 | `api_key_env` | The **name** of an environment variable, never a literal key |
 | `max_output_tokens` | Optional per-profile cap, overridable per call |
+| `token_param` | Optional. Which body field carries the cap: `max_tokens` (default) or `max_completion_tokens` for reasoning-model APIs that reject the old name |
+| `timeout_seconds` | Optional idle allowance per socket read, default 600 |
+| `params` | Optional JSON object merged into the request body as written: `reasoning_effort`, `top_p`, a vendor's `reasoning` object, whatever the endpoint accepts per model. It may not set `model`, `messages`, `stream`, `stream_options` or either token cap; a profile that tries is reported unavailable with the reason |
 | `default` (top level) | Profile used when `--challenger` is omitted |
 
-The `api_key_env` indirection is the security boundary: the file holds a variable name, so it stays safe to commit, diff, or share. The server resolves the variable at call time, never logs or returns the key, redacts it from any error text, and sends it only in the outgoing request's `Authorization` header. Of the profile itself, only `base_url` and `model` ever reach the network.
+`params` exists because the server otherwise sends only model, messages, stream and the output cap, and the knobs that decide how hard a model works (`reasoning_effort` above all) have no field of their own. The server does not know the names and does not filter them: a field the endpoint rejects fails the call with the endpoint's own error text rather than being dropped on the way out, so a profile never runs with less than it asked for. The shipped example's `gpt-max-effort` profile shows the shape.
+
+The `api_key_env` indirection is the security boundary: the file holds a variable name, so it stays safe to commit, diff, or share. The server resolves the variable at call time, never logs or returns the key, redacts it from any error text, and sends it only in the outgoing request's `Authorization` header. Of the profile itself, only `base_url`, `model` and `params` ever reach the network, and the consent gate prints all three.
 
 **3. Export the key** in the environment Claude Code itself runs in, matching the variable your profile names:
 

@@ -9,7 +9,7 @@
   ],
   "metadata": {
     "description": "The Daodan: agents, skills and workflows that augment a coding agent into a specialized toolkit.",
-    "version": "27.2.0"
+    "version": "27.3.0"
   },
   "name": "daodan",
   "owner": {
@@ -433,7 +433,7 @@
         "./skills/cross-model-peer-review"
       ],
       "source": "./exports/copilot/plugins/peer-review",
-      "version": "2.3.0"
+      "version": "2.4.0"
     },
     {
       "agents": [
