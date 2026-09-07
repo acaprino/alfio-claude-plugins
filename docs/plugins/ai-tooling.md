@@ -15,7 +15,7 @@ Authors, restructures and evaluates the text that steers a model. It carries the
 | | |
 |---|---|
 | **Model** | `inherit` |
-| **Use for** | System prompts, agent instructions, few-shot design, token optimization, output-shape enforcement, extraction prompts, prompt evals |
+| **Use for** | System prompts, agent instructions and tool descriptions, judge prompts, few-shot design, token optimization, output-shape enforcement, extraction prompts, prompt evals |
 
 **Invocation:**
 ```
@@ -30,19 +30,21 @@ Use the prompt-engineer agent to optimize [prompt/system]
 
 ### `prompt-engineering`
 
-The knowledge base behind the agent and the command, loadable on its own. Its `SKILL.md` carries the source-of-truth order for model facts (the vendor's current page, then a measurement, then the bundled references), the model-class gate every recommendation is made against (frontier reasoning model, hybrid open reasoner, small open-weight instruct model, older non-reasoning model), and a router to four on-demand references:
+The knowledge base behind the agent and the command, loadable on its own. Its `SKILL.md` carries the source-of-truth order for model facts (the vendor's current page, then a measurement, then the bundled references), the model-class gate every recommendation is made against (frontier reasoning model, hybrid open reasoner, small open-weight instruct model, older non-reasoning model), and a router to six on-demand references:
 
 | Reference | Covers |
 |---|---|
 | `reasoning-patterns.md` | Chain-of-Thought, Step-Back, Self-Consistency, Tree-of-Thought, ReAct, Reflexion, Plan-and-Solve, Least-to-Most, Self-Ask, Skeleton-of-Thought; the token-efficient patterns (Chain of Draft, Concise CoT, token-budget prompting, Sketch-of-Thought); how reasoning models, hybrid open reasoners and small open models change the defaults; cost-aware selection |
 | `structured-output.md` | Forcing JSON, a schema, an enum or a template: the enforcement ladder from format instruction to validate-and-repair to API structured outputs to constrained decoding, what each rung costs, and what holds on small open-weight models such as Gemma |
 | `extraction-prompting.md` | Per-task prompt shapes for NER, relation and event extraction, schema-guided document and table extraction, with measured gains, failure modes and the small-model order of operations |
+| `judge-prompting.md` | The judge prompt shape that measured the highest human agreement per model class (one criterion per judge, binary with evidence, reference-guided, checklist step, 0-5 where scalar) and the additions that measured as harmful (personas, debate, strictness on strong judges) |
+| `agent-instructions.md` | What has a measured effect in an agent's instruction surface: tool-description anatomy, guardrails over guidance in rule files, history scope per model, verified state for long jobs, test generation in a fresh context, and what is still unmeasured |
 | `model-guidance.md` | What Anthropic, OpenAI and Google currently say about their models, quoted and dated: thinking modes, effort, prefill, caching, structured outputs, Gemma templates |
 
 | | |
 |---|---|
 | **Invoke** | Skill reference |
-| **Trigger** | designing, reviewing or optimizing a prompt; forcing JSON or a schema from a model; prompting for extraction; deciding on a reasoning scaffold, examples or a thinking budget |
+| **Trigger** | designing, reviewing or optimizing a prompt; forcing JSON or a schema from a model; prompting for extraction; deciding on a reasoning scaffold, examples or a thinking budget; writing a judge prompt, a tool description, an instruction file or a skill description |
 
 ### `agent-sdk-builder`
 
@@ -75,7 +77,7 @@ Analyzes a prompt in one `prompt-engineer` pass and presents the efficiency-vers
 
 **Flags:** `--model claude|gpt|gemini|<open-weight model name>` (the analysis turns it into a model class), `--optimize-for clarity|tokens|reliability`, `--compare`.
 
-**Phases:** Analyze (contract, archetype, model class, usage profile, reasoning-pattern, output-shape and task-family checks) -> Variant frontier -> The user picks -> Deliver with test inputs.
+**Phases:** Analyze (contract, archetype, model class, usage profile, reasoning-pattern, output-shape, task-family, judge and agent, constraint-count and language checks) -> Variant frontier -> The user picks -> Deliver with test inputs.
 
 ---
 

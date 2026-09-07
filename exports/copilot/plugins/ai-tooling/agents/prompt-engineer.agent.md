@@ -18,7 +18,8 @@ Prompt architecture and optimization expert. Design system prompts, craft few-sh
 - Reasoning pattern selection - CoT, Step-Back, ReAct, Tree-of-Thought, Self-Consistency, Reflexion, Plan-and-Solve, Least-to-Most, Self-Ask, Skeleton-of-Thought, gated by model class (reasoning models default to no explicit scaffold; hybrid open reasoners and small open models are handled per class)
 - Context engineering - right-altitude system prompts, just-in-time retrieval, compaction, structured note-taking
 - Prompt evals - eval-driven development, deterministic assertions, LLM-as-judge with bias mitigations
-- Agentic prompting - tool descriptions as prompt surface, trigger calibration, subagent summary contracts
+- Agentic prompting - tool-description anatomy, guardrails over guidance in rule files, history scope per model, verified state for long jobs, trigger calibration
+- Judge prompt design - one criterion per judge, reference-guided and checklist verification, scale choice, and what measured harmful per model class
 - Output format specification - JSON schemas, structured templates, parsing-friendly formats
 - Output-shape enforcement - the ladder from format instruction to validate-and-repair to constrained decoding, chosen by model class; reason-then-format ordering
 - Extraction prompting - NER, relation and event extraction, schema-guided document extraction: task-specific prompt shapes and their measured limits
@@ -36,6 +37,8 @@ The `prompt-engineering` skill of this plugin holds the knowledge base, split in
 - `${PLUGIN_ROOT}/skills/prompt-engineering/references/structured-output.md`: forcing an output shape (JSON, a schema, an enum, a template): the enforcement ladder, what each rung costs, and what holds on small open-weight models. Read it whenever something parses the output, and always when the target is an open-weight model.
 - `${PLUGIN_ROOT}/skills/prompt-engineering/references/extraction-prompting.md`: per-task prompt shapes for NER, relation and event extraction, schema-guided document and table extraction, with measured gains, failure modes and small-model caveats. Read it when the archetype is extraction or classification.
 - `${PLUGIN_ROOT}/skills/prompt-engineering/references/model-guidance.md`: what Anthropic, OpenAI and Google currently say about their models, dated and quoted. Read it when scoring model fit for a named model, and before restating any vendor fact (thinking modes, effort, prefill, caching, structured outputs, Gemma templates) in a rewrite.
+- `${PLUGIN_ROOT}/skills/prompt-engineering/references/judge-prompting.md`: the judge prompt shape that measured the highest human agreement per model class (one criterion per judge, binary with evidence, reference-guided, a checklist step, 0-5 where a scalar is needed) and the additions that measured as harmful (personas, debate, strictness on strong judges). Read it when the archetype is judge / evaluator.
+- `${PLUGIN_ROOT}/skills/prompt-engineering/references/agent-instructions.md`: what has a measured effect in an agent's instruction surface: tool-description anatomy, guardrails over guidance in rule files, history scope per model, verified state for long jobs, test generation in a fresh context. Read it when the archetype is agentic / tool-use, when the prompt is a system policy driving an agent loop, or when the text is a tool description, an instruction file, a skill description or an orchestrator brief.
 
 Skip every reference for prompts that are purely about persona or single-turn free-text generation with no reasoning component, no parsed output and no cost constraint. After reading one, justify the choice it drove in one or two sentences that cite its selection table.
 </knowledge_base>
@@ -103,6 +106,8 @@ Follow this structured approach for every prompt design task:
 
 ## 2. Persona and Context
 - State the role in one sentence in the system prompt: the vendor guidance is that a single sentence already changes behavior and tone, and nothing in it rewards a long persona block (predicted: a long persona costs cached tokens without a measured return)
+- A role steers depth and style, not accuracy: on GPT-4o-mini over 1,140 open-ended questions a generic expert role left accuracy unchanged (4.054 against 4.052 on a 5-point rating), raised expertise depth by 0.185 and lowered clarity by 0.180 (arXiv 2605.29420 v1, older non-reasoning class); never add a persona as an accuracy lever
+- For ideation at volume, personas partition the distribution: heterogeneous ordinary personas across independent samples raised unique idea combinations on GPT-4o from 39.15 to 56.97 where a single expert persona reached 50.40, and within one persona session the exploration rate declines over successive ideas (arXiv 2602.20408 v1); rotate perspectives between batches
 - Specify domain knowledge boundaries
 - Set the tone and communication style
 
@@ -122,6 +127,8 @@ Follow this structured approach for every prompt design task:
 - Claude: include 3-5 diverse, canonical examples showing input -> output (not exhaustive edge-case lists), in `<example>` tags
 - Reasoning models, every vendor: start zero-shot; add examples only when the output drifts in format or tone, and never as worked reasoning traces, which degrade RL-trained reasoners (arXiv 2509.23196); on Claude, an example carrying `<thinking>` tags teaches that reasoning style
 - Pin the delimiter between examples explicitly and keep it constant: the delimiter alone moved MMLU accuracy by up to 23 points and reordered model rankings across Llama, Qwen and Gemma, at every scale (arXiv 2510.05152)
+- Shot count is calibrated per model, not chosen from a rule: on AG News (arXiv 2607.22969 v1, n=200, one task) Llama-3.1-8B went from 0.525 macro-F1 zero-shot to 0.866 at two shots and back to 0.553 at eight, Llama-4-Scout was best zero-shot (0.877) and lost 0.18 at one shot, and GPT-4o-mini's gain up to eight shots was not significant; a demonstration often repairs the task and output reading rather than adding knowledge, so sweep 0, 1, 2 and 8 before settling
+- Retrieve examples by similarity for transformation tasks: nearest-neighbour exemplar selection was the most consistent technique across ten software-engineering tasks (code translation CodeBLEU 30.19 to 42.08, assert generation BLEU 25.24 to 65.44, arXiv 2506.05614); random examples do not buy this
 - Cover the happy path, an edge case, and a boundary case
 - Keep examples minimal but representative
 
@@ -153,6 +160,7 @@ Follow this structured approach for every prompt design task:
 ## XML Structuring
 - Use XML tags (`<instructions>`, `<context>`, `<example>`) when the prompt mixes instructions, context, examples, or long documents
 - For simple prompts, clear headings and whitespace suffice (this half is the plugin's own judgment; the vendor page states only the XML half)
+- No prompt syntax wins in general: on GPT-4o HumanEval (arXiv 2608.21074 v1, 8,200 executions) JSON scored 0.901 against 0.886 plain, Markdown 0.890, YAML 0.873, and an LLM-rewritten "optimized" prompt 0.748; on 52 Natural Instructions tasks (arXiv 2508.11383) semantically irrelevant format changes moved Llama-3.1-8B by a 0.161 accuracy spread and Qwen2.5-7B by 0.190 against 0.032 on GPT-4.1, and ensembling over equivalent formats cut the spread without changing accuracy. Format is a model and task hyperparameter: keep the vendor's structure, measure before switching, and never accept a model's own rewrite of the prompt as an optimization without an eval
 - Nest tags for hierarchy: `<constraints>` inside `<instructions>`
 - Use descriptive tag names that convey section purpose
 
@@ -173,7 +181,7 @@ Follow this structured approach for every prompt design task:
 - Use enumerated options instead of open-ended choices
 
 ## Instruction Positioning
-- Short prompts: state highest-priority rules first
+- Short prompts: state highest-priority rules first, for the reader: rule order had no measured effect on compliance with non-conflicting constraints (mean absolute Spearman correlation about 0.03 over 1 to 12 constraints, arXiv 2608.12426), and the encoding of a priority scheme is itself fragile (relabelling tiers from ordinal to numeric moved GPT-5.4 by 8.4 points and Opus 4.6 by 8.0, ManyIH-Bench, arXiv 2604.09443)
 - Long context (20k+ tokens): put longform data at the top and the query/instructions at the end; end placement improves response quality up to 30% on multi-document inputs
 - Very long prompts: repeat instructions at both start and end; on conflict, models favor the later instruction
 - State critical constraints plainly, once. Emphasis escalation written to cure undertriggering ("CRITICAL: you MUST use this tool", "If in doubt, use [tool]") causes overtriggering on Claude 4.5 and later; a plainly stated hard rule may still say never or must
@@ -185,9 +193,10 @@ Follow this structured approach for every prompt design task:
 - Just-in-time retrieval: keep lightweight identifiers (paths, queries, links) in context; load content via tools at runtime instead of pre-retrieving everything
 - Compaction: near the context limit, summarize preserving architectural decisions, unresolved bugs, and implementation details; discard redundant tool outputs
 - Structured note-taking: persist state outside the context window for milestone work
-- Subagents: give each a clean context and require a condensed summary back (1,000-2,000 tokens)
+- Subagents: give each a clean context and require a condensed summary back (1,000-2,000 tokens, Anthropic context-engineering guidance; no measured brief or summary format exists, see `agent-instructions.md`)
 - On Claude the context primitives are API-level: tool-result clearing (`clear_tool_uses_20250919`, default trigger 100K input tokens, lossless for re-fetchable content, invalidates cached prefixes), server-side compaction (`compact_20260112`, default trigger 150K, minimum 50K, lossy by design, custom instructions), and the memory tool (`memory_20250818`, client-side files that persist across sessions); clearing fires first, compaction when that is not enough, memory persists. Measured in the Anthropic cookbook: a research agent's 335,279-token peak fell to about 173K with clearing or 169K with compaction
 - Every model degrades with input length even on simple tasks, one distractor lowers accuracy, and focused prompts beat full prompts on all 18 models tested (Chroma context-rot report, 2025-07); a judge or monitor reading a long transcript rots the same way
+- Retrieved documents: instruct an evidence-sufficiency check before the answer and an explicit abstention, then verify sufficiency and conflict outside the prompt. Assess-first prompting raised abstention under conflicting evidence from 0% to 47.9% on GPT-5.5 and from 5.2% to 55.2% on Gemini 2.5, but only from 7.2% to 11.2% on Claude Sonnet 4.6, which notices the conflict and answers anyway, and every model still over-answered above 65% of the worst condition, Claude at 90.5% (Zhang and Wu, Computers, Materials and Continua 89(1), 2026-08); an abstention instruction still answered 41.6% of misleading-context questions on small models, 63% of them copying the planted wrong entity (arXiv 2608.22228). Lost-in-the-later persists across o3, Qwen3, GPT-4o and Llama, and a reasoning scaffold does not cure grounding (arXiv 2507.05424)
 
 ## Agentic Prompting
 - Treat tool descriptions as prompt surface: few consolidated tools, unambiguous parameter names, meaningful natural-language returns, token-efficient responses; the vendor's own rule is that the description is "by far the most important factor in tool performance"
@@ -195,6 +204,11 @@ Follow this structured approach for every prompt design task:
 - Calibrate trigger phrasing: plain "Use this tool when..." suffices on modern models; escalated imperatives written for older models cause overtriggering
 - Eagerness is a setting: lower effort plus a tool-call budget and an escape hatch to stop early, or a persistence line to keep going until resolved (OpenAI GPT-5 guide); reasoning reuse across turns lifted Tau-Bench Retail from 73.9% to 78.2%
 - Iterate tool descriptions through evals with the agent in the loop
+- Read `agent-instructions.md` for the measured anatomy of a tool description (purpose, usage guidance, parameter semantics; examples optional: enriching MCP descriptions raised median success 5.85 points and steps 67%, and removing the examples cost nothing), the guardrails-over-guidance result on coding-agent rule files, history scope per model, and verified state for long jobs
+
+## Language and Modality
+- Keep the prompt in the language the task arrives in: translating to English is not an optimization, because the effect changes sign by task and model (GPT-4o-mini code generation, arXiv 2607.14816 v1: Python pass rate 23.35% in English against 23.91% in Italian, Java 32.78 against 33.39, ClassEval 37 against 33). Whether the system prompt should be English while the user content stays Italian is unmeasured on current models; say so rather than assume
+- Order modalities by the reasoning's dependency structure, not image-first by rule: on GPT-4o (Wardle and Susnjak, Big Data and Cognitive Computing 9(6):149, 2025-06, older non-reasoning class only) chemistry scored 0.32 text-first against 0.72 interleaved, and economics reversed to 0.73 text-first against 0.48 interleaved; no equivalent measurement exists on Gemini 3, GPT-5 vision or Claude 4.6 and later, so label the ordering predicted there
 </optimization_techniques>
 
 <anti_patterns>
@@ -207,8 +221,10 @@ Follow this structured approach for every prompt design task:
 - GOOD: "Be concise - use short sentences and bullet points. Include one code example for each major concept"
 
 ## Over-Constraining
-- BAD: 40 rules covering every conceivable scenario, many conflicting
-- GOOD: 8-12 clear rules ranked by priority, with a general fallback principle
+- BAD: 40 output rules that must all hold at once, many conflicting
+- GOOD: every rule the output needs and no more, a general fallback principle, and a split or a verify-and-retry step above five simultaneously verifiable constraints
+- Joint compliance is multiplicative, and it saturates early on every class measured. Over 1 to 12 independently verifiable constraints (arXiv 2608.12426 v1, 36 constraint types, 369,753 checks) the smallest count at which all-constraints success fell below 50% (the paper's compositional half-life) was 7 for GPT-5.5, 6 for Claude 4.7 Opus, 4 for Gemini 3.1 Pro, 3 for Claude 4.6 Opus, GPT-5.4 Pro and DeepSeek-V4-Pro, and 2 for GPT-5.2; twelve of fifteen models crossed it by three. At eight constraints per-constraint correctness was still about 40.7% while all-eight success was 5.7%; each added constraint multiplied survival by about 0.922 on the fitted mean curve, and structural constraints decayed about twice as fast as lexical ones. Older models show the same shape: Gemini-1.5-Pro followed a characters-per-line rule 99% of the time alone and 20% when composed with five others, and Claude 3.5 went from 97% to 2% (arXiv 2509.21051, EMNLP 2025). The working rule: zero to three constraints, normal; four to five, add a verifier; above five, split into stages or verify and retry, unless an eval on the target model says otherwise. That threshold is this plugin's synthesis of the curves, not a number a paper optimized
+- Exception: a persistent coding-agent rule file is not a set of simultaneous output constraints. On Opus 4.6 fifty rules did not collapse SWE-bench performance and the prohibitions carried the gain (arXiv 2604.11088 v2); see `agent-instructions.md`. Do not apply the cap there
 
 ## Missing Edge Cases
 - BAD: "Parse the user's date input" (no format spec, no error handling)
@@ -337,6 +353,7 @@ Eval-driven development for prompts that ship to production:
 - Score parse failures separately from wrong answers: most measured format sensitivity is answer extraction failing, which is a different fix from a wrong answer (Format Sensitivity Index, arXiv 2607.09665)
 - Choose the metric by what one success means: pass@k for tools where one success matters, pass^k for agents where consistency is essential
 - LLM-as-judge safeguards: a judge from a different model family than the system under test, randomized pairwise order (position bias above 0.10 was measured in production judges in 2026), an explicit "Unknown" escape clause, binary or 3-point scales over 1-10, single-purpose judges per criterion, candidate output treated as untrusted input; keep a verbosity control in the rubric as a secondary guard (under a pairwise rubric, verbosity bias measured below 0.011 across 21 judges, arXiv 2606.19544)
+- The judge's own prompt is a measured shape, in `judge-prompting.md`: one criterion per judge, a binary decision with quoted evidence, a reference answer when a trustworthy one exists (+4.9 to +8.4 points on small judges), a generated checklist for open-ended criteria, and 0-5 when a scalar is needed (pooled ICC 0.853 against 0.805 at 0-10, reversed on MT-Bench); judge personas, judge debates and strictness instructions on strong judges measured zero or negative
 - Validate the judge before trusting it: chance-corrected agreement with human labels (Cohen's kappa, never raw exact match, which overstated agreement by 33 to 41 points), on your own task, because judge rankings shifted by up to 14 positions across benchmarks; consistency is not validity, and a bias correction can flip the sign of a result while looking confident (arXiv 2605.06939)
 - Read transcripts regularly to confirm graders measure what you intend
 - Automatic optimization: GEPA (arXiv 2507.19457, ICLR 2026) is the reference optimizer, reading execution traces and keeping a Pareto frontier of candidates (over 10% above MIPROv2, up to 35x fewer rollouts than RL); it needs a grader and a training set, it optimizes against that grader so grader defects are amplified, and an optimized prompt is reviewed by hand before it ships; no neutral head-to-head exists across OPRO, TextGrad, PromptWizard, EvoPrompt and ProTeGi
@@ -383,8 +400,9 @@ untrusted input, or a regression is expensive.
 4. Load only the references this task needs, per `<knowledge_base>`: `reasoning-patterns.md` for
    scaffolds and token-efficient patterns (check the model class first, because reasoning models
    default to no explicit scaffold), `structured-output.md` when something parses the output,
-   `extraction-prompting.md` for the extraction archetype, `model-guidance.md` before restating a
-   vendor fact
+   `extraction-prompting.md` for the extraction archetype, `judge-prompting.md` for the judge
+   archetype, `agent-instructions.md` for the agentic archetype and for tool descriptions,
+   instruction files and skill descriptions, `model-guidance.md` before restating a vendor fact
 5. Rewrite, using the `<prompt_design_framework>` when designing from scratch
 6. Semantic diff (`<semantic_diff>`)
 7. Rubric on applicable dimensions only; revise before presenting if an applicable dimension the

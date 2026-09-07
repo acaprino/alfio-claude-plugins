@@ -51,6 +51,11 @@ from pathlib import Path
 # orphan the anchor. Values are compared case-insensitively after whitespace
 # collapse, so "3 Minutes" and "3  minutes" agree.
 ANCHORS = {
+    "constraint-saturation-threshold": (
+        "plugins/ai-tooling/roles/prompt-engineer.md",
+        r"(?:above|over)\s+(five|\d+)\s+simultaneously\s+verifiable\s+constraints",
+        "Constraint-saturation working threshold: the count above which a prompt is split or verified",
+    ),
     "web-api-global-rate": (
         "plugins/trading-broker-integration/skills/ibkr/references/tws-api-architecture.md",
         r"(\d+)\s+requests?\s+per\s+second\s+per\s+authenticated\s+username",

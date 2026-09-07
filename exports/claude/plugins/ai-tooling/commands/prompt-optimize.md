@@ -89,6 +89,29 @@ apply the per-task shape it names; extraction is not a reasoning task, so a scaf
 to it is a defect, and for a fixed schema at volume say plainly that a fine-tuned small
 model is the ceiling the prompt cannot reach.
 
+Judge and agent checks: if the archetype is judge / evaluator, read
+`${CLAUDE_PLUGIN_ROOT}/skills/prompt-engineering/references/judge-prompting.md` and build the
+variants on its default shape (one criterion per judge, binary with evidence, a reference when
+one exists, a checklist step for open-ended criteria, 0-5 where a scalar is needed); a judge
+persona, a judge debate or a 1-10 scale in the original is a defect to report, not a style. If
+the archetype is agentic / tool-use, or the text is a tool description, an instruction file, a
+skill description or an orchestrator brief, read
+`${CLAUDE_PLUGIN_ROOT}/skills/prompt-engineering/references/agent-instructions.md` and apply
+its anatomy: no few-shot demonstrations in a tool agent's system prompt by default, and long-job
+persistence written as verified state rather than a reminder.
+
+Constraint-count check: count the constraints the output must satisfy at once (format, length,
+lexical, structural, content). Joint compliance saturates early on every class measured, so
+above five simultaneously verifiable constraints propose a split into stages or a
+verify-and-retry step as its own variant and say what it costs; the numbers are in the role's
+over-constraining anti-pattern. A persistent agent rule file is exempt: fifty guardrails did not
+collapse a coding agent, and there the defect to hunt is a conflicting or unverifiable rule.
+
+Language check: the variants stay in the language the original is written in. Translating an
+Italian or other non-English prompt to English is not an optimization, because the effect
+changes sign by task and model; a language change the caller asks for is a behavioral change to
+report.
+
 ## Phase 2: Output
 Based on your analysis, respond strictly in this format:
 
@@ -151,6 +174,8 @@ Close with these caveats, adapted to the case:
   number to collect.
 - If the prompt is a cached system prompt, repeat the cache-economics warning from
   the analysis.
+- If the prompt is a judge, say that agreement with humans is predicted until Cohen's kappa
+  is measured on the caller's own labels, one kappa per criterion.
 ```
 
 ## Step 2: The user picks the pole
@@ -172,3 +197,4 @@ Deliver the chosen variant ready to copy, with its token estimate, the enforceme
 - `/prompt-optimize prompts/system.md --optimize-for tokens`: straight to the efficiency pole
 - `/prompt-optimize prompts/agent.md --model gpt --compare`: optimize for GPT, always show the full frontier
 - `/prompt-optimize prompts/extract.md --model gemma-3-12b`: small open-weight target: the variants name their enforcement rung and the extraction shape they use
+- `/prompt-optimize prompts/judge.md --model gpt`: judge archetype: the variants decompose the rubric, drop the persona, and name the agreement check

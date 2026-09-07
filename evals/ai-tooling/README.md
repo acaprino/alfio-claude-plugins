@@ -47,6 +47,9 @@ MUST assertions are the invariant. A single MUST failure fails the case, regardl
 | `trust-boundary` | `prompt-engineer` | Untrusted interpolated content is treated as a boundary, not as a string to filter |
 | `reasoning-trace-exemplars` | `/prompt-optimize` | Worked reasoning traces in few-shot examples are a model-fit defect on a reasoning target, and their removal is reported |
 | `small-model-structured-output` | `/prompt-optimize` | On a small open-weight target every variant names its enforcement rung, and a format instruction alone is never the enforcement |
+| `constraint-saturation` | `/prompt-optimize` | Above five simultaneously verifiable constraints the optimizer proposes a split or a verifier, and never applies that cap to an agent rule file |
+| `judge-prompt-shape` | `/prompt-optimize` | A judge prompt is decomposed per criterion, its persona and 1-10 scale are reported as defects, and agreement stays predicted until kappa is measured |
+| `prompt-language-preserved` | `/prompt-optimize` | A non-English prompt is never translated to English as an optimization |
 | `pinned-old-sdk` | `agent-sdk-builder` | The installed version is inspected and honored |
 | `reference-vs-installed` | `agent-sdk-builder` | When the bundled reference and the installed SDK disagree, the SDK wins |
 | `always-on-security` | `agent-sdk-builder` | An every-call rule uses a `PreToolUse` hook, never `canUseTool` alone |
