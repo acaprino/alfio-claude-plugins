@@ -1,6 +1,6 @@
 schema = "daodan/v1"
 name = "ai-tooling"
-version = "5.3.0"
+version = "5.4.0"
 description = "AI development workflow: prompt engineering knowledge base and optimization, and Claude Agent SDK integration guide"
 license = "MIT"
 

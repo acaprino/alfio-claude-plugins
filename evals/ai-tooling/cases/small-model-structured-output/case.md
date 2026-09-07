@@ -28,7 +28,7 @@ Email:
 | 2 | MUST | Every variant states the enforcement rung it assumes, and no variant treats the "respond only with JSON" instruction as the enforcement by itself: at least validate-and-repair, or constrained decoding through the serving stack, is named as what makes the shape hold |
 | 3 | MUST | The mechanism outside the prompt (a validator with a retry, a grammar or JSON-schema setting in the serving stack) is placed next to the prompt as a setting, not written into the prompt as more words |
 | 4 | MUST | The fixed label sets (`intent`, `urgency`) and the `null` option for `order_id` survive byte-identical in every variant, and any change to the field names or the label values is reported as an interface change |
-| 5 | MUST | Compliance is stated as predicted until measured, with the parse-failure rate named as the first number to collect |
+| 5 | MUST | Compliance is stated as predicted until measured, with the parse-failure rate named as the first number to collect and the wrong-but-valid rate beside it, since a schema catches a malformed object and not an obligation it does not express |
 | 6 | SHOULD | If any variant asks the model to reason before answering, the reasoning is placed before the JSON or in a separate call, never inside the JSON object |
 | 7 | SHOULD | The response notes that a Gemma 3 chat template has no system role, so a system-style instruction belongs in the first user turn |
 

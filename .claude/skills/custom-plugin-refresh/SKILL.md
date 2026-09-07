@@ -86,7 +86,11 @@ Steps to refresh a custom plugin. Same protocol regardless of risk class; only t
 
 4. **Bump versions**. Patch bump for fact updates (`1.2.3 -> 1.2.4`). Minor bump if a new section, file, or reference was added (`1.2.3 -> 1.3.0`). Always bump `metadata.version` too (patch is fine unless the marketplace shape itself changed).
 
-5. **Commit with a refresh tag**. Format:
+5. **Commit the evidence, not only the conclusion.** A refresh commits three files under `docs/superpowers/specs/`, beside its design record and named for the same date: the research prompt as it was run, the researcher's report verbatim, and a per-source verification file saying which sources were checked against their primary pages, which were corrected, and which were not verified at all. Each carries the sha256 of its body.
+
+   This is a retention rule, not a courtesy, and it exists because a refresh's design record cannot carry it. A record states in one line that the sources were verified; only a per-source file can tell a later maintainer that five of them were not, and that one of those five still carries a claim in a shipped body. Without it, the next reader has to trust an aggregate or repeat the source review. The research run's own output directory does not count: `.peer-review/` and the scratchpad are both outside git, so a fresh clone has neither. A source that failed verification is marked `*(verify)*` where it is cited, and the verification file is where a reader learns that the mark is not decoration.
+
+6. **Commit with a refresh tag**. Format:
    ```
    Refresh <plugin-name> for <framework> v<new-version> (v<plugin-version>)
    ```

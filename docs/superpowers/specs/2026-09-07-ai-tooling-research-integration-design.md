@@ -2,7 +2,7 @@
 
 Date: 2026-09-07
 Status: executed in the same pass; this document is the record
-Plugin: `ai-tooling` v5.2.0 -> v5.3.0, marketplace 27.3.0 -> 27.4.0
+Plugin: `ai-tooling` v5.2.0 -> v5.3.0 (integration), then v5.3.0 -> v5.4.0 (the peer-review verdict applied); marketplace 27.3.0 -> 27.4.0, then 27.4.0 -> 27.5.0
 
 ## Goal
 
@@ -35,6 +35,21 @@ frontier-written references; the persona ideation study measures within-session 
 persona reuse; the technique-aging paper's sign change holds on average with one run still
 negative. One venue could not be confirmed on arXiv (the multilingual checklist paper's
 workshop) and carries *(verify)*.
+
+**The evidence is committed, not summarized.** Three files sit beside this record and carry the
+same date, per the retention rule in the `custom-plugin-refresh` skill:
+
+| File | What it holds | sha256 of the body |
+|---|---|---|
+| `2026-09-07-ai-tooling-research-prompt.md` | the deep-research prompt as it was run, with the `already_covered` block that makes its negative findings meaningful | `571b670e…76de` |
+| `2026-09-07-ai-tooling-research-report.md` | the researcher's report verbatim, as a transcript rather than as the knowledge base | `c18b3461…cc85` |
+| `2026-09-07-ai-tooling-source-verification.md` | the three verifiers' per-source tables, including the five sources nobody verified | `6ddb4523…5702` |
+
+The paragraph above says every source behind a rule was verified. That sentence is true and it is
+not sufficient: it cannot tell a later maintainer which five sources were never checked, nor that
+one of them, arXiv 2507.05424, carries a four-model claim in the `prompt-engineer` role. The
+verification file can, and the claim is now marked `*(verify)*` where it is cited. This gap was
+finding F04 of the peer review recorded at the end of this document.
 
 ## Findings, classified per the `custom-plugin-refresh` protocol
 
@@ -76,3 +91,74 @@ workshop) and carries *(verify)*.
 - `.claude-plugin/marketplace.json` `metadata.version`: 27.3.0 -> 27.4.0
 - Commit: `Integrate 2026-09 prompting research into ai-tooling: judge and agent references,
   constraint saturation, per-model shot and format rules (v5.3.0)`
+
+## Peer review, 2026-09-07
+
+The integration was put on trial the same day, through `/peer-review:review` in brief mode: the
+session's twenty taken decisions and four open ones were materialized into a frozen brief and sent
+to `gpt-6-astra` at `reasoning_effort: max`. Full run under `.peer-review/2026-09-07-1353-session-brief/`,
+which git does not keep; the verdict is reproduced in what follows.
+
+The challenger raised eight findings. **All eight were accepted.** Nothing was refuted, nothing
+stood off, nothing was untestable. Two of them (F02, F03) were contested by the respondent in
+round 1, restated more narrowly by the challenger in round 2, and then accepted, which is the only
+part of the run where both sides moved.
+
+| Finding | What it attacked | What changed |
+|---|---|---|
+| F01 | The rule-file exemption rests on a study that scores task pass rate and reports no rule-adherence metric, and the kernel exempts by file type with no applicability rule | The exemption is scoped to the guardrail rules in such a file; output obligations it carries count like any other simultaneous constraint. A mixed rule file joins the `constraint-saturation` eval case, and the study's two zero-rule baselines are labelled by experiment where they sit side by side |
+| F02 | The constraint band is a heuristic for offering a variant, not a criterion for the reliability a caller needs; naming a rung chosen by parse-failure cost does not fix validation scope | The band says what it is for; a criterion is added for a named joint-success target or a machine-checkable constraint; the command now surfaces that domain validation runs after schema validation and fails closed on either |
+| F03 | The same-language rule is unconditional at candidate generation and has no measured-case exit, though the band two paragraphs away has one | A measured-override clause in the role and the command; the eval case is scoped to its unmeasured setup |
+| F04 | The refresh's evidence lives only in a git-ignored directory, and an unverified source is cited unmarked | The three files above; the citation is marked; the retention rule is in the refresh skill |
+| F05 | The untrusted-candidate safeguard is stated only in the always-loaded role and no non-judge eval case exercises it | The safeguard stays in the role and the judge bullet stops restating the reference's figures; `archetype-creative` gains an assertion on the recommended eval |
+| F06 | The fact anchor protects the upper trigger of a two-part escalation policy and not the lower one, proven by mutation | A second anchor on the verifier trigger; the unanchored restatement in `agent-instructions.md` is replaced by a pointer |
+| F07 | The eval protocol offers the working-tree run and the installed-package run as exclusive alternatives, and no case has ever been run both ways | Protocol step 0 makes them stages, with the installed re-run required |
+| F08 | The coding-agent section's ownership options were whole-section while the criterion is per bullet | A prose pointer on the fresh-context bullet, which needs no dependency declaration |
+
+Two properties of that run are worth recording, because a later reader will otherwise take the
+tally at face value.
+
+**Eight for eight is not a measurement of the challenger's accuracy.** The respondent and the
+brief's author share a session and a model. A respondent that concedes readily produces exactly
+the same tally as a challenger that is always right, and this protocol cannot separate them.
+
+**The brief was written by the side being judged.** Its own "could not be sharpened" list came
+back empty, and eight accepted findings are the evidence that it should not have been. What the
+challenger never saw is invisible to the verdict by construction.
+
+One procedural note, kept because it is the kind of thing that reads as noise later: the first
+round-1 transport call burned its entire output budget on reasoning and returned zero characters.
+The packet was resent unchanged, with a higher cap, under the same consent, after re-checking its
+digest against the consent-gate value.
+
+### The verdict, applied in 5.4.0
+
+All eight accepted changes were made the same day, one agent per owned file over a disjoint
+partition, then verified by eight adversarial reviewers, one per finding, each reading the applied
+diff and defaulting to "insufficient". Seven findings came back addressed on the first pass. F01
+came back not addressed, and the reviewers between them found sixteen gaps that a self-review
+would not have: three of the eight fixes had left an index row, a case assertion or a file header
+still stating the rule the fix had just replaced, which is this repository's characteristic defect
+appearing inside the change that was meant to remove it.
+
+Two of those gaps are worth naming because they generalize.
+
+**The evals index promised what the case forbids.** `evals/ai-tooling/README.md` summarized
+`constraint-saturation` as "never applies that cap to an agent rule file" while the case's own new
+assertions require exactly that inside a mixed file. An optimizer satisfying the index would fail
+the case it indexes. The same shape appeared for `prompt-language-preserved`, whose index row and
+whose header paragraph both still carried the unconditional form the assertions now scope.
+
+**The anchor was weaker than its mutation test suggested.** The first attempt captured only the
+band's lower bound, so rewording the upper bound, changing the required action, or restating the
+band with a word-number in the non-owning file all passed silently. The pattern now spans both
+bounds and the verb, and matches a count written either as a word or as digits, so a mutation
+cannot escape the comparison by rewording. Eight mutations were run against it: lower bound, upper
+bound and action, in the role and in the command, plus the upper trigger in both. All eight fail
+the linter and the two files are byte-identical afterwards.
+
+That pass also found a defect in the linter itself, unrelated to the plugin. It walks the
+filesystem rather than git, so a peer-review run directory, which is git-ignored and holds an
+external model's words that the protocol forbids editing, could fail the check on one machine
+while CI stayed green. `.peer-review` is now excluded, for the reason the file already documents
+about changelogs, at its strongest.

@@ -50,11 +50,23 @@ from pathlib import Path
 # match the fact rather than the sentence around it, so a rewording does not
 # orphan the anchor. Values are compared case-insensitively after whitespace
 # collapse, so "3 Minutes" and "3  minutes" agree.
+# A count written as an English word or as digits. Anchors that compare a threshold use this
+# rather than naming one spelling: a mutation that rewords "four" to "two" must produce a value
+# conflict, not silently stop matching and drop that file out of the comparison.
+_COUNT = r"(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|\d+)"
+
 ANCHORS = {
     "constraint-saturation-threshold": (
         "plugins/ai-tooling/roles/prompt-engineer.md",
-        r"(?:above|over)\s+(five|\d+)\s+simultaneously\s+verifiable\s+constraints",
+        rf"(?:above|over)\s+({_COUNT})\s+simultaneously\s+verifiable\s+constraints",
         "Constraint-saturation working threshold: the count above which a prompt is split or verified",
+    ),
+    "constraint-verifier-trigger": (
+        "plugins/ai-tooling/roles/prompt-engineer.md",
+        rf"({_COUNT}\s+to\s+{_COUNT},\s+add\s+a\s+\w+)",
+        "Constraint-saturation verifier trigger: the band and its required action, which the "
+        "upper-trigger anchor alone left unguarded. The group spans both bounds and the verb so "
+        "that changing either number or the action in one file conflicts with the other",
     ),
     "web-api-global-rate": (
         "plugins/trading-broker-integration/skills/ibkr/references/tws-api-architecture.md",
@@ -163,12 +175,25 @@ ANCHORS = {
 # changelog it does not announce itself as historical to a reader who does not
 # already know the convention. Revisit only when a real conflict names a
 # `docs/superpowers/` file as one of the two disagreeing copies, not on a hunch.
+#
+# `.peer-review` is excluded for the changelog reason at its strongest. A run
+# directory holds an external model's words quoted verbatim, and the protocol that
+# writes it forbids editing them: a claim and its falsifier are byte-identical for
+# the whole run, and a ledger is never hand-edited. So a transcript that happens to
+# quote an anchored fact, or to propose a mutation of one, cannot be corrected to
+# keep this check green without destroying the evidence. It is also git-ignored, so
+# it exists in one working tree and never in CI or another clone, which means a
+# conflict it raises is invisible to everyone but the person who ran the review.
+# Found on 2026-09-07, when a peer review of the constraint-saturation threshold
+# quoted a proposed mutation of the verifier trigger, with a different lower bound
+# than the shipped one, and failed this linter locally while CI stayed green.
 EXCLUDED = (
     ".git",
     "evals",
     "node_modules",
     "__pycache__",
     ".superpowers",
+    ".peer-review",
 )
 EXCLUDED_FILES = {
     Path("exports/vscode/CHANGELOG.md"),

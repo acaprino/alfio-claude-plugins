@@ -4,6 +4,7 @@
 - **Component run:** `/prompt-optimize` | `prompt-engineer` | `agent-sdk-builder`
 - **Model / session:**
 - **Plugin version under test:**
+- **Run stage:** working tree (bodies, not the loader) | installed package
 - **Setup materialized:** (scratch path, installed SDK version, any deliberate edits)
 
 ## Assertions

@@ -80,7 +80,10 @@ template), read `${PLUGIN_ROOT}/skills/prompt-engineering/references/structured-
 and decide the enforcement rung for this model class: format instruction only,
 instruction plus validate-and-repair, API structured outputs, or constrained decoding in
 the serving stack. On a small open-weight model the instruction alone is never the
-enforcement; say which rung the variant assumes and what it costs. When the task needs
+enforcement; say which rung the variant assumes and what it costs. Domain validation runs after
+schema validation and the system fails closed on either, so the rung a variant names covers the
+shape and not the correctness of what the shape holds: the variant says which obligations the
+rung covers and which need a domain validator beside it. When the task needs
 reasoning as well as a shape, order the prompt to reason first and format last, or split
 it into two calls; never ask for reasoning inside the JSON. Where the target is a Claude
 4.6 or later model, assistant prefill on the last turn is not available; on an open-weight
@@ -106,15 +109,25 @@ persistence written as verified state rather than a reminder.
 
 Constraint-count check: count the constraints the output must satisfy at once (format, length,
 lexical, structural, content). Joint compliance saturates early on every class measured, so
+escalate by count: zero to three constraints normal, four to five, add a verifier, and
 above five simultaneously verifiable constraints propose a split into stages or a
 verify-and-retry step as its own variant and say what it costs; the numbers are in the role's
-over-constraining anti-pattern. A persistent agent rule file is exempt: fifty guardrails did not
-collapse a coding agent, and there the defect to hunt is a conflicting or unverifiable rule.
+over-constraining anti-pattern. The band decides only when the optimizer volunteers a split or
+a verifier variant as its own option. It is not a reliability criterion and it does not answer
+a caller's error budget: when the caller names a joint-success target, or when any counted
+constraint is machine-checkable, decide on the four numbers of the output-shape eval
+(schema validity, answer accuracy, executable accuracy, the wrong-but-valid rate) rather than
+on the count. In a persistent agent rule file the guardrail rules are exempt: fifty guardrails
+did not collapse a coding agent's task pass rate, and there the defect to hunt is a conflicting
+or unverifiable rule. Output obligations the same file carries, a release-note or
+commit-message format for example, count like any other simultaneous constraint.
 
-Language check: the variants stay in the language the original is written in. Translating an
-Italian or other non-English prompt to English is not an optimization, because the effect
-changes sign by task and model; a language change the caller asks for is a behavioral change to
-report.
+Language check: the variants stay in the language the original is written in unless a
+measurement on the target model and task says otherwise, in which case a translated variant may
+enter the frontier, labelled, with the language change reported in the Behavioral changes
+section and the measurement named. Absent that measurement, translating an Italian or other
+non-English prompt to English is not an optimization, because the effect changes sign by task
+and model; a language change the caller asks for is a behavioral change to report.
 
 ## Phase 2: Output
 Based on your analysis, respond strictly in this format:
@@ -175,7 +188,8 @@ Close with these caveats, adapted to the case:
   guidance covers the method; promptfoo fits in CI.
 - If the output is parsed, say that schema compliance on this model class is predicted
   until measured on a hundred real inputs, and name the parse-failure rate as the first
-  number to collect.
+  number to collect, with the wrong-but-valid rate collected beside it: an obligation the
+  schema cannot express is caught by a domain validator, not by the schema.
 - If the prompt is a cached system prompt, repeat the cache-economics warning from
   the analysis.
 - If the prompt is a judge, say that agreement with humans is predicted until Cohen's kappa

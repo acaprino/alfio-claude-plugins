@@ -6,13 +6,17 @@ measured: the count at which all-constraints success fell below 50% ranged from 
 fifteen current models (arXiv 2608.12426). The invariant is that the optimizer counts the
 constraints an output must satisfy at once and, above five, proposes a split into stages or a
 verify-and-retry step as its own variant rather than tightening the wording. The second half of
-the invariant is the exception: a persistent coding-agent rule file is not a set of simultaneous
-output constraints (fifty rules did not collapse a coding agent, arXiv 2604.11088 v2), so the
-cap must not be applied there.
+the invariant is the exception: the guardrail rules in a persistent coding-agent rule file are
+not simultaneous output constraints (fifty rules did not reduce a coding agent's task pass rate,
+arXiv 2604.11088 v2, which scored task success and no rule adherence), so the cap must not be
+applied to them. The rest of the invariant is the boundary between those two, added by the
+2026-09-07 cross-model review: a rule file that carries guardrails and output obligations
+together is counted on its obligations, because the exemption follows the kind of rule and never
+the file it sits in.
 
 ## Setup
 
-Create a scratch directory with two files.
+Create a scratch directory with three files.
 
 `newsletter.md`:
 
@@ -45,9 +49,37 @@ Notes:
 12. Do not introduce global mutable state.
 ```
 
+`AGENTS.md`, the mixed file: the same kind of guardrails, plus a set of output obligations one
+artifact has to satisfy at once.
+
+```
+# Rules for this repository
+
+## Working rules
+1. Do not refactor code outside the files the task names.
+2. Do not add dependencies without asking.
+3. Do not modify the CI configuration.
+4. Do not delete tests to make the build pass.
+5. Do not commit secrets, keys or tokens.
+6. Do not use `git push --force`.
+
+## Release note
+Every change under `api/` ships a release note appended to `RELEASES.md`. The note must satisfy
+all of these at once:
+7. Sections in this order and no others: Summary, Migration, Breaking changes, Thanks.
+8. The Migration section opens with the line `MIGRATION REQUIRED` in capitals whenever a public
+   signature changed, and omits that line otherwise.
+9. Summary is 40 to 60 words, one paragraph, no lists.
+10. Breaking changes is a numbered list, one entry per changed signature, each naming the old
+    signature and the new one.
+11. British spelling throughout, and never the word "simply".
+12. The whole note stays under 250 words.
+13. The last line is exactly `Reviewed-by: <name>`.
+```
+
 ## Run
 
-Two runs, fresh session each:
+Three runs, fresh session each:
 
 ```
 /prompt-optimize newsletter.md --model claude
@@ -57,6 +89,10 @@ Two runs, fresh session each:
 /prompt-optimize CLAUDE.md --model claude
 ```
 
+```
+/prompt-optimize AGENTS.md --model claude
+```
+
 ## Assertions
 
 | # | Type | Assertion |
@@ -64,10 +100,14 @@ Two runs, fresh session each:
 | 1 | MUST | On `newsletter.md`, the analysis counts the simultaneously verifiable constraints (there are ten or more) and names joint compliance, not wording, as the risk |
 | 2 | MUST | On `newsletter.md`, at least one variant restructures the task into stages (draft, then verify and repair against the rule list; or generate, then a separate constraint check) or attaches a verify-and-retry step, and states what it costs in calls or latency |
 | 3 | MUST | On `newsletter.md`, no variant relies on stronger phrasing (capitals, "strictly", "you must") as the fix for the constraint count, and every constraint from the original survives in every variant or is reported as relaxed in the behavioral changes |
-| 4 | MUST | On `CLAUDE.md`, the optimizer does not propose cutting the rule count to satisfy a cap, does not convert the prohibitions into positive guidance, and reports that a persistent agent rule file is not subject to the simultaneous-constraint limit |
+| 4 | MUST | On `CLAUDE.md`, the optimizer does not propose cutting the rule count to satisfy a cap, does not convert the prohibitions into positive guidance, and reports that the guardrail rules of a persistent agent rule file are not subject to the simultaneous-constraint limit |
 | 5 | MUST | Every quality claim about compliance is labelled predicted; no variant claims a compliance rate it has not measured |
 | 6 | SHOULD | On `CLAUDE.md`, the defects hunted are conflicting or unverifiable rules, and the optimizer says the twelve rules read as guardrails, which is the rule type with measured benefit |
 | 7 | SHOULD | The working threshold is stated as this plugin's synthesis of the measured curves, not as a number a paper optimized |
+| 8 | MUST | On `AGENTS.md`, the seven release-note obligations are counted as simultaneous constraints, the count is reported as above five simultaneously verifiable constraints, and they get the treatment that count calls for: a split into stages, a verify-and-retry step, or the escalation the role states, with its cost in calls or latency named |
+| 9 | MUST | On `AGENTS.md`, the six working rules are not counted toward that total, and no variant cuts them, converts them into positive guidance, or trades them against the obligations |
+| 10 | MUST | On `AGENTS.md`, the exemption is applied to the guardrail rules and not to the file: the optimizer does not exempt everything in the file because it is a persistent agent rule file, and does not apply the cap to the whole file either |
+| 11 | SHOULD | On `AGENTS.md`, the analysis separates the two kinds of rule before counting, rather than reporting one number for the file |
 
 ## Scoring notes
 
@@ -78,3 +118,18 @@ fails assertion 3 unless the drop is reported as a relaxation the caller has to 
 Assertion 4 is the other half. A rewrite of `CLAUDE.md` that trims it to five rules because
 "models cannot follow more than five" has applied the output-constraint result to the one task
 family where it was measured not to hold.
+
+Assertions 8 to 11 are the trap, and the trap is which half of a mixed file gets read.
+`AGENTS.md` is a persistent agent rule file by type and carries both kinds of rule: six
+guardrails, whose count is not the failure mode, and seven release-note obligations, which one
+artifact has to satisfy at once. The passing shape tells the two apart inside the one file,
+counts the seven, and proposes the split or the verifier for those while leaving the six alone.
+The failing shape reads the file's type, applies the exception to everything in it, and hands
+back an analysis in which seven simultaneous output constraints were never counted. The
+mirror-image failure is applying the cap to the whole file and trimming the guardrails to fit,
+which assertion 4 already forbids.
+
+Assertions 4 and 10 are not in tension. `CLAUDE.md` is twelve prohibitions and nothing else, so
+exempting the whole file and exempting each guardrail in it are the same act there, and either
+reading passes. `AGENTS.md` is where the two readings come apart, which is why the case carries
+it alongside `CLAUDE.md` rather than in place of it.

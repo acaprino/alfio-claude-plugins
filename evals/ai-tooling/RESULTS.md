@@ -15,6 +15,8 @@ The four cases run 1 could not cover, executed against the **installed** plugin 
 
 With this run every case has been executed at least once, and `audit-depth` has both halves: quick on a five-word prompt, deep on a production agent with a tool loop and untrusted input.
 
+**Executed once is not covered.** Under the two-stage rule in protocol step 0, a case is fully covered only when a working-tree observation and an installed-package observation both exist. Run 1's ten rows are working-tree only and run 2's four are installed only, so as of these two runs no case holds both. Each run section names its stage in its heading, which is where a reader learns which kind of evidence a row is.
+
 ### The source-of-truth policy held under a rigged test
 
 `pinned-old-sdk` is the strongest result of either run. The project pinned `0.2.90` with no `node_modules`, so tier 1 was unreadable and tier 2 documents a version a whole minor line ahead. The run said what it could not read, then downloaded the pinned version's own tarball and resolved every option against that version's `sdk.d.ts`, type-checking both emitted snippets under `strict` before handing them over. It also found that `0.2.90` exports a standalone `forkSession()` that current releases do not, which is the exact class of fact the policy exists to stop the skill recalling wrongly in either direction.

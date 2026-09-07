@@ -25,13 +25,21 @@ far the most important factor" holds; the corollary that longer is better does n
 
 **In a coding agent's rule file, prohibitions have evidence and generic guidance does not.** On
 SWE-bench Verified with Claude Code on Opus 4.6 (arXiv 2604.11088 v2), every rule condition beat
-the 50.0% no-rule baseline by 6.9 to 13.8 points, random rules tied expert-curated ones at 63.8%,
+the 50.0% no-rule baseline of its Experiment 1, one trajectory per task, by 6.9 to 13.8 points,
+random rules tied expert-curated ones at 63.8%,
 every rule that helped on its own was a negative constraint and every rule that hurt was a
 positive directive, and removing the one guardrail "do not refactor unrelated code" cost 20
 points (McNemar p = 0.016). Growing the file from 0 to 50 rules stayed in a 59% to 67% band with
-no collapse (60.3% at zero rules, 66.7% at fifty). This is the exception to the constraint-saturation rule in the role's
-anti-patterns: a persistent guardrail file is not a set of simultaneously verifiable output
-constraints, and the 3-to-5 cap does not apply to it.
+no collapse (Experiment 2, averaged over three seeds: 60.3% at zero rules, 66.7% at fifty; the
+study attributes part of the distance from Experiment 1's 50.0% to run-to-run stochasticity, so
+the two zero-rule figures are not a disagreement). Read that band for what it measures: the
+study's success criterion is a patch that passes the repository's test suite, and it reports no
+rule-adherence or joint-compliance metric anywhere, so a pass rate that holds across rule counts
+cannot tell "followed fifty rules" apart from "ignored the rules the benchmark never scored".
+The exception it buys is scoped to guardrail-type rules, prohibitions on scope, files, commands
+and refactors: those are not a set of simultaneously verifiable output constraints, so the
+role's over-constraining anti-pattern does not apply to them. An output obligation a rule file
+carries counts like any other simultaneous constraint.
 
 **How much history an agent sees is a per-model setting, not a virtue.** On an MCP hardware-design
 benchmark (arXiv 2608.26199), Llama-3.1-8B scored 0.445 with task-scoped history against 0.157
@@ -78,8 +86,10 @@ success: the MCP result above is a case where success rose while steps rose fast
 - **Guardrails over guidance.** Write the things the agent must not do (scope, files, commands,
   refactors) before the things it should prefer. On Opus 4.6 the prohibitions carried the gain;
   do not pad the file with positive style advice for completeness.
-- **Count is not the constraint here.** Fifty rules did not collapse a coding agent; conflicting
-  rules and rules the agent cannot verify are the failure modes to hunt.
+- **Count is not the constraint for guardrails.** Fifty prohibitions did not collapse a coding
+  agent; conflicting rules and rules the agent cannot verify are the failure modes to hunt. An
+  output obligation the file carries is not exempt: it counts like any other simultaneous
+  constraint.
 - **A skill or instruction file's description says what and when.** That is Anthropic's Agent
   Skills design (a compact name and description always visible, the body loaded only after
   selection) and the same principle on Claude Code, Codex and Copilot instruction files. No public
@@ -104,7 +114,9 @@ predicted, and put the eval on the orchestrator's end state, not on the brief's 
   when written independently; giving the test generator the task alone rather than the agent's
   history improved fault detection by about 13.6 points on GPT-5-mini, 17.7 on GPT-4.1-mini, 10.6
   on Claude Haiku 4.5, 13.8 on DeepSeek-V4-Flash and 7.9 on Llama 3.3-70B. A separate test-writing worker
-  with a fresh context is the measured shape.
+  with a fresh context is the measured shape. The prompt-shape claim is what this file owns; the
+  workflow that runs it belongs to the `testing` plugin, a prose pointer that needs no dependency
+  declaration.
 - **Retrieve exemplars by similarity for transformation tasks.** In a 14-technique study over ten
   software-engineering tasks (arXiv 2506.05614, DeepSeek-V3 and o3-mini among the models),
   nearest-neighbour exemplar selection gave the most consistent gains: code translation CodeBLEU
@@ -124,7 +136,7 @@ predicted, and put the eval on the orchestrator's end state, not on the brief's 
 
 | Class | What measured | What to do |
 |---|---|---|
-| **Frontier reasoning model** | Rule files help (Opus 4.6, +6.9 to +13.8), guardrails carry it, 50 rules do not collapse; quota persistence fails at 100 items without verified state (Sonnet 4.6, GPT-5.4); test generation in a fresh context +13.6 (GPT-5-mini) | Guardrail-first instruction files; verified state for long jobs; a separate test-writing context |
+| **Frontier reasoning model** | Rule files help (Opus 4.6, +6.9 to +13.8), guardrails carry it, 50 rules do not collapse the pass rate; quota persistence fails at 100 items without verified state (Sonnet 4.6, GPT-5.4); test generation in a fresh context +13.6 (GPT-5-mini) | Guardrail-first instruction files; verified state for long jobs; a separate test-writing context |
 | **Hybrid open reasoner** | Enriched tool descriptions +6.06 (Qwen3-Coder 480B); Markdown system prompt versus few-shot barely matters on gpt-oss and Qwen hybrids | Purpose-plus-guidance descriptions; measure before adding examples |
 | **Small open-weight instruct model** | Task-scoped history 0.445 versus 0.157 cumulative (Llama-3.1-8B); few-shot system demonstrations collapse Gemma 4 E4B (0.731 to 0.179) and 31B (0.956 to 0.571) | Scope the history to the task; no demonstrations in the system prompt; enforce tool-call shape in the stack (`structured-output.md`) |
 | **Older non-reasoning model** | Enriched tool descriptions +11.26 (GPT-4.1); API tool field +2% SWE-bench (vendor) | Richer descriptions pay most here; tools through the API |
