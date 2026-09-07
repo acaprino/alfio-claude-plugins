@@ -2,6 +2,37 @@
 
 One row per scored run. Newest first. A case with no row has never been run.
 
+## Run 3, 2026-09-07, ai-tooling 5.4.0 (working tree)
+
+The five cases that had never been executed: the two added in 5.2.0, the two added in 5.3.0 and 5.4.0 by the September research integration, and `constraint-saturation` as the peer review rewrote it. The installed cache was at 5.2.0, two releases behind the working tree, so this is the **working-tree** stage of protocol step 0 and every scorecard says so. The installed-package stage is now owed for all five.
+
+Method: one fresh subagent per case, receiving only the case's Run text and the instruction to read the component bodies from the working tree and adopt them, barred from `evals/`, `.peer-review/` and `docs/`. A second fresh subagent per case scored it, holding the case file and the run output and barred from `plugins/`. Neither the runner nor the scorer wrote the change under test.
+
+| Date | Case | Component | MUST | Result | Scorecard |
+|---|---|---|---|---|---|
+| 2026-09-07 | reasoning-trace-exemplars | /prompt-optimize | 4/4 | PASS | [scorecard](cases/reasoning-trace-exemplars/scorecard-2026-09-07.md) |
+| 2026-09-07 | small-model-structured-output | /prompt-optimize | 5/5 | PASS | [scorecard](cases/small-model-structured-output/scorecard-2026-09-07.md) |
+| 2026-09-07 | judge-prompt-shape | /prompt-optimize | 6/6 | PASS | [scorecard](cases/judge-prompt-shape/scorecard-2026-09-07.md) |
+| 2026-09-07 | prompt-language-preserved | /prompt-optimize | 4/4 | PASS | [scorecard](cases/prompt-language-preserved/scorecard-2026-09-07.md) |
+| 2026-09-07 | constraint-saturation | /prompt-optimize | 8/8 | PASS | [scorecard](cases/constraint-saturation/scorecard-2026-09-07.md) |
+
+Twenty-seven MUST assertions, all passed. Two SHOULD failures, both recorded: `reasoning-trace-exemplars` 6, where the response never named a class on which the exemplars would be a legitimate choice, and `constraint-saturation` 7, where the working threshold was used correctly in all three invocations and its provenance never stated.
+
+### The invariants were exercised, not sidestepped
+
+Every case in this run has a trap in it, and the reason to trust the passes is that the scorers checked the trap rather than the vocabulary.
+
+`prompt-language-preserved` is the sharpest. `--optimize-for tokens` gives a token-minimizing pass every reason to translate, and the run did compute the English saving, 69 tokens against 73, and then refused it and cut tokens inside Italian instead. That is the shape the case wants: the translation is raised as a caller's decision with the measured caveat attached, not silently skipped. The scorer recounted the delivered Italian text by hand to confirm the token estimate had not been quietly made on an English draft.
+
+`constraint-saturation` was rewritten by the peer review to add a mixed rule file, and the mixed run is where the new boundary lives. The run typed the file as mixed before counting anything, split it, and counted the release-note obligations at twelve rather than the case's seven by decomposing compound rules, which is stricter than the case asks and satisfies it a fortiori. Its variant D is three real stage prompts with a repair loop, not a sentence saying a split would be possible.
+
+`judge-prompt-shape` hit both of its traps. No variant kept the 1-10 scale, the scale change was reported as an interface break that invalidates score history, and "be very strict" was priced against the benchmark that measures it rather than deleted as noise.
+
+### What the scorers flagged about the assertions themselves
+
+Five assertions were reported as ambiguous or preference-shaped rather than invariant, by scorers that had no stake in them. All five were revised the same day, with the revision noted in the case file; the outcomes above were scored against the wording as it stood during the run. The pattern in four of the five is the same: a clause that a correct run may have no reason to satisfy, or a unit of comparison the assertion never names.
+
+
 ## Run 2, 2026-08-10, ai-tooling 5.0.1 (installed)
 
 The four cases run 1 could not cover, executed against the **installed** plugin at `~/.claude/plugins/cache/claude-code-daodan/ai-tooling/5.0.1/` rather than the working tree, after the marketplace was updated. Same method otherwise: a fresh subagent per run receiving only the Run text, a separate fresh subagent per verdict.

@@ -37,8 +37,8 @@ Problem: {{PROBLEM}}" --model claude
 | 2 | MUST | At least one offered variant removes the reasoning traces from the examples or converts them into an explicit instruction, and that change is reported as a behavior change on the reasoning or interface line, never applied silently |
 | 3 | MUST | The caller's own output requirement ("show your reasoning, then the final answer on the last line") survives as an output requirement in every variant; the fix targets the exemplars, not the request for a visible rationale |
 | 4 | MUST | No variant replaces the exemplars with an explicit private-reasoning scaffold ("think step by step inside tags") on the grounds of the target being a reasoning model |
-| 5 | SHOULD | The `{{PROBLEM}}` placeholder survives byte-identical in every variant |
-| 6 | SHOULD | The response distinguishes the frontier-reasoning case from a small open model, where the same exemplars may be a per-model choice rather than a defect |
+| 5 | SHOULD | The literal string `{{PROBLEM}}` is unchanged in every variant. This is about the token, not the interpolation contract: a variant that wraps it in tags still passes, and a variant that changes what the caller must interpolate reports that as an interface change under assertion 2's diff |
+| 6 | SHOULD | The response states that these exemplars are a defect for the reasoning class specifically, and names at least one model class on which they would be an acceptable choice rather than a defect |
 
 ## Scoring notes
 
@@ -49,3 +49,20 @@ save tokens fails assertion 3 even if the diff reports it.
 
 Assertion 4 mirrors `no-explicit-cot`: the correct fix on a reasoning model is fewer exemplars
 or an instruction, not a different scaffold.
+
+## Revisions
+
+**2026-09-07, after the first run.** Two SHOULD assertions were revised on the scorer's report,
+per the harness rule that an ambiguous assertion is fixed rather than kept.
+
+Assertion 5 said "survives byte-identical" without naming the unit. The run left the token
+unchanged in all three variants and required it to be interpolated inside tags, which the run
+itself called a caller-side template change. A reader taking the assertion to be about the token
+passes it; a reader taking it to be about the interpolation contract fails it. It now names the
+token, and points the contract question at assertion 2, where a reported interface change belongs.
+
+Assertion 6 named one specific contrast, frontier against small open model, as the only way to
+show the defect is class-conditional. The run marked class-conditionality twice by other routes
+and never said the exemplars themselves could be legitimate anywhere, which is what the assertion
+actually wants. It now asks for that directly. The run scored `fail` on the old wording and would
+score `fail` on the new one, so the recorded outcome stands.

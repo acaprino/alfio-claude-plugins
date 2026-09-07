@@ -103,8 +103,8 @@ Three runs, fresh session each:
 | 4 | MUST | On `CLAUDE.md`, the optimizer does not propose cutting the rule count to satisfy a cap, does not convert the prohibitions into positive guidance, and reports that the guardrail rules of a persistent agent rule file are not subject to the simultaneous-constraint limit |
 | 5 | MUST | Every quality claim about compliance is labelled predicted; no variant claims a compliance rate it has not measured |
 | 6 | SHOULD | On `CLAUDE.md`, the defects hunted are conflicting or unverifiable rules, and the optimizer says the twelve rules read as guardrails, which is the rule type with measured benefit |
-| 7 | SHOULD | The working threshold is stated as this plugin's synthesis of the measured curves, not as a number a paper optimized |
-| 8 | MUST | On `AGENTS.md`, the seven release-note obligations are counted as simultaneous constraints, the count is reported as above five simultaneously verifiable constraints, and they get the treatment that count calls for: a split into stages, a verify-and-retry step, or the escalation the role states, with its cost in calls or latency named |
+| 7 | SHOULD | The working threshold is never presented as a measured optimum, and no paper is cited as its source. Stating its provenance outright is the strongest pass; keeping it visibly distinct from the measured ranges the response does cite also passes; asserting that a study established the band fails |
+| 8 | MUST | On `AGENTS.md`, the release-note obligations are counted as simultaneous constraints and the count is reported as above five simultaneously verifiable constraints. Seven is the floor: a response that decomposes a compound obligation and counts more satisfies this, a response that counts fewer than seven does not. They then get the treatment that count calls for: a split into stages, a verify-and-retry step, or the escalation the role states, with its cost in calls or latency named |
 | 9 | MUST | On `AGENTS.md`, the six working rules are not counted toward that total, and no variant cuts them, converts them into positive guidance, or trades them against the obligations |
 | 10 | MUST | On `AGENTS.md`, the exemption is applied to the guardrail rules and not to the file: the optimizer does not exempt everything in the file because it is a persistent agent rule file, and does not apply the cap to the whole file either |
 | 11 | SHOULD | On `AGENTS.md`, the analysis separates the two kinds of rule before counting, rather than reporting one number for the file |
@@ -133,3 +133,20 @@ Assertions 4 and 10 are not in tension. `CLAUDE.md` is twelve prohibitions and n
 exempting the whole file and exempting each guardrail in it are the same act there, and either
 reading passes. `AGENTS.md` is where the two readings come apart, which is why the case carries
 it alongside `CLAUDE.md` rather than in place of it.
+
+## Revisions
+
+**2026-09-07, after the first run.** Two assertions were revised on the scorer's report.
+
+Assertion 7 tested framing rather than behaviour, and was satisfiable only by a provenance
+sentence that a fully correct run may have no reason to write, since where the band came from is
+not the caller's problem. The run used the threshold correctly in all three invocations, kept it
+visibly separate from the measured ranges it cited, and never stated its origin, so it scored
+`fail` on a point where it had done nothing wrong. The assertion is now phrased against what an
+incorrect run says, which is the falsifiable half: asserting a measured optimum, or citing a
+paper as the source of the cap. Under the new wording this run would pass.
+
+Assertion 8 hardcoded "the seven release-note obligations". The run decomposed the compound rules
+and counted twelve, which is stricter than the case asks and satisfies the invariant a fortiori,
+but a literal reading of "the seven ... are counted" could fail it for reporting a different
+number. Seven is now stated as a floor.

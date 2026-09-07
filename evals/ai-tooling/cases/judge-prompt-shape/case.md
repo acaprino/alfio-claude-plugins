@@ -31,7 +31,7 @@ Candidate answer: {{CANDIDATE}}" --model gpt
 | 3 | MUST | The persona line and the 1-10 scale are each reported as a defect with its measured basis, and no variant keeps a 1-10 or 1-100 scale as the default; where a scalar survives it is 0-5 and the variant says the pooled default reverses on some benchmarks |
 | 4 | MUST | The reference answer placeholder survives in every variant and is used as the reference the judge grades against; removing it is reported as a relaxation |
 | 5 | MUST | The "be very strict" instruction is not carried forward on the frontier target as a quality lever; if a variant keeps it, the variant names the weaker-judge class it is measured to help and labels it a conditional fallback |
-| 6 | MUST | Agreement with humans is stated as predicted until Cohen's kappa is measured on the caller's own labels, one kappa per criterion, and the delivery names that as the first number to collect |
+| 6 | MUST | Agreement with humans is stated as predicted until Cohen's kappa is measured on the caller's own labels, one kappa per criterion, and the delivery names that kappa as the measurement that decides whether the judge is usable |
 | 7 | SHOULD | At least one variant adds a checklist step for the open-ended criteria (clarity, tone) before scoring |
 | 8 | SHOULD | The response does not propose a debate among judges or a majority vote as an improvement |
 
@@ -45,3 +45,20 @@ interface change, or keeps 1-10 with the change flagged as a decision the caller
 Assertion 5 distinguishes deleting a line from understanding it. "Be very strict" helped a 27B
 open judge by eleven points and moved GPT-5.4 by less than one; a variant for a GPT target that
 keeps it as if it were free has not read the reference.
+
+## Revisions
+
+**2026-09-07, after the first run.** Assertion 6's third clause said the delivery must name
+per-criterion kappa as "the first number to collect". The run named kappa as the number that
+decides whether the judge is usable, and spent the word "first" on a different metric for a
+different dimension. Two careful readers split on whether "first" means ordinally first in the
+delivery or first among agreement numbers, which makes the clause depend on bullet ordering
+rather than on substance. It now asks what the clause was reaching for. The scorer passed the old
+wording on the two substantive halves and flagged the third; the recorded outcome stands, and the
+new wording tests the same thing without the ambiguity.
+
+Two clauses in this case are structurally unfalsifiable and are kept deliberately, not by
+oversight. Assertion 4's "removing it is reported as a relaxation" can only fire if a variant
+drops the reference placeholder, which none did; assertion 5's "if a variant keeps it" is an
+escape hatch for a defensible alternative shape. Neither adds discrimination on a passing run,
+and both would earn their place on a failing one.
